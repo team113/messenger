@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
@@ -39,10 +40,12 @@ class CallCoverWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Stack(
       children: [
         if (cover == null)
-          SvgLoader.asset(
+          SvgImage.asset(
             'assets/images/background_dark.svg',
             width: double.infinity,
             height: double.infinity,
@@ -56,13 +59,13 @@ class CallCoverWidget extends StatelessWidget {
             final Color gradient;
 
             if (color != null) {
-              gradient =
-                  AvatarWidget.colors[color % AvatarWidget.colors.length];
+              gradient = style
+                  .colors.userColors[color % style.colors.userColors.length];
             } else if (title != null) {
-              gradient = AvatarWidget
-                  .colors[(title.hashCode) % AvatarWidget.colors.length];
+              gradient = style.colors.userColors[
+                  (title.hashCode) % style.colors.userColors.length];
             } else {
-              gradient = const Color(0xFF555555);
+              gradient = style.colors.secondaryBackgroundLightest;
             }
 
             return Container(
@@ -83,7 +86,7 @@ class CallCoverWidget extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: (15 * constraints.biggest.shortestSide / 100)
                             .clamp(15, 108),
-                        color: Colors.white,
+                        color: style.colors.onPrimary,
                         fontWeight: FontWeight.bold,
                       ),
 

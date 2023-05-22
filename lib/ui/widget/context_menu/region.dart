@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
@@ -134,11 +135,14 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
     if (_darkened && PlatformUtils.isDesktop) {
       final Style style = Theme.of(context).extension<Style>()!;
+
       child = Stack(
         children: [
           builder(),
           Positioned.fill(
-            child: ColoredBox(color: style.cardHoveredColor.withOpacity(0.4)),
+            child: ColoredBox(
+              color: style.cardColor.darken(0.03).withOpacity(0.4),
+            ),
           ),
         ],
       );
@@ -187,6 +191,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: style.colors.onBackground,
+        );
+
     if (widget.actions.isEmpty) {
       return;
     }
@@ -238,7 +248,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         _darkened = true;
       }
 
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
 
       _entry = OverlayEntry(builder: (_) {
         return LayoutBuilder(builder: (_, constraints) {
@@ -256,10 +268,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                 _darkened = false;
               }
 
-              setState(() {});
+              if (mounted) {
+                setState(() {});
+              }
             },
             child: Container(
-              color: Colors.transparent,
+              color: style.colors.transparent,
               child: Stack(
                 fit: StackFit.expand,
                 children: [

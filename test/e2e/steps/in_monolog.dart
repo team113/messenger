@@ -15,36 +15,30 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
+import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/routes.dart';
 
-import '/domain/model/user.dart';
+import '../world/custom_world.dart';
 
-/// [ListTile] with an information of an [User].
-class AddUserListTile extends StatelessWidget {
-  const AddUserListTile(this.user, this.onTap, {Key? key}) : super(key: key);
+/// Routes the [router] to the [Chat]-monolog page.
+///
+/// Examples:
+/// - I am in monolog
+final StepDefinitionGeneric iAmInMonolog = given<CustomWorld>(
+  'I am in monolog',
+  (context) async {
+    final ChatService chatService = Get.find<ChatService>();
+    router.chat(chatService.monolog);
 
-  /// [User] this [AddUserListTile] is about.
-  final User user;
-
-  /// Callback, called when this [ListTile] is tapped.
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: const CircleAvatar(
-        backgroundColor: Colors.green,
-        child: Icon(Icons.check, color: Colors.white),
-      ),
-      selected: true,
-      selectedTileColor: const Color(0x11000000),
-      title: Text(
-        user.name?.val ?? user.num.val,
-        style: context.textTheme.displaySmall,
-      ),
-      onTap: onTap,
+    await context.world.appDriver.waitUntil(
+      () async {
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatView', FindType.key),
+        );
+      },
     );
-  }
-}
+  },
+);

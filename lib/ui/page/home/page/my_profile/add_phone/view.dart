@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
@@ -43,6 +44,8 @@ class AddPhoneView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: AddPhoneController(
         Get.find(),
@@ -69,7 +72,7 @@ class AddPhoneView extends StatelessWidget {
                               ? 'label_add_phone_confirmation_sent_again'.l10n
                               : 'label_add_phone_confirmation_sent'.l10n,
                           style: context.textTheme.bodyLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: style.colors.secondary,
                           ),
                         );
                       }),
@@ -97,14 +100,14 @@ class AddPhoneView extends StatelessWidget {
                                       ),
                                 style: context.textTheme.bodyLarge!.copyWith(
                                   color: c.resendPhoneTimeout.value == 0
-                                      ? Colors.white
-                                      : Colors.black,
+                                      ? style.colors.onPrimary
+                                      : style.colors.onBackground,
                                 ),
                               ),
                               onPressed: c.resendPhoneTimeout.value == 0
                                   ? c.resendPhone
                                   : null,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: style.colors.primary,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -116,14 +119,14 @@ class AddPhoneView extends StatelessWidget {
                                 'btn_proceed'.l10n,
                                 style: context.textTheme.bodyLarge!.copyWith(
                                   color: c.phoneCode.isEmpty.value
-                                      ? Colors.black
-                                      : Colors.white,
+                                      ? style.colors.onBackground
+                                      : style.colors.onPrimary,
                                 ),
                               ),
                               onPressed: c.phoneCode.isEmpty.value
                                   ? null
                                   : c.phoneCode.submit,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: style.colors.primary,
                             ),
                           ),
                         ],
@@ -146,7 +149,7 @@ class AddPhoneView extends StatelessWidget {
                       child: Text(
                         'label_add_phone_description'.l10n,
                         style: context.textTheme.bodyLarge!.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: style.colors.secondary,
                         ),
                       ),
                     ),
@@ -170,13 +173,13 @@ class AddPhoneView extends StatelessWidget {
                           'btn_proceed'.l10n,
                           style: context.textTheme.bodyLarge!.copyWith(
                             color: c.phone.isEmpty.value
-                                ? Colors.black
-                                : Colors.white,
+                                ? style.colors.onBackground
+                                : style.colors.onPrimary,
                           ),
                         ),
                         onPressed:
                             c.phone.isEmpty.value ? null : c.phone.submit,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: style.colors.primary,
                       );
                     }),
                   ],

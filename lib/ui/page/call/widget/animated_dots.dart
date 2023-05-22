@@ -21,20 +21,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 
 /// [Text] represented three dots that change their count over [duration].
 class AnimatedDots extends StatefulWidget {
   const AnimatedDots({
-    Key? key,
+    super.key,
     this.duration = const Duration(milliseconds: 250),
-    this.color = Colors.white,
-  }) : super(key: key);
+  });
 
   /// [Duration] over which the count of dots is changed.
   final Duration duration;
-
-  /// Color of the dots.
-  final Color color;
 
   @override
   State<AnimatedDots> createState() => _AnimatedDotsState();
@@ -68,11 +65,15 @@ class _AnimatedDotsState extends State<AnimatedDots> {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return SizedBox(
       width: 13,
       child: Text(
         'dot'.l10n * _count,
-        style: context.textTheme.bodyLarge!.copyWith(color: widget.color),
+        style: context.textTheme.bodyLarge!.copyWith(
+          color: style.colors.onPrimary,
+        ),
       ),
     );
   }

@@ -54,10 +54,10 @@ class CustomNavigationBar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       decoration: BoxDecoration(
-        boxShadow: const [
+        boxShadow: [
           CustomBoxShadow(
             blurRadius: 8,
-            color: Color(0x22000000),
+            color: style.colors.onBackgroundOpacity13,
             blurStyle: BlurStyle.outer,
           ),
         ],
@@ -92,17 +92,18 @@ class CustomNavigationBar extends StatelessWidget {
                         children: [
                           if (b.child != null)
                             InkResponse(
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.transparent,
+                              hoverColor: style.colors.transparent,
+                              highlightColor: style.colors.transparent,
+                              splashColor: style.colors.transparent,
                               onTap: () => onTap?.call(i),
                               child: Container(
                                 width: 80,
-                                color: Colors.transparent,
+                                color: style.colors.transparent,
                                 child: Center(
                                   child: badges.Badge(
                                     badgeStyle: badges.BadgeStyle(
-                                      badgeColor: b.badgeColor,
+                                      badgeColor: b.badgeColor ??
+                                          style.colors.dangerColor,
                                     ),
                                     badgeContent: b.badge == null
                                         ? null
@@ -111,7 +112,7 @@ class CustomNavigationBar extends StatelessWidget {
                                             textAlign: TextAlign.center,
                                             style: context.textTheme.bodySmall!
                                                 .copyWith(
-                                              color: Colors.white,
+                                              color: style.colors.onPrimary,
                                             ),
                                           ),
                                     showBadge: b.badge != null,
@@ -139,7 +140,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
-    this.badgeColor = Colors.red,
+    this.badgeColor,
     this.child,
   });
 
@@ -150,7 +151,7 @@ class CustomNavigationBarItem {
   final String? badge;
 
   /// [Color] of the provided [badge], if any.
-  final Color badgeColor;
+  final Color? badgeColor;
 
   /// [Widget] to display.
   final Widget? child;

@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/config.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -55,7 +56,8 @@ class DownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).colorScheme;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return FieldButton(
       text: 'space'.l10n * 4 + title,
       textAlign: TextAlign.center,
@@ -74,7 +76,7 @@ class DownloadButton extends StatelessWidget {
               padding: const EdgeInsets.only(left: 16),
               child: Transform.scale(
                 scale: 2,
-                child: SvgLoader.asset(
+                child: SvgImage.asset(
                   'assets/icons/$asset.svg',
                   width: width == null ? null : width! / 2,
                   height: height == null ? null : height! / 2,
@@ -85,10 +87,12 @@ class DownloadButton extends StatelessWidget {
         offset: const Offset(0, -1),
         child: Transform.scale(
           scale: 1.15,
-          child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
+          child: SvgImage.asset('assets/icons/copy.svg', height: 15),
         ),
       ),
-      style: context.textTheme.titleMedium!.copyWith(color: style.secondary),
+      style: context.textTheme.titleMedium!.copyWith(
+        color: style.colors.primary,
+      ),
     );
   }
 }

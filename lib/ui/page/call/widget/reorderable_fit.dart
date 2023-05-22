@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -25,6 +26,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import 'animated_transition.dart';
 
@@ -51,7 +53,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor = const Color(0x00000000),
+    this.hoverColor,
     this.axis,
     this.left,
     this.right,
@@ -159,7 +161,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   final Axis? axis;
 
   /// Hover color of the [DragTarget].
-  final Color hoverColor;
+  final Color? hoverColor;
 
   /// Optional [BorderRadius] to decorate this [ReorderableFit] with.
   final BorderRadius? borderRadius;
@@ -356,6 +358,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
         }
 
         return _ReorderableFit<T>(
+          key: key,
           children: children,
           itemBuilder: itemBuilder,
           decoratorBuilder: decoratorBuilder,
@@ -411,7 +414,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor = const Color(0x00000000),
+    this.hoverColor,
     this.wrapSize,
     this.axis,
     this.width,
@@ -492,7 +495,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   final bool allowDraggingLast;
 
   /// Hover color of the [DragTarget].
-  final Color hoverColor;
+  final Color? hoverColor;
 
   /// Left position of this view.
   final double? left;
@@ -558,8 +561,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   @override
   void dispose() {
     _audioPlayer?.dispose();
-    AudioCache.instance.clear('audio/pop.mp3');
-
+    _audioPlayer = null;
     super.dispose();
   }
 
@@ -592,6 +594,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
     Widget cell(int index, [bool withOverlay = true]) {
+      final Style style = Theme.of(context).extension<Style>()!;
+
       var item = _items[index];
       return Stack(
         children: [
@@ -657,17 +661,34 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? const Color(0x00000000)
-                            : widget.hoverColor,
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
                   onLeave: widget.onLeave,
+                  onMove: (b) {
+                    // Reorder the items, if it is [_doughDragged] and accepted.
+                    if (_doughDragged?.item == b.data &&
+                        b.data != item.item &&
+                        (widget.onWillAccept?.call(b.data) ?? true)) {
+                      int i = _items.indexWhere((e) => e.item == b.data);
+                      if (i != -1) {
+                        _onWillAccept(b.data, index, i);
+                      }
+                    }
+                  },
                   onWillAccept: (b) {
                     if (b != item.item &&
                         (widget.onWillAccept?.call(b) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
+                        // If this item is not the [_doughDragged], then ignore
+                        // it.
+                        if (_doughDragged?.item != b) {
+                          return false;
+                        }
+
                         _onWillAccept(b!, index, i);
                       }
 
@@ -685,17 +706,34 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? const Color(0x00000000)
-                            : widget.hoverColor,
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
                   onLeave: widget.onLeave,
+                  onMove: (b) {
+                    // Reorder the items, if it is [_doughDragged] and accepted.
+                    if (_doughDragged?.item == b.data &&
+                        b.data != item.item &&
+                        (widget.onWillAccept?.call(b.data) ?? true)) {
+                      int i = _items.indexWhere((e) => e.item == b.data);
+                      if (i != -1) {
+                        _onWillAccept(b.data, index, i);
+                      }
+                    }
+                  },
                   onWillAccept: (b) {
                     if (b != item.item &&
                         (widget.onWillAccept?.call(b) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
+                        // If this item is not the [_doughDragged], then ignore
+                        // it.
+                        if (_doughDragged?.item != b) {
+                          return false;
+                        }
+
                         _onWillAccept(b!, index, i);
                       }
 
@@ -888,49 +926,38 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     widget.onAdded?.call(object, to);
   }
 
-  /// Reorders the [object] from [i] into [to] position, if [_items] contains
-  /// the item, otherwise just marks its position.
+  /// Reorders the [object] from [i] into [to] position.
   void _onWillAccept(T object, int i, int to) {
-    int index = _items.indexWhere((e) => e.item == object);
-    if (index != -1) {
-      var from = _items[i];
-      var to = _items[index];
+    final _ReorderableItem<T> start = _items[i];
+    final _ReorderableItem<T> end = _items[to];
 
-      Rect beginRect = from.cellKey.globalPaintBounds!;
-      Rect endRect = to.cellKey.globalPaintBounds!;
+    Rect beginRect = start.cellKey.globalPaintBounds!;
+    Rect endRect = end.cellKey.globalPaintBounds!;
 
-      if (beginRect != endRect) {
-        Offset offset = widget.onOffset?.call() ?? Offset.zero;
-        beginRect = beginRect.shift(offset);
-        endRect = endRect.shift(offset);
+    if (beginRect != endRect) {
+      Offset offset = widget.onOffset?.call() ?? Offset.zero;
+      beginRect = beginRect.shift(offset);
+      endRect = endRect.shift(offset);
 
-        if (from.entry != null && from.entryKey.currentState != null) {
-          from.entryKey.currentState!.setState(() {
-            from.entryKey.currentState!.rect = endRect;
-          });
-        } else {
-          from.entry = OverlayEntry(builder: (context) {
-            return AnimatedTransition(
-              key: from.entryKey,
-              beginRect: beginRect,
-              endRect: endRect,
-              onEnd: () {
-                setState(() => from.entry = null);
-              },
-              child: widget.itemBuilder(from.item),
-            );
-          });
-        }
+      if (start.entry != null && start.entryKey.currentState != null) {
+        start.entryKey.currentState?.rect = endRect;
+      } else {
+        start.entry = OverlayEntry(builder: (context) {
+          return AnimatedTransition(
+            key: start.entryKey,
+            beginRect: beginRect,
+            endRect: endRect,
+            onEnd: () => setState(() => start.entry = null),
+            child: widget.itemBuilder(start.item),
+          );
+        });
       }
-
-      _items[i] = to;
-      _items[index] = from;
-
-      widget.onReorder?.call(object, i);
-    } else {
-      _positions[object.hashCode] = to;
-      widget.onAdded?.call(object, to);
     }
+
+    _items[i] = end;
+    _items[to] = start;
+
+    widget.onReorder?.call(object, i);
 
     setState(() {});
   }
@@ -950,9 +977,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       endRect = endRect.shift(offset);
 
       if (to.entry != null && to.entryKey.currentState != null) {
-        to.entryKey.currentState!.setState(() {
-          to.entryKey.currentState!.rect = endRect;
-        });
+        to.entryKey.currentState?.rect = endRect;
       } else {
         to.entry = OverlayEntry(builder: (context) {
           return AnimatedTransition(
@@ -974,12 +999,18 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'reorderableFitWrap');
-      await AudioCache.instance.loadAll(['audio/pop.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
+    // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    runZonedGuarded(
+      () => _audioPlayer = AudioPlayer(),
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 }
 
@@ -1060,6 +1091,8 @@ class _ReorderableDraggableState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return DoughRecipe(
       data: DoughRecipeData(
         adhesion: 4,
@@ -1146,7 +1179,7 @@ class _ReorderableDraggableState<T extends Object>
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                color: Colors.transparent,
+                color: style.colors.transparent,
               ),
             ),
             child: KeyedSubtree(

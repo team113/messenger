@@ -52,6 +52,8 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
@@ -79,8 +81,8 @@ class UserView extends StatelessWidget {
                     Material(
                       elevation: 6,
                       type: MaterialType.circle,
-                      shadowColor: const Color(0x55000000),
-                      color: Colors.white,
+                      shadowColor: style.colors.onBackgroundOpacity27,
+                      color: style.colors.onPrimary,
                       child: Center(
                         child: AvatarWidget.fromRxUser(c.user, radius: 17),
                       ),
@@ -118,8 +120,7 @@ class UserView extends StatelessWidget {
                                 Text(
                                   subtitle,
                                   style: context.textTheme.bodySmall?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                                    color: style.colors.secondary,
                                   ),
                                 )
                             ],
@@ -137,31 +138,42 @@ class UserView extends StatelessWidget {
                     onPressed: c.openChat,
                     child: Transform.translate(
                       offset: const Offset(0, 1),
-                      child: SvgLoader.asset(
+                      child: SvgImage.asset(
                         'assets/icons/chat.svg',
                         width: 20.12,
                         height: 21.62,
                       ),
                     ),
                   ),
-                  if (constraints.maxWidth > 400) ...[
-                    const SizedBox(width: 28),
-                    WidgetButton(
-                      onPressed: () => c.call(true),
-                      child: SvgLoader.asset(
-                        'assets/icons/chat_video_call.svg',
-                        height: 17,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 28),
-                  WidgetButton(
-                    onPressed: () => c.call(false),
-                    child: SvgLoader.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
-                    ),
-                  ),
+                  Obx(() {
+                    if (c.isBlacklisted != null) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (constraints.maxWidth > 400) ...[
+                          const SizedBox(width: 28),
+                          WidgetButton(
+                            onPressed: () => c.call(true),
+                            child: SvgImage.asset(
+                              'assets/icons/chat_video_call.svg',
+                              height: 17,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(width: 28),
+                        WidgetButton(
+                          onPressed: () => c.call(false),
+                          child: SvgImage.asset(
+                            'assets/icons/chat_audio_call.svg',
+                            height: 19,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ],
               ),
               body: Scrollbar(
@@ -251,6 +263,8 @@ class UserView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     // Builds a stylized button representing a single action.
     Widget action({
       Key? key,
@@ -266,7 +280,7 @@ class UserView extends StatelessWidget {
             onPressed: onPressed,
             text: text ?? '',
             style: context.textTheme.bodyLarge!
-                .copyWith(color: Theme.of(context).colorScheme.secondary),
+                .copyWith(color: style.colors.primary),
             trailing: trailing != null
                 ? Transform.translate(
                     offset: const Offset(0, -1),
@@ -308,18 +322,22 @@ class UserView extends StatelessWidget {
         if (c.user?.user.value.dialog.isLocal == false &&
             c.user?.dialog.value != null) ...[
           Obx(() {
+            if (c.isBlacklisted != null) {
+              return const SizedBox.shrink();
+            }
+
             final chat = c.user!.dialog.value!.chat.value;
             final bool isMuted = chat.muted != null;
 
             return action(
               text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
               trailing: isMuted
-                  ? SvgLoader.asset(
+                  ? SvgImage.asset(
                       'assets/icons/btn_mute.svg',
                       width: 18.68,
                       height: 15,
                     )
-                  : SvgLoader.asset(
+                  : SvgImage.asset(
                       'assets/icons/btn_unmute.svg',
                       width: 17.86,
                       height: 15,
@@ -329,13 +347,13 @@ class UserView extends StatelessWidget {
           }),
           action(
             text: 'btn_hide_chat'.l10n,
-            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _hideChat(c, context),
           ),
           action(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
-            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _clearChat(c, context),
           ),
         ],
@@ -479,10 +497,10 @@ class UserView extends StatelessWidget {
           key: const Key('BlockedField'),
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
-            boxShadow: const [
+            boxShadow: [
               CustomBoxShadow(
                 blurRadius: 8,
-                color: Color(0x22000000),
+                color: style.colors.onBackgroundOpacity13,
               ),
             ],
           ),
@@ -520,7 +538,7 @@ class UserView extends StatelessWidget {
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: context.textTheme.displaySmall!.copyWith(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: style.colors.primary,
                               ),
                               type: TextInputType.multiline,
                               textInputAction: TextInputAction.newline,
@@ -544,13 +562,17 @@ class UserView extends StatelessWidget {
     UserController c,
     BuildContext context,
   ) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: style.colors.onBackground,
+          ),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -563,13 +585,17 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
   Future<void> _hideChat(UserController c, BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: style.colors.onBackground,
+          ),
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
@@ -582,13 +608,17 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: style.colors.onBackground,
+          ),
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
@@ -601,13 +631,17 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup blacklisting the [User].
   Future<void> _blacklistUser(UserController c, BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: context.textTheme.bodyLarge!.copyWith(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: style.colors.onBackground,
+          ),
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],

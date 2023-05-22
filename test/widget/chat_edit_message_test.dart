@@ -35,10 +35,12 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/blacklist.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
@@ -47,12 +49,15 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
+import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
+import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -62,6 +67,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import 'chat_edit_message_test.mocks.dart';
+import 'extension/rich_text.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
@@ -95,6 +101,16 @@ void main() async {
   var recentChats = {
     'recentChats': {
       'nodes': [chatData]
+    }
+  };
+
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
     }
   };
 
@@ -196,6 +212,24 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 
+  when(graphQlProvider.myUserEvents(any))
+      .thenAnswer((realInvocation) => const Stream.empty());
+
+  when(graphQlProvider.getBlacklist(
+    first: 120,
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+    (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+  );
+
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
+  );
+
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
@@ -239,11 +273,18 @@ void main() async {
   await credentialsProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
+  var myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+  await myUserProvider.clear();
+  var blacklistedUsersProvider = BlacklistHiveProvider();
+  await blacklistedUsersProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   ));
-  await messagesProvider.init();
+  await messagesProvider.init(userId: const UserId('me'));
   await messagesProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
@@ -296,8 +337,19 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
+
+    MyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      blacklistedUsersProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    Get.put(MyUserService(authService, myUserRepository));
 
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -308,7 +360,7 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    var message = find.text('edit message', skipOffstage: false);
+    var message = find.richText('edit message', skipOffstage: false);
     expect(message, findsOneWidget);
     await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 10));
@@ -329,7 +381,7 @@ void main() async {
       find.text('edit message', skipOffstage: false),
       findsNothing,
     );
-    expect(find.text('new text', skipOffstage: false), findsOneWidget);
+    expect(find.richText('new text', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });

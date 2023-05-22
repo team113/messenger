@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
@@ -24,6 +24,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -85,6 +86,8 @@ class SearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('SearchView'),
       init: SearchController(
@@ -241,11 +244,14 @@ class SearchView extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: context.textTheme.bodyLarge!.copyWith(
-                            color: enabled ? Colors.white : Colors.black),
+                          color: enabled
+                              ? style.colors.onPrimary
+                              : style.colors.onBackground,
+                        ),
                       ),
                       onPressed:
                           enabled ? () => onSubmit?.call(c.selected()) : null,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: style.colors.primary,
                     );
                   }),
                 ),

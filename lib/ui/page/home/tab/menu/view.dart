@@ -52,8 +52,8 @@ class MenuTabView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: const Color(0x55000000),
-                    color: Colors.white,
+                    shadowColor: style.colors.onBackgroundOpacity27,
+                    color: style.colors.onPrimary,
                     child: Center(
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(
@@ -78,14 +78,14 @@ class MenuTabView extends StatelessWidget {
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
                               style: context.textTheme.displaySmall!
-                                  .copyWith(color: Colors.black),
+                                  .copyWith(color: style.colors.onBackground),
                             ),
                             Obx(() {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
                                 style: context.textTheme.bodyLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: style.colors.secondary,
                                 ),
                               );
                             }),
@@ -120,6 +120,9 @@ class MenuTabView extends StatelessWidget {
                   VoidCallback? onTap,
                 }) {
                   return Obx(() {
+                    final bool inverted = tab == router.profileSection.value &&
+                        router.route == Routes.me;
+
                     return Padding(
                       key: key,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -129,14 +132,13 @@ class MenuTabView extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: style.cardRadius,
                             border: style.cardBorder,
-                            color: Colors.transparent,
+                            color: style.colors.transparent,
                           ),
                           child: Material(
                             type: MaterialType.card,
                             borderRadius: style.cardRadius,
-                            color: tab == router.profileSection.value &&
-                                    router.route == Routes.me
-                                ? style.cardSelectedColor
+                            color: inverted
+                                ? style.colors.primary
                                 : style.cardColor,
                             child: InkWell(
                               borderRadius: style.cardRadius,
@@ -149,7 +151,9 @@ class MenuTabView extends StatelessWidget {
                                     }
                                     router.me();
                                   },
-                              hoverColor: style.cardHoveredColor,
+                              hoverColor: inverted
+                                  ? style.colors.primary
+                                  : style.cardColor.darken(0.03),
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
                                 child: Row(
@@ -157,9 +161,9 @@ class MenuTabView extends StatelessWidget {
                                     const SizedBox(width: 12),
                                     Icon(
                                       icon,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
+                                      color: inverted
+                                          ? style.colors.onPrimary
+                                          : style.colors.primary,
                                     ),
                                     const SizedBox(width: 18),
                                     Expanded(
@@ -172,14 +176,25 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle(
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
-                                            style: context
-                                                .textTheme.headlineMedium!,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineSmall!
+                                                .copyWith(
+                                                  color: inverted
+                                                      ? style.colors.onPrimary
+                                                      : null,
+                                                ),
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),
                                           DefaultTextStyle.merge(
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: inverted
+                                                  ? style.colors.onPrimary
+                                                  : null,
+                                            ),
                                             child: Text(subtitle),
                                           ),
                                         ],
@@ -228,6 +243,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.image,
                       title: 'label_background'.l10n,
                       subtitle: 'label_app_background'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.chats:
+                    child = card(
+                      icon: Icons.chat_bubble,
+                      title: 'label_chats'.l10n,
+                      subtitle: 'label_timeline_style'.l10n,
                     );
                     break;
 

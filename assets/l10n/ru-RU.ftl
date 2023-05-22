@@ -208,7 +208,6 @@ btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
 btn_save = Сохранить
 btn_save_to_gallery = Сохранить в галерею
-btn_saved_messages = Сохранённые сообщения
 btn_select = Выбрать
 btn_set_password = Задать пароль
 btn_settings = Настройки
@@ -237,6 +236,7 @@ err_call_not_found = Данный звонок не найден
 err_call_popup_was_blocked =
     Всплывающее окно заблокировано.
     Разрешите всплывающие окна, чтобы отображать в них звонки
+err_cant_forward_calls = Пересылка звонков не поддерживается
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята
 err_code_limit_exceed =
@@ -392,6 +392,7 @@ label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
+label_as_timeline = Как таймлайн
 label_attachments = [{$count} { $count ->
     [1] прикрепление
     [few] прикрепления
@@ -443,7 +444,7 @@ label_chat_call_moved = Перемещённый звонок
 label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
 label_chat_members = Участники
-label_chat_monolog = Сохранённые сообщения
+label_chat_monolog = Себе
 label_chats = Чаты
 label_clear_history = Очистить историю
 label_confirm = Подтвердить
@@ -492,6 +493,7 @@ label_direct_chat_link_in_chat_description =
     - отправлять сообщения в чат группы,
     - совершать звонки
 label_disabled = Отключены
+label_display_timestamps = Отображать метки времени
 label_download = Скачать
 label_download_application = Скачать приложение
 label_draft = Черновик
@@ -538,6 +540,7 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Подсказка от Gapopa
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
+label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_introduction_description =
     Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
@@ -570,6 +573,7 @@ label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
+label_monolog_created = Чат создан
 label_mute_for = { $days ->
     [0] { $hours ->
             [0] { $minutes ->
@@ -688,9 +692,11 @@ label_sound_and_vibrations = Звук и вибрация
 label_status = Статус
 label_storage = Хранилище
 label_subtitle_participants = участников
+label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
+label_timeline_style = Стиль метки времени
 label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный

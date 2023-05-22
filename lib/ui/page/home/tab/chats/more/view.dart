@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/link_details/view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
@@ -43,6 +44,8 @@ class ChatsMoreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('ChatsMoreView'),
       init: ChatsMoreController(Get.find()),
@@ -54,7 +57,9 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: context.textTheme.displaySmall,
+                  style: context.textTheme.displaySmall!.copyWith(
+                    color: style.colors.onBackground,
+                  ),
                 ),
               ),
             ),
@@ -81,6 +86,8 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a styled as a header [Container] with the provided [text].
   Widget _header(BuildContext context, String text) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
       child: Center(
@@ -88,7 +95,9 @@ class ChatsMoreView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: context.textTheme.displaySmall,
+            style: context.textTheme.displaySmall!.copyWith(
+              color: style.colors.onBackground,
+            ),
           ),
         ),
       ),
@@ -97,6 +106,8 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [Switch] toggling [MyUser.muted].
   Widget _mute(BuildContext context, ChatsMoreController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       return Stack(
         alignment: Alignment.centerRight,
@@ -125,7 +136,7 @@ class ChatsMoreView extends StatelessWidget {
                   ),
                   child: Switch.adaptive(
                     key: const Key('MuteMyUserSwitch'),
-                    activeColor: Theme.of(context).colorScheme.secondary,
+                    activeColor: style.colors.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: c.myUser.value?.muted == null,
                     onChanged: c.isMuting.value ? null : c.toggleMute,
@@ -141,6 +152,8 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,10 +178,8 @@ class ChatsMoreView extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/copy.svg',
-                        height: 15,
-                      ),
+                      child:
+                          SvgImage.asset('assets/icons/copy.svg', height: 15),
                     ),
                   ),
             label: '${Config.origin}/',
@@ -191,13 +202,13 @@ class ChatsMoreView extends StatelessWidget {
                             }) +
                             'dot_space'.l10n,
                         style: context.textTheme.bodyLarge!.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
                         style: context.textTheme.bodyLarge!.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: style.colors.primary,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {

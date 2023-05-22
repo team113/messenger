@@ -102,16 +102,16 @@ class ChatTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
-            selectedColor: style.cardSelectedColor,
+            selectedColor: style.colors.primary,
             unselectedColor: style.cardColor.darken(darken),
             selected: selected,
             hoveredBorder:
-                selected ? style.primaryBorder : style.cardHoveredBorder,
-            border: selected ? style.primaryBorder : style.cardBorder,
+                selected ? style.cardSelectedBorder : style.cardHoveredBorder,
+            border: selected ? style.cardSelectedBorder : style.cardBorder,
             borderRadius: style.cardRadius,
             onTap: onTap,
-            unselectedHoverColor: style.cardHoveredColor.darken(darken),
-            selectedHoverColor: style.cardSelectedColor,
+            unselectedHoverColor: style.cardColor.darken(darken + 0.03),
+            selectedHoverColor: style.colors.primary,
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null
@@ -141,7 +141,12 @@ class ChatTile extends StatelessWidget {
                                         maxLines: 1,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .headlineSmall,
+                                            .headlineSmall
+                                            ?.copyWith(
+                                              color: selected
+                                                  ? style.colors.onPrimary
+                                                  : null,
+                                            ),
                                       );
                                     }),
                                   ),

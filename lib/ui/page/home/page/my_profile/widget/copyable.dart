@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
@@ -59,6 +59,8 @@ class CopyableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style styleColor = Theme.of(context).extension<Style>()!;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -67,7 +69,7 @@ class CopyableTextField extends StatelessWidget {
             padding: const EdgeInsets.only(left: 10, right: 25),
             child: Icon(
               icon,
-              color: context.theme.colorScheme.primary,
+              color: styleColor.colors.secondary,
             ),
           ),
         Expanded(
@@ -90,10 +92,8 @@ class CopyableTextField extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/copy.svg',
-                        height: 15,
-                      ),
+                      child:
+                          SvgImage.asset('assets/icons/copy.svg', height: 15),
                     ),
                   ),
                   label: label,

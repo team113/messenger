@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Animated [CircleAvatar] representing a selection circle.
@@ -26,6 +27,7 @@ class SelectedDot extends StatelessWidget {
     this.selected = false,
     this.size = 24,
     this.darken = 0,
+    this.inverted = true,
   });
 
   /// Indicator whether this [SelectedDot] is selected.
@@ -37,8 +39,14 @@ class SelectedDot extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [SelectedDot].
   final double darken;
 
+  /// Indicator whether this [SelectedDot] should have inverted color relative
+  /// to its base one when [selected] is `true`.
+  final bool inverted;
+
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return SizedBox(
       width: 30,
       child: AnimatedSwitcher(
@@ -46,16 +54,22 @@ class SelectedDot extends StatelessWidget {
         child: selected
             ? CircleAvatar(
                 key: const Key('Selected'),
-                backgroundColor: Theme.of(context).colorScheme.secondary,
+                backgroundColor:
+                    inverted ? style.colors.onPrimary : style.colors.primary,
                 radius: size / 2,
-                child: const Icon(Icons.check, color: Colors.white, size: 14),
+                child: Icon(
+                  Icons.check,
+                  color:
+                      inverted ? style.colors.primary : style.colors.onPrimary,
+                  size: 14,
+                ),
               )
             : Container(
                 key: const Key('Unselected'),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFD7D7D7).darken(darken),
+                    color: style.colors.secondaryHighlightDark.darken(darken),
                     width: 1,
                   ),
                 ),

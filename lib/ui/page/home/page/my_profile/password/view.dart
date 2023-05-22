@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -41,6 +42,8 @@ class ChangePasswordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: ChangePasswordController(Get.find()),
       builder: (ChangePasswordController c) {
@@ -63,7 +66,7 @@ class ChangePasswordView extends StatelessWidget {
                             ? 'label_password_set'.l10n
                             : 'label_password_changed'.l10n,
                         style: context.textTheme.bodyLarge!.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: style.colors.secondary,
                         ),
                       ),
                     ),
@@ -74,10 +77,10 @@ class ChangePasswordView extends StatelessWidget {
                       title: Text(
                         'btn_close'.l10n,
                         style: context.textTheme.bodyLarge!
-                            .copyWith(color: Colors.white),
+                            .copyWith(color: style.colors.onPrimary),
                       ),
                       onPressed: Navigator.of(context).pop,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: style.colors.primary,
                     ),
                   ],
                 ),
@@ -97,7 +100,7 @@ class ChangePasswordView extends StatelessWidget {
                         child: Text(
                           'label_password_not_set_info'.l10n,
                           style: context.textTheme.bodyLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: style.colors.secondary,
                           ),
                         ),
                       )
@@ -110,7 +113,7 @@ class ChangePasswordView extends StatelessWidget {
                           obscure: c.obscurePassword.value,
                           onSuffixPressed: c.obscurePassword.toggle,
                           treatErrorAsStatus: false,
-                          trailing: SvgLoader.asset(
+                          trailing: SvgImage.asset(
                             'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                             width: 17.07,
                           ),
@@ -123,7 +126,7 @@ class ChangePasswordView extends StatelessWidget {
                       obscure: c.obscureNewPassword.value,
                       onSuffixPressed: c.obscureNewPassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: SvgLoader.asset(
+                      trailing: SvgImage.asset(
                         'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
                         width: 17.07,
                       ),
@@ -136,7 +139,7 @@ class ChangePasswordView extends StatelessWidget {
                       obscure: c.obscureRepeatPassword.value,
                       onSuffixPressed: c.obscureRepeatPassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: SvgLoader.asset(
+                      trailing: SvgImage.asset(
                         'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
                         width: 17.07,
                       ),
@@ -159,11 +162,13 @@ class ChangePasswordView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: context.textTheme.bodyLarge!.copyWith(
-                            color: enabled ? Colors.white : Colors.black,
+                            color: enabled
+                                ? style.colors.onPrimary
+                                : style.colors.onBackground,
                           ),
                         ),
                         onPressed: enabled ? c.changePassword : null,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: style.colors.primary,
                       );
                     }),
                   ],

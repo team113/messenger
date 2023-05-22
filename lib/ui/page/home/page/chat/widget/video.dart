@@ -25,6 +25,7 @@ import 'package:video_player/video_player.dart';
 
 import 'desktop_controls.dart';
 import 'mobile_controls.dart';
+import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
@@ -108,6 +109,8 @@ class _VideoState extends State<Video> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).extension<Style>()!;
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: _controller.value.isInitialized
@@ -121,12 +124,16 @@ class _VideoState extends State<Video> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error, size: 48, color: Colors.red),
+                      Icon(
+                        Icons.error,
+                        size: 48,
+                        color: style.colors.dangerColor,
+                      ),
                       const SizedBox(height: 10),
                       Text(
                         'Video playback is not yet supported\non your operating system',
                         style: context.textTheme.bodyLarge!
-                            .copyWith(color: Colors.white),
+                            .copyWith(color: style.colors.onPrimary),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -140,7 +147,7 @@ class _VideoState extends State<Video> {
                       width: MediaQuery.of(context).size.width * 0.99,
                       height: MediaQuery.of(context).size.height * 0.6,
                       decoration: BoxDecoration(
-                        color: const Color(0x00000000),
+                        color: style.colors.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: _loading != null
@@ -154,6 +161,8 @@ class _VideoState extends State<Video> {
 
   /// Initializes the [_controller] and [_chewie].
   Future<void> _initVideo() async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     try {
       _controller = VideoPlayerController.network(widget.url);
       widget.onController?.call(_controller);
@@ -167,10 +176,10 @@ class _VideoState extends State<Video> {
         autoInitialize: true,
         showControlsOnInitialize: false,
         materialProgressColors: ChewieProgressColors(
-          playedColor: Colors.blue,
-          handleColor: Colors.blue,
-          bufferedColor: Colors.white,
-          backgroundColor: Colors.white.withOpacity(.5),
+          playedColor: style.colors.primaryHighlight,
+          handleColor: style.colors.primaryHighlight,
+          bufferedColor: style.colors.onPrimary,
+          backgroundColor: style.colors.onPrimaryOpacity50,
         ),
         customControls: PlatformUtils.isMobile
             ? const MobileControls()
@@ -190,7 +199,7 @@ class _VideoState extends State<Video> {
                   resizeToAvoidBottomInset: false,
                   body: Container(
                     alignment: Alignment.center,
-                    color: Colors.black,
+                    color: style.colors.onBackground,
                     child: provider,
                   ),
                 );

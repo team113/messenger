@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/call_window_switch/view.dart';
 import '/ui/page/home/page/my_profile/camera_switch/view.dart';
 import '/ui/page/home/page/my_profile/microphone_switch/view.dart';
@@ -47,6 +48,8 @@ class CallSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     Widget header(
       String text, {
       EdgeInsets padding = const EdgeInsets.fromLTRB(0, 0, 0, 12),
@@ -109,7 +112,7 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             style: context.textTheme.bodyLarge!.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: style.colors.primary,
                             ),
                           );
                         }),
@@ -144,7 +147,7 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             style: context.textTheme.bodyLarge!.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: style.colors.primary,
                             ),
                           );
                         }),
@@ -179,7 +182,7 @@ class CallSettingsView extends StatelessWidget {
                               editable: false,
                             ),
                             style: context.textTheme.bodyLarge!.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: style.colors.primary,
                             ),
                           );
                         }),
@@ -201,7 +204,7 @@ class CallSettingsView extends StatelessWidget {
                           ),
                           maxLines: null,
                           style: context.textTheme.titleLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: style.colors.primary,
                           ),
                         ),
                       ),

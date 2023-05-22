@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -129,16 +128,16 @@ class ContactTile extends StatelessWidget {
       child: Padding(
         padding: margin,
         child: InkWellWithHover(
-          selectedColor: style.cardSelectedColor,
+          selectedColor: style.colors.primary,
           unselectedColor: style.cardColor.darken(darken),
           selected: selected,
           hoveredBorder:
-              selected ? style.primaryBorder : style.cardHoveredBorder,
-          border: selected ? style.primaryBorder : style.cardBorder,
+              selected ? style.cardSelectedBorder : style.cardHoveredBorder,
+          border: selected ? style.cardSelectedBorder : style.cardBorder,
           borderRadius: style.cardRadius,
           onTap: onTap,
-          unselectedHoverColor: style.cardHoveredColor.darken(darken),
-          selectedHoverColor: style.cardSelectedColor,
+          unselectedHoverColor: style.cardColor.darken(darken + 0.03),
+          selectedHoverColor: style.colors.primary,
           folded: contact?.contact.value.favoritePosition != null,
           child: Padding(
             key: contact?.contact.value.favoritePosition != null
@@ -178,8 +177,6 @@ class ContactTile extends StatelessWidget {
                           Expanded(
                             child: Text(
                               contact?.contact.value.name.val ??
-                                  contact?.user.value?.user.value.name?.val ??
-                                  contact?.user.value?.user.value.num.val ??
                                   user?.user.value.name?.val ??
                                   user?.user.value.num.val ??
                                   myUser?.name?.val ??
@@ -189,7 +186,14 @@ class ContactTile extends StatelessWidget {
                                       : 'btn_your_profile'.l10n),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: context.textTheme.headlineSmall,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    color: selected
+                                        ? style.colors.onPrimary
+                                        : null,
+                                  ),
                             ),
                           ),
                         ],
@@ -208,5 +212,11 @@ class ContactTile extends StatelessWidget {
   }
 
   /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
+  ///
+  /// Uses [GestureDetector] with a dummy [GestureDetector.onLongPress] callback
+  /// for discarding long presses on its [child].
+  static Widget _defaultAvatarBuilder(Widget child) => GestureDetector(
+        onLongPress: () {},
+        child: child,
+      );
 }

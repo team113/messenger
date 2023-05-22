@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 import 'conditional_backdrop.dart';
@@ -28,18 +29,18 @@ import 'conditional_backdrop.dart';
 /// [text] and [hint].
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
-    Key? key,
+    super.key,
     this.asset,
     this.assetWidth = 60,
     this.onPressed,
     this.text,
-    this.color = const Color(0x794E5A78),
+    this.color,
     this.hint,
     this.withBlur = false,
     this.style,
     this.border,
     this.child,
-  }) : super(key: key);
+  });
 
   /// Callback, called when the button is tapped or activated other way.
   ///
@@ -52,13 +53,13 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text that will show above the button on a hover.
   final String? hint;
 
-  /// Name of the asset to place into the [SvgLoader.asset].
+  /// Name of the asset to place into the [SvgImage.asset].
   final String? asset;
 
   /// Width of the [asset].
   final double assetWidth;
 
-  /// Optional [Widget] to replace the default [SvgLoader.asset].
+  /// Optional [Widget] to replace the default [SvgImage.asset].
   final Widget? child;
 
   /// Background color of the button.
@@ -104,6 +105,8 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     Widget button = ConditionalBackdropFilter(
       condition: !WebUtils.isSafari && widget.withBlur,
       borderRadius: BorderRadius.circular(60),
@@ -130,7 +133,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 width: max(widget.assetWidth, 60),
                 height: max(widget.assetWidth, 60),
                 child: Center(
-                  child: SvgLoader.asset(
+                  child: SvgImage.asset(
                     'assets/icons/${widget.asset}.svg',
                     width: widget.assetWidth,
                   ),
@@ -163,7 +166,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 textAlign: TextAlign.center,
                 style: widget.style ??
                     context.textTheme.bodySmall?.copyWith(
-                      color: Colors.white,
+                      color: style.colors.onPrimary,
                     ),
                 maxLines: 2,
               ),
@@ -200,6 +203,8 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
         firstLayout = false;
       }
 
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return IgnorePointer(
         child: Stack(
           children: [
@@ -215,10 +220,10 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                     widget.hint!,
                     textAlign: TextAlign.center,
                     style: context.textTheme.bodySmall!.copyWith(
-                      color: Colors.white,
-                      shadows: const [
-                        Shadow(blurRadius: 6, color: Color(0xFF000000)),
-                        Shadow(blurRadius: 6, color: Color(0xFF000000)),
+                      color: style.colors.onPrimary,
+                      shadows: [
+                        Shadow(blurRadius: 6, color: style.colors.onBackground),
+                        Shadow(blurRadius: 6, color: style.colors.onBackground),
                       ],
                     ),
                   ),

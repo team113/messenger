@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 
 /// Animated message briefly displayed at the bottom of the screen.
 ///
@@ -47,6 +48,8 @@ class FloatingSnackBar extends StatefulWidget {
 
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
   static void show(String title, {double bottom = 16}) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     OverlayEntry? entry;
 
     entry = OverlayEntry(
@@ -60,7 +63,9 @@ class FloatingSnackBar extends StatefulWidget {
         bottom: bottom,
         child: Text(
           title,
-          style: router.context!.textTheme.bodyLarge,
+          style: router.context!.textTheme.bodyLarge!.copyWith(
+            color: style.colors.onBackground,
+          ),
         ),
       ),
     );
@@ -114,11 +119,11 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                   padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: style.cardHoveredColor,
+                    color: style.cardColor.darken(0.03),
                     border: style.cardHoveredBorder,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: style.colors.onBackgroundOpacity2,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       ),

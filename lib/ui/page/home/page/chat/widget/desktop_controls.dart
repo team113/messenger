@@ -29,9 +29,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
-import 'progress_bar.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
+import 'progress_bar.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
@@ -142,10 +143,14 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder
               ?.call(context, _controller.value.errorDescription!) ??
-          const Center(child: Icon(Icons.error, color: Colors.white, size: 42));
+          Center(
+            child: Icon(Icons.error, color: style.colors.onPrimary, size: 42),
+          );
     }
 
     return MouseRegion(
@@ -249,6 +254,8 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
@@ -265,7 +272,7 @@ class _DesktopControlsState extends State<DesktopControls>
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: const Color(0x66000000),
+                color: style.colors.onBackgroundOpacity40,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -292,6 +299,8 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(
       () => GestureDetector(
         onTap: _onExpandCollapse,
@@ -302,7 +311,7 @@ class _DesktopControlsState extends State<DesktopControls>
               widget.isFullscreen?.value == true
                   ? Icons.fullscreen_exit
                   : Icons.fullscreen,
-              color: Colors.white,
+              color: style.colors.onPrimary,
               size: 21,
             ),
           ),
@@ -314,6 +323,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
     final bool isFinished = _latestValue.position >= _latestValue.duration;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Center(
       child: AnimatedSwitcher(
@@ -327,16 +337,16 @@ class _DesktopControlsState extends State<DesktopControls>
                 child: Container(
                   width: 48,
                   height: 48,
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
+                  decoration: BoxDecoration(
+                    color: style.colors.onBackgroundOpacity13,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
                     iconSize: 32,
                     icon: isFinished
-                        ? const Icon(Icons.replay, color: Colors.white)
+                        ? Icon(Icons.replay, color: style.colors.onPrimary)
                         : AnimatedPlayPause(
-                            color: Colors.white,
+                            color: style.colors.onPrimary,
                             playing: _controller.value.isPlaying,
                           ),
                     onPressed: _playPause,
@@ -349,17 +359,19 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the play/pause button.
   Widget _buildPlayPause(VideoPlayerController controller) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Transform.translate(
       offset: const Offset(0, 0),
       child: GestureDetector(
         onTap: _playPause,
         child: Container(
           height: _barHeight,
-          color: Colors.transparent,
+          color: style.colors.transparent,
           child: AnimatedPlayPause(
             size: 21,
             playing: controller.value.isPlaying,
-            color: Colors.white,
+            color: style.colors.onPrimary,
           ),
         ),
       ),
@@ -368,6 +380,8 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the mute/unmute button with a volume overlay above it.
   Widget _buildMuteButton(VideoPlayerController controller) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return MouseRegion(
       onEnter: (_) {
         if (mounted && _volumeEntry == null) {
@@ -399,7 +413,7 @@ class _DesktopControlsState extends State<DesktopControls>
             height: _barHeight,
             child: Icon(
               _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              color: Colors.white,
+              color: style.colors.onPrimary,
               size: 18,
             ),
           ),
@@ -410,6 +424,8 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Stack(
       children: [
         Positioned(
@@ -438,7 +454,7 @@ class _DesktopControlsState extends State<DesktopControls>
                         width: 15,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: const Color(0x66000000),
+                          color: style.colors.onBackgroundOpacity40,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: RotatedBox(
@@ -468,19 +484,23 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final position = _latestValue.position;
     final duration = _latestValue.duration;
 
     return Text(
       '${formatDuration(position)} / ${formatDuration(duration)}',
       style: context.textTheme.bodySmall!.copyWith(
-        color: Colors.white,
+        color: style.colors.onPrimary,
       ),
     );
   }
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Expanded(
       child: VideoProgressBar(
         _controller,
@@ -497,11 +517,10 @@ class _DesktopControlsState extends State<DesktopControls>
         },
         colors: _chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: Theme.of(context).colorScheme.secondary,
-              handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor:
-                  Theme.of(context).colorScheme.background.withOpacity(0.5),
-              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
+              playedColor: style.colors.primary,
+              handleColor: style.colors.primary,
+              bufferedColor: style.colors.background.withOpacity(0.5),
+              backgroundColor: style.colors.secondary.withOpacity(0.5),
             ),
       ),
     );

@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -52,6 +53,8 @@ class MessagePopup {
     List<TextSpan> description = const [],
     List<Widget> additional = const [],
   }) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return ModalPopup.show(
       context: router.context!,
       child: Builder(
@@ -82,7 +85,7 @@ class MessagePopup {
                             text: TextSpan(
                               children: description,
                               style: context.textTheme.bodyLarge!.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: style.colors.secondary,
                               ),
                             ),
                           ),
@@ -106,10 +109,10 @@ class MessagePopup {
                   title: Text(
                     'btn_proceed'.l10n,
                     style: context.textTheme.bodyLarge!
-                        .copyWith(color: Colors.white),
+                        .copyWith(color: style.colors.onPrimary),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 16),

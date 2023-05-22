@@ -31,6 +31,7 @@ class ContextMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final List<Widget> widgets = [];
 
     for (int i = 0; i < actions.length; ++i) {
@@ -41,7 +42,7 @@ class ContextMenu extends StatelessWidget {
       if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
-            color: const Color(0x11000000),
+            color: style.colors.onBackgroundOpacity7,
             height: 1,
             width: double.infinity,
           ),
@@ -54,11 +55,14 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border: Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
-        boxShadow: const [
+        border: Border.all(
+          color: style.colors.secondaryHighlightDarkest,
+          width: 0.5,
+        ),
+        boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: Color(0x33000000),
+            color: style.colors.onBackgroundOpacity20,
             blurStyle: BlurStyle.outer,
           )
         ],
@@ -90,11 +94,13 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
       width: double.infinity,
       height: 1,
-      color: const Color(0xFFD0D0D0),
+      color: style.colors.secondaryHighlightDark,
     );
   }
 }
@@ -153,11 +159,9 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
             borderRadius: BorderRadius.circular(5),
             color: isMouseOver
                 ? context.isMobile
-                    ? Theme.of(context)
-                        .extension<Style>()!
-                        .contextMenuHoveredColor
-                    : Theme.of(context).colorScheme.secondary
-                : Colors.transparent,
+                    ? style.contextMenuHoveredColor
+                    : style.colors.primary
+                : style.colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -165,7 +169,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               if (widget.leading != null) ...[
                 Theme(
                   data: Theme.of(context).copyWith(
-                    iconTheme: const IconThemeData(color: Colors.blue),
+                    iconTheme:
+                        IconThemeData(color: style.colors.primaryHighlight),
                   ),
                   child: widget.leading!,
                 ),
@@ -175,8 +180,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 widget.label,
                 style: context.textTheme.displaySmall!.copyWith(
                   color: (isMouseOver && !context.isMobile)
-                      ? Colors.white
-                      : Colors.black,
+                      ? style.colors.onPrimary
+                      : style.colors.onBackground,
                   fontSize: context.isMobile ? 17 : 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -186,7 +191,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 const Spacer(),
                 Theme(
                   data: Theme.of(context).copyWith(
-                    iconTheme: const IconThemeData(color: Colors.blue),
+                    iconTheme:
+                        IconThemeData(color: style.colors.primaryHighlight),
                   ),
                   child: widget.trailing!,
                 ),

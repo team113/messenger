@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/sharable.dart';
 import '/ui/widget/modal_popup.dart';
@@ -43,6 +44,8 @@ class IntroductionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('IntroductionView'),
       init: IntroductionController(Get.find()),
@@ -69,7 +72,7 @@ class IntroductionView extends StatelessWidget {
                   style: context.textTheme.bodyLarge,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
@@ -83,7 +86,7 @@ class IntroductionView extends StatelessWidget {
                   style: context.textTheme.bodyLarge,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
@@ -95,14 +98,14 @@ class IntroductionView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: context.textTheme.bodyLarge!.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? Colors.black
-                          : Colors.white,
+                          ? style.colors.onBackground
+                          : style.colors.onPrimary,
                     ),
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
                       : c.setPassword,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -125,7 +128,7 @@ class IntroductionView extends StatelessWidget {
                           .copyWith(color: Colors.white),
                     ),
                     onPressed: Navigator.of(context).pop,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: style.colors.primary,
                   ),
                 ),
               ];
@@ -146,7 +149,7 @@ class IntroductionView extends StatelessWidget {
                   ),
                   onPressed: () =>
                       c.stage.value = IntroductionViewStage.password,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -183,7 +186,7 @@ class IntroductionView extends StatelessWidget {
                             text: c.num.text,
                             label: 'label_num'.l10n,
                             share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                            trailing: SvgLoader.asset(
+                            trailing: SvgImage.asset(
                               'assets/icons/share.svg',
                               width: 18,
                             ),

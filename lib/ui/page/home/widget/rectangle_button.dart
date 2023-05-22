@@ -50,9 +50,8 @@ class RectangleButton extends StatelessWidget {
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color: selected
-          ? style.cardSelectedColor.withOpacity(0.8)
-          : Colors.white.darken(0.05),
+      color:
+          selected ? style.colors.primary : style.colors.onPrimary.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: selected ? null : onPressed,
@@ -65,7 +64,9 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.bodyLarge,
+                  style: context.textTheme.bodyLarge!.copyWith(
+                    color: selected ? style.colors.onPrimary : null,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -77,12 +78,11 @@ class RectangleButton extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     child: selected
                         ? CircleAvatar(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
+                            backgroundColor: style.colors.onPrimary,
                             radius: 12,
-                            child: const Icon(
+                            child: Icon(
                               Icons.check,
-                              color: Colors.white,
+                              color: style.colors.primary,
                               size: 12,
                             ),
                           )
@@ -99,9 +99,9 @@ class RectangleButton extends StatelessWidget {
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: selected
-                          ? const Icon(
+                          ? Icon(
                               Icons.check,
-                              color: Colors.white,
+                              color: style.colors.onPrimary,
                               size: 12,
                             )
                           : const SizedBox(key: Key('None')),

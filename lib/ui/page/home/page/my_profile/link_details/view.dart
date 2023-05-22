@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 
 /// View showing details about a [MyUser.chatDirectLink].
@@ -35,6 +36,8 @@ class LinkDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return AnimatedSizeAndFade(
       fadeDuration: const Duration(milliseconds: 250),
       sizeDuration: const Duration(milliseconds: 250),
@@ -58,9 +61,8 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style: context.textTheme.bodyLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                style: context.textTheme.bodyLarge!
+                    .copyWith(color: style.colors.secondary),
               ),
             ),
           ),

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -63,7 +62,10 @@ class Block extends StatelessWidget {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     child: Text(
                       title!,
-                      style: context.textTheme.displaySmall,
+                      style: style.systemMessageStyle.copyWith(
+                        color: style.colors.onBackground,
+                        fontSize: 18,
+                      ),
                     ),
                   ),
                 ),

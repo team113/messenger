@@ -183,7 +183,7 @@ class HiveRxChat extends RxChat {
     );
 
     _updateTitle(chat.value.members.map((e) => e.user));
-    _updateFields().then((_) => chat.value.isGroup ? null : _updateAvatar());
+    _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
     _worker = ever(chat, (_) => _updateFields());
 
     _messagesSubscription = messages.changes.listen((e) {
@@ -663,6 +663,9 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  /// Removes all [ChatItem]s from the [messages].
+  Future<void> clear() => _local.clear();
+
   /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
   Future<void> _initAttachments() async {
     final List<Future> futures = [];
@@ -691,7 +694,7 @@ class HiveRxChat extends RxChat {
       _updateTitle();
     }
 
-    if (chat.value.isGroup) {
+    if (!chat.value.isDialog) {
       avatar.value = chat.value.avatar;
     }
 
@@ -763,15 +766,12 @@ class HiveRxChat extends RxChat {
     RxUser? member;
 
     switch (chat.value.kind) {
-      case ChatKind.monolog:
-        member = members.values.firstOrNull;
-        break;
-
       case ChatKind.dialog:
         member = members.values.firstWhereOrNull((e) => e.id != me);
         break;
 
       case ChatKind.group:
+      case ChatKind.monolog:
         avatar.value = chat.value.avatar;
         break;
 
@@ -1075,6 +1075,10 @@ class HiveRxChat extends RxChat {
               event as EventChatItemPosted;
               final HiveChatItem item = event.item;
 
+              if (chatEntity.value.isHidden) {
+                chatEntity.value.isHidden = false;
+              }
+
               if (item.value is ChatMessage && item.value.authorId == me) {
                 ChatMessage? pending =
                     _pending.whereType<ChatMessage>().firstWhereOrNull(
@@ -1122,6 +1126,8 @@ class HiveRxChat extends RxChat {
                     final action = msg.action as ChatInfoActionMemberRemoved;
                     chatEntity.value.members
                         .removeWhere((e) => e.user.id == action.user.id);
+                    chatEntity.value.lastReads
+                        .removeWhere((e) => e.memberId == action.user.id);
                     await _chatRepository.onMemberRemoved(id, action.user.id);
                     break;
 
@@ -1193,17 +1199,20 @@ class HiveRxChat extends RxChat {
 /// [List].
 extension ListInsertAfter<T> on List<T> {
   /// Inserts the [element] after the [test] condition becomes `true`.
+  ///
+  /// Only meaningful, if this [List] is sorted in some way, as this method
+  /// iterates it from the [first] til the [last].
   void insertAfter(T element, bool Function(T) test) {
-    bool done = false;
-    for (var i = length - 1; i > -1 && !done; --i) {
-      if (test(this[i])) {
-        insert(i + 1, element);
-        done = true;
-      }
+    if (isEmpty || !test(this[0])) {
+      insert(0, element);
+      return;
     }
 
-    if (!done) {
-      insert(0, element);
+    for (var i = length - 1; i > -1; --i) {
+      if (test(this[i])) {
+        insert(i + 1, element);
+        return;
+      }
     }
   }
 }
@@ -1214,6 +1223,8 @@ class AwaitableTimer {
     _timer = Timer(d, () async {
       try {
         _completer.complete(await callback());
+      } on StateError {
+        // No-op, as [Future] is allowed to be completed.
       } catch (e, stackTrace) {
         _completer.completeError(e, stackTrace);
       }

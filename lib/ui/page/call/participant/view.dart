@@ -24,6 +24,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
@@ -65,6 +66,8 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: ParticipantController(
         call,
@@ -146,13 +149,13 @@ class ParticipantView extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: context.textTheme.bodyLarge!
-                              .copyWith(color: Colors.white),
+                              .copyWith(color: style.colors.onPrimary),
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: style.colors.primary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -177,6 +180,8 @@ class ParticipantView extends StatelessWidget {
 
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       bool inCall = false;
       bool isRedialed = false;
@@ -206,9 +211,9 @@ class ParticipantView extends StatelessWidget {
                   key: Key(inCall ? 'inCall' : 'NotInCall'),
                   color: inCall
                       ? isRedialed
-                          ? Colors.grey
-                          : Colors.red
-                      : Theme.of(context).colorScheme.secondary,
+                          ? style.colors.secondaryBackgroundLightest
+                          : style.colors.dangerColor
+                      : style.colors.primary,
                   type: MaterialType.circle,
                   child: InkWell(
                     onTap: inCall
@@ -222,8 +227,8 @@ class ParticipantView extends StatelessWidget {
                       height: 30,
                       child: Center(
                         child: inCall && !isRedialed
-                            ? SvgLoader.asset('assets/icons/call_end.svg')
-                            : SvgLoader.asset(
+                            ? SvgImage.asset('assets/icons/call_end.svg')
+                            : SvgImage.asset(
                                 'assets/icons/audio_call_start.svg',
                                 width: 13,
                                 height: 13,
@@ -263,13 +268,10 @@ class ParticipantView extends StatelessWidget {
                 ? Text(
                     'btn_leave'.l10n,
                     style: context.textTheme.bodyLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: style.colors.primary,
                     ),
                   )
-                : SvgLoader.asset(
-                    'assets/icons/delete.svg',
-                    height: 14 * 1.5,
-                  ),
+                : SvgImage.asset('assets/icons/delete.svg', height: 14 * 1.5),
           ),
           const SizedBox(width: 6),
         ],

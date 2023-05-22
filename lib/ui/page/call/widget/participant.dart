@@ -23,6 +23,7 @@ import 'package:medea_jason/medea_jason.dart';
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -36,14 +37,12 @@ class ParticipantWidget extends StatelessWidget {
     this.participant, {
     super.key,
     this.fit,
-    this.muted = false,
     this.outline,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
-    this.expanded = false,
   });
 
   /// [Participant] this [ParticipantWidget] represents.
@@ -51,11 +50,6 @@ class ParticipantWidget extends StatelessWidget {
 
   /// [BoxFit] mode of a [Participant.video] renderer.
   final BoxFit? fit;
-
-  /// Indicator whether this video should display `muted` icon or not.
-  ///
-  /// If `null`, then displays [Participant.audio] muted status.
-  final bool? muted;
 
   /// Indicator whether [Participant.video] should take exactly the size of its
   /// renderer's stream.
@@ -77,12 +71,10 @@ class ParticipantWidget extends StatelessWidget {
   /// Border radius of [Participant.video].
   final BorderRadius? borderRadius;
 
-  /// Indicator whether this [ParticipantWidget] should have its background
-  /// expanded.
-  final bool expanded;
-
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
 
@@ -137,14 +129,14 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantRedialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black.withOpacity(0.4),
-                child: const Padding(
-                  padding: EdgeInsets.all(21.0),
+                color: style.colors.onBackgroundOpacity50,
+                child: Padding(
+                  padding: const EdgeInsets.all(21.0),
                   child: Center(
                     child: SpinKitDoubleBounce(
-                      color: Color(0xFFEEEEEE),
+                      color: style.colors.secondaryHighlight,
                       size: 100 / 1.5,
-                      duration: Duration(milliseconds: 4500),
+                      duration: const Duration(milliseconds: 4500),
                     ),
                   ),
                 ),
@@ -154,7 +146,7 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantConnecting_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black.withOpacity(0.2),
+                color: style.colors.onBackgroundOpacity50,
                 child: const Center(
                   child: CustomProgressIndicator(size: 64),
                 ),
@@ -173,16 +165,15 @@ class ParticipantWidget extends StatelessWidget {
 
   /// Returns a raised hand animated icon.
   Widget _handRaisedIcon(bool isRaised) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
       child: isRaised
           ? CircleAvatar(
               radius: 45,
-              backgroundColor: const Color(0xD8818181),
-              child: SvgLoader.asset(
-                'assets/icons/hand_up.svg',
-                width: 90,
-              ),
+              backgroundColor: style.colors.secondaryOpacity87,
+              child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
             )
           : Container(),
     );
@@ -216,13 +207,15 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       bool isMuted;
 
       if (participant.source == MediaSourceKind.Display) {
         isMuted = false;
       } else {
-        isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+        isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
       }
 
       bool isVideoDisabled = participant.video.value?.renderer.value == null &&
@@ -240,7 +233,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 3, right: 3),
-            child: SvgLoader.asset(
+            child: SvgImage.asset(
               'assets/icons/audio_off_small.svg',
               width: 20.88,
               height: 17,
@@ -252,7 +245,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
+            child: SvgImage.asset(
               'assets/icons/microphone_off_small.svg',
               height: 16.5,
             ),
@@ -269,7 +262,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           additionally.add(
             Padding(
               padding: const EdgeInsets.only(left: 4, right: 4),
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
               ),
@@ -279,7 +272,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           additionally.add(
             Padding(
               padding: const EdgeInsets.only(left: 4, right: 4),
-              child: SvgLoader.asset(
+              child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
               ),
@@ -293,7 +286,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 5, right: 5),
-            child: SvgLoader.asset(
+            child: SvgImage.asset(
               'assets/icons/video_off_small.svg',
               width: 19.8,
               height: 17,
@@ -308,7 +301,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.user.value?.user.value.name?.val ??
               participant.user.value?.user.value.num.val ??
               'dot'.l10n * 3,
-          style: context.textTheme.bodyLarge!.copyWith(color: Colors.white),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: style.colors.onPrimary,
+          ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -321,9 +316,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           key: const Key('Tooltip'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
-            boxShadow: const [
+            boxShadow: [
               CustomBoxShadow(
-                color: Color(0x22000000),
+                color: style.colors.onBackgroundOpacity13,
                 blurRadius: 8,
                 blurStyle: BlurStyle.outer,
               )
@@ -336,8 +331,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 color: preferBackdrop
-                    ? const Color(0x4D165084)
-                    : const Color(0xBB1F3C5D),
+                    ? style.colors.onSecondaryOpacity20
+                    : style.colors.onSecondary,
               ),
               padding: EdgeInsets.only(
                 left: 6,
@@ -380,6 +375,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
+                  layoutBuilder: (current, previous) => Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (previous.isNotEmpty) previous.first,
+                      if (current != null) current,
+                    ],
+                  ),
                   child: child,
                 ),
               ),
@@ -397,6 +399,8 @@ class ParticipantDecoratorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Center(
       child: Stack(
         alignment: Alignment.center,
@@ -406,7 +410,10 @@ class ParticipantDecoratorWidget extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0x30000000), width: 0.5),
+                border: Border.all(
+                  color: style.colors.onBackgroundOpacity20,
+                  width: 0.5,
+                ),
               ),
               child: const IgnorePointer(),
             ),

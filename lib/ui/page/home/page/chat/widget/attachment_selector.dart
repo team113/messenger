@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -73,6 +74,8 @@ class AttachmentSourceSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     Widget button({
       required String text,
       IconData? icon,
@@ -89,11 +92,11 @@ class AttachmentSourceSelector extends StatelessWidget {
             Navigator.of(context).pop();
           },
           style: context.textTheme.bodyLarge,
-          color: Theme.of(context).colorScheme.secondary,
+          color: style.colors.primary,
           child: SizedBox(
             width: 60,
             height: 60,
-            child: child ?? Icon(icon, color: Colors.white, size: 30),
+            child: child ?? Icon(icon, color: style.colors.onPrimary, size: 30),
           ),
         ),
       );
@@ -104,7 +107,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         text:
             PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
         onPressed: onTakePhoto,
-        child: SvgLoader.asset(
+        child: SvgImage.asset(
           'assets/icons/make_photo.svg',
           width: 60,
           height: 60,
@@ -114,7 +117,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         button(
           text: 'label_video'.l10n,
           onPressed: onTakeVideo,
-          child: SvgLoader.asset(
+          child: SvgImage.asset(
             'assets/icons/video_on.svg',
             width: 60,
             height: 60,
@@ -123,7 +126,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       button(
         text: 'label_gallery'.l10n,
         onPressed: onPickMedia,
-        child: SvgLoader.asset(
+        child: SvgImage.asset(
           'assets/icons/gallery.svg',
           width: 60,
           height: 60,
@@ -132,7 +135,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       button(
         text: 'label_file'.l10n,
         onPressed: onPickFile,
-        child: SvgLoader.asset(
+        child: SvgImage.asset(
           'assets/icons/file.svg',
           width: 60,
           height: 60,
@@ -153,7 +156,7 @@ class AttachmentSourceSelector extends StatelessWidget {
           key: const Key('CloseButton'),
           title: Text('btn_close'.l10n),
           onPressed: Navigator.of(context).pop,
-          color: const Color(0xFFEEEEEE),
+          color: style.colors.secondaryHighlight,
         ),
         const SizedBox(height: 10),
       ],

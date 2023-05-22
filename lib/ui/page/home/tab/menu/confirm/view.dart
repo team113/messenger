@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -39,6 +40,8 @@ class ConfirmLogoutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
       init: ConfirmLogoutController(Get.find()),
@@ -68,7 +71,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   style: context.textTheme.bodyLarge,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
@@ -82,7 +85,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   style: context.textTheme.bodyLarge,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
@@ -94,14 +97,14 @@ class ConfirmLogoutView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: context.textTheme.bodyLarge!.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? Colors.black
-                          : Colors.white,
+                          ? style.colors.onBackground
+                          : style.colors.onPrimary,
                     ),
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
                       : c.setPassword,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -120,7 +123,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 Text(
                   'label_password_set'.l10n,
                   style: context.textTheme.bodyLarge!.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: style.colors.secondary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -131,10 +134,10 @@ class ConfirmLogoutView extends StatelessWidget {
                     title: Text(
                       'btn_close'.l10n,
                       style: context.textTheme.bodyLarge!
-                          .copyWith(color: Colors.white),
+                          .copyWith(color: style.colors.onPrimary),
                     ),
                     onPressed: Navigator.of(context).pop,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: style.colors.primary,
                   ),
                 ),
               ];
@@ -155,7 +158,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   child: RichText(
                     text: TextSpan(
                       style: context.textTheme.bodyLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: style.colors.secondary,
                       ),
                       children: [
                         TextSpan(
@@ -163,7 +166,7 @@ class ConfirmLogoutView extends StatelessWidget {
                         ),
                         TextSpan(
                           style: context.textTheme.bodyLarge!
-                              .copyWith(color: Colors.black),
+                              .copyWith(color: style.colors.onBackground),
                           text: c.myUser.value?.name?.val ??
                               c.myUser.value?.num.val ??
                               '',
@@ -183,16 +186,16 @@ class ConfirmLogoutView extends StatelessWidget {
                     title: Text(
                       'btn_logout'.l10n,
                       style: context.textTheme.bodyLarge!
-                          .copyWith(color: Colors.white),
+                          .copyWith(color: style.colors.onPrimary),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: style.colors.primary,
                   ),
                 ] else ...[
                   RichText(
                     text: TextSpan(
                       style: context.textTheme.bodyLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: style.colors.secondary,
                       ),
                       children: [
                         TextSpan(text: 'label_password_not_set'.l10n),
@@ -209,11 +212,11 @@ class ConfirmLogoutView extends StatelessWidget {
                           title: Text(
                             'btn_set_password'.l10n,
                             style: context.textTheme.bodyLarge!
-                                .copyWith(color: Colors.white),
+                                .copyWith(color: style.colors.onPrimary),
                           ),
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: style.colors.primary,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -226,7 +229,7 @@ class ConfirmLogoutView extends StatelessWidget {
                             style: context.textTheme.bodyLarge,
                           ),
                           onPressed: () => Navigator.of(context).pop(true),
-                          color: const Color(0xFFEEEEEE),
+                          color: style.colors.secondaryHighlight,
                         ),
                       )
                     ],

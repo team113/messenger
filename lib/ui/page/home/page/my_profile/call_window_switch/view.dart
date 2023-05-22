@@ -21,8 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
@@ -42,8 +41,6 @@ class CallWindowSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
       builder: (CallWindowSwitchController c) {
@@ -80,53 +77,12 @@ class CallWindowSwitchView extends StatelessWidget {
                             (c.settings.value?.enablePopups ?? true) == false;
                       }
 
-                      return Material(
-                        borderRadius: BorderRadius.circular(10),
-                        color: selected
-                            ? style.cardSelectedColor.withOpacity(0.8)
-                            : Colors.white.darken(0.05),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(10),
-                          onTap: () => c.setPopupsEnabled(i == 0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    i == 0
-                                        ? 'label_open_calls_in_window'.l10n
-                                        : 'label_open_calls_in_app'.l10n,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textTheme.bodyLarge,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: AnimatedSwitcher(
-                                    duration: 200.milliseconds,
-                                    child: selected
-                                        ? CircleAvatar(
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            radius: 12,
-                                            child: const Icon(
-                                              Icons.check,
-                                              color: Colors.white,
-                                              size: 12,
-                                            ),
-                                          )
-                                        : const SizedBox(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      return RectangleButton(
+                        label: i == 0
+                            ? 'label_open_calls_in_window'.l10n
+                            : 'label_open_calls_in_app'.l10n,
+                        selected: selected,
+                        onPressed: () => c.setPopupsEnabled(i == 0),
                       );
                     });
                   },

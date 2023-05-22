@@ -35,7 +35,6 @@ import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/attachment_selector.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -93,10 +92,11 @@ class MessageFieldView extends StatelessWidget {
       borderRadius: BorderRadius.circular(25),
       borderSide: BorderSide.none,
     );
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Theme.of(context).copyWith(
-      shadowColor: const Color(0x55000000),
-      iconTheme: const IconThemeData(color: Colors.blue),
+      shadowColor: style.colors.onBackgroundOpacity27,
+      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
       inputDecorationTheme: InputDecorationTheme(
         border: border,
         errorBorder: border,
@@ -104,9 +104,9 @@ class MessageFieldView extends StatelessWidget {
         focusedBorder: border,
         disabledBorder: border,
         focusedErrorBorder: border,
-        focusColor: Colors.white,
-        fillColor: Colors.white,
-        hoverColor: Colors.transparent,
+        focusColor: style.colors.onPrimary,
+        fillColor: style.colors.onPrimary,
+        hoverColor: style.colors.transparent,
         filled: true,
         isDense: true,
         contentPadding: EdgeInsets.fromLTRB(
@@ -134,8 +134,11 @@ class MessageFieldView extends StatelessWidget {
               key: const Key('SendField'),
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                boxShadow: const [
-                  CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+                boxShadow: [
+                  CustomBoxShadow(
+                    blurRadius: 8,
+                    color: style.colors.onBackgroundOpacity13,
+                  ),
                 ],
               ),
               child: ConditionalBackdropFilter(
@@ -215,8 +218,8 @@ class MessageFieldView extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    const Color(0x00000000),
-                    const Color(0x33000000),
+                    style.colors.transparent,
+                    style.colors.onBackgroundOpacity20,
                     t,
                   )!;
 
@@ -295,8 +298,8 @@ class MessageFieldView extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    const Color(0x00000000),
-                    const Color(0x33000000),
+                    style.colors.transparent,
+                    style.colors.onBackgroundOpacity20,
                     t,
                   )!;
 
@@ -352,7 +355,7 @@ class MessageFieldView extends StatelessWidget {
             topRight: style.cardRadius.topRight,
           ),
           child: Container(
-            color: Colors.white.withOpacity(0.4),
+            color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(
               duration: 400.milliseconds,
               curve: Curves.ease,
@@ -448,7 +451,7 @@ class MessageFieldView extends StatelessWidget {
               width: 56,
               height: 56,
               child: Center(
-                child: SvgLoader.asset(
+                child: SvgImage.asset(
                   'assets/icons/attach.svg',
                   height: 22,
                   width: 22,
@@ -493,14 +496,14 @@ class MessageFieldView extends StatelessWidget {
                     child: AnimatedSwitcher(
                       duration: 300.milliseconds,
                       child: c.forwarding.value
-                          ? SvgLoader.asset(
+                          ? SvgImage.asset(
                               'assets/icons/forward.svg',
                               width: 26,
                               height: 22,
                             )
-                          : SvgLoader.asset(
-                              key: sendKey ?? const Key('Send'),
+                          : SvgImage.asset(
                               'assets/icons/send.svg',
+                              key: sendKey ?? const Key('Send'),
                               height: 22.85,
                               width: 25.18,
                             ),
@@ -533,6 +536,8 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
+      final Style style = Theme.of(context).extension<Style>()!;
+
       if (isImage || isVideo) {
         final Widget child = MediaAttachment(
           attachment: e,
@@ -598,13 +603,13 @@ class MessageFieldView extends StatelessWidget {
                       Container(
                         width: 60,
                         height: 60,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0x80000000),
+                          color: style.colors.onBackgroundOpacity50,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.play_arrow,
-                          color: Colors.white,
+                          color: style.colors.onPrimary,
                           size: 48,
                         ),
                       ),
@@ -654,7 +659,7 @@ class MessageFieldView extends StatelessWidget {
                       : e.original.size! ~/ 1024
                 }),
                 style: context.textTheme.bodySmall!.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: style.colors.secondary,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -680,7 +685,7 @@ class MessageFieldView extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: const Color(0xFFF5F5F5),
+            color: style.colors.secondaryHighlight,
           ),
           margin: const EdgeInsets.symmetric(horizontal: 2),
           child: Stack(
@@ -696,12 +701,15 @@ class MessageFieldView extends StatelessWidget {
                     child: e is LocalAttachment
                         ? e.status.value == SendingStatus.error
                             ? Container(
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white,
+                                  color: style.colors.onPrimary,
                                 ),
-                                child: const Center(
-                                  child: Icon(Icons.error, color: Colors.red),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.error,
+                                    color: style.colors.dangerColor,
+                                  ),
                                 ),
                               )
                             : const SizedBox()
@@ -734,7 +742,7 @@ class MessageFieldView extends StatelessWidget {
                                 color: style.cardColor,
                               ),
                               alignment: Alignment.center,
-                              child: SvgLoader.asset(
+                              child: SvgImage.asset(
                                 'assets/icons/close_primary.svg',
                                 width: 7,
                                 height: 7,
@@ -790,8 +798,8 @@ class MessageFieldView extends StatelessWidget {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? Colors.white.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.03),
+                    ? style.colors.onPrimaryOpacity25
+                    : style.colors.onBackgroundOpacity2,
                 borderRadius: BorderRadius.circular(4),
               ),
               width: 30,
@@ -799,7 +807,9 @@ class MessageFieldView extends StatelessWidget {
               child: image == null
                   ? Icon(
                       Icons.file_copy,
-                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                      color: fromMe
+                          ? style.colors.onPrimary
+                          : style.colors.secondaryHighlightDarkest,
                       size: 16,
                     )
                   : RetryImage(
@@ -852,11 +862,11 @@ class MessageFieldView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: item.withVideo
-                ? SvgLoader.asset(
+                ? SvgImage.asset(
                     'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
                   )
-                : SvgLoader.asset(
+                : SvgImage.asset(
                     'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 15,
                   ),
@@ -871,7 +881,7 @@ class MessageFieldView extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: context.textTheme.bodySmall!.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: style.colors.secondary,
                 ),
               ),
             ),
@@ -897,15 +907,12 @@ class MessageFieldView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(width: 12),
-          SvgLoader.asset('assets/icons/edit.svg', width: 17, height: 17),
+          SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
                 border: Border(
-                  left: BorderSide(
-                    width: 2,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+                  left: BorderSide(width: 2, color: style.colors.primary),
                 ),
               ),
               margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -916,9 +923,8 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: context.textTheme.displaySmall!.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
+                    style: context.textTheme.displaySmall!
+                        .copyWith(color: style.colors.primary),
                   ),
                   if (content != null) ...[
                     const SizedBox(height: 2),
@@ -939,10 +945,10 @@ class MessageFieldView extends StatelessWidget {
         future: c.getUser(item.authorId),
         builder: (context, snapshot) {
           final Color color = snapshot.data?.user.value.id == c.me
-              ? Theme.of(context).colorScheme.secondary
-              : AvatarWidget.colors[
+              ? style.colors.primary
+              : style.colors.userColors[
                   (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                      AvatarWidget.colors.length];
+                      style.colors.userColors.length];
 
           return Container(
             key: Key('Reply_${c.replied.indexOf(item)}'),
@@ -967,7 +973,7 @@ class MessageFieldView extends StatelessWidget {
                     : Text(
                         'dot'.l10n * 3,
                         style: context.textTheme.displaySmall!.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: style.colors.primary,
                         ),
                       ),
                 if (content != null) ...[
@@ -992,7 +998,7 @@ class MessageFieldView extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
+          color: style.colors.secondaryHighlight,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -1017,7 +1023,7 @@ class MessageFieldView extends StatelessWidget {
                         color: style.cardColor,
                       ),
                       alignment: Alignment.center,
-                      child: SvgLoader.asset(
+                      child: SvgImage.asset(
                         'assets/icons/close_primary.svg',
                         width: 7,
                         height: 7,

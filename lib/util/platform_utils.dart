@@ -145,7 +145,11 @@ class PlatformUtilsImpl {
     if (isWeb) {
       return Future.value(WebUtils.isFocused);
     } else if (isDesktop) {
-      return await WindowManager.instance.isFocused();
+      try {
+        return await WindowManager.instance.isFocused();
+      } on MissingPluginException {
+        return true;
+      }
     } else {
       return Future.value(router.lifecycle.value.inForeground);
     }
@@ -376,7 +380,8 @@ class PlatformUtilsImpl {
   }
 
   /// Stores the provided [text] on the [Clipboard].
-  void copy({String? text}) => Clipboard.setData(ClipboardData(text: text));
+  void copy({required String text}) =>
+      Clipboard.setData(ClipboardData(text: text));
 }
 
 /// Determining whether a [BuildContext] is mobile or not.

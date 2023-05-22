@@ -22,6 +22,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
@@ -59,6 +60,8 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
       builder: (MessageInfoController c) {
@@ -92,7 +95,7 @@ class MessageInfo extends StatelessWidget {
                         style: context.textTheme.bodySmall,
                       ),
                       const SizedBox(width: 8),
-                      SvgLoader.asset('assets/icons/copy.svg', height: 12),
+                      SvgImage.asset('assets/icons/copy.svg', height: 12),
                     ],
                   ),
                 ),
@@ -109,10 +112,7 @@ class MessageInfo extends StatelessWidget {
                   height: 50,
                   child: CustomAppBar(
                     border: !c.search.isEmpty.value || c.search.isFocused.value
-                        ? Border.all(
-                            color: Theme.of(context).colorScheme.secondary,
-                            width: 2,
-                          )
+                        ? Border.all(color: style.colors.primary, width: 2)
                         : null,
                     margin: const EdgeInsets.only(top: 4),
                     title: Theme(
@@ -135,7 +135,7 @@ class MessageInfo extends StatelessWidget {
                     leading: [
                       Padding(
                         padding: const EdgeInsets.only(left: 20, right: 12),
-                        child: SvgLoader.asset(
+                        child: SvgImage.asset(
                           'assets/icons/search.svg',
                           width: 17.77,
                         ),
@@ -151,7 +151,7 @@ class MessageInfo extends StatelessWidget {
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(left: 12, right: 18),
-                            child: SvgLoader.asset(
+                            child: SvgImage.asset(
                               'assets/icons/close_primary.svg',
                               height: 15,
                             ),
@@ -221,8 +221,7 @@ class MessageInfo extends StatelessWidget {
                                     }),
                                     style:
                                         context.textTheme.bodyLarge!.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+                                      color: style.colors.secondary,
                                     ),
                                   ),
                                 ],
