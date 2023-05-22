@@ -39,7 +39,6 @@ class PrimaryButton extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return OutlinedRoundedButton(
-      key: key,
       maxWidth: double.infinity,
       title: Text(
         title,
