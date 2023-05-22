@@ -494,6 +494,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatInfo].
   Widget _renderAsChatInfo() {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final ChatInfo message = widget.item.value as ChatInfo;
 
     final Widget content;
@@ -833,80 +834,20 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             style.colors.userColors.length];
 
     double avatarOffset = 0;
-    // if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
-    //     msg.repliesTo.isNotEmpty) {
-    //   for (ChatItemQuote reply in msg.repliesTo) {
-    //     if (reply is ChatMessageQuote) {
-    //       if (reply.text != null && reply.attachments.isNotEmpty) {
-    //         avatarOffset += 54 + 54 + 4;
-    //       } else if (reply.text == null && reply.attachments.isNotEmpty) {
-    //         avatarOffset += 90;
-    //       } else if (reply.text != null) {
-    //         if (msg.attachments.isEmpty && _text == null) {
-    //           avatarOffset += 59 - 5;
-    //         } else {
-    //           avatarOffset += 55 - 4 + 8;
-    //         }
-    //       }
-    //     }
-
-    //     if (reply is ChatCallQuote) {
-    //       if (msg.attachments.isEmpty && _text == null) {
-    //         avatarOffset += 59 - 4;
-    //       } else {
-    //         avatarOffset += 55 - 4 + 8;
-    //       }
-    //     }
-
-    //     if (reply is ChatInfoQuote) {
-    //       if (msg.attachments.isEmpty && _text == null) {
-    //         avatarOffset += 59 - 5;
-    //       } else {
-    //         avatarOffset += 55 - 4 + 8;
-    //       }
-    //     }
-    //   }
-    // }
 
     final Color background;
     final Border border;
     final TextStyle textStyle;
 
-    // if (widget.paid) {
-    //   final Color borderColor = _fromMe
-    //       ? _isRead
-    //           // ? Color(0xFF61C061)
-    //           ? Color.fromARGB(255, 52, 204, 89)
-    //           : Color(0xFFE4F9D9)
-    //       : Color(0xFFEFF9E8);
-
-    //   border = Border.all(color: borderColor, width: 0.5);
-
-    //   background = _fromMe
-    //       ? _isRead
-    //           ? Color(0xFF67C967)
-    //           : Color(0xFFECFCE3)
-    //       : Color.fromRGBO(250, 255, 246, 1);
-
-    //   textStyle = _fromMe
-    //       // ? style.boldBody.copyWith(color: Colors.white)
-    //       ? style.boldBody
-    //       : style.boldBody;
-    // } else {
-    border = _fromMe
-        ? _isRead
-            ? style.secondaryBorder
-            : Border.all(
-                color: const Color(0xFFDAEDFF),
-                width: 0.5,
-              )
-        : style.primaryBorder;
+    border = _fromMe ? style.secondaryBorder : style.primaryBorder;
 
     background = _fromMe
         ? _isRead
             ? style.readMessageColor
             : style.unreadMessageColor
         : style.messageColor;
+
+    print('$background ${border.bottom.color}');
 
     textStyle = style.boldBody;
     // }
@@ -923,22 +864,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final bool isError = msg.status.value == SendingStatus.error;
     final bool isSending = msg.status.value == SendingStatus.sending;
 
-    // final bool timeInBubble = msg.attachments.isNotEmpty;
-
     // Indicator whether the [_timestamp] should be displayed in a bubble above
     // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
     final bool timeInBubble =
         media.isNotEmpty && _text == null && files.isEmpty;
 
-    // const Color paidColor = Color(0xFFF19CBB);
-    // const Color paidColor = Color(0xFF8383ff);
-    // const Color paidColor = Color(0xFF30d5c8);
-    // const Color paidColor = Color.fromRGBO(99, 173, 118, 1);
-
-    // const Color paidColor = Color(0xFFb68ad1);
     const Color paidColor = Color(0xFF7eae76);
-
-    // final Color paidColor = Theme.of(context).colorScheme.primary;
 
     final Widget timeline = Row(
       mainAxisSize: MainAxisSize.min,
@@ -1037,63 +968,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.boldBody.copyWith(color: color),
               ),
             ),
-          if (false && !_fromMe && widget.paid)
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                12,
-                msg.attachments.isEmpty && _text == null ? 4 : 8,
-                9,
-                files.isEmpty && media.isNotEmpty && _text == null
-                    ? 8
-                    : files.isNotEmpty && _text == null
-                        ? 0
-                        : 4,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SelectionText(
-                      'Платное сообщение',
-                      selectable: PlatformUtils.isDesktop || menu,
-                      onSelecting: widget.onSelecting,
-                      onChanged: (a) => _selection = a,
-                      style: textStyle.copyWith(
-                        color: paidColor,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  SelectionText.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '¤',
-                          style: textStyle.copyWith(
-                            height: 0.8,
-                            fontFamily: 'Gapopa',
-                            fontWeight: FontWeight.w300,
-                            color: paidColor,
-                            fontSize: 11,
-                          ),
-                        ),
-                        TextSpan(
-                          text: '123',
-                          style: textStyle.copyWith(
-                            color: paidColor,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                    selectable: PlatformUtils.isDesktop || menu,
-                    onSelecting: widget.onSelecting,
-                    onChanged: (a) => _selection = a,
-                    style: textStyle.copyWith(color: color),
-                  ),
-                ],
-              ),
-            ),
           if (msg.repliesTo.isNotEmpty)
             ...msg.repliesTo.mapIndexed((i, e) {
               return AnimatedContainer(
@@ -1184,7 +1058,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         width: media.length * 120,
                         height: max(media.length * 60, 300),
                         child: FitView(
-                          dividerColor: Colors.transparent,
+                          dividerColor: style.colors.transparent,
                           children: media
                               .mapIndexed(
                                 (i, e) => ChatItemWidget.mediaAttachment(
@@ -1815,8 +1689,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders the provided [item] as a replied message.
-  Widget _repliedMessage(ChatItemQuote item, BoxConstraints constraints,
-      [bool menu = false]) {
+  Widget _repliedMessage(
+    ChatItemQuote item,
+    BoxConstraints constraints, [
+    bool menu = false,
+  ]) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.author == widget.me;
 
@@ -1858,7 +1735,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       width: media.length * 120,
                       height: max(media.length * 60, 300),
                       child: FitView(
-                        dividerColor: Colors.transparent,
+                        dividerColor: style.colors.transparent,
                         children: media
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(
@@ -1917,8 +1794,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? Colors.white.withOpacity(0.25)
-                    : Colors.black.withOpacity(0.03),
+                    ? style.colors.onPrimaryOpacity25
+                    : style.colors.onBackgroundOpacity2,
                 borderRadius: BorderRadius.circular(10),
               ),
               width: 50,
@@ -1953,8 +1830,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 margin: const EdgeInsets.only(right: 2),
                 decoration: BoxDecoration(
                   color: fromMe
-                      ? Colors.white.withOpacity(0.25)
-                      : Colors.black.withOpacity(0.03),
+                      ? style.colors.onPrimaryOpacity25
+                      : style.colors.onBackgroundOpacity2,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 width: 50,
