@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;

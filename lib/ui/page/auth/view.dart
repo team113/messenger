@@ -52,9 +52,7 @@ class AuthView extends StatelessWidget {
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
-        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
-          color: style.colors.onBackground,
-        );
+        final Color primary = Theme.of(context).colorScheme.primary;
 
         // Header part of the page.
         //
@@ -106,7 +104,7 @@ class AuthView extends StatelessWidget {
               'btn_login'.l10n,
               style: context.textTheme.displaySmall,
             ),
-            leading: SvgLoader.asset(
+            leading: SvgImage.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
             ),
@@ -240,8 +238,6 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     await ModalPopup.show(
       context: context,
       child: Column(

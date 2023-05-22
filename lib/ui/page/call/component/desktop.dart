@@ -486,7 +486,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                         e.hint,
                                         style: context.textTheme.bodySmall!
                                             .copyWith(
-                                          color: Colors.white,
+                                          color: style.colors.onPrimary,
                                         ),
                                         textAlign: TextAlign.center,
                                       )
@@ -2070,7 +2070,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(
+                                            color: style.colors.onPrimary),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

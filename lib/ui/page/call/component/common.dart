@@ -460,8 +460,6 @@ class SwitchButton extends CallButton {
 /// Returns a [Column] consisting of the [child] with the provided
 /// [description].
 Widget withDescription(Widget child, Widget description) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
-
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [

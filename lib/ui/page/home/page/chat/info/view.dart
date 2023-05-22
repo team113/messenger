@@ -325,25 +325,25 @@ class ChatInfoView extends StatelessWidget {
               onPressed: c.pickAvatar,
               child: Text(
                 'btn_upload'.l10n,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 11,
+                style: context.textTheme.bodySmall!.copyWith(
+                  color: style.colors.primary,
                 ),
               ),
             ),
             if (c.chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
-                style: const TextStyle(color: Colors.black, fontSize: 11),
+                style: context.textTheme.bodySmall!.copyWith(
+                  color: style.colors.onBackground,
+                ),
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
                 onPressed: c.deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 11,
+                  style: context.textTheme.bodySmall!.copyWith(
+                    color: style.colors.primary,
                   ),
                 ),
               ),
@@ -426,7 +426,7 @@ class ChatInfoView extends StatelessWidget {
                 RichText(
                   text: TextSpan(
                     style: context.textTheme.bodySmall!.copyWith(
-                      color: Colors.black,
+                      color: style.colors.onBackground,
                       fontWeight: FontWeight.normal,
                     ),
                     children: [
@@ -436,13 +436,15 @@ class ChatInfoView extends StatelessWidget {
                                   c.chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                        style: context.textTheme.bodySmall!.copyWith(
+                          color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: const TextStyle(color: Color(0xFF00A3FF)),
+                        style: context.textTheme.bodyLarge!.copyWith(
+                          color: style.colors.primary,
+                        ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],
@@ -506,9 +508,8 @@ class ChatInfoView extends StatelessWidget {
                         child: DefaultTextStyle(
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.secondary,
+                          style: context.textTheme.bodyLarge!.copyWith(
+                            color: style.colors.primary,
                             fontWeight: FontWeight.w300,
                           ),
                           child: title,
@@ -597,9 +598,8 @@ class ChatInfoView extends StatelessWidget {
                     onPressed: () => _removeChatMember(c, context, e),
                     child: Text(
                       'btn_leave'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 15,
+                      style: context.textTheme.bodyLarge!.copyWith(
+                        color: style.colors.primary,
                       ),
                     ),
                   )
@@ -632,71 +632,86 @@ class ChatInfoView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _dense(
-          FieldButton(
-            onPressed: () {},
-            text: 'btn_add_to_contacts'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+        if (!c.isMonolog) ...[
+          _dense(
+            FieldButton(
+              onPressed: () {},
+              text: 'btn_add_to_contacts'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                ),
+              ),
+              style: context.textTheme.bodyLarge!.copyWith(
+                color: style.colors.primary,
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          Obx(() {
-            final bool favorited = c.chat?.chat.value.favoritePosition != null;
+          const SizedBox(height: 10),
+        ],
+        if (!c.isLocal) ...[
+          _dense(
+            Obx(() {
+              final bool favorited =
+                  c.chat?.chat.value.favoritePosition != null;
 
-            return FieldButton(
-              onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
-              text: favorited
-                  ? 'btn_delete_from_favorites'.l10n
-                  : 'btn_add_to_favorites'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+              return FieldButton(
+                key: Key(
+                  favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
                 ),
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          Obx(() {
-            final bool muted = c.chat?.chat.value.muted != null;
+                onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
+                text: favorited
+                    ? 'btn_delete_from_favorites'.l10n
+                    : 'btn_add_to_favorites'.l10n,
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child:
+                        SvgImage.asset('assets/icons/delete.svg', height: 14),
+                  ),
+                ),
+                style: context.textTheme.bodyLarge!
+                    .copyWith(color: style.colors.primary),
+              );
+            }),
+          ),
+          const SizedBox(height: 10),
+        ],
+        if (!c.isMonolog) ...[
+          _dense(
+            Obx(() {
+              final bool muted = c.chat?.chat.value.muted != null;
 
-            return FieldButton(
-              onPressed: muted ? c.unmuteChat : c.muteChat,
-              text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: muted
-                      ? SvgLoader.asset(
-                          'assets/icons/btn_mute.svg',
-                          width: 18.68,
-                          height: 15,
-                        )
-                      : SvgLoader.asset(
-                          'assets/icons/btn_unmute.svg',
-                          width: 17.86,
-                          height: 15,
-                        ),
+              return FieldButton(
+                onPressed: muted ? c.unmuteChat : c.muteChat,
+                text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: muted
+                        ? SvgImage.asset(
+                            'assets/icons/btn_mute.svg',
+                            width: 18.68,
+                            height: 15,
+                          )
+                        : SvgImage.asset(
+                            'assets/icons/btn_unmute.svg',
+                            width: 17.86,
+                            height: 15,
+                          ),
+                  ),
                 ),
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
-        ),
-        const SizedBox(height: 10),
+                style: context.textTheme.bodyLarge!
+                    .copyWith(color: style.colors.primary),
+              );
+            }),
+          ),
+          const SizedBox(height: 10),
+        ],
         _dense(
           FieldButton(
             key: const Key('HideChatButton'),
@@ -709,7 +724,8 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: context.textTheme.bodyLarge!
+                .copyWith(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 10),
@@ -725,54 +741,60 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: context.textTheme.bodyLarge!
+                .copyWith(color: style.colors.primary),
           ),
         ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _leaveGroup(c, context),
-            text: 'btn_leave_group'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+        if (!c.isMonolog) ...[
+          const SizedBox(height: 10),
+          _dense(
+            FieldButton(
+              onPressed: () => _leaveGroup(c, context),
+              text: 'btn_leave_group'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: context.textTheme.bodyLarge!
+                  .copyWith(color: style.colors.primary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () => _blacklistChat(c, context),
-            text: 'btn_block'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+          const SizedBox(height: 10),
+          _dense(
+            FieldButton(
+              onPressed: () => _blacklistChat(c, context),
+              text: 'btn_block'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: context.textTheme.bodyLarge!
+                  .copyWith(color: style.colors.primary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            onPressed: () {},
-            text: 'btn_report'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+          const SizedBox(height: 10),
+          _dense(
+            FieldButton(
+              onPressed: () {},
+              text: 'btn_report'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                ),
               ),
+              style: context.textTheme.bodyLarge!
+                  .copyWith(color: style.colors.primary),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -794,7 +816,9 @@ class ChatInfoView extends StatelessWidget {
           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
           TextSpan(
             text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: const TextStyle(color: Colors.black),
+            style: context.textTheme.bodyLarge!.copyWith(
+              color: style.colors.onBackground,
+            ),
           ),
           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
         ],
@@ -828,7 +852,9 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: style.colors.onBackground,
+          ),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
@@ -849,7 +875,9 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: style.colors.onBackground,
+          ),
         ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
@@ -873,7 +901,9 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: context.textTheme.bodyLarge!.copyWith(
+            color: style.colors.onBackground,
+          ),
         ),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],
