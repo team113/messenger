@@ -74,10 +74,10 @@ class MessageTimestamp extends StatelessWidget {
                           ? Icons.error_outline
                           : Icons.done,
               color: isRead
-                  ? Theme.of(context).colorScheme.secondary
+                  ? style.colors.primary
                   : isError
-                      ? Colors.red
-                      : Theme.of(context).colorScheme.primary,
+                      ? style.colors.dangerColor
+                      : style.colors.secondary,
               size: 12,
               key: Key(
                 isError

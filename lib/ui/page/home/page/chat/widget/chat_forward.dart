@@ -262,12 +262,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     final Color color = widget.user?.user.value.id == widget.me
-        ? Theme.of(context).colorScheme.secondary
-        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+        ? style.colors.primary
+        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.colors.userColors.length];
 
     return DefaultTextStyle(
       style: style.boldBody,
@@ -293,7 +293,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         ? _isRead
                             ? style.secondaryBorder
                             : Border.all(
-                                color: const Color(0xFFDAEDFF),
+                                color: style.colors.backgroundAuxiliaryLighter,
                                 width: 0.5,
                               )
                         : style.primaryBorder,
@@ -381,10 +381,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Returns a visual representation of the provided [forward].
   Widget _forwardedMessage(Rx<ChatItem> forward, bool menu) {
     return Obx(() {
-      ChatForward msg = forward.value as ChatForward;
-      ChatItemQuote quote = msg.quote;
+      final ChatForward msg = forward.value as ChatForward;
+      final ChatItemQuote quote = msg.quote;
 
-      Style style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
 
       Widget? content;
       List<Widget> additional = [];
@@ -534,8 +534,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         content = Text('err_unknown'.l10n, style: style.boldBody);
       }
 
-      final bool fromMe = quote.author == widget.me;
-
       return AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
@@ -560,10 +558,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
                 final Color color = snapshot.data?.user.value.id == widget.me
-                    ? Theme.of(context).colorScheme.secondary
-                    : AvatarWidget.colors[
+                    ? style.colors.primary
+                    : style.colors.userColors[
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                            AvatarWidget.colors.length];
+                            style.colors.userColors.length];
 
                 return Row(
                   mainAxisSize: MainAxisSize.min,
@@ -688,9 +686,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       }).toList();
 
       final Color color = widget.user?.user.value.id == widget.me
-          ? Theme.of(context).colorScheme.secondary
-          : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-              AvatarWidget.colors.length];
+          ? style.colors.primary
+          : style.colors.userColors[
+              (widget.user?.user.value.num.val.sum() ?? 3) %
+                  style.colors.userColors.length];
 
       return [
         if (!_fromMe && widget.chat.value?.isGroup == true)
@@ -730,7 +729,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       width: attachments.length * 120,
                       height: max(attachments.length * 60, 300),
                       child: FitView(
-                        dividerColor: Colors.transparent,
+                        dividerColor: style.colors.transparent,
                         children: attachments
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(

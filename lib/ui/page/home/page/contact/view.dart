@@ -28,6 +28,7 @@ import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/contact.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import 'controller.dart';
 
 // TODO: Implement [Routes.contacts] page.

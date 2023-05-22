@@ -164,7 +164,7 @@ class _PublicViewState extends State<PublicView>
                   const SizedBox(width: 10),
                 ],
               ),
-              leading: [StyledBackButton(color: style.green)],
+              leading: const [StyledBackButton(color: Colors.green)],
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),

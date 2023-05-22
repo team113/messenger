@@ -18,7 +18,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:messenger/routes.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
@@ -195,10 +194,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
                 boxShadow: shadow
-                    ? const [
+                    ? [
                         CustomBoxShadow(
                           blurRadius: 8,
-                          color: Color(0x22000000),
+                          color: style.colors.onBackgroundOpacity13,
                           blurStyle: BlurStyle.outer,
                         ),
                       ]

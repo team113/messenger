@@ -36,7 +36,6 @@ class FieldButton extends StatefulWidget {
     this.trailing,
     this.prefix,
     this.style,
-    this.fillColor = Colors.white,
     this.border,
     this.prefixText,
     this.prefixStyle,
@@ -72,9 +71,6 @@ class FieldButton extends StatefulWidget {
 
   /// [TextStyle] of the [text].
   final TextStyle? style;
-
-  /// Fill color of the [ReactiveTextField].
-  final Color fillColor;
 
   final Border? border;
 
@@ -120,8 +116,8 @@ class _FieldButtonState extends State<FieldButton> {
             prefix: widget.prefix,
             style: widget.style,
             fillColor: _hovered && widget.onPressed != null
-                ? widget.fillColor.darken(0.03)
-                : widget.fillColor,
+                ? style.colors.onPrimary.darken(0.03)
+                : style.colors.onPrimary,
           ),
         ),
       ),

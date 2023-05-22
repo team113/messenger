@@ -103,6 +103,8 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
       init: ChatController(
@@ -202,8 +204,8 @@ class _ChatViewState extends State<ChatView>
                           Material(
                             elevation: 6,
                             type: MaterialType.circle,
-                            shadowColor: const Color(0x55000000),
-                            color: Colors.white,
+                            shadowColor: style.colors.onBackgroundOpacity27,
+                            color: style.colors.onPrimary,
                             child: InkWell(
                               customBorder: const CircleBorder(),
                               onTap: onDetailsTap,
@@ -219,8 +221,8 @@ class _ChatViewState extends State<ChatView>
                           Flexible(
                             child: InkWell(
                               splashFactory: NoSplash.splashFactory,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
+                              hoverColor: style.colors.transparent,
+                              highlightColor: style.colors.transparent,
                               onTap: onDetailsTap,
                               child: DefaultTextStyle.merge(
                                 maxLines: 1,
@@ -229,11 +231,13 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      c.chat!.title.value,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
+                                    Obx(() {
+                                      return Text(
+                                        c.chat!.title.value,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      );
+                                    }),
                                     if (!isMonolog) _chatSubtitle(c),
                                   ],
                                 ),
@@ -287,8 +291,8 @@ class _ChatViewState extends State<ChatView>
                                         child: Container(
                                           height: 32,
                                           width: 32,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
+                                          decoration: BoxDecoration(
+                                            color: style.colors.dangerColor,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
@@ -307,9 +311,7 @@ class _ChatViewState extends State<ChatView>
                                           height: 32,
                                           width: 32,
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
+                                            color: style.colors.primary,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
@@ -810,7 +812,7 @@ class _ChatViewState extends State<ChatView>
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
-                                color: const Color(0x40000000),
+                                color: style.colors.onBackgroundOpacity27,
                                 child: Center(
                                   child: AnimatedDelayedScale(
                                     duration: const Duration(milliseconds: 300),
@@ -822,14 +824,15 @@ class _ChatViewState extends State<ChatView>
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(16),
-                                          color: const Color(0x40000000),
+                                          color: style
+                                              .colors.onBackgroundOpacity27,
                                         ),
-                                        child: const Padding(
-                                          padding: EdgeInsets.all(16),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
                                           child: Icon(
                                             Icons.add_rounded,
                                             size: 50,
-                                            color: Colors.white,
+                                            color: style.colors.onPrimary,
                                           ),
                                         ),
                                       ),
@@ -853,6 +856,8 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
 
@@ -904,8 +909,6 @@ class _ChatViewState extends State<ChatView>
                 e.value.at.val.difference(next.item.value.at.val) <=
                     const Duration(minutes: 5));
       }
-
-      final Style style = Theme.of(context).extension<Style>()!;
 
       return FutureBuilder<RxUser?>(
         future: c.getUser(e.value.authorId),
@@ -988,8 +991,6 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is ChatForwardElement) {
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return FutureBuilder<RxUser?>(
         future: c.getUser(element.authorId),
         builder: (_, u) => Obx(
@@ -1131,10 +1132,10 @@ class _ChatViewState extends State<ChatView>
               padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
               child: ConstrainedBox(
                 constraints: BoxConstraints.tight(const Size.square(40)),
-                child: const Center(
+                child: Center(
                   child: ColoredBox(
-                    color: Colors.transparent,
-                    child: CustomProgressIndicator(),
+                    color: style.colors.transparent,
+                    child: const CustomProgressIndicator(),
                   ),
                 ),
               ),
@@ -1271,7 +1272,9 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -1297,7 +1300,7 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(subtitle.toString(), style: style);
+        return Text(subtitle.toString(), style: textStyle);
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -1309,9 +1312,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
+                style: textStyle?.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -1335,9 +1336,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
+                style: textStyle?.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -1362,7 +1361,7 @@ class _ChatViewState extends State<ChatView>
                 ),
                 const SizedBox(width: 5),
               ],
-              Flexible(child: Text(subtitle, style: style)),
+              Flexible(child: Text(subtitle, style: textStyle)),
             ],
           );
         }
@@ -1402,7 +1401,7 @@ class _ChatViewState extends State<ChatView>
 
                           buffer.write(subtitle ?? '');
 
-                          return Text(buffer.toString(), style: style);
+                          return Text(buffer.toString(), style: textStyle);
                         }
 
                         return const SizedBox();
@@ -2364,8 +2363,11 @@ class _ChatViewState extends State<ChatView>
           key: const Key('BlockedField'),
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
-            boxShadow: const [
-              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+            boxShadow: [
+              CustomBoxShadow(
+                blurRadius: 8,
+                color: style.colors.onBackgroundOpacity13,
+              ),
             ],
           ),
           child: ConditionalBackdropFilter(
@@ -2402,7 +2404,7 @@ class _ChatViewState extends State<ChatView>
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: style.colors.primary,
                               ),
                             ),
                           ),

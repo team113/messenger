@@ -113,6 +113,8 @@ class Selector<T> extends StatefulWidget {
       );
     }
 
+    final Style style = Theme.of(context).extension<Style>()!;
+
     // if (isMobile) {
     //   return showModalBottomSheet(
     //     context: context,

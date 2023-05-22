@@ -68,10 +68,10 @@ class CustomNavigationBar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       decoration: BoxDecoration(
-        boxShadow: const [
+        boxShadow: [
           CustomBoxShadow(
             blurRadius: 8,
-            color: Color(0x22000000),
+            color: style.colors.onBackgroundOpacity13,
             blurStyle: BlurStyle.outer,
           ),
         ],
@@ -106,16 +106,16 @@ class CustomNavigationBar extends StatelessWidget {
                         children: [
                           if (b.child != null)
                             InkResponse(
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.transparent,
+                              hoverColor: style.colors.transparent,
+                              highlightColor: style.colors.transparent,
+                              splashColor: style.colors.transparent,
                               onTap: () {
                                 onTap?.call(i);
                                 b.onPressed?.call();
                               },
                               child: Container(
                                 width: 80,
-                                color: Colors.transparent,
+                                color: style.colors.transparent,
                                 child: Center(
                                   child: tab(
                                     selected: currentIndex == i,
@@ -144,11 +144,12 @@ class CustomNavigationBar extends StatelessWidget {
                                                 textAlign: TextAlign.center,
                                               ),
                                             ),
-                                      textStyle: const TextStyle(
-                                        color: Colors.white,
+                                      textStyle: TextStyle(
+                                        color: style.colors.onPrimary,
                                         fontSize: 11,
                                       ),
-                                      backgroundColor: b.badgeColor,
+                                      backgroundColor: b.badgeColor ??
+                                          style.colors.dangerColor,
                                       isLabelVisible: b.badge != null,
                                       child: b.child!,
                                     ),
@@ -175,7 +176,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
-    this.badgeColor = Colors.red,
+    this.badgeColor,
     this.onPressed,
     this.child,
   });
@@ -187,7 +188,7 @@ class CustomNavigationBarItem {
   final String? badge;
 
   /// [Color] of the provided [badge], if any.
-  final Color badgeColor;
+  final Color? badgeColor;
 
   final void Function()? onPressed;
 

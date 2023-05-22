@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
@@ -30,7 +30,7 @@ import '/util/platform_utils.dart';
 /// or on context menu action.
 class CopyableTextField extends StatelessWidget {
   const CopyableTextField({
-    Key? key,
+    super.key,
     required this.state,
     this.copy,
     this.icon,
@@ -38,7 +38,7 @@ class CopyableTextField extends StatelessWidget {
     this.style,
     this.leading,
     this.maxLines = 1,
-  }) : super(key: key);
+  });
 
   /// Reactive state of this [CopyableTextField].
   final TextFieldState state;
@@ -62,16 +62,15 @@ class CopyableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (icon != null)
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 25),
-            child: Icon(
-              icon,
-              color: context.theme.colorScheme.primary,
-            ),
+            child: Icon(icon, color: style.colors.secondary),
           ),
         Expanded(
           child: ContextMenuRegion(
@@ -95,14 +94,12 @@ class CopyableTextField extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: SvgImage.asset(
-                        'assets/icons/copy.svg',
-                        height: 15,
-                      ),
+                      child:
+                          SvgImage.asset('assets/icons/copy.svg', height: 15),
                     ),
                   ),
                   label: label,
-                  style: style,
+                  style: this.style,
                 ),
               ),
             ),

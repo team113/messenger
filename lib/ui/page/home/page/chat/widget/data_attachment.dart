@@ -301,6 +301,8 @@ class _DataAttachmentState extends State<DataAttachment> {
     final Attachment e = widget.attachment;
 
     return Obx(() {
+      final Style style = Theme.of(context).extension<Style>()!;
+
       Widget leading = Container();
       RxDouble? value;
 
@@ -318,16 +320,16 @@ class _DataAttachmentState extends State<DataAttachment> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: style.colors.primary,
                   ),
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Theme.of(context).colorScheme.secondary,
-                      Theme.of(context).colorScheme.secondary,
-                      const Color(0xFFD1E1F0),
+                      style.colors.primary,
+                      style.colors.primary,
+                      style.colors.backgroundAuxiliaryLighter,
                     ],
                     stops: [
                       0,
@@ -354,11 +356,11 @@ class _DataAttachmentState extends State<DataAttachment> {
               width: 34 * 0.75,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).colorScheme.secondary,
+                color: style.colors.primary,
               ),
               child: Center(
                 child: Transform.translate(
-                  offset: Offset(0.3, -0.5),
+                  offset: const Offset(0.3, -0.5),
                   child: SvgImage.asset(
                     'assets/icons/file1.svg',
                     width: 8.8,
@@ -378,11 +380,11 @@ class _DataAttachmentState extends State<DataAttachment> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _hovered
-                    ? const Color(0xFFD1E1F0)
-                    : const Color(0x00D1E1F0),
+                    ? style.colors.backgroundAuxiliaryLighter
+                    : style.colors.transparent,
                 border: Border.all(
                   width: 2,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
               child: KeyedSubtree(
@@ -406,7 +408,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               dimension: 18,
               child: CircularProgressIndicator(
                 value: e.progress.value,
-                backgroundColor: Colors.white,
+                backgroundColor: style.colors.onPrimary,
                 strokeWidth: 5,
               ),
             );
@@ -432,8 +434,6 @@ class _DataAttachmentState extends State<DataAttachment> {
         }
       }
 
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
@@ -449,7 +449,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                   //   color: Colors.black.withOpacity(0.1),
                   //   width: 0.5,
                   // ),
-                  // color: Colors.black.withOpacity(0.03),
+                  //  color: style.colors.onBackgroundOpacity2,
                   ),
               // padding: const EdgeInsets.all(4),
               child: Row(
@@ -520,7 +520,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                               overflow: TextOverflow.ellipsis,
                               style: style.systemMessageStyle.copyWith(
                                 fontSize: 11,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: style.colors.secondary,
                               ),
                             ),
                             // if (value != null)

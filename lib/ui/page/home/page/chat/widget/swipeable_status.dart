@@ -133,10 +133,7 @@ class SwipeableStatus extends StatelessWidget {
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: style.systemMessageStyle.copyWith(
-        fontSize: 11,
-        // color: color.darken(0.3),
-      ),
+      style: style.systemMessageStyle.copyWith(fontSize: 11),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),
@@ -160,10 +157,10 @@ class SwipeableStatus extends StatelessWidget {
                               ? Icons.error_outline
                               : Icons.done,
                   color: isRead
-                      ? Theme.of(context).colorScheme.secondary
+                      ? style.colors.primary
                       : isError
-                          ? Colors.red
-                          : Theme.of(context).colorScheme.primary,
+                          ? style.colors.dangerColor
+                          : style.colors.secondary,
                   size: 12,
                 ),
               const SizedBox(width: 3),
