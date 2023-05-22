@@ -606,14 +606,22 @@ class ChatsTabView extends StatelessWidget {
                                     : () => c.leaveChat(e.id),
                                 onHide: () => c.hideChat(e.id),
                                 inCall: () => c.inCall(e.id),
-                                onMute: e.chat.value.isMonolog
+                                onMute: e.chat.value.isMonolog ||
+                                        e.chat.value.id.isLocal
                                     ? null
                                     : () => c.muteChat(e.id),
-                                onUnmute: e.chat.value.isMonolog
+                                onUnmute: e.chat.value.isMonolog ||
+                                        e.chat.value.id.isLocal
                                     ? null
                                     : () => c.unmuteChat(e.id),
-                                onFavorite: () => c.favoriteChat(e.id),
-                                onUnfavorite: () => c.unfavoriteChat(e.id),
+                                onFavorite: e.chat.value.isMonolog ||
+                                        !e.chat.value.id.isLocal
+                                    ? () => c.favoriteChat(e.id)
+                                    : null,
+                                onUnfavorite: e.chat.value.isMonolog ||
+                                        !e.chat.value.id.isLocal
+                                    ? () => c.unfavoriteChat(e.id)
+                                    : null,
                                 onSelect: c.toggleSelecting,
                                 onTap: c.selecting.value
                                     ? () => c.selectChat(e)

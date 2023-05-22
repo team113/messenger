@@ -821,7 +821,6 @@ class HiveRxChat extends RxChat {
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_local.boxEvents);
     while (await _localSubscription!.moveNext()) {
-
       BoxEvent event = _localSubscription!.current;
       int i = messages.indexWhere((e) => e.value.timestamp == event.key);
       if (event.deleted) {
