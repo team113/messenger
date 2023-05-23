@@ -338,7 +338,6 @@ class CallWorker extends DisposableService {
     _fadeTimer?.cancel();
     _fadeTimer = null;
     await _audioPlayer?.setReleaseMode(ReleaseMode.release);
-    await _audioPlayer?.stop();
     await _audioPlayer?.release();
   }
 
