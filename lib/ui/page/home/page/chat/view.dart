@@ -61,7 +61,6 @@ class ChatView extends StatefulWidget {
     this.id, {
     super.key,
     this.itemId,
-    this.controller,
   });
 
   /// ID of this [Chat].
@@ -69,9 +68,6 @@ class ChatView extends StatefulWidget {
 
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
-
-  /// Optionally provided external [ChatController].
-  final ChatController? controller;
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -106,18 +102,17 @@ class _ChatViewState extends State<ChatView>
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
-      init: widget.controller ??
-          ChatController(
-            widget.id,
-            Get.find(),
-            Get.find(),
-            Get.find(),
-            Get.find(),
-            Get.find(),
-            itemId: widget.itemId,
-          ),
+      init: ChatController(
+        widget.id,
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        itemId: widget.itemId,
+      ),
       tag: widget.id.val,
-      global: false,
+      global: !Get.isRegistered<ChatController>(tag: widget.id.val),
       dispose: (state) => state.controller?.onClose(),
       builder: (c) {
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
