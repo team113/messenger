@@ -969,9 +969,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   selectable: PlatformUtils.isDesktop || menu,
                   onSelecting: widget.onSelecting,
                   onChanged: (a) => _selection = a,
-                  style: context.textTheme.displaySmall!.copyWith(
+                  style: context.textTheme.labelLarge!.copyWith(
                     fontWeight: FontWeight.w400,
-                    fontSize: 17,
                   ),
                 ),
               ),
@@ -1370,8 +1369,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: context.textTheme.bodyLarge!.copyWith(
-                      fontSize: 15,
+                    style: context.textTheme.titleMedium!.copyWith(
                       color: style.colors.secondary,
                     ),
                   ),

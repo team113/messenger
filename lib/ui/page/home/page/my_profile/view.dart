@@ -1015,11 +1015,12 @@ Widget _background(BuildContext context, MyProfileController c) {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                child: Text(text,
-                    style: context.textTheme.displaySmall!.copyWith(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 17,
-                    )),
+                child: Text(
+                  text,
+                  style: context.textTheme.labelMedium!.copyWith(
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
               ),
             ],
           ),

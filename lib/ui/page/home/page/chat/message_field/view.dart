@@ -479,7 +479,9 @@ class MessageFieldView extends StatelessWidget {
                   filled: false,
                   dense: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: context.textTheme.displaySmall,
+                  style: context.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.normal,
+                  ),
                   type: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),

@@ -67,8 +67,7 @@ class MessagePopup {
                 header: Center(
                   child: Text(
                     title,
-                    style:
-                        context.textTheme.displaySmall!.copyWith(fontSize: 18),
+                    style: context.textTheme.displaySmall,
                   ),
                 ),
               ),

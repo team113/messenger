@@ -107,8 +107,7 @@ class ContactsTabView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'label_synchronization'.l10n,
-                        style: TextStyle(
-                          fontSize: 13,
+                        style: context.textTheme.bodySmall?.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),

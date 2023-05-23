@@ -201,7 +201,6 @@ class LoginView extends StatelessWidget {
                     child: Text(
                       'label_password_changed'.l10n,
                       style: theme.bodyLarge?.copyWith(
-                        fontSize: 15,
                         color: style.colors.secondary,
                       ),
                     ),

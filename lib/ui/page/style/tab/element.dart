@@ -573,7 +573,6 @@ class ElementStyleTabView extends StatelessWidget {
                                 style:
                                     context.textTheme.headlineMedium?.copyWith(
                                   color: style.colors.onPrimary,
-                                  fontSize: 20,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
@@ -654,8 +653,7 @@ class ElementStyleTabView extends StatelessWidget {
                 background: true,
                 title: 'Выпадающее меню с кнопками в чате.',
                 child: AnimatedFab(
-                  labelStyle:
-                      context.textTheme.bodyLarge!.copyWith(fontSize: 17),
+                  labelStyle: context.textTheme.labelMedium,
                   closedIcon: Icon(
                     Icons.more_horiz,
                     color: style.colors.primaryHighlight,

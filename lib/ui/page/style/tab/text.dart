@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/l10n/l10n.dart';
 
 import '../widget/caption.dart';
 
@@ -25,14 +24,47 @@ import '../widget/caption.dart';
 class FontStyleTabView extends StatelessWidget {
   const FontStyleTabView({Key? key}) : super(key: key);
 
-  Widget _font(String desc, String sample, TextStyle? style) => Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Caption(
-              '$desc - шрифт: ${style!.fontSize} пт, цвет: ${style.color?.toHex()}'),
-          Text(sample, style: style),
-        ],
+  Widget _font(String desc, String sample, TextStyle? style) => Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                desc,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ListTile(
+                leading: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 5),
+                    Text(
+                      sample,
+                      style: style,
+                    ),
+                  ],
+                ),
+                trailing: Text(
+                  'Шрифт: ${style?.fontSize} пт, цвет: ${style?.color?.toHex()}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
 
   @override
@@ -42,33 +74,80 @@ class FontStyleTabView extends StatelessWidget {
           controller: ScrollController(),
           padding: const EdgeInsets.all(8),
           children: [
-            _font('Заголовок 3', 'Messenger',
-                context.theme.textTheme.displaySmall!),
-            _font('Заголовок 4', 'by Gapopa',
-                context.theme.textTheme.headlineSmall!),
             _font(
-              'Кнопка "Начать"',
-              'btn_start'.l10n,
+              'Largest of the display styles.',
+              'displayLarge',
+              context.theme.textTheme.displayLarge,
+            ),
+            _font(
+              'Middle size of the display styles.',
+              'displayMedium',
+              context.theme.textTheme.displayMedium,
+            ),
+            _font(
+              'Smallest of the display styles.',
+              'displaySmall',
               context.textTheme.displaySmall,
             ),
             _font(
-              'Кнопка "Войти"',
-              'btn_login'.l10n,
-              context.textTheme.displaySmall,
+              'Largest of the headline styles.',
+              'headlineLarge',
+              context.textTheme.headlineLarge,
             ),
             _font(
-              'Опциональная кнопка "Скачать"',
-              'btn_download'.l10n,
-              context.textTheme.displaySmall,
+              'Middle size of the headline styles.',
+              'headlineMedium',
+              context.textTheme.headlineMedium,
             ),
             _font(
-              'Всплывающее окно выбора языка.',
-              'label_language_entry'.l10nfmt({
-                'code': L10n.chosen.value!.locale.countryCode,
-                'name': L10n.chosen.value!.name,
-              }),
-              context.textTheme.bodySmall!
-                  .copyWith(color: Theme.of(context).colorScheme.primary),
+              'Smallest of the headline styles.',
+              'headlineSmall',
+              context.textTheme.headlineSmall,
+            ),
+            _font(
+              'Largest of the title styles.',
+              'titleLarge',
+              context.textTheme.titleLarge,
+            ),
+            _font(
+              'Middle size of the title styles.',
+              'titleMedium',
+              context.textTheme.titleMedium,
+            ),
+            _font(
+              'Smallest of the title styles.',
+              'titleSmall',
+              context.textTheme.titleSmall,
+            ),
+            _font(
+              'Largest of the label styles.',
+              'labelLarge',
+              context.textTheme.labelLarge,
+            ),
+            _font(
+              'Middle size of the label styles.',
+              'labelMedium',
+              context.textTheme.labelMedium,
+            ),
+            _font(
+              'Smallest of the label styles.',
+              'labelSmall',
+              context.textTheme.labelSmall,
+            ),
+            _font(
+              'Largest of the body styles.',
+              'bodyLarge',
+              context.textTheme.bodyLarge,
+            ),
+            _font(
+              'Middle size of the body styles.',
+              'bodyMedium',
+              context.textTheme.bodyMedium,
+            ),
+            _font(
+              'Smallest of the body styles.',
+              'bodySmall',
+              context.textTheme.bodySmall,
             ),
             const SizedBox(height: 60),
           ],
