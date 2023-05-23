@@ -17,21 +17,22 @@
 
 import 'dart:ui';
 
-import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/util/platform_utils.dart';
+import 'animated_button.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatelessWidget {
   const CustomNavigationBar({
-    Key? key,
+    super.key,
     this.currentIndex = 0,
     this.items = const [],
     this.onTap,
-  }) : super(key: key);
+  });
 
   /// Currently selected index of an item in the [items] list.
   final int currentIndex;
@@ -49,6 +50,20 @@ class CustomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
+    // [AnimatedOpacity] boilerplate.
+    Widget tab({required Widget child, bool selected = false}) {
+      return AnimatedScale(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.bounceInOut,
+        scale: selected ? 1.1 : 1,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 150),
+          opacity: selected ? 1 : 0.7,
+          child: AnimatedButton(child: child),
+        ),
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
@@ -99,23 +114,41 @@ class CustomNavigationBar extends StatelessWidget {
                                 width: 80,
                                 color: style.colors.transparent,
                                 child: Center(
-                                  child: badges.Badge(
-                                    badgeStyle: badges.BadgeStyle(
-                                      badgeColor: b.badgeColor ??
-                                          style.colors.dangerColor,
-                                    ),
-                                    badgeContent: b.badge == null
-                                        ? null
-                                        : Text(
-                                            b.badge!,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: style.colors.onPrimary,
-                                              fontSize: 11,
+                                  child: tab(
+                                    selected: currentIndex == i,
+                                    child: Badge(
+                                      largeSize: 15,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 0,
+                                        horizontal: 4.4,
+                                      ),
+                                      alignment:
+                                          const AlignmentDirectional(21, -4),
+                                      label: b.badge == null
+                                          ? null
+                                          : Transform.translate(
+                                              offset: PlatformUtils.isWeb
+                                                  ? Offset(
+                                                      0.2,
+                                                      PlatformUtils.isIOS
+                                                          ? 0
+                                                          : 0.25,
+                                                    )
+                                                  : const Offset(0, -0.3),
+                                              child: Text(
+                                                b.badge!,
+                                                textAlign: TextAlign.center,
+                                              ),
                                             ),
-                                          ),
-                                    showBadge: b.badge != null,
-                                    child: b.child!,
+                                      textStyle: TextStyle(
+                                        color: style.colors.onPrimary,
+                                        fontSize: 11,
+                                      ),
+                                      backgroundColor: b.badgeColor ??
+                                          style.colors.dangerColor,
+                                      isLabelVisible: b.badge != null,
+                                      child: b.child!,
+                                    ),
                                   ),
                                 ),
                               ),

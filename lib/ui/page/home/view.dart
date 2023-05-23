@@ -20,13 +20,16 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -35,15 +38,12 @@ import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
-import 'tab/chats/more/view.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
-import 'tab/menu/status/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
-import 'widget/rmb_detector.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
@@ -174,21 +174,6 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        // [AnimatedOpacity] boilerplate.
-                        Widget tab({required Widget child, HomeTab? tab}) {
-                          return Obx(() {
-                            return AnimatedScale(
-                              duration: 150.milliseconds,
-                              scale: c.page.value == tab ? 1.2 : 1,
-                              child: AnimatedOpacity(
-                                duration: 150.milliseconds,
-                                opacity: c.page.value == tab ? 1 : 0.7,
-                                child: child,
-                              ),
-                            );
-                          });
-                        }
-
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
@@ -198,13 +183,10 @@ class _HomeViewState extends State<HomeView> {
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('ContactsButton'),
-                                child: tab(
-                                  tab: HomeTab.contacts,
-                                  child: SvgImage.asset(
-                                    'assets/icons/contacts.svg',
-                                    width: 30,
-                                    height: 30,
-                                  ),
+                                child: SvgImage.asset(
+                                  'assets/icons/contacts.svg',
+                                  width: 30,
+                                  height: 30,
                                 ),
                               ),
                               CustomNavigationBarItem(
@@ -215,57 +197,107 @@ class _HomeViewState extends State<HomeView> {
                                 badgeColor: c.myUser.value?.muted != null
                                     ? style.colors.secondaryHighlightDarkest
                                     : style.colors.dangerColor,
-                                child: RmbDetector(
-                                  onPressed: () {
-                                    HapticFeedback.lightImpact();
-                                    ChatsMoreView.show(context);
-                                  },
-                                  child: tab(
-                                    tab: HomeTab.chats,
-                                    child: Obx(() {
-                                      final Widget child;
-
-                                      if (c.myUser.value?.muted != null) {
-                                        child = SvgImage.asset(
-                                          'assets/icons/chats_muted.svg',
-                                          key: const Key('Muted'),
-                                          width: 36.06,
-                                          height: 30,
-                                        );
-                                      } else {
-                                        child = SvgImage.asset(
-                                          'assets/icons/chats.svg',
-                                          key: const Key('Unmuted'),
-                                          width: 36.06,
-                                          height: 30,
-                                        );
-                                      }
-
-                                      return AnimatedSwitcher(
-                                        duration: 200.milliseconds,
-                                        child: child,
-                                      );
-                                    }),
+                                child: ContextMenuRegion(
+                                  selector: c.chatsKey,
+                                  alignment: Alignment.bottomCenter,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 0,
                                   ),
+                                  actions: [
+                                    if (c.myUser.value?.muted != null)
+                                      ContextMenuButton(
+                                        label: 'btn_unmute_chats'.l10n,
+                                        onPressed: () {
+                                          c.toggleMute(true);
+                                        },
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        label: 'btn_mute_chats'.l10n,
+                                        onPressed: () {
+                                          c.toggleMute(false);
+                                        },
+                                      ),
+                                  ],
+                                  child: Obx(() {
+                                    final Widget child;
+
+                                    if (c.myUser.value?.muted != null) {
+                                      child = SvgImage.asset(
+                                        'assets/icons/chats_muted.svg',
+                                        key: const Key('Muted'),
+                                        width: 39.26,
+                                        height: 33.5,
+                                      );
+                                    } else {
+                                      child = SvgImage.asset(
+                                        'assets/icons/chats.svg',
+                                        key: const Key('Unmuted'),
+                                        width: 39.26,
+                                        height: 33.5,
+                                      );
+                                    }
+
+                                    return AnimatedSwitcher(
+                                      key: c.chatsKey,
+                                      duration: 200.milliseconds,
+                                      layoutBuilder: (child, previous) {
+                                        return Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              ...previous,
+                                              if (child != null) child
+                                            ]);
+                                      },
+                                      child: child,
+                                    );
+                                  }),
                                 ),
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('MenuButton'),
-                                child: RmbDetector(
-                                  onPressed: () {
-                                    HapticFeedback.lightImpact();
-                                    StatusView.show(context);
-                                  },
-                                  child: Padding(
-                                    key: c.profileKey,
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: tab(
-                                      tab: HomeTab.menu,
-                                      child: AvatarWidget.fromMyUser(
-                                        c.myUser.value,
-                                        radius: 15,
+                                child: ContextMenuRegion(
+                                  selector: c.profileKey,
+                                  alignment: Alignment.bottomRight,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 0,
+                                  ),
+                                  actions: [
+                                    ContextMenuButton(
+                                      label: 'label_presence_present'.l10n,
+                                      onPressed: () {
+                                        c.setPresence(Presence.present);
+                                      },
+                                      trailing: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.green,
+                                        ),
                                       ),
                                     ),
+                                    ContextMenuButton(
+                                      label: 'label_presence_away'.l10n,
+                                      onPressed: () {
+                                        c.setPresence(Presence.away);
+                                      },
+                                      trailing: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  child: AvatarWidget.fromMyUser(
+                                    c.myUser.value,
+                                    key: c.profileKey,
+                                    radius: 16,
                                   ),
                                 ),
                               ),

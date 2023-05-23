@@ -354,7 +354,7 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      final double badgeSize = maxWidth / 10;
+      final double badgeSize = maxWidth >= 40 ? maxWidth / 10 : maxWidth / 7.5;
 
       return badges.Badge(
         showBadge: isOnline,
@@ -374,27 +374,28 @@ class AvatarWidget extends StatelessWidget {
         ),
         badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
         position: badges.BadgePosition.bottomEnd(
-          bottom: badgeSize / 3,
-          end: badgeSize / 3,
+          bottom: maxWidth >= 40 ? badgeSize / 3 : -badgeSize / 5,
+          end: maxWidth >= 40 ? badgeSize / 3 : -badgeSize / 5,
         ),
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: minHeight,
-            minWidth: minWidth,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-          ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [gradient.lighten(), gradient],
-            ),
-            shape: BoxShape.circle,
-          ),
-          child: Stack(
-            children: [
-              Center(
+        child: Stack(
+          children: [
+            Container(
+              margin: const EdgeInsets.all(0.5),
+              constraints: BoxConstraints(
+                minHeight: minHeight,
+                minWidth: minWidth,
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [gradient.lighten(), gradient],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
                 child: Text(
                   (title ?? '??').initials(),
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -407,8 +408,10 @@ class AvatarWidget extends StatelessWidget {
                   textScaleFactor: 1,
                 ),
               ),
-              if (avatar != null)
-                ClipOval(
+            ),
+            if (avatar != null)
+              Positioned.fill(
+                child: ClipOval(
                   child: RetryImage(
                     avatar!.original.url,
                     checksum: avatar!.original.checksum,
@@ -418,8 +421,8 @@ class AvatarWidget extends StatelessWidget {
                     displayProgress: false,
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       );
     });
