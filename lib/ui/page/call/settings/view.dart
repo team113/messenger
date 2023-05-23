@@ -113,6 +113,7 @@ class CallSettingsView extends StatelessWidget {
                             ),
                             style: context.textTheme.bodyLarge!.copyWith(
                               color: style.colors.primary,
+                              fontWeight: FontWeight.normal,
                             ),
                           );
                         }),
@@ -148,6 +149,7 @@ class CallSettingsView extends StatelessWidget {
                             ),
                             style: context.textTheme.bodyLarge!.copyWith(
                               color: style.colors.primary,
+                              fontWeight: FontWeight.normal,
                             ),
                           );
                         }),
@@ -183,6 +185,7 @@ class CallSettingsView extends StatelessWidget {
                             ),
                             style: context.textTheme.bodyLarge!.copyWith(
                               color: style.colors.primary,
+                              fontWeight: FontWeight.normal,
                             ),
                           );
                         }),
@@ -203,8 +206,9 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: context.textTheme.titleLarge!.copyWith(
+                          style: context.textTheme.bodyLarge!.copyWith(
                             color: style.colors.primary,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),

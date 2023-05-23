@@ -194,7 +194,7 @@ class MyProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             _name(c),
                             _presence(c, context),
-                            _status(c),
+                            _status(c, context),
                           ],
                         );
 
@@ -340,7 +340,9 @@ Widget _name(MyProfileController c) {
 }
 
 /// Returns [MyUser.status] editable field.
-Widget _status(MyProfileController c) {
+Widget _status(MyProfileController c, BuildContext context) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
   return _padding(
     ReactiveTextField(
       key: const Key('StatusField'),
@@ -363,6 +365,9 @@ Widget _status(MyProfileController c) {
                 child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
+      style: context.textTheme.bodyLarge!.copyWith(
+        color: style.colors.secondary,
+      ),
     ),
   );
 }
@@ -1288,6 +1293,9 @@ Widget _notifications(BuildContext context, MyProfileController c) {
                     .l10n,
                 editable: false,
               ),
+              style: context.textTheme.bodyLarge!.copyWith(
+                color: style.colors.secondary,
+              ),
             ),
           ),
           Align(
@@ -1426,6 +1434,9 @@ Widget _storage(BuildContext context, MyProfileController c) {
               state: TextFieldState(
                 text: 'label_load_images'.l10n,
                 editable: false,
+              ),
+              style: context.textTheme.bodyLarge!.copyWith(
+                color: style.colors.secondary,
               ),
             ),
           ),

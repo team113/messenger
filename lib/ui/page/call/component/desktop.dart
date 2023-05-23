@@ -487,6 +487,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                         style: context.textTheme.bodySmall!
                                             .copyWith(
                                           color: style.colors.onPrimary,
+                                          fontSize: 11,
                                         ),
                                         textAlign: TextAlign.center,
                                       )

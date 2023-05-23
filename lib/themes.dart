@@ -79,7 +79,6 @@ class Themes {
             barrierColor: colors.onBackgroundOpacity50,
             boldBody: textStyle.copyWith(
               color: colors.onBackground,
-              fontSize: 17,
             ),
             cardBlur: 5,
             cardBorder:
@@ -279,7 +278,6 @@ class Themes {
             foregroundColor: colors.secondary,
             textStyle: textStyle.copyWith(
               color: colors.secondary,
-              fontSize: 17,
             ),
           ),
         ),
@@ -295,7 +293,6 @@ class Themes {
             side: BorderSide(width: 1, color: colors.secondary),
             textStyle: textStyle.copyWith(
               color: colors.secondary,
-              fontSize: 17,
             ),
           ),
         ),

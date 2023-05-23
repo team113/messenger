@@ -638,8 +638,7 @@ class MessageFieldView extends StatelessWidget {
                   Flexible(
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
-                      style:
-                          context.textTheme.bodyLarge!.copyWith(fontSize: 13),
+                      style: context.textTheme.bodySmall,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),

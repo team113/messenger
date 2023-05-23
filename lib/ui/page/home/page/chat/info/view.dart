@@ -442,9 +442,8 @@ class ChatInfoView extends StatelessWidget {
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: context.textTheme.bodyLarge!.copyWith(
+                        style: context.textTheme.bodySmall!.copyWith(
                           color: style.colors.primary,
-                          fontSize: 3,
                         ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
@@ -511,7 +510,7 @@ class ChatInfoView extends StatelessWidget {
                           maxLines: 1,
                           style: context.textTheme.bodyLarge!.copyWith(
                             color: style.colors.primary,
-                            fontWeight: FontWeight.w300,
+                            fontWeight: FontWeight.w400,
                           ),
                           child: title,
                         ),
@@ -647,6 +646,7 @@ class ChatInfoView extends StatelessWidget {
               ),
               style: context.textTheme.bodyLarge!.copyWith(
                 color: style.colors.primary,
+                fontWeight: FontWeight.normal,
               ),
             ),
           ),
@@ -674,8 +674,10 @@ class ChatInfoView extends StatelessWidget {
                         SvgImage.asset('assets/icons/delete.svg', height: 14),
                   ),
                 ),
-                style: context.textTheme.bodyLarge!
-                    .copyWith(color: style.colors.primary),
+                style: context.textTheme.bodyLarge!.copyWith(
+                  color: style.colors.primary,
+                  fontWeight: FontWeight.normal,
+                ),
               );
             }),
           ),
@@ -706,8 +708,10 @@ class ChatInfoView extends StatelessWidget {
                           ),
                   ),
                 ),
-                style: context.textTheme.bodyLarge!
-                    .copyWith(color: style.colors.primary),
+                style: context.textTheme.bodyLarge!.copyWith(
+                  color: style.colors.primary,
+                  fontWeight: FontWeight.normal,
+                ),
               );
             }),
           ),
@@ -725,8 +729,10 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: context.textTheme.bodyLarge!
-                .copyWith(color: style.colors.primary),
+            style: context.textTheme.bodyLarge!.copyWith(
+              color: style.colors.primary,
+              fontWeight: FontWeight.normal,
+            ),
           ),
         ),
         const SizedBox(height: 10),
@@ -742,8 +748,10 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: context.textTheme.bodyLarge!
-                .copyWith(color: style.colors.primary),
+            style: context.textTheme.bodyLarge!.copyWith(
+              color: style.colors.primary,
+              fontWeight: FontWeight.normal,
+            ),
           ),
         ),
         if (!c.isMonolog) ...[
@@ -759,8 +767,10 @@ class ChatInfoView extends StatelessWidget {
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-              style: context.textTheme.bodyLarge!
-                  .copyWith(color: style.colors.primary),
+              style: context.textTheme.bodyLarge!.copyWith(
+                color: style.colors.primary,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -775,8 +785,10 @@ class ChatInfoView extends StatelessWidget {
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-              style: context.textTheme.bodyLarge!
-                  .copyWith(color: style.colors.primary),
+              style: context.textTheme.bodyLarge!.copyWith(
+                color: style.colors.primary,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -791,8 +803,10 @@ class ChatInfoView extends StatelessWidget {
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-              style: context.textTheme.bodyLarge!
-                  .copyWith(color: style.colors.primary),
+              style: context.textTheme.bodyLarge!.copyWith(
+                color: style.colors.primary,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ),
         ],
