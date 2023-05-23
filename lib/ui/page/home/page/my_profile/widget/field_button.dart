@@ -36,7 +36,6 @@ class FieldButton extends StatefulWidget {
     this.trailing,
     this.prefix,
     this.style,
-    this.fillColor,
   });
 
   /// Optional label of this [FieldButton].
@@ -67,9 +66,6 @@ class FieldButton extends StatefulWidget {
 
   /// [TextStyle] of the [text].
   final TextStyle? style;
-
-  /// Fill color of the [ReactiveTextField].
-  final Color? fillColor;
 
   @override
   State<FieldButton> createState() => _FieldButtonState();

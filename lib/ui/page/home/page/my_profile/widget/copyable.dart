@@ -30,14 +30,14 @@ import '/util/platform_utils.dart';
 /// or on context menu action.
 class CopyableTextField extends StatelessWidget {
   const CopyableTextField({
-    Key? key,
+    super.key,
     required this.state,
     this.copy,
     this.icon,
     this.label,
     this.style,
     this.leading,
-  }) : super(key: key);
+  });
 
   /// Reactive state of this [CopyableTextField].
   final TextFieldState state;
@@ -59,7 +59,7 @@ class CopyableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style styleColor = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -67,10 +67,7 @@ class CopyableTextField extends StatelessWidget {
         if (icon != null)
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 25),
-            child: Icon(
-              icon,
-              color: styleColor.colors.secondary,
-            ),
+            child: Icon(icon, color: style.colors.secondary),
           ),
         Expanded(
           child: ContextMenuRegion(
@@ -97,7 +94,7 @@ class CopyableTextField extends StatelessWidget {
                     ),
                   ),
                   label: label,
-                  style: style,
+                  style: this.style,
                 ),
               ),
             ),

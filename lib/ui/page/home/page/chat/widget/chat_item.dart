@@ -805,13 +805,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final ChatMessage msg = widget.item.value as ChatMessage;
 
-    List<Attachment> media = msg.attachments.where((e) {
+    final List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
           (e is FileAttachment && e.isVideo) ||
           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
-    List<Attachment> files = msg.attachments.where((e) {
+    final List<Attachment> files = msg.attachments.where((e) {
       return ((e is FileAttachment && !e.isVideo) ||
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();

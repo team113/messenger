@@ -40,12 +40,11 @@ class ConfirmLogoutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final Style style = Theme.of(context).extension<Style>()!;
 
-    final TextStyle? thin = theme.textTheme.bodyLarge?.copyWith(
-      color: style.colors.onBackground,
-    );
+    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: style.colors.onBackground,
+        );
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
@@ -198,9 +197,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ] else ...[
                   RichText(
                     text: TextSpan(
-                      style: thin?.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: thin?.copyWith(color: style.colors.secondary),
                       children: [
                         TextSpan(text: 'label_password_not_set'.l10n),
                       ],
