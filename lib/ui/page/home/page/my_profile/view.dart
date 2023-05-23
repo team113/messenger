@@ -383,6 +383,7 @@ Widget _presence(MyProfileController c, BuildContext context) {
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
         style: context.textTheme.bodyLarge!.copyWith(
           color: style.colors.primary,
+          fontWeight: FontWeight.normal,
         ),
       ),
     );
@@ -937,6 +938,7 @@ Widget _password(BuildContext context, MyProfileController c) {
             color: c.myUser.value?.hasPassword != true
                 ? style.colors.dangerColor
                 : style.colors.primary,
+            fontWeight: FontWeight.normal,
           ),
         ),
       ),
@@ -965,6 +967,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
           onPressed: () => _deleteAccount(c, context),
           style: context.textTheme.bodyLarge!.copyWith(
             color: style.colors.primary,
+            fontWeight: FontWeight.normal,
           ),
         ),
       ),
@@ -1127,6 +1130,7 @@ Widget _call(BuildContext context, MyProfileController c) {
             onPressed: () => CallWindowSwitchView.show(context),
             style: context.textTheme.bodyLarge!.copyWith(
               color: style.colors.primary,
+              fontWeight: FontWeight.normal,
             ),
           );
         }),
@@ -1203,6 +1207,7 @@ Widget _media(BuildContext context, MyProfileController c) {
             },
             style: context.textTheme.bodyLarge!.copyWith(
               color: style.colors.primary,
+              fontWeight: FontWeight.normal,
             ),
           );
         }),
@@ -1229,6 +1234,7 @@ Widget _media(BuildContext context, MyProfileController c) {
             },
             style: context.textTheme.bodyLarge!.copyWith(
               color: style.colors.primary,
+              fontWeight: FontWeight.normal,
             ),
           );
         }),
@@ -1255,6 +1261,7 @@ Widget _media(BuildContext context, MyProfileController c) {
             },
             style: context.textTheme.bodyLarge!.copyWith(
               color: style.colors.primary,
+              fontWeight: FontWeight.normal,
             ),
           );
         }),
@@ -1376,6 +1383,7 @@ Widget _language(BuildContext context, MyProfileController c) {
       }),
       style: context.textTheme.bodyLarge!.copyWith(
         color: style.colors.primary,
+        fontWeight: FontWeight.normal,
       ),
     ),
   );
@@ -1396,6 +1404,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
             color: c.blacklist.isEmpty
                 ? style.colors.onBackground
                 : style.colors.primary,
+            fontWeight: FontWeight.normal,
           ),
         ),
       ),
