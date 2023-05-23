@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
@@ -37,6 +36,8 @@ class LinkDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     return AnimatedSizeAndFade(
       fadeDuration: const Duration(milliseconds: 250),
@@ -49,7 +50,7 @@ class LinkDetailsView extends StatelessWidget {
             header: Center(
               child: Text(
                 'label_your_direct_link'.l10n,
-                style: context.textTheme.displaySmall,
+                style: displaySmall,
               ),
             ),
           ),
@@ -61,8 +62,7 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style: context.textTheme.bodyLarge!
-                    .copyWith(color: style.colors.secondary),
+                style: bodyLarge!.copyWith(color: style.colors.secondary),
               ),
             ),
           ),

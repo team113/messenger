@@ -18,8 +18,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
 import '/l10n/l10n.dart';
 import '/themes.dart';
 
@@ -66,14 +64,13 @@ class _AnimatedDotsState extends State<AnimatedDots> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle bodyLarge = Theme.of(context).textTheme.bodyLarge!;
 
     return SizedBox(
       width: 13,
       child: Text(
         'dot'.l10n * _count,
-        style: context.textTheme.bodyLarge!.copyWith(
-          color: style.colors.onPrimary,
-        ),
+        style: bodyLarge.copyWith(color: style.colors.onPrimary),
       ),
     );
   }

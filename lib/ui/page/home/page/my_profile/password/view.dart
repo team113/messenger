@@ -43,6 +43,8 @@ class ChangePasswordView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
+    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
 
     return GetBuilder(
       init: ChangePasswordController(Get.find()),
@@ -65,9 +67,8 @@ class ChangePasswordView extends StatelessWidget {
                         c.stage.value == ChangePasswordFlowStage.set
                             ? 'label_password_set'.l10n
                             : 'label_password_changed'.l10n,
-                        style: context.textTheme.bodyLarge!.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                        style:
+                            bodyLarge!.copyWith(color: style.colors.secondary),
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -76,8 +77,8 @@ class ChangePasswordView extends StatelessWidget {
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_close'.l10n,
-                        style: context.textTheme.bodyLarge!
-                            .copyWith(color: style.colors.onPrimary),
+                        style:
+                            bodyLarge.copyWith(color: style.colors.onPrimary),
                       ),
                       onPressed: Navigator.of(context).pop,
                       color: style.colors.primary,
@@ -99,7 +100,7 @@ class ChangePasswordView extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 25),
                         child: Text(
                           'label_password_not_set_info'.l10n,
-                          style: context.textTheme.bodyLarge!.copyWith(
+                          style: bodyLarge!.copyWith(
                             color: style.colors.secondary,
                           ),
                         ),
@@ -161,7 +162,7 @@ class ChangePasswordView extends StatelessWidget {
                         maxWidth: double.infinity,
                         title: Text(
                           'btn_proceed'.l10n,
-                          style: context.textTheme.bodyLarge!.copyWith(
+                          style: bodyLarge!.copyWith(
                             color: enabled
                                 ? style.colors.onPrimary
                                 : style.colors.onBackground,
@@ -190,7 +191,7 @@ class ChangePasswordView extends StatelessWidget {
                               c.stage.value != ChangePasswordFlowStage.set
                           ? 'label_change_password'.l10n
                           : 'label_set_password'.l10n,
-                      style: context.textTheme.displaySmall,
+                      style: displaySmall,
                     ),
                   ),
                 ),

@@ -56,6 +56,7 @@ import 'common.dart';
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle bodySmall = Theme.of(context).textTheme.bodySmall!;
 
   return LayoutBuilder(builder: (context, constraints) {
     bool isOutgoing =
@@ -356,8 +357,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 children: [
                                   Text(
                                     state,
-                                    style:
-                                        context.textTheme.bodySmall?.copyWith(
+                                    style: bodySmall.copyWith(
                                       color: style.colors.onBackgroundOpacity2,
                                     ),
                                   ),
@@ -828,6 +828,9 @@ Widget mobileCall(CallController c, BuildContext context) {
 Widget _chat(BuildContext context, CallController c) {
   return Obx(() {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle headlineSmall = Theme.of(context).textTheme.headlineSmall!;
+    final TextStyle titleSmall = Theme.of(context).textTheme.titleSmall!;
+
     final RxChat? chat = c.chat.value;
 
     final Set<UserId> actualMembers =
@@ -864,18 +867,16 @@ Widget _chat(BuildContext context, CallController c) {
                                 chat?.title.value ?? 'dot'.l10n * 3,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall
-                                    ?.copyWith(color: style.colors.onPrimary),
+                                style: headlineSmall.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
                               ),
                             ),
                             Text(
                               c.duration.value.hhMmSs(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(color: style.colors.onPrimary),
+                              style: titleSmall.copyWith(
+                                color: style.colors.onPrimary,
+                              ),
                             ),
                           ],
                         ),
@@ -893,10 +894,9 @@ Widget _chat(BuildContext context, CallController c) {
                                         .status
                                         ?.val ??
                                     'label_online'.l10n,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(color: style.colors.onPrimary),
+                                style: titleSmall.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
                               ),
                               const Spacer(),
                               Text(
@@ -904,10 +904,9 @@ Widget _chat(BuildContext context, CallController c) {
                                   'a': '${actualMembers.length}',
                                   'b': '${c.chat.value?.members.length}',
                                 }),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(color: style.colors.onPrimary),
+                                style: titleSmall.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
                               ),
                             ],
                           ),

@@ -45,6 +45,7 @@ class ChatsMoreView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
 
     return GetBuilder(
       key: const Key('ChatsMoreView'),
@@ -57,9 +58,8 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: context.textTheme.displaySmall!.copyWith(
-                    color: style.colors.onBackground,
-                  ),
+                  style:
+                      displaySmall!.copyWith(color: style.colors.onBackground),
                 ),
               ),
             ),
@@ -87,6 +87,7 @@ class ChatsMoreView extends StatelessWidget {
   /// Returns a styled as a header [Container] with the provided [text].
   Widget _header(BuildContext context, String text) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
@@ -95,9 +96,7 @@ class ChatsMoreView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: context.textTheme.displaySmall!.copyWith(
-              color: style.colors.onBackground,
-            ),
+            style: displaySmall!.copyWith(color: style.colors.onBackground),
           ),
         ),
       ),
@@ -153,6 +152,8 @@ class ChatsMoreView extends StatelessWidget {
   /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     return Obx(() {
       return Column(
@@ -190,9 +191,7 @@ class ChatsMoreView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: context.textTheme.bodySmall!.copyWith(
-                      fontWeight: FontWeight.normal,
-                    ),
+                    style: bodySmall!.copyWith(fontWeight: FontWeight.normal),
                     children: [
                       TextSpan(
                         text: 'label_transition_count'.l10nfmt({
@@ -201,15 +200,12 @@ class ChatsMoreView extends StatelessWidget {
                                       0
                             }) +
                             'dot_space'.l10n,
-                        style: context.textTheme.bodyLarge!.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                        style:
+                            bodyLarge!.copyWith(color: style.colors.secondary),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: context.textTheme.bodyLarge!.copyWith(
-                          color: style.colors.primary,
-                        ),
+                        style: bodyLarge.copyWith(color: style.colors.primary),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {
                             await LinkDetailsView.show(context);

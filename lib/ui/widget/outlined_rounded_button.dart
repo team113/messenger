@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
 
@@ -85,6 +84,8 @@ class OutlinedRoundedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     return Container(
       constraints: BoxConstraints(
@@ -128,7 +129,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: context.textTheme.bodySmall?.copyWith(
+                  style: bodySmall?.copyWith(
                     color: style.colors.onBackground,
                     fontSize: 24 * 0.7,
                   ),
@@ -145,8 +146,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                           if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: context.textTheme.bodyLarge!
-                                  .copyWith(fontSize: 13 * 0.7),
+                              style: bodyLarge!.copyWith(fontSize: 13 * 0.7),
                               child: subtitle!,
                             ),
                         ],

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/config.dart';
 import '/l10n/l10n.dart';
@@ -57,6 +56,7 @@ class DownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? titleMedium = Theme.of(context).textTheme.titleMedium;
 
     return FieldButton(
       text: 'space'.l10n * 4 + title,
@@ -90,7 +90,7 @@ class DownloadButton extends StatelessWidget {
           child: SvgImage.asset('assets/icons/copy.svg', height: 15),
         ),
       ),
-      style: context.textTheme.titleMedium!.copyWith(
+      style: titleMedium!.copyWith(
         color: style.colors.primary,
       ),
     );

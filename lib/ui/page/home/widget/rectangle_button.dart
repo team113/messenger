@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -47,6 +46,7 @@ class RectangleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     return Material(
       borderRadius: BorderRadius.circular(10),
@@ -64,7 +64,7 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.bodyLarge!.copyWith(
+                  style: bodyLarge!.copyWith(
                     color: selected ? style.colors.onPrimary : null,
                   ),
                 ),

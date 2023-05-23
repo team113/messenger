@@ -67,6 +67,7 @@ class MyProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle bodySmall = Theme.of(context).textTheme.bodySmall!;
 
     return GetBuilder(
       key: const Key('MyProfileView'),
@@ -162,8 +163,7 @@ class MyProfileView extends StatelessWidget {
                                     onPressed: c.uploadAvatar,
                                     child: Text(
                                       'btn_upload'.l10n,
-                                      style:
-                                          context.textTheme.bodySmall!.copyWith(
+                                      style: bodySmall.copyWith(
                                         color: style.colors.primary,
                                       ),
                                     ),
@@ -171,8 +171,7 @@ class MyProfileView extends StatelessWidget {
                                   if (c.myUser.value?.avatar != null) ...[
                                     Text(
                                       'space_or_space'.l10n,
-                                      style:
-                                          context.textTheme.bodySmall!.copyWith(
+                                      style: bodySmall.copyWith(
                                         color: style.colors.onBackground,
                                       ),
                                     ),
@@ -181,8 +180,7 @@ class MyProfileView extends StatelessWidget {
                                       onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
-                                        style: context.textTheme.bodySmall!
-                                            .copyWith(
+                                        style: bodySmall.copyWith(
                                           color: style.colors.primary,
                                         ),
                                       ),
@@ -342,6 +340,7 @@ Widget _name(MyProfileController c) {
 /// Returns [MyUser.status] editable field.
 Widget _status(MyProfileController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return _padding(
     ReactiveTextField(
@@ -365,9 +364,7 @@ Widget _status(MyProfileController c, BuildContext context) {
                 child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
-      style: context.textTheme.bodyLarge!.copyWith(
-        color: style.colors.secondary,
-      ),
+      style: bodyLarge!.copyWith(color: style.colors.secondary),
     ),
   );
 }
@@ -375,6 +372,7 @@ Widget _status(MyProfileController c, BuildContext context) {
 /// Returns [WidgetButton] displaying the [MyUser.presence].
 Widget _presence(MyProfileController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return Obx(() {
     final Presence? presence = c.myUser.value?.presence;
@@ -386,7 +384,7 @@ Widget _presence(MyProfileController c, BuildContext context) {
         text: presence?.localizedString(),
         trailing:
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: context.textTheme.bodyLarge!.copyWith(
+        style: bodyLarge!.copyWith(
           color: style.colors.primary,
           fontWeight: FontWeight.normal,
         ),
@@ -398,6 +396,7 @@ Widget _presence(MyProfileController c, BuildContext context) {
 /// Returns [MyUser.num] copyable field.
 Widget _num(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return _padding(
     Column(
@@ -408,7 +407,7 @@ Widget _num(BuildContext context, MyProfileController c) {
           state: c.num,
           label: 'label_num'.l10n,
           copy: c.myUser.value?.num.val,
-          style: context.textTheme.bodyLarge!.copyWith(
+          style: bodyLarge!.copyWith(
             color: style.colors.secondary,
             fontWeight: FontWeight.normal,
           ),
@@ -422,6 +421,7 @@ Widget _num(BuildContext context, MyProfileController c) {
 /// Returns [MyUser.chatDirectLink] editable field.
 Widget _link(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
 
   return Obx(() {
     return Column(
@@ -458,9 +458,7 @@ Widget _link(BuildContext context, MyProfileController c) {
             children: [
               RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodySmall!.copyWith(
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: bodySmall!.copyWith(fontWeight: FontWeight.normal),
                   children: [
                     TextSpan(
                       text: 'label_transition_count'.l10nfmt({
@@ -468,15 +466,11 @@ Widget _link(BuildContext context, MyProfileController c) {
                                 c.myUser.value?.chatDirectLink?.usageCount ?? 0
                           }) +
                           'dot_space'.l10n,
-                      style: context.textTheme.bodySmall!.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: bodySmall.copyWith(color: style.colors.secondary),
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: context.textTheme.bodySmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: bodySmall.copyWith(color: style.colors.primary),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await LinkDetailsView.show(context);
@@ -496,6 +490,9 @@ Widget _link(BuildContext context, MyProfileController c) {
 /// Returns [MyUser.login] editable field.
 Widget _login(MyProfileController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+  final TextStyle bodyLarge = Theme.of(context).textTheme.bodyLarge!;
+  final TextStyle displaySmall = Theme.of(context).textTheme.displaySmall!;
 
   return _padding(
     Column(
@@ -529,7 +526,7 @@ Widget _login(MyProfileController c, BuildContext context) {
           padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
           child: RichText(
             text: TextSpan(
-              style: context.textTheme.bodySmall,
+              style: bodySmall,
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
@@ -539,9 +536,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                  style: context.textTheme.bodySmall!.copyWith(
-                    color: style.colors.primary,
-                  ),
+                  style: bodySmall!.copyWith(color: style.colors.primary),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () async {
                       await ConfirmDialog.show(
@@ -551,7 +546,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                           Center(
                             child: Text(
                               'label_login_visibility_hint'.l10n,
-                              style: context.textTheme.bodyLarge!.copyWith(
+                              style: bodyLarge.copyWith(
                                 color: style.colors.secondary,
                               ),
                             ),
@@ -561,7 +556,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'label_visible_to'.l10n,
-                              style: context.textTheme.displaySmall!.copyWith(
+                              style: displaySmall.copyWith(
                                 color: style.colors.onBackground,
                               ),
                             ),
@@ -598,6 +593,9 @@ Widget _login(MyProfileController c, BuildContext context) {
 /// Returns addable list of [MyUser.emails].
 Widget _emails(MyProfileController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+  final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return Obx(() {
     final List<Widget> widgets = [];
@@ -630,21 +628,15 @@ Widget _emails(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodySmall!.copyWith(
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: bodySmall!.copyWith(fontWeight: FontWeight.normal),
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: context.textTheme.bodyLarge!.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: bodyLarge!.copyWith(color: style.colors.secondary),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: context.textTheme.bodyLarge!.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: bodyLarge.copyWith(color: style.colors.primary),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -655,8 +647,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style:
-                                      context.textTheme.displaySmall!.copyWith(
+                                  style: displaySmall!.copyWith(
                                     color: style.colors.onBackground,
                                   ),
                                 ),
@@ -695,13 +686,13 @@ Widget _emails(MyProfileController c, BuildContext context) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
-            inputDecorationTheme: Theme.of(context)
-                .inputDecorationTheme
-                .copyWith(
-                  floatingLabelStyle: context.textTheme.bodyMedium!.copyWith(
-                    color: style.colors.primary,
-                  ),
-                ),
+            inputDecorationTheme:
+                Theme.of(context).inputDecorationTheme.copyWith(
+                      floatingLabelStyle:
+                          Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                color: style.colors.primary,
+                              ),
+                    ),
           ),
           child: FieldButton(
             key: const Key('UnconfirmedEmail'),
@@ -723,7 +714,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.emails.unconfirmed!,
             ),
-            style: context.textTheme.bodyLarge!.copyWith(
+            style: bodyLarge!.copyWith(
               color: style.colors.secondary,
               fontWeight: FontWeight.normal,
             ),
@@ -743,8 +734,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: context.textTheme.bodyLarge!
-              .copyWith(color: style.colors.primary),
+          style: bodyLarge!.copyWith(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -761,6 +751,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
 /// Returns addable list of [MyUser.emails].
 Widget _phones(MyProfileController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
+  final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
 
   return Obx(() {
     final List<Widget> widgets = [];
@@ -793,21 +786,15 @@ Widget _phones(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: context.textTheme.bodySmall!.copyWith(
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: bodySmall!.copyWith(fontWeight: FontWeight.normal),
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: context.textTheme.bodyLarge!.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: bodyLarge!.copyWith(color: style.colors.secondary),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: context.textTheme.bodyLarge!.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: bodyLarge.copyWith(color: style.colors.primary),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -818,8 +805,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style:
-                                      context.textTheme.displaySmall!.copyWith(
+                                  style: displaySmall!.copyWith(
                                     color: style.colors.onBackground,
                                   ),
                                 ),
@@ -858,13 +844,13 @@ Widget _phones(MyProfileController c, BuildContext context) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
-            inputDecorationTheme: Theme.of(context)
-                .inputDecorationTheme
-                .copyWith(
-                  floatingLabelStyle: context.textTheme.bodyMedium!.copyWith(
-                    color: style.colors.primary,
-                  ),
-                ),
+            inputDecorationTheme:
+                Theme.of(context).inputDecorationTheme.copyWith(
+                      floatingLabelStyle:
+                          Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                color: style.colors.primary,
+                              ),
+                    ),
           ),
           child: FieldButton(
             key: const Key('UnconfirmedPhone'),
@@ -886,7 +872,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: context.textTheme.bodyLarge!.copyWith(
+            style: bodyLarge!.copyWith(
               color: style.colors.secondary,
               fontWeight: FontWeight.normal,
             ),
@@ -906,9 +892,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: context.textTheme.bodyLarge!.copyWith(
-            color: style.colors.primary,
-          ),
+          style: bodyLarge!.copyWith(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -926,6 +910,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
 /// authenticated [MyUser].
 Widget _password(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -939,7 +924,7 @@ Widget _password(BuildContext context, MyProfileController c) {
               ? 'btn_change_password'.l10n
               : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
-          style: context.textTheme.bodyLarge!.copyWith(
+          style: bodyLarge!.copyWith(
             color: c.myUser.value?.hasPassword != true
                 ? style.colors.dangerColor
                 : style.colors.primary,
@@ -955,6 +940,7 @@ Widget _password(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.danger] section.
 Widget _danger(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return Column(
     children: [
@@ -970,7 +956,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
-          style: context.textTheme.bodyLarge!.copyWith(
+          style: bodyLarge!.copyWith(
             color: style.colors.primary,
             fontWeight: FontWeight.normal,
           ),
@@ -983,6 +969,8 @@ Widget _danger(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.background] section.
 Widget _background(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle labelMedium = Theme.of(context).textTheme.labelMedium!;
+  final TextStyle bodySmall = Theme.of(context).textTheme.bodySmall!;
 
   Widget message({
     bool fromMe = true,
@@ -1017,9 +1005,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                 padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
                 child: Text(
                   text,
-                  style: context.textTheme.labelMedium!.copyWith(
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: labelMedium.copyWith(fontWeight: FontWeight.normal),
                 ),
               ),
             ],
@@ -1104,9 +1090,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                       c.background.value == null
                           ? 'btn_upload'.l10n
                           : 'btn_delete'.l10n,
-                      style: context.textTheme.bodySmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: bodySmall.copyWith(color: style.colors.primary),
                     ),
                   ),
                 ],
@@ -1122,6 +1106,7 @@ Widget _background(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.calls] section.
 Widget _call(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -1134,7 +1119,7 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
-            style: context.textTheme.bodyLarge!.copyWith(
+            style: bodyLarge!.copyWith(
               color: style.colors.primary,
               fontWeight: FontWeight.normal,
             ),
@@ -1188,6 +1173,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.media] section.
 Widget _media(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -1211,7 +1197,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: context.textTheme.bodyLarge!.copyWith(
+            style: bodyLarge!.copyWith(
               color: style.colors.primary,
               fontWeight: FontWeight.normal,
             ),
@@ -1238,7 +1224,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: context.textTheme.bodyLarge!.copyWith(
+            style: bodyLarge!.copyWith(
               color: style.colors.primary,
               fontWeight: FontWeight.normal,
             ),
@@ -1265,7 +1251,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: context.textTheme.bodyLarge!.copyWith(
+            style: bodyLarge!.copyWith(
               color: style.colors.primary,
               fontWeight: FontWeight.normal,
             ),
@@ -1279,6 +1265,7 @@ Widget _media(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.notifications] section.
 Widget _notifications(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return Obx(() {
     return _dense(
@@ -1294,9 +1281,7 @@ Widget _notifications(BuildContext context, MyProfileController c) {
                     .l10n,
                 editable: false,
               ),
-              style: context.textTheme.bodyLarge!.copyWith(
-                color: style.colors.secondary,
-              ),
+              style: bodyLarge!.copyWith(color: style.colors.secondary),
             ),
           ),
           Align(
@@ -1378,6 +1363,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.language] section.
 Widget _language(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return _dense(
     FieldButton(
@@ -1390,7 +1376,7 @@ Widget _language(BuildContext context, MyProfileController c) {
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
       }),
-      style: context.textTheme.bodyLarge!.copyWith(
+      style: bodyLarge!.copyWith(
         color: style.colors.primary,
         fontWeight: FontWeight.normal,
       ),
@@ -1401,6 +1387,7 @@ Widget _language(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.blacklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return Column(
     children: [
@@ -1409,7 +1396,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
-          style: context.textTheme.bodyLarge!.copyWith(
+          style: bodyLarge!.copyWith(
             color: c.blacklist.isEmpty
                 ? style.colors.onBackground
                 : style.colors.primary,
@@ -1424,6 +1411,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.storage] section.
 Widget _storage(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   return Obx(() {
     return _dense(
@@ -1436,9 +1424,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 text: 'label_load_images'.l10n,
                 editable: false,
               ),
-              style: context.textTheme.bodyLarge!.copyWith(
-                color: style.colors.secondary,
-              ),
+              style: bodyLarge!.copyWith(color: style.colors.secondary),
             ),
           ),
           Align(
@@ -1475,6 +1461,7 @@ Future<void> _deleteEmail(
   UserEmail email,
 ) async {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyMedium = Theme.of(context).textTheme.bodyMedium;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_email'.l10n,
@@ -1482,9 +1469,7 @@ Future<void> _deleteEmail(
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
       TextSpan(
         text: email.val,
-        style: context.textTheme.bodyMedium!.copyWith(
-          color: style.colors.onBackground,
-        ),
+        style: bodyMedium!.copyWith(color: style.colors.onBackground),
       ),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
@@ -1503,6 +1488,7 @@ Future<void> _deletePhone(
   UserPhone phone,
 ) async {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle bodyLarge = Theme.of(context).textTheme.bodyLarge!;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_phone_number'.l10n,
@@ -1510,8 +1496,7 @@ Future<void> _deletePhone(
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
       TextSpan(
         text: phone.val,
-        style: context.textTheme.bodyLarge!
-            .copyWith(color: style.colors.onBackground),
+        style: bodyLarge.copyWith(color: style.colors.onBackground),
       ),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
@@ -1525,6 +1510,7 @@ Future<void> _deletePhone(
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_account'.l10n,
@@ -1535,9 +1521,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
             c.myUser.value?.login?.val ??
             c.myUser.value?.num.val ??
             'dot'.l10n * 3,
-        style: context.textTheme.bodyLarge!.copyWith(
-          color: style.colors.onBackground,
-        ),
+        style: bodyLarge!.copyWith(color: style.colors.onBackground),
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

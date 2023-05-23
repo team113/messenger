@@ -266,6 +266,7 @@ class ChatInfoView extends StatelessWidget {
   /// buttons.
   Widget _avatar(ChatInfoController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
 
     return Column(
       children: [
@@ -325,26 +326,20 @@ class ChatInfoView extends StatelessWidget {
               onPressed: c.pickAvatar,
               child: Text(
                 'btn_upload'.l10n,
-                style: context.textTheme.bodySmall!.copyWith(
-                  color: style.colors.primary,
-                ),
+                style: bodySmall!.copyWith(color: style.colors.primary),
               ),
             ),
             if (c.chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
-                style: context.textTheme.bodySmall!.copyWith(
-                  color: style.colors.onBackground,
-                ),
+                style: bodySmall.copyWith(color: style.colors.onBackground),
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
                 onPressed: c.deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
-                  style: context.textTheme.bodySmall!.copyWith(
-                    color: style.colors.primary,
-                  ),
+                  style: bodySmall.copyWith(color: style.colors.primary),
                 ),
               ),
             ],
@@ -388,6 +383,7 @@ class ChatInfoView extends StatelessWidget {
   /// Returns a [Chat.directLink] editable field.
   Widget _link(ChatInfoController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
       return Column(
@@ -425,7 +421,7 @@ class ChatInfoView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: context.textTheme.bodySmall!.copyWith(
+                    style: bodySmall!.copyWith(
                       color: style.colors.onBackground,
                       fontWeight: FontWeight.normal,
                     ),
@@ -436,15 +432,12 @@ class ChatInfoView extends StatelessWidget {
                                   c.chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
-                        style: context.textTheme.bodySmall!.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                        style:
+                            bodySmall.copyWith(color: style.colors.secondary),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: context.textTheme.bodySmall!.copyWith(
-                          color: style.colors.primary,
-                        ),
+                        style: bodySmall.copyWith(color: style.colors.primary),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],
@@ -475,6 +468,7 @@ class ChatInfoView extends StatelessWidget {
       }
 
       final Style style = Theme.of(context).extension<Style>()!;
+      final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
       Widget bigButton({
         Key? key,
@@ -508,7 +502,7 @@ class ChatInfoView extends StatelessWidget {
                         child: DefaultTextStyle(
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: context.textTheme.bodyLarge!.copyWith(
+                          style: bodyLarge!.copyWith(
                             color: style.colors.primary,
                             fontWeight: FontWeight.w400,
                           ),
@@ -598,7 +592,7 @@ class ChatInfoView extends StatelessWidget {
                     onPressed: () => _removeChatMember(c, context, e),
                     child: Text(
                       'btn_leave'.l10n,
-                      style: context.textTheme.bodyLarge!.copyWith(
+                      style: bodyLarge!.copyWith(
                         color: style.colors.primary,
                       ),
                     ),
@@ -628,6 +622,7 @@ class ChatInfoView extends StatelessWidget {
   /// Returns the action buttons to do with this [Chat].
   Widget _actions(ChatInfoController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -644,7 +639,7 @@ class ChatInfoView extends StatelessWidget {
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-              style: context.textTheme.bodyLarge!.copyWith(
+              style: bodyLarge!.copyWith(
                 color: style.colors.primary,
                 fontWeight: FontWeight.normal,
               ),
@@ -674,7 +669,7 @@ class ChatInfoView extends StatelessWidget {
                         SvgImage.asset('assets/icons/delete.svg', height: 14),
                   ),
                 ),
-                style: context.textTheme.bodyLarge!.copyWith(
+                style: bodyLarge!.copyWith(
                   color: style.colors.primary,
                   fontWeight: FontWeight.normal,
                 ),
@@ -708,7 +703,7 @@ class ChatInfoView extends StatelessWidget {
                           ),
                   ),
                 ),
-                style: context.textTheme.bodyLarge!.copyWith(
+                style: bodyLarge!.copyWith(
                   color: style.colors.primary,
                   fontWeight: FontWeight.normal,
                 ),
@@ -729,7 +724,7 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: context.textTheme.bodyLarge!.copyWith(
+            style: bodyLarge!.copyWith(
               color: style.colors.primary,
               fontWeight: FontWeight.normal,
             ),
@@ -748,7 +743,7 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: context.textTheme.bodyLarge!.copyWith(
+            style: bodyLarge.copyWith(
               color: style.colors.primary,
               fontWeight: FontWeight.normal,
             ),
@@ -767,7 +762,7 @@ class ChatInfoView extends StatelessWidget {
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-              style: context.textTheme.bodyLarge!.copyWith(
+              style: bodyLarge.copyWith(
                 color: style.colors.primary,
                 fontWeight: FontWeight.normal,
               ),
@@ -785,7 +780,7 @@ class ChatInfoView extends StatelessWidget {
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-              style: context.textTheme.bodyLarge!.copyWith(
+              style: bodyLarge.copyWith(
                 color: style.colors.primary,
                 fontWeight: FontWeight.normal,
               ),
@@ -803,7 +798,7 @@ class ChatInfoView extends StatelessWidget {
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-              style: context.textTheme.bodyLarge!.copyWith(
+              style: bodyLarge.copyWith(
                 color: style.colors.primary,
                 fontWeight: FontWeight.normal,
               ),
@@ -821,6 +816,7 @@ class ChatInfoView extends StatelessWidget {
     RxUser user,
   ) async {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     if (c.me == user.id) {
       await _leaveGroup(c, context);
@@ -831,9 +827,7 @@ class ChatInfoView extends StatelessWidget {
           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
           TextSpan(
             text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: context.textTheme.bodyLarge!.copyWith(
-              color: style.colors.onBackground,
-            ),
+            style: bodyLarge!.copyWith(color: style.colors.onBackground),
           ),
           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
         ],
@@ -860,6 +854,7 @@ class ChatInfoView extends StatelessWidget {
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
@@ -867,9 +862,7 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: context.textTheme.bodyLarge!.copyWith(
-            color: style.colors.onBackground,
-          ),
+          style: bodyLarge!.copyWith(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
@@ -883,6 +876,7 @@ class ChatInfoView extends StatelessWidget {
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
@@ -890,9 +884,7 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: context.textTheme.bodyLarge!.copyWith(
-            color: style.colors.onBackground,
-          ),
+          style: bodyLarge!.copyWith(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
@@ -909,6 +901,7 @@ class ChatInfoView extends StatelessWidget {
     BuildContext context,
   ) async {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
@@ -916,9 +909,7 @@ class ChatInfoView extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: context.textTheme.bodyLarge!.copyWith(
-            color: style.colors.onBackground,
-          ),
+          style: bodyLarge!.copyWith(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],

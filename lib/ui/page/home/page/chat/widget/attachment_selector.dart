@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -75,6 +74,7 @@ class AttachmentSourceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle bodyLarge = Theme.of(context).textTheme.bodyLarge!;
 
     Widget button({
       required String text,
@@ -91,7 +91,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: context.textTheme.bodyLarge,
+          style: bodyLarge,
           color: style.colors.primary,
           child: SizedBox(
             width: 60,

@@ -55,6 +55,8 @@ class ContactsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -89,7 +91,7 @@ class ContactsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: context.textTheme.displaySmall,
+                        style: displaySmall,
                         onChanged: () => c.search.value?.query.value =
                             c.search.value?.search.text ?? '',
                       ),
@@ -107,7 +109,7 @@ class ContactsTabView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'label_synchronization'.l10n,
-                        style: context.textTheme.bodySmall?.copyWith(
+                        style: bodySmall?.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -487,6 +489,7 @@ class ContactsTabView extends StatelessWidget {
   }) {
     return Obx(() {
       final Style style = Theme.of(context).extension<Style>()!;
+      final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
 
       bool favorite = c.favorites.contains(contact);
 
@@ -552,7 +555,7 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style: context.textTheme.bodySmall!.copyWith(
+                  style: bodySmall!.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.secondary,
@@ -623,6 +626,7 @@ class ContactsTabView extends StatelessWidget {
   /// [ChatContacts]s manipulation.
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
@@ -649,7 +653,7 @@ class ContactsTabView extends StatelessWidget {
                 'btn_cancel'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: context.textTheme.bodyLarge!.copyWith(
+                style: bodyLarge!.copyWith(
                   color: style.colors.onBackground,
                 ),
               ),
@@ -667,7 +671,7 @@ class ContactsTabView extends StatelessWidget {
                       .l10nfmt({'count': c.selectedContacts.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: context.textTheme.bodyLarge!.copyWith(
+                  style: bodyLarge.copyWith(
                     color: c.selectedContacts.isEmpty
                         ? style.colors.onBackground
                         : style.colors.onPrimary,
@@ -694,6 +698,7 @@ class ContactsTabView extends StatelessWidget {
     RxChatContact contact,
   ) async {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
@@ -701,7 +706,7 @@ class ContactsTabView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: context.textTheme.bodyLarge!.copyWith(
+          style: bodyLarge!.copyWith(
             color: style.colors.onBackground,
           ),
         ),

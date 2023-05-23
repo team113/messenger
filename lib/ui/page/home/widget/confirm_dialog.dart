@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -121,6 +120,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
+    final TextStyle? bodyMedium = Theme.of(context).textTheme.bodyMedium;
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
@@ -144,11 +146,11 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            color: _variant == variant
-                                ? style.colors.onPrimary
-                                : style.colors.onBackground,
-                          ),
+                      style: displaySmall?.copyWith(
+                        color: _variant == variant
+                            ? style.colors.onPrimary
+                            : style.colors.onBackground,
+                      ),
                       child: variant.child,
                     ),
                   ),
@@ -174,7 +176,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           header: Center(
             child: Text(
               widget.title,
-              style: context.textTheme.displaySmall,
+              style: displaySmall,
             ),
           ),
         ),
@@ -191,7 +193,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             child: Center(
               child: Text(
                 widget.description!,
-                style: context.textTheme.bodyLarge!.copyWith(
+                style: bodyLarge!.copyWith(
                   color: style.colors.secondary,
                 ),
               ),
@@ -222,7 +224,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: context.textTheme.bodyMedium!.copyWith(
+              style: bodyMedium!.copyWith(
                 color: style.colors.onPrimary,
               ),
             ),

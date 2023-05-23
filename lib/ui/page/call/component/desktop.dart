@@ -56,6 +56,7 @@ import 'common.dart';
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
 
   return LayoutBuilder(
     builder: (context, constraints) {
@@ -484,8 +485,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: context.textTheme.bodySmall!
-                                            .copyWith(
+                                        style: bodySmall!.copyWith(
                                           color: style.colors.onPrimary,
                                           fontSize: 11,
                                         ),
@@ -697,9 +697,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: context.textTheme.bodySmall!.copyWith(
-                          color: const Color(0xFFFFFFFF),
-                        ),
+                        style:
+                            bodySmall!.copyWith(color: const Color(0xFFFFFFFF)),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -1120,6 +1119,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       final Style style = Theme.of(context).extension<Style>()!;
+      final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
 
       return Container(
         key: const ValueKey('TitleBar'),
@@ -1158,7 +1158,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: context.textTheme.bodySmall!.copyWith(
+                          style: bodySmall!.copyWith(
                             color: const Color(0xFFFFFFFF),
                           ),
                           overflow: TextOverflow.ellipsis,

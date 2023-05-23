@@ -41,6 +41,8 @@ class BlacklistView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
 
     return GetBuilder(
       init: BlacklistController(
@@ -58,7 +60,7 @@ class BlacklistView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_users_count'.l10nfmt({'count': c.blacklist.length}),
-                    style: context.textTheme.displaySmall,
+                    style: displaySmall,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -91,7 +93,7 @@ class BlacklistView extends StatelessWidget {
                             const SizedBox(height: 5),
                             Text(
                               '28.12.2022',
-                              style: context.textTheme.bodySmall!.copyWith(
+                              style: bodySmall!.copyWith(
                                 color: style.colors.secondary,
                               ),
                             ),
@@ -101,7 +103,7 @@ class BlacklistView extends StatelessWidget {
                               onPressed: () => c.unblacklist(user),
                               child: Text(
                                 'btn_unblock_short'.l10n,
-                                style: context.textTheme.bodySmall!.copyWith(
+                                style: bodySmall.copyWith(
                                   color: style.colors.primary,
                                 ),
                               ),

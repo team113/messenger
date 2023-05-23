@@ -24,7 +24,6 @@ import 'package:chewie/src/center_play_button.dart';
 import 'package:chewie/src/helpers/utils.dart';
 import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
 import '/themes.dart';
@@ -316,6 +315,7 @@ class _MobileControlsState extends State<MobileControls>
   /// Returns the [RichText] of the current video position.
   Widget _buildPosition(Color? iconColor) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyMedium = Theme.of(context).textTheme.bodyMedium;
 
     final position = _latestValue.position;
     final duration = _latestValue.duration;
@@ -326,13 +326,13 @@ class _MobileControlsState extends State<MobileControls>
         children: <InlineSpan>[
           TextSpan(
             text: '/ ${formatDuration(duration)}',
-            style: context.textTheme.bodyMedium!.copyWith(
+            style: bodyMedium!.copyWith(
               color: style.colors.onPrimaryOpacity50,
               fontWeight: FontWeight.normal,
             ),
           )
         ],
-        style: context.textTheme.bodyMedium!.copyWith(
+        style: bodyMedium.copyWith(
           color: style.colors.onPrimary,
           fontWeight: FontWeight.bold,
         ),

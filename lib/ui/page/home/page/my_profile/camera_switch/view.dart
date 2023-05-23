@@ -57,6 +57,7 @@ class CameraSwitchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
 
     return GetBuilder(
       init: CameraSwitchController(Get.find(), camera: camera),
@@ -72,7 +73,7 @@ class CameraSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_camera'.l10n,
-                    style: context.textTheme.displaySmall,
+                    style: displaySmall,
                   ),
                 ),
               ),

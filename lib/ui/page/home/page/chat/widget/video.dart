@@ -110,6 +110,7 @@ class _VideoState extends State<Video> {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).extension<Style>()!;
+    final TextStyle bodyLarge = Theme.of(context).textTheme.bodyLarge!;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -132,8 +133,8 @@ class _VideoState extends State<Video> {
                       const SizedBox(height: 10),
                       Text(
                         'Video playback is not yet supported\non your operating system',
-                        style: context.textTheme.bodyLarge!
-                            .copyWith(color: style.colors.onPrimary),
+                        style:
+                            bodyLarge.copyWith(color: style.colors.onPrimary),
                         textAlign: TextAlign.center,
                       ),
                     ],

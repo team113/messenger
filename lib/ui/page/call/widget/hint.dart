@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -43,6 +42,7 @@ class HintWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
 
     return Card(
       elevation: 8,
@@ -75,7 +75,7 @@ class HintWidget extends StatelessWidget {
                     isError
                         ? 'label_error'.l10n
                         : 'label_hint_from_gapopa'.l10n,
-                    style: context.textTheme.bodySmall!.copyWith(
+                    style: bodySmall!.copyWith(
                       color: style.colors.secondaryOpacity87,
                     ),
                   ),
@@ -100,7 +100,7 @@ class HintWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 text,
-                style: context.textTheme.bodySmall!.copyWith(
+                style: bodySmall.copyWith(
                   color: style.colors.secondaryOpacity87,
                 ),
               ),

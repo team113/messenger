@@ -45,6 +45,8 @@ class AddPhoneView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle bodyLarge = Theme.of(context).textTheme.bodyLarge!;
+    final TextStyle titleLarge = Theme.of(context).textTheme.titleLarge!;
 
     return GetBuilder(
       init: AddPhoneController(
@@ -71,7 +73,7 @@ class AddPhoneView extends StatelessWidget {
                           c.resent.value
                               ? 'label_add_phone_confirmation_sent_again'.l10n
                               : 'label_add_phone_confirmation_sent'.l10n,
-                          style: context.textTheme.bodyLarge!.copyWith(
+                          style: bodyLarge.copyWith(
                             color: style.colors.secondary,
                           ),
                         );
@@ -98,7 +100,7 @@ class AddPhoneView extends StatelessWidget {
                                     : 'label_resend_timeout'.l10nfmt(
                                         {'timeout': c.resendPhoneTimeout.value},
                                       ),
-                                style: context.textTheme.bodyLarge!.copyWith(
+                                style: bodyLarge.copyWith(
                                   color: c.resendPhoneTimeout.value == 0
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,
@@ -117,7 +119,7 @@ class AddPhoneView extends StatelessWidget {
                               maxWidth: double.infinity,
                               title: Text(
                                 'btn_proceed'.l10n,
-                                style: context.textTheme.bodyLarge!.copyWith(
+                                style: bodyLarge.copyWith(
                                   color: c.phoneCode.isEmpty.value
                                       ? style.colors.onBackground
                                       : style.colors.onPrimary,
@@ -148,9 +150,8 @@ class AddPhoneView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         'label_add_phone_description'.l10n,
-                        style: context.textTheme.bodyLarge!.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                        style:
+                            bodyLarge.copyWith(color: style.colors.secondary),
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -171,7 +172,7 @@ class AddPhoneView extends StatelessWidget {
                         maxWidth: double.infinity,
                         title: Text(
                           'btn_proceed'.l10n,
-                          style: context.textTheme.bodyLarge!.copyWith(
+                          style: bodyLarge.copyWith(
                             color: c.phone.isEmpty.value
                                 ? style.colors.onBackground
                                 : style.colors.onPrimary,
@@ -198,10 +199,7 @@ class AddPhoneView extends StatelessWidget {
                 const SizedBox(height: 4),
                 ModalPopupHeader(
                   header: Center(
-                    child: Text(
-                      'label_add_phone'.l10n,
-                      style: context.textTheme.titleLarge,
-                    ),
+                    child: Text('label_add_phone'.l10n, style: titleLarge),
                   ),
                 ),
                 const SizedBox(height: 13),

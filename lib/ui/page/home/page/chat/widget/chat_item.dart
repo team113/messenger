@@ -466,8 +466,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final TextStyle displaySmall = Theme.of(context).textTheme.displaySmall!;
+
     return DefaultTextStyle(
-      style: context.textTheme.displaySmall!,
+      style: displaySmall,
       child: Obx(() {
         if (widget.item.value is ChatMessage) {
           return _renderAsChatMessage(context);
@@ -488,6 +490,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatInfo].
   Widget _renderAsChatInfo() {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
 
     final ChatInfo message = widget.item.value as ChatInfo;
 
@@ -529,12 +532,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                     TextSpan(
                       text: 'label_group_created_by2'.l10nfmt(args),
-                      style: context.textTheme.bodySmall!.copyWith(
+                      style: bodySmall!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                   ],
-                  style: context.textTheme.bodySmall!.copyWith(
+                  style: bodySmall.copyWith(
                     color: style.colors.primary,
                   ),
                 ),
@@ -573,7 +576,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                   TextSpan(
                     text: 'label_user_added_user2'.l10nfmt(args),
-                    style: context.textTheme.bodySmall!.copyWith(
+                    style: bodySmall!.copyWith(
                       color: style.colors.secondary,
                     ),
                   ),
@@ -583,7 +586,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: context.textTheme.bodySmall!.copyWith(
+                style: bodySmall.copyWith(
                   color: style.colors.primary,
                 ),
               ),
@@ -604,12 +607,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
-                  style: context.textTheme.bodySmall!.copyWith(
+                  style: bodySmall!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
               ],
-              style: context.textTheme.bodySmall!.copyWith(
+              style: bodySmall.copyWith(
                 color: style.colors.primary,
               ),
             ),
@@ -640,7 +643,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                   TextSpan(
                     text: 'label_user_removed_user2'.l10nfmt(args),
-                    style: context.textTheme.bodySmall!.copyWith(
+                    style: bodySmall!.copyWith(
                       color: style.colors.secondary,
                     ),
                   ),
@@ -650,7 +653,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: context.textTheme.bodySmall!.copyWith(
+                style: bodySmall.copyWith(
                   color: style.colors.primary,
                 ),
               ),
@@ -671,12 +674,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
-                  style: context.textTheme.bodySmall!.copyWith(
+                  style: bodySmall!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
               ],
-              style: context.textTheme.bodySmall!.copyWith(
+              style: bodySmall.copyWith(
                 color: style.colors.primary,
               ),
             ),
@@ -711,12 +714,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: context.textTheme.bodySmall!.copyWith(
+                style: bodySmall!.copyWith(
                   color: style.colors.secondary,
                 ),
               ),
             ],
-            style: context.textTheme.bodySmall!.copyWith(
+            style: bodySmall.copyWith(
               color: style.colors.primary,
             ),
           ),
@@ -751,12 +754,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: context.textTheme.bodySmall!.copyWith(
+                style: bodySmall!.copyWith(
                   color: style.colors.secondary,
                 ),
               ),
             ],
-            style: context.textTheme.bodySmall!.copyWith(
+            style: bodySmall.copyWith(
               color: style.colors.primary,
             ),
           ),
@@ -789,7 +792,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               color: style.systemMessageColor,
             ),
             child: DefaultTextStyle(
-              style: context.textTheme.bodySmall!,
+              style: bodySmall!,
               child: content,
             ),
           ),
@@ -801,6 +804,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? labelLarge = Theme.of(context).textTheme.labelLarge;
 
     final ChatMessage msg = widget.item.value as ChatMessage;
 
@@ -934,7 +938,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 selectable: PlatformUtils.isDesktop || menu,
                 onSelecting: widget.onSelecting,
                 onChanged: (a) => _selection = a,
-                style: context.textTheme.labelLarge!.copyWith(
+                style: labelLarge!.copyWith(
                   color: color,
                   fontWeight: FontWeight.normal,
                 ),
@@ -969,9 +973,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   selectable: PlatformUtils.isDesktop || menu,
                   onSelecting: widget.onSelecting,
                   onChanged: (a) => _selection = a,
-                  style: context.textTheme.labelLarge!.copyWith(
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: labelLarge!.copyWith(fontWeight: FontWeight.w400),
                 ),
               ),
             ),
@@ -1114,6 +1116,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle titleSmall = Theme.of(context).textTheme.titleSmall!;
 
     var message = widget.item.value as ChatCall;
     bool isOngoing =
@@ -1202,7 +1205,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       time,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall,
+                      style: titleSmall,
                     ).fixedDigits(),
                   ),
                 ],
@@ -1301,6 +1304,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItemQuote item, {bool timestamp = false}) {
     Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+    final TextStyle? titleMedium = Theme.of(context).textTheme.titleMedium;
+
     bool fromMe = item.author == widget.me;
 
     Widget? content;
@@ -1369,9 +1375,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: context.textTheme.titleMedium!.copyWith(
-                      color: style.colors.secondary,
-                    ),
+                    style: titleMedium!.copyWith(color: style.colors.secondary),
                   ),
                 ),
               ),
@@ -1385,7 +1389,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           item.text!.val,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: context.textTheme.displaySmall,
+          style: displaySmall,
         );
       }
     } else if (item is ChatCallQuote) {
@@ -1429,7 +1433,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: context.textTheme.displaySmall)),
+          Flexible(child: Text(title, style: displaySmall)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -1438,7 +1442,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: context.textTheme.displaySmall,
+                style: displaySmall,
               ),
             ),
           ],
@@ -1446,10 +1450,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     } else if (item is ChatInfoQuote) {
       // TODO: Implement `ChatInfo`.
-      content =
-          Text(item.action.toString(), style: context.textTheme.displaySmall);
+      content = Text(item.action.toString(), style: displaySmall);
     } else {
-      content = Text('err_unknown'.l10n, style: context.textTheme.displaySmall);
+      content = Text('err_unknown'.l10n, style: displaySmall);
     }
 
     return FutureBuilder<RxUser?>(

@@ -17,7 +17,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
 
@@ -39,9 +38,9 @@ class StyledCupertinoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
-      color: style.colors.secondary,
-    );
+    final TextStyle? thin = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: style.colors.secondary,
+        );
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,

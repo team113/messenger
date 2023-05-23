@@ -42,6 +42,7 @@ class LoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle bodySmall = Theme.of(context).textTheme.bodySmall!;
 
     final TextTheme theme = Theme.of(context).textTheme;
 
@@ -242,8 +243,8 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style: context.textTheme.bodySmall!
-                              .copyWith(color: style.colors.primary),
+                          style:
+                              bodySmall.copyWith(color: style.colors.primary),
                         ),
                       ),
                     ),

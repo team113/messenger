@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -54,6 +53,9 @@ class MessagePopup {
     List<Widget> additional = const [],
   }) {
     final Style style = Theme.of(router.context!).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(router.context!).textTheme.bodyLarge;
+    final TextStyle? displaySmall =
+        Theme.of(router.context!).textTheme.displaySmall;
 
     return ModalPopup.show(
       context: router.context!,
@@ -65,10 +67,7 @@ class MessagePopup {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text(
-                    title,
-                    style: context.textTheme.displaySmall,
-                  ),
+                  child: Text(title, style: displaySmall),
                 ),
               ),
               const SizedBox(height: 13),
@@ -83,7 +82,7 @@ class MessagePopup {
                           child: RichText(
                             text: TextSpan(
                               children: description,
-                              style: context.textTheme.bodyLarge!.copyWith(
+                              style: bodyLarge!.copyWith(
                                 color: style.colors.secondary,
                               ),
                             ),
@@ -107,8 +106,7 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: context.textTheme.bodyLarge!
-                        .copyWith(color: style.colors.onPrimary),
+                    style: bodyLarge!.copyWith(color: style.colors.onPrimary),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   color: style.colors.primary,

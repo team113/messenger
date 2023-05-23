@@ -815,7 +815,6 @@ class _ChatViewState extends State<ChatView>
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-
     final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
@@ -854,9 +853,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: context.textTheme.bodySmall!.copyWith(
-                  color: style.colors.primary,
-                ),
+                style: textStyle!.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -880,9 +877,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: context.textTheme.bodySmall!.copyWith(
-                  color: style.colors.primary,
-                ),
+                style: textStyle!.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -958,6 +953,7 @@ class _ChatViewState extends State<ChatView>
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time, ChatController c, int i) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -991,9 +987,7 @@ class _ChatViewState extends State<ChatView>
                 ),
                 child: Text(
                   time.toRelative(),
-                  style: context.textTheme.bodySmall!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: textStyle!.copyWith(color: style.colors.secondary),
                 ),
               ),
             ),
@@ -1073,6 +1067,7 @@ class _ChatViewState extends State<ChatView>
   /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
   Widget _blockedField(ChatController c) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? textStyle = Theme.of(context).textTheme.displaySmall;
 
     return Theme(
       data: MessageFieldView.theme(context),
@@ -1120,7 +1115,7 @@ class _ChatViewState extends State<ChatView>
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: context.textTheme.displaySmall!.copyWith(
+                              style: textStyle!.copyWith(
                                 color: style.colors.primary,
                               ),
                             ),

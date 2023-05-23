@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 
 import '../widget/caption.dart';
 import '/l10n/l10n.dart';
@@ -41,6 +40,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? displayLarge = Theme.of(context).textTheme.displayLarge;
 
     Widget color(Color color, [String? desc]) {
       final HSLColor hsl = HSLColor.fromColor(color);
@@ -246,7 +246,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             const SizedBox(height: 50),
             Text(
               'Цвета аватаров:',
-              style: context.textTheme.displayLarge!.copyWith(
+              style: displayLarge!.copyWith(
                 color: isDarkMode ? Colors.white : Colors.black,
               ),
             ),

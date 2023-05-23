@@ -485,15 +485,14 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle bodySmall = Theme.of(context).textTheme.bodySmall!;
 
     final position = _latestValue.position;
     final duration = _latestValue.duration;
 
     return Text(
       '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: context.textTheme.bodySmall!.copyWith(
-        color: style.colors.onPrimary,
-      ),
+      style: bodySmall.copyWith(color: style.colors.onPrimary),
     );
   }
 

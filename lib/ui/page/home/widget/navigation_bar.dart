@@ -20,7 +20,6 @@ import 'dart:ui';
 import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -50,6 +49,7 @@ class CustomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle bodySmall = Theme.of(context).textTheme.bodySmall!;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
@@ -110,8 +110,7 @@ class CustomNavigationBar extends StatelessWidget {
                                         : Text(
                                             b.badge!,
                                             textAlign: TextAlign.center,
-                                            style: context.textTheme.bodySmall!
-                                                .copyWith(
+                                            style: bodySmall.copyWith(
                                               color: style.colors.onPrimary,
                                             ),
                                           ),

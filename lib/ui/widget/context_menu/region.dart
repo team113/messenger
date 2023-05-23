@@ -17,7 +17,6 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
@@ -192,6 +191,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
 
     if (widget.actions.isEmpty) {
       return;
@@ -220,10 +220,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   b.leading!,
                   const SizedBox(width: 12)
                 ],
-                Text(
-                  b.label,
-                  style: context.textTheme.bodyLarge,
-                ),
+                Text(b.label, style: bodyLarge),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,
