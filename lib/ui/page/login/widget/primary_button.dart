@@ -17,34 +17,39 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:get/get.dart';
+import '/themes.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 
-import '/domain/model/user.dart';
+/// Primary styled [OutlinedRoundedButton].
+class PrimaryButton extends StatelessWidget {
+  const PrimaryButton({
+    super.key,
+    this.title = '',
+    this.onPressed,
+  });
 
-/// [ListTile] with an information of an [User].
-class AddUserListTile extends StatelessWidget {
-  const AddUserListTile(this.user, this.onTap, {Key? key}) : super(key: key);
+  /// Text to display.
+  final String title;
 
-  /// [User] this [AddUserListTile] is about.
-  final User user;
-
-  /// Callback, called when this [ListTile] is tapped.
-  final VoidCallback onTap;
+  /// Callback, called when this button is tapped or activated other way.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    return ListTile(
-      leading: const CircleAvatar(
-        backgroundColor: Colors.green,
-        child: Icon(Icons.check, color: Colors.white),
+    return OutlinedRoundedButton(
+      maxWidth: double.infinity,
+      title: Text(
+        title,
+        style: TextStyle(
+          color: onPressed == null
+              ? style.colors.onBackground
+              : style.colors.onPrimary,
+        ),
       ),
-      selected: true,
-      selectedTileColor: const Color(0x11000000),
-      title: Text(user.name?.val ?? user.num.val, style: font17),
-      onTap: onTap,
+      onPressed: onPressed,
+      color: style.colors.primary,
     );
   }
 }

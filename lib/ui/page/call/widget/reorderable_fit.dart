@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -25,6 +26,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import 'animated_transition.dart';
 
@@ -51,7 +53,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor = const Color(0x00000000),
+    this.hoverColor,
     this.axis,
     this.left,
     this.right,
@@ -159,7 +161,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   final Axis? axis;
 
   /// Hover color of the [DragTarget].
-  final Color hoverColor;
+  final Color? hoverColor;
 
   /// Optional [BorderRadius] to decorate this [ReorderableFit] with.
   final BorderRadius? borderRadius;
@@ -356,6 +358,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
         }
 
         return _ReorderableFit<T>(
+          key: key,
           children: children,
           itemBuilder: itemBuilder,
           decoratorBuilder: decoratorBuilder,
@@ -411,7 +414,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor = const Color(0x00000000),
+    this.hoverColor,
     this.wrapSize,
     this.axis,
     this.width,
@@ -492,7 +495,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   final bool allowDraggingLast;
 
   /// Hover color of the [DragTarget].
-  final Color hoverColor;
+  final Color? hoverColor;
 
   /// Left position of this view.
   final double? left;
@@ -558,8 +561,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   @override
   void dispose() {
     _audioPlayer?.dispose();
-    AudioCache.instance.clear('audio/pop.mp3');
-
+    _audioPlayer = null;
     super.dispose();
   }
 
@@ -592,6 +594,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
     Widget cell(int index, [bool withOverlay = true]) {
+      final Style style = Theme.of(context).extension<Style>()!;
+
       var item = _items[index];
       return Stack(
         children: [
@@ -657,8 +661,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? const Color(0x00000000)
-                            : widget.hoverColor,
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -702,8 +706,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? const Color(0x00000000)
-                            : widget.hoverColor,
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -995,12 +999,18 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'reorderableFitWrap');
-      await AudioCache.instance.loadAll(['audio/pop.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
+    // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    runZonedGuarded(
+      () => _audioPlayer = AudioPlayer(),
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 }
 
@@ -1081,6 +1091,8 @@ class _ReorderableDraggableState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return DoughRecipe(
       data: DoughRecipeData(
         adhesion: 4,
@@ -1167,7 +1179,7 @@ class _ReorderableDraggableState<T extends Object>
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                color: Colors.transparent,
+                color: style.colors.transparent,
               ),
             ),
             child: KeyedSubtree(

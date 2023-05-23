@@ -15,33 +15,42 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
-import '/ui/widget/widget_button.dart';
 
-/// Custom styled [BackButton].
-class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({super.key});
+/// Custom styled [CupertinoButton].
+class StyledCupertinoButton extends StatelessWidget {
+  const StyledCupertinoButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+  });
+
+  /// Label to display.
+  final String label;
+
+  /// Callback, called when this button is pressed.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    if (ModalRoute.of(context)?.canPop == true) {
-      return WidgetButton(
-        onPressed: () => Navigator.maybePop(context),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: style.colors.primary,
-            size: 22,
-          ),
-        ),
-      );
-    } else {
-      return const SizedBox(width: 30);
-    }
+    final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
+      fontSize: 13,
+      color: style.colors.secondary,
+    );
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      opaque: false,
+      child: CupertinoButton(
+        onPressed: onPressed,
+        child: Text(label, style: thin),
+      ),
+    );
   }
 }
