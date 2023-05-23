@@ -772,9 +772,9 @@ class CallController extends GetxController {
       }
 
       // Ensure [EndCallButton] is always in the list.
-      if (persisted!.whereType<ReconnectButton>().isEmpty) {
-        persisted.insert(0, ReconnectButton(this));
-      }
+      // if (persisted!.whereType<ReconnectButton>().isEmpty) {
+      //   persisted.insert(0, ReconnectButton(this));
+      // }
 
       // Ensure [EndCallButton] is always in the list.
       if (persisted!.whereType<EndCallButton>().isEmpty) {

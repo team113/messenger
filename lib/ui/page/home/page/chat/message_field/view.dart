@@ -495,128 +495,186 @@ class MessageFieldView extends StatelessWidget {
     //   }),
     // );
 
-    return Container(
-      key: c.globalKey,
-      constraints: const BoxConstraints(minHeight: 56),
-      decoration: BoxDecoration(color: background ?? style.cardColor),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          WidgetButton(
-            onPressed: canAttach
-                ? () {
-                    c.entry?.remove();
-                    c.entry = null;
+    return LayoutBuilder(builder: (context, constraints) {
+      return Container(
+        key: c.globalKey,
+        constraints: const BoxConstraints(minHeight: 56),
+        decoration: BoxDecoration(color: background ?? style.cardColor),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // const SizedBox(width: 26 / 2 - 3),
+            WidgetButton(
+              onPressed: canAttach
+                  ? () {
+                      c.entry?.remove();
+                      c.entry = null;
 
-                    c.entry = OverlayEntry(builder: (context) {
-                      return MessageFieldOverlay(c);
-                    });
+                      c.entry = OverlayEntry(builder: (context) {
+                        return MessageFieldOverlay(c);
+                      });
 
-                    Overlay.of(context, rootOverlay: true).insert(c.entry!);
-                  }
-                : null,
-            // onPressed: canAttach
-            //     ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-            //         ? c.pickFile
-            //         : () async {
-            //             c.field.focus.unfocus();
-            //             await AttachmentSourceSelector.show(
-            //               context,
-            //               onPickFile: c.pickFile,
-            //               onTakePhoto: c.pickImageFromCamera,
-            //               onPickMedia: c.pickMedia,
-            //               onTakeVideo: c.pickVideoFromCamera,
-            //             );
-            //           }
-            //     : null,
-            child: SizedBox(
-              width: 56,
-              height: 56,
-              child: Center(
-                child: SvgImage.asset(
-                  'assets/icons/chat_more.svg',
-                  height: 18,
-                  width: 18,
-                ),
-                // child: SvgImage.asset(
-                //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
-                //   height: 22,
-                //   width: 22,
-                // ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                bottom: 13,
-              ),
-              child: Transform.translate(
-                offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                child: ReactiveTextField(
-                  onChanged: onChanged,
-                  key: fieldKey ?? const Key('MessageField'),
-                  state: c.field,
-                  hint: 'label_send_message_hint'.l10n,
-                  minLines: 1,
-                  maxLines: 7,
-                  filled: false,
-                  dense: true,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: style.boldBody.copyWith(fontSize: 17),
-                  type: TextInputType.multiline,
-                  textInputAction: TextInputAction.newline,
+                      Overlay.of(context, rootOverlay: true).insert(c.entry!);
+                    }
+                  : null,
+              // onPressed: canAttach
+              //     ? !PlatformUtils.isMobile || PlatformUtils.isWeb
+              //         ? c.pickFile
+              //         : () async {
+              //             c.field.focus.unfocus();
+              //             await AttachmentSourceSelector.show(
+              //               context,
+              //               onPickFile: c.pickFile,
+              //               onTakePhoto: c.pickImageFromCamera,
+              //               onPickMedia: c.pickMedia,
+              //               onTakeVideo: c.pickVideoFromCamera,
+              //             );
+              //           }
+              //     : null,
+              child: Container(
+                // color: Colors.yellow,
+                width: 56,
+                height: 56,
+                child: Center(
+                  child: SvgImage.asset(
+                    'assets/icons/chat_more.svg',
+                    height: 18,
+                    width: 18,
+                  ),
+                  // child: SvgImage.asset(
+                  //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
+                  //   height: 22,
+                  //   width: 22,
+                  // ),
                 ),
               ),
             ),
-          ),
-          Obx(() {
-            return GestureDetector(
-              onLongPress: canForward ? c.forwarding.toggle : null,
-              child: WidgetButton(
-                onPressed: canSend
-                    ? () {
-                        if (c.editing.value) {
-                          c.field.unsubmit();
-                        }
-                        c.field.submit();
-                      }
-                    : null,
-                child: SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: 300.milliseconds,
-                      child: c.forwarding.value
-                          ? SvgImage.asset(
-                              'assets/icons/forward.svg',
-                              width: 26,
-                              height: 22,
-                            )
-                          : c.field.isEmpty.value
-                              ? Icon(
-                                  Icons.emoji_emotions_outlined,
-                                  color: style.colors.primary,
-                                  size: 28,
-                                )
-                              : SvgImage.asset(
-                                  'assets/icons/send${disabled ? '_disabled' : ''}.svg',
-                                  key: sendKey ?? const Key('Send'),
-                                  height: 22.85,
-                                  width: 25.18,
-                                ),
-                    ),
+
+            // const SizedBox(width: 26 / 2 - 3),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                  bottom: 13,
+                ),
+                child: Transform.translate(
+                  offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                  child: ReactiveTextField(
+                    onChanged: onChanged,
+                    key: fieldKey ?? const Key('MessageField'),
+                    state: c.field,
+                    hint: 'label_send_message_hint'.l10n,
+                    minLines: 1,
+                    maxLines: 7,
+                    filled: false,
+                    dense: true,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    style: style.boldBody.copyWith(fontSize: 17),
+                    type: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
                   ),
                 ),
               ),
-            );
-          }),
-        ],
-      ),
-    );
+            ),
+            const SizedBox(width: 26 / 2 - 3),
+            Obx(() {
+              if (c.buttons.isEmpty || c.field.isFocused.value) {
+                return const SizedBox();
+              }
+
+              int take = c.buttons.length;
+              // print(
+              // '${constraints.maxWidth} - 220 < 36 * c.buttons.length : ${constraints.maxWidth - 220 < 36 * c.buttons.length}');
+              if (constraints.maxWidth - 220 < 36 * c.buttons.length) {
+                take = ((constraints.maxWidth - 220) / 36).round();
+                // print(3 * constraints.maxWidth / (36 * c.buttons.length));
+              }
+
+              return Row(
+                children: c.buttons.take(take).toList().reversed.map((e) {
+                  return WidgetButton(
+                    onPressed: e.onPressed,
+                    child: Container(
+                      // color: Colors.red,
+                      width: 36,
+                      height: 56,
+                      child: Center(
+                        child: e.icon == null
+                            ? SvgImage.asset(
+                                'assets/icons/chat_more.svg',
+                                height: 18,
+                                width: 18,
+                              )
+                            : Icon(
+                                e.icon,
+                                size: 26,
+                                color: style.colors.primary,
+                              ),
+                        // child: SvgImage.asset(
+                        //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
+                        //   height: 22,
+                        //   width: 22,
+                        // ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            }),
+            Obx(() {
+              return GestureDetector(
+                onLongPress: canForward ? c.forwarding.toggle : null,
+                child: WidgetButton(
+                  onPressed: canSend
+                      ? () {
+                          if (c.editing.value) {
+                            c.field.unsubmit();
+                          }
+                          c.field.submit();
+                        }
+                      : null,
+                  child: SizedBox(
+                    width: 36,
+                    height: 56,
+                    child: Center(
+                      child: AnimatedSwitcher(
+                        duration: 300.milliseconds,
+                        child: c.forwarding.value
+                            ? SvgImage.asset(
+                                'assets/icons/forward.svg',
+                                width: 26,
+                                height: 22,
+                              )
+                            : c.field.isEmpty.value
+                                ? Icon(
+                                    Icons.mic,
+                                    color: style.colors.primary,
+                                    size: 28,
+                                  )
+                                // ? SvgImage.asset(
+                                //     'assets/icons/microphone_on.svg',
+                                //     key: sendKey ?? const Key('Send'),
+                                //     height: 22.85,
+                                //     width: 25.18,
+                                //   )
+                                : SvgImage.asset(
+                                    'assets/icons/send${disabled ? '_disabled' : ''}.svg',
+                                    key: sendKey ?? const Key('Send'),
+                                    height: 22.85,
+                                    width: 25.18,
+                                  ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+            const SizedBox(width: 26 / 2 - 3),
+          ],
+        ),
+      );
+    });
   }
 
   /// Returns a visual representation of the provided [Attachment].

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/call/widget/dock.dart';
 import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/platform_utils.dart';
+
+import 'buttons.dart';
 
 class MessageFieldOverlay extends StatelessWidget {
   const MessageFieldOverlay(this.c, {super.key});
@@ -15,13 +19,56 @@ class MessageFieldOverlay extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return LayoutBuilder(builder: (context, constraints) {
-      Rect? rect = c.globalKey.globalPaintBounds;
+      final Rect? rect = c.globalKey.globalPaintBounds;
 
-      double left = rect?.left ?? 0;
-      double right = rect == null ? 0 : (constraints.maxWidth - rect.right);
-      double bottom = rect == null
+      final double left = rect?.left ?? 0;
+      final double right =
+          rect == null ? 0 : (constraints.maxWidth - rect.right);
+      final double bottom = rect == null
           ? 0
           : (constraints.maxHeight - rect.bottom + rect.height);
+
+      final List<Widget> widgets = [];
+      for (int i = 0; i < c.panel.length; ++i) {
+        final e = c.panel.elementAt(i);
+
+        widgets.add(
+          Obx(() {
+            final bool contains = c.buttons.contains(e);
+
+            return _MenuButton(
+              e,
+              pinned: contains,
+              onPinned: () {
+                if (c.buttons.contains(e)) {
+                  c.buttons.remove(e);
+                } else {
+                  c.buttons.add(e);
+                }
+              },
+              onPressed: () {
+                c.entry?.remove();
+                c.entry = null;
+              },
+            );
+          }),
+        );
+
+        if (i != c.panel.length - 1) {
+          widgets.add(
+            Container(
+              height: 0.5,
+              width: double.infinity,
+              color: style.colors.onBackgroundOpacity7,
+            ),
+          );
+        }
+      }
+
+      final Widget actions = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: widgets,
+      );
 
       return Stack(
         fit: StackFit.expand,
@@ -39,7 +86,7 @@ class MessageFieldOverlay extends StatelessWidget {
           ),
           Positioned(
             left: left,
-            right: right,
+            right: context.isNarrow ? right : null,
             // right: 0,
             bottom: bottom + 10,
             child: Container(
@@ -56,72 +103,109 @@ class MessageFieldOverlay extends StatelessWidget {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 440),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 35),
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.start,
-                      alignment: WrapAlignment.center,
-                      spacing: 4,
-                      runSpacing: 21,
-                      children: c.panel.map((e) {
-                        return SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: Column(
-                            children: [
-                              DelayedDraggable(
-                                feedback: Transform.translate(
-                                  offset: const Offset(
-                                    -60 / 2,
-                                    -60 / 2,
-                                  ),
-                                  child: SizedBox(
-                                    height: 60,
-                                    width: 60,
-                                    child: e.build(),
-                                  ),
-                                ),
-                                data: e,
-                                // onDragStarted: () {
-                                //   c.showDragAndDropButtonsHint = false;
-                                //   c.draggedButton.value = e;
-                                // },
-                                // onDragCompleted: () =>
-                                //     c.draggedButton.value = null,
-                                // onDragEnd: (_) => c.draggedButton.value = null,
-                                // onDraggableCanceled: (_, __) =>
-                                //     c.draggedButton.value = null,
-                                // maxSimultaneousDrags: e.isRemovable ? null : 0,
-                                dragAnchorStrategy: pointerDragAnchorStrategy,
-                                child: e.build(hinted: false),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                e.hint,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
-                              )
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
+              child:
+                  context.isNarrow ? actions : IntrinsicWidth(child: actions),
             ),
           ),
         ],
       );
     });
+  }
+}
+
+class _MenuButton extends StatefulWidget {
+  const _MenuButton(
+    this.button, {
+    this.onPressed,
+    this.onPinned,
+    this.pinned = false,
+  });
+
+  final ChatButton button;
+  final void Function()? onPressed;
+  final void Function()? onPinned;
+  final bool pinned;
+
+  @override
+  State<_MenuButton> createState() => _MenuButtonState();
+}
+
+class _MenuButtonState extends State<_MenuButton> {
+  bool _hovered = false;
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      opaque: false,
+      child: WidgetButton(
+        onDown: (_) => setState(() => _pressed = true),
+        onUp: (_) => setState(() => _pressed = false),
+        onPressed: () {
+          widget.button.onPressed?.call();
+          widget.onPressed?.call();
+        },
+        child: Container(
+          width: double.infinity,
+          color:
+              _hovered || _pressed ? style.colors.onBackgroundOpacity2 : null,
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(width: 16),
+              Icon(
+                widget.button.icon ?? Icons.attach_email,
+                size: 24,
+                color: style.colors.primary,
+              ),
+              // SvgImage.asset(
+              //   'assets/icons/${e.asset}.svg',
+              //   width: 60,
+              //   height: 60,
+              // ),
+              const SizedBox(width: 12),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Text(
+                  widget.button.hint,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: style.colors.primary,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              const SizedBox(width: 16),
+              WidgetButton(
+                onPressed: widget.onPinned,
+                child: Container(
+                  // color: Colors.red,
+                  height: 40,
+                  width: 40,
+                  child: Center(
+                    child: widget.pinned
+                        ? SvgImage.asset(
+                            'assets/icons/unpin3.svg',
+                            width: 16.5,
+                            height: 17.17,
+                          )
+                        : SvgImage.asset(
+                            'assets/icons/pin1.svg',
+                            width: 9.56,
+                            height: 16.85,
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

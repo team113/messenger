@@ -404,7 +404,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           } else {
                             return Dock<CallButton>(
                               items: c.buttons,
-                              isDraggable: (e) => !e.isRemovable,
+                              isDraggable: (e) => e.isRemovable,
                               itemWidth: CallController.buttonSize,
                               itemBuilder: (e) => e.build(
                                 hinted: c.draggedButton.value == null,

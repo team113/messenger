@@ -174,18 +174,14 @@ class MessageFieldController extends GetxController {
   final GlobalKey globalKey = GlobalKey();
   late final RxList<ChatButton> panel = RxList([
     AttachmentButton(this),
-    AudioMessageButton(this),
-    VideoMessageButton(this),
+    // AudioMessageButton(this),
+    // VideoMessageButton(this),
     ContactButton(this),
     DonateButton(this),
     GeopositionButton(this),
   ]);
 
-  late final RxList<ChatButton> buttons = RxList([
-    MoreButton(this),
-    FieldButton(this),
-    SendButton(this),
-  ]);
+  final RxList<ChatButton> buttons = RxList([]);
 
   OverlayEntry? entry;
 

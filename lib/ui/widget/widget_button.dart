@@ -26,6 +26,8 @@ class WidgetButton extends StatelessWidget {
     required this.child,
     this.behavior,
     this.onPressed,
+    this.onDown,
+    this.onUp,
   }) : super(key: key);
 
   /// [Widget] to press.
@@ -37,6 +39,9 @@ class WidgetButton extends StatelessWidget {
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
 
+  final void Function(TapDownDetails)? onDown;
+  final void Function(TapUpDetails)? onUp;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -45,6 +50,8 @@ class WidgetButton extends StatelessWidget {
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
+        onTapDown: onDown,
+        onTapUp: onUp,
         behavior: behavior,
         child: Container(
           color: style.colors.transparent,
@@ -58,11 +65,11 @@ class WidgetButton extends StatelessWidget {
 /// Simple [GestureDetector]-based button without any decorations.
 class ListenerButton extends StatelessWidget {
   const ListenerButton({
-    Key? key,
+    super.key,
     required this.child,
     this.behavior,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   /// [Widget] to press.
   final Widget child;
