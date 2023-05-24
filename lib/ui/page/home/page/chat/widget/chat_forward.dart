@@ -267,9 +267,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     final Style style = Theme.of(context).extension<Style>()!;
 
     final Color color = widget.user?.user.value.id == widget.me
-        ? Theme.of(context).colorScheme.secondary
-        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+        ? style.colors.primary
+        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.colors.userColors.length];
 
     return DefaultTextStyle(
       style: style.boldBody,
@@ -295,7 +295,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         ? _isRead
                             ? style.secondaryBorder
                             : Border.all(
-                                color: const Color(0xFFDAEDFF),
+                                color: style.colors.backgroundAuxiliaryLighter,
                                 width: 0.5,
                               )
                         : style.primaryBorder,
@@ -410,10 +410,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               future: widget.getUser?.call(quote.author),
               builder: (context, snapshot) {
                 final Color color = snapshot.data?.user.value.id == widget.me
-                    ? Theme.of(context).colorScheme.secondary
-                    : AvatarWidget.colors[
+                    ? style.colors.primary
+                    : style.colors.userColors[
                         (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                            AvatarWidget.colors.length];
+                            style.colors.userColors.length];
 
                 return Row(
                   children: [
@@ -606,9 +606,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       return AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.04),
+          color: style.colors.onBackgroundOpacity2,
           borderRadius: style.cardRadius,
-          border: Border.all(color: Colors.black.withOpacity(0.1), width: 0.5),
+          border:
+              Border.all(color: style.colors.onBackgroundOpacity20, width: 0.5),
         ),
         margin: const EdgeInsets.fromLTRB(6, 4, 6, 4),
         child: AnimatedOpacity(
@@ -696,9 +697,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       }).toList();
 
       final Color color = widget.user?.user.value.id == widget.me
-          ? Theme.of(context).colorScheme.secondary
-          : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-              AvatarWidget.colors.length];
+          ? style.colors.primary
+          : style.colors.userColors[
+              (widget.user?.user.value.num.val.sum() ?? 3) %
+                  style.colors.userColors.length];
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -750,7 +752,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       width: media.length * 120,
                       height: max(media.length * 60, 300),
                       child: FitView(
-                        dividerColor: Colors.transparent,
+                        dividerColor: style.colors.transparent,
                         children: media
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(
