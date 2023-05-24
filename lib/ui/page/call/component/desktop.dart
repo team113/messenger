@@ -1283,21 +1283,24 @@ class DesktopCall extends StatelessWidget {
                         )
                       ],
                     ),
-                    child: TitleBar(
-                      onDoubleTap: () => c.toggleFullscreen(),
-                      constraints: BoxConstraints(maxWidth: c.size.width - 60),
-                      chat: c.chat,
-                      titleArguments: c.titleArguments,
-                      toggleFullscreen: () => c.toggleFullscreen(),
-                      fullscreen: c.fullscreen,
-                      onTap: WebUtils.isPopup
-                          ? null
-                          : () {
-                              router.chat(c.chatId.value);
-                              if (c.fullscreen.value) {
-                                c.toggleFullscreen();
-                              }
-                            },
+                    child: Obx(
+                      () => TitleBar(
+                        onDoubleTap: () => c.toggleFullscreen(),
+                        constraints:
+                            BoxConstraints(maxWidth: c.size.width - 60),
+                        chat: c.chat.value,
+                        titleArguments: c.titleArguments,
+                        toggleFullscreen: () => c.toggleFullscreen(),
+                        fullscreen: c.fullscreen.value,
+                        onTap: WebUtils.isPopup
+                            ? null
+                            : () {
+                                router.chat(c.chatId.value);
+                                if (c.fullscreen.value) {
+                                  c.toggleFullscreen();
+                                }
+                              },
+                      ),
                     ),
                   ),
                 ),

@@ -43,10 +43,10 @@ class TitleBar extends StatelessWidget {
   });
 
   /// Chat information.
-  final Rx<RxChat?> chat;
+  final RxChat? chat;
 
   /// Indicator whether the application is in full-screen mode.
-  final RxBool fullscreen;
+  final bool fullscreen;
 
   /// Variable that imposes restrictions on the size of the element.
   final BoxConstraints constraints;
@@ -66,76 +66,74 @@ class TitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return Container(
-        key: const ValueKey('TitleBar'),
-        color: const Color(0xFF162636),
-        height: CallController.titleHeight,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Handles double tap to toggle fullscreen.
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onDoubleTap: onDoubleTap,
-            ),
+    return Container(
+      key: const ValueKey('TitleBar'),
+      color: const Color(0xFF162636),
+      height: CallController.titleHeight,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Handles double tap to toggle fullscreen.
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onDoubleTap: onDoubleTap,
+          ),
 
-            // Left part of the title bar that displays the recipient or
-            // the caller, its avatar and the call's state.
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ConstrainedBox(
-                constraints: constraints,
-                child: InkWell(
-                  onTap: onTap,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(width: 10),
-                      AvatarWidget.fromRxChat(chat.value, radius: 8),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          'label_call_title'.l10nfmt(titleArguments),
-                          style: context.textTheme.bodyLarge?.copyWith(
-                            fontSize: 13,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Right part of the title bar that displays buttons.
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 3),
+          // Left part of the title bar that displays the recipient or
+          // the caller, its avatar and the call's state.
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ConstrainedBox(
+              constraints: constraints,
+              child: InkWell(
+                onTap: onTap,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TooltipButton(
-                      onTap: toggleFullscreen,
-                      hint: fullscreen.value
-                          ? 'btn_fullscreen_exit'.l10n
-                          : 'btn_fullscreen_enter'.l10n,
-                      child: SvgImage.asset(
-                        'assets/icons/fullscreen_${fullscreen.value ? 'exit' : 'enter'}.svg',
-                        width: 12,
+                    const SizedBox(width: 10),
+                    AvatarWidget.fromRxChat(chat, radius: 8),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'label_call_title'.l10nfmt(titleArguments),
+                        style: context.textTheme.bodyLarge?.copyWith(
+                          fontSize: 13,
+                          color: const Color(0xFFFFFFFF),
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 10),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
-      );
-    });
+          ),
+
+          // Right part of the title bar that displays buttons.
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 3),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TooltipButton(
+                    onTap: toggleFullscreen,
+                    hint: fullscreen
+                        ? 'btn_fullscreen_exit'.l10n
+                        : 'btn_fullscreen_enter'.l10n,
+                    child: SvgImage.asset(
+                      'assets/icons/fullscreen_${fullscreen ? 'exit' : 'enter'}.svg',
+                      width: 12,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
