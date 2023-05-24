@@ -576,9 +576,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: theme.bodyLarge!.copyWith(
-            color: style.colors.onBackground,
-          ),
+          style: theme.bodyLarge!.copyWith(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -600,9 +598,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: theme.bodyLarge!.copyWith(
-            color: style.colors.onBackground,
-          ),
+          style: theme.bodyLarge!.copyWith(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],

@@ -72,10 +72,7 @@ class MessageInfo extends StatelessWidget {
             const SizedBox(height: 4),
             ModalPopupHeader(
               header: Center(
-                child: Text(
-                  'label_message'.l10n,
-                  style: theme.displaySmall,
-                ),
+                child: Text('label_message'.l10n, style: theme.displaySmall),
               ),
             ),
             if (id != null)
@@ -91,8 +88,10 @@ class MessageInfo extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('ID${'colon_space'.l10n}$id',
-                          style: theme.bodySmall),
+                      Text(
+                        'ID${'colon_space'.l10n}$id',
+                        style: theme.bodySmall,
+                      ),
                       const SizedBox(width: 8),
                       SvgImage.asset('assets/icons/copy.svg', height: 12),
                     ],

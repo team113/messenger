@@ -190,7 +190,7 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle.merge(
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
+                                            style: theme.bodySmall!.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
                                                   : null,

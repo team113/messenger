@@ -533,9 +533,8 @@ Widget _login(MyProfileController c, BuildContext context) {
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
-                  style: TextStyle(
-                    color: style.colors.secondary,
-                  ),
+                  style:
+                      theme.bodySmall!.copyWith(color: style.colors.secondary),
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,

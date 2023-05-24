@@ -59,10 +59,8 @@ class IntroductionView extends StatelessWidget {
               children = [
                 const SizedBox(height: 14),
                 Center(
-                  child: Text(
-                    'btn_set_password'.l10n,
-                    style: theme.displaySmall,
-                  ),
+                  child:
+                      Text('btn_set_password'.l10n, style: theme.displaySmall),
                 ),
                 const SizedBox(height: 18),
                 ReactiveTextField(
@@ -116,7 +114,7 @@ class IntroductionView extends StatelessWidget {
                 Text(
                   'label_password_set'.l10n,
                   style:
-                      theme.bodyLarge!.copyWith(color: const Color(0xFF888888)),
+                      theme.bodyLarge!.copyWith(color: style.colors.secondary),
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -125,7 +123,9 @@ class IntroductionView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: theme.bodyLarge!.copyWith(color: Colors.white),
+                      style: theme.bodyLarge!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
                     ),
                     onPressed: Navigator.of(context).pop,
                     color: style.colors.primary,
@@ -136,15 +136,19 @@ class IntroductionView extends StatelessWidget {
 
             default:
               children = [
-                Text('label_introduction_description'.l10n,
-                    style: theme.bodyLarge!),
+                Text(
+                  'label_introduction_description'.l10n,
+                  style: theme.bodyLarge!,
+                ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
                   key: const Key('SetPasswordButton'),
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_set_password'.l10n,
-                    style: theme.bodyLarge!.copyWith(color: Colors.white),
+                    style: theme.bodyLarge!.copyWith(
+                      color: style.colors.onPrimary,
+                    ),
                   ),
                   onPressed: () =>
                       c.stage.value = IntroductionViewStage.password,

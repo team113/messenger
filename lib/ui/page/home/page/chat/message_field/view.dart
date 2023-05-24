@@ -646,10 +646,7 @@ class MessageFieldView extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(
-                    p.extension(e.filename),
-                    style: theme.bodySmall,
-                  )
+                  Text(p.extension(e.filename), style: theme.bodySmall)
                 ],
               ),
             ),
@@ -923,8 +920,9 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: theme.displaySmall!
-                        .copyWith(color: style.colors.primary),
+                    style: theme.displaySmall!.copyWith(
+                      color: style.colors.primary,
+                    ),
                   ),
                   if (content != null) ...[
                     const SizedBox(height: 2),
@@ -971,8 +969,9 @@ class MessageFieldView extends StatelessWidget {
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style: theme.displaySmall!
-                            .copyWith(color: style.colors.primary),
+                        style: theme.displaySmall!.copyWith(
+                          color: style.colors.primary,
+                        ),
                       ),
                 if (content != null) ...[
                   const SizedBox(height: 2),

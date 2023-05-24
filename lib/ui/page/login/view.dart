@@ -68,9 +68,8 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: theme.bodyLarge!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style:
+                      theme.bodyLarge!.copyWith(color: style.colors.secondary),
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -184,10 +183,7 @@ class LoginView extends StatelessWidget {
             default:
               header = ModalPopupHeader(
                 header: Center(
-                  child: Text(
-                    'label_entrance'.l10n,
-                    style: theme.displaySmall,
-                  ),
+                  child: Text('label_entrance'.l10n, style: theme.displaySmall),
                 ),
               );
 

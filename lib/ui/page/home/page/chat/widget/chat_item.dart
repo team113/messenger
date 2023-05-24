@@ -537,9 +537,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                     ),
                   ],
-                  style: theme.bodySmall!.copyWith(
-                    color: style.colors.primary,
-                  ),
+                  style: theme.bodySmall!.copyWith(color: style.colors.primary),
                 ),
               );
             }
@@ -586,9 +584,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: theme.bodySmall!.copyWith(
-                  color: style.colors.primary,
-                ),
+                style: theme.bodySmall!.copyWith(color: style.colors.primary),
               ),
             );
           });
@@ -607,14 +603,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
-                  style: theme.bodySmall!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style:
+                      theme.bodySmall!.copyWith(color: style.colors.secondary),
                 ),
               ],
-              style: theme.bodySmall!.copyWith(
-                color: style.colors.primary,
-              ),
+              style: theme.bodySmall!.copyWith(color: style.colors.primary),
             ),
           );
         }
@@ -653,9 +646,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: theme.bodySmall!.copyWith(
-                  color: style.colors.primary,
-                ),
+                style: theme.bodySmall!.copyWith(color: style.colors.primary),
               ),
             );
           });
@@ -674,14 +665,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
-                  style: theme.bodySmall!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style:
+                      theme.bodySmall!.copyWith(color: style.colors.secondary),
                 ),
               ],
-              style: theme.bodySmall!.copyWith(
-                color: style.colors.primary,
-              ),
+              style: theme.bodySmall!.copyWith(color: style.colors.primary),
             ),
           );
         }
@@ -714,14 +702,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: theme.bodySmall!.copyWith(
-                  color: style.colors.secondary,
-                ),
+                style: theme.bodySmall!.copyWith(color: style.colors.secondary),
               ),
             ],
-            style: theme.bodySmall!.copyWith(
-              color: style.colors.primary,
-            ),
+            style: theme.bodySmall!.copyWith(color: style.colors.primary),
           ),
         );
         break;
@@ -754,14 +738,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: theme.bodySmall!.copyWith(
-                  color: style.colors.secondary,
-                ),
+                style: theme.bodySmall!.copyWith(color: style.colors.secondary),
               ),
             ],
-            style: theme.bodySmall!.copyWith(
-              color: style.colors.primary,
-            ),
+            style: theme.bodySmall!.copyWith(color: style.colors.primary),
           ),
         );
         break;
@@ -791,10 +771,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               border: style.systemMessageBorder,
               color: style.systemMessageColor,
             ),
-            child: DefaultTextStyle(
-              style: theme.bodySmall!,
-              child: content,
-            ),
+            child: DefaultTextStyle(style: theme.bodySmall!, child: content),
           ),
         ),
       ),
@@ -1375,8 +1352,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: theme.titleMedium!
-                        .copyWith(color: style.colors.secondary),
+                    style: theme.titleMedium!.copyWith(
+                      color: style.colors.secondary,
+                    ),
                   ),
                 ),
               ),

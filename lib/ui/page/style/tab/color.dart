@@ -63,7 +63,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               child: Center(
                 child: Text(
                   color.toHex(),
-                  style: TextStyle(
+                  style: theme.bodySmall!.copyWith(
                     color: hsl.lightness > 0.7 ? Colors.black : Colors.white,
                   ),
                 ),
@@ -77,8 +77,9 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               child: Text(
                 desc,
                 textAlign: TextAlign.center,
-                style:
-                    TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+                style: theme.bodySmall!.copyWith(
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
               ),
             ),
           ],

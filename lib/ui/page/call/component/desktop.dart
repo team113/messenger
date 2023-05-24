@@ -1474,6 +1474,7 @@ Widget _primaryView(CallController c) {
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextTheme theme = Theme.of(context).textTheme;
 
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
@@ -2072,8 +2073,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: TextStyle(
-                                            color: style.colors.onPrimary),
+                                        style: theme.bodySmall!.copyWith(
+                                          color: style.colors.onPrimary,
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

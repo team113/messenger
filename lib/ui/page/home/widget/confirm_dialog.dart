@@ -188,9 +188,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             child: Center(
               child: Text(
                 widget.description!,
-                style: theme.bodyLarge!.copyWith(
-                  color: style.colors.secondary,
-                ),
+                style: theme.bodyLarge!.copyWith(color: style.colors.secondary),
               ),
             ),
           ),

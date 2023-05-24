@@ -505,15 +505,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ],
         );
       } else if (quote is ChatInfoQuote) {
-        content = Text(
-          quote.action.toString(),
-          style: theme.displaySmall,
-        );
+        content = Text(quote.action.toString(), style: theme.displaySmall);
       } else {
-        content = Text(
-          'err_unknown'.l10n,
-          style: theme.displaySmall,
-        );
+        content = Text('err_unknown'.l10n, style: theme.displaySmall);
       }
 
       return AnimatedContainer(

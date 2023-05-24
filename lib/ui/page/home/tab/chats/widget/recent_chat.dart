@@ -348,7 +348,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: TextStyle(
+                  style: theme.bodySmall!.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.primary,
@@ -373,7 +373,7 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: theme.bodySmall!.copyWith(
                         color: inverted
                             ? style.colors.onPrimary
                             : style.colors.primary,

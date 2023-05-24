@@ -343,7 +343,7 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style: TextStyle(
+                                      style: theme.bodySmall!.copyWith(
                                         color: style.colors.onPrimary,
                                       ),
                                     ),

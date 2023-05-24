@@ -97,9 +97,8 @@ class ChatsMoreView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: theme.displaySmall!.copyWith(
-              color: style.colors.onBackground,
-            ),
+            style:
+                theme.displaySmall!.copyWith(color: style.colors.onBackground),
           ),
         ),
       ),

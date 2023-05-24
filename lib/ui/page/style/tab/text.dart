@@ -33,13 +33,7 @@ class FontStyleTabView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                desc,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              Text(desc, style: const TextStyle(fontWeight: FontWeight.w500)),
               const SizedBox(height: 10),
               ListTile(
                 leading: Column(
@@ -47,18 +41,12 @@ class FontStyleTabView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 5),
-                    Text(
-                      sample,
-                      style: style,
-                    ),
+                    Text(sample, style: style),
                   ],
                 ),
                 trailing: Text(
                   'Шрифт: ${style.fontSize} пт, цвет: ${style.color?.toHex()}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),
             ],

@@ -460,6 +460,7 @@ class SwitchButton extends CallButton {
 /// Returns a [Column] consisting of the [child] with the provided
 /// [description].
 Widget withDescription(Widget child, Widget description) {
+  final Style style = Theme.of(router.context!).extension<Style>()!;
   final TextTheme theme = Theme.of(router.context!).textTheme;
 
   return Column(
@@ -468,7 +469,7 @@ Widget withDescription(Widget child, Widget description) {
       child,
       const SizedBox(height: 6),
       DefaultTextStyle(
-        style: theme.bodyLarge!.copyWith(color: Colors.white),
+        style: theme.bodyLarge!.copyWith(color: style.colors.onPrimary),
         textAlign: TextAlign.center,
         maxLines: 2,
         child: description,
