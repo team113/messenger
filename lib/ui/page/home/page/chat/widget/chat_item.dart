@@ -73,7 +73,6 @@ class ChatItemWidget extends StatefulWidget {
     super.key,
     required this.item,
     required this.chat,
-    required this.authorId,
     required this.me,
     this.user,
     this.avatar = true,
@@ -102,9 +101,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Reactive value of a [Chat] this [item] is posted in.
   final Rx<Chat?> chat;
-
-  /// [UserId] of the [user] who posted this [item].
-  final UserId authorId;
 
   /// [UserId] of the authenticated [MyUser].
   final UserId me;
@@ -431,9 +427,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
   }
 
+  /// Returns the [UserId] of [User] posted this [ChatItem].
+  UserId get _author => widget.item.value.authorId;
+
   /// Indicates whether this [ChatItemWidget.item] was posted by the
   /// authenticated [MyUser].
-  bool get _fromMe => widget.item.value.authorId == widget.me;
+  bool get _fromMe => _author == widget.me;
 
   @override
   void initState() {
@@ -844,8 +843,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             widget.user?.user.value.num.val ??
                             'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
-                          ..onTap =
-                              () => router.user(widget.authorId, push: true),
+                          ..onTap = () => router.user(_author, push: true),
                       ),
                       selectable: PlatformUtils.isDesktop || menu,
                       onSelecting: widget.onSelecting,
@@ -1194,8 +1192,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               widget.user?.user.value.num.val ??
                               'dot'.l10n * 3,
                           recognizer: TapGestureRecognizer()
-                            ..onTap =
-                                () => router.user(widget.authorId, push: true),
+                            ..onTap = () => router.user(_author, push: true),
                         ),
                         selectable: PlatformUtils.isDesktop || menu,
                         onSelecting: widget.onSelecting,
@@ -1497,8 +1494,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
       (e) =>
-          !e.at.val.isBefore(widget.item.value.at.val) &&
-          e.memberId != widget.item.value.authorId,
+          !e.at.val.isBefore(widget.item.value.at.val) && e.memberId != _author,
     );
 
     final bool isSent = item.status.value == SendingStatus.sent;
