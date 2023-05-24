@@ -216,8 +216,8 @@ class MessageInfo extends StatelessWidget {
                                 subtitle: [
                                   const SizedBox(height: 3),
                                   Text(
-                                    'label_read_at_colon_space'.l10n +
-                                        time.yMdHm,
+                                    'label_read_at'
+                                        .l10nfmt({'date': time.yMdHm}),
                                     style: TextStyle(
                                       color:
                                           Theme.of(context).colorScheme.primary,

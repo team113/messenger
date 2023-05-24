@@ -341,9 +341,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        ...widget.forwards.map(
-                          (e) => _forwardedMessage(e, menu),
-                        ),
+                        ...widget.forwards
+                            .map((e) => _forwardedMessage(e, menu)),
                         if (widget.timestamp) ...[
                           const SizedBox(height: 2),
                           Padding(
@@ -363,7 +362,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                        ]
+                        ],
                       ],
                     );
                   }),

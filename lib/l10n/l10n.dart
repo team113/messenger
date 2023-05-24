@@ -117,7 +117,7 @@ extension L10nExtension on String {
   String l10nfmt(Map<String, dynamic> args) => L10n._format(this, args: args);
 }
 
-/// Extension adding an ability to format [DateTime].
+/// Extension adding an ability to get [DateTime] formatted according to [L10n].
 extension L10nDateExtension on DateTime {
   /// Returns this [DateTime] formatted in `Hm` format.
   String get hm => DateFormat.Hm().format(this);
