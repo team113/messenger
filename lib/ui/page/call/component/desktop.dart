@@ -620,7 +620,7 @@ class DesktopCall extends StatelessWidget {
                             listener: c.relocateSecondary,
                           ),
                           Launchpad(
-                            displayMore: c.displayMore,
+                            displayMore: c.displayMore.value,
                             onEnter: enabled ? (d) => c.keepUi(true) : null,
                             onHover: enabled ? (d) => c.keepUi(true) : null,
                             onExit: enabled ? (d) => c.keepUi() : null,

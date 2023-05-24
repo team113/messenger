@@ -19,7 +19,6 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../conditional_backdrop.dart';
 import '/themes.dart';
@@ -45,11 +44,11 @@ class Launchpad extends StatelessWidget {
   final bool enabled;
 
   /// [CallButton] list, which is a panel of buttons in [Launchpad].
-  final RxList<CallButton> panel;
+  final List<CallButton> panel;
 
   /// Indicator whether additional elements should be displayed
   /// in [Launchpad].
-  final RxBool displayMore;
+  final bool displayMore;
 
   /// List of [Widget] that will be displayed in the [Launchpad].
   final List<Widget> children;
@@ -144,8 +143,8 @@ class Launchpad extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 30),
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 150),
-        opacity: displayMore.value ? 1.0 : 0.0,
-        child: displayMore.value
+        opacity: displayMore ? 1.0 : 0.0,
+        child: displayMore
             ? DragTarget<CallButton>(
                 onAccept: onAccept,
                 onWillAccept: onWillAccept,
