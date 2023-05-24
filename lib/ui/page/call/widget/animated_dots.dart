@@ -26,10 +26,7 @@ import '/themes.dart';
 class AnimatedDots extends StatefulWidget {
   const AnimatedDots({
     super.key,
-    super.key,
     this.duration = const Duration(milliseconds: 250),
-  });
-    this.color = Colors.white,
   });
 
   /// [Duration] over which the count of dots is changed.

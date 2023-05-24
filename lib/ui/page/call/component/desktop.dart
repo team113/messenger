@@ -23,17 +23,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '../../../../util/web/web_utils.dart';
 import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/call_title.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/desktop/call_dock.dart';
 import '../widget/desktop/launchpad.dart';
-import '../widget/desktop/minimized_scaler.dart';
 import '../widget/desktop/possible_container.dart';
 import '../widget/desktop/primary_view.dart';
-import '../widget/desktop/scaffold.dart';
 import '../widget/desktop/secondary_target.dart';
 import '../widget/desktop/secondary_view.dart';
 import '../widget/desktop/title_bar.dart';
@@ -56,6 +53,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 import 'common.dart';
 
@@ -68,6 +66,8 @@ class DesktopCall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         // Call stackable content.
@@ -401,6 +401,7 @@ class DesktopCall extends StatelessWidget {
                                       });
                                     });
                                   });
+                              ;
                             } else {
                               if (isDialog) {
                                 final User? user = c.chat.value?.members.values
@@ -474,24 +475,24 @@ class DesktopCall extends StatelessWidget {
 
           // Dim the primary view in a non-active call.
           Obx(() {
-            return AnimatedOpacity(
-              duration: 200.milliseconds,
-              opacity: c.state.value == OngoingCallState.active ? 0.0 : 1.0,
-              child: IgnorePointer(
+            final Widget child;
+
+            if (c.state.value == OngoingCallState.active) {
+              child = const SizedBox();
+            } else {
+              child = IgnorePointer(
                 child: Container(
                   width: double.infinity,
                   height: double.infinity,
-                  color: const Color(0x70000000),
+                  color: style.colors.onBackgroundOpacity40,
                 ),
-              ),
-            );
+              );
+            }
+
+            return AnimatedSwitcher(duration: 200.milliseconds, child: child);
           }),
 
-          Obx(
-            () => PossibleContainer(
-              c.possibleSecondaryAlignment.value,
-            ),
-          ),
+          PossibleContainer(c.possibleSecondaryAlignment.value),
 
           // Makes UI appear on click.
           Listener(
@@ -731,15 +732,14 @@ class DesktopCall extends StatelessWidget {
           IgnorePointer(
             child: Obx(() {
               bool preferTitle = c.state.value != OngoingCallState.active;
-              return AnimatedOpacity(
+              return AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
-                opacity: preferTitle &&
+                child: preferTitle &&
                         c.primary
                             .where((e) => e.video.value?.renderer.value != null)
                             .isNotEmpty
-                    ? 1.0
-                    : 0.0,
-                child: Container(color: const Color(0x55000000)),
+                    ? Container(color: style.colors.onBackgroundOpacity27)
+                    : null,
               );
             }),
           ),
@@ -748,7 +748,7 @@ class DesktopCall extends StatelessWidget {
             bool preferTitle = c.state.value != OngoingCallState.active;
             return GestureDetector(
               behavior: HitTestBehavior.translucent,
-              onDoubleTap: () => c.toggleFullscreen(),
+              onDoubleTap: c.toggleFullscreen,
               onPanUpdate: preferTitle
                   ? (d) {
                       c.left.value = c.left.value + d.delta.dx;
@@ -770,45 +770,46 @@ class DesktopCall extends StatelessWidget {
             final bool preferTitle =
                 c.state.value != OngoingCallState.active && !isOutgoing;
 
-            return AnimatedOpacity(
-              key: const Key('AnimatedOpacityCallTitle'),
+            return AnimatedSwitcher(
+              key: const Key('AnimatedSwitcherCallTitle'),
               duration: const Duration(milliseconds: 200),
-              opacity: preferTitle ? 1.0 : 0.0,
-              child: Align(
-                key: const Key('CallTitlePadding'),
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: 10,
-                    right: 10,
-                    top: c.size.height * 0.05,
-                  ),
-                  child: CallTitle(
-                    c.me.id.userId,
-                    chat: c.chat.value?.chat.value,
-                    title: c.chat.value?.title.value,
-                    avatar: c.chat.value?.avatar.value,
-                    withDots: c.state.value != OngoingCallState.active &&
-                        (c.state.value == OngoingCallState.joining ||
-                            isOutgoing),
-                    state: c.state.value == OngoingCallState.active
-                        ? c.duration.value
-                            .toString()
-                            .split('.')
-                            .first
-                            .padLeft(8, '0')
-                        : c.state.value == OngoingCallState.joining
-                            ? 'label_call_joining'.l10n
-                            : isOutgoing
-                                ? isDialog
-                                    ? null
-                                    : 'label_call_connecting'.l10n
-                                : c.withVideo == true
-                                    ? 'label_video_call'.l10n
-                                    : 'label_audio_call'.l10n,
-                  ),
-                ),
-              ),
+              child: preferTitle
+                  ? Align(
+                      key: const Key('CallTitlePadding'),
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                          top: c.size.height * 0.05,
+                        ),
+                        child: CallTitle(
+                          c.me.id.userId,
+                          chat: c.chat.value?.chat.value,
+                          title: c.chat.value?.title.value,
+                          avatar: c.chat.value?.avatar.value,
+                          withDots: c.state.value != OngoingCallState.active &&
+                              (c.state.value == OngoingCallState.joining ||
+                                  isOutgoing),
+                          state: c.state.value == OngoingCallState.active
+                              ? c.duration.value
+                                  .toString()
+                                  .split('.')
+                                  .first
+                                  .padLeft(8, '0')
+                              : c.state.value == OngoingCallState.joining
+                                  ? 'label_call_joining'.l10n
+                                  : isOutgoing
+                                      ? isDialog
+                                          ? null
+                                          : 'label_call_connecting'.l10n
+                                      : c.withVideo == true
+                                          ? 'label_video_call'.l10n
+                                          : 'label_audio_call'.l10n,
+                        ),
+                      ),
+                    )
+                  : Container(key: UniqueKey()),
             );
           }),
 
@@ -1193,56 +1194,130 @@ class DesktopCall extends StatelessWidget {
                         ),
                       ),
                     )
-                  : const SizedBox(),
+                  : Container(),
             );
           }),
 
           // If there's any error to show, display it.
           Obx(() {
-            return AnimatedOpacity(
+            return AnimatedSwitcher(
               duration: 150.milliseconds,
-              opacity: c.errorTimeout.value != 0 ? 1.0 : 0.0,
-              child: Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: c.secondary.isNotEmpty &&
-                            c.secondaryAlignment.value == Alignment.topCenter
-                        ? 10 + c.secondaryHeight.value
-                        : 10,
-                    right: c.secondary.isNotEmpty &&
-                            c.secondaryAlignment.value == Alignment.centerRight
-                        ? 10 + c.secondaryWidth.value
-                        : 10,
-                  ),
-                  child: SizedBox(
-                    width: 320,
-                    child: HintWidget(
-                      text: '${c.error}.',
-                      onTap: () {
-                        c.errorTimeout.value = 0;
-                      },
-                      isError: true,
-                    ),
-                  ),
-                ),
-              ),
+              child: c.errorTimeout.value != 0
+                  ? Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          top: c.secondary.isNotEmpty &&
+                                  c.secondaryAlignment.value ==
+                                      Alignment.topCenter
+                              ? 10 + c.secondaryHeight.value
+                              : 10,
+                          right: c.secondary.isNotEmpty &&
+                                  c.secondaryAlignment.value ==
+                                      Alignment.centerRight
+                              ? 10 + c.secondaryWidth.value
+                              : 10,
+                        ),
+                        child: SizedBox(
+                          width: 320,
+                          child: HintWidget(
+                            text: '${c.error}.',
+                            onTap: () {
+                              c.errorTimeout.value = 0;
+                            },
+                            isError: true,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(),
             );
           }),
 
           Obx(() {
             if (c.minimized.value && !c.fullscreen.value) {
-              return const SizedBox();
+              return Container();
             }
 
             return Stack(children: footer);
           }),
         ];
 
+        // Combines all the stackable content into [Scaffold].
+        Widget scaffold = Scaffold(
+          backgroundColor: style.colors.onBackground,
+          body: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!WebUtils.isPopup)
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onPanUpdate: (d) {
+                    c.left.value = c.left.value + d.delta.dx;
+                    c.top.value = c.top.value + d.delta.dy;
+                    c.applyConstraints(context);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: style.colors.transparent,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        CustomBoxShadow(
+                          color: style.colors.onBackgroundOpacity20,
+                          blurRadius: 8,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                    ),
+                    child: TitleBar(
+                      onDoubleTap: () => c.toggleFullscreen(),
+                      constraints: BoxConstraints(maxWidth: c.size.width - 60),
+                      chat: c.chat,
+                      titleArguments: c.titleArguments,
+                      toggleFullscreen: () => c.toggleFullscreen(),
+                      fullscreen: c.fullscreen,
+                      onTap: WebUtils.isPopup
+                          ? null
+                          : () {
+                              router.chat(c.chatId.value);
+                              if (c.fullscreen.value) {
+                                c.toggleFullscreen();
+                              }
+                            },
+                    ),
+                  ),
+                ),
+              Expanded(child: Stack(children: [...content, ...ui])),
+            ],
+          ),
+        );
+
         if (c.minimized.value && !c.fullscreen.value) {
           // Applies constraints on every rebuild.
           // This includes the screen size changes.
           c.applyConstraints(context);
+
+          // Returns a [Scaler] scaling the minimized view.
+          Widget scaler({
+            Key? key,
+            MouseCursor cursor = MouseCursor.defer,
+            required Function(double, double) onDrag,
+            double? width,
+            double? height,
+          }) {
+            return MouseRegion(
+              cursor: cursor,
+              child: Scaler(
+                key: key,
+                onDragUpdate: onDrag,
+                onDragEnd: (_) {
+                  c.updateSecondaryAttach();
+                },
+                width: width ?? Scaler.size,
+                height: height ?? Scaler.size,
+              ),
+            );
+          }
 
           // Returns a stack of draggable [Scaler]s on each of the sides:
           //
@@ -1262,15 +1337,14 @@ class DesktopCall extends StatelessWidget {
                 return Positioned(
                   top: c.top.value - Scaler.size / 2,
                   left: c.left.value + Scaler.size / 2,
-                  child: MinimizedScaler(
+                  child: scaler(
                     cursor: SystemMouseCursors.resizeUpDown,
                     width: c.width.value - Scaler.size,
-                    onDragUpdate: (dx, dy) => c.resize(
+                    onDrag: (dx, dy) => c.resize(
                       context,
                       y: ScaleModeY.top,
                       dy: dy,
                     ),
-                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1279,15 +1353,14 @@ class DesktopCall extends StatelessWidget {
                 return Positioned(
                   top: c.top.value + Scaler.size / 2,
                   left: c.left.value - Scaler.size / 2,
-                  child: MinimizedScaler(
+                  child: scaler(
                     cursor: SystemMouseCursors.resizeLeftRight,
                     height: c.height.value - Scaler.size,
-                    onDragUpdate: (dx, dy) => c.resize(
+                    onDrag: (dx, dy) => c.resize(
                       context,
                       x: ScaleModeX.left,
                       dx: dx,
                     ),
-                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1296,15 +1369,14 @@ class DesktopCall extends StatelessWidget {
                 return Positioned(
                   top: c.top.value + Scaler.size / 2,
                   left: c.left.value + c.width.value - Scaler.size / 2,
-                  child: MinimizedScaler(
+                  child: scaler(
                     cursor: SystemMouseCursors.resizeLeftRight,
                     height: c.height.value - Scaler.size,
-                    onDragUpdate: (dx, dy) => c.resize(
+                    onDrag: (dx, dy) => c.resize(
                       context,
                       x: ScaleModeX.right,
                       dx: -dx,
                     ),
-                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1313,15 +1385,14 @@ class DesktopCall extends StatelessWidget {
                 return Positioned(
                   top: c.top.value + c.height.value - Scaler.size / 2,
                   left: c.left.value + Scaler.size / 2,
-                  child: MinimizedScaler(
+                  child: scaler(
                     cursor: SystemMouseCursors.resizeUpDown,
                     width: c.width.value - Scaler.size,
-                    onDragUpdate: (dx, dy) => c.resize(
+                    onDrag: (dx, dy) => c.resize(
                       context,
                       y: ScaleModeY.bottom,
                       dy: -dy,
                     ),
-                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1331,21 +1402,20 @@ class DesktopCall extends StatelessWidget {
                 return Positioned(
                   top: c.top.value - Scaler.size / 2,
                   left: c.left.value - Scaler.size / 2,
-                  child: MinimizedScaler(
+                  child: scaler(
                     // TODO: https://github.com/flutter/flutter/issues/89351
                     cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                         ? SystemMouseCursors.resizeRow
                         : SystemMouseCursors.resizeUpLeftDownRight,
                     width: Scaler.size * 2,
                     height: Scaler.size * 2,
-                    onDragUpdate: (dx, dy) => c.resize(
+                    onDrag: (dx, dy) => c.resize(
                       context,
                       y: ScaleModeY.top,
                       x: ScaleModeX.left,
                       dx: dx,
                       dy: dy,
                     ),
-                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1354,20 +1424,19 @@ class DesktopCall extends StatelessWidget {
                 return Positioned(
                   top: c.top.value - Scaler.size / 2,
                   left: c.left.value + c.width.value - 3 * Scaler.size / 2,
-                  child: MinimizedScaler(
+                  child: scaler(
                     cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                         ? SystemMouseCursors.resizeRow
                         : SystemMouseCursors.resizeUpRightDownLeft,
                     width: Scaler.size * 2,
                     height: Scaler.size * 2,
-                    onDragUpdate: (dx, dy) => c.resize(
+                    onDrag: (dx, dy) => c.resize(
                       context,
                       y: ScaleModeY.top,
                       x: ScaleModeX.right,
                       dx: -dx,
                       dy: dy,
                     ),
-                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1376,20 +1445,19 @@ class DesktopCall extends StatelessWidget {
                 return Positioned(
                   top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                   left: c.left.value - Scaler.size / 2,
-                  child: MinimizedScaler(
+                  child: scaler(
                     cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                         ? SystemMouseCursors.resizeRow
                         : SystemMouseCursors.resizeUpRightDownLeft,
                     width: Scaler.size * 2,
                     height: Scaler.size * 2,
-                    onDragUpdate: (dx, dy) => c.resize(
+                    onDrag: (dx, dy) => c.resize(
                       context,
                       y: ScaleModeY.bottom,
                       x: ScaleModeX.left,
                       dx: dx,
                       dy: -dy,
                     ),
-                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1398,21 +1466,20 @@ class DesktopCall extends StatelessWidget {
                 return Positioned(
                   top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                   left: c.left.value + c.width.value - 3 * Scaler.size / 2,
-                  child: MinimizedScaler(
+                  child: scaler(
                     // TODO: https://github.com/flutter/flutter/issues/89351
                     cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                         ? SystemMouseCursors.resizeRow
                         : SystemMouseCursors.resizeUpLeftDownRight,
                     width: Scaler.size * 2,
                     height: Scaler.size * 2,
-                    onDragUpdate: (dx, dy) => c.resize(
+                    onDrag: (dx, dy) => c.resize(
                       context,
                       y: ScaleModeY.bottom,
                       x: ScaleModeX.right,
                       dx: -dx,
                       dy: -dy,
                     ),
-                    onDragEnd: (_) => c.updateSecondaryAttach(),
                   ),
                 );
               }),
@@ -1431,32 +1498,7 @@ class DesktopCall extends StatelessWidget {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: StackableScaffold(
-                            content: content,
-                            ui: ui,
-                            onPanUpdate: (d) {
-                              c.left.value = c.left.value + d.delta.dx;
-                              c.top.value = c.top.value + d.delta.dy;
-                              c.applyConstraints(context);
-                            },
-                            titleBar: TitleBar(
-                              onDoubleTap: () => c.toggleFullscreen(),
-                              constraints:
-                                  BoxConstraints(maxWidth: c.size.width - 60),
-                              chat: c.chat,
-                              titleArguments: c.titleArguments,
-                              toggleFullscreen: () => c.toggleFullscreen(),
-                              fullscreen: c.fullscreen,
-                              onTap: WebUtils.isPopup
-                                  ? null
-                                  : () {
-                                      router.chat(c.chatId.value);
-                                      if (c.fullscreen.value) {
-                                        c.toggleFullscreen();
-                                      }
-                                    },
-                            ),
-                          ),
+                          child: scaffold,
                         ),
                         ClipRect(child: Stack(children: footer)),
                       ],
@@ -1469,29 +1511,7 @@ class DesktopCall extends StatelessWidget {
         }
 
         // If the call popup is not [minimized], then return the [scaffold].
-        return StackableScaffold(
-          content: content,
-          ui: ui,
-          onPanUpdate: (d) {
-            c.left.value = c.left.value + d.delta.dx;
-            c.top.value = c.top.value + d.delta.dy;
-            c.applyConstraints(context);
-          },
-          titleBar: TitleBar(
-            onDoubleTap: () => c.toggleFullscreen(),
-            constraints: BoxConstraints(maxWidth: c.size.width - 60),
-            chat: c.chat,
-            titleArguments: c.titleArguments,
-            toggleFullscreen: () => c.toggleFullscreen(),
-            fullscreen: c.fullscreen,
-            onTap: WebUtils.isPopup
-                ? null
-                : () {
-                    router.chat(c.chatId.value);
-                    if (c.fullscreen.value) () => c.toggleFullscreen();
-                  },
-          ),
-        );
+        return scaffold;
       },
     );
   }
