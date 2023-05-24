@@ -250,10 +250,7 @@ class ContactsTabView extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
-                                  style: style.systemMessageStyle.copyWith(
-                                    color: style.colors.onBackground,
-                                    fontSize: 15,
-                                  ),
+                                  style: theme.bodyLarge,
                                 ),
                               ),
                             ),

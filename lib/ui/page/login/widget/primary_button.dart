@@ -43,7 +43,7 @@ class PrimaryButton extends StatelessWidget {
       maxWidth: double.infinity,
       title: Text(
         title,
-        style: theme.bodySmall!.copyWith(
+        style: theme.labelLarge!.copyWith(
           color: onPressed == null
               ? style.colors.onBackground
               : style.colors.onPrimary,

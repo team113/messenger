@@ -387,13 +387,7 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                   width: double.infinity,
                                   child: Center(
-                                    child: Text(
-                                      text,
-                                      style: style.systemMessageStyle.copyWith(
-                                        color: style.colors.onBackground,
-                                        fontSize: 15,
-                                      ),
-                                    ),
+                                    child: Text(text, style: theme.bodyLarge),
                                   ),
                                 ),
                               );

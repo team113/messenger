@@ -1142,6 +1142,7 @@ Widget _call(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.chats] section.
 Widget _chats(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
+  final TextTheme theme = Theme.of(context).textTheme;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -1153,11 +1154,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
             padding: const EdgeInsets.only(left: 21.0),
             child: Text(
               'label_display_timestamps'.l10n,
-              style: style.systemMessageStyle.copyWith(
-                color: style.colors.secondary,
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-              ),
+              style: theme.bodyLarge!.copyWith(color: style.colors.secondary),
             ),
           ),
         ),
