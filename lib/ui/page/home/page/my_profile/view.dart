@@ -1168,7 +1168,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
-            style: TextStyle(color: style.colors.primary),
+            style: theme.bodySmall!.copyWith(color: style.colors.primary),
           );
         }),
       ),
