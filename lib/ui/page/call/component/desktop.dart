@@ -954,7 +954,7 @@ class DesktopCall extends StatelessWidget {
                 },
                 resizeSecondary: c.resizeSecondary,
                 updateSecondaryAttach: () => c.updateSecondaryAttach(),
-                draggedRenderer: c.draggedRenderer,
+                draggedRenderer: c.draggedRenderer.value,
                 onAdded: (d, i) => c.unfocus(d.participant),
                 onWillAccept: (d) {
                   if (d?.chatId == c.chatId.value) {

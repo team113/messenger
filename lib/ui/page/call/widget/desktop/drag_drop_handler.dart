@@ -46,7 +46,7 @@ class DragDropHandler extends StatelessWidget {
 
   /// [Rx] participant that contains information about the renderer being
   /// dragged.
-  final Rx<Participant?> draggedRenderer;
+  final Participant? draggedRenderer;
 
   /// Callback reporting the `x` and `y` drag deltas.
   final dynamic Function(double, double)? onDragUpdate;
@@ -64,18 +64,16 @@ class DragDropHandler extends StatelessWidget {
       double? width,
       double? height,
     }) {
-      return Obx(() {
-        return MouseRegion(
-          cursor: draggedRenderer.value == null ? cursor : MouseCursor.defer,
-          child: Scaler(
-            key: key,
-            onDragUpdate: onDrag,
-            onDragEnd: onDragEnd,
-            width: width ?? Scaler.size,
-            height: height ?? Scaler.size,
-          ),
-        );
-      });
+      return MouseRegion(
+        cursor: draggedRenderer == null ? cursor : MouseCursor.defer,
+        child: Scaler(
+          key: key,
+          onDragUpdate: onDrag,
+          onDragEnd: onDragEnd,
+          width: width ?? Scaler.size,
+          height: height ?? Scaler.size,
+        ),
+      );
     }
 
     Widget widget = const SizedBox();

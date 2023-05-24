@@ -122,7 +122,7 @@ class SecondaryView extends StatelessWidget {
   final RxInt secondaryTargets;
 
   /// [Rx] that holds the [Participant] being dragged.
-  final Rx<Participant?> draggedRenderer;
+  final Participant? draggedRenderer;
 
   /// [Size] that holds the size of the widget.
   final Size size;
