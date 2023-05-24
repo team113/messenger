@@ -106,7 +106,7 @@ class Themes {
             contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
             contextMenuRadius: BorderRadius.circular(10),
             linkStyle: TextStyle(
-              color: colors.primaryHighlight,
+              color: colors.primary,
               decoration: TextDecoration.underline,
               decorationThickness: 2,
             ),

@@ -18,9 +18,7 @@
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
@@ -36,26 +34,19 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/progress_indicator.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'get_paid/view.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -292,7 +283,7 @@ class UserView extends StatelessWidget {
                                 child: c.verified.value
                                     ? const SizedBox()
                                     : Container(
-                                        key: Key('123'),
+                                        key: const Key('123'),
                                         alignment: Alignment.bottomCenter,
                                         padding: const EdgeInsets.fromLTRB(
                                           32,
@@ -735,7 +726,7 @@ class UserView extends StatelessWidget {
                             text:
                                 'Данная опция доступна только для аккаунтов с верифицированным E-mail'
                                     .l10n,
-                            style: TextStyle(color: Colors.black),
+                            style: const TextStyle(color: Colors.black),
                           ),
                         ],
                       ),

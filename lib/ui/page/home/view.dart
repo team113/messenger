@@ -20,7 +20,6 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show Presence;
 import 'package:messenger/l10n/l10n.dart';
@@ -38,25 +37,16 @@ import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
-import 'tab/chats/controller.dart';
-import 'tab/chats/more/view.dart';
 import 'tab/chats_contacts/controller.dart';
 import 'tab/chats_contacts/view.dart';
-import 'tab/contacts/controller.dart';
-import 'tab/balance/more/view.dart';
-import 'tab/partner/more/view.dart';
 import 'tab/partner/view.dart';
 import 'tab/menu/controller.dart';
-import 'tab/menu/status/view.dart';
 import 'tab/balance/view.dart';
-import 'tab/publics/more/view.dart';
 import 'tab/publics/view.dart';
-import 'widget/animated_button.dart';
 import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
-import 'widget/rmb_detector.dart';
 import 'widget/wallet.dart';
 
 /// View of the [Routes.home] page.

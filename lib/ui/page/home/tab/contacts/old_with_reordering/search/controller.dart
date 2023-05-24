@@ -16,16 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:collection';
-import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/user.dart';
-import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
@@ -35,10 +31,6 @@ import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
-import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
-import '/util/message_popup.dart';
-import '/util/obs/obs.dart';
 
 export 'view.dart';
 

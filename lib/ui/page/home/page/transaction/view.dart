@@ -23,7 +23,6 @@ import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/data_attachment.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
@@ -34,8 +33,6 @@ import 'package:messenger/util/platform_utils.dart';
 
 import 'controller.dart';
 import 'support/view.dart';
-import 'widget/downloadable_button.dart';
-import 'widget/downloadable_file.dart';
 
 class TransactionView extends StatelessWidget {
   const TransactionView(this.id, {super.key});

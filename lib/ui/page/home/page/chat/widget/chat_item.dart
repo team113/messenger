@@ -412,7 +412,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// any.
   final List<TapGestureRecognizer> _recognizers = [];
 
-  bool _expandedReply = false;
+  final bool _expandedReply = false;
 
   /// [TextSpan] of the [ChatItemWidget.item] to display as a text of this
   /// [ChatItemWidget].
@@ -839,7 +839,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Border border;
     final TextStyle textStyle;
 
-    border = _fromMe ? style.secondaryBorder : style.primaryBorder;
+    border = _fromMe
+        ? _isRead
+            ? style.secondaryBorder
+            : Border.all(color: style.readMessageColor, width: 0.5)
+        : style.primaryBorder;
 
     background = _fromMe
         ? _isRead

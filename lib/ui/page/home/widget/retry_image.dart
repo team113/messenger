@@ -360,7 +360,7 @@ class _RetryImageState extends State<RetryImage> {
     );
   }
 
-  static bool _firstTime = true;
+  static const bool _firstTime = true;
 
   /// Loads the [_fallback] from the provided URL.
   ///

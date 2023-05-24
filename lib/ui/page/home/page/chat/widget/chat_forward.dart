@@ -54,7 +54,6 @@ import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
 import 'message_info/view.dart';
-import 'message_timestamp.dart';
 import 'selection_text.dart';
 import 'swipeable_status.dart';
 

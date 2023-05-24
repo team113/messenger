@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -25,29 +24,19 @@ import 'package:intl/intl.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/chat_item_quote.dart';
-import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
-import 'package:messenger/ui/page/call/widget/fit_wrap.dart';
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
-import 'package:messenger/ui/page/home/page/chat/forward/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/media_attachment.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/swipeable_status.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
-import 'package:messenger/ui/page/home/page/user/controller.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
-import 'package:messenger/ui/page/home/widget/init_callback.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/animations.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -304,7 +293,7 @@ class _PostWidgetState extends State<PostWidget> {
                       ),
 
                     Container(
-                      padding: EdgeInsets.fromLTRB(
+                      padding: const EdgeInsets.fromLTRB(
                         0, // 16,
                         0, // media.isEmpty ? 0 : 8,
                         0, // 16,
@@ -504,9 +493,9 @@ class _PostWidgetState extends State<PostWidget> {
                                             // ),
 
                                             const SizedBox(width: 12),
-                                            Row(
+                                            const Row(
                                               mainAxisSize: MainAxisSize.min,
-                                              children: const [
+                                              children: [
                                                 Text(
                                                   '🤣',
                                                   style:
@@ -518,9 +507,9 @@ class _PostWidgetState extends State<PostWidget> {
                                             ),
 
                                             const SizedBox(width: 12),
-                                            Row(
+                                            const Row(
                                               mainAxisSize: MainAxisSize.min,
-                                              children: const [
+                                              children: [
                                                 Icon(
                                                   Icons.comment_outlined,
                                                   size: 17,
@@ -937,9 +926,9 @@ class _PostWidgetState extends State<PostWidget> {
                               ],
                             ),
                             const SizedBox(width: 12),
-                            Row(
+                            const Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: const [
+                              children: [
                                 Text(
                                   '🤣',
                                   style: TextStyle(fontSize: 17),
@@ -1163,7 +1152,7 @@ class _PostWidgetState extends State<PostWidget> {
                             // const SizedBox(width: 6),
                             Transform.scale(
                               scaleX: -1,
-                              child: Icon(Icons.reply, size: 17, color: color),
+                              child: const Icon(Icons.reply, size: 17, color: color),
                             ),
                             const SizedBox(width: 6),
                             Flexible(

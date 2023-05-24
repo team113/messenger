@@ -27,7 +27,6 @@ import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/contact.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import 'controller.dart';
 
@@ -84,16 +83,14 @@ class ContactView extends StatelessWidget {
                           ),
                           Obx(() {
                             // final subtitle = c.user?.user.value.getStatus();
-                            final subtitle = 'Online';
-                            if (subtitle != null) {
-                              return Text(
-                                subtitle,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(color: const Color(0xFF888888)),
-                              );
-                            }
+                            const subtitle = 'Online';
+                            return Text(
+                              subtitle,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: const Color(0xFF888888)),
+                            );
 
                             return Container();
                           }),

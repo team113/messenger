@@ -183,7 +183,7 @@ class _MenuButtonState extends State<_MenuButton> {
               const SizedBox(width: 16),
               WidgetButton(
                 onPressed: widget.onPinned,
-                child: Container(
+                child: SizedBox(
                   // color: Colors.red,
                   height: 40,
                   width: 40,

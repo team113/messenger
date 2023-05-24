@@ -31,7 +31,6 @@ import 'package:intl/intl.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/domain/model/chat_item_quote.dart';
-import 'package:messenger/ui/page/home/widget/animated_slider.dart';
 import 'package:messenger/ui/page/home/widget/retry_image.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
@@ -1164,7 +1163,7 @@ class _ChatViewState extends State<ChatView>
       final bool fromMe = element.fromMe;
       final Style style = Theme.of(context).extension<Style>()!;
 
-      const String? text = 'dqwdqw';
+      const String text = 'dqwdqw';
       final String fee =
           fromMe ? 'Вы установили плату за:' : 'kirey установил плату за:';
 
@@ -1183,7 +1182,7 @@ class _ChatViewState extends State<ChatView>
           Flexible(
             child: LayoutBuilder(builder: (context, constraints) {
               return ConstrainedBox(
-                constraints: BoxConstraints(
+                constraints: const BoxConstraints(
                   // maxWidth: min(550, constraints.maxWidth),
                   maxWidth: 300,
                 ),
@@ -1224,15 +1223,15 @@ class _ChatViewState extends State<ChatView>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(fee),
-                                      Row(
-                                        children: const [
+                                      const Row(
+                                        children: [
                                           Text('- сообщения'),
                                           Spacer(),
                                           Text('\$5'),
                                         ],
                                       ),
-                                      Row(
-                                        children: const [
+                                      const Row(
+                                        children: [
                                           Text('- звонки'),
                                           Spacer(),
                                           Text('\$5/min'),
@@ -1250,7 +1249,7 @@ class _ChatViewState extends State<ChatView>
                                     12,
                                     10,
                                   ),
-                                  child: Text(text!, style: style.boldBody),
+                                  child: Text(text, style: style.boldBody),
                                 ),
                             ],
                           ),

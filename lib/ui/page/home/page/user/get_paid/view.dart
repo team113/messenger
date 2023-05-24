@@ -18,10 +18,8 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
-import 'controller.dart';
 
 /// View showing details about a [MyUser.chatDirectLink].
 ///

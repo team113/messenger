@@ -17,16 +17,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/balance_provider.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/page/home/widget/transaction.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import 'controller.dart';
 

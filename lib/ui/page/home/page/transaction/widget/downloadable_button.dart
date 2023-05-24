@@ -19,12 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
-import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
-import 'package:path/path.dart' as p;
 
 class DownloadableButton extends StatefulWidget {
   const DownloadableButton(this.attachment, {super.key});

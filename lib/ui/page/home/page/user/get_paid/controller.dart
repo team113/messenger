@@ -18,7 +18,6 @@
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/ui/widget/text_field.dart';
 
 export 'view.dart';
 

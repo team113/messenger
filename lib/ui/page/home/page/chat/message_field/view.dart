@@ -21,7 +21,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/widget/dock.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -35,7 +34,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -532,7 +530,7 @@ class MessageFieldView extends StatelessWidget {
               //             );
               //           }
               //     : null,
-              child: Container(
+              child: SizedBox(
                 // color: Colors.yellow,
                 width: 56,
                 height: 56,
@@ -595,7 +593,7 @@ class MessageFieldView extends StatelessWidget {
                 children: c.buttons.take(take).toList().reversed.map((e) {
                   return WidgetButton(
                     onPressed: e.onPressed,
-                    child: Container(
+                    child: SizedBox(
                       // color: Colors.red,
                       width: 36,
                       height: 56,

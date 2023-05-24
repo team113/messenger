@@ -30,24 +30,18 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/user/controller.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
-import 'package:sticky_headers/sticky_headers.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/user_search_bar/view.dart';
 import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
-import 'search/view.dart';
 
 /// View of the `HomeTab.contacts` tab.
 class ContactsTabView extends StatelessWidget {

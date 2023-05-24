@@ -34,10 +34,8 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
@@ -48,8 +46,6 @@ import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/widget_button.dart';
-import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
@@ -598,7 +594,7 @@ class RecentChatTile extends StatelessWidget {
                   desc.toString(),
                   style: item.authorId == me
                       ? null
-                      : TextStyle(
+                      : const TextStyle(
                           // color: rxChat.messageCost != 0
                           //     ? const Color(0xFF8383ff)
                           //     : null,

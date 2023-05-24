@@ -17,7 +17,6 @@
 
 import 'dart:async';
 import 'dart:ui';
-import 'dart:io';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
@@ -30,7 +29,6 @@ import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/sending_status.dart';
-import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
@@ -38,12 +36,9 @@ import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/media_attachment.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/swipeable_status.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
-import 'package:messenger/ui/page/home/page/my_profile/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';

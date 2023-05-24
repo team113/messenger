@@ -20,17 +20,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 
 import '/l10n/l10n.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/widget/sharable.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// ...

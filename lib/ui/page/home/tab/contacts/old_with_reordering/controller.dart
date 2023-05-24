@@ -30,11 +30,6 @@ import 'package:messenger/domain/service/user.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart'
-    show
-        CallAlreadyJoinedException,
-        CallAlreadyExistsException,
-        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';

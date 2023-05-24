@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
-import 'package:messenger/domain/service/partner.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';

@@ -27,13 +27,11 @@ import 'package:intl/intl.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
-import 'package:messenger/ui/page/home/page/user/get_paid/view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../chat/message_field/view.dart';
@@ -64,7 +62,6 @@ import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
 import 'blacklist/view.dart';
-import 'call_leave_switch/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
@@ -319,7 +316,7 @@ class MyProfileView extends StatelessWidget {
                                     child: c.verified.value
                                         ? const SizedBox()
                                         : Container(
-                                            key: Key('123'),
+                                            key: const Key('123'),
                                             alignment: Alignment.bottomCenter,
                                             padding: const EdgeInsets.fromLTRB(
                                               32,

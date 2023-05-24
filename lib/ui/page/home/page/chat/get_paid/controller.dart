@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/ui/page/home/page/user/get_paid/controller.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
 enum GetPaidMode { user, users, contacts }

@@ -92,7 +92,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
       borderRadius: widget.borderRadius ?? BorderRadius.zero,
-      borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+      borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
     );
 
     return ClipPath(

@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
@@ -29,7 +28,6 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart' show CallDoesNotExistException;
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';

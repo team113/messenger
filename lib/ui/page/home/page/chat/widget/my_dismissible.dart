@@ -107,9 +107,7 @@ class MyDismissible extends StatefulWidget {
     this.crossAxisEndOffset = 0.0,
     this.dragStartBehavior = DragStartBehavior.start,
     this.behavior = HitTestBehavior.opaque,
-  })  : assert(key != null),
-        assert(secondaryBackground == null || background != null),
-        assert(dragStartBehavior != null),
+  })  : assert(secondaryBackground == null || background != null),
         super(key: key);
 
   /// The widget below this widget in the tree.
@@ -258,28 +256,27 @@ class _MyDismissibleClipper extends CustomClipper<Rect> {
   _MyDismissibleClipper({
     required this.axis,
     required this.moveAnimation,
-  })  : assert(axis != null),
-        assert(moveAnimation != null),
-        super(reclip: moveAnimation);
+  })  : super(reclip: moveAnimation);
 
   final Axis axis;
   final Animation<Offset> moveAnimation;
 
   @override
   Rect getClip(Size size) {
-    assert(axis != null);
     switch (axis) {
       case Axis.horizontal:
         final double offset = moveAnimation.value.dx * size.width;
-        if (offset < 0)
+        if (offset < 0) {
           return Rect.fromLTRB(
               size.width + offset, 0.0, size.width, size.height);
+        }
         return Rect.fromLTRB(0.0, 0.0, offset, size.height);
       case Axis.vertical:
         final double offset = moveAnimation.value.dy * size.height;
-        if (offset < 0)
+        if (offset < 0) {
           return Rect.fromLTRB(
               0.0, size.height + offset, size.width, size.height);
+        }
         return Rect.fromLTRB(0.0, 0.0, size.width, offset);
     }
   }
@@ -467,7 +464,6 @@ class _MyDismissibleState extends State<MyDismissible>
   }
 
   _FlingGestureKind _describeFlingGesture(Velocity velocity) {
-    assert(widget.direction != null);
     if (_dragExtent == 0.0) {
       // If it was a fling, then it was a fling that was let loose at the exact
       // middle of the range (i.e. when there's no displacement). In that case,
@@ -491,7 +487,6 @@ class _MyDismissibleState extends State<MyDismissible>
       assert(vy != 0.0);
       flingDirection = _extentToDirection(vy);
     }
-    assert(_MyDismissDirection != null);
     if (flingDirection == _MyDismissDirection) return _FlingGestureKind.forward;
     return _FlingGestureKind.reverse;
   }
@@ -559,10 +554,11 @@ class _MyDismissibleState extends State<MyDismissible>
     }
     final bool result = await _confirmStartResizeAnimation();
     if (mounted) {
-      if (result)
+      if (result) {
         _startResizeAnimation();
-      else
+      } else {
         _moveController!.reverse();
+      }
     }
   }
 
@@ -630,8 +626,9 @@ class _MyDismissibleState extends State<MyDismissible>
     if (widget.secondaryBackground != null) {
       final MyDismissDirection direction = _MyDismissDirection;
       if (direction == MyDismissDirection.endToStart ||
-          direction == MyDismissDirection.up)
+          direction == MyDismissDirection.up) {
         background = widget.secondaryBackground;
+      }
     }
 
     if (_resizeAnimation != null) {

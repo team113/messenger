@@ -15,21 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
-import '/config.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
-import '/ui/page/home/page/my_profile/link_details/view.dart';
 import 'controller.dart';
 
 /// View for changing [MyUser.chatDirectLink] and [MyUser.muted].

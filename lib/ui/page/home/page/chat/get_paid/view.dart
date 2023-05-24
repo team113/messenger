@@ -71,7 +71,7 @@ class GetPaidView extends StatelessWidget {
                     ),
                     onPressed: () async {
                       Navigator.of(context).pop();
-                      await Future.delayed(Duration(milliseconds: 100));
+                      await Future.delayed(const Duration(milliseconds: 100));
                       await AddEmailView.show(
                         router.context!,
                         email: c.myUser.value?.emails.unconfirmed,

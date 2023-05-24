@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
@@ -807,7 +806,7 @@ class UserView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           Obx(() {
-            final bool muted = false;
+            const bool muted = false;
             //c.user?.user.value.dialog?.muted != null;
 
             return WidgetButton(

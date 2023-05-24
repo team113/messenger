@@ -1,8 +1,5 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/animated_offset.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 class AnimatedButton extends StatefulWidget {
   const AnimatedButton({

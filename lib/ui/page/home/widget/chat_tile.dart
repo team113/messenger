@@ -133,7 +133,7 @@ class _ChatTileState extends State<ChatTile> {
       // color: Color(0xFFbde0c6),
       // color: Colors.orange,
       // color: Colors.amber,
-      color: Color(0xFFD0D0D0),
+      color: const Color(0xFFD0D0D0),
       // color: Color(0xFFDEDEDE),
       // color: const Color(0xFFEBEBEB),
       width: 1,
