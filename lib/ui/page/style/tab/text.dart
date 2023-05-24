@@ -23,7 +23,7 @@ import '../widget/caption.dart';
 class FontStyleTabView extends StatelessWidget {
   const FontStyleTabView({Key? key}) : super(key: key);
 
-  Widget _font(String desc, String sample, TextStyle? style) => Card(
+  Widget _font(String desc, String sample, TextStyle style) => Card(
         elevation: 3,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -54,7 +54,7 @@ class FontStyleTabView extends StatelessWidget {
                   ],
                 ),
                 trailing: Text(
-                  'Шрифт: ${style?.fontSize} пт, цвет: ${style?.color?.toHex()}',
+                  'Шрифт: ${style.fontSize} пт, цвет: ${style.color?.toHex()}',
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
@@ -79,77 +79,77 @@ class FontStyleTabView extends StatelessWidget {
           _font(
             'Largest of the display styles.',
             'displayLarge',
-            textTheme.displayLarge,
+            textTheme.displayLarge!,
           ),
           _font(
             'Middle size of the display styles.',
             'displayMedium',
-            textTheme.displayMedium,
+            textTheme.displayMedium!,
           ),
           _font(
             'Smallest of the display styles.',
             'displaySmall',
-            textTheme.displaySmall,
+            textTheme.displaySmall!,
           ),
           _font(
             'Largest of the headline styles.',
             'headlineLarge',
-            textTheme.headlineLarge,
+            textTheme.headlineLarge!,
           ),
           _font(
             'Middle size of the headline styles.',
             'headlineMedium',
-            textTheme.headlineMedium,
+            textTheme.headlineMedium!,
           ),
           _font(
             'Smallest of the headline styles.',
             'headlineSmall',
-            textTheme.headlineSmall,
+            textTheme.headlineSmall!,
           ),
           _font(
             'Largest of the title styles.',
             'titleLarge',
-            textTheme.titleLarge,
+            textTheme.titleLarge!,
           ),
           _font(
             'Middle size of the title styles.',
             'titleMedium',
-            textTheme.titleMedium,
+            textTheme.titleMedium!,
           ),
           _font(
             'Smallest of the title styles.',
             'titleSmall',
-            textTheme.titleSmall,
+            textTheme.titleSmall!,
           ),
           _font(
             'Largest of the label styles.',
             'labelLarge',
-            textTheme.labelLarge,
+            textTheme.labelLarge!,
           ),
           _font(
             'Middle size of the label styles.',
             'labelMedium',
-            textTheme.labelMedium,
+            textTheme.labelMedium!,
           ),
           _font(
             'Smallest of the label styles.',
             'labelSmall',
-            textTheme.labelSmall,
+            textTheme.labelSmall!,
           ),
           _font(
             'Largest of the body styles.',
             'bodyLarge',
-            textTheme.bodyLarge,
+            textTheme.bodyLarge!,
           ),
           _font(
             'Middle size of the body styles.',
             'bodyMedium',
-            textTheme.bodyMedium,
+            textTheme.bodyMedium!,
           ),
           _font(
             'Smallest of the body styles.',
             'bodySmall',
-            textTheme.bodySmall,
+            textTheme.bodySmall!,
           ),
           const SizedBox(height: 60),
         ],

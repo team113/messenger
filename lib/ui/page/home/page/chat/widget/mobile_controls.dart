@@ -315,7 +315,7 @@ class _MobileControlsState extends State<MobileControls>
   /// Returns the [RichText] of the current video position.
   Widget _buildPosition(Color? iconColor) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? bodyMedium = Theme.of(context).textTheme.bodyMedium;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     final position = _latestValue.position;
     final duration = _latestValue.duration;
@@ -326,13 +326,13 @@ class _MobileControlsState extends State<MobileControls>
         children: <InlineSpan>[
           TextSpan(
             text: '/ ${formatDuration(duration)}',
-            style: bodyMedium!.copyWith(
+            style: theme.bodyMedium!.copyWith(
               color: style.colors.onPrimaryOpacity50,
               fontWeight: FontWeight.normal,
             ),
           )
         ],
-        style: bodyMedium.copyWith(
+        style: theme.bodyMedium!.copyWith(
           color: style.colors.onPrimary,
           fontWeight: FontWeight.bold,
         ),

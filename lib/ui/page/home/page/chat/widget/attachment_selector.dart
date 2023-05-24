@@ -74,7 +74,7 @@ class AttachmentSourceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle bodyLarge = Theme.of(context).textTheme.bodyLarge!;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     Widget button({
       required String text,
@@ -91,7 +91,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: bodyLarge,
+          style: theme.bodyLarge,
           color: style.colors.primary,
           child: SizedBox(
             width: 60,

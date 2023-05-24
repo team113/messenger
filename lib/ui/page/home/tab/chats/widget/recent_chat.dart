@@ -140,7 +140,7 @@ class RecentChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextStyle? titleSmall = Theme.of(context).textTheme.titleSmall;
+      final TextTheme theme = Theme.of(context).textTheme;
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
@@ -152,8 +152,9 @@ class RecentChatTile extends StatelessWidget {
           _status(context, inverted),
           Text(
             chat.updatedAt.val.toLocal().toShort(),
-            style: titleSmall?.copyWith(
-                color: inverted ? style.colors.onPrimary : null),
+            style: theme.titleSmall!.copyWith(
+              color: inverted ? style.colors.onPrimary : null,
+            ),
           ),
         ],
         subtitle: [
@@ -262,7 +263,7 @@ class RecentChatTile extends StatelessWidget {
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context, bool selected, bool inverted) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? titleSmall = Theme.of(context).textTheme.titleSmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -623,8 +624,9 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: titleSmall!
-            .copyWith(color: inverted ? style.colors.onPrimary : null),
+        style: theme.titleSmall!.copyWith(
+          color: inverted ? style.colors.onPrimary : null,
+        ),
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );
@@ -793,6 +795,7 @@ class RecentChatTile extends StatelessWidget {
   Widget _counter(BuildContext context, bool inverted) {
     return Obx(() {
       final Style style = Theme.of(context).extension<Style>()!;
+      final TextTheme theme = Theme.of(context).textTheme;
 
       final Chat chat = rxChat.chat.value;
       final bool muted = chat.muted != null;
@@ -817,7 +820,7 @@ class RecentChatTile extends StatelessWidget {
             rxChat.unreadCount.value > 99
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
-            style: router.context!.textTheme.bodySmall!.copyWith(
+            style: theme.bodySmall!.copyWith(
               color: muted
                   ? inverted
                       ? style.colors.secondary
@@ -839,7 +842,7 @@ class RecentChatTile extends StatelessWidget {
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? titleSmall = Theme.of(context).textTheme.titleSmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -887,8 +890,9 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: titleSmall?.copyWith(
-                              color: style.colors.onPrimary),
+                          style: theme.titleSmall!.copyWith(
+                            color: style.colors.onPrimary,
+                          ),
                         ).fixedDigits();
                       },
                     )
@@ -913,7 +917,7 @@ class RecentChatTile extends StatelessWidget {
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
@@ -921,7 +925,7 @@ class RecentChatTile extends StatelessWidget {
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: rxChat.title.value,
-          style: bodyLarge!.copyWith(color: style.colors.onBackground),
+          style: theme.bodyLarge!.copyWith(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],

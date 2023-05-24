@@ -258,7 +258,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     final Color color = widget.user?.user.value.id == widget.me
         ? style.colors.primary
@@ -266,7 +266,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             style.colors.userColors.length];
 
     return DefaultTextStyle(
-      style: displaySmall!,
+      style: theme.displaySmall!,
       child: Obx(() {
         return _rounded(
           context,
@@ -309,7 +309,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               widget.user?.user.value.name?.val ??
                                   widget.user?.user.value.num.val ??
                                   'dot'.l10n * 3,
-                              style: displaySmall.copyWith(color: color),
+                              style: theme.displaySmall!.copyWith(color: color),
                             ),
                           ),
                         ...widget.forwards.mapIndexed(
@@ -356,7 +356,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       final ChatItemQuote quote = msg.quote;
 
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+      final TextTheme theme = Theme.of(context).textTheme;
 
       Widget? content;
       List<Widget> additional = [];
@@ -443,7 +443,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             selectable: PlatformUtils.isDesktop || menu,
             onChanged: (a) => _selection = a,
             onSelecting: widget.onSelecting,
-            style: displaySmall,
+            style: theme.displaySmall,
           );
         }
       } else if (quote is ChatCallQuote) {
@@ -496,7 +496,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   time,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: displaySmall!.copyWith(
+                  style: theme.displaySmall!.copyWith(
                     fontWeight: FontWeight.normal,
                   ),
                 ),
@@ -507,12 +507,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       } else if (quote is ChatInfoQuote) {
         content = Text(
           quote.action.toString(),
-          style: displaySmall,
+          style: theme.displaySmall,
         );
       } else {
         content = Text(
           'err_unknown'.l10n,
-          style: displaySmall,
+          style: theme.displaySmall,
         );
       }
 
@@ -582,7 +582,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                             PlatformUtils.isDesktop || menu,
                                         onChanged: (a) => _selection = a,
                                         onSelecting: widget.onSelecting,
-                                        style: displaySmall!.copyWith(
+                                        style: theme.displaySmall!.copyWith(
                                           color: color,
                                         ),
                                       ),
@@ -644,7 +644,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     if (item is ChatMessage) {
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+      final TextTheme theme = Theme.of(context).textTheme;
 
       final TextSpan? text = _text[item.id];
 
@@ -685,7 +685,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               selectable: PlatformUtils.isDesktop || menu,
               onChanged: (a) => _selection = a,
               onSelecting: widget.onSelecting,
-              style: displaySmall!.copyWith(color: color),
+              style: theme.displaySmall!.copyWith(color: color),
             ),
           ),
         if (text != null)
@@ -704,7 +704,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 selectable: PlatformUtils.isDesktop || menu,
                 onChanged: (a) => _selection = a,
                 onSelecting: widget.onSelecting,
-                style: displaySmall,
+                style: theme.displaySmall,
               ),
             ),
           ),

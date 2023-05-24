@@ -43,8 +43,7 @@ class AuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle displayLarge = Theme.of(context).textTheme.displayLarge!;
-    final TextStyle bodyLarge = Theme.of(context).textTheme.bodyLarge!;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: AuthController(Get.find()),
@@ -66,7 +65,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: displayLarge.copyWith(color: style.colors.secondary),
+            style: theme.displayLarge!.copyWith(color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -74,15 +73,13 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: bodyLarge.copyWith(color: style.colors.secondary),
+            style: theme.bodyLarge!.copyWith(color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),
           const SizedBox(height: 25),
         ];
-
-        final TextStyle? labelLarge = Theme.of(context).textTheme.labelLarge;
 
         // Footer part of the page.
         List<Widget> footer = [
@@ -91,7 +88,7 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: labelLarge!.copyWith(color: style.colors.onPrimary),
+              style: theme.labelLarge!.copyWith(color: style.colors.onPrimary),
             ),
             leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: c.register,
@@ -100,7 +97,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n, style: labelLarge),
+            title: Text('btn_login'.l10n, style: theme.labelLarge),
             leading: SvgImage.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
@@ -235,7 +232,7 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final TextStyle labelLarge = Theme.of(context).textTheme.labelLarge!;
+    final TextTheme theme = Theme.of(context).textTheme;
     await ModalPopup.show(
       context: context,
       child: Column(
@@ -243,7 +240,7 @@ class AuthView extends StatelessWidget {
         children: [
           ModalPopupHeader(
             header: Center(
-              child: Text('btn_download'.l10n, style: labelLarge),
+              child: Text('btn_download'.l10n, style: theme.labelLarge),
             ),
           ),
           const SizedBox(height: 12),

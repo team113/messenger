@@ -61,10 +61,7 @@ class MessageInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
-    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
-    final TextStyle bodyLarge = Theme.of(context).textTheme.bodyLarge!;
-    ;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
@@ -77,7 +74,7 @@ class MessageInfo extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_message'.l10n,
-                  style: displaySmall,
+                  style: theme.displaySmall,
                 ),
               ),
             ),
@@ -94,7 +91,8 @@ class MessageInfo extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('ID${'colon_space'.l10n}$id', style: bodySmall),
+                      Text('ID${'colon_space'.l10n}$id',
+                          style: theme.bodySmall),
                       const SizedBox(width: 8),
                       SvgImage.asset('assets/icons/copy.svg', height: 12),
                     ],
@@ -128,7 +126,7 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: displaySmall,
+                          style: theme.displaySmall,
                           onChanged: () => c.query.value = c.search.text,
                         ),
                       ),
@@ -220,7 +218,7 @@ class MessageInfo extends StatelessWidget {
                                       'minute':
                                           '${time.minute}'.padLeft(2, '0'),
                                     }),
-                                    style: bodyLarge.copyWith(
+                                    style: theme.bodyLarge!.copyWith(
                                       color: style.colors.secondary,
                                     ),
                                   ),

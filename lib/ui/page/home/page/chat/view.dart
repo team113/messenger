@@ -815,7 +815,7 @@ class _ChatViewState extends State<ChatView>
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -841,7 +841,7 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(subtitle.toString(), style: textStyle);
+        return Text(subtitle.toString(), style: theme.bodySmall);
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -853,7 +853,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: textStyle!.copyWith(color: style.colors.primary),
+                style: theme.bodySmall!.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -877,7 +877,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: textStyle!.copyWith(color: style.colors.primary),
+                style: theme.bodySmall!.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -892,7 +892,7 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.isGroup) {
         final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
-          return Text(subtitle, style: textStyle);
+          return Text(subtitle, style: theme.bodySmall);
         }
       } else if (chat.value.isDialog) {
         final ChatMember? partner =
@@ -930,7 +930,10 @@ class _ChatViewState extends State<ChatView>
 
                           buffer.write(subtitle ?? '');
 
-                          return Text(buffer.toString(), style: textStyle);
+                          return Text(
+                            buffer.toString(),
+                            style: theme.bodySmall,
+                          );
                         }
 
                         return const SizedBox();
@@ -953,7 +956,7 @@ class _ChatViewState extends State<ChatView>
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time, ChatController c, int i) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -987,7 +990,8 @@ class _ChatViewState extends State<ChatView>
                 ),
                 child: Text(
                   time.toRelative(),
-                  style: textStyle!.copyWith(color: style.colors.secondary),
+                  style:
+                      theme.bodySmall!.copyWith(color: style.colors.secondary),
                 ),
               ),
             ),
@@ -1067,7 +1071,7 @@ class _ChatViewState extends State<ChatView>
   /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
   Widget _blockedField(ChatController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? textStyle = Theme.of(context).textTheme.displaySmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return Theme(
       data: MessageFieldView.theme(context),
@@ -1115,7 +1119,7 @@ class _ChatViewState extends State<ChatView>
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: textStyle!.copyWith(
+                              style: theme.displaySmall!.copyWith(
                                 color: style.colors.primary,
                               ),
                             ),

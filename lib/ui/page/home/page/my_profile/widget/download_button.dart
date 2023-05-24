@@ -56,7 +56,7 @@ class DownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? titleMedium = Theme.of(context).textTheme.titleMedium;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return FieldButton(
       text: 'space'.l10n * 4 + title,
@@ -90,9 +90,7 @@ class DownloadButton extends StatelessWidget {
           child: SvgImage.asset('assets/icons/copy.svg', height: 15),
         ),
       ),
-      style: titleMedium!.copyWith(
-        color: style.colors.primary,
-      ),
+      style: theme.titleMedium!.copyWith(color: style.colors.primary),
     );
   }
 }

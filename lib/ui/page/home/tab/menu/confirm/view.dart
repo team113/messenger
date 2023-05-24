@@ -41,8 +41,7 @@ class ConfirmLogoutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
-    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
@@ -57,7 +56,8 @@ class ConfirmLogoutView extends StatelessWidget {
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = null,
                 header: Center(
-                  child: Text('btn_set_password'.l10n, style: displaySmall),
+                  child:
+                      Text('btn_set_password'.l10n, style: theme.displaySmall),
                 ),
               );
 
@@ -67,7 +67,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: bodyLarge,
+                  style: theme.bodyLarge,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -81,7 +81,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: bodyLarge,
+                  style: theme.bodyLarge,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -94,7 +94,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   key: const Key('ChangePasswordButton'),
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: bodyLarge!.copyWith(
+                    style: theme.bodyLarge!.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
                           ? style.colors.onBackground
                           : style.colors.onPrimary,
@@ -111,14 +111,16 @@ class ConfirmLogoutView extends StatelessWidget {
             case ConfirmLogoutViewStage.success:
               header = ModalPopupHeader(
                 header: Center(
-                  child: Text('btn_set_password'.l10n, style: displaySmall),
+                  child:
+                      Text('btn_set_password'.l10n, style: theme.displaySmall),
                 ),
               );
 
               children = [
                 Text(
                   'label_password_set'.l10n,
-                  style: bodyLarge!.copyWith(color: style.colors.secondary),
+                  style:
+                      theme.bodyLarge!.copyWith(color: style.colors.secondary),
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -127,7 +129,9 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: bodyLarge.copyWith(color: style.colors.onPrimary),
+                      style: theme.bodyLarge!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
                     ),
                     onPressed: Navigator.of(context).pop,
                     color: style.colors.primary,
@@ -139,7 +143,7 @@ class ConfirmLogoutView extends StatelessWidget {
             default:
               header = ModalPopupHeader(
                 header: Center(
-                  child: Text('btn_logout'.l10n, style: displaySmall),
+                  child: Text('btn_logout'.l10n, style: theme.displaySmall),
                 ),
               );
 
@@ -147,13 +151,15 @@ class ConfirmLogoutView extends StatelessWidget {
                 Center(
                   child: RichText(
                     text: TextSpan(
-                      style: bodyLarge!.copyWith(color: style.colors.secondary),
+                      style: theme.bodyLarge!.copyWith(
+                        color: style.colors.secondary,
+                      ),
                       children: [
                         TextSpan(
                           text: 'alert_are_you_sure_want_to_log_out1'.l10n,
                         ),
                         TextSpan(
-                          style: bodyLarge.copyWith(
+                          style: theme.bodyLarge!.copyWith(
                             color: style.colors.onBackground,
                           ),
                           text: c.myUser.value?.name?.val ??
@@ -174,7 +180,9 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_logout'.l10n,
-                      style: bodyLarge.copyWith(color: style.colors.onPrimary),
+                      style: theme.bodyLarge!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
                     color: style.colors.primary,
@@ -182,7 +190,9 @@ class ConfirmLogoutView extends StatelessWidget {
                 ] else ...[
                   RichText(
                     text: TextSpan(
-                      style: bodyLarge.copyWith(color: style.colors.secondary),
+                      style: theme.bodyLarge!.copyWith(
+                        color: style.colors.secondary,
+                      ),
                       children: [
                         TextSpan(text: 'label_password_not_set'.l10n),
                       ],
@@ -197,7 +207,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: bodyLarge.copyWith(
+                            style: theme.bodyLarge!.copyWith(
                               color: style.colors.onPrimary,
                             ),
                           ),
@@ -211,10 +221,8 @@ class ConfirmLogoutView extends StatelessWidget {
                         child: OutlinedRoundedButton(
                           key: const Key('ConfirmLogoutButton'),
                           maxWidth: double.infinity,
-                          title: Text(
-                            'btn_logout'.l10n,
-                            style: bodyLarge,
-                          ),
+                          title:
+                              Text('btn_logout'.l10n, style: theme.bodyLarge),
                           onPressed: () => Navigator.of(context).pop(true),
                           color: style.colors.secondaryHighlight,
                         ),

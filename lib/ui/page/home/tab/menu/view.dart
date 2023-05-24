@@ -41,11 +41,7 @@ class MenuTabView extends StatelessWidget {
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
         final Style style = Theme.of(context).extension<Style>()!;
-        final TextStyle? displaySmall =
-            Theme.of(context).textTheme.displaySmall;
-        final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
-        final TextStyle headlineSmall =
-            Theme.of(context).textTheme.headlineSmall!;
+        final TextTheme theme = Theme.of(context).textTheme;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -82,7 +78,7 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: displaySmall!.copyWith(
+                              style: theme.displaySmall!.copyWith(
                                 color: style.colors.onBackground,
                               ),
                             ),
@@ -90,7 +86,7 @@ class MenuTabView extends StatelessWidget {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: bodySmall?.copyWith(
+                                style: theme.bodySmall!.copyWith(
                                   color: style.colors.secondary,
                                 ),
                               );
@@ -182,7 +178,8 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle(
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
-                                            style: headlineSmall.copyWith(
+                                            style:
+                                                theme.headlineSmall!.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
                                                   : null,

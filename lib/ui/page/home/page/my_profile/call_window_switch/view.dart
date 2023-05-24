@@ -41,7 +41,7 @@ class CallWindowSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
@@ -57,7 +57,7 @@ class CallWindowSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_calls'.l10n,
-                    style: displaySmall,
+                    style: theme.displaySmall,
                   ),
                 ),
               ),

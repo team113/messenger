@@ -55,8 +55,7 @@ class ContactsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
-    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -91,7 +90,7 @@ class ContactsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: displaySmall,
+                        style: theme.displaySmall,
                         onChanged: () => c.search.value?.query.value =
                             c.search.value?.search.text ?? '',
                       ),
@@ -109,7 +108,7 @@ class ContactsTabView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'label_synchronization'.l10n,
-                        style: bodySmall?.copyWith(
+                        style: theme.bodySmall!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -489,7 +488,7 @@ class ContactsTabView extends StatelessWidget {
   }) {
     return Obx(() {
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+      final TextTheme theme = Theme.of(context).textTheme;
 
       bool favorite = c.favorites.contains(contact);
 
@@ -555,7 +554,7 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style: bodySmall!.copyWith(
+                  style: theme.bodySmall!.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.secondary,
@@ -626,7 +625,7 @@ class ContactsTabView extends StatelessWidget {
   /// [ChatContacts]s manipulation.
   Widget _selectButtons(BuildContext context, ContactsTabController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
@@ -653,9 +652,8 @@ class ContactsTabView extends StatelessWidget {
                 'btn_cancel'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: bodyLarge!.copyWith(
-                  color: style.colors.onBackground,
-                ),
+                style:
+                    theme.bodyLarge!.copyWith(color: style.colors.onBackground),
               ),
               onPressed: c.toggleSelecting,
               shadows: shadows,
@@ -671,7 +669,7 @@ class ContactsTabView extends StatelessWidget {
                       .l10nfmt({'count': c.selectedContacts.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: bodyLarge.copyWith(
+                  style: theme.bodyLarge!.copyWith(
                     color: c.selectedContacts.isEmpty
                         ? style.colors.onBackground
                         : style.colors.onPrimary,
@@ -698,7 +696,7 @@ class ContactsTabView extends StatelessWidget {
     RxChatContact contact,
   ) async {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? bodyLarge = Theme.of(context).textTheme.bodyLarge;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
@@ -706,9 +704,7 @@ class ContactsTabView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: bodyLarge!.copyWith(
-            color: style.colors.onBackground,
-          ),
+          style: theme.bodyLarge!.copyWith(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],

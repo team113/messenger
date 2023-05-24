@@ -46,7 +46,7 @@ class ReactiveDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle titleMedium = Theme.of(context).textTheme.titleMedium!;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return StatefulBuilder(
       builder: (context, setState) => Stack(
@@ -84,7 +84,9 @@ class ReactiveDropdown<T> extends StatelessWidget {
                     : null,
                 borderRadius: BorderRadius.circular(18),
                 isExpanded: true,
-                style: titleMedium.copyWith(color: style.colors.onBackground),
+                style: theme.titleMedium!.copyWith(
+                  color: style.colors.onBackground,
+                ),
                 icon: const SizedBox(),
                 underline: const SizedBox(),
               ),

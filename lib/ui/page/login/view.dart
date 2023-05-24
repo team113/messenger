@@ -42,8 +42,6 @@ class LoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle bodySmall = Theme.of(context).textTheme.bodySmall!;
-
     final TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
@@ -70,7 +68,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: theme.bodyLarge?.copyWith(
+                  style: theme.bodyLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -105,9 +103,8 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: theme.bodyLarge?.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style:
+                      theme.bodyLarge!.copyWith(color: style.colors.secondary),
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -142,9 +139,8 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: theme.bodyLarge?.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style:
+                      theme.bodyLarge!.copyWith(color: style.colors.secondary),
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -201,7 +197,7 @@ class LoginView extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(8, 0, 8, 10),
                     child: Text(
                       'label_password_changed'.l10n,
-                      style: theme.bodyLarge?.copyWith(
+                      style: theme.bodyLarge!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
@@ -243,8 +239,9 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style:
-                              bodySmall.copyWith(color: style.colors.primary),
+                          style: theme.bodySmall!.copyWith(
+                            color: style.colors.primary,
+                          ),
                         ),
                       ),
                     ),

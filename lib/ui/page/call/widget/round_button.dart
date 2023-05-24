@@ -106,7 +106,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     Widget button = ConditionalBackdropFilter(
       condition: !WebUtils.isSafari && widget.withBlur,
@@ -166,9 +166,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 widget.text!,
                 textAlign: TextAlign.center,
                 style: widget.style ??
-                    bodySmall?.copyWith(
-                      color: style.colors.onPrimary,
-                    ),
+                    theme.bodySmall!.copyWith(color: style.colors.onPrimary),
                 maxLines: 2,
               ),
             ],
@@ -205,7 +203,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       }
 
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+      final TextTheme theme = Theme.of(context).textTheme;
 
       return IgnorePointer(
         child: Stack(
@@ -221,7 +219,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   child: Text(
                     widget.hint!,
                     textAlign: TextAlign.center,
-                    style: bodySmall!.copyWith(
+                    style: theme.bodySmall!.copyWith(
                       color: style.colors.onPrimary,
                       shadows: [
                         Shadow(blurRadius: 6, color: style.colors.onBackground),

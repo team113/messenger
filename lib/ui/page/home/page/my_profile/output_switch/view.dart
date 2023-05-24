@@ -52,7 +52,7 @@ class OutputSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: OutputSwitchController(Get.find(), output: output),
@@ -68,7 +68,7 @@ class OutputSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_media_output'.l10n,
-                    style: displaySmall,
+                    style: theme.displaySmall,
                   ),
                 ),
               ),

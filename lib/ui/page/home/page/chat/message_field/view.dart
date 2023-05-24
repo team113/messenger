@@ -426,7 +426,7 @@ class MessageFieldView extends StatelessWidget {
   /// buttons.
   Widget _buildField(MessageFieldController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle labelLarge = Theme.of(context).textTheme.labelLarge!;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     return Container(
       constraints: const BoxConstraints(minHeight: 56),
@@ -480,7 +480,8 @@ class MessageFieldView extends StatelessWidget {
                   filled: false,
                   dense: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: labelLarge.copyWith(fontWeight: FontWeight.normal),
+                  style:
+                      theme.labelLarge!.copyWith(fontWeight: FontWeight.normal),
                   type: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
@@ -540,7 +541,7 @@ class MessageFieldView extends StatelessWidget {
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
+      final TextTheme theme = Theme.of(context).textTheme;
 
       if (isImage || isVideo) {
         final Widget child = MediaAttachment(
@@ -640,14 +641,14 @@ class MessageFieldView extends StatelessWidget {
                   Flexible(
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
-                      style: bodySmall,
+                      style: theme.bodySmall,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     p.extension(e.filename),
-                    style: bodySmall,
+                    style: theme.bodySmall,
                   )
                 ],
               ),
@@ -661,7 +662,7 @@ class MessageFieldView extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: bodySmall!.copyWith(color: style.colors.secondary),
+                style: theme.bodySmall!.copyWith(color: style.colors.secondary),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -784,8 +785,7 @@ class MessageFieldView extends StatelessWidget {
     void Function()? onClose,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? displaySmall = Theme.of(context).textTheme.displaySmall;
-    final TextStyle bodySmall = Theme.of(context).textTheme.bodySmall!;
+    final TextTheme theme = Theme.of(context).textTheme;
 
     final bool fromMe = item.authorId == c.me;
 
@@ -834,7 +834,7 @@ class MessageFieldView extends StatelessWidget {
           item.text!.val,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: displaySmall,
+          style: theme.displaySmall,
         );
       }
     } else if (item is ChatCall) {
@@ -875,7 +875,7 @@ class MessageFieldView extends StatelessWidget {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: displaySmall)),
+          Flexible(child: Text(title, style: theme.displaySmall)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -884,7 +884,7 @@ class MessageFieldView extends StatelessWidget {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: bodySmall.copyWith(color: style.colors.secondary),
+                style: theme.bodySmall!.copyWith(color: style.colors.secondary),
               ),
             ),
           ],
@@ -892,12 +892,12 @@ class MessageFieldView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: displaySmall);
+      content = Text('label_forwarded_message'.l10n, style: theme.displaySmall);
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: displaySmall);
+      content = Text(item.action.toString(), style: theme.displaySmall);
     } else {
-      content = Text('err_unknown'.l10n, style: displaySmall);
+      content = Text('err_unknown'.l10n, style: theme.displaySmall);
     }
 
     final Widget expanded;
@@ -923,7 +923,8 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: displaySmall!.copyWith(color: style.colors.primary),
+                    style: theme.displaySmall!
+                        .copyWith(color: style.colors.primary),
                   ),
                   if (content != null) ...[
                     const SizedBox(height: 2),
@@ -965,13 +966,13 @@ class MessageFieldView extends StatelessWidget {
                         return Text(
                           snapshot.data!.user.value.name?.val ??
                               snapshot.data!.user.value.num.val,
-                          style: displaySmall!.copyWith(color: color),
+                          style: theme.displaySmall!.copyWith(color: color),
                         );
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style:
-                            displaySmall!.copyWith(color: style.colors.primary),
+                        style: theme.displaySmall!
+                            .copyWith(color: style.colors.primary),
                       ),
                 if (content != null) ...[
                   const SizedBox(height: 2),

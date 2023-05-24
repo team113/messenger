@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -49,6 +48,7 @@ class FloatingSnackBar extends StatefulWidget {
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
   static void show(String title, {double bottom = 16}) {
     final Style style = Theme.of(router.context!).extension<Style>()!;
+    final TextTheme theme = Theme.of(router.context!).textTheme;
 
     OverlayEntry? entry;
 
@@ -63,9 +63,7 @@ class FloatingSnackBar extends StatefulWidget {
         bottom: bottom,
         child: Text(
           title,
-          style: router.context!.textTheme.bodyLarge!.copyWith(
-            color: style.colors.onBackground,
-          ),
+          style: theme.bodyLarge!.copyWith(color: style.colors.onBackground),
         ),
       ),
     );
