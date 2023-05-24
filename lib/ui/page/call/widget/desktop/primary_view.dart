@@ -53,28 +53,28 @@ class PrimaryView extends StatelessWidget {
   final double size;
 
   /// [Rx] chat id that stores the ID of the chat.
-  final Rx<ChatId> chatId;
+  final ChatId chatId;
 
   /// [Rx] integer that stores the number of secondary drag events.
-  final RxInt secondaryDrags;
+  final int secondaryDrags;
 
   /// [Rx] integer that stores the number of primary targets.
-  final RxInt primaryTargets;
+  final int primaryTargets;
 
   /// [Rx] participant that stores the dragged `dough` renderer.
-  final Rx<Participant?> doughDraggedRenderer;
+  final Participant? doughDraggedRenderer;
 
   /// [RxMap] that stores the fit of the renderer.
-  final RxMap<String, BoxFit?> rendererBoxFit;
+  final Map<String, BoxFit?> rendererBoxFit;
 
   /// [RxList] of participants.
-  final RxList<Participant> primary;
+  final List<Participant> primary;
 
   /// [Rx] indicator that stores the minimized state of the widget.
-  final RxBool minimized;
+  final bool minimized;
 
   /// [Rx] indicator that stores the full-screen state of the widget.
-  final RxBool fullscreen;
+  final bool fullscreen;
 
   /// Callback, called when a drag event is completed.
   final void Function(DragData d)? onDragEnded;
@@ -103,85 +103,79 @@ class PrimaryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return Stack(
-        children: [
-          ReorderableFit<DragData>(
-            key: const Key('PrimaryFitView'),
-            allowEmptyTarget: true,
-            onAdded: onAdded,
-            onWillAccept: onWillAccept,
-            onLeave: onLeave,
-            onDragStarted: onDragStarted,
-            onOffset: onOffset,
-            onDoughBreak: onDoughBreak,
-            onDragEnd: onDragEnded,
-            onDragCompleted: onDragEnded,
-            onDraggableCanceled: onDragEnded,
-            overlayBuilder: overlayBuilder,
-            decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
-            itemConstraints: (DragData data) {
-              return BoxConstraints(maxWidth: size, maxHeight: size);
-            },
-            itemBuilder: (DragData data) {
-              var participant = data.participant;
-              return Obx(() {
-                return ParticipantWidget(
-                  participant,
-                  key: ObjectKey(participant),
-                  offstageUntilDetermined: true,
-                  respectAspectRatio: true,
-                  borderRadius: BorderRadius.zero,
-                  onSizeDetermined: participant.video.value?.renderer.refresh,
-                  fit: rendererBoxFit[
-                      participant.video.value?.renderer.value?.track.id() ??
-                          ''],
-                );
-              });
-            },
-            children: primary.map((e) => DragData(e, chatId.value)).toList(),
-          ),
-          IgnorePointer(
-            child: Obx(() {
-              return AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: secondaryDrags.value != 0 && primaryTargets.value != 0
-                    ? Container(
-                        color: const Color(0x40000000),
-                        child: Center(
-                          child: AnimatedDelayedScale(
-                            duration: const Duration(milliseconds: 300),
-                            beginScale: 1,
-                            endScale: 1.06,
-                            child: ConditionalBackdropFilter(
-                              condition: !minimized.value || fullscreen.value,
+    return Stack(
+      children: [
+        ReorderableFit<DragData>(
+          key: const Key('PrimaryFitView'),
+          allowEmptyTarget: true,
+          onAdded: onAdded,
+          onWillAccept: onWillAccept,
+          onLeave: onLeave,
+          onDragStarted: onDragStarted,
+          onOffset: onOffset,
+          onDoughBreak: onDoughBreak,
+          onDragEnd: onDragEnded,
+          onDragCompleted: onDragEnded,
+          onDraggableCanceled: onDragEnded,
+          overlayBuilder: overlayBuilder,
+          decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+          itemConstraints: (DragData data) {
+            return BoxConstraints(maxWidth: size, maxHeight: size);
+          },
+          itemBuilder: (DragData data) {
+            var participant = data.participant;
+
+            return ParticipantWidget(
+              participant,
+              key: ObjectKey(participant),
+              offstageUntilDetermined: true,
+              respectAspectRatio: true,
+              borderRadius: BorderRadius.zero,
+              onSizeDetermined: participant.video.value?.renderer.refresh,
+              fit: rendererBoxFit[
+                  participant.video.value?.renderer.value?.track.id() ?? ''],
+            );
+          },
+          children: primary.map((e) => DragData(e, chatId)).toList(),
+        ),
+        IgnorePointer(
+          child: AnimatedSwitcher(
+            duration: 200.milliseconds,
+            child: secondaryDrags != 0 && primaryTargets != 0
+                ? Container(
+                    color: const Color(0x40000000),
+                    child: Center(
+                      child: AnimatedDelayedScale(
+                        duration: const Duration(milliseconds: 300),
+                        beginScale: 1,
+                        endScale: 1.06,
+                        child: ConditionalBackdropFilter(
+                          condition: !minimized || fullscreen,
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: !minimized.value || fullscreen.value
-                                      ? const Color(0x40000000)
-                                      : const Color(0x90000000),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Icon(
-                                    Icons.add_rounded,
-                                    size: 50,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                              color: !minimized || fullscreen
+                                  ? const Color(0x40000000)
+                                  : const Color(0x90000000),
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Icon(
+                                Icons.add_rounded,
+                                size: 50,
+                                color: Colors.white,
                               ),
                             ),
                           ),
                         ),
-                      )
-                    : null,
-              );
-            }),
+                      ),
+                    ),
+                  )
+                : null,
           ),
-        ],
-      );
-    });
+        ),
+      ],
+    );
   }
 }

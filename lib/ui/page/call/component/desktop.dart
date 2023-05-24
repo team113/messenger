@@ -167,14 +167,15 @@ class DesktopCall extends StatelessWidget {
                                       .value = r.participant,
                                   size: (c.size.longestSide * 0.33)
                                       .clamp(100, 250),
-                                  doughDraggedRenderer: c.doughDraggedRenderer,
-                                  chatId: c.chatId,
-                                  secondaryDrags: c.secondaryDrags,
-                                  primaryTargets: c.primaryTargets,
+                                  doughDraggedRenderer:
+                                      c.doughDraggedRenderer.value,
+                                  chatId: c.chatId.value,
+                                  secondaryDrags: c.secondaryDrags.value,
+                                  primaryTargets: c.primaryTargets.value,
                                   rendererBoxFit: c.rendererBoxFit,
                                   primary: c.primary,
-                                  minimized: c.minimized,
-                                  fullscreen: c.fullscreen,
+                                  minimized: c.minimized.value,
+                                  fullscreen: c.fullscreen.value,
                                   overlayBuilder: (DragData data) {
                                     var participant = data.participant;
 
