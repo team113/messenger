@@ -39,8 +39,8 @@ class SecondaryTarget extends StatelessWidget {
     required this.doughDraggedRenderer,
     required this.primaryDrags,
     required this.secondaryAlignment,
-    required this.unfocus,
     this.onWillAccept,
+    this.onAccept,
   });
 
   /// [Size] that represents the size of this [SecondaryTarget].
@@ -51,150 +51,140 @@ class SecondaryTarget extends StatelessWidget {
   final Axis secondaryAxis;
 
   /// [Rx] participant that contains a list of [Participant] objects.
-  final RxList<Participant> secondary;
+  final List<Participant> secondary;
 
   /// [Rx] participant that contains a [Participant] object.
-  final Rx<Participant?> doughDraggedRenderer;
+  final Participant? doughDraggedRenderer;
 
   /// Count of a primary drag operations that have been performed.
-  final RxInt primaryDrags;
+  final int primaryDrags;
 
   /// [Rx] object that contains an [Alignment] object.
-  final Rx<Alignment?> secondaryAlignment;
+  final Alignment? secondaryAlignment;
 
   /// Called to determine whether this widget is interested in receiving a
   /// given piece of data being dragged over this drag target.
   final bool Function(DragData?)? onWillAccept;
 
-  /// Callback, called to remove focus from the specified [Participant].
-  final void Function(Participant) unfocus;
+  /// Called when an acceptable piece of data was dropped over this drag target.
+  final void Function(DragData)? onAccept;
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      // Pre-calculate the [ReorderableFit]'s size.
-      double panelSize = max(
-        ReorderableFit.calculateSize(
-          maxSize: size.shortestSide / 4,
-          constraints: Size(size.width, size.height - 45),
-          axis: size.width >= size.height ? Axis.horizontal : Axis.vertical,
-          length: secondary.length,
-        ),
-        130,
-      );
+    // Pre-calculate the [ReorderableFit]'s size.
+    double panelSize = max(
+      ReorderableFit.calculateSize(
+        maxSize: size.shortestSide / 4,
+        constraints: Size(size.width, size.height - 45),
+        axis: size.width >= size.height ? Axis.horizontal : Axis.vertical,
+        length: secondary.length,
+      ),
+      130,
+    );
 
-      return AnimatedOpacity(
-        key: const Key('SecondaryTargetAnimatedSwitcher'),
-        duration: 200.milliseconds,
-        opacity:
-            secondary.isEmpty && doughDraggedRenderer.value != null ? 1.0 : 0.0,
-        child: Align(
-          alignment: secondaryAxis == Axis.horizontal
-              ? Alignment.centerRight
-              : Alignment.topCenter,
-          child: SizedBox(
-            width: secondaryAxis == Axis.horizontal
-                ? panelSize / 1.6
-                : double.infinity,
-            height: secondaryAxis == Axis.horizontal
-                ? double.infinity
-                : panelSize / 1.6,
-            child: DragTarget<DragData>(
-              onWillAccept: onWillAccept,
-              onAccept: (DragData d) {
-                if (secondaryAxis == Axis.horizontal) {
-                  secondaryAlignment.value = Alignment.centerRight;
-                } else {
-                  secondaryAlignment.value = Alignment.topCenter;
-                }
-                unfocus(d.participant);
-              },
-              builder: (context, candidate, rejected) {
-                return IgnorePointer(
-                  child: AnimatedOpacity(
-                    key: const Key('SecondaryTargetAnimatedSwitcher'),
-                    duration: 200.milliseconds,
-                    opacity: primaryDrags.value >= 1 ? 1.0 : 0.0,
-                    child: Container(
-                      padding: EdgeInsets.only(
-                        left: secondaryAxis == Axis.horizontal ? 1 : 0,
-                        bottom: secondaryAxis == Axis.vertical ? 1 : 0,
+    return AnimatedOpacity(
+      key: const Key('SecondaryTargetAnimatedSwitcher'),
+      duration: 200.milliseconds,
+      opacity: secondary.isEmpty && doughDraggedRenderer != null ? 1.0 : 0.0,
+      child: Align(
+        alignment: secondaryAxis == Axis.horizontal
+            ? Alignment.centerRight
+            : Alignment.topCenter,
+        child: SizedBox(
+          width: secondaryAxis == Axis.horizontal
+              ? panelSize / 1.6
+              : double.infinity,
+          height: secondaryAxis == Axis.horizontal
+              ? double.infinity
+              : panelSize / 1.6,
+          child: DragTarget<DragData>(
+            onWillAccept: onWillAccept,
+            onAccept: onAccept,
+            builder: (context, candidate, rejected) {
+              return IgnorePointer(
+                child: AnimatedOpacity(
+                  key: const Key('SecondaryTargetAnimatedSwitcher'),
+                  duration: 200.milliseconds,
+                  opacity: primaryDrags >= 1 ? 1.0 : 0.0,
+                  child: Container(
+                    padding: EdgeInsets.only(
+                      left: secondaryAxis == Axis.horizontal ? 1 : 0,
+                      bottom: secondaryAxis == Axis.vertical ? 1 : 0,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        left: secondaryAxis == Axis.horizontal
+                            ? const BorderSide(
+                                color: Color(0xFF888888),
+                                width: 1,
+                              )
+                            : BorderSide.none,
+                        bottom: secondaryAxis == Axis.vertical
+                            ? const BorderSide(
+                                color: Color(0xFF888888),
+                                width: 1,
+                              )
+                            : BorderSide.none,
                       ),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          left: secondaryAxis == Axis.horizontal
-                              ? const BorderSide(
-                                  color: Color(0xFF888888),
-                                  width: 1,
-                                )
-                              : BorderSide.none,
-                          bottom: secondaryAxis == Axis.vertical
-                              ? const BorderSide(
-                                  color: Color(0xFF888888),
-                                  width: 1,
-                                )
-                              : BorderSide.none,
-                        ),
-                        boxShadow: const [
-                          CustomBoxShadow(
-                            color: Color(0x33000000),
-                            blurRadius: 8,
-                            blurStyle: BlurStyle.outer,
-                          )
-                        ],
-                      ),
-                      child: ConditionalBackdropFilter(
-                        child: AnimatedContainer(
-                          duration: 300.milliseconds,
-                          color: candidate.isNotEmpty
-                              ? const Color(0x10FFFFFF)
-                              : const Color(0x00FFFFFF),
-                          child: Center(
-                            child: SizedBox(
-                              width: secondaryAxis == Axis.horizontal
-                                  ? min(panelSize, 150 + 44)
-                                  : null,
-                              height: secondaryAxis == Axis.horizontal
-                                  ? null
-                                  : min(panelSize, 150 + 44),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  AnimatedScale(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.ease,
-                                    scale: candidate.isNotEmpty ? 1.06 : 1,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: const Color(0x40000000),
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: const Padding(
-                                        padding: EdgeInsets.all(10),
-                                        child: Icon(
-                                          Icons.add_rounded,
-                                          size: 35,
-                                          color: Colors.white,
-                                        ),
+                      boxShadow: const [
+                        CustomBoxShadow(
+                          color: Color(0x33000000),
+                          blurRadius: 8,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                    ),
+                    child: ConditionalBackdropFilter(
+                      child: AnimatedContainer(
+                        duration: 300.milliseconds,
+                        color: candidate.isNotEmpty
+                            ? const Color(0x10FFFFFF)
+                            : const Color(0x00FFFFFF),
+                        child: Center(
+                          child: SizedBox(
+                            width: secondaryAxis == Axis.horizontal
+                                ? min(panelSize, 150 + 44)
+                                : null,
+                            height: secondaryAxis == Axis.horizontal
+                                ? null
+                                : min(panelSize, 150 + 44),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                AnimatedScale(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.ease,
+                                  scale: candidate.isNotEmpty ? 1.06 : 1,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x40000000),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Icon(
+                                        Icons.add_rounded,
+                                        size: 35,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
-      );
-    });
+      ),
+    );
   }
 }

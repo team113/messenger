@@ -522,17 +522,30 @@ class DesktopCall extends StatelessWidget {
           ),
 
           // Empty drop zone if [secondary] is empty.
-          SecondaryTarget(
-            size: c.size,
-            primaryDrags: c.primaryDrags,
-            secondaryAxis:
-                c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical,
-            secondary: c.secondary,
-            doughDraggedRenderer: c.doughDraggedRenderer,
-            onWillAccept: (d) => d?.chatId == c.chatId.value,
-            secondaryAlignment: c.secondaryAlignment,
-            unfocus: c.unfocus,
-          ),
+          Obx(() {
+            final Axis secondaryAxis =
+                c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
+
+            return SecondaryTarget(
+              size: c.size,
+              primaryDrags: c.primaryDrags.value,
+              secondaryAxis: c.size.width >= c.size.height
+                  ? Axis.horizontal
+                  : Axis.vertical,
+              secondary: c.secondary,
+              doughDraggedRenderer: c.doughDraggedRenderer.value,
+              onWillAccept: (d) => d?.chatId == c.chatId.value,
+              secondaryAlignment: c.secondaryAlignment.value,
+              onAccept: (DragData d) {
+                if (secondaryAxis == Axis.horizontal) {
+                  c.secondaryAlignment.value = Alignment.centerRight;
+                } else {
+                  c.secondaryAlignment.value = Alignment.topCenter;
+                }
+                c.unfocus(d.participant);
+              },
+            );
+          }),
         ]);
 
         // Footer part of the call with buttons.
