@@ -129,7 +129,7 @@ extension L10nDateExtension on DateTime {
   String get e => DateFormat.E().format(this);
 
   /// Returns this [DateTime] formatted in `yMdHm` format.
-  String get yMdHm => '$yMd $hm';
+  String get yMdHm => '$yMd${'space'.l10n}$hm';
 
   /// Returns short text representing this [DateTime].
   ///

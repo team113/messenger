@@ -335,7 +335,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             'label_forwarded_messages'
                                 .l10nfmt({'count': widget.forwards.length}),
                             style: style.boldBody.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
+                              color: style.colors.secondary,
                               fontSize: 13,
                             ),
                           ),
@@ -459,7 +459,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     width: media.length * 120,
                     height: max(media.length * 60, 300),
                     child: FitView(
-                      dividerColor: Colors.transparent,
+                      dividerColor: style.colors.transparent,
                       children: media
                           .mapIndexed(
                             (i, e) => ChatItemWidget.mediaAttachment(
@@ -632,9 +632,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                ...content,
-                              ],
+                              children: content,
                             ),
                           ),
                         ),
@@ -650,7 +648,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             child: Container(
                               padding: const EdgeInsets.only(left: 4, right: 4),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.3),
+                                color: style.colors.onBackgroundOpacity27,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: MessageTimestamp(

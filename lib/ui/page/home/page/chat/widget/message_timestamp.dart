@@ -53,7 +53,7 @@ class MessageTimestamp extends StatelessWidget {
   /// meaning it should display an appropriate icon.
   final bool delivered;
 
-  /// Indicator, whether this [MessageTimestamp] should have its colors
+  /// Indicator whether this [MessageTimestamp] should have its colors
   /// inverted.
   final bool inverted;
 
@@ -84,10 +84,10 @@ class MessageTimestamp extends StatelessWidget {
                         ? Icons.error_outline
                         : Icons.done,
             color: isRead
-                ? Theme.of(context).colorScheme.secondary
+                ? style.colors.primary
                 : isError
-                    ? Colors.red
-                    : Theme.of(context).colorScheme.primary,
+                    ? style.colors.dangerColor
+                    : style.colors.secondary,
             size: 12,
             key: Key(
               isError
@@ -104,7 +104,7 @@ class MessageTimestamp extends StatelessWidget {
             date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
             style: style.systemMessageStyle.copyWith(
               fontSize: fontSize ?? 11,
-              color: inverted ? const Color(0xFFDEDEDE) : null,
+              color: inverted ? style.colors.secondaryHighlightDark : null,
             ),
           ),
         ),

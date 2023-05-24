@@ -867,12 +867,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     duration: const Duration(milliseconds: 500),
                     margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.04),
+                      color: style.colors.onBackgroundOpacity2,
                       borderRadius: style.cardRadius,
-                      border: Border.fromBorderSide(BorderSide(
-                        color: Colors.black.withOpacity(0.1),
-                        width: 0.5,
-                      )),
+                      border: Border.fromBorderSide(
+                        BorderSide(
+                          color: style.colors.onBackgroundOpacity13,
+                          width: 0.5,
+                        ),
+                      ),
                     ),
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 500),
@@ -1030,7 +1032,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ? _isRead
                             ? style.secondaryBorder
                             : Border.all(
-                                color: style.colors.primaryHighlightShiniest,
+                                color: style.readMessageColor,
                                 width: 0.5,
                               )
                         : style.primaryBorder,
@@ -1169,68 +1171,71 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       ),
     );
 
-    Widget child(bool menu) => AnimatedOpacity(
-          duration: const Duration(milliseconds: 500),
-          opacity: _isRead || !_fromMe ? 1 : 0.55,
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (!_fromMe &&
-                        widget.chat.value?.isGroup == true &&
-                        widget.avatar)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                        child: SelectionText.rich(
-                          TextSpan(
-                            text: widget.user?.user.value.name?.val ??
-                                widget.user?.user.value.num.val ??
-                                'dot'.l10n * 3,
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () =>
-                                  router.user(widget.authorId, push: true),
-                          ),
-                          selectable: PlatformUtils.isDesktop || menu,
-                          onSelecting: widget.onSelecting,
-                          onChanged: (a) => _selection = a,
-                          style: style.boldBody.copyWith(color: color),
-                        ),
-                      ),
-                    const SizedBox(height: 4),
-                    SelectionContainer.disabled(
-                      child: Text.rich(
+    // Returns the contents of the [ChatCall] render along with its timestamp.
+    Widget child(bool menu) {
+      return AnimatedOpacity(
+        duration: const Duration(milliseconds: 500),
+        opacity: _isRead || !_fromMe ? 1 : 0.55,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!_fromMe &&
+                      widget.chat.value?.isGroup == true &&
+                      widget.avatar)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                      child: SelectionText.rich(
                         TextSpan(
-                          children: [
-                            WidgetSpan(child: call),
-                            if (widget.timestamp)
-                              WidgetSpan(
-                                child: Opacity(
-                                  opacity: 0,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 4),
-                                    child: _timestamp(widget.item.value),
-                                  ),
-                                ),
-                              ),
-                          ],
+                          text: widget.user?.user.value.name?.val ??
+                              widget.user?.user.value.num.val ??
+                              'dot'.l10n * 3,
+                          recognizer: TapGestureRecognizer()
+                            ..onTap =
+                                () => router.user(widget.authorId, push: true),
                         ),
+                        selectable: PlatformUtils.isDesktop || menu,
+                        onSelecting: widget.onSelecting,
+                        onChanged: (a) => _selection = a,
+                        style: style.boldBody.copyWith(color: color),
                       ),
                     ),
-                  ],
-                ),
+                  const SizedBox(height: 4),
+                  SelectionContainer.disabled(
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          WidgetSpan(child: call),
+                          if (widget.timestamp)
+                            WidgetSpan(
+                              child: Opacity(
+                                opacity: 1,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: _timestamp(widget.item.value),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              if (widget.timestamp)
-                Positioned(
-                  right: 8,
-                  bottom: 4,
-                  child: _timestamp(widget.item.value),
-                )
-            ],
-          ),
-        );
+            ),
+            if (widget.timestamp)
+              Positioned(
+                right: 8,
+                bottom: 4,
+                child: _timestamp(widget.item.value),
+              )
+          ],
+        ),
+      );
+    }
 
     return _rounded(
       context,
@@ -1291,8 +1296,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
               color: fromMe
-                  ? Colors.white.withOpacity(0.25)
-                  : Colors.black.withOpacity(0.03),
+                  ? style.colors.onPrimaryOpacity25
+                  : style.colors.onBackgroundOpacity2,
               borderRadius: BorderRadius.circular(10),
             ),
             width: 50,
@@ -1300,7 +1305,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             child: image == null
                 ? Icon(
                     Icons.file_copy,
-                    color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                    color: fromMe
+                        ? style.colors.onPrimary
+                        : style.colors.secondaryHighlightDarkest,
                     size: 28,
                   )
                 : RetryImage(

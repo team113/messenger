@@ -476,7 +476,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_disabled = Disabled
-label_display_timestamps = Display time stamps
+label_display_timestamps = Display timestamps
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
