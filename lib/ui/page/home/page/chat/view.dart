@@ -607,7 +607,6 @@ class _ChatViewState extends State<ChatView>
           builder: (_, u) => ChatItemWidget(
             chat: c.chat!.chat,
             item: e,
-            authorId: e.value.authorId,
             me: c.me!,
             avatar: !previousSame,
             margin: EdgeInsets.only(
