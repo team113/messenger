@@ -106,7 +106,9 @@ class ChatsTabView extends StatelessWidget {
                               filled: false,
                               dense: true,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: theme.displaySmall,
+                              style: theme.labelMedium!.copyWith(
+                                fontWeight: FontWeight.normal,
+                              ),
                               onChanged: () => c.search.value!.query.value =
                                   c.search.value!.search.text,
                             ),
@@ -470,7 +472,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         element.category.name.capitalizeFirst!,
-                                        style: theme.bodyLarge,
+                                        style: theme.bodySmall!,
                                       ),
                                     ),
                                   ),
