@@ -85,11 +85,6 @@ class HomeController extends GetxController {
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
 
-  /// Indicator whether there's an ongoing [toggleMute] happening.
-  ///
-  /// Used to discard repeated toggling.
-  final RxBool _isMuting = RxBool(false);
-
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
@@ -172,19 +167,13 @@ class HomeController extends GetxController {
 
   /// Toggles [MyUser.muted] status.
   Future<void> toggleMute(bool enabled) async {
-    if (!_isMuting.value) {
-      _isMuting.value = true;
-
-      try {
-        await _myUserService.toggleMute(
-          enabled ? null : MuteDuration.forever(),
-        );
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      } finally {
-        _isMuting.value = false;
-      }
+    try {
+      await _myUserService.toggleMute(
+        enabled ? null : MuteDuration.forever(),
+      );
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 

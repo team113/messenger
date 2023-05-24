@@ -60,7 +60,10 @@ class CustomNavigationBar extends StatelessWidget {
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 150),
           opacity: selected ? 1 : 0.7,
-          child: AnimatedButton(child: child),
+          child: AnimatedButton(
+            disabled: selected,
+            child: child,
+          ),
         ),
       );
     }
@@ -122,8 +125,7 @@ class CustomNavigationBar extends StatelessWidget {
                                         vertical: 0,
                                         horizontal: 4.4,
                                       ),
-                                      alignment:
-                                          const AlignmentDirectional(21, -4),
+                                      offset: const Offset(2, -2),
                                       label: b.badge == null
                                           ? null
                                           : Transform.translate(

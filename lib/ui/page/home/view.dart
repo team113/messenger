@@ -185,8 +185,8 @@ class _HomeViewState extends State<HomeView> {
                                 key: const Key('ContactsButton'),
                                 child: SvgImage.asset(
                                   'assets/icons/contacts.svg',
-                                  width: 30,
-                                  height: 30,
+                                  width: 32,
+                                  height: 32,
                                 ),
                               ),
                               CustomNavigationBarItem(

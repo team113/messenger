@@ -26,6 +26,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -34,6 +35,14 @@ import '/domain/repository/user.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
+
+/// Quality of an avatar.
+enum AvatarQuality {
+  original,
+  big,
+  medium,
+  small,
+}
 
 /// Widget to build an [Avatar].
 ///
@@ -51,6 +60,7 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
+    this.quality = AvatarQuality.big,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -62,6 +72,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         key: key,
@@ -74,6 +85,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
@@ -85,7 +97,8 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool showBadge = true,
+    bool badge = true,
+    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -96,13 +109,15 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
     }
 
     return Obx(() {
       return AvatarWidget(
         key: key,
-        isOnline: contact.contact.value.users.length == 1 &&
+        isOnline: badge &&
+            contact.contact.value.users.length == 1 &&
             contact.user.value?.user.value.online == true,
         isAway: contact.user.value?.user.value.presence == Presence.away,
         avatar: contact.user.value?.user.value.avatar,
@@ -114,6 +129,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
     });
   }
@@ -127,6 +143,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool badge = true,
+    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         key: key,
@@ -139,6 +156,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -149,6 +167,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         key: key,
@@ -159,6 +178,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -170,6 +190,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool badge = true,
+    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -179,6 +200,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
     }
 
@@ -194,6 +216,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       ),
     );
   }
@@ -209,6 +232,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         key: key,
@@ -219,6 +243,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified [RxChat].
@@ -229,6 +254,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -237,6 +263,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
     }
 
@@ -254,6 +281,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
     });
   }
@@ -306,6 +334,9 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
+  /// [AvatarQuality] of the [avatar].
+  final AvatarQuality quality;
+
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
     if (radius == null && minRadius == null && maxRadius == null) {
@@ -355,6 +386,26 @@ class AvatarWidget extends StatelessWidget {
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
       final double badgeSize = maxWidth >= 40 ? maxWidth / 10 : maxWidth / 7.5;
+
+      final StorageFile? file;
+
+      switch (quality) {
+        case AvatarQuality.original:
+          file = avatar?.original;
+          break;
+
+        case AvatarQuality.big:
+          file = avatar?.big;
+          break;
+
+        case AvatarQuality.medium:
+          file = avatar?.medium;
+          break;
+
+        case AvatarQuality.small:
+          file = avatar?.small;
+          break;
+      }
 
       return badges.Badge(
         showBadge: isOnline,
@@ -413,8 +464,8 @@ class AvatarWidget extends StatelessWidget {
               Positioned.fill(
                 child: ClipOval(
                   child: RetryImage(
-                    avatar!.original.url,
-                    checksum: avatar!.original.checksum,
+                    file?.url ?? avatar!.original.url,
+                    checksum: file?.checksum ?? avatar!.original.checksum,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,

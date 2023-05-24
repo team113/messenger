@@ -126,6 +126,7 @@ class MyProfileView extends StatelessWidget {
                                     key: c.avatarKey,
                                     radius: 100,
                                     badge: false,
+                                    quality: AvatarQuality.original,
                                   ),
                                 ),
                                 Positioned.fill(

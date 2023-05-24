@@ -61,16 +61,22 @@ class _AnimatedButtonState extends State<AnimatedButton>
       return MouseRegion(
         opaque: false,
         onEnter: (_) {
-          setState(() => _hovered = true);
+          if (!widget.disabled) {
+            setState(() => _hovered = true);
+          }
         },
         onExit: (_) {
-          setState(() => _hovered = false);
+          if (!widget.disabled) {
+            setState(() => _hovered = false);
+          }
         },
         child: Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (_) {
-            _controller.reset();
-            _controller.forward();
+            if (!widget.disabled) {
+              _controller.reset();
+              _controller.forward();
+            }
           },
           child: AnimatedScale(
             duration: const Duration(milliseconds: 100),
