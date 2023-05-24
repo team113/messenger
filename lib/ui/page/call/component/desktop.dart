@@ -831,9 +831,9 @@ class DesktopCall extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
-                      boxShadow: const [
+                      boxShadow: [
                         CustomBoxShadow(
-                          color: Color(0x33000000),
+                          color: style.colors.onBackgroundOpacity20,
                           blurRadius: 8,
                           blurStyle: BlurStyle.outer,
                         )
@@ -848,7 +848,7 @@ class DesktopCall extends StatelessWidget {
                       ),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0x301D6AAE),
+                          color: style.colors.onSecondaryOpacity20,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         padding: const EdgeInsets.symmetric(
@@ -859,7 +859,7 @@ class DesktopCall extends StatelessWidget {
                           'label_call_title'.l10nfmt(c.titleArguments),
                           style: context.textTheme.bodyLarge?.copyWith(
                             fontSize: 13,
-                            color: const Color(0xFFFFFFFF),
+                            color: style.colors.onPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),

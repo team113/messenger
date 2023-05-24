@@ -278,7 +278,7 @@ class MobileCall extends StatelessWidget {
                     child: Container(
                       width: double.infinity,
                       height: double.infinity,
-                      color: const Color(0x70000000),
+                      color: style.colors.onBackgroundOpacity50,
                     ),
                   );
                 }
@@ -348,13 +348,13 @@ class MobileCall extends StatelessWidget {
               ),
 
               if (isOutgoing)
-                const Padding(
-                  padding: EdgeInsets.all(21.0),
+                Padding(
+                  padding: const EdgeInsets.all(21.0),
                   child: Center(
                     child: SpinKitDoubleBounce(
-                      color: Color(0xFFEEEEEE),
+                      color: style.colors.secondaryHighlight,
                       size: 66,
-                      duration: Duration(milliseconds: 4500),
+                      duration: const Duration(milliseconds: 4500),
                     ),
                   ),
                 ),

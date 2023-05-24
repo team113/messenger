@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/routes.dart';
 import '/themes.dart';
 
 /// Animated minimizable draggable [Widget] controlled by a [GestureDetector].
@@ -97,11 +98,14 @@ class _MinimizableViewState extends State<MinimizableView>
     begin: const BoxDecoration(borderRadius: BorderRadius.zero),
     end: BoxDecoration(
       borderRadius: BorderRadius.circular(10.0),
-      boxShadow: const <BoxShadow>[
+      boxShadow: <BoxShadow>[
         CustomBoxShadow(
-          color: Color(0x66666666),
+          color: Theme.of(router.context!)
+              .extension<Style>()!
+              .colors
+              .onBackgroundOpacity40,
           blurRadius: 10.0,
-          offset: Offset(0, 0),
+          offset: const Offset(0, 0),
         )
       ],
     ),
