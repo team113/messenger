@@ -173,12 +173,16 @@ class MessageFieldController extends GetxController {
 
   final GlobalKey globalKey = GlobalKey();
   late final RxList<ChatButton> panel = RxList([
-    AttachmentButton(this),
-    // AudioMessageButton(this),
-    // VideoMessageButton(this),
-    ContactButton(this),
+    if (PlatformUtils.isMobile /*&& !PlatformUtils.isWeb*/) ...[
+      TakePhotoButton(this),
+      if (PlatformUtils.isAndroid) TakeVideoButton(this),
+      GalleryButton(this),
+      FileButton(this),
+    ] else
+      AttachmentButton(this),
+    AudioMessageButton(this),
+    VideoMessageButton(this),
     DonateButton(this),
-    GeopositionButton(this),
   ]);
 
   final RxList<ChatButton> buttons = RxList([]);

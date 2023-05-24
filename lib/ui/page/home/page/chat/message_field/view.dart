@@ -536,9 +536,9 @@ class MessageFieldView extends StatelessWidget {
                 height: 56,
                 child: Center(
                   child: SvgImage.asset(
-                    'assets/icons/chat_more.svg',
-                    height: 18,
-                    width: 18,
+                    'assets/icons/chat_more1.svg',
+                    height: 20,
+                    width: 20,
                   ),
                   // child: SvgImage.asset(
                   //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
@@ -595,18 +595,24 @@ class MessageFieldView extends StatelessWidget {
                     onPressed: e.onPressed,
                     child: SizedBox(
                       // color: Colors.red,
-                      width: 36,
+                      width: 36 + 4,
                       height: 56,
                       child: Center(
                         child: e.icon == null
-                            ? SvgImage.asset(
-                                'assets/icons/chat_more.svg',
-                                height: 18,
-                                width: 18,
+                            ? Transform.translate(
+                                offset: e.offset,
+                                child: Container(
+                                  // color: Colors.red,
+                                  child: SvgImage.asset(
+                                    'assets/icons/${e.asset}.svg',
+                                    width: e.assetWidth,
+                                    height: e.assetHeight,
+                                  ),
+                                ),
                               )
                             : Icon(
                                 e.icon,
-                                size: 26,
+                                size: 28,
                                 color: style.colors.primary,
                               ),
                         // child: SvgImage.asset(
@@ -644,12 +650,23 @@ class MessageFieldView extends StatelessWidget {
                                 width: 26,
                                 height: 22,
                               )
-                            : c.field.isEmpty.value
-                                ? Icon(
-                                    Icons.mic,
-                                    color: style.colors.primary,
-                                    size: 28,
+                            : c.field.isEmpty.value && false
+                                ? Container(
+                                    // color: Colors.red,
+                                    width: 18.87,
+                                    height: 23.8,
+                                    child: SvgImage.asset(
+                                      'assets/icons/audio_message2.svg',
+                                      key: sendKey ?? const Key('Send'),
+                                      // height: 18.87,
+                                      width: 23.8,
+                                    ),
                                   )
+                                // ? Icon(
+                                //     Icons.mic,
+                                //     color: style.colors.primary,
+                                //     size: 28,
+                                //   )
                                 // ? SvgImage.asset(
                                 //     'assets/icons/microphone_on.svg',
                                 //     key: sendKey ?? const Key('Send'),

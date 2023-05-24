@@ -54,15 +54,15 @@ class MessageFieldOverlay extends StatelessWidget {
           }),
         );
 
-        if (i != c.panel.length - 1) {
-          widgets.add(
-            Container(
-              height: 0.5,
-              width: double.infinity,
-              color: style.colors.onBackgroundOpacity7,
-            ),
-          );
-        }
+        // if (i != c.panel.length - 1) {
+        //   widgets.add(
+        //     Container(
+        //       height: 0.5,
+        //       width: double.infinity,
+        //       color: style.colors.onBackgroundOpacity7,
+        //     ),
+        //   );
+        // }
       }
 
       final Widget actions = Column(
@@ -158,10 +158,21 @@ class _MenuButtonState extends State<_MenuButton> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(width: 16),
-              Icon(
-                widget.button.icon ?? Icons.attach_email,
-                size: 24,
-                color: style.colors.primary,
+              SizedBox(
+                width: 26,
+                child: (widget.button.icon == null)
+                    ? SvgImage.asset(
+                        'assets/icons/${widget.button.assetMini ?? widget.button.asset}.svg',
+                        width: widget.button.assetMiniWidth ??
+                            widget.button.assetWidth,
+                        height: widget.button.assetMiniHeight ??
+                            widget.button.assetHeight,
+                      )
+                    : Icon(
+                        widget.button.icon ?? Icons.attach_email,
+                        size: 28,
+                        color: style.colors.primary,
+                      ),
               ),
               // SvgImage.asset(
               //   'assets/icons/${e.asset}.svg',
@@ -174,7 +185,7 @@ class _MenuButtonState extends State<_MenuButton> {
                 child: Text(
                   widget.button.hint,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 17,
                     color: style.colors.primary,
                   ),
                 ),
@@ -190,14 +201,14 @@ class _MenuButtonState extends State<_MenuButton> {
                   child: Center(
                     child: widget.pinned
                         ? SvgImage.asset(
-                            'assets/icons/unpin3.svg',
-                            width: 16.5,
-                            height: 17.17,
+                            'assets/icons/unpin4.svg',
+                            width: 15.5,
+                            height: 17,
                           )
                         : SvgImage.asset(
-                            'assets/icons/pin1.svg',
-                            width: 9.56,
-                            height: 16.85,
+                            'assets/icons/pin2.svg',
+                            width: 9.65,
+                            height: 17,
                           ),
                   ),
                 ),

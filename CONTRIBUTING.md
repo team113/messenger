@@ -199,6 +199,51 @@ __DO__ document your code. Documentation must follow [Effective Dart] official r
 - prefer omitting leading `A`, `An` or `The` article as it is mostly meaningless.
 
 
+### Prefer code blocks over arrow functions
+
+Arrow function notation (`bool get indicator => true`) is great for one-lines. However, when the code is complex enough, this notation adds meaningless leading tabs, makes code harder to read since the tab flow is broken and disallows sometimes handy declarations within the function.
+
+#### 🚫 Wrong
+```dart
+Widget builder(BuildContext context) => LayoutBuilder(
+      builder: (context, constraints) {
+        return Scaffold(
+          body: SizedBox(
+            width: constraints.maxWidth / 2,
+            child: const Center(
+              child: Text('Hello, world!'),
+            ),
+          ),
+        );
+      },
+    );
+```
+
+#### 👍 Correct
+```dart
+Widget builder(BuildContext context) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      return Scaffold(
+        body: SizedBox(
+          width: constraints.maxWidth / 2,
+          child: const Center(
+            child: Text('Hello, world!'),
+          ),
+        ),
+      );
+    },
+  );
+}
+```
+
+#### 👍 Correct
+```dart
+Widget builder(BuildContext context) => Text('Hello, world!');
+```
+
+
+
 ### 80 characters line width limit
 
 __DO__ limit your code and documentation with 80 characters line width.

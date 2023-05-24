@@ -473,7 +473,7 @@ class TextFieldState extends ReactiveFieldState {
 
       if (onChanged != null) {
         if (controller.text != _previousText &&
-            (_previousText != null || controller.text.isNotEmpty)) {
+            (_previousText.isNotEmpty || controller.text.isNotEmpty)) {
           isEmpty.value = controller.text.isEmpty;
           if (!this.focus.hasFocus) {
             onChanged?.call(this);
@@ -525,7 +525,7 @@ class TextFieldState extends ReactiveFieldState {
 
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified on any [focus] change.
-  String? _previousText;
+  String _previousText = '';
 
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified since the last [submit] action.
@@ -587,7 +587,7 @@ class TextFieldState extends ReactiveFieldState {
     isEmpty.value = true;
     controller.text = '';
     error.value = null;
-    _previousText = null;
+    _previousText = '';
     _previousSubmit = null;
     changed.value = false;
     _debounceTimer?.cancel();
