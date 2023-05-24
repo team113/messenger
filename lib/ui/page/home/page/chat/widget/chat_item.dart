@@ -1185,7 +1185,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 children: [
                   if (!_fromMe &&
                       widget.chat.value?.isGroup == true &&
-                      widget.avatar)
+                      widget.avatar) ...[
                     Padding(
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: SelectionText.rich(
@@ -1203,7 +1203,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         style: style.boldBody.copyWith(color: color),
                       ),
                     ),
-                  const SizedBox(height: 4),
+                    const SizedBox(height: 4),
+                  ],
                   SelectionContainer.disabled(
                     child: Text.rich(
                       TextSpan(
