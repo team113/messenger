@@ -947,227 +947,232 @@ class DesktopCall extends StatelessWidget {
                     .addPostFrameCallback((_) => c.relocateSecondary());
               });
 
-              return SecondaryView(
-                secondary: c.secondary,
-                secondaryAlignment: c.secondaryAlignment,
-                secondaryLeft: c.secondaryLeft,
-                secondaryTop: c.secondaryTop,
-                secondaryRight: c.secondaryRight,
-                secondaryBottom: c.secondaryBottom,
-                secondaryWidth: c.secondaryWidth,
-                secondaryHeight: c.secondaryHeight,
-                size: c.size,
-                focusAll: () => c.focusAll(),
-                onDragEnded: (DragData d) {
-                  c.secondaryDrags.value = 0;
-                  c.draggedRenderer.value = null;
-                  c.doughDraggedRenderer.value = null;
-                  c.hoveredRenderer.value = d.participant;
-                  c.hoveredRendererTimeout = 5;
-                  c.isCursorHidden.value = false;
-                },
-                resizeSecondary: c.resizeSecondary,
-                updateSecondaryAttach: () => c.updateSecondaryAttach(),
-                draggedRenderer: c.draggedRenderer.value,
-                onAdded: (d, i) => c.unfocus(d.participant),
-                onWillAccept: (d) {
-                  if (d?.chatId == c.chatId.value) {
-                    c.secondaryTargets.value = 1;
-                    return true;
-                  }
+              return Obx(
+                () => SecondaryView(
+                  secondary: c.secondary,
+                  secondaryAlignment: c.secondaryAlignment.value,
+                  secondaryLeft: c.secondaryLeft.value,
+                  secondaryTop: c.secondaryTop.value,
+                  secondaryRight: c.secondaryRight.value,
+                  secondaryBottom: c.secondaryBottom.value,
+                  secondaryWidth: c.secondaryWidth.value,
+                  secondaryHeight: c.secondaryHeight.value,
+                  size: c.size,
+                  focusAll: () => c.focusAll(),
+                  onDragEnded: (DragData d) {
+                    c.secondaryDrags.value = 0;
+                    c.draggedRenderer.value = null;
+                    c.doughDraggedRenderer.value = null;
+                    c.hoveredRenderer.value = d.participant;
+                    c.hoveredRendererTimeout = 5;
+                    c.isCursorHidden.value = false;
+                  },
+                  resizeSecondary: c.resizeSecondary,
+                  updateSecondaryAttach: () => c.updateSecondaryAttach(),
+                  draggedRenderer: c.draggedRenderer.value,
+                  onAdded: (d, i) => c.unfocus(d.participant),
+                  onWillAccept: (d) {
+                    if (d?.chatId == c.chatId.value) {
+                      c.secondaryTargets.value = 1;
+                      return true;
+                    }
 
-                  return false;
-                },
-                onLeave: (b) => c.secondaryTargets.value = 0,
-                onDragStarted: (r) {
-                  c.draggedRenderer.value = r.participant;
-                  c.showDragAndDropVideosHint = false;
-                  c.secondaryDrags.value = 1;
-                  c.displayMore.value = false;
-                  c.keepUi(false);
-                },
-                onDoughBreak: (r) =>
-                    c.doughDraggedRenderer.value = r.participant,
-                onOffset: () {
-                  if (c.minimized.value && !c.fullscreen.value) {
-                    return Offset(-c.left.value, -c.top.value - 30);
-                  } else if (!WebUtils.isPopup) {
-                    return const Offset(0, -30);
-                  }
+                    return false;
+                  },
+                  onLeave: (b) => c.secondaryTargets.value = 0,
+                  onDragStarted: (r) {
+                    c.draggedRenderer.value = r.participant;
+                    c.showDragAndDropVideosHint = false;
+                    c.secondaryDrags.value = 1;
+                    c.displayMore.value = false;
+                    c.keepUi(false);
+                  },
+                  onDoughBreak: (r) =>
+                      c.doughDraggedRenderer.value = r.participant,
+                  onOffset: () {
+                    if (c.minimized.value && !c.fullscreen.value) {
+                      return Offset(-c.left.value, -c.top.value - 30);
+                    } else if (!WebUtils.isPopup) {
+                      return const Offset(0, -30);
+                    }
 
-                  return Offset.zero;
-                },
-                itemConstraintsSize:
-                    (c.size.longestSide * 0.33).clamp(100, 250),
-                chatId: c.chatId,
-                secondaryKey: c.secondaryKey,
-                isAnyDrag:
-                    c.secondaryDrags.value != 0 || c.primaryDrags.value != 0,
-                onPanStart: (d) {
-                  c.secondaryBottomShifted = null;
-                  c.secondaryDragged.value = true;
-                  c.displayMore.value = false;
-                  c.keepUi(false);
+                    return Offset.zero;
+                  },
+                  itemConstraintsSize:
+                      (c.size.longestSide * 0.33).clamp(100, 250),
+                  chatId: c.chatId.value,
+                  secondaryKey: c.secondaryKey,
+                  isAnyDrag:
+                      c.secondaryDrags.value != 0 || c.primaryDrags.value != 0,
+                  onPanStart: (d) {
+                    c.secondaryBottomShifted = null;
+                    c.secondaryDragged.value = true;
+                    c.displayMore.value = false;
+                    c.keepUi(false);
 
-                  c.calculateSecondaryPanning(d.globalPosition);
+                    c.calculateSecondaryPanning(d.globalPosition);
 
-                  if (c.secondaryAlignment.value != null) {
-                    c.secondaryAlignment.value = null;
+                    if (c.secondaryAlignment.value != null) {
+                      c.secondaryAlignment.value = null;
+                      c.updateSecondaryOffset(d.globalPosition);
+                    } else {
+                      c.secondaryLeft.value ??= c.size.width -
+                          c.secondaryWidth.value -
+                          (c.secondaryRight.value ?? 0);
+                      c.secondaryTop.value ??= c.size.height -
+                          c.secondaryHeight.value -
+                          (c.secondaryBottom.value ?? 0);
+                      c.applySecondaryConstraints();
+                    }
+
+                    c.secondaryRight.value = null;
+                    c.secondaryBottom.value = null;
+                  },
+                  onPanUpdate: (d) {
                     c.updateSecondaryOffset(d.globalPosition);
-                  } else {
-                    c.secondaryLeft.value ??= c.size.width -
-                        c.secondaryWidth.value -
-                        (c.secondaryRight.value ?? 0);
-                    c.secondaryTop.value ??= c.size.height -
-                        c.secondaryHeight.value -
-                        (c.secondaryBottom.value ?? 0);
                     c.applySecondaryConstraints();
-                  }
+                  },
+                  onPanEnd: (d) {
+                    c.secondaryDragged.value = false;
+                    if (c.possibleSecondaryAlignment.value != null) {
+                      c.secondaryAlignment.value =
+                          c.possibleSecondaryAlignment.value;
+                      c.possibleSecondaryAlignment.value = null;
+                      c.applySecondaryConstraints();
+                    } else {
+                      c.updateSecondaryAttach();
+                    }
+                  },
+                  secondaryHovered: c.secondaryHovered.value,
+                  minimized: c.minimized.value,
+                  fullscreen: c.fullscreen.value,
+                  primaryDrags: c.primaryDrags.value,
+                  secondaryTargets: c.secondaryTargets.value,
+                  itemBuilder: (DragData data) {
+                    return ParticipantWidget(
+                      data.participant,
+                      key: ObjectKey(data.participant),
+                      offstageUntilDetermined: true,
+                      respectAspectRatio: true,
+                      borderRadius: BorderRadius.zero,
+                    );
+                  },
+                  overlayBuilder: (DragData data) {
+                    var participant = data.participant;
 
-                  c.secondaryRight.value = null;
-                  c.secondaryBottom.value = null;
-                },
-                onPanUpdate: (d) {
-                  c.updateSecondaryOffset(d.globalPosition);
-                  c.applySecondaryConstraints();
-                },
-                onPanEnd: (d) {
-                  c.secondaryDragged.value = false;
-                  if (c.possibleSecondaryAlignment.value != null) {
-                    c.secondaryAlignment.value =
-                        c.possibleSecondaryAlignment.value;
-                    c.possibleSecondaryAlignment.value = null;
-                    c.applySecondaryConstraints();
-                  } else {
-                    c.updateSecondaryAttach();
-                  }
-                },
-                secondaryHovered: c.secondaryHovered,
-                minimized: c.minimized,
-                fullscreen: c.fullscreen,
-                primaryDrags: c.primaryDrags,
-                secondaryTargets: c.secondaryTargets,
-                itemBuilder: (DragData data) {
-                  return ParticipantWidget(
-                    data.participant,
-                    key: ObjectKey(data.participant),
-                    offstageUntilDetermined: true,
-                    respectAspectRatio: true,
-                    borderRadius: BorderRadius.zero,
-                  );
-                },
-                overlayBuilder: (DragData data) {
-                  var participant = data.participant;
+                    return Obx(() {
+                      bool? muted =
+                          participant.member.owner == MediaOwnerKind.local
+                              ? !c.audioState.value.isEnabled
+                              : null;
 
-                  return Obx(() {
-                    bool? muted =
-                        participant.member.owner == MediaOwnerKind.local
-                            ? !c.audioState.value.isEnabled
-                            : null;
+                      bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                          c.primaryDrags.value != 0 ||
+                          c.secondaryDragged.value;
 
-                    bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-                        c.primaryDrags.value != 0 ||
-                        c.secondaryDragged.value;
+                      bool isHovered = c.hoveredRenderer.value == participant &&
+                          !anyDragIsHappening;
 
-                    bool isHovered = c.hoveredRenderer.value == participant &&
-                        !anyDragIsHappening;
-
-                    return MouseRegion(
-                      opaque: false,
-                      onEnter: (d) {
-                        if (c.draggedRenderer.value == null) {
-                          c.hoveredRenderer.value = data.participant;
-                          c.hoveredRendererTimeout = 5;
+                      return MouseRegion(
+                        opaque: false,
+                        onEnter: (d) {
+                          if (c.draggedRenderer.value == null) {
+                            c.hoveredRenderer.value = data.participant;
+                            c.hoveredRendererTimeout = 5;
+                            c.isCursorHidden.value = false;
+                          }
+                        },
+                        onHover: (d) {
+                          if (c.draggedRenderer.value == null) {
+                            c.hoveredRenderer.value = data.participant;
+                            c.hoveredRendererTimeout = 5;
+                            c.isCursorHidden.value = false;
+                          }
+                        },
+                        onExit: (d) {
+                          c.hoveredRendererTimeout = 0;
+                          c.hoveredRenderer.value = null;
                           c.isCursorHidden.value = false;
-                        }
-                      },
-                      onHover: (d) {
-                        if (c.draggedRenderer.value == null) {
-                          c.hoveredRenderer.value = data.participant;
-                          c.hoveredRendererTimeout = 5;
-                          c.isCursorHidden.value = false;
-                        }
-                      },
-                      onExit: (d) {
-                        c.hoveredRendererTimeout = 0;
-                        c.hoveredRenderer.value = null;
-                        c.isCursorHidden.value = false;
-                      },
-                      child: AnimatedOpacity(
-                        duration: 200.milliseconds,
-                        opacity: c.draggedRenderer.value == data.participant
-                            ? 0.0
-                            : 1.0,
-                        child: ContextMenuRegion(
-                          key: ObjectKey(participant),
-                          preventContextMenu: true,
-                          actions: [
-                            ContextMenuButton(
-                              label: 'btn_call_center'.l10n,
-                              onPressed: () => c.center(participant),
-                            ),
-                            if (participant.member.id != c.me.id) ...[
-                              if (participant.video.value?.direction.value
-                                      .isEmitting ??
-                                  false)
-                                ContextMenuButton(
-                                  label:
-                                      participant.video.value?.renderer.value !=
-                                              null
-                                          ? 'btn_call_disable_video'.l10n
-                                          : 'btn_call_enable_video'.l10n,
-                                  onPressed: () =>
-                                      c.toggleVideoEnabled(participant),
-                                ),
-                              if (participant.audio.value?.direction.value
-                                      .isEmitting ??
-                                  false)
-                                ContextMenuButton(
-                                  label: (participant.audio.value?.direction
-                                              .value.isEnabled ==
-                                          true)
-                                      ? 'btn_call_disable_audio'.l10n
-                                      : 'btn_call_enable_audio'.l10n,
-                                  onPressed: () =>
-                                      c.toggleAudioEnabled(participant),
-                                ),
-                              if (participant.member.isRedialing.isFalse)
-                                ContextMenuButton(
-                                  label: 'btn_call_remove_participant'.l10n,
-                                  onPressed: () => c.removeChatCallMember(
-                                    participant.member.id.userId,
+                        },
+                        child: AnimatedOpacity(
+                          duration: 200.milliseconds,
+                          opacity: c.draggedRenderer.value == data.participant
+                              ? 0.0
+                              : 1.0,
+                          child: ContextMenuRegion(
+                            key: ObjectKey(participant),
+                            preventContextMenu: true,
+                            actions: [
+                              ContextMenuButton(
+                                label: 'btn_call_center'.l10n,
+                                onPressed: () => c.center(participant),
+                              ),
+                              if (participant.member.id != c.me.id) ...[
+                                if (participant.video.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: participant
+                                                .video.value?.renderer.value !=
+                                            null
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
                                   ),
+                                if (participant.audio.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: (participant.audio.value?.direction
+                                                .value.isEnabled ==
+                                            true)
+                                        ? 'btn_call_disable_audio'.l10n
+                                        : 'btn_call_enable_audio'.l10n,
+                                    onPressed: () =>
+                                        c.toggleAudioEnabled(participant),
+                                  ),
+                                if (participant.member.isRedialing.isFalse)
+                                  ContextMenuButton(
+                                    label: 'btn_call_remove_participant'.l10n,
+                                    onPressed: () => c.removeChatCallMember(
+                                      participant.member.id.userId,
+                                    ),
+                                  ),
+                              ] else ...[
+                                ContextMenuButton(
+                                  label: c.videoState.value.isEnabled
+                                      ? 'btn_call_video_off'.l10n
+                                      : 'btn_call_video_on'.l10n,
+                                  onPressed: () => c.toggleVideo(),
                                 ),
-                            ] else ...[
-                              ContextMenuButton(
-                                label: c.videoState.value.isEnabled
-                                    ? 'btn_call_video_off'.l10n
-                                    : 'btn_call_video_on'.l10n,
-                                onPressed: () => c.toggleVideo(),
-                              ),
-                              ContextMenuButton(
-                                label: c.audioState.value.isEnabled
-                                    ? 'btn_call_audio_off'.l10n
-                                    : 'btn_call_audio_on'.l10n,
-                                onPressed: () => c.toggleAudio(),
-                              ),
+                                ContextMenuButton(
+                                  label: c.audioState.value.isEnabled
+                                      ? 'btn_call_audio_off'.l10n
+                                      : 'btn_call_audio_on'.l10n,
+                                  onPressed: () => c.toggleAudio(),
+                                ),
+                              ],
                             ],
-                          ],
-                          child: IgnorePointer(
-                            child: ParticipantOverlayWidget(
-                              participant,
-                              key: ObjectKey(participant),
-                              muted: muted,
-                              hovered: isHovered,
-                              preferBackdrop:
-                                  !c.minimized.value || c.fullscreen.value,
+                            child: IgnorePointer(
+                              child: ParticipantOverlayWidget(
+                                participant,
+                                key: ObjectKey(participant),
+                                muted: muted,
+                                hovered: isHovered,
+                                preferBackdrop:
+                                    !c.minimized.value || c.fullscreen.value,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  });
-                },
+                      );
+                    });
+                  },
+                  onEnter: (p) => c.secondaryHovered.value = true,
+                  onHover: (p) => c.secondaryHovered.value = true,
+                  onExit: (p) => c.secondaryHovered.value = false,
+                ),
               );
             });
           }),
