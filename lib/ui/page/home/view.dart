@@ -20,8 +20,11 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -35,15 +38,12 @@ import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
-import 'tab/chats/more/view.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
-import 'tab/menu/status/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
-import 'widget/rmb_detector.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
@@ -215,11 +215,29 @@ class _HomeViewState extends State<HomeView> {
                                 badgeColor: c.myUser.value?.muted != null
                                     ? style.colors.secondaryHighlightDarkest
                                     : style.colors.dangerColor,
-                                child: RmbDetector(
-                                  onPressed: () {
-                                    HapticFeedback.lightImpact();
-                                    ChatsMoreView.show(context);
-                                  },
+                                child: ContextMenuRegion(
+                                  selector: c.chatsKey,
+                                  alignment: Alignment.bottomCenter,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 0,
+                                  ),
+                                  actions: [
+                                    if (c.myUser.value?.muted != null)
+                                      ContextMenuButton(
+                                        label: 'btn_unmute_chats'.l10n,
+                                        onPressed: () {
+                                          c.toggleMute(true);
+                                        },
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        label: 'btn_mute_chats'.l10n,
+                                        onPressed: () {
+                                          c.toggleMute(false);
+                                        },
+                                      ),
+                                  ],
                                   child: tab(
                                     tab: HomeTab.chats,
                                     child: Obx(() {
@@ -251,11 +269,45 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('MenuButton'),
-                                child: RmbDetector(
-                                  onPressed: () {
-                                    HapticFeedback.lightImpact();
-                                    StatusView.show(context);
-                                  },
+                                child: ContextMenuRegion(
+                                  selector: c.profileKey,
+                                  alignment: Alignment.bottomRight,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 0,
+                                  ),
+                                  actions: [
+                                    ContextMenuButton(
+                                      label: 'label_presence_present'.l10n,
+                                      onPressed: () {
+                                        c.setPresence(Presence.present);
+                                      },
+                                      showTrailing: true,
+                                      trailing: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    ),
+                                    ContextMenuButton(
+                                      label: 'label_presence_away'.l10n,
+                                      onPressed: () {
+                                        c.setPresence(Presence.away);
+                                      },
+                                      showTrailing: true,
+                                      trailing: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                   child: Padding(
                                     key: c.profileKey,
                                     padding: const EdgeInsets.only(bottom: 2),

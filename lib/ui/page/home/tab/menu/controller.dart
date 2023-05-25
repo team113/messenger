@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart' show Presence;
 
 import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
@@ -34,6 +35,9 @@ class MenuTabController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [GlobalKey]
+  final GlobalKey profileKey = GlobalKey();
 
   /// [AuthService] used in a [logout].
   final AuthService _authService;
@@ -58,4 +62,8 @@ class MenuTabController extends GetxController {
 
   /// Logs out the current session and go to the [Routes.auth] page.
   Future<String> logout() => _authService.logout();
+
+  /// Sets the [MyUser.presence] to the provided value.
+  Future<void> setPresence(Presence presence) =>
+      _myUserService.updateUserPresence(presence);
 }

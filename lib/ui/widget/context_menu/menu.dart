@@ -111,6 +111,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     required this.label,
     this.leading,
     this.trailing,
+    this.showTrailing = false,
     this.onPressed,
   }) : super(key: key);
 
@@ -122,6 +123,11 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
 
   /// Optional trailing widget.
   final Widget? trailing;
+
+  /// Indicator whether the [trailing] should be showed.
+  ///
+  /// [trailing] always showed on mobile device
+  final bool showTrailing;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
@@ -187,7 +193,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (PlatformUtils.isMobile && widget.trailing != null) ...[
+              if ((PlatformUtils.isMobile || widget.showTrailing) &&
+                  widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),
                 Theme(
