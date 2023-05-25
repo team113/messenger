@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '/domain/model/chat.dart';
@@ -48,10 +47,10 @@ class RenderAsChatInfo extends StatelessWidget {
   });
 
   /// Reactive value of a [Chat] this [item] is posted in.
-  final Rx<Chat?> chat;
+  final Chat? chat;
 
   /// Reactive value of a [ChatItem] to display.
-  final Rx<ChatItem> item;
+  final ChatItem item;
 
   /// [User] posted this [item].
   final RxUser? rxUser;
@@ -74,7 +73,7 @@ class RenderAsChatInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    final ChatInfo message = item.value as ChatInfo;
+    final ChatInfo message = item as ChatInfo;
 
     final Widget content;
 
@@ -87,7 +86,7 @@ class RenderAsChatInfo extends StatelessWidget {
         future: getUser?.call(id),
         builder: (context, snapshot) {
           if (snapshot.data != null) {
-            return Obx(() => builder(context, snapshot.data!.user.value));
+            return builder(context, snapshot.data!.user.value);
           }
 
           return builder(context, null);
@@ -97,7 +96,7 @@ class RenderAsChatInfo extends StatelessWidget {
 
     switch (message.action.kind) {
       case ChatInfoActionKind.created:
-        if (chat.value?.isGroup == true) {
+        if (chat?.isGroup == true) {
           content = userBuilder(message.authorId, (context, user) {
             if (user != null) {
               final Map<String, dynamic> args = {
@@ -128,7 +127,7 @@ class RenderAsChatInfo extends StatelessWidget {
 
             return Text('label_group_created'.l10n);
           });
-        } else if (chat.value?.isMonolog == true) {
+        } else if (chat?.isMonolog == true) {
           content = Text('label_monolog_created'.l10n);
         } else {
           content = Text('label_dialog_created'.l10n);
@@ -349,7 +348,7 @@ class RenderAsChatInfo extends StatelessWidget {
         break;
     }
 
-    final bool isSent = item.value.status.value == SendingStatus.sent;
+    final bool isSent = item.status.value == SendingStatus.sent;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -359,7 +358,7 @@ class RenderAsChatInfo extends StatelessWidget {
         isSent: isSent && fromMe,
         isDelivered: isSent &&
             fromMe &&
-            chat.value?.lastDelivery.isBefore(message.at) == false,
+            chat?.lastDelivery.isBefore(message.at) == false,
         isRead: isSent && (!fromMe || isRead),
         isError: message.status.value == SendingStatus.error,
         isSending: message.status.value == SendingStatus.sending,

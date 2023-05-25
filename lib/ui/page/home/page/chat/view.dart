@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '../../../../../domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/repository/user.dart';
@@ -74,6 +75,22 @@ class _ChatViewState extends State<ChatView>
     with SingleTickerProviderStateMixin {
   /// [AnimationController] of [SwipeableStatus]es.
   late final AnimationController _animation;
+
+  /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
+  /// corresponding [Widget].
+  final List<GlobalKey> _galleryKeys = [];
+
+  /// [TextSpan] of the [ChatItemWidget.item] to display as a text of this
+  /// [ChatItemWidget].
+  TextSpan? _text;
+
+  /// [Worker] reacting on the [ChatItemWidget.item] changes updating the
+  /// [_text] and [_galleryKeys].
+  Worker? _worker;
+
+  /// [TapGestureRecognizer]s for tapping on the [SelectionText.rich] spans, if
+  /// any.
+  final List<TapGestureRecognizer> _recognizers = [];
 
   @override
   void initState() {
@@ -607,63 +624,139 @@ class _ChatViewState extends State<ChatView>
       }
 
       return Padding(
-        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
-        child: FutureBuilder<RxUser?>(
-          future: c.getUser(e.value.authorId),
-          builder: (_, u) => ChatItemWidget(
-            chat: c.chat!.chat,
-            item: e,
-            me: c.me!,
-            avatar: !previousSame,
-            margin: EdgeInsets.only(
-              top: previousSame ? 1.5 : 6,
-              bottom: nextSame ? 1.5 : 6,
-            ),
-            loadImages: c.settings.value?.loadImages != false,
-            reads: c.chat!.members.length > 10
-                ? []
-                : c.chat!.reads.where((m) =>
-                    m.at == e.value.at &&
-                    m.memberId != c.me &&
-                    m.memberId != e.value.authorId),
-            user: u.data,
-            getUser: c.getUser,
-            animation: _animation,
-            timestamp: c.settings.value?.timelineEnabled != true,
-            onHide: () => c.hideChatItem(e.value),
-            onDelete: () => c.deleteMessage(e.value),
-            onReply: () {
-              if (c.send.replied.any((i) => i.id == e.value.id)) {
-                c.send.replied.removeWhere((i) => i.id == e.value.id);
-              } else {
-                c.send.replied.insert(0, e.value);
-              }
-            },
-            onCopy: (text) {
-              if (c.selection.value?.plainText.isNotEmpty == true) {
-                c.copyText(c.selection.value!.plainText);
-              } else {
-                c.copyText(text);
-              }
-            },
-            onRepliedTap: (q) async {
-              if (q.original != null) {
-                await c.animateTo(q.original!.id);
-              }
-            },
-            onGallery: c.calculateGallery,
-            onResend: () => c.resendItem(e.value),
-            onEdit: () => c.editMessage(e.value),
-            onDrag: (d) => c.isItemDragged.value = d,
-            onFileTap: (a) => c.download(e.value, a),
-            onAttachmentError: () async {
-              await c.chat?.updateAttachments(e.value);
-              await Future.delayed(Duration.zero);
-            },
-            onSelecting: (s) => c.isSelecting.value = s,
-          ),
-        ),
-      );
+          padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+          child: FutureBuilder<RxUser?>(
+              future: c.getUser(e.value.authorId),
+              builder: (_, u) {
+                /// Populates the [_text] with the [ChatMessage.text] of the provided [item]
+                /// parsed through a [LinkParsingExtension.parseLinks] method.
+                void populateSpans(ChatItem msg, TextSpan? text) {
+                  if (msg is ChatMessage) {
+                    for (var r in _recognizers) {
+                      r.dispose();
+                    }
+                    _recognizers.clear();
+
+                    final String? string = msg.text?.val.trim();
+                    if (string?.isEmpty == true) {
+                      text = null;
+                    } else {
+                      text = string?.parseLinks(_recognizers, router.context);
+                    }
+                  } else if (msg is ChatForward) {
+                    throw Exception(
+                      'Use `ChatForward` widget for rendering `ChatForward`s instead',
+                    );
+                  }
+                }
+
+                /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].
+                void populateGlobalKeys(
+                    ChatItem msg, List<GlobalKey> galleryKeys) {
+                  if (msg is ChatMessage) {
+                    galleryKeys = msg.attachments
+                        .where((e) =>
+                            e is ImageAttachment ||
+                            (e is FileAttachment && e.isVideo) ||
+                            (e is LocalAttachment &&
+                                (e.file.isImage || e.file.isVideo)))
+                        .map((e) => GlobalKey())
+                        .toList();
+                  } else if (msg is ChatForward) {
+                    throw Exception(
+                      'Use `ChatForward` widget for rendering `ChatForward`s instead',
+                    );
+                  }
+                }
+
+                /// Populates the [_worker] invoking the [_populateSpans] and
+                /// [_populateGlobalKeys] on the [ChatItemWidget.item] changes.
+                void populateWorker() {
+                  _worker?.dispose();
+                  populateGlobalKeys(e.value, _galleryKeys);
+                  populateSpans(e.value, _text);
+
+                  ChatMessageText? text;
+                  int attachments = 0;
+
+                  if (e.value is ChatMessage) {
+                    final msg = e.value as ChatMessage;
+                    attachments = msg.attachments.length;
+                    text = msg.text;
+                  }
+
+                  _worker = ever(e, (ChatItem item) {
+                    if (item is ChatMessage) {
+                      if (item.attachments.length != attachments) {
+                        populateGlobalKeys(item, _galleryKeys);
+                        attachments = item.attachments.length;
+                      }
+
+                      if (text != item.text) {
+                        populateSpans(item, _text);
+                        text = item.text;
+                      }
+                    }
+                  });
+                }
+
+                return ChatItemWidget(
+                  populateWorker: () => populateWorker(),
+                  populateGlobalKeys: (msg) =>
+                      populateGlobalKeys(msg, _galleryKeys),
+                  populateSpans: (msg) => populateSpans(msg, _text),
+                  chat: c.chat!.chat.value,
+                  item: e.value,
+                  me: c.me!,
+                  avatar: !previousSame,
+                  margin: EdgeInsets.only(
+                    top: previousSame ? 1.5 : 6,
+                    bottom: nextSame ? 1.5 : 6,
+                  ),
+                  loadImages: c.settings.value?.loadImages != false,
+                  reads: c.chat!.members.length > 10
+                      ? []
+                      : c.chat!.reads.where((m) =>
+                          m.at == e.value.at &&
+                          m.memberId != c.me &&
+                          m.memberId != e.value.authorId),
+                  user: u.data,
+                  getUser: c.getUser,
+                  animation: _animation,
+                  timestamp: c.settings.value?.timelineEnabled != true,
+                  onHide: () => c.hideChatItem(e.value),
+                  onDelete: () => c.deleteMessage(e.value),
+                  onReply: () {
+                    if (c.send.replied.any((i) => i.id == e.value.id)) {
+                      c.send.replied.removeWhere((i) => i.id == e.value.id);
+                    } else {
+                      c.send.replied.insert(0, e.value);
+                    }
+                  },
+                  onCopy: (text) {
+                    if (c.selection.value?.plainText.isNotEmpty == true) {
+                      c.copyText(c.selection.value!.plainText);
+                    } else {
+                      c.copyText(text);
+                    }
+                  },
+                  onRepliedTap: (q) async {
+                    if (q.original != null) {
+                      await c.animateTo(q.original!.id);
+                    }
+                  },
+                  onGallery: c.calculateGallery,
+                  onResend: () => c.resendItem(e.value),
+                  onEdit: () => c.editMessage(e.value),
+                  onDrag: (d) => c.isItemDragged.value = d,
+                  onFileTap: (a) => c.download(e.value, a),
+                  onAttachmentError: () async {
+                    await c.chat?.updateAttachments(e.value);
+                    await Future.delayed(Duration.zero);
+                  },
+                  onSelecting: (s) => c.isSelecting.value = s,
+                );
+              }));
     } else if (element is ChatForwardElement) {
       return Padding(
         padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),

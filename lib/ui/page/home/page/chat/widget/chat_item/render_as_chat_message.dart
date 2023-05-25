@@ -21,7 +21,6 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
-import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -71,10 +70,10 @@ class RenderAsChatMessage extends StatelessWidget {
   });
 
   /// Reactive value of a [Chat] this [item] is posted in.
-  final Rx<Chat?> chat;
+  final Chat? chat;
 
   /// Reactive value of a [ChatItem] to display.
-  final Rx<ChatItem> item;
+  final ChatItem item;
 
   /// [User] posted this [item].
   final RxUser? rxUser;
@@ -148,7 +147,7 @@ class RenderAsChatMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ChatMessage msg = item.value as ChatMessage;
+    final ChatMessage msg = item as ChatMessage;
 
     List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
@@ -167,7 +166,7 @@ class RenderAsChatMessage extends StatelessWidget {
             style.colors.userColors.length];
 
     double avatarOffset = 0;
-    if ((!fromMe && chat.value?.isGroup == true && avatar) &&
+    if ((!fromMe && chat?.isGroup == true && avatar) &&
         msg.repliesTo.isNotEmpty) {
       for (ChatItemQuote reply in msg.repliesTo) {
         if (reply is ChatMessageQuote) {
@@ -260,7 +259,7 @@ class RenderAsChatMessage extends StatelessWidget {
                 ),
               );
             }),
-          if (!fromMe && chat.value?.isGroup == true && avatar)
+          if (!fromMe && chat?.isGroup == true && avatar)
             Padding(
               padding: EdgeInsets.fromLTRB(
                 12,
@@ -290,12 +289,12 @@ class RenderAsChatMessage extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
                   12,
-                  !fromMe && chat.value?.isGroup == true && avatar ? 0 : 10,
+                  !fromMe && chat?.isGroup == true && avatar ? 0 : 10,
                   9,
                   files.isEmpty ? 10 : 0,
                 ),
                 child: SelectionText.rich(
-                  key: Key('Text_${item.value.id}'),
+                  key: Key('Text_${item.id}'),
                   TextSpan(
                     children: [
                       text!,
@@ -341,14 +340,14 @@ class RenderAsChatMessage extends StatelessWidget {
               borderRadius: BorderRadius.only(
                 topLeft: text != null ||
                         msg.repliesTo.isNotEmpty ||
-                        (!fromMe && chat.value?.isGroup == true && avatar)
+                        (!fromMe && chat?.isGroup == true && avatar)
                     ? Radius.zero
                     : files.isEmpty
                         ? const Radius.circular(15)
                         : Radius.zero,
                 topRight: text != null ||
                         msg.repliesTo.isNotEmpty ||
-                        (!fromMe && chat.value?.isGroup == true && avatar)
+                        (!fromMe && chat?.isGroup == true && avatar)
                     ? Radius.zero
                     : files.isEmpty
                         ? const Radius.circular(15)

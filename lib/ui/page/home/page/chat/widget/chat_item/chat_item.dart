@@ -45,7 +45,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/page/chat/controller.dart'
-    show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
+    show ChatCallFinishReasonL10n, ChatController;
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -95,13 +95,16 @@ class ChatItemWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
+    required this.populateWorker,
+    required this.populateGlobalKeys,
+    required this.populateSpans,
   });
 
   /// Reactive value of a [ChatItem] to display.
-  final Rx<ChatItem> item;
+  final ChatItem item;
 
   /// Reactive value of a [Chat] this [item] is posted in.
-  final Rx<Chat?> chat;
+  final Chat? chat;
 
   /// [UserId] of the authenticated [MyUser].
   final UserId me;
@@ -170,6 +173,15 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
+
+  ///
+  final void Function() populateWorker;
+
+  ///
+  final void Function(ChatItem msg) populateGlobalKeys;
+
+  ///
+  final void Function(ChatItem msg) populateSpans;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -381,7 +393,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
-  List<GlobalKey> _galleryKeys = [];
+  final List<GlobalKey> _galleryKeys = [];
 
   /// [Offset] to translate this [ChatItemWidget] with when swipe to reply
   /// gesture is happening.
@@ -421,25 +433,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
-    final Chat? chat = widget.chat.value;
+    final Chat? chat = widget.chat;
     if (chat == null) {
       return false;
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.item.value, widget.me, chat.members);
+      return chat.isRead(widget.item, widget.me, chat.members);
     } else {
-      return chat.isReadBy(widget.item.value, widget.me);
+      return chat.isReadBy(widget.item, widget.me);
     }
   }
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the
   /// authenticated [MyUser].
-  bool get _fromMe => widget.item.value.authorId == widget.me;
+  bool get _fromMe => widget.item.authorId == widget.me;
 
   @override
   void initState() {
-    _populateWorker();
+    widget.populateWorker();
     super.initState();
   }
 
@@ -459,7 +471,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void didUpdateWidget(covariant ChatItemWidget oldWidget) {
     if (oldWidget.item != widget.item) {
-      _populateWorker();
+      widget.populateWorker();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -469,68 +481,70 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
+    Widget _renderChatItem() {
+      if (widget.item is ChatMessage) {
+        return RenderAsChatMessage(
+          chat: widget.chat,
+          item: widget.item,
+          rxUser: widget.user,
+          fromMe: _fromMe,
+          isRead: _isRead,
+          avatar: widget.avatar,
+          text: _text,
+          me: widget.me,
+          onRepliedTap: widget.onRepliedTap,
+          avatarOffset: 0,
+          timestamp: widget.timestamp,
+          onSelecting: widget.onSelecting,
+          galleryKeys: _galleryKeys,
+          onAttachmentError: widget.onAttachmentError,
+          onGallery: widget.onGallery,
+          loadImages: widget.loadImages,
+          onFileTap: widget.onFileTap,
+          margin: widget.margin,
+          onChanged: (a) => _selection = a,
+          rounded: _rounded,
+          repliedMessage: _repliedMessage,
+          timestampWidget: _timestamp,
+        );
+      } else if (widget.item is ChatForward) {
+        throw Exception(
+          'Use ChatForward widget for rendering `ChatForward`s instead',
+        );
+      } else if (widget.item is ChatCall) {
+        return SelectionContainer.disabled(
+            child: RenderAsChatCall(
+          item: widget.item,
+          fromMe: _fromMe,
+          isRead: _isRead,
+          chat: widget.chat,
+          avatar: widget.avatar,
+          me: widget.me,
+          rxUser: widget.user,
+          timestamp: widget.timestamp,
+          margin: widget.margin,
+          timestampWidget: _timestamp,
+          rounded: _rounded,
+          startCallTimer: () => startCallTimer(_ongoingCallTimer),
+        ));
+      } else if (widget.item is ChatInfo) {
+        return SelectionContainer.disabled(
+            child: RenderAsChatInfo(
+          chat: widget.chat,
+          item: widget.item,
+          rxUser: widget.user,
+          animation: widget.animation,
+          fromMe: _fromMe,
+          isRead: _isRead,
+          getUser: widget.getUser,
+        ));
+      }
+      throw UnimplementedError('Unknown ChatItem ${widget.item}');
+    }
+
     return DefaultTextStyle(
       style: style.boldBody,
-      child: Obx(() {
-        if (widget.item.value is ChatMessage) {
-          return RenderAsChatMessage(
-            chat: widget.chat,
-            item: widget.item,
-            rxUser: widget.user,
-            fromMe: _fromMe,
-            isRead: _isRead,
-            avatar: widget.avatar,
-            text: _text,
-            me: widget.me,
-            onRepliedTap: widget.onRepliedTap,
-            avatarOffset: 0,
-            timestamp: widget.timestamp,
-            onSelecting: widget.onSelecting,
-            galleryKeys: _galleryKeys,
-            onAttachmentError: widget.onAttachmentError,
-            onGallery: widget.onGallery,
-            loadImages: widget.loadImages,
-            onFileTap: widget.onFileTap,
-            margin: widget.margin,
-            onChanged: (a) => _selection = a,
-            rounded: _rounded,
-            repliedMessage: _repliedMessage,
-            timestampWidget: _timestamp,
-          );
-        } else if (widget.item.value is ChatForward) {
-          throw Exception(
-            'Use `ChatForward` widget for rendering `ChatForward`s instead',
-          );
-        } else if (widget.item.value is ChatCall) {
-          return SelectionContainer.disabled(
-              child: RenderAsChatCall(
-            item: widget.item,
-            fromMe: _fromMe,
-            isRead: _isRead,
-            chat: widget.chat,
-            avatar: widget.avatar,
-            me: widget.me,
-            rxUser: widget.user,
-            timestamp: widget.timestamp,
-            margin: widget.margin,
-            timestampWidget: _timestamp,
-            rounded: _rounded,
-            startCallTimer: () => startCallTimer(_ongoingCallTimer),
-          ));
-        } else if (widget.item.value is ChatInfo) {
-          return SelectionContainer.disabled(
-              child: RenderAsChatInfo(
-            chat: widget.chat,
-            item: widget.item,
-            rxUser: widget.user,
-            animation: widget.animation,
-            fromMe: _fromMe,
-            isRead: _isRead,
-            getUser: widget.getUser,
-          ));
-        }
-        throw UnimplementedError('Unknown ChatItem ${widget.item.value}');
-      }),
+      child: _renderChatItem(),
     );
   }
 
@@ -738,7 +752,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                   ),
                   if (timestamp)
-                    Opacity(opacity: 0, child: _timestamp(widget.item.value)),
+                    Opacity(opacity: 0, child: _timestamp(widget.item)),
                 ],
               ),
             ),
@@ -756,17 +770,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    ChatItem item = widget.item.value;
+    ChatItem item = widget.item;
 
     String? copyable;
     if (item is ChatMessage) {
       copyable = item.text?.val;
     }
 
-    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
+    final Iterable<LastChatRead>? reads = widget.chat?.lastReads.where(
       (e) =>
-          !e.at.val.isBefore(widget.item.value.at.val) &&
-          e.memberId != widget.item.value.authorId,
+          !e.at.val.isBefore(widget.item.at.val) &&
+          e.memberId != widget.item.authorId,
     );
 
     final bool isSent = item.status.value == SendingStatus.sent;
@@ -774,12 +788,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
 
-    if (widget.chat.value?.isGroup == true) {
+    if (widget.chat?.isGroup == true) {
       final int countUserAvatars =
           widget.reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
 
       for (LastChatRead m in widget.reads.take(countUserAvatars)) {
-        final User? user = widget.chat.value?.members
+        final User? user = widget.chat?.members
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
 
@@ -825,7 +839,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 onPressed: () => MessageInfo.show(
                   context,
                   reads: reads ?? [],
-                  id: widget.item.value.id,
+                  id: widget.item.id,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 2),
@@ -847,7 +861,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
-          widget.chat.value?.lastDelivery.isBefore(item.at) == false,
+          widget.chat?.lastDelivery.isBefore(item.at) == false,
       isRead: isSent && (!_fromMe || _isRead),
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
@@ -926,32 +940,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 Padding(
                   key: Key('MessageStatus_${item.id}'),
                   padding: const EdgeInsets.only(top: 16),
-                  child: Obx(() {
-                    return AnimatedDelayedSwitcher(
-                      delay: item.status.value == SendingStatus.sending
-                          ? const Duration(seconds: 2)
-                          : Duration.zero,
-                      child: item.status.value == SendingStatus.sending
-                          ? const Padding(
-                              key: Key('Sending'),
-                              padding: EdgeInsets.only(bottom: 8),
-                              child: Icon(Icons.access_alarm, size: 15),
-                            )
-                          : item.status.value == SendingStatus.error
-                              ? Padding(
-                                  key: const Key('Error'),
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Icon(
-                                    Icons.error_outline,
-                                    size: 15,
-                                    color: style.colors.dangerColor,
-                                  ),
-                                )
-                              : Container(key: const Key('Sent')),
-                    );
-                  }),
+                  child: AnimatedDelayedSwitcher(
+                    delay: item.status.value == SendingStatus.sending
+                        ? const Duration(seconds: 2)
+                        : Duration.zero,
+                    child: item.status.value == SendingStatus.sending
+                        ? const Padding(
+                            key: Key('Sending'),
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: Icon(Icons.access_alarm, size: 15),
+                          )
+                        : item.status.value == SendingStatus.error
+                            ? Padding(
+                                key: const Key('Error'),
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Icon(
+                                  Icons.error_outline,
+                                  size: 15,
+                                  color: style.colors.dangerColor,
+                                ),
+                              )
+                            : Container(key: const Key('Sent')),
+                  ),
                 ),
-              if (!_fromMe && widget.chat.value!.isGroup)
+              if (!_fromMe && widget.chat!.isGroup)
                 Padding(
                   padding: EdgeInsets.only(top: 8 + avatarOffset),
                   child: widget.avatar
@@ -988,7 +1000,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             trailing: const Icon(Icons.info_outline),
                             onPressed: () => MessageInfo.show(
                               context,
-                              id: widget.item.value.id,
+                              id: widget.item.id,
                               reads: reads ?? [],
                             ),
                           ),
@@ -1030,7 +1042,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 onPressed: () async {
                                   await ChatForwardView.show(
                                     context,
-                                    widget.chat.value!.id,
+                                    widget.chat!.id,
                                     [ChatItemQuoteInput(item: item)],
                                   );
                                 },
@@ -1060,11 +1072,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 18,
                               ),
                               onPressed: () async {
-                                bool isMonolog = widget.chat.value!.isMonolog;
+                                bool isMonolog = widget.chat!.isMonolog;
                                 bool deletable = _fromMe &&
-                                    !widget.chat.value!
-                                        .isRead(widget.item.value, widget.me) &&
-                                    (widget.item.value is ChatMessage);
+                                    !widget.chat!
+                                        .isRead(widget.item, widget.me) &&
+                                    (widget.item is ChatMessage);
 
                                 await ConfirmDialog.show(
                                   context,
@@ -1156,96 +1168,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Builds a [MessageTimestamp] of the provided [item].
   Widget _timestamp(ChatItem item) {
-    return Obx(() {
-      final bool isMonolog = widget.chat.value?.isMonolog == true;
+    final bool isMonolog = widget.chat?.isMonolog == true;
 
-      return KeyedSubtree(
-        key: Key('MessageStatus_${item.id}'),
-        child: MessageTimestamp(
-          at: item.at,
-          status: _fromMe ? item.status.value : null,
-          read: _isRead || isMonolog,
-          delivered:
-              widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
-                  isMonolog,
-        ),
-      );
-    });
-  }
-
-  /// Populates the [_worker] invoking the [_populateSpans] and
-  /// [_populateGlobalKeys] on the [ChatItemWidget.item] changes.
-  void _populateWorker() {
-    _worker?.dispose();
-    _populateGlobalKeys(widget.item.value);
-    _populateSpans(widget.item.value);
-
-    ChatMessageText? text;
-    int attachments = 0;
-
-    if (widget.item.value is ChatMessage) {
-      final msg = widget.item.value as ChatMessage;
-      attachments = msg.attachments.length;
-      text = msg.text;
-    }
-
-    _worker = ever(widget.item, (ChatItem item) {
-      if (item is ChatMessage) {
-        if (item.attachments.length != attachments) {
-          _populateGlobalKeys(item);
-          attachments = item.attachments.length;
-        }
-
-        if (text != item.text) {
-          _populateSpans(item);
-          text = item.text;
-        }
-      }
-    });
-  }
-
-  /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].
-  void _populateGlobalKeys(ChatItem msg) {
-    if (msg is ChatMessage) {
-      _galleryKeys = msg.attachments
-          .where((e) =>
-              e is ImageAttachment ||
-              (e is FileAttachment && e.isVideo) ||
-              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-          .map((e) => GlobalKey())
-          .toList();
-    } else if (msg is ChatForward) {
-      throw Exception(
-        'Use `ChatForward` widget for rendering `ChatForward`s instead',
-      );
-    }
-  }
-
-  /// Populates the [_text] with the [ChatMessage.text] of the provided [item]
-  /// parsed through a [LinkParsingExtension.parseLinks] method.
-  void _populateSpans(ChatItem msg) {
-    if (msg is ChatMessage) {
-      for (var r in _recognizers) {
-        r.dispose();
-      }
-      _recognizers.clear();
-
-      final String? string = msg.text?.val.trim();
-      if (string?.isEmpty == true) {
-        _text = null;
-      } else {
-        _text = string?.parseLinks(_recognizers, router.context);
-      }
-    } else if (msg is ChatForward) {
-      throw Exception(
-        'Use `ChatForward` widget for rendering `ChatForward`s instead',
-      );
-    }
+    return KeyedSubtree(
+      key: Key('MessageStatus_${item.id}'),
+      child: MessageTimestamp(
+        at: item.at,
+        status: _fromMe ? item.status.value : null,
+        read: _isRead || isMonolog,
+        delivered:
+            widget.chat?.lastDelivery.isBefore(item.at) == false || isMonolog,
+      ),
+    );
   }
 
   /// Starts the [ongoingCallTimer].
   void startCallTimer(Timer? ongoingCallTimer) {
-    var message = widget.item.value as ChatCall;
+    var message = widget.item as ChatCall;
 
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;

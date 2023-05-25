@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item/chat_item.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -52,7 +51,7 @@ class RenderAsChatCall extends StatefulWidget {
   });
 
   /// Reactive value of a [ChatItem] to display.
-  final Rx<ChatItem> item;
+  final ChatItem item;
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the
   /// authenticated [MyUser].
@@ -62,7 +61,7 @@ class RenderAsChatCall extends StatefulWidget {
   final bool isRead;
 
   /// Reactive value of a [Chat] this [item] is posted in.
-  final Rx<Chat?> chat;
+  final Chat? chat;
 
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
@@ -99,7 +98,7 @@ class RenderAsChatCall extends StatefulWidget {
 class _RenderAsChatCallState extends State<RenderAsChatCall> {
   @override
   Widget build(BuildContext context) {
-    var message = widget.item.value as ChatCall;
+    var message = widget.item as ChatCall;
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
 
@@ -204,7 +203,7 @@ class _RenderAsChatCallState extends State<RenderAsChatCall> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (!widget.fromMe &&
-                    widget.chat.value?.isGroup == true &&
+                    widget.chat?.isGroup == true &&
                     widget.avatar)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
@@ -226,7 +225,7 @@ class _RenderAsChatCallState extends State<RenderAsChatCall> {
                             opacity: 0,
                             child: Padding(
                               padding: const EdgeInsets.only(left: 4),
-                              child: widget.timestampWidget(widget.item.value),
+                              child: widget.timestampWidget(widget.item),
                             ),
                           ),
                         ),
@@ -240,7 +239,7 @@ class _RenderAsChatCallState extends State<RenderAsChatCall> {
             Positioned(
               right: 8,
               bottom: 4,
-              child: widget.timestampWidget(widget.item.value),
+              child: widget.timestampWidget(widget.item),
             )
         ],
       ),
