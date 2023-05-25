@@ -993,10 +993,10 @@ packages:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: "006f691cacc21a6871a39853e153927e71a910ce7cdee08c8191f90ad92893da"
+      sha256: d76e28f8c407274d355a29b34710b459e291bdaabad869a7156c839366587c3f
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2"
+    version: "0.3.0-dev+rev.d675a58f7a3b5c4e0508f0692405d2e1f26e9dd2"
   meta:
     dependency: transitive
     description:

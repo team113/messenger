@@ -37,14 +37,12 @@ class ParticipantWidget extends StatelessWidget {
     this.participant, {
     super.key,
     this.fit,
-    this.muted = false,
     this.outline,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
-    this.expanded = false,
   });
 
   /// [Participant] this [ParticipantWidget] represents.
@@ -52,11 +50,6 @@ class ParticipantWidget extends StatelessWidget {
 
   /// [BoxFit] mode of a [Participant.video] renderer.
   final BoxFit? fit;
-
-  /// Indicator whether this video should display `muted` icon or not.
-  ///
-  /// If `null`, then displays [Participant.audio] muted status.
-  final bool? muted;
 
   /// Indicator whether [Participant.video] should take exactly the size of its
   /// renderer's stream.
@@ -78,12 +71,10 @@ class ParticipantWidget extends StatelessWidget {
   /// Border radius of [Participant.video].
   final BorderRadius? borderRadius;
 
-  /// Indicator whether this [ParticipantWidget] should have its background
-  /// expanded.
-  final bool expanded;
-
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
 
@@ -145,14 +136,14 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantRedialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black.withOpacity(0.4),
-                child: const Padding(
-                  padding: EdgeInsets.all(21.0),
+                color: style.colors.onBackgroundOpacity50,
+                child: Padding(
+                  padding: const EdgeInsets.all(21.0),
                   child: Center(
                     child: SpinKitDoubleBounce(
-                      color: Color(0xFFEEEEEE),
+                      color: style.colors.secondaryHighlight,
                       size: 100 / 1.5,
-                      duration: Duration(milliseconds: 4500),
+                      duration: const Duration(milliseconds: 4500),
                     ),
                   ),
                 ),
@@ -162,7 +153,7 @@ class ParticipantWidget extends StatelessWidget {
                 key: Key('ParticipantConnecting_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black.withOpacity(0.2),
+                color: style.colors.onBackgroundOpacity50,
                 child: const Center(
                   child: CustomProgressIndicator(size: 64),
                 ),
@@ -209,13 +200,15 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       bool isMuted;
 
       if (participant.source == MediaSourceKind.Display) {
         isMuted = false;
       } else {
-        isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+        isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
       }
 
       bool isVideoDisabled = participant.video.value?.renderer.value == null &&
@@ -304,7 +297,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           style: context.theme.outlinedButtonTheme.style!.textStyle!
               .resolve({MaterialState.disabled})!.copyWith(
             fontSize: 15,
-            color: Colors.white,
+            color: style.colors.onPrimary,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -318,9 +311,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           key: const Key('Tooltip'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
-            boxShadow: const [
+            boxShadow: [
               CustomBoxShadow(
-                color: Color(0x22000000),
+                color: style.colors.onBackgroundOpacity13,
                 blurRadius: 8,
                 blurStyle: BlurStyle.outer,
               )
@@ -333,8 +326,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 color: preferBackdrop
-                    ? const Color(0x4D165084)
-                    : const Color(0xBB1F3C5D),
+                    ? style.colors.onSecondaryOpacity20
+                    : style.colors.onSecondary,
               ),
               padding: EdgeInsets.only(
                 left: 6,
@@ -401,6 +394,8 @@ class ParticipantDecoratorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Center(
       child: Stack(
         alignment: Alignment.center,
@@ -410,7 +405,10 @@ class ParticipantDecoratorWidget extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0x30000000), width: 0.5),
+                border: Border.all(
+                  color: style.colors.onBackgroundOpacity20,
+                  width: 0.5,
+                ),
               ),
               child: const IgnorePointer(),
             ),
