@@ -131,12 +131,14 @@ class CustomNavigationBar extends StatelessWidget {
                                           : Transform.translate(
                                               offset: PlatformUtils.isWeb
                                                   ? Offset(
-                                                      0.2,
+                                                      0,
                                                       PlatformUtils.isIOS
                                                           ? 0
                                                           : 0.25,
                                                     )
-                                                  : const Offset(0, -0.3),
+                                                  : PlatformUtils.isDesktop
+                                                      ? const Offset(0, -0.7)
+                                                      : Offset.zero,
                                               child: Text(
                                                 b.badge!,
                                                 textAlign: TextAlign.center,
