@@ -411,12 +411,12 @@ class AvatarWidget extends StatelessWidget {
               Positioned.fill(
                 child: ClipOval(
                   child: RetryImage(
-                    maxWidth > 50
+                    maxWidth > 70
                         ? avatar!.original.url
                         : maxWidth > 26
                             ? avatar!.big.url
                             : avatar!.medium.url,
-                    checksum: maxWidth > 50
+                    checksum: maxWidth > 70
                         ? avatar!.original.checksum
                         : maxWidth > 26
                             ? avatar!.big.checksum
