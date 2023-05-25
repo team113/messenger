@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// [Widget] which returns a raised hand icon with animation.
@@ -28,12 +29,14 @@ class HandRaisedIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 150),
       opacity: raised ? 1.0 : 0.0,
       child: CircleAvatar(
         radius: 45,
-        backgroundColor: const Color(0xD8818181),
+        backgroundColor: style.colors.secondaryOpacity87,
         child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
       ),
     );
