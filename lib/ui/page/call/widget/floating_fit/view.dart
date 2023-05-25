@@ -152,173 +152,68 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                       ),
                   ],
                 ),
-                if (!widget.fit) _floatingPanel(c, context, constraints),
+                if (!widget.fit)
+                  Obx(
+                    () => _FloatingPanel<T>(
+                      c.left.value,
+                      c.top.value,
+                      c.right.value,
+                      c.bottom.value,
+                      floatingKey: c.floatingKey,
+                      width: c.width.value,
+                      height: c.height.value,
+                      item: _paneled,
+                      itemBuilder: () => widget.itemBuilder(_paneled.item),
+                      overlayBuilder: () =>
+                          widget.overlayBuilder(_paneled.item),
+                      onPointerDown: (_) => widget.onManipulated?.call(true),
+                      onPointerUp: (_) => widget.onManipulated?.call(false),
+                      onTap: _swap,
+                      onScaleStart: (d) {
+                        c.bottomShifted = null;
+
+                        c.left.value ??=
+                            c.size.width - c.width.value - (c.right.value ?? 0);
+                        c.top.value ??= c.size.height -
+                            c.height.value -
+                            (c.bottom.value ?? 0);
+
+                        c.right.value = null;
+                        c.bottom.value = null;
+
+                        if (d.pointerCount == 1) {
+                          c.dragged.value = true;
+                          c.calculatePanning(d.focalPoint);
+                          c.applyConstraints();
+                        } else if (d.pointerCount == 2) {
+                          c.unscaledSize = max(c.width.value, c.height.value);
+                          c.scaled.value = true;
+                          c.calculatePanning(d.focalPoint);
+                        }
+                      },
+                      onScaleUpdate: (d) {
+                        c.updateOffset(d.focalPoint);
+                        if (d.pointerCount == 2) {
+                          c.scaleFloating(d.scale);
+                        }
+
+                        c.applyConstraints();
+                      },
+                      onScaleEnd: (d) {
+                        c.dragged.value = false;
+                        c.scaled.value = false;
+                        c.unscaledSize = null;
+
+                        c.updateAttach();
+                      },
+                    ),
+                  ),
               ],
             );
           }),
         );
       },
     );
-  }
-
-  /// Returns the visual representation of a floating panel.
-  Widget _floatingPanel(
-    FloatingFitController c,
-    BuildContext context,
-    BoxConstraints constraints,
-  ) {
-    return Obx(() {
-      double? left = c.left.value;
-      double? top = c.top.value;
-      double? right = c.right.value;
-      double? bottom = c.bottom.value;
-      double width = c.width.value;
-      double height = c.height.value;
-
-      return Stack(
-        fit: StackFit.expand,
-        children: [
-          // Display a shadow below the view.
-          Positioned(
-            key: c.floatingKey,
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: IgnorePointer(
-              child: Container(
-                width: width,
-                height: height,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    CustomBoxShadow(
-                      color: Color(0x44000000),
-                      blurRadius: 9,
-                      blurStyle: BlurStyle.outer,
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Display the background.
-          Positioned(
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: SizedBox(
-              width: width,
-              height: height,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Stack(
-                  children: [
-                    Container(color: const Color(0xFF0A1724)),
-                    SvgImage.asset(
-                      'assets/images/background_dark.svg',
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                    Container(color: const Color(0x11FFFFFF)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Floating panel itself.
-          Positioned(
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: SizedBox(
-              width: width,
-              height: height,
-              child: ClipRRect(
-                key: const Key('SecondaryView'),
-                borderRadius: BorderRadius.circular(10),
-                child: _paneled.entry == null
-                    ? KeyedSubtree(
-                        key: _paneled.itemKey,
-                        child: Stack(
-                          children: [
-                            widget.itemBuilder(_paneled.item),
-                            AnimatedDelayedSwitcher(
-                              duration: 100.milliseconds,
-                              child: widget.overlayBuilder(_paneled.item),
-                            ),
-                          ],
-                        ),
-                      )
-                    : null,
-              ),
-            ),
-          ),
-
-          // [GestureDetector] manipulating this panel.
-          Positioned(
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: Listener(
-              onPointerDown: (_) => widget.onManipulated?.call(true),
-              onPointerUp: (_) => widget.onManipulated?.call(false),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _swap,
-                onScaleStart: (d) {
-                  c.bottomShifted = null;
-
-                  c.left.value ??=
-                      c.size.width - c.width.value - (c.right.value ?? 0);
-                  c.top.value ??=
-                      c.size.height - c.height.value - (c.bottom.value ?? 0);
-
-                  c.right.value = null;
-                  c.bottom.value = null;
-
-                  if (d.pointerCount == 1) {
-                    c.dragged.value = true;
-                    c.calculatePanning(d.focalPoint);
-                    c.applyConstraints();
-                  } else if (d.pointerCount == 2) {
-                    c.unscaledSize = max(c.width.value, c.height.value);
-                    c.scaled.value = true;
-                    c.calculatePanning(d.focalPoint);
-                  }
-                },
-                onScaleUpdate: (d) {
-                  c.updateOffset(d.focalPoint);
-                  if (d.pointerCount == 2) {
-                    c.scaleFloating(d.scale);
-                  }
-
-                  c.applyConstraints();
-                },
-                onScaleEnd: (d) {
-                  c.dragged.value = false;
-                  c.scaled.value = false;
-                  c.unscaledSize = null;
-
-                  c.updateAttach();
-                },
-                child: Container(
-                  width: width,
-                  height: height,
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    });
   }
 
   /// Swaps the [_paneled] and the [_primary] items with an animation.
@@ -394,6 +289,9 @@ class _FloatingPanel<T> extends StatelessWidget {
     this.onPointerUp,
   });
 
+  /// [_FloatingItem] to put in this [_FloatingPanel].
+  final _FloatingItem<T> item;
+
   /// Left position of this [_FloatingPanel].
   final double? left;
 
@@ -424,9 +322,6 @@ class _FloatingPanel<T> extends StatelessWidget {
   /// Callback, called when a scale operation ends.
   final void Function(ScaleEndDetails)? onScaleEnd;
 
-  /// [_FloatingItem] to put in this [_FloatingPanel].
-  final _FloatingItem<T> item;
-
   /// Builder building the provided item.
   final Widget Function() itemBuilder;
 
@@ -450,17 +345,19 @@ class _FloatingPanel<T> extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          _buildShadow(),
-          _buildBackground(),
+          _buildShadow(context),
+          _buildBackground(context),
           _buildPanel(),
-          _buildGestureDetector(),
+          _buildGestureDetector(context),
         ],
       ),
     );
   }
 
   /// Shadow around this [_FloatingPanel].
-  Widget _buildShadow() {
+  Widget _buildShadow(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Positioned(
       key: floatingKey,
       left: left,
@@ -472,9 +369,9 @@ class _FloatingPanel<T> extends StatelessWidget {
         height: height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          boxShadow: const [
+          boxShadow: [
             CustomBoxShadow(
-              color: Color(0x44000000),
+              color: style.colors.onBackgroundOpacity27,
               blurRadius: 9,
               blurStyle: BlurStyle.outer,
             )
@@ -485,7 +382,9 @@ class _FloatingPanel<T> extends StatelessWidget {
   }
 
   /// Background of this [_FloatingPanel].
-  Widget _buildBackground() {
+  Widget _buildBackground(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Positioned(
       left: left,
       right: right,
@@ -498,14 +397,14 @@ class _FloatingPanel<T> extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: Stack(
             children: [
-              Container(color: const Color(0xFF0A1724)),
+              Container(color: style.colors.backgroundAuxiliary),
               SvgImage.asset(
                 'assets/images/background_dark.svg',
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,
               ),
-              Container(color: const Color(0x11FFFFFF)),
+              Container(color: style.colors.onPrimaryOpacity7),
             ],
           ),
         ),
@@ -546,7 +445,9 @@ class _FloatingPanel<T> extends StatelessWidget {
   }
 
   /// Gestures controlling this [_FloatingPanel].
-  Widget _buildGestureDetector() {
+  Widget _buildGestureDetector(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Positioned(
       left: left,
       right: right,
@@ -564,7 +465,7 @@ class _FloatingPanel<T> extends StatelessWidget {
           child: Container(
             width: width,
             height: height,
-            color: Colors.transparent,
+            color: style.colors.transparent,
           ),
         ),
       ),
