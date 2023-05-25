@@ -161,10 +161,10 @@ class RenderAsChatMessage extends StatelessWidget {
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
-    Color color = fromMe
-        ? Theme.of(context).colorScheme.secondary
-        : AvatarWidget.colors[(rxUser?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+    final Color color = fromMe
+        ? style.colors.primary
+        : style.colors.userColors[(rxUser?.user.value.num.val.sum() ?? 3) %
+            style.colors.userColors.length];
 
     double avatarOffset = 0;
     if ((!fromMe && chat.value?.isGroup == true && avatar) &&
@@ -374,7 +374,7 @@ class RenderAsChatMessage extends StatelessWidget {
                         width: media.length * 120,
                         height: max(media.length * 60, 300),
                         child: FitView(
-                          dividerColor: Colors.transparent,
+                          dividerColor: style.colors.transparent,
                           children: media
                               .mapIndexed(
                                 (i, e) => ChatItemWidget.mediaAttachment(
@@ -429,7 +429,7 @@ class RenderAsChatMessage extends StatelessWidget {
                       ? Container(
                           padding: const EdgeInsets.only(left: 4, right: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: style.colors.onPrimary.withOpacity(0.9),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: timestampWidget(msg),

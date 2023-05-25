@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/ui/page/call/widget/round_button.dart';
 
 /// Custom styled button with an attachment.
@@ -43,6 +44,8 @@ class AttachmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return FittedBox(
       fit: BoxFit.scaleDown,
       child: RoundFloatingButton(
@@ -52,12 +55,12 @@ class AttachmentButton extends StatelessWidget {
           onPressed?.call();
           Navigator.of(context).pop();
         },
-        style: const TextStyle(fontSize: 15, color: Colors.black),
+        style: TextStyle(fontSize: 15, color: style.colors.onBackground),
         color: Theme.of(context).colorScheme.secondary,
         child: SizedBox(
           width: 60,
           height: 60,
-          child: child ?? Icon(icon, color: Colors.white, size: 30),
+          child: child ?? Icon(icon, color: style.colors.onPrimary, size: 30),
         ),
       ),
     );

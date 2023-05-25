@@ -522,17 +522,19 @@ class _BottomControlBarState extends State<_BottomControlBar> {
 
   /// Returns the play/pause button.
   Widget _buildPlayPause(VideoPlayerController controller) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Transform.translate(
       offset: const Offset(0, 0),
       child: GestureDetector(
         onTap: widget.playPause,
         child: Container(
           height: widget.barHeight,
-          color: Colors.transparent,
+          color: style.colors.transparent,
           child: AnimatedPlayPause(
             size: 21,
             playing: controller.value.isPlaying,
-            color: Colors.white,
+            color: style.colors.onPrimary,
           ),
         ),
       ),
@@ -544,14 +546,18 @@ class _BottomControlBarState extends State<_BottomControlBar> {
     final position = widget.latestValue.position;
     final duration = widget.latestValue.duration;
 
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Text(
       '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: const TextStyle(fontSize: 14.0, color: Colors.white),
+      style: TextStyle(fontSize: 14.0, color: style.colors.onPrimary),
     );
   }
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Expanded(
       child: VideoProgressBar(
         widget.controller,
@@ -562,11 +568,10 @@ class _BottomControlBarState extends State<_BottomControlBar> {
         onDragEnd: widget.onDragEnd,
         colors: widget.chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: Theme.of(context).colorScheme.secondary,
-              handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor:
-                  Theme.of(context).colorScheme.background.withOpacity(0.5),
-              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
+              playedColor: style.colors.primary,
+              handleColor: style.colors.primary,
+              bufferedColor: style.colors.background.withOpacity(0.5),
+              backgroundColor: style.colors.secondary.withOpacity(0.5),
             ),
       ),
     );
@@ -633,6 +638,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
 
   /// Returns the mute/unmute button with a volume overlay above it.
   Widget _buildMuteButton(VideoPlayerController controller) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return MouseRegion(
       onEnter: (_) {
         if (mounted && _volumeEntry == null) {
@@ -658,7 +665,7 @@ class _BottomControlBarState extends State<_BottomControlBar> {
               widget.latestValue.volume > 0
                   ? Icons.volume_up
                   : Icons.volume_off,
-              color: Colors.white,
+              color: style.colors.onPrimary,
               size: 18,
             ),
           ),
@@ -669,6 +676,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(
       () => GestureDetector(
         onTap: widget.onExpandCollapse,
@@ -679,7 +688,7 @@ class _BottomControlBarState extends State<_BottomControlBar> {
               widget.isFullscreen?.value == true
                   ? Icons.fullscreen_exit
                   : Icons.fullscreen,
-              color: Colors.white,
+              color: style.colors.onPrimary,
               size: 21,
             ),
           ),

@@ -134,14 +134,15 @@ class _RenderAsChatCallState extends State<RenderAsChatCall> {
     final Style style = Theme.of(context).extension<Style>()!;
 
     final Color color = widget.fromMe
-        ? Theme.of(context).colorScheme.secondary
-        : AvatarWidget.colors[(widget.rxUser?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+        ? style.colors.primary
+        : style.colors.userColors[
+            (widget.rxUser?.user.value.num.val.sum() ?? 3) %
+                style.colors.userColors.length];
 
     final Widget call = Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.black.withOpacity(0.03),
+        color: style.colors.onBackground.withOpacity(0.03),
       ),
       padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
       child: Row(

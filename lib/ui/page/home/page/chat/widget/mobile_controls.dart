@@ -406,6 +406,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
     final position = widget.latestValue.position;
     final duration = widget.latestValue.duration;
 
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return RichText(
       text: TextSpan(
         text: '${formatDuration(position)} ',
@@ -414,14 +416,14 @@ class _BottomControlBarState extends State<_BottomControlBar> {
             text: '/ ${formatDuration(duration)}',
             style: TextStyle(
               fontSize: 14.0,
-              color: Colors.white.withOpacity(.75),
+              color: style.colors.onPrimaryOpacity50,
               fontWeight: FontWeight.normal,
             ),
           )
         ],
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14.0,
-          color: Colors.white,
+          color: style.colors.onPrimary,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -430,6 +432,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
 
   /// Returns the mute/unmute button.
   GestureDetector _buildMuteButton() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GestureDetector(
       onTap: widget.onTap,
       child: AnimatedOpacity(
@@ -447,7 +451,7 @@ class _BottomControlBarState extends State<_BottomControlBar> {
               widget.latestValue.volume > 0
                   ? Icons.volume_up
                   : Icons.volume_off,
-              color: Colors.white,
+              color: style.colors.onPrimary,
               size: 18,
             ),
           ),
@@ -458,6 +462,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Expanded(
       child: VideoProgressBar(
         widget.controller,
@@ -468,11 +474,10 @@ class _BottomControlBarState extends State<_BottomControlBar> {
         onDragEnd: widget.onDragEnd,
         colors: widget.chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: Theme.of(context).colorScheme.secondary,
-              handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor:
-                  Theme.of(context).colorScheme.background.withOpacity(0.5),
-              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
+              playedColor: style.colors.primary,
+              handleColor: style.colors.primary,
+              bufferedColor: style.colors.background.withOpacity(0.5),
+              backgroundColor: style.colors.secondary.withOpacity(0.5),
             ),
       ),
     );

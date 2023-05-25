@@ -17,6 +17,8 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// [Widget] which returns an [InkWell] circular button with an [icon].
 class CircularButton extends StatelessWidget {
   const CircularButton({super.key, this.icon, this.onTap});
@@ -29,10 +31,12 @@ class CircularButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Material(
       type: MaterialType.circle,
-      color: Colors.white,
-      shadowColor: const Color(0x55000000),
+      color: style.colors.onPrimary,
+      shadowColor: style.colors.onBackgroundOpacity27,
       elevation: 6,
       child: InkWell(
         customBorder: const CircleBorder(),
