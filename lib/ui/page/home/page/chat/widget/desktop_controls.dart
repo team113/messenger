@@ -479,6 +479,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
@@ -495,7 +497,7 @@ class _BottomControlBarState extends State<_BottomControlBar> {
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: const Color(0x66000000),
+                color: style.colors.onBackgroundOpacity40,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -579,6 +581,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Stack(
       children: [
         Positioned(
@@ -607,7 +611,7 @@ class _BottomControlBarState extends State<_BottomControlBar> {
                         width: 15,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: const Color(0x66000000),
+                          color: style.colors.onBackgroundOpacity40,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: RotatedBox(

@@ -412,7 +412,9 @@ class RenderAsChatMessage extends StatelessWidget {
                         ? isRead
                             ? style.secondaryBorder
                             : Border.all(
-                                color: const Color(0xFFDAEDFF), width: 0.5)
+                                color: style.colors.primaryHighlightShiniest,
+                                width: 0.5,
+                              )
                         : style.primaryBorder,
                   ),
                   child: Column(

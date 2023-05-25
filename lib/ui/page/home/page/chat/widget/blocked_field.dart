@@ -47,8 +47,11 @@ class BlockedField extends StatelessWidget {
           key: const Key('BlockedField'),
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
-            boxShadow: const [
-              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+            boxShadow: [
+              CustomBoxShadow(
+                blurRadius: 8,
+                color: style.colors.onBackgroundOpacity13,
+              ),
             ],
           ),
           child: ConditionalBackdropFilter(

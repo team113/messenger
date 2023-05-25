@@ -256,7 +256,10 @@ class _RenderAsChatCallState extends State<RenderAsChatCall> {
             border: widget.fromMe
                 ? widget.isRead
                     ? style.secondaryBorder
-                    : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+                    : Border.all(
+                        color: style.colors.backgroundAuxiliaryLighter,
+                        width: 0.5,
+                      )
                 : style.primaryBorder,
             color: widget.fromMe
                 ? widget.isRead

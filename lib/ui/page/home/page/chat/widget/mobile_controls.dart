@@ -354,17 +354,22 @@ class _BottomControlBar extends StatefulWidget {
 class _BottomControlBarState extends State<_BottomControlBar> {
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
 
     return AnimatedOpacity(
       opacity: widget.hideStuff ? 0.0 : 1.0,
       duration: const Duration(milliseconds: 300),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0x00000000), Color(0x66000000)],
+            colors: [
+              style.colors.transparent,
+              style.colors.onBackgroundOpacity40,
+            ],
           ),
         ),
         child: SafeArea(
