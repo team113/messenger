@@ -60,10 +60,7 @@ class CustomNavigationBar extends StatelessWidget {
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 150),
           opacity: selected ? 1 : 0.7,
-          child: AnimatedButton(
-            disabled: selected,
-            child: child,
-          ),
+          child: AnimatedButton(child: child),
         ),
       );
     }

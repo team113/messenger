@@ -22,14 +22,10 @@ class AnimatedButton extends StatefulWidget {
   const AnimatedButton({
     super.key,
     required this.child,
-    this.disabled = false,
   });
 
   /// Widget to animate.
   final Widget child;
-
-  /// Indicator whether the animation is disabled.
-  final bool disabled;
 
   @override
   State<AnimatedButton> createState() => _AnimatedButtonState();
@@ -60,23 +56,13 @@ class _AnimatedButtonState extends State<AnimatedButton>
     return LayoutBuilder(builder: (context, constraints) {
       return MouseRegion(
         opaque: false,
-        onEnter: (_) {
-          if (!widget.disabled) {
-            setState(() => _hovered = true);
-          }
-        },
-        onExit: (_) {
-          if (!widget.disabled) {
-            setState(() => _hovered = false);
-          }
-        },
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
         child: Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (_) {
-            if (!widget.disabled) {
-              _controller.reset();
-              _controller.forward();
-            }
+            _controller.reset();
+            _controller.forward();
           },
           child: AnimatedScale(
             duration: const Duration(milliseconds: 100),
