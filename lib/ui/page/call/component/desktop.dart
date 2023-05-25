@@ -402,7 +402,6 @@ class DesktopCall extends StatelessWidget {
                                       });
                                     });
                                   });
-                              ;
                             } else {
                               if (isDialog) {
                                 final User? user = c.chat.value?.members.values
