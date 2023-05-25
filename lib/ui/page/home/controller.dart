@@ -24,21 +24,18 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
-import '/util/message_popup.dart';
 
 export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUserService, this._settings);
+  HomeController(this._auth, this._myUser, this._settings);
 
   /// Maximal percentage of the screen's width which side bar can occupy.
   static const double sideBarMaxWidthPercentage = 0.5;
@@ -69,14 +66,11 @@ class HomeController extends GetxController {
   /// Used to position a status changing [Selector] properly.
   final GlobalKey profileKey = GlobalKey();
 
-  /// [GlobalKey] of a [Chat]s button in the navigation bar.
-  final GlobalKey chatsKey = GlobalKey();
-
   /// Authentication service to determine auth status.
   final AuthService _auth;
 
   /// [MyUserService] to listen to the [MyUser] changes.
-  final MyUserService _myUserService;
+  final MyUserService _myUser;
 
   /// [AbstractSettingsRepository] containing the [ApplicationSettings] used to
   /// determine whether an [IntroductionView] was already shown.
@@ -89,7 +83,7 @@ class HomeController extends GetxController {
   Rx<RxStatus> get authStatus => _auth.status;
 
   /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUserService.myUser;
+  Rx<MyUser?> get myUser => _myUser.myUser;
 
   /// Returns the width side bar is allowed to occupy.
   double get sideBarAllowedWidth =>
@@ -104,8 +98,8 @@ class HomeController extends GetxController {
     page = Rx<HomeTab>(router.tab);
     pages = PageController(initialPage: page.value.index, keepPage: true);
 
-    unreadChatsCount.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
-    _myUserSubscription = _myUserService.myUser.listen((u) =>
+    unreadChatsCount.value = _myUser.myUser.value?.unreadChatsCount ?? 0;
+    _myUserSubscription = _myUser.myUser.listen((u) =>
         unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
 
     sideBarWidth =
@@ -121,12 +115,12 @@ class HomeController extends GetxController {
     refresh();
 
     if (_settings.applicationSettings.value?.showIntroduction ?? true) {
-      if (_myUserService.myUser.value != null) {
-        _displayIntroduction(_myUserService.myUser.value!);
+      if (_myUser.myUser.value != null) {
+        _displayIntroduction(_myUser.myUser.value!);
       } else {
         Worker? worker;
         worker = ever(
-          _myUserService.myUser,
+          _myUser.myUser,
           (MyUser? myUser) {
             if (myUser != null && worker != null) {
               _displayIntroduction(myUser);
@@ -163,19 +157,7 @@ class HomeController extends GetxController {
 
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>
-      _myUserService.updateUserPresence(presence);
-
-  /// Toggles [MyUser.muted] status.
-  Future<void> toggleMute(bool enabled) async {
-    try {
-      await _myUserService.toggleMute(
-        enabled ? null : MuteDuration.forever(),
-      );
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
+      _myUser.updateUserPresence(presence);
 
   /// Refreshes the controller on [router] change.
   ///

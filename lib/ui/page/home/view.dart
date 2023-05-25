@@ -20,16 +20,14 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
+import '/ui/page/home/widget/rmb_detector.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -38,8 +36,10 @@ import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
+import 'tab/chats/more/view.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
+import 'tab/menu/status/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
@@ -197,29 +197,11 @@ class _HomeViewState extends State<HomeView> {
                                 badgeColor: c.myUser.value?.muted != null
                                     ? style.colors.secondaryHighlightDarkest
                                     : style.colors.dangerColor,
-                                child: ContextMenuRegion(
-                                  selector: c.chatsKey,
-                                  alignment: Alignment.bottomCenter,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 0,
-                                  ),
-                                  actions: [
-                                    if (c.myUser.value?.muted != null)
-                                      ContextMenuButton(
-                                        label: 'btn_unmute_chats'.l10n,
-                                        onPressed: () {
-                                          c.toggleMute(true);
-                                        },
-                                      )
-                                    else
-                                      ContextMenuButton(
-                                        label: 'btn_mute_chats'.l10n,
-                                        onPressed: () {
-                                          c.toggleMute(false);
-                                        },
-                                      ),
-                                  ],
+                                child: RmbDetector(
+                                  onPressed: () {
+                                    HapticFeedback.lightImpact();
+                                    ChatsMoreView.show(context);
+                                  },
                                   child: Obx(() {
                                     final Widget child;
 
@@ -240,7 +222,6 @@ class _HomeViewState extends State<HomeView> {
                                     }
 
                                     return AnimatedSwitcher(
-                                      key: c.chatsKey,
                                       duration: 200.milliseconds,
                                       layoutBuilder: (child, previous) {
                                         return Stack(
@@ -257,43 +238,11 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('MenuButton'),
-                                child: ContextMenuRegion(
-                                  selector: c.profileKey,
-                                  alignment: Alignment.bottomRight,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 0,
-                                  ),
-                                  actions: [
-                                    ContextMenuButton(
-                                      label: 'label_presence_present'.l10n,
-                                      onPressed: () {
-                                        c.setPresence(Presence.present);
-                                      },
-                                      trailing: Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.green,
-                                        ),
-                                      ),
-                                    ),
-                                    ContextMenuButton(
-                                      label: 'label_presence_away'.l10n,
-                                      onPressed: () {
-                                        c.setPresence(Presence.away);
-                                      },
-                                      trailing: Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.orange,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                child: RmbDetector(
+                                  onPressed: () {
+                                    HapticFeedback.lightImpact();
+                                    StatusView.show(context);
+                                  },
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,
                                     key: c.profileKey,
