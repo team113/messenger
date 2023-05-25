@@ -395,16 +395,18 @@ class AvatarWidget extends StatelessWidget {
           child: Stack(
             children: [
               Center(
-                child: Text(
-                  (title ?? '??').initials(),
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontSize: 15 * (maxWidth / 40.0),
-                        color: style.colors.onPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
+                child: SelectionContainer.disabled(
+                  child: Text(
+                    (title ?? '??').initials(),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontSize: 15 * (maxWidth / 40.0),
+                          color: style.colors.onPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
 
-                  // Disable the accessibility size settings for this [Text].
-                  textScaleFactor: 1,
+                    // Disable the accessibility size settings for this [Text].
+                    textScaleFactor: 1,
+                  ),
                 ),
               ),
               if (avatar != null)
