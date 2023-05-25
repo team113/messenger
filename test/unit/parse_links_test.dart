@@ -89,6 +89,53 @@ void main() {
       );
       expect(span6.children![3].toPlainText(), 'google.com');
       expect((span6.children![3] as TextSpan).recognizer != null, true);
+
+      const String text7 = 'Link with dashes https://www.link-with-dashes.com.';
+      final TextSpan span7 = text7.parseLinks([]);
+      expect(span7.children!.length, 3);
+      expect(span7.children![0].toPlainText(), 'Link with dashes ');
+      expect(
+        span7.children![1].toPlainText(),
+        'https://www.link-with-dashes.com',
+      );
+      expect((span7.children![1] as TextSpan).recognizer != null, true);
+      expect(span7.children![2].toPlainText(), '.');
+
+      const String text8 = 'Uppercase link https://www.UPPERCASE.com.';
+      final TextSpan span8 = text8.parseLinks([]);
+      expect(span8.children!.length, 3);
+      expect(span8.children![0].toPlainText(), 'Uppercase link ');
+      expect(span8.children![1].toPlainText(), 'https://www.UPPERCASE.com');
+      expect((span8.children![1] as TextSpan).recognizer != null, true);
+      expect(span8.children![2].toPlainText(), '.');
+
+      const String text9 = 'Link with slash in end https://www.google.com/.';
+      final TextSpan span9 = text9.parseLinks([]);
+      expect(span9.children!.length, 3);
+      expect(span9.children![0].toPlainText(), 'Link with slash in end ');
+      expect(span9.children![1].toPlainText(), 'https://www.google.com/');
+      expect((span9.children![1] as TextSpan).recognizer != null, true);
+      expect(span9.children![2].toPlainText(), '.');
+
+      const String text10 =
+          'Link with spec symbols is not parsed google\$.com.';
+      final TextSpan span10 = text10.parseLinks([]);
+      expect(
+        span10.toPlainText(),
+        'Link with spec symbols is not parsed google\$.com.',
+      );
+
+      const String text11 =
+          'Link with spec symbols is not parsed goog\$le.com.';
+      final TextSpan span11 = text11.parseLinks([]);
+      expect(span11.children!.length, 3);
+      expect(
+        span11.children![0].toPlainText(),
+        'Link with spec symbols is not parsed goog\$',
+      );
+      expect(span11.children![1].toPlainText(), 'le.com');
+      expect((span11.children![1] as TextSpan).recognizer != null, true);
+      expect(span11.children![2].toPlainText(), '.');
     },
   );
 }

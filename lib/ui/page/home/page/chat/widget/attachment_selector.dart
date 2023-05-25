@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
@@ -72,6 +73,8 @@ class AttachmentSourceSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     List<Widget> children = [
       AttachmentButton(
         icon: null,
@@ -130,7 +133,7 @@ class AttachmentSourceSelector extends StatelessWidget {
           key: const Key('CloseButton'),
           title: Text('btn_close'.l10n),
           onPressed: Navigator.of(context).pop,
-          color: const Color(0xFFEEEEEE),
+          color: style.colors.secondaryHighlight,
         ),
         const SizedBox(height: 10),
       ],

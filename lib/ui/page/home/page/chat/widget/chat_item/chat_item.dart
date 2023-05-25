@@ -185,6 +185,8 @@ class ChatItemWidget extends StatefulWidget {
     bool filled = true,
     bool autoLoad = true,
   }) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool isLocal = e is LocalAttachment;
 
     final bool isVideo;
@@ -211,12 +213,15 @@ class ChatItemWidget extends StatefulWidget {
             child: Container(
               width: 60,
               height: 60,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0x80000000),
+                color: style.colors.onBackgroundOpacity50,
               ),
-              child:
-                  const Icon(Icons.play_arrow, color: Colors.white, size: 48),
+              child: Icon(
+                Icons.play_arrow,
+                color: style.colors.onPrimary,
+                size: 48,
+              ),
             ),
           ),
         ],
@@ -318,11 +323,11 @@ class ChatItemWidget extends StatefulWidget {
                                 minWidth: 300, minHeight: 300)
                             : null,
                         child: e.status.value == SendingStatus.sent
-                            ? const Icon(
+                            ? Icon(
                                 Icons.check_circle,
-                                key: Key('Sent'),
+                                key: const Key('Sent'),
                                 size: 48,
-                                color: Colors.green,
+                                color: style.colors.acceptAuxiliaryColor,
                               )
                             : e.status.value == SendingStatus.sending
                                 ? SizedBox(
@@ -332,16 +337,16 @@ class ChatItemWidget extends StatefulWidget {
                                       child: CircularProgressIndicator(
                                         key: const Key('Sending'),
                                         value: e.progress.value,
-                                        backgroundColor: Colors.white,
+                                        backgroundColor: style.colors.onPrimary,
                                         strokeWidth: 10,
                                       ),
                                     ),
                                   )
-                                : const Icon(
+                                : Icon(
                                     Icons.error,
-                                    key: Key('Error'),
+                                    key: const Key('Error'),
                                     size: 48,
-                                    color: Colors.red,
+                                    color: style.colors.dangerColor,
                                   ),
                       ),
               )
@@ -463,6 +468,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return DefaultTextStyle(
       style: style.boldBody,
       child: Obx(() {
@@ -550,8 +556,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 margin: const EdgeInsets.only(right: 2),
                 decoration: BoxDecoration(
                   color: fromMe
-                      ? Colors.white.withOpacity(0.25)
-                      : Colors.black.withOpacity(0.03),
+                      ? style.colors.onPrimaryOpacity25
+                      : style.colors.onBackgroundOpacity2,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 width: 50,
@@ -559,7 +565,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 child: image == null
                     ? Icon(
                         Icons.file_copy,
-                        color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                        color: fromMe
+                            ? style.colors.onPrimary
+                            : style.colors.secondaryHighlightDarkest,
                         size: 28,
                       )
                     : RetryImage(
@@ -586,8 +594,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? Colors.white.withOpacity(0.25)
-                    : Colors.black.withOpacity(0.03),
+                    ? style.colors.onPrimaryOpacity25
+                    : style.colors.onBackgroundOpacity2,
                 borderRadius: BorderRadius.circular(10),
               ),
               width: 50,
@@ -597,10 +605,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    style:
+                        TextStyle(fontSize: 15, color: style.colors.secondary),
                   ),
                 ),
               ),
@@ -683,11 +689,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return FutureBuilder<RxUser?>(
       future: widget.getUser?.call(item.author),
       builder: (context, snapshot) {
-        Color color = snapshot.data?.user.value.id == widget.me
-            ? Theme.of(context).colorScheme.secondary
-            : AvatarWidget.colors[
+        final Color color = snapshot.data?.user.value.id == widget.me
+            ? style.colors.primary
+            : style.colors.userColors[
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    AvatarWidget.colors.length];
+                    style.colors.userColors.length];
 
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -748,6 +754,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     Widget Function(bool menu) builder, {
     double avatarOffset = 0,
   }) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     ChatItem item = widget.item.value;
 
     String? copyable;
@@ -930,13 +938,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               child: Icon(Icons.access_alarm, size: 15),
                             )
                           : item.status.value == SendingStatus.error
-                              ? const Padding(
-                                  key: Key('Error'),
-                                  padding: EdgeInsets.only(bottom: 8),
+                              ? Padding(
+                                  key: const Key('Error'),
+                                  padding: const EdgeInsets.only(bottom: 8),
                                   child: Icon(
                                     Icons.error_outline,
                                     size: 15,
-                                    color: Colors.red,
+                                    color: style.colors.dangerColor,
                                   ),
                                 )
                               : Container(key: const Key('Sent')),
@@ -1321,7 +1329,7 @@ extension LocalizedDurationExtension on Duration {
 extension LinkParsingExtension on String {
   /// [RegExp] detecting links and e-mails in a [parseLinks] method.
   static final RegExp _regex = RegExp(
-    r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|(\b(([a-z]+:\/\/)?(www\.)?[a-z0-9]+\.[a-z]{2,})(\/?\S*)?\b)',
+    r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|((([a-z]+:\/\/)?(www\.)?([a-zA-Z0-9_-]+\.)+[a-zA-Z]{2,})((\/\S*)?[^,\u0027")}\].:;?!`\s])?)',
   );
 
   /// Returns [TextSpan]s containing plain text along with links and e-mails

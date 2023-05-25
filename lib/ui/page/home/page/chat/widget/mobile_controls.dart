@@ -26,6 +26,7 @@ import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
@@ -95,12 +96,16 @@ class _MobileControlsState extends State<MobileControls>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder?.call(
             context,
             _chewieController.videoPlayerController.value.errorDescription!,
           ) ??
-          const Center(child: Icon(Icons.error, color: Colors.white, size: 42));
+          Center(
+            child: Icon(Icons.error, color: style.colors.onPrimary, size: 42),
+          );
     }
 
     return MouseRegion(
@@ -172,7 +177,7 @@ class _MobileControlsState extends State<MobileControls>
                   }
                 },
                 child: Container(
-                  color: Colors.transparent,
+                  color: style.colors.transparent,
                   width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
                   height: double.infinity,
                 ),
@@ -194,7 +199,7 @@ class _MobileControlsState extends State<MobileControls>
                   }
                 },
                 child: Container(
-                  color: Colors.transparent,
+                  color: style.colors.transparent,
                   width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
                   height: double.infinity,
                 ),
@@ -232,10 +237,12 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool isFinished = _latestValue.position >= _latestValue.duration;
     return CenterPlayButton(
-      backgroundColor: Colors.black54,
-      iconColor: Colors.white,
+      backgroundColor: style.colors.onBackgroundOpacity13,
+      iconColor: style.colors.onPrimary,
       isFinished: isFinished,
       isPlaying: _controller.value.isPlaying,
       show: !_dragging && !_hideStuff,

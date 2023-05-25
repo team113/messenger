@@ -29,9 +29,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
-import 'progress_bar.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
+import 'progress_bar.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
@@ -142,10 +143,14 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder
               ?.call(context, _controller.value.errorDescription!) ??
-          const Center(child: Icon(Icons.error, color: Colors.white, size: 42));
+          Center(
+            child: Icon(Icons.error, color: style.colors.onPrimary, size: 42),
+          );
     }
 
     return MouseRegion(
@@ -283,6 +288,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
     final bool isFinished = _latestValue.position >= _latestValue.duration;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Center(
       child: AnimatedSwitcher(
@@ -296,16 +302,16 @@ class _DesktopControlsState extends State<DesktopControls>
                 child: Container(
                   width: 48,
                   height: 48,
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
+                  decoration: BoxDecoration(
+                    color: style.colors.onBackgroundOpacity13,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
                     iconSize: 32,
                     icon: isFinished
-                        ? const Icon(Icons.replay, color: Colors.white)
+                        ? Icon(Icons.replay, color: style.colors.onPrimary)
                         : AnimatedPlayPause(
-                            color: Colors.white,
+                            color: style.colors.onPrimary,
                             playing: _controller.value.isPlaying,
                           ),
                     onPressed: _playPause,

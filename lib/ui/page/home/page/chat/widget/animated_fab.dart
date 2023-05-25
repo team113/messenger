@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import 'circular_button.dart';
 
 /// Animated button with expandable on toggle [actions].
@@ -163,6 +164,8 @@ class _AnimatedFabState extends State<AnimatedFab>
     _overlayEntry = OverlayEntry(
       builder: (ctx) => LayoutBuilder(
         builder: (context, constraints) {
+          final Style style = Theme.of(context).extension<Style>()!;
+
           if (!firstLayout) {
             final keyContext = _key.currentContext;
             if (keyContext != null) {
@@ -181,7 +184,8 @@ class _AnimatedFabState extends State<AnimatedFab>
                   animation: _controller,
                   builder: (context, child) {
                     return Container(
-                      color: Colors.black.withOpacity(0.25 * _controller.value),
+                      color: style.colors.onBackground
+                          .withOpacity(0.25 * _controller.value),
                     );
                   },
                 ),
@@ -263,8 +267,8 @@ class _AnimatedFabState extends State<AnimatedFab>
                               const SizedBox(width: 5),
                               Material(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Colors.white,
-                                shadowColor: const Color(0x33000000),
+                                color: style.colors.onPrimary,
+                                shadowColor: style.colors.onBackgroundOpacity20,
                                 elevation: 6,
                                 child: InkWell(
                                   onTap: onTap,

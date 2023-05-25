@@ -94,10 +94,12 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (_deps == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: CustomProgressIndicator()),
+      return Scaffold(
+        backgroundColor: style.colors.onPrimary,
+        body: const Center(child: CustomProgressIndicator()),
       );
     }
 
@@ -134,8 +136,7 @@ class _HomeViewState extends State<HomeView> {
                     maxWidth: context.isNarrow ? context.width : width,
                   ),
                   child: Scaffold(
-                    backgroundColor:
-                        Theme.of(context).extension<Style>()!.sidebarColor,
+                    backgroundColor: style.sidebarColor,
                     body: Listener(
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {
@@ -212,8 +213,8 @@ class _HomeViewState extends State<HomeView> {
                                     ? null
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
-                                    ? const Color(0xFFC0C0C0)
-                                    : Colors.red,
+                                    ? style.colors.secondaryHighlightDarkest
+                                    : style.colors.dangerColor,
                                 child: RmbDetector(
                                   onPressed: () {
                                     HapticFeedback.lightImpact();
@@ -333,7 +334,7 @@ class _HomeViewState extends State<HomeView> {
               key: const Key('HomeView'),
               children: [
                 Container(
-                  color: Colors.white,
+                  color: style.colors.onPrimary,
                   width: double.infinity,
                   height: double.infinity,
                 ),
@@ -356,6 +357,8 @@ class _HomeViewState extends State<HomeView> {
 
   /// Builds the [HomeController.background] visual representation.
   Widget _background(HomeController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Positioned.fill(
       child: IgnorePointer(
         child: Obx(() {
@@ -395,8 +398,8 @@ class _HomeViewState extends State<HomeView> {
                   child: image,
                 ),
               ),
-              const Positioned.fill(
-                child: ColoredBox(color: Color(0x0D000000)),
+              Positioned.fill(
+                child: ColoredBox(color: style.colors.onBackgroundOpacity7),
               ),
               if (!context.isNarrow) ...[
                 Row(
@@ -413,7 +416,11 @@ class _HomeViewState extends State<HomeView> {
                         );
                       }),
                     ),
-                    const Expanded(child: ColoredBox(color: Color(0x04000000))),
+                    Expanded(
+                      child: ColoredBox(
+                        color: style.colors.onBackgroundOpacity2,
+                      ),
+                    ),
                   ],
                 ),
               ],
