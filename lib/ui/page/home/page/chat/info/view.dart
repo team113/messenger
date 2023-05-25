@@ -294,7 +294,6 @@ class ChatInfoView extends StatelessWidget {
                 c.chat,
                 key: c.avatarKey,
                 radius: 100,
-                quality: AvatarQuality.original,
               ),
             ),
             Positioned.fill(
