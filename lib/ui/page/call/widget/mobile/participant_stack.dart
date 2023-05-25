@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../participant.dart';
 import '/ui/page/call/controller.dart';
@@ -43,7 +42,7 @@ class ParticipantStack extends StatelessWidget {
   final bool animated;
 
   /// Indicator whether the widget is minimized or not.
-  final RxBool minimized;
+  final bool minimized;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +59,7 @@ class ParticipantStack extends StatelessWidget {
           e,
           muted: muted,
           hovered: animated,
-          preferBackdrop: !minimized.value,
+          preferBackdrop: minimized,
         ),
       ],
     );

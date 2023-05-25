@@ -48,7 +48,7 @@ class ChatCardPreview extends StatelessWidget {
   final CallMember me;
 
   /// [Rx] representing the current duration of the call.
-  final Rx<Duration> duration;
+  final Duration duration;
 
   /// Callback [Function] that opens a screen to add members to the chat.
   final void Function() onTap;
@@ -96,7 +96,7 @@ class ChatCardPreview extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                duration.value.hhMmSs(),
+                                duration.hhMmSs(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall

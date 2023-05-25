@@ -43,7 +43,7 @@ class AnimatedParticipant extends StatelessWidget {
   final bool animated;
 
   /// Indicator whether the widget is minimized or not.
-  final RxBool minimized;
+  final bool minimized;
 
   @override
   Widget build(BuildContext context) {

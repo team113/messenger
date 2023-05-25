@@ -212,7 +212,7 @@ class MobileCall extends StatelessWidget {
                         e,
                         muted,
                         animated,
-                        c.minimized,
+                        c.minimized.value,
                       );
                     },
                   );
@@ -640,7 +640,7 @@ class MobileCall extends StatelessWidget {
                 child: ChatCardPreview(
                   me: c.me,
                   chat: c.chat.value,
-                  duration: c.duration,
+                  duration: c.duration.value,
                   actualMembers: c.members.keys.map((k) => k.userId).toSet(),
                   onTap: () => c.openAddMember(context),
                 ),
