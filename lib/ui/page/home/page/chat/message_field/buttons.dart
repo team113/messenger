@@ -21,6 +21,7 @@ abstract class ChatButton {
   String? get assetMini => null;
   double? get assetMiniWidth => 26;
   double? get assetMiniHeight => 22;
+  Offset get offsetMini => Offset.zero;
 
   void Function()? get onPressed => null;
 
@@ -104,7 +105,7 @@ class AttachmentButton extends ChatButton {
       };
 
   @override
-  String get hint => 'Прикрепление';
+  String get hint => 'Файл';
 
   @override
   String get asset => 'attachment';
@@ -136,10 +137,24 @@ class TakePhotoButton extends ChatButton {
 
   @override
   String get hint =>
-      PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n;
+      PlatformUtils.isAndroid ? 'label_take_photo'.l10n : 'label_camera'.l10n;
+
+  // @override
+  // String get asset => 'make_photo';
 
   @override
-  String get asset => 'make_photo';
+  String get asset => 'take_photo1';
+  @override
+  double get assetWidth => 22;
+  @override
+  double get assetHeight => 22;
+
+  @override
+  String get assetMini => 'take_photo1_mini1';
+  @override
+  double get assetMiniWidth => 20;
+  @override
+  double get assetMiniHeight => 20;
 }
 
 class TakeVideoButton extends ChatButton {
@@ -152,10 +167,27 @@ class TakeVideoButton extends ChatButton {
       };
 
   @override
-  String get hint => 'label_video'.l10n;
+  String get hint => 'label_take_video'.l10n;
+
+  // @override
+  // String get asset => 'video_message1';
 
   @override
-  String get asset => 'video_message1';
+  String get asset => 'take_video2';
+  @override
+  double get assetWidth => 27.99;
+  @override
+  double get assetHeight => 22;
+
+  @override
+  String get assetMini => 'take_video2_mini';
+  @override
+  double get assetMiniWidth => 25.71;
+  @override
+  double get assetMiniHeight => 20;
+
+  @override
+  Offset get offsetMini => const Offset(3, 0);
 }
 
 class GalleryButton extends ChatButton {
@@ -171,7 +203,22 @@ class GalleryButton extends ChatButton {
   String get hint => 'label_gallery'.l10n;
 
   @override
-  String get asset => 'gallery';
+  String get asset => 'gallery_outlined';
+
+  @override
+  double get assetWidth => 22;
+
+  @override
+  double get assetHeight => 22;
+
+  @override
+  String get assetMini => 'gallery_outlined_mini';
+
+  @override
+  double get assetMiniWidth => 20;
+
+  @override
+  double get assetMiniHeight => 20;
 }
 
 class FileButton extends ChatButton {
@@ -187,7 +234,22 @@ class FileButton extends ChatButton {
   String get hint => 'label_file'.l10n;
 
   @override
-  String get asset => 'pick_file';
+  String get asset => 'file_outlined';
+
+  @override
+  double get assetWidth => 18.8;
+
+  @override
+  double get assetHeight => 23;
+
+  @override
+  String get assetMini => 'file_outlined_mini';
+
+  @override
+  double get assetMiniWidth => 17.2;
+
+  @override
+  double get assetMiniHeight => 21;
 }
 
 class DonateButton extends ChatButton {
@@ -242,4 +304,32 @@ class GeopositionButton extends ChatButton {
 
   @override
   String get asset => 'video_on';
+}
+
+class StickerButton extends ChatButton {
+  const StickerButton(super.c);
+
+  @override
+  String get hint => 'Стикер';
+
+  @override
+  String get asset => 'smile';
+
+  @override
+  double get assetWidth => 23;
+
+  @override
+  double get assetHeight => 23;
+
+  @override
+  Offset get offset => const Offset(0, -1);
+
+  @override
+  String get assetMini => 'smile_mini';
+
+  @override
+  double get assetMiniWidth => 21;
+
+  @override
+  double get assetMiniHeight => 21;
 }

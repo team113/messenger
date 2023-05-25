@@ -577,7 +577,8 @@ class MessageFieldView extends StatelessWidget {
             ),
             const SizedBox(width: 26 / 2 - 3),
             Obx(() {
-              if (c.buttons.isEmpty || c.field.isFocused.value) {
+              if (c.buttons.isEmpty ||
+                  (!c.field.isEmpty.value && c.field.isFocused.value)) {
                 return const SizedBox();
               }
 
@@ -595,7 +596,7 @@ class MessageFieldView extends StatelessWidget {
                     onPressed: e.onPressed,
                     child: SizedBox(
                       // color: Colors.red,
-                      width: 36 + 4,
+                      width: 36 + 4 + 4,
                       height: 56,
                       child: Center(
                         child: e.icon == null

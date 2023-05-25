@@ -161,12 +161,15 @@ class _MenuButtonState extends State<_MenuButton> {
               SizedBox(
                 width: 26,
                 child: (widget.button.icon == null)
-                    ? SvgImage.asset(
-                        'assets/icons/${widget.button.assetMini ?? widget.button.asset}.svg',
-                        width: widget.button.assetMiniWidth ??
-                            widget.button.assetWidth,
-                        height: widget.button.assetMiniHeight ??
-                            widget.button.assetHeight,
+                    ? Transform.translate(
+                        offset: widget.button.offsetMini,
+                        child: SvgImage.asset(
+                          'assets/icons/${widget.button.assetMini ?? widget.button.asset}.svg',
+                          width: widget.button.assetMiniWidth ??
+                              widget.button.assetWidth,
+                          height: widget.button.assetMiniHeight ??
+                              widget.button.assetHeight,
+                        ),
                       )
                     : Icon(
                         widget.button.icon ?? Icons.attach_email,

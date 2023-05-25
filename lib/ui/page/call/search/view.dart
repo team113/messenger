@@ -24,6 +24,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -85,8 +86,11 @@ class SearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: style.colors.onBackground,
+        );
 
     return GetBuilder(
       key: const Key('SearchView'),
@@ -241,12 +245,14 @@ class SearchView extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: TextStyle(
-                          color: enabled ? Colors.white : Colors.black,
+                          color: enabled
+                              ? style.colors.onPrimary
+                              : style.colors.onBackground,
                         ),
                       ),
                       onPressed:
                           enabled ? () => onSubmit?.call(c.selected()) : null,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: style.colors.primary,
                     );
                   }),
                 ),

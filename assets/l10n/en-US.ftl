@@ -32,7 +32,7 @@ alert_chat_will_be_hidden1 = Chat{" "}
 alert_chat_will_be_hidden2 = {" "}will be hidden.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
 alert_contact_will_be_removed1 = Contact{" "}
-alert_contact_will_be_removed2 = {" "}will be removed.
+alert_contact_will_be_removed2 = {" "}will be deleted.
 alert_contacts_will_be_deleted = Contacts ({$count}) will be deleted. Continue?
 alert_dialog_will_be_cleared1 = Dialog with user{" "}
 alert_dialog_will_be_cleared2 = {" "}will be cleared.
@@ -613,6 +613,10 @@ label_favorite_contacts = Favorite
 label_file = File
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
+label_forwarded_messages = {$count ->
+    [1] Пересланное сообщение
+   *[other] Пересланные сообщения
+}
 label_gallery = Gallery
 label_group_created = Group created
 label_group_created_by = {$author} created the group
@@ -733,7 +737,7 @@ label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information
 label_public_section_hint = Avatar and name
-label_read_at = Read at: {$day}.{$month}.{$year} {$hour}:{$minute}
+label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
 label_recent = Recent
@@ -944,3 +948,5 @@ label_don_t_leave_group_call_when_alone = Don't end group calls after all other 
 label_open_calls_in = Display calls
 label_donates = Donates
 label_donates_preferences = Donates preferences
+label_take_photo = Take photo
+label_take_video = Take video

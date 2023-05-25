@@ -19,8 +19,6 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-enum SwipeableStyle { primary, secondary, system }
-
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
 /// with a status next to it.
 class SwipeableStatus extends StatelessWidget {
@@ -28,7 +26,6 @@ class SwipeableStatus extends StatelessWidget {
     super.key,
     required this.child,
     required this.swipeable,
-    this.width = 65,
     this.animation,
     this.translate = false,
     this.isSent = false,
@@ -36,13 +33,13 @@ class SwipeableStatus extends StatelessWidget {
     this.isRead = false,
     this.isSending = false,
     this.isError = false,
-    this.design = SwipeableStyle.primary,
+    this.status = true,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
   });
 
   /// Expanded width of the [swipeable].
-  final double width;
+  static const double width = 65;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -71,7 +68,8 @@ class SwipeableStatus extends StatelessWidget {
   /// Indicator whether status is error.
   final bool isError;
 
-  final SwipeableStyle design;
+  /// Indicator whether status should be displayed.
+  final bool status;
 
   /// Position of a [swipeable] relatively to the [child].
   final CrossAxisAlignment crossAxisAlignment;
@@ -94,40 +92,19 @@ class SwipeableStatus extends StatelessWidget {
         _animatedBuilder(
           Padding(
             padding: padding,
-            child: SizedBox(width: width, child: _swipeableWithStatus(context)),
+            child: SizedBox(
+              width: status ? width : width - 15,
+              child: _swipeableWithStatus(context),
+            ),
           ),
         ),
       ],
     );
   }
 
-  bool get _status => design == SwipeableStyle.secondary;
-
-  /// Returns a [Row] of [swipeable] and a status.
+  /// Returns a [Row] of [swipeable] and a optional status.
   Widget _swipeableWithStatus(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-
-    final Border border;
-    final Color color;
-
-    // switch (design) {
-    //   case SwipeableStyle.primary:
-    //     border = style.primaryBorder;
-    //     color = style.messageColor;
-    //     break;
-
-    //   case SwipeableStyle.secondary:
-    //     border = style.secondaryBorder;
-    //     color = style.readMessageColor;
-    //     break;
-
-    //   case SwipeableStyle.system:
-    //     border = style.systemMessageBorder;
-    //     color = style.systemMessageColor;
-    //     break;
-    // }
-    border = style.systemMessageBorder;
-    color = style.systemMessageColor;
 
     return DefaultTextStyle.merge(
       textAlign: TextAlign.end,
@@ -139,14 +116,14 @@ class SwipeableStatus extends StatelessWidget {
         margin: const EdgeInsets.only(right: 2, left: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: border, // style.systemMessageBorder,
-          color: color, //style.systemMessageColor
+          border: style.systemMessageBorder,
+          color: style.systemMessageColor,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_status) ...[
+            if (status) ...[
               if (isSent || isDelivered || isRead || isSending || isError)
                 Icon(
                   (isRead || isDelivered)
@@ -179,8 +156,8 @@ class SwipeableStatus extends StatelessWidget {
         builder: (context, child) {
           return Transform.translate(
             offset: Tween(
-              begin: translated ? Offset(width, 0) : Offset.zero,
-              end: translated ? Offset.zero : Offset(-width, 0),
+              begin: translated ? const Offset(width, 0) : Offset.zero,
+              end: translated ? Offset.zero : const Offset(-width, 0),
             ).evaluate(animation!),
             child: child,
           );

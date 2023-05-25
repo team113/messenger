@@ -183,6 +183,7 @@ class MessageFieldController extends GetxController {
     AudioMessageButton(this),
     VideoMessageButton(this),
     DonateButton(this),
+    StickerButton(this),
   ]);
 
   final RxList<ChatButton> buttons = RxList([]);

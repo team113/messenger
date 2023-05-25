@@ -99,7 +99,7 @@ class _SelectionTextState extends State<SelectionText> {
           child = ContextMenuInterceptor(child: child);
         }
       }
-    } else {
+    } else if (PlatformUtils.isDesktop) {
       child = SelectionContainer.disabled(child: child);
     }
 

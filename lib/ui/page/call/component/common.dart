@@ -24,6 +24,7 @@ import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 
 /// Button in a [CallView].
 ///
@@ -57,14 +58,16 @@ abstract class CallButton {
     bool hinted = true,
     bool expanded = false,
     bool withBlur = false,
-    Color color = const Color(0x794E5A78),
+    Color? color,
     double assetWidth = 60,
     BoxBorder? border,
   }) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return RoundFloatingButton(
       asset: asset,
       assetWidth: assetWidth,
-      color: color,
+      color: color ?? style.colors.onSecondaryOpacity50,
       hint: !expanded && hinted ? hint : null,
       text: expanded ? hint : null,
       withBlur: withBlur,
@@ -301,15 +304,17 @@ class AcceptAudioButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return _common(
       asset: expanded ? 'audio_call_start' : 'audio_call',
       assetWidth: expanded ? 29 : 24,
-      color: CallController.acceptColor,
+      color: style.colors.acceptColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
       border: highlight
-          ? Border.all(color: const Color(0x80FFFFFF), width: 1.6)
+          ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.6)
           : null,
       onPressed: () => c.join(withVideo: false),
     );
@@ -328,14 +333,16 @@ class AcceptVideoButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return _common(
       asset: 'video_on',
-      color: CallController.acceptColor,
+      color: style.colors.acceptColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
       border: highlight
-          ? Border.all(color: const Color(0x80FFFFFF), width: 1.6)
+          ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.6)
           : null,
       onPressed: () => c.join(withVideo: true),
     );
@@ -351,9 +358,11 @@ class DeclineButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return _common(
       asset: 'call_end',
-      color: CallController.endColor,
+      color: style.colors.declineColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -371,9 +380,11 @@ class DropButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return _common(
       asset: 'call_end',
-      color: CallController.endColor,
+      color: style.colors.declineColor,
       hinted: hinted,
       onPressed: c.drop,
     );
@@ -389,9 +400,11 @@ class CancelButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return _common(
       asset: 'call_end',
-      color: CallController.endColor,
+      color: style.colors.declineColor,
       hinted: hinted,
       withBlur: blur,
       onPressed: c.drop,
@@ -411,9 +424,11 @@ class EndCallButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return _common(
       asset: 'call_end',
-      color: CallController.endColor,
+      color: style.colors.declineColor,
       hinted: hinted,
       onPressed: c.drop,
     );
@@ -464,16 +479,15 @@ class SwitchButton extends CallButton {
 /// Returns a [Column] consisting of the [child] with the provided
 /// [description].
 Widget withDescription(Widget child, Widget description) {
+  final Style style = Theme.of(router.context!).extension<Style>()!;
+
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
       child,
       const SizedBox(height: 6),
       DefaultTextStyle(
-        style: const TextStyle(
-          fontSize: 11,
-          color: Colors.white,
-        ),
+        style: TextStyle(fontSize: 11, color: style.colors.onPrimary),
         textAlign: TextAlign.center,
         maxLines: 2,
         child: description,
