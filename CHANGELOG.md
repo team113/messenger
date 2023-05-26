@@ -48,6 +48,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Profile page:
         - Change password modal flickering. ([#380], [#377])
+    - Media panel:
+        - Media buttons controlling ringtone. ([#437], [#401])
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
@@ -72,9 +74,11 @@ All user visible changes to this project will be documented in this file. This p
 [#392]: /../../pull/392
 [#393]: /../../pull/393
 [#399]: /../../pull/399
+[#401]: /../../issues/401
 [#403]: /../../pull/403
 [#405]: /../../pull/405
 [#436]: /../../pull/436
+[#437]: /../../pull/437
 
 
 
