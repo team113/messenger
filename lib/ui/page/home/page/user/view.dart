@@ -43,7 +43,7 @@ import 'widget/status.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
-  const UserView(this.id, {Key? key}) : super(key: key);
+  const UserView(this.id, {super.key});
 
   /// ID of the [User] this [UserView] represents.
   final UserId id;
