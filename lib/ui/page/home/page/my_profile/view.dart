@@ -25,6 +25,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -59,6 +60,8 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find()),
@@ -127,9 +130,10 @@ class MyProfileView extends StatelessWidget {
                                           ? Container(
                                               width: 200,
                                               height: 200,
-                                              decoration: const BoxDecoration(
+                                              decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                color: Color(0x22000000),
+                                                color: style.colors
+                                                    .onBackgroundOpacity13,
                                               ),
                                               child: const Center(
                                                 child:
@@ -153,9 +157,7 @@ class MyProfileView extends StatelessWidget {
                                     child: Text(
                                       'btn_upload'.l10n,
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
+                                        color: style.colors.primary,
                                         fontSize: 11,
                                       ),
                                     ),
@@ -163,8 +165,8 @@ class MyProfileView extends StatelessWidget {
                                   if (c.myUser.value?.avatar != null) ...[
                                     Text(
                                       'space_or_space'.l10n,
-                                      style: const TextStyle(
-                                        color: Colors.black,
+                                      style: TextStyle(
+                                        color: style.colors.onBackground,
                                         fontSize: 11,
                                       ),
                                     ),
@@ -174,9 +176,7 @@ class MyProfileView extends StatelessWidget {
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
                                         style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
+                                          color: style.colors.primary,
                                           fontSize: 11,
                                         ),
                                       ),
@@ -402,13 +402,15 @@ Future<void> _deleteEmail(
   BuildContext context,
   UserEmail email,
 ) async {
+  final Style style = Theme.of(context).extension<Style>()!;
+
   final bool? result = await MessagePopup.alert(
     'label_delete_email'.l10n,
     description: [
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
       TextSpan(
         text: email.val,
-        style: const TextStyle(color: Colors.black),
+        style: TextStyle(color: style.colors.onBackground),
       ),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
@@ -426,13 +428,15 @@ Future<void> _deletePhone(
   BuildContext context,
   UserPhone phone,
 ) async {
+  final Style style = Theme.of(context).extension<Style>()!;
+
   final bool? result = await MessagePopup.alert(
     'label_delete_phone_number'.l10n,
     description: [
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
       TextSpan(
         text: phone.val,
-        style: const TextStyle(color: Colors.black),
+        style: TextStyle(color: style.colors.onBackground),
       ),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
@@ -445,6 +449,8 @@ Future<void> _deletePhone(
 
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
+  final Style style = Theme.of(context).extension<Style>()!;
+
   final bool? result = await MessagePopup.alert(
     'label_delete_account'.l10n,
     description: [
@@ -454,7 +460,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
             c.myUser.value?.login?.val ??
             c.myUser.value?.num.val ??
             'dot'.l10n * 3,
-        style: const TextStyle(color: Colors.black),
+        style: TextStyle(color: style.colors.onBackground),
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

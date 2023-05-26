@@ -22,6 +22,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -52,8 +53,11 @@ class OutputSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: style.colors.onBackground,
+        );
 
     return GetBuilder(
       init: OutputSwitchController(Get.find(), output: output),
