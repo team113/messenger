@@ -45,13 +45,13 @@ class ProfileMedia extends StatelessWidget {
   /// [MediaSettings] that returns the current media settings value.
   final MediaSettings? media;
 
-  /// Label to display for the video control field.
+  /// Label to display for the video [FieldButton].
   final String? videoText;
 
-  /// Label to display for the audio control field.
+  /// Label to display for the audio [FieldButton].
   final String? audioText;
 
-  /// Label to display for the output control field.
+  /// Label to display for the output [FieldButton].
   final String? outputText;
 
   /// Callback, called when the video switch is toggled.
