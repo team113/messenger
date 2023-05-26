@@ -307,8 +307,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                 decoration: BoxDecoration(
                   color: style.contextMenuBackgroundColor,
                   borderRadius: style.contextMenuRadius,
-                  border:
-                      Border.all(color: style.colors.secondary, width: 0.5),
+                  border: Border.all(color: style.colors.secondary, width: 0.5),
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 12,
