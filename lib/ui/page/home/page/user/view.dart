@@ -220,24 +220,26 @@ class UserView extends StatelessWidget {
                       Block(
                         title: 'label_actions'.l10n,
                         children: [
-                          ActionsWidget(
-                            inContacts: c.inContacts,
-                            inFavorites: c.inFavorites,
-                            status: c.status,
-                            blacklistStatus: c.blacklistStatus,
-                            user: c.user,
-                            isBlacklisted: c.isBlacklisted,
-                            addToContacts: () => c.addToContacts(),
-                            unblacklist: () => c.unblacklist(),
-                            favoriteContact: () => c.favoriteContact(),
-                            unfavoriteContact: () => c.unfavoriteContact(),
-                            muteChat: () => c.muteChat(),
-                            unmuteChat: () => c.unmuteChat(),
-                            removeFromContacts: () =>
-                                _removeFromContacts(c, context),
-                            hideChat: () => _hideChat(c, context),
-                            clearChat: () => _clearChat(c, context),
-                            blacklistUser: () => _blacklistUser(c, context),
+                          Obx(
+                            () => ActionsWidget(
+                              inContacts: c.inContacts.value,
+                              inFavorites: c.inFavorites.value,
+                              status: c.status.value,
+                              blacklistStatus: c.blacklistStatus.value,
+                              user: c.user,
+                              isBlacklisted: c.isBlacklisted,
+                              addToContacts: () => c.addToContacts(),
+                              unblacklist: () => c.unblacklist(),
+                              favoriteContact: () => c.favoriteContact(),
+                              unfavoriteContact: () => c.unfavoriteContact(),
+                              muteChat: () => c.muteChat(),
+                              unmuteChat: () => c.unmuteChat(),
+                              removeFromContacts: () =>
+                                  _removeFromContacts(c, context),
+                              hideChat: () => _hideChat(c, context),
+                              clearChat: () => _clearChat(c, context),
+                              blacklistUser: () => _blacklistUser(c, context),
+                            ),
                           )
                         ],
                       ),

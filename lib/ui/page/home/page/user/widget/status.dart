@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -34,21 +33,19 @@ class StatusWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final UserTextStatus? status = user?.user.value.status;
+    final UserTextStatus? status = user?.user.value.status;
 
-      if (status == null) {
-        return Container();
-      }
+    if (status == null) {
+      return Container();
+    }
 
-      return BasicPadding(
-        CopyableTextField(
-          key: const Key('StatusField'),
-          state: TextFieldState(text: status.val),
-          label: 'label_status'.l10n,
-          copy: status.val,
-        ),
-      );
-    });
+    return BasicPadding(
+      CopyableTextField(
+        key: const Key('StatusField'),
+        state: TextFieldState(text: status.val),
+        label: 'label_status'.l10n,
+        copy: status.val,
+      ),
+    );
   }
 }

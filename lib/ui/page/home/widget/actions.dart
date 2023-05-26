@@ -49,16 +49,16 @@ class ActionsWidget extends StatelessWidget {
 
   /// Indicator whether this [user] is already in the contacts list of the
   /// authenticated [MyUser].
-  final RxBool inContacts;
+  final bool inContacts;
 
   /// Indicator whether the [user] is favorite.
-  final RxBool inFavorites;
+  final bool inFavorites;
 
   /// Status of the [user] fetching.
-  final Rx<RxStatus> status;
+  final RxStatus status;
 
   /// Status of a [blacklist] progression.
-  final Rx<RxStatus> blacklistStatus;
+  final RxStatus blacklistStatus;
 
   /// Reactive [User] itself.
   final RxUser? user;
@@ -98,54 +98,49 @@ class ActionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    /// ???
+    final chat = user!.dialog.value!.chat.value;
+    final bool isMuted = chat.muted != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Obx(() {
-          return ActionWidget(
-            key: Key(inContacts.value
-                ? 'DeleteFromContactsButton'
-                : 'AddToContactsButton'),
-            text: inContacts.value
-                ? 'btn_delete_from_contacts'.l10n
-                : 'btn_add_to_contacts'.l10n,
-            onPressed: status.value.isLoadingMore
-                ? null
-                : inContacts.value
-                    ? () => removeFromContacts
-                    : addToContacts,
-          );
-        }),
-        Obx(() {
-          return ActionWidget(
-            text: inFavorites.value
-                ? 'btn_delete_from_favorites'.l10n
-                : 'btn_add_to_favorites'.l10n,
-            onPressed: inFavorites.value ? unfavoriteContact : favoriteContact,
-          );
-        }),
+        ActionWidget(
+          key: Key(
+            inContacts ? 'DeleteFromContactsButton' : 'AddToContactsButton',
+          ),
+          text: inContacts
+              ? 'btn_delete_from_contacts'.l10n
+              : 'btn_add_to_contacts'.l10n,
+          onPressed: status.isLoadingMore
+              ? null
+              : inContacts
+                  ? () => removeFromContacts
+                  : addToContacts,
+        ),
+        ActionWidget(
+          text: inFavorites
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          onPressed: inFavorites ? unfavoriteContact : favoriteContact,
+        ),
         if (user?.user.value.dialog.isLocal == false &&
             user?.dialog.value != null) ...[
-          Obx(() {
-            final chat = user!.dialog.value!.chat.value;
-            final bool isMuted = chat.muted != null;
-
-            return ActionWidget(
-              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: isMuted
-                  ? SvgImage.asset(
-                      'assets/icons/btn_mute.svg',
-                      width: 18.68,
-                      height: 15,
-                    )
-                  : SvgImage.asset(
-                      'assets/icons/btn_unmute.svg',
-                      width: 17.86,
-                      height: 15,
-                    ),
-              onPressed: isMuted ? unmuteChat : muteChat,
-            );
-          }),
+          ActionWidget(
+            text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+            trailing: isMuted
+                ? SvgImage.asset(
+                    'assets/icons/btn_mute.svg',
+                    width: 18.68,
+                    height: 15,
+                  )
+                : SvgImage.asset(
+                    'assets/icons/btn_unmute.svg',
+                    width: 17.86,
+                    height: 15,
+                  ),
+            onPressed: isMuted ? unmuteChat : muteChat,
+          ),
           ActionWidget(
             text: 'btn_hide_chat'.l10n,
             trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
@@ -162,13 +157,11 @@ class ActionsWidget extends StatelessWidget {
           key: Key(isBlacklisted != null ? 'Unblock' : 'Block'),
           text: isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
           onPressed: isBlacklisted != null ? unblacklist : () => blacklistUser,
-          trailing: Obx(() {
-            return AnimatedOpacity(
-              duration: 200.milliseconds,
-              opacity: blacklistStatus.value.isEmpty ? 0 : 1,
-              child: const CustomProgressIndicator(),
-            );
-          }),
+          trailing: AnimatedOpacity(
+            duration: 200.milliseconds,
+            opacity: blacklistStatus.isEmpty ? 0 : 1,
+            child: const CustomProgressIndicator(),
+          ),
         ),
         ActionWidget(text: 'btn_report'.l10n, onPressed: () {}),
       ],

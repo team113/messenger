@@ -36,27 +36,25 @@ class PresenceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final Presence? presence = user?.user.value.presence;
-      if (presence == null) {
-        return Container();
-      }
+    final Presence? presence = user?.user.value.presence;
+    if (presence == null) {
+      return Container();
+    }
 
-      final subtitle = user?.user.value.getStatus();
+    final subtitle = user?.user.value.getStatus();
 
-      return BasicPadding(
-        ReactiveTextField(
-          key: const Key('Presence'),
-          state: TextFieldState(text: subtitle),
-          label: 'label_presence'.l10n,
-          enabled: false,
-          trailing: CircleAvatar(
-            key: Key(presence.name.capitalizeFirst!),
-            backgroundColor: presence.getColor(),
-            radius: 7,
-          ),
+    return BasicPadding(
+      ReactiveTextField(
+        key: const Key('Presence'),
+        state: TextFieldState(text: subtitle),
+        label: 'label_presence'.l10n,
+        enabled: false,
+        trailing: CircleAvatar(
+          key: Key(presence.name.capitalizeFirst!),
+          backgroundColor: presence.getColor(),
+          radius: 7,
         ),
-      );
-    });
+      ),
+    );
   }
 }
