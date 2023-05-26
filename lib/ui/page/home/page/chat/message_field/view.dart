@@ -423,10 +423,10 @@ class MessageHeader extends StatelessWidget {
           future: getUser(item.authorId),
           builder: (context, snapshot) {
             final Color color = snapshot.data?.user.value.id == me
-                ? Theme.of(context).colorScheme.secondary
-                : AvatarWidget.colors[
+                ? style.colors.primary
+                : style.colors.userColors[
                     (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                        AvatarWidget.colors.length];
+                        style.colors.userColors.length];
 
             return Container(
               key: Key('Reply_${replied.indexOf(item)}'),
