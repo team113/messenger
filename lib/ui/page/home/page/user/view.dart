@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/actions.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -49,6 +50,8 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
@@ -76,8 +79,8 @@ class UserView extends StatelessWidget {
                     Material(
                       elevation: 6,
                       type: MaterialType.circle,
-                      shadowColor: const Color(0x55000000),
-                      color: Colors.white,
+                      shadowColor: style.colors.onBackgroundOpacity27,
+                      color: style.colors.onPrimary,
                       child: Center(
                         child: AvatarWidget.fromRxUser(c.user, radius: 17),
                       ),
@@ -117,11 +120,7 @@ class UserView extends StatelessWidget {
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
+                                      ?.copyWith(color: style.colors.secondary),
                                 )
                             ],
                           );
@@ -270,13 +269,15 @@ class UserView extends StatelessWidget {
     UserController c,
     BuildContext context,
   ) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -289,13 +290,15 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
   Future<void> _hideChat(UserController c, BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
@@ -308,13 +311,15 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
@@ -327,13 +332,15 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup blacklisting the [User].
   Future<void> _blacklistUser(UserController c, BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],

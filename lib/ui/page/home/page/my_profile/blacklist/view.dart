@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/widget_button.dart';
@@ -39,8 +40,11 @@ class BlacklistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: style.colors.onBackground,
+        );
 
     return GetBuilder(
       init: BlacklistController(
@@ -57,8 +61,7 @@ class BlacklistView extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'label_blocked_count'
-                        .l10nfmt({'count': c.blacklist.length}),
+                    'label_users_count'.l10nfmt({'count': c.blacklist.length}),
                     style: thin?.copyWith(fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
@@ -93,7 +96,7 @@ class BlacklistView extends StatelessWidget {
                             Text(
                               '28.12.2022',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: style.colors.secondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -104,8 +107,7 @@ class BlacklistView extends StatelessWidget {
                               child: Text(
                                 'btn_unblock_short'.l10n,
                                 style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                                  color: style.colors.primary,
                                   fontSize: 13,
                                 ),
                               ),
