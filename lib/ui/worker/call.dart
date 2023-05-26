@@ -95,11 +95,19 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
+  /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
+  Timer? _fadeTimer;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
-  /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
-  Timer? _fadeTimer;
+  /// Returns name of an incoming call sound.
+  String get _incoming =>
+      PlatformUtils.isWeb ? 'chinese-web.mp3' : 'chinese.mp3';
+
+  /// Returns name of an outgoing call sound.
+  String get _outgoing =>
+      PlatformUtils.isWeb ? 'ringing-web.mp3' : 'ringing.mp3';
 
   @override
   void onInit() {
@@ -137,9 +145,9 @@ class CallWorker extends DisposableService {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
             } else if (calling) {
-              play('ringing.mp3');
+              play(_outgoing);
             } else if (!PlatformUtils.isMobile || isInForeground) {
-              play('chinese.mp3', fade: true);
+              play(_incoming, fade: true);
               Vibration.hasVibrator().then((bool? v) {
                 _vibrationTimer?.cancel();
 
@@ -277,8 +285,8 @@ class CallWorker extends DisposableService {
     _audioPlayer?.dispose();
     _audioPlayer = null;
 
-    AudioCache.instance.clear('audio/ringing.mp3');
-    AudioCache.instance.clear('audio/chinese.mp3');
+    AudioCache.instance.clear('audio/$_incoming');
+    AudioCache.instance.clear('audio/$_outgoing');
     AudioCache.instance.clear('audio/pop.mp3');
 
     _subscription.cancel();
@@ -349,8 +357,8 @@ class CallWorker extends DisposableService {
       () async {
         _audioPlayer = AudioPlayer();
         await AudioCache.instance.loadAll([
-          'audio/ringing.mp3',
-          'audio/chinese.mp3',
+          'audio/$_incoming',
+          'audio/$_outgoing',
           'audio/pop.mp3',
         ]);
       },
