@@ -17,10 +17,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/api/backend/schema.dart' show Presence;
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -28,7 +26,8 @@ import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
-import '/ui/widget/widget_button.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -66,7 +65,6 @@ class MenuTabView extends StatelessWidget {
                       color: style.colors.acceptAuxiliaryColor,
                     ),
                   ),
-                  // trailing: const Icon(Icons.group_outlined),
                 ),
                 ContextMenuButton(
                   label: 'label_presence_away'.l10n,
@@ -82,7 +80,6 @@ class MenuTabView extends StatelessWidget {
                       color: style.colors.warningColor,
                     ),
                   ),
-                  // trailing: const Icon(Icons.select_all),
                 ),
               ],
               child: Row(

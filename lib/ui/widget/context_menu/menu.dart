@@ -126,7 +126,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
 
   /// Indicator whether the [trailing] should be showed.
   ///
-  /// [trailing] always showed on mobile device
+  /// On mobile [trailing] is always showed.
   final bool showTrailing;
 
   /// Callback, called when button is pressed.

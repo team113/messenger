@@ -21,15 +21,15 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/api/backend/schema.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
+import '/api/backend/schema.dart' show Presence;
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -260,6 +260,7 @@ class _HomeViewState extends State<HomeView> {
                                       }
 
                                       return AnimatedSwitcher(
+                                        key: c.chatsKey,
                                         duration: 200.milliseconds,
                                         child: child,
                                       );

@@ -140,13 +140,13 @@ class _SelectorState<T> extends State<Selector<T>> {
     if (widget.debounce != null) {
       _debounce = debounce(
         _selected,
-            (T value) => widget.onSelected?.call(value),
+        (T value) => widget.onSelected?.call(value),
         time: widget.debounce,
       );
     }
 
     SchedulerBinding.instance.addPostFrameCallback(
-          (_) {
+      (_) {
         if (mounted) {
           setState(() {});
         }
@@ -171,7 +171,7 @@ class _SelectorState<T> extends State<Selector<T>> {
       double? top, bottom;
 
       Offset offset =
-      Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+          Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
       final keyContext = widget.buttonKey?.currentContext;
       if (keyContext != null) {
         final box = keyContext.findRenderObject() as RenderBox?;
@@ -187,7 +187,7 @@ class _SelectorState<T> extends State<Selector<T>> {
 
         if (widget.alignment == Alignment.topCenter) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0) / 2,
+            offset.dx - (box?.size.width ?? 0) / 2,
             offset.dy,
           );
 
@@ -306,7 +306,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                   color: style.contextMenuBackgroundColor,
                   borderRadius: style.contextMenuRadius,
                   border:
-                  Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
+                      Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
                   boxShadow: const [
                     BoxShadow(
                       blurRadius: 12,
@@ -330,4 +330,3 @@ class _SelectorState<T> extends State<Selector<T>> {
     });
   }
 }
-
