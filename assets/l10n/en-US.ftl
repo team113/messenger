@@ -478,7 +478,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_disabled = Disabled
-label_display_timestamps = Display time stamps
+label_display_timestamps = Display timestamps
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -503,6 +503,10 @@ label_favorite_contacts = Favorite
 label_file = File
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
+label_forwarded_messages = {$count ->
+    [1] Пересланное сообщение
+   *[other] Пересланные сообщения
+}
 label_gallery = Gallery
 label_group_created = Group created
 label_group_created_by = {$author} created the group
@@ -623,7 +627,7 @@ label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information
 label_public_section_hint = Avatar and name
-label_read_at = Read at: {$day}.{$month}.{$year} {$hour}:{$minute}
+label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
 label_recent = Recent

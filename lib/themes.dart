@@ -27,6 +27,7 @@ class Themes {
       primaryHighlight: Colors.blue,
       primaryHighlightShiny: const Color(0xFF58A6EF),
       primaryHighlightShiniest: const Color(0xFFD2E3F9),
+      primaryHighlightLightest: const Color(0xFFB9D9FA),
       onPrimary: Colors.white,
       secondary: const Color(0xFF888888),
       secondaryHighlight: const Color(0xFFEFEFEF),
@@ -96,7 +97,7 @@ class Themes {
             contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
             contextMenuRadius: BorderRadius.circular(10),
             linkStyle: TextStyle(
-              color: colors.primaryHighlight,
+              color: colors.primary,
               decoration: TextDecoration.underline,
               decorationThickness: 2,
             ),
@@ -107,7 +108,7 @@ class Themes {
             ),
             readMessageColor: colors.primaryHighlightShiniest,
             secondaryBorder: Border.all(
-              color: colors.primaryHighlightShiniest,
+              color: colors.primaryHighlightLightest,
               width: 0.5,
             ),
             sidebarColor: colors.onPrimaryOpacity50,
@@ -121,7 +122,7 @@ class Themes {
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
-            unreadMessageColor: colors.primaryHighlightShiniest,
+            unreadMessageColor: colors.backgroundAuxiliaryLightest,
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,
@@ -590,6 +591,7 @@ class Palette {
     required this.primaryHighlight,
     required this.primaryHighlightShiny,
     required this.primaryHighlightShiniest,
+    required this.primaryHighlightLightest,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity25,
@@ -700,6 +702,11 @@ class Palette {
   ///
   /// Used to highlight read [ChatMessage]s and [ChatForward]s.
   final Color primaryHighlightShiniest;
+
+  /// Lightest [primary] highlight [Color].
+  ///
+  /// Used as a border of [ChatMessage]s and [ChatForward]s.
+  final Color primaryHighlightLightest;
 
   /// Secondary [Color] used alongside with [primary].
   ///
@@ -870,6 +877,8 @@ class Palette {
       )!,
       primaryHighlightShiniest: Color.lerp(
           color.primaryHighlightShiniest, other.primaryHighlightShiniest, t)!,
+      primaryHighlightLightest: Color.lerp(
+          color.primaryHighlightLightest, other.primaryHighlightLightest, t)!,
       onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
       onPrimaryOpacity7:
           Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,
