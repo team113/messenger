@@ -42,6 +42,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Inverted selected chat colors. ([#405])
         - Chats with ongoing calls sorting above favorites. ([#392], [#371])
+    - Home page:
+        - Chats and profile buttons context menu ([#443])
 
 ### Fixed
 
@@ -79,6 +81,7 @@ All user visible changes to this project will be documented in this file. This p
 [#405]: /../../pull/405
 [#436]: /../../pull/436
 [#437]: /../../pull/437
+[#443]: /../../pull/443
 
 
 
