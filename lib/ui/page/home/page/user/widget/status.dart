@@ -28,7 +28,7 @@ import '/ui/widget/text_field.dart';
 class UserStatus extends StatelessWidget {
   const UserStatus({super.key, this.user});
 
-  /// Reactive [User] itself.
+  /// Unified reactive [User] entity.
   final RxUser? user;
 
   @override

@@ -48,10 +48,10 @@ class UserBlockedField extends StatelessWidget {
           key: const Key('UserBlockedField'),
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
-            boxShadow: const [
+            boxShadow: [
               CustomBoxShadow(
                 blurRadius: 8,
-                color: Color(0x22000000),
+                color: style.colors.onBackgroundOpacity13,
               ),
             ],
           ),
@@ -90,7 +90,7 @@ class UserBlockedField extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: style.colors.primary,
                               ),
                               type: TextInputType.multiline,
                               textInputAction: TextInputAction.newline,

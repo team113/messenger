@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'dense.dart';
 
@@ -35,18 +36,20 @@ class ActionWidget extends StatelessWidget {
   /// Trailing to display in this [ActionWidget].
   final Widget? trailing;
 
-  /// Callback, called when this button is tapped or activated other way.
+  /// Callback, called when this [ActionWidget] is pressed.
   final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: Dense(
         FieldButton(
           onPressed: onPressed,
           text: text ?? '',
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style: TextStyle(color: style.colors.primary),
           trailing: trailing != null
               ? Transform.translate(
                   offset: const Offset(0, -1),
