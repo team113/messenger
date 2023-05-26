@@ -15,38 +15,34 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/action.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/chat_avatar.dart';
+import 'widget/chat_link.dart';
+import 'widget/chat_members.dart';
+import 'widget/chat_name.dart' as widget;
 
 /// View of the [Routes.chatInfo] page.
 class ChatInfoView extends StatelessWidget {
-  const ChatInfoView(this.id, {Key? key}) : super(key: key);
+  const ChatInfoView(this.id, {super.key});
 
   /// ID of the [Chat] of this info page.
   final ChatId id;
@@ -114,7 +110,7 @@ class ChatInfoView extends StatelessWidget {
                               ]
                             ],
                           ),
-                          ChatSubtitle(c.chat),
+                          _chatSubtitle(c, context),
                         ],
                       ),
                     ),
@@ -221,7 +217,7 @@ class ChatInfoView extends StatelessWidget {
                         deleteAvatar: c.deleteAvatar,
                       ),
                       const SizedBox(height: 15),
-                      ChatName(c.chat, c.name),
+                      widget.ChatName(c.chat, c.name),
                     ],
                   ),
                   if (!c.isMonolog) ...[
@@ -245,21 +241,7 @@ class ChatInfoView extends StatelessWidget {
                   ],
                   Block(
                     title: 'label_actions'.l10n,
-                    children: [
-                      ChatActions(
-                        c.chat,
-                        isMonolog: c.isMonolog,
-                        isLocal: c.isLocal,
-                        unfavoriteChat: c.unfavoriteChat,
-                        favoriteChat: c.favoriteChat,
-                        unmuteChat: c.unmuteChat,
-                        muteChat: c.muteChat,
-                        hideChat: () => _hideChat(c, context),
-                        clearChat: () => _clearChat(c, context),
-                        leaveGroup: () => _leaveGroup(c, context),
-                        blacklistChat: () => _blacklistChat(c, context),
-                      )
-                    ],
+                    children: [Obx(() => _actions(c, context))],
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -268,6 +250,114 @@ class ChatInfoView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+
+  /// Returns a subtitle to display under the [Chat]'s title.
+  Widget _chatSubtitle(ChatInfoController c, BuildContext context) {
+    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
+
+    return Obx(() {
+      final Rx<Chat> chat = c.chat!.chat;
+
+      if (chat.value.isGroup) {
+        final String? subtitle = chat.value.getSubtitle();
+        if (subtitle != null) {
+          return Text(subtitle, style: style);
+        }
+      }
+
+      return Container();
+    });
+  }
+
+  /// Returns the action buttons to do with this [Chat].
+  Widget _actions(ChatInfoController c, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!c.isMonolog) ...[
+          ActionWidget(
+            onPressed: () {},
+            text: 'btn_add_to_contacts'.l10n,
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+          ),
+          const SizedBox(height: 10),
+        ],
+        if (!c.isLocal) ...[
+          Obx(
+            () {
+              final bool favorited =
+                  c.chat?.chat.value.favoritePosition != null;
+              return ActionWidget(
+                key: Key(
+                  favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
+                ),
+                onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
+                text: favorited
+                    ? 'btn_delete_from_favorites'.l10n
+                    : 'btn_add_to_favorites'.l10n,
+                trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
+        ],
+        if (!c.isMonolog) ...[
+          Obx(() {
+            final bool muted = c.chat?.chat.value.muted != null;
+            return ActionWidget(
+              onPressed: muted ? c.unmuteChat : c.muteChat,
+              text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: muted
+                  ? SvgImage.asset(
+                      'assets/icons/btn_mute.svg',
+                      width: 18.68,
+                      height: 15,
+                    )
+                  : SvgImage.asset(
+                      'assets/icons/btn_unmute.svg',
+                      width: 17.86,
+                      height: 15,
+                    ),
+            );
+          }),
+          const SizedBox(height: 10),
+        ],
+        ActionWidget(
+          key: const Key('HideChatButton'),
+          onPressed: () => _hideChat(c, context),
+          text: 'btn_hide_chat'.l10n,
+          trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+        ),
+        const SizedBox(height: 10),
+        ActionWidget(
+          key: const Key('ClearHistoryButton'),
+          onPressed: () => _clearChat(c, context),
+          text: 'btn_clear_history'.l10n,
+          trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+        ),
+        if (!c.isMonolog) ...[
+          const SizedBox(height: 10),
+          ActionWidget(
+            onPressed: () => _leaveGroup(c, context),
+            text: 'btn_leave_group'.l10n,
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+          ),
+          const SizedBox(height: 10),
+          ActionWidget(
+            onPressed: () => _blacklistChat(c, context),
+            text: 'btn_block'.l10n,
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+          ),
+          const SizedBox(height: 10),
+          ActionWidget(
+            onPressed: () {},
+            text: 'btn_report'.l10n,
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+          )
+        ],
+      ],
     );
   }
 
@@ -376,731 +466,5 @@ class ChatInfoView extends StatelessWidget {
     if (result == true) {
       // TODO: Blacklist this [Chat].
     }
-  }
-}
-
-/// Basic [Padding] wrapper.
-class _PaddingWidget extends StatelessWidget {
-  const _PaddingWidget(this.child);
-
-  /// [Widget] that will be wrapped with padding.
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(padding: const EdgeInsets.all(8), child: child);
-  }
-}
-
-/// Dense [Padding] wrapper.
-class _DenseWidget extends StatelessWidget {
-  const _DenseWidget(this.child);
-
-  /// [Widget] that will be wrapped in padding.
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-      child: child,
-    );
-  }
-}
-
-/// [Widget] which returns a subtitle to display under the [Chat]'s title.
-class ChatSubtitle extends StatelessWidget {
-  const ChatSubtitle(this.chat, {super.key});
-
-  /// Reactive [Chat] with chat items.
-  final RxChat? chat;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
-
-    return Obx(() {
-      if (chat!.chat.value.isGroup) {
-        final String? subtitle = chat!.chat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(subtitle, style: style);
-        }
-      }
-
-      return const SizedBox();
-    });
-  }
-}
-
-/// [Widget] which returns a [Chat.avatar] visual representation along with its
-/// manipulation buttons.
-class ChatAvatar extends StatelessWidget {
-  const ChatAvatar(
-    this.chat, {
-    super.key,
-    required this.avatar,
-    this.avatarKey,
-    this.pickAvatar,
-    this.deleteAvatar,
-  });
-
-  /// Reactive [Chat] with chat items.
-  final RxChat? chat;
-
-  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
-  final GlobalKey<State<StatefulWidget>>? avatarKey;
-
-  /// Status of the [Chat.avatar] upload or removal.
-  final Rx<RxStatus> avatar;
-
-  /// Opens a file choose popup and updates the [Chat.avatar] with the selected
-  /// image, if any.
-  final Future<void> Function()? pickAvatar;
-
-  /// Resets the [Chat.avatar] to `null`.
-  final Future<void> Function()? deleteAvatar;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            WidgetButton(
-              key: Key('ChatAvatar_${chat!.id}'),
-              onPressed: chat?.chat.value.avatar == null
-                  ? pickAvatar
-                  : () async {
-                      await GalleryPopup.show(
-                        context: context,
-                        gallery: GalleryPopup(
-                          initialKey: avatarKey,
-                          children: [
-                            GalleryItem.image(
-                              chat!.chat.value.avatar!.original.url,
-                              chat!.chat.value.id.val,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-              child: AvatarWidget.fromRxChat(
-                chat,
-                key: avatarKey,
-                radius: 100,
-              ),
-            ),
-            Positioned.fill(
-              child: Obx(() {
-                return AnimatedSwitcher(
-                  duration: 200.milliseconds,
-                  child: avatar.value.isLoading
-                      ? Container(
-                          width: 200,
-                          height: 200,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color(0x22000000),
-                          ),
-                          child: const Center(child: CustomProgressIndicator()),
-                        )
-                      : const SizedBox.shrink(),
-                );
-              }),
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            WidgetButton(
-              key: const Key('UploadAvatar'),
-              onPressed: pickAvatar,
-              child: Text(
-                'btn_upload'.l10n,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            if (chat?.chat.value.avatar != null) ...[
-              Text(
-                'space_or_space'.l10n,
-                style: const TextStyle(color: Colors.black, fontSize: 11),
-              ),
-              WidgetButton(
-                key: const Key('DeleteAvatar'),
-                onPressed: deleteAvatar,
-                child: Text(
-                  'btn_delete'.l10n.toLowerCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-/// [Widget] which returns a [Chat.name] editable field.
-class ChatName extends StatelessWidget {
-  const ChatName(this.chat, this.name, {super.key});
-
-  /// Reactive [Chat] with chat items.
-  final RxChat? chat;
-
-  /// [Chat.name] field state.
-  final TextFieldState name;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      return _PaddingWidget(
-        ReactiveTextField(
-          key: const Key('RenameChatField'),
-          state: name,
-          label: chat?.chat.value.name == null
-              ? chat?.title.value
-              : 'label_name'.l10n,
-          hint: 'label_name_hint'.l10n,
-          onSuffixPressed: name.text.isEmpty
-              ? null
-              : () {
-                  PlatformUtils.copy(text: name.text);
-                  MessagePopup.success('label_copied'.l10n);
-                },
-          trailing: name.text.isEmpty
-              ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-                  ),
-                ),
-        ),
-      );
-    });
-  }
-}
-
-/// [Widget] which returns a [Chat.directLink] editable field.
-class ChatLink extends StatelessWidget {
-  const ChatLink(this.chat, this.link, {super.key});
-
-  /// Reactive [Chat] with chat items.
-  final RxChat? chat;
-
-  /// [Chat.directLink] field state.
-  final TextFieldState link;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ReactiveTextField(
-            key: const Key('LinkField'),
-            state: link,
-            onSuffixPressed: link.isEmpty.value
-                ? null
-                : () {
-                    PlatformUtils.copy(
-                      text:
-                          '${Config.origin}${Routes.chatDirectLink}/${link.text}',
-                    );
-
-                    MessagePopup.success('label_copied'.l10n);
-                  },
-            trailing: link.isEmpty.value
-                ? null
-                : Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child: SvgImage.asset(
-                        'assets/icons/copy.svg',
-                        height: 15,
-                      ),
-                    ),
-                  ),
-            label: '${Config.origin}/',
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-            child: Row(
-              children: [
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: 'label_transition_count'.l10nfmt({
-                              'count':
-                                  chat?.chat.value.directLink?.usageCount ?? 0
-                            }) +
-                            'dot_space'.l10n,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'label_details'.l10n,
-                        style: const TextStyle(color: Color(0xFF00A3FF)),
-                        recognizer: TapGestureRecognizer()..onTap = () {},
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    });
-  }
-}
-
-/// [Widget] which returns a list of [Chat.members].
-class ChatMembers extends StatelessWidget {
-  const ChatMembers(
-    this.id, {
-    super.key,
-    required this.removeChatCallMember,
-    required this.redialChatCallMember,
-    this.chat,
-    this.me,
-    this.removeChatMember,
-  });
-
-  /// Reactive [Chat] with chat items.
-  final RxChat? chat;
-
-  /// ID of the current user.
-  final UserId? me;
-
-  /// ID of the current chat.
-  final ChatId id;
-
-  /// Redials the [User] identified by its [userId].
-  final void Function(UserId userId) removeChatCallMember;
-
-  /// Removes the specified [User] from a [OngoingCall] happening in the
-  /// [chat].
-  final void Function(UserId userId) redialChatCallMember;
-
-  /// Opens a confirmation popup removing the provided [user].
-  final void Function()? removeChatMember;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      final RxUser? rxMe = chat!.members[me];
-      final List<RxUser> members = [];
-
-      for (var u in chat!.members.entries) {
-        if (u.key != me) {
-          members.add(u.value);
-        }
-      }
-
-      if (rxMe != null) {
-        members.insert(0, rxMe);
-      }
-
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BigButton(
-            key: const Key('AddMemberButton'),
-            leading: Icon(
-              Icons.people,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            title: Text('btn_add_member'.l10n),
-            onTap: () => AddChatMemberView.show(context, chatId: id),
-          ),
-          const SizedBox(height: 3),
-          ...members.map((e) {
-            final bool inCall = chat?.chat.value.ongoingCall?.members
-                    .any((u) => u.user.id == e.id) ==
-                true;
-
-            return ContactTile(
-              user: e,
-              darken: 0.05,
-              dense: true,
-              onTap: () => router.user(e.id, push: true),
-              trailing: [
-                if (e.id != me && chat?.chat.value.ongoingCall != null) ...[
-                  if (inCall)
-                    WidgetButton(
-                      key: const Key('Drop'),
-                      onPressed: () => removeChatCallMember(e.id),
-                      child: Container(
-                        height: 22,
-                        width: 22,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: SvgImage.asset(
-                            'assets/icons/call_end.svg',
-                            width: 22,
-                            height: 22,
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    Material(
-                      color: Theme.of(context).colorScheme.secondary,
-                      type: MaterialType.circle,
-                      child: InkWell(
-                        onTap: () => redialChatCallMember(e.id),
-                        borderRadius: BorderRadius.circular(60),
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: Center(
-                            child: SvgImage.asset(
-                              'assets/icons/audio_call_start.svg',
-                              width: 10,
-                              height: 10,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(width: 12),
-                ],
-                if (e.id == me)
-                  WidgetButton(
-                    onPressed: () => removeChatMember,
-                    child: Text(
-                      'btn_leave'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 15,
-                      ),
-                    ),
-                  )
-                else
-                  WidgetButton(
-                    key: const Key('DeleteMemberButton'),
-                    onPressed: () => removeChatMember,
-                    child: SvgImage.asset(
-                      'assets/icons/delete.svg',
-                      height: 14 * 1.5,
-                    ),
-                  ),
-                const SizedBox(width: 6),
-              ],
-            );
-          }),
-        ],
-      );
-    });
-  }
-}
-
-/// [Widget] which returns the action buttons to do with this [Chat].
-class ChatActions extends StatelessWidget {
-  const ChatActions(
-    this.chat, {
-    super.key,
-    required this.isMonolog,
-    required this.isLocal,
-    this.hideChat,
-    this.clearChat,
-    this.leaveGroup,
-    this.blacklistChat,
-    this.unfavoriteChat,
-    this.favoriteChat,
-    this.unmuteChat,
-    this.muteChat,
-  });
-
-  /// Reactive [Chat] with chat items.
-  final RxChat? chat;
-
-  /// Indicator whether the [chat] is a monolog.
-  final bool isMonolog;
-
-  /// Indicator whether the [chat] is local.
-  final bool isLocal;
-
-  /// Removes the [chat] from the favorites.
-  final void Function()? unfavoriteChat;
-
-  /// Marks the [chat] as favorited.
-  final void Function()? favoriteChat;
-
-  /// Unmutes the [chat].
-  final void Function()? unmuteChat;
-
-  /// Mutes the [chat].
-  final void Function()? muteChat;
-
-  /// Opens a confirmation popup hiding this [Chat].
-  final void Function()? hideChat;
-
-  /// Opens a confirmation popup clearing this [Chat].
-  final void Function()? clearChat;
-
-  /// Opens a confirmation popup leaving this [Chat].
-  final void Function()? leaveGroup;
-
-  /// Opens a confirmation popup blacklisting this [Chat].
-  final void Function()? blacklistChat;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!isMonolog) ...[
-          _DenseWidget(
-            FieldButton(
-              onPressed: () {},
-              text: 'btn_add_to_contacts'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-                ),
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
-          const SizedBox(height: 10),
-        ],
-        if (!isLocal) ...[
-          _DenseWidget(
-            Obx(() {
-              final bool favorited = chat?.chat.value.favoritePosition != null;
-
-              return FieldButton(
-                key: Key(
-                  favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
-                ),
-                onPressed: favorited ? unfavoriteChat : favoriteChat,
-                text: favorited
-                    ? 'btn_delete_from_favorites'.l10n
-                    : 'btn_add_to_favorites'.l10n,
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child:
-                        SvgImage.asset('assets/icons/delete.svg', height: 14),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
-              );
-            }),
-          ),
-          const SizedBox(height: 10),
-        ],
-        if (!isMonolog) ...[
-          _DenseWidget(
-            Obx(() {
-              final bool muted = chat?.chat.value.muted != null;
-
-              return FieldButton(
-                onPressed: muted ? unmuteChat : muteChat,
-                text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: muted
-                        ? SvgImage.asset(
-                            'assets/icons/btn_mute.svg',
-                            width: 18.68,
-                            height: 15,
-                          )
-                        : SvgImage.asset(
-                            'assets/icons/btn_unmute.svg',
-                            width: 17.86,
-                            height: 15,
-                          ),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
-              );
-            }),
-          ),
-          const SizedBox(height: 10),
-        ],
-        _DenseWidget(
-          FieldButton(
-            key: const Key('HideChatButton'),
-            onPressed: () => hideChat,
-            text: 'btn_hide_chat'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          ),
-        ),
-        const SizedBox(height: 10),
-        _DenseWidget(
-          FieldButton(
-            key: const Key('ClearHistoryButton'),
-            onPressed: () => clearChat,
-            text: 'btn_clear_history'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          ),
-        ),
-        if (!isMonolog) ...[
-          const SizedBox(height: 10),
-          _DenseWidget(
-            FieldButton(
-              onPressed: () => leaveGroup,
-              text: 'btn_leave_group'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-                ),
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _DenseWidget(
-            FieldButton(
-              onPressed: () => blacklistChat,
-              text: 'btn_block'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-                ),
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _DenseWidget(
-            FieldButton(
-              onPressed: () {},
-              text: 'btn_report'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-                ),
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-/// [Widget] that displays a customizable button with a [leading] widget
-/// and a [title] widget.
-class BigButton extends StatelessWidget {
-  const BigButton({
-    super.key,
-    required this.title,
-    this.leading,
-    this.onTap,
-  });
-
-  /// [Widget] displayed before the title.
-  final Widget? leading;
-
-  /// Title [Widget] displayed in the button.
-  final Widget title;
-
-  /// Callback, called when the button is tapped.
-  final void Function()? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return SizedBox(
-      key: key,
-      height: 56,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: style.cardRadius,
-          border: style.cardBorder,
-          color: Colors.transparent,
-        ),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: style.cardRadius,
-          color: style.cardColor.darken(0.05),
-          child: InkWell(
-            borderRadius: style.cardRadius,
-            onTap: onTap,
-            hoverColor: style.cardColor.darken(0.08),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-              child: Row(
-                children: [
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: DefaultTextStyle(
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontWeight: FontWeight.w300,
-                      ),
-                      child: title,
-                    ),
-                  ),
-                  if (leading != null) ...[
-                    const SizedBox(width: 12),
-                    leading!,
-                    const SizedBox(width: 4),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

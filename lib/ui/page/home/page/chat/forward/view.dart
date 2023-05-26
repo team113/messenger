@@ -38,12 +38,12 @@ import 'controller.dart';
 /// Intended to be displayed with the [show] method.
 class ChatForwardView extends StatelessWidget {
   const ChatForwardView({
-    Key? key,
+    super.key,
     required this.from,
     required this.quotes,
     this.text,
     this.attachments = const [],
-  }) : super(key: key);
+  });
 
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
