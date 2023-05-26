@@ -29,7 +29,7 @@ import '/ui/page/home/page/my_profile/widget/field_button.dart';
 class ProfileChats extends StatelessWidget {
   const ProfileChats(this.settings, {super.key});
 
-  /// Reactive [ApplicationSettings] that returns the current settings.
+  /// [ApplicationSettings] that returns the current settings.
   final ApplicationSettings? settings;
 
   @override
@@ -47,7 +47,7 @@ class ProfileChats extends StatelessWidget {
               child: Text(
                 'label_display_timestamps'.l10n,
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: style.colors.secondary,
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
@@ -63,7 +63,7 @@ class ProfileChats extends StatelessWidget {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
       ],

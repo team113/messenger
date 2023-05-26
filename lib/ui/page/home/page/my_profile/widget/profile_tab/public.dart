@@ -16,13 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/my_profile/controller.dart';
 
 import '../padding.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/widget/svg/svg.dart';
@@ -74,12 +74,14 @@ class ProfileName extends StatelessWidget {
 class ProfilePresence extends StatelessWidget {
   const ProfilePresence(this.myUser, {super.key});
 
-  /// Reactive [MyUser] that stores the currently authenticated user.
-  final Rx<MyUser?> myUser;
+  /// [MyUser] that stores the currently authenticated user.
+  final MyUser? myUser;
 
   @override
   Widget build(BuildContext context) {
-    final Presence? presence = myUser.value?.presence;
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final Presence? presence = myUser?.presence;
 
     return BasicPadding(
       FieldButton(
@@ -88,7 +90,7 @@ class ProfilePresence extends StatelessWidget {
         text: presence?.localizedString(),
         trailing:
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        style: TextStyle(color: style.colors.primary),
       ),
     );
   }

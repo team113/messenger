@@ -27,7 +27,7 @@ import '/ui/page/home/page/my_profile/call_window_switch/controller.dart';
 class ProfileCall extends StatelessWidget {
   const ProfileCall(this.settings, {super.key});
 
-  /// Reactive [ApplicationSettings] that returns the current settings.
+  /// [ApplicationSettings] that returns the current settings.
   final ApplicationSettings? settings;
 
   @override

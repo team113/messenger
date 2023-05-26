@@ -22,6 +22,7 @@ import '../dense.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/language/view.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
 
@@ -31,6 +32,8 @@ class ProfileLanguage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Dense(
       FieldButton(
         key: const Key('ChangeLanguage'),
@@ -42,7 +45,7 @@ class ProfileLanguage extends StatelessWidget {
           'code': L10n.chosen.value!.locale.countryCode,
           'name': L10n.chosen.value!.name,
         }),
-        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        style: TextStyle(color: style.colors.primary),
       ),
     );
   }

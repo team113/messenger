@@ -21,13 +21,14 @@ import '../dense.dart';
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.storage] section.
 class ProfileStorage extends StatelessWidget {
   const ProfileStorage(this.settings, this.setLoadImages, {super.key});
 
-  /// Reactive [ApplicationSettings] that returns the current settings.
+  /// [ApplicationSettings] that returns the current settings.
   final ApplicationSettings? settings;
 
   /// Called when the user toggles the switch on or off.
@@ -35,6 +36,8 @@ class ProfileStorage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Dense(
       Stack(
         alignment: Alignment.centerRight,
@@ -57,7 +60,7 @@ class ProfileStorage extends StatelessWidget {
                 child: Theme(
                   data: ThemeData(platform: TargetPlatform.macOS),
                   child: Switch.adaptive(
-                    activeColor: Theme.of(context).colorScheme.secondary,
+                    activeColor: style.colors.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: settings?.loadImages == true,
                     onChanged: settings == null ? null : setLoadImages,

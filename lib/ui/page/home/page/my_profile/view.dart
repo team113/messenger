@@ -187,7 +187,7 @@ class MyProfileView extends StatelessWidget {
                             }),
                             const SizedBox(height: 10),
                             ProfileName(c.name, c.login),
-                            ProfilePresence(c.myUser),
+                            ProfilePresence(c.myUser.value),
                             ProfileStatus(c.status),
                           ],
                         );
@@ -197,11 +197,11 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_login_options'.l10n,
                           children: [
                             ProfileNum(c.myUser.value, c.num),
-                            ProfileLogin(c.myUser, c.login),
+                            ProfileLogin(c.myUser.value, c.login),
                             const SizedBox(height: 10),
-                            ProfileEmails(c.myUser, () => _deleteEmail),
-                            ProfilePhones(c.myUser, () => _deletePhone),
-                            ProfilePassword(c.myUser),
+                            ProfileEmails(c.myUser.value, () => _deleteEmail),
+                            ProfilePhones(c.myUser.value, () => _deletePhone),
+                            ProfilePassword(c.myUser.value),
                           ],
                         );
 

@@ -22,6 +22,7 @@ import 'package:messenger/l10n/l10n.dart';
 import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -32,7 +33,7 @@ import '/ui/page/home/page/my_profile/link_details/view.dart';
 class ProfileLink extends StatelessWidget {
   const ProfileLink(this.myUser, this.link, {super.key});
 
-  /// Reactive [MyUser] that stores the currently authenticated user.
+  /// [MyUser] that stores the currently authenticated user.
   final MyUser? myUser;
 
   /// [MyUser.chatDirectLink] copyable state.
@@ -40,6 +41,8 @@ class ProfileLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -85,13 +88,13 @@ class ProfileLink extends StatelessWidget {
                           }) +
                           'dot_space'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap =

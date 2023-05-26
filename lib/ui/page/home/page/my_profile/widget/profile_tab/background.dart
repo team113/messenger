@@ -34,8 +34,7 @@ class ProfileBackground extends StatelessWidget {
     super.key,
   });
 
-  /// Reactive [Uint8List] that returns the current background as a
-  /// [Uint8List].
+  /// [Uint8List] that returns the current background as a [Uint8List].
   final Uint8List? background;
 
   /// Opens an image choose popup and sets the selected file as a [background].
@@ -68,7 +67,10 @@ class ProfileBackground extends StatelessWidget {
               border: fromMe
                   ? isRead
                       ? style.secondaryBorder
-                      : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+                      : Border.all(
+                          color: style.colors.backgroundAuxiliaryLighter,
+                          width: 0.5,
+                        )
                   : style.primaryBorder,
             ),
             child: Column(
@@ -156,10 +158,8 @@ class ProfileBackground extends StatelessWidget {
                       background == null
                           ? 'btn_upload'.l10n
                           : 'btn_delete'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 11,
-                      ),
+                      style:
+                          TextStyle(color: style.colors.primary, fontSize: 11),
                     ),
                   ),
                 ],

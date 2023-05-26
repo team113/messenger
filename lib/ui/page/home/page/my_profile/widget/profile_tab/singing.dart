@@ -17,7 +17,6 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../copyable.dart';
 import '../dense.dart';
@@ -25,6 +24,7 @@ import '../padding.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/add_email/controller.dart';
 import '/ui/page/home/page/my_profile/add_phone/controller.dart';
 import '/ui/page/home/page/my_profile/password/controller.dart';
@@ -39,7 +39,7 @@ import '/util/platform_utils.dart';
 class ProfileNum extends StatelessWidget {
   const ProfileNum(this.myUser, this.num, {super.key});
 
-  /// Reactive [MyUser] that stores the currently authenticated user.
+  /// [MyUser] that stores the currently authenticated user.
   final MyUser? myUser;
 
   /// [MyUser.num] copyable state.
@@ -71,11 +71,13 @@ class ProfileLogin extends StatelessWidget {
   /// [MyUser.login] field state.
   final TextFieldState login;
 
-  /// Reactive [MyUser] that stores the currently authenticated user.
-  final Rx<MyUser?> myUser;
+  /// [MyUser] that stores the currently authenticated user.
+  final MyUser? myUser;
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return BasicPadding(
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,9 +103,9 @@ class ProfileLogin extends StatelessWidget {
                     ),
                   ),
             label: 'label_login'.l10n,
-            hint: myUser.value?.login == null
+            hint: myUser?.login == null
                 ? 'label_login_hint'.l10n
-                : myUser.value!.login!.val,
+                : myUser!.login!.val,
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
@@ -114,13 +116,12 @@ class ProfileLogin extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: 'label_login_visible'.l10n,
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.primary),
+                    style: TextStyle(color: style.colors.secondary),
                   ),
                   TextSpan(
                     text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: style.colors.primary,
                     ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () async {
@@ -133,7 +134,7 @@ class ProfileLogin extends StatelessWidget {
                                 'label_login_visibility_hint'.l10n,
                                 style: TextStyle(
                                   fontSize: 15,
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: style.colors.secondary,
                                 ),
                               ),
                             ),
@@ -142,9 +143,9 @@ class ProfileLogin extends StatelessWidget {
                               alignment: Alignment.centerLeft,
                               child: Text(
                                 'label_visible_to'.l10n,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
-                                  color: Colors.black,
+                                  color: style.colors.onBackground,
                                 ),
                               ),
                             ),
@@ -182,17 +183,19 @@ class ProfileLogin extends StatelessWidget {
 class ProfileEmails extends StatelessWidget {
   const ProfileEmails(this.myUser, this.onTrailingPressed, {super.key});
 
-  /// Reactive [MyUser] that stores the currently authenticated user.
-  final Rx<MyUser?> myUser;
+  /// [MyUser] that stores the currently authenticated user.
+  final MyUser? myUser;
 
   /// Callback, called when the trailing is pressed.
   final void Function()? onTrailingPressed;
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final List<Widget> widgets = [];
 
-    for (UserEmail e in myUser.value?.emails.confirmed ?? []) {
+    for (UserEmail e in myUser?.emails.confirmed ?? []) {
       widgets.add(
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,14 +231,12 @@ class ProfileEmails extends StatelessWidget {
                     TextSpan(
                       text: 'label_email_visible'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      style: TextStyle(color: style.colors.primary),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -246,9 +247,9 @@ class ProfileEmails extends StatelessWidget {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
-                                    color: Colors.black,
+                                    color: style.colors.onBackground,
                                   ),
                                 ),
                               ),
@@ -282,20 +283,19 @@ class ProfileEmails extends StatelessWidget {
       widgets.add(const SizedBox(height: 10));
     }
 
-    if (myUser.value?.emails.unconfirmed != null) {
+    if (myUser?.emails.unconfirmed != null) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
             inputDecorationTheme: Theme.of(context)
                 .inputDecorationTheme
                 .copyWith(
-                  floatingLabelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                  floatingLabelStyle: TextStyle(color: style.colors.primary),
                 ),
           ),
           child: FieldButton(
             key: const Key('UnconfirmedEmail'),
-            text: myUser.value!.emails.unconfirmed!.val,
+            text: myUser!.emails.unconfirmed!.val,
             hint: 'label_verify_email'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -306,27 +306,27 @@ class ProfileEmails extends StatelessWidget {
             ),
             onPressed: () => AddEmailView.show(
               context,
-              email: myUser.value!.emails.unconfirmed!,
+              email: myUser!.emails.unconfirmed!,
             ),
             onTrailingPressed: onTrailingPressed,
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            style: TextStyle(color: style.colors.secondary),
           ),
         ),
       ]);
       widgets.add(const SizedBox(height: 10));
     }
 
-    if (myUser.value?.emails.unconfirmed == null) {
+    if (myUser?.emails.unconfirmed == null) {
       widgets.add(
         FieldButton(
-          key: myUser.value?.emails.confirmed.isNotEmpty == true
+          key: myUser?.emails.confirmed.isNotEmpty == true
               ? const Key('AddAdditionalEmail')
               : const Key('AddEmail'),
-          text: myUser.value?.emails.confirmed.isNotEmpty == true
+          text: myUser?.emails.confirmed.isNotEmpty == true
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style: TextStyle(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -344,17 +344,19 @@ class ProfileEmails extends StatelessWidget {
 class ProfilePhones extends StatelessWidget {
   const ProfilePhones(this.myUser, this.onTrailingPressed, {super.key});
 
-  /// Reactive [MyUser] that stores the currently authenticated user.
-  final Rx<MyUser?> myUser;
+  /// [MyUser] that stores the currently authenticated user.
+  final MyUser? myUser;
 
   /// Callback, called when the trailing is pressed.
   final void Function()? onTrailingPressed;
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final List<Widget> widgets = [];
 
-    for (UserPhone e in [...myUser.value?.phones.confirmed ?? []]) {
+    for (UserPhone e in [...myUser?.phones.confirmed ?? []]) {
       widgets.add(
         Column(
           key: const Key('ConfirmedPhone'),
@@ -390,13 +392,13 @@ class ProfilePhones extends StatelessWidget {
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
@@ -408,9 +410,9 @@ class ProfilePhones extends StatelessWidget {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
-                                    color: Colors.black,
+                                    color: style.colors.onBackground,
                                   ),
                                 ),
                               ),
@@ -444,20 +446,19 @@ class ProfilePhones extends StatelessWidget {
       widgets.add(const SizedBox(height: 10));
     }
 
-    if (myUser.value?.phones.unconfirmed != null) {
+    if (myUser?.phones.unconfirmed != null) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
             inputDecorationTheme: Theme.of(context)
                 .inputDecorationTheme
                 .copyWith(
-                  floatingLabelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                  floatingLabelStyle: TextStyle(color: style.colors.primary),
                 ),
           ),
           child: FieldButton(
             key: const Key('UnconfirmedPhone'),
-            text: myUser.value!.phones.unconfirmed!.val,
+            text: myUser!.phones.unconfirmed!.val,
             hint: 'label_verify_number'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -468,27 +469,27 @@ class ProfilePhones extends StatelessWidget {
             ),
             onPressed: () => AddPhoneView.show(
               context,
-              phone: myUser.value!.phones.unconfirmed!,
+              phone: myUser!.phones.unconfirmed!,
             ),
             onTrailingPressed: onTrailingPressed,
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            style: TextStyle(color: style.colors.secondary),
           ),
         ),
       ]);
       widgets.add(const SizedBox(height: 10));
     }
 
-    if (myUser.value?.phones.unconfirmed == null) {
+    if (myUser?.phones.unconfirmed == null) {
       widgets.add(
         FieldButton(
-          key: myUser.value?.phones.confirmed.isNotEmpty == true
+          key: myUser?.phones.confirmed.isNotEmpty == true
               ? const Key('AddAdditionalPhone')
               : const Key('AddPhone'),
           onPressed: () => AddPhoneView.show(context),
-          text: myUser.value?.phones.confirmed.isNotEmpty == true
+          text: myUser?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style: TextStyle(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -507,27 +508,29 @@ class ProfilePhones extends StatelessWidget {
 class ProfilePassword extends StatelessWidget {
   const ProfilePassword(this.myUser, {super.key});
 
-  /// Reactive [MyUser] that stores the currently authenticated user.
-  final Rx<MyUser?> myUser;
+  /// [MyUser] that stores the currently authenticated user.
+  final MyUser? myUser;
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Dense(
           FieldButton(
-            key: myUser.value?.hasPassword == true
+            key: myUser?.hasPassword == true
                 ? const Key('ChangePassword')
                 : const Key('SetPassword'),
-            text: myUser.value?.hasPassword == true
+            text: myUser?.hasPassword == true
                 ? 'btn_change_password'.l10n
                 : 'btn_set_password'.l10n,
             onPressed: () => ChangePasswordView.show(context),
             style: TextStyle(
-              color: myUser.value?.hasPassword != true
-                  ? Colors.red
-                  : Theme.of(context).colorScheme.secondary,
+              color: myUser?.hasPassword != true
+                  ? style.colors.dangerColor
+                  : style.colors.primary,
             ),
           ),
         ),

@@ -22,6 +22,7 @@ import '../dense.dart';
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.media] section.
@@ -33,34 +34,39 @@ class ProfileMedia extends StatelessWidget {
     this.videoSwitch,
     this.microphoneSwitch,
     this.outputSwitch,
-    required this.videoText,
-    required this.audioText,
-    required this.outputText,
+     this.videoText,
+     this.audioText,
+     this.outputText,
   });
 
   /// List of [MediaDeviceDetails] of all the available devices.
   final List<MediaDeviceDetails> devices;
 
-  /// Reactive [MediaSettings] that returns the current media settings value.
+  /// [MediaSettings] that returns the current media settings value.
   final MediaSettings? media;
 
+  /// Label to display for the video control field.
   final String? videoText;
 
+  /// Label to display for the audio control field.
   final String? audioText;
 
+  /// Label to display for the output control field.
   final String? outputText;
 
-  ///
+  /// Callback, called when the video switch is toggled.
   final void Function()? videoSwitch;
 
-  ///
+  /// Callback, called when the microphone switch is toggled.
   final void Function()? microphoneSwitch;
 
-  ///
+  /// Callback, called when the output switch is toggled.
   final void Function()? outputSwitch;
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -68,8 +74,8 @@ class ProfileMedia extends StatelessWidget {
           FieldButton(
             text: videoText,
             hint: 'label_media_camera'.l10n,
-            onPressed: () => videoSwitch!(),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            onPressed: videoSwitch,
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 16),
@@ -77,8 +83,8 @@ class ProfileMedia extends StatelessWidget {
           FieldButton(
             text: audioText,
             hint: 'label_media_microphone'.l10n,
-            onPressed: () => microphoneSwitch!(),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            onPressed: microphoneSwitch,
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 16),
@@ -86,8 +92,8 @@ class ProfileMedia extends StatelessWidget {
           FieldButton(
             text: outputText,
             hint: 'label_media_output'.l10n,
-            onPressed: () => outputSwitch!(),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            onPressed: outputSwitch,
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
       ],

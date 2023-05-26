@@ -21,6 +21,7 @@ import '../dense.dart';
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.notifications]
@@ -33,7 +34,7 @@ class ProfileNotifications extends StatelessWidget {
     super.key,
   });
 
-  /// Reactive [MyUser] that stores the currently authenticated user.
+  /// [MyUser] that stores the currently authenticated user.
   final MyUser? myUser;
 
   /// Indicator whether there's an ongoing [toggleMute] happening.
@@ -44,6 +45,8 @@ class ProfileNotifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Dense(
       Stack(
         alignment: Alignment.centerRight,
@@ -70,7 +73,7 @@ class ProfileNotifications extends StatelessWidget {
                     platform: TargetPlatform.macOS,
                   ),
                   child: Switch.adaptive(
-                    activeColor: Theme.of(context).colorScheme.secondary,
+                    activeColor: style.colors.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: myUser?.muted == null,
                     onChanged: isMuting ? null : toggleMute,

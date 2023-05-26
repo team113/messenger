@@ -23,6 +23,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/blacklist/view.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
 
@@ -30,22 +31,25 @@ import '/ui/page/home/page/my_profile/widget/field_button.dart';
 class ProfileBlockedUsers extends StatelessWidget {
   const ProfileBlockedUsers(this.blacklist, {super.key});
 
-  /// Reactive [List] of [User]s blacklisted by an authenticated [MyUser].
+  /// [List] of [User]s blacklisted by an authenticated [MyUser].
   final List<RxUser> blacklist;
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Column(
       children: [
         Dense(
           FieldButton(
-            text: 'label_blocked_count'.l10nfmt({'count': blacklist.length}),
+            text: 'label_users_count'.l10nfmt({'count': blacklist.length}),
             onPressed:
                 blacklist.isEmpty ? null : () => BlacklistView.show(context),
             style: TextStyle(
-                color: blacklist.isEmpty
-                    ? Colors.black
-                    : Theme.of(context).colorScheme.secondary),
+              color: blacklist.isEmpty
+                  ? style.colors.onBackground
+                  : style.colors.primary,
+            ),
           ),
         ),
       ],

@@ -20,6 +20,7 @@ import 'package:messenger/l10n/l10n.dart';
 
 import '../dense.dart';
 import '../field_button.dart';
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.danger] section.
@@ -31,6 +32,8 @@ class ProfileDanger extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Column(
       children: [
         Dense(
@@ -45,7 +48,7 @@ class ProfileDanger extends StatelessWidget {
               ),
             ),
             onPressed: onPressed,
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(color: style.colors.primary),
           ),
         ),
       ],
