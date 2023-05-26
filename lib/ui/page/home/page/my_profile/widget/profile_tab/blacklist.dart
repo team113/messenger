@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../dense.dart';
 import '/domain/model/my_user.dart';
@@ -32,7 +31,7 @@ class ProfileBlockedUsers extends StatelessWidget {
   const ProfileBlockedUsers(this.blacklist, {super.key});
 
   /// Reactive [List] of [User]s blacklisted by an authenticated [MyUser].
-  final RxList<RxUser> blacklist;
+  final List<RxUser> blacklist;
 
   @override
   Widget build(BuildContext context) {

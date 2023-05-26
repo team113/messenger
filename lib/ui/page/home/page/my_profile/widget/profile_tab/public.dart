@@ -79,20 +79,18 @@ class ProfilePresence extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final Presence? presence = myUser.value?.presence;
+    final Presence? presence = myUser.value?.presence;
 
-      return BasicPadding(
-        FieldButton(
-          onPressed: () => StatusView.show(context, expanded: false),
-          hint: 'label_presence'.l10n,
-          text: presence?.localizedString(),
-          trailing:
-              CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
-      );
-    });
+    return BasicPadding(
+      FieldButton(
+        onPressed: () => StatusView.show(context, expanded: false),
+        hint: 'label_presence'.l10n,
+        text: presence?.localizedString(),
+        trailing:
+            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
+        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      ),
+    );
   }
 }
 

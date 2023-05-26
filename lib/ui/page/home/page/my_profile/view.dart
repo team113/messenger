@@ -15,11 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/domain/model/my_user.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -30,9 +32,13 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'camera_switch/view.dart';
 import 'controller.dart';
+import 'microphone_switch/view.dart';
+import 'output_switch/view.dart';
 import 'widget/profile_tab/background.dart';
 import 'widget/profile_tab/blacklist.dart';
 import 'widget/profile_tab/calls.dart';
@@ -190,7 +196,7 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_login_options'.l10n,
                           children: [
-                            ProfileNum(c.myUser, c.num),
+                            ProfileNum(c.myUser.value, c.num),
                             ProfileLogin(c.myUser, c.login),
                             const SizedBox(height: 10),
                             ProfileEmails(c.myUser, () => _deleteEmail),
@@ -202,17 +208,19 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.link:
                         return Block(
                           title: 'label_your_direct_link'.l10n,
-                          children: [ProfileLink(c.myUser, c.link)],
+                          children: [ProfileLink(c.myUser.value, c.link)],
                         );
 
                       case ProfileTab.background:
                         return Block(
                           title: 'label_background'.l10n,
                           children: [
-                            ProfileBackground(
-                              c.background,
-                              () => c.pickBackground(),
-                              () => c.removeBackground(),
+                            Obx(
+                              () => ProfileBackground(
+                                c.background.value,
+                                () => c.pickBackground(),
+                                () => c.removeBackground(),
+                              ),
                             )
                           ],
                         );
@@ -220,14 +228,20 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.chats:
                         return Block(
                           title: 'label_chats'.l10n,
-                          children: [ProfileChats(c.settings)],
+                          children: [
+                            Obx(
+                              () => ProfileChats(c.settings.value),
+                            ),
+                          ],
                         );
 
                       case ProfileTab.calls:
                         if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
                           return Block(
                             title: 'label_calls'.l10n,
-                            children: [ProfileCall(c.settings)],
+                            children: [
+                              Obx(() => ProfileCall(c.settings.value))
+                            ],
                           );
                         }
 
@@ -237,7 +251,74 @@ class MyProfileView extends StatelessWidget {
                         if (!PlatformUtils.isMobile) {
                           return Block(
                             title: 'label_media'.l10n,
-                            children: [ProfileMedia(c.devices, c.media)],
+                            children: [
+                              Obx(
+                                () => ProfileMedia(
+                                  c.devices,
+                                  c.media.value,
+                                  videoText: (c.devices
+                                                  .video()
+                                                  .firstWhereOrNull((e) =>
+                                                      e.deviceId() ==
+                                                      c.media.value
+                                                          ?.videoDevice) ??
+                                              c.devices.video().firstOrNull)
+                                          ?.label() ??
+                                      'label_media_no_device_available'.l10n,
+                                  videoSwitch: () async {
+                                    await CameraSwitchView.show(
+                                      context,
+                                      camera: c.media.value?.videoDevice,
+                                    );
+
+                                    if (c.devices.video().isEmpty) {
+                                      c.devices.value =
+                                          await MediaUtils.enumerateDevices();
+                                    }
+                                  },
+                                  audioText: (c.devices
+                                                  .audio()
+                                                  .firstWhereOrNull((e) =>
+                                                      e.deviceId() ==
+                                                      c.media.value
+                                                          ?.audioDevice) ??
+                                              c.devices.audio().firstOrNull)
+                                          ?.label() ??
+                                      'label_media_no_device_available'.l10n,
+                                  microphoneSwitch: () async {
+                                    await MicrophoneSwitchView.show(
+                                      context,
+                                      mic: c.media.value?.audioDevice,
+                                    );
+
+                                    if (c.devices.audio().isEmpty) {
+                                      c.devices.value =
+                                          await MediaUtils.enumerateDevices();
+                                    }
+                                  },
+                                  outputText: (c.devices
+                                                  .output()
+                                                  .firstWhereOrNull((e) =>
+                                                      e.deviceId() ==
+                                                      c.media.value
+                                                          ?.outputDevice) ??
+                                              c.devices.output().firstOrNull)
+                                          ?.label() ??
+                                      'label_media_no_device_available'.l10n,
+                                  outputSwitch: () async {
+                                    await OutputSwitchView.show(
+                                      context,
+                                      output: c.media.value?.outputDevice,
+                                    );
+
+                                    if (c.devices.output().isEmpty) {
+                                      c.devices.value =
+                                          await MediaUtils.enumerateDevices();
+                                    }
+                                  },
+                                ),
+                              )
+                            ],
                           );
                         }
 
@@ -247,10 +328,12 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_audio_notifications'.l10n,
                           children: [
-                            ProfileNotifications(
-                              c.myUser,
-                              c.isMuting,
-                              (enabled) => c.toggleMute(enabled),
+                            Obx(
+                              () => ProfileNotifications(
+                                c.myUser.value,
+                                c.isMuting.value,
+                                (enabled) => c.toggleMute(enabled),
+                              ),
                             )
                           ],
                         );
@@ -259,9 +342,11 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_storage'.l10n,
                           children: [
-                            ProfileStorage(
-                              c.settings,
-                              (enabled) => c.setLoadImages(enabled),
+                            Obx(
+                              () => ProfileStorage(
+                                c.settings.value,
+                                (enabled) => c.setLoadImages(enabled),
+                              ),
                             )
                           ],
                         );

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../dense.dart';
 import '/domain/model/application_settings.dart';
@@ -31,7 +30,7 @@ class ProfileChats extends StatelessWidget {
   const ProfileChats(this.settings, {super.key});
 
   /// Reactive [ApplicationSettings] that returns the current settings.
-  final Rx<ApplicationSettings?> settings;
+  final ApplicationSettings? settings;
 
   @override
   Widget build(BuildContext context) {
@@ -58,16 +57,14 @@ class ProfileChats extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Dense(
-          Obx(() {
-            return FieldButton(
-              text: (settings.value?.timelineEnabled ?? true)
-                  ? 'label_as_timeline'.l10n
-                  : 'label_in_message'.l10n,
-              maxLines: null,
-              onPressed: () => TimelineSwitchView.show(context),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
+          FieldButton(
+            text: (settings?.timelineEnabled ?? true)
+                ? 'label_as_timeline'.l10n
+                : 'label_in_message'.l10n,
+            maxLines: null,
+            onPressed: () => TimelineSwitchView.show(context),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          ),
         ),
       ],
     );

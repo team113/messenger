@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../dense.dart';
 import '/domain/model/my_user.dart';
@@ -35,56 +34,53 @@ class ProfileNotifications extends StatelessWidget {
   });
 
   /// Reactive [MyUser] that stores the currently authenticated user.
-  final Rx<MyUser?> myUser;
+  final MyUser? myUser;
 
   /// Indicator whether there's an ongoing [toggleMute] happening.
-  final RxBool isMuting;
+  final bool isMuting;
 
   /// Toggles [MyUser.muted] status.
   final void Function(bool enabled) toggleMute;
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return Dense(
-        Stack(
-          alignment: Alignment.centerRight,
-          children: [
-            IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: (myUser.value?.muted == null
-                          ? 'label_enabled'
-                          : 'label_disabled')
-                      .l10n,
-                  editable: false,
-                ),
+    return Dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text:
+                    (myUser?.muted == null ? 'label_enabled' : 'label_disabled')
+                        .l10n,
+                editable: false,
               ),
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: Transform.scale(
-                  scale: 0.7,
-                  transformHitTests: false,
-                  child: Theme(
-                    data: ThemeData(
-                      platform: TargetPlatform.macOS,
-                    ),
-                    child: Switch.adaptive(
-                      activeColor: Theme.of(context).colorScheme.secondary,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      value: myUser.value?.muted == null,
-                      onChanged: isMuting.value ? null : toggleMute,
-                    ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(
+                    platform: TargetPlatform.macOS,
+                  ),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: myUser?.muted == null,
+                    onChanged: isMuting ? null : toggleMute,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
-      );
-    });
+          ),
+        ],
+      ),
+    );
   }
 }

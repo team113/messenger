@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../dense.dart';
 import '/domain/model/application_settings.dart';
@@ -29,48 +28,46 @@ class ProfileStorage extends StatelessWidget {
   const ProfileStorage(this.settings, this.setLoadImages, {super.key});
 
   /// Reactive [ApplicationSettings] that returns the current settings.
-  final Rx<ApplicationSettings?> settings;
+  final ApplicationSettings? settings;
 
   /// Called when the user toggles the switch on or off.
   final void Function(bool enabled) setLoadImages;
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return Dense(
-        Stack(
-          alignment: Alignment.centerRight,
-          children: [
-            IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'label_load_images'.l10n,
-                  editable: false,
-                ),
+    return Dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: 'label_load_images'.l10n,
+                editable: false,
               ),
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: Transform.scale(
-                  scale: 0.7,
-                  transformHitTests: false,
-                  child: Theme(
-                    data: ThemeData(platform: TargetPlatform.macOS),
-                    child: Switch.adaptive(
-                      activeColor: Theme.of(context).colorScheme.secondary,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      value: settings.value?.loadImages == true,
-                      onChanged: settings.value == null ? null : setLoadImages,
-                    ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(platform: TargetPlatform.macOS),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: settings?.loadImages == true,
+                    onChanged: settings == null ? null : setLoadImages,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
-      );
-    });
+          ),
+        ],
+      ),
+    );
   }
 }

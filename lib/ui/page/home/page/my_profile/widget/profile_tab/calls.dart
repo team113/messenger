@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 
 import '../dense.dart';
@@ -29,7 +28,7 @@ class ProfileCall extends StatelessWidget {
   const ProfileCall(this.settings, {super.key});
 
   /// Reactive [ApplicationSettings] that returns the current settings.
-  final Rx<ApplicationSettings?> settings;
+  final ApplicationSettings? settings;
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +36,14 @@ class ProfileCall extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Dense(
-          Obx(() {
-            return FieldButton(
-              text: (settings.value?.enablePopups ?? true)
-                  ? 'label_open_calls_in_window'.l10n
-                  : 'label_open_calls_in_app'.l10n,
-              maxLines: null,
-              onPressed: () => CallWindowSwitchView.show(context),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
+          FieldButton(
+            text: (settings?.enablePopups ?? true)
+                ? 'label_open_calls_in_window'.l10n
+                : 'label_open_calls_in_app'.l10n,
+            maxLines: null,
+            onPressed: () => CallWindowSwitchView.show(context),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          ),
         ),
       ],
     );

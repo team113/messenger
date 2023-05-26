@@ -15,21 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../dense.dart';
 import '/domain/model/media_settings.dart';
-import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/page/my_profile/camera_switch/controller.dart';
-import '/ui/page/home/page/my_profile/microphone_switch/controller.dart';
-import '/ui/page/home/page/my_profile/output_switch/controller.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
-import '/util/media_utils.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.media] section.
 class ProfileMedia extends StatelessWidget {
@@ -37,13 +30,34 @@ class ProfileMedia extends StatelessWidget {
     this.devices,
     this.media, {
     super.key,
+    this.videoSwitch,
+    this.microphoneSwitch,
+    this.outputSwitch,
+    required this.videoText,
+    required this.audioText,
+    required this.outputText,
   });
 
   /// List of [MediaDeviceDetails] of all the available devices.
-  final RxList<MediaDeviceDetails> devices;
+  final List<MediaDeviceDetails> devices;
 
   /// Reactive [MediaSettings] that returns the current media settings value.
-  final Rx<MediaSettings?> media;
+  final MediaSettings? media;
+
+  final String? videoText;
+
+  final String? audioText;
+
+  final String? outputText;
+
+  ///
+  final void Function()? videoSwitch;
+
+  ///
+  final void Function()? microphoneSwitch;
+
+  ///
+  final void Function()? outputSwitch;
 
   @override
   Widget build(BuildContext context) {
@@ -51,75 +65,30 @@ class ProfileMedia extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Dense(
-          Obx(() {
-            return FieldButton(
-              text: (devices.video().firstWhereOrNull((e) =>
-                              e.deviceId() == media.value?.videoDevice) ??
-                          devices.video().firstOrNull)
-                      ?.label() ??
-                  'label_media_no_device_available'.l10n,
-              hint: 'label_media_camera'.l10n,
-              onPressed: () async {
-                await CameraSwitchView.show(
-                  context,
-                  camera: media.value?.videoDevice,
-                );
-
-                if (devices.video().isEmpty) {
-                  devices.value = await MediaUtils.enumerateDevices();
-                }
-              },
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
+          FieldButton(
+            text: videoText,
+            hint: 'label_media_camera'.l10n,
+            onPressed: () => videoSwitch!(),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          ),
         ),
         const SizedBox(height: 16),
         Dense(
-          Obx(() {
-            return FieldButton(
-              text: (devices.audio().firstWhereOrNull((e) =>
-                              e.deviceId() == media.value?.audioDevice) ??
-                          devices.audio().firstOrNull)
-                      ?.label() ??
-                  'label_media_no_device_available'.l10n,
-              hint: 'label_media_microphone'.l10n,
-              onPressed: () async {
-                await MicrophoneSwitchView.show(
-                  context,
-                  mic: media.value?.audioDevice,
-                );
-
-                if (devices.audio().isEmpty) {
-                  devices.value = await MediaUtils.enumerateDevices();
-                }
-              },
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
+          FieldButton(
+            text: audioText,
+            hint: 'label_media_microphone'.l10n,
+            onPressed: () => microphoneSwitch!(),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          ),
         ),
         const SizedBox(height: 16),
         Dense(
-          Obx(() {
-            return FieldButton(
-              text: (devices.output().firstWhereOrNull((e) =>
-                              e.deviceId() == media.value?.outputDevice) ??
-                          devices.output().firstOrNull)
-                      ?.label() ??
-                  'label_media_no_device_available'.l10n,
-              hint: 'label_media_output'.l10n,
-              onPressed: () async {
-                await OutputSwitchView.show(
-                  context,
-                  output: media.value?.outputDevice,
-                );
-
-                if (devices.output().isEmpty) {
-                  devices.value = await MediaUtils.enumerateDevices();
-                }
-              },
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            );
-          }),
+          FieldButton(
+            text: outputText,
+            hint: 'label_media_output'.l10n,
+            onPressed: () => outputSwitch!(),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          ),
         ),
       ],
     );

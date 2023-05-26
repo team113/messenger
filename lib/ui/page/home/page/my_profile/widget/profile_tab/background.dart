@@ -17,7 +17,6 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../dense.dart';
 import '/l10n/l10n.dart';
@@ -37,7 +36,7 @@ class ProfileBackground extends StatelessWidget {
 
   /// Reactive [Uint8List] that returns the current background as a
   /// [Uint8List].
-  final Rx<Uint8List?> background;
+  final Uint8List? background;
 
   /// Opens an image choose popup and sets the selected file as a [background].
   final Future<void> Function() pickBackground;
@@ -96,82 +95,77 @@ class ProfileBackground extends StatelessWidget {
                 border: style.primaryBorder,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Obx(() {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 120,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Positioned.fill(
-                          child: background.value == null
-                              ? SvgImage.asset(
-                                  'assets/images/background_light.svg',
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.memory(
-                                  background.value!,
-                                  fit: BoxFit.cover,
-                                ),
-                        ),
-                        Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: message(
-                                  fromMe: false,
-                                  text: 'label_hello'.l10n,
-                                ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 120,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Positioned.fill(
+                        child: background == null
+                            ? SvgImage.asset(
+                                'assets/images/background_light.svg',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.memory(
+                                background!,
+                                fit: BoxFit.cover,
                               ),
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: message(
-                                  fromMe: true,
-                                  text: 'label_hello_reply'.l10n,
-                                ),
+                      ),
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: message(
+                                fromMe: false,
+                                text: 'label_hello'.l10n,
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-          Obx(() {
-            return Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    WidgetButton(
-                      onPressed: background.value == null
-                          ? pickBackground
-                          : removeBackground,
-                      child: Text(
-                        background.value == null
-                            ? 'btn_upload'.l10n
-                            : 'btn_delete'.l10n,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontSize: 11,
+                            ),
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: message(
+                                fromMe: true,
+                                text: 'label_hello_reply'.l10n,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            );
-          }),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WidgetButton(
+                    onPressed:
+                        background == null ? pickBackground : removeBackground,
+                    child: Text(
+                      background == null
+                          ? 'btn_upload'.l10n
+                          : 'btn_delete'.l10n,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
