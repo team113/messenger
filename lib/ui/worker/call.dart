@@ -101,13 +101,12 @@ class CallWorker extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
-  /// Returns name of an incoming call sound.
+  /// Returns the name of an incoming call sound asset.
   String get _incoming =>
       PlatformUtils.isWeb ? 'chinese-web.mp3' : 'chinese.mp3';
 
-  /// Returns name of an outgoing call sound.
-  String get _outgoing =>
-      PlatformUtils.isWeb ? 'ringing-web.mp3' : 'ringing.mp3';
+  /// Returns the name of an outgoing call sound asset.
+  String get _outgoing => 'ringing.mp3';
 
   @override
   void onInit() {
