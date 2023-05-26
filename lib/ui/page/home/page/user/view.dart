@@ -23,7 +23,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/widget/actions.dart';
+import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -43,7 +43,7 @@ import 'widget/status.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
-  const UserView(this.id, {super.key});
+  const UserView(this.id, {Key? key}) : super(key: key);
 
   /// ID of the [User] this [UserView] represents.
   final UserId id;
@@ -144,24 +144,35 @@ class UserView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (constraints.maxWidth > 400) ...[
-                    const SizedBox(width: 28),
-                    WidgetButton(
-                      onPressed: () => c.call(true),
-                      child: SvgImage.asset(
-                        'assets/icons/chat_video_call.svg',
-                        height: 17,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 28),
-                  WidgetButton(
-                    onPressed: () => c.call(false),
-                    child: SvgImage.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
-                    ),
-                  ),
+                  Obx(() {
+                    if (c.isBlacklisted != null) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (constraints.maxWidth > 400) ...[
+                          const SizedBox(width: 28),
+                          WidgetButton(
+                            onPressed: () => c.call(true),
+                            child: SvgImage.asset(
+                              'assets/icons/chat_video_call.svg',
+                              height: 17,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(width: 28),
+                        WidgetButton(
+                          onPressed: () => c.call(false),
+                          child: SvgImage.asset(
+                            'assets/icons/chat_audio_call.svg',
+                            height: 19,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ],
               ),
               body: Scrollbar(
@@ -202,6 +213,7 @@ class UserView extends StatelessWidget {
                                   },
                             child: AvatarWidget.fromRxUser(
                               c.user,
+                              key: c.avatarKey,
                               radius: 100,
                               badge: false,
                             ),
@@ -218,29 +230,7 @@ class UserView extends StatelessWidget {
                       ),
                       Block(
                         title: 'label_actions'.l10n,
-                        children: [
-                          Obx(
-                            () => ActionsWidget(
-                              inContacts: c.inContacts.value,
-                              inFavorites: c.inFavorites.value,
-                              status: c.status.value,
-                              blacklistStatus: c.blacklistStatus.value,
-                              user: c.user,
-                              isBlacklisted: c.isBlacklisted,
-                              addToContacts: () => c.addToContacts(),
-                              unblacklist: () => c.unblacklist(),
-                              favoriteContact: () => c.favoriteContact(),
-                              unfavoriteContact: () => c.unfavoriteContact(),
-                              muteChat: () => c.muteChat(),
-                              unmuteChat: () => c.unmuteChat(),
-                              removeFromContacts: () =>
-                                  _removeFromContacts(c, context),
-                              hideChat: () => _hideChat(c, context),
-                              clearChat: () => _clearChat(c, context),
-                              blacklistUser: () => _blacklistUser(c, context),
-                            ),
-                          )
-                        ],
+                        children: [_actions(c, context)],
                       ),
                       const SizedBox(height: 8),
                     ],
@@ -261,6 +251,101 @@ class UserView extends StatelessWidget {
           });
         });
       },
+    );
+  }
+
+  /// Returns the action buttons to do with this [User].
+  Widget _actions(UserController c, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Obx(() {
+          return ActionWidget(
+            key: Key(c.inContacts.value
+                ? 'DeleteFromContactsButton'
+                : 'AddToContactsButton'),
+            text: c.inContacts.value
+                ? 'btn_delete_from_contacts'.l10n
+                : 'btn_add_to_contacts'.l10n,
+            onPressed: c.status.value.isLoadingMore
+                ? null
+                : c.inContacts.value
+                    ? () => _removeFromContacts(c, context)
+                    : c.addToContacts,
+          );
+        }),
+        Obx(() {
+          return ActionWidget(
+            text: c.inFavorites.value
+                ? 'btn_delete_from_favorites'.l10n
+                : 'btn_add_to_favorites'.l10n,
+            onPressed:
+                c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
+          );
+        }),
+        if (c.user?.user.value.dialog.isLocal == false &&
+            c.user?.dialog.value != null) ...[
+          Obx(() {
+            if (c.isBlacklisted != null) {
+              return const SizedBox.shrink();
+            }
+
+            final chat = c.user!.dialog.value!.chat.value;
+            final bool isMuted = chat.muted != null;
+
+            return ActionWidget(
+              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: isMuted
+                  ? SvgImage.asset(
+                      'assets/icons/btn_mute.svg',
+                      width: 18.68,
+                      height: 15,
+                    )
+                  : SvgImage.asset(
+                      'assets/icons/btn_unmute.svg',
+                      width: 17.86,
+                      height: 15,
+                    ),
+              onPressed: isMuted ? c.unmuteChat : c.muteChat,
+            );
+          }),
+          ActionWidget(
+            text: 'btn_hide_chat'.l10n,
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _hideChat(c, context),
+          ),
+          ActionWidget(
+            key: const Key('ClearHistoryButton'),
+            text: 'btn_clear_history'.l10n,
+            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _clearChat(c, context),
+          ),
+        ],
+        Obx(() {
+          return ActionWidget(
+            key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
+            text:
+                c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed: c.isBlacklisted != null
+                ? c.unblacklist
+                : () => _blacklistUser(c, context),
+            trailing: Obx(() {
+              final Widget child;
+              if (c.blacklistStatus.value.isEmpty) {
+                child = const SizedBox();
+              } else {
+                child = const CustomProgressIndicator();
+              }
+
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
+            }),
+          );
+        }),
+        ActionWidget(text: 'btn_report'.l10n, onPressed: () {}),
+      ],
     );
   }
 
