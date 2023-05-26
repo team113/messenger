@@ -91,14 +91,16 @@ class MessageFieldView extends StatelessWidget {
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(25),
       borderSide: BorderSide.none,
     );
 
     return Theme.of(context).copyWith(
-      shadowColor: const Color(0x55000000),
-      iconTheme: const IconThemeData(color: Colors.blue),
+      shadowColor: style.colors.onBackgroundOpacity27,
+      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
       inputDecorationTheme: InputDecorationTheme(
         border: border,
         errorBorder: border,
@@ -106,9 +108,9 @@ class MessageFieldView extends StatelessWidget {
         focusedBorder: border,
         disabledBorder: border,
         focusedErrorBorder: border,
-        focusColor: Colors.white,
-        fillColor: Colors.white,
-        hoverColor: Colors.transparent,
+        focusColor: style.colors.onPrimary,
+        fillColor: style.colors.onPrimary,
+        hoverColor: style.colors.transparent,
         filled: true,
         isDense: true,
         contentPadding: EdgeInsets.fromLTRB(
@@ -136,8 +138,11 @@ class MessageFieldView extends StatelessWidget {
               key: const Key('SendField'),
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                boxShadow: const [
-                  CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+                boxShadow: [
+                  CustomBoxShadow(
+                    blurRadius: 8,
+                    color: style.colors.onBackgroundOpacity13,
+                  ),
                 ],
               ),
               child: ConditionalBackdropFilter(
@@ -568,8 +573,8 @@ class MessageHeader extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    const Color(0x00000000),
-                    const Color(0x33000000),
+                    style.colors.transparent,
+                    style.colors.onBackgroundOpacity20,
                     t,
                   )!;
 
@@ -644,8 +649,8 @@ class MessageHeader extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    const Color(0x00000000),
-                    const Color(0x33000000),
+                    style.colors.transparent,
+                    style.colors.onBackgroundOpacity20,
                     t,
                   )!;
 
@@ -700,7 +705,7 @@ class MessageHeader extends StatelessWidget {
             topRight: style.cardRadius.topRight,
           ),
           child: Container(
-            color: Colors.white.withOpacity(0.4),
+            color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(
               duration: 400.milliseconds,
               curve: Curves.ease,
@@ -952,6 +957,8 @@ class MessageAttachment extends StatelessWidget {
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
+      final Style style = Theme.of(context).extension<Style>()!;
+
       if (isImage || isVideo) {
         final Widget child = MediaAttachment(
           attachment: e,
@@ -1017,13 +1024,13 @@ class MessageAttachment extends StatelessWidget {
                       Container(
                         width: 60,
                         height: 60,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0x80000000),
+                          color: style.colors.onBackgroundOpacity50,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.play_arrow,
-                          color: Colors.white,
+                          color: style.colors.onPrimary,
                           size: 48,
                         ),
                       ),
@@ -1071,10 +1078,7 @@ class MessageAttachment extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                style: TextStyle(fontSize: 13, color: style.colors.secondary),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1099,7 +1103,7 @@ class MessageAttachment extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: const Color(0xFFF5F5F5),
+            color: style.colors.secondaryHighlight,
           ),
           margin: const EdgeInsets.symmetric(horizontal: 2),
           child: Stack(
@@ -1115,12 +1119,15 @@ class MessageAttachment extends StatelessWidget {
                     child: e is LocalAttachment
                         ? e.status.value == SendingStatus.error
                             ? Container(
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white,
+                                  color: style.colors.onPrimary,
                                 ),
-                                child: const Center(
-                                  child: Icon(Icons.error, color: Colors.red),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.error,
+                                    color: style.colors.dangerColor,
+                                  ),
                                 ),
                               )
                             : const SizedBox()

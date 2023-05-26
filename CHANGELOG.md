@@ -17,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - History clearing. ([#361])
         - Text selection in messages. ([#118], [#17])
-        - Clickable links and emails. ([#388])
+        - Clickable links and emails. ([#436], [#388])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
         - Chat-monolog. ([#333], [#326])    
@@ -33,6 +33,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned info and call messages. ([#357])
         - Redesigned file attachments. ([#362])
         - Message timestamps. ([#399])
+        - Redesigned chat messages and forwards. ([#416])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#393], [#356], [#258])
@@ -73,6 +74,7 @@ All user visible changes to this project will be documented in this file. This p
 [#399]: /../../pull/399
 [#403]: /../../pull/403
 [#405]: /../../pull/405
+[#436]: /../../pull/436
 
 
 

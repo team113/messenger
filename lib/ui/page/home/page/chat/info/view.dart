@@ -53,6 +53,8 @@ class ChatInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder<ChatInfoController>(
       key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
@@ -78,8 +80,8 @@ class ChatInfoView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: const Color(0x55000000),
-                    color: Colors.white,
+                    shadowColor: style.colors.onBackgroundOpacity27,
+                    color: style.colors.onPrimary,
                     child: Center(
                       child: AvatarWidget.fromRxChat(c.chat, radius: 17),
                     ),
@@ -165,8 +167,8 @@ class ChatInfoView extends StatelessWidget {
                             child: Container(
                               height: 22,
                               width: 22,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
+                              decoration: BoxDecoration(
+                                color: style.colors.dangerColor,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -185,7 +187,7 @@ class ChatInfoView extends StatelessWidget {
                               height: 22,
                               width: 22,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: style.colors.primary,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -275,6 +277,8 @@ class ChatInfoView extends StatelessWidget {
     BuildContext context,
     RxUser user,
   ) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (c.me == user.id) {
       await _leaveGroup(c, context);
     } else {
@@ -284,7 +288,7 @@ class ChatInfoView extends StatelessWidget {
           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
           TextSpan(
             text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: const TextStyle(color: Colors.black),
+            style: TextStyle(color: style.colors.onBackground),
           ),
           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
         ],
@@ -310,13 +314,15 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
@@ -329,13 +335,15 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
@@ -351,13 +359,15 @@ class ChatInfoView extends StatelessWidget {
     ChatInfoController c,
     BuildContext context,
   ) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],
