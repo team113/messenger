@@ -1072,7 +1072,7 @@ class _ChatViewState extends State<ChatView>
       data: MessageFieldView.theme(context),
       child: SafeArea(
         child: Container(
-          key: const Key('UserBlockedField'),
+          key: const Key('BlockedField'),
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
             boxShadow: [
