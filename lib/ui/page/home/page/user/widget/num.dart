@@ -25,10 +25,10 @@ import '/ui/page/home/widget/padding.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns a [User.num] copyable field.
-class NumWidget extends StatelessWidget {
-  const NumWidget({super.key, this.user});
+class UserNum extends StatelessWidget {
+  const UserNum({super.key, this.user});
 
-  /// Reactive [User] itself.
+  /// [User] itself.
   final RxUser? user;
 
   @override

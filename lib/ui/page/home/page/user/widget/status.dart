@@ -25,8 +25,8 @@ import '/ui/page/home/widget/padding.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns a [User.status] copyable field.
-class StatusWidget extends StatelessWidget {
-  const StatusWidget({super.key, this.user});
+class UserStatus extends StatelessWidget {
+  const UserStatus({super.key, this.user});
 
   /// Reactive [User] itself.
   final RxUser? user;

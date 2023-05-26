@@ -36,8 +36,8 @@ import '/util/message_popup.dart';
 import 'controller.dart';
 import 'widget/blocked.dart';
 import 'widget/blocked_field.dart';
-import 'widget/name.dart';
-import 'widget/num.dart';
+import 'widget/name.dart' as user;
+import 'widget/num.dart' as user;
 import 'widget/presence.dart';
 import 'widget/status.dart';
 
@@ -187,7 +187,7 @@ class UserView extends StatelessWidget {
                         Block(
                           title: 'label_user_is_blocked'.l10n,
                           children: [
-                            BlockedWidget(isBlacklisted: c.isBlacklisted),
+                            UserBlocked(isBlacklisted: c.isBlacklisted),
                           ],
                         ),
                       Block(
@@ -219,14 +219,14 @@ class UserView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          NameWidget(user: c.user),
-                          StatusWidget(user: c.user),
-                          PresenceWidget(user: c.user),
+                          user.UserName(user: c.user),
+                          UserStatus(user: c.user),
+                          UserPresence(user: c.user),
                         ],
                       ),
                       Block(
                         title: 'label_contact_information'.l10n,
-                        children: [NumWidget(user: c.user)],
+                        children: [user.UserNum(user: c.user)],
                       ),
                       Block(
                         title: 'label_actions'.l10n,
@@ -244,7 +244,7 @@ class UserView extends StatelessWidget {
 
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: BlockedField(unblacklist: () => c.unblacklist()),
+                  child: UserBlockedField(unblacklist: () => c.unblacklist()),
                 );
               }),
             );

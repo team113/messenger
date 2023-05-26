@@ -28,8 +28,8 @@ import '/ui/page/home/widget/padding.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns a [User.presence] text.
-class PresenceWidget extends StatelessWidget {
-  const PresenceWidget({super.key, this.user});
+class UserPresence extends StatelessWidget {
+  const UserPresence({super.key, this.user});
 
   /// Reactive [User] itself.
   final RxUser? user;

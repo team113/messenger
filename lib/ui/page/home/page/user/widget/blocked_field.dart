@@ -31,8 +31,8 @@ import '/util/platform_utils.dart';
 
 /// [Widget] which returns a [WidgetButton] for removing the [User] from the
 /// blacklist.
-class BlockedField extends StatelessWidget {
-  const BlockedField({super.key, required this.unblacklist});
+class UserBlockedField extends StatelessWidget {
+  const UserBlockedField({super.key, required this.unblacklist});
 
   /// Removes the [User] from the blacklist of the authenticated [RxUser].
   final Future<void> Function() unblacklist;
@@ -45,7 +45,7 @@ class BlockedField extends StatelessWidget {
       data: MessageFieldView.theme(context),
       child: SafeArea(
         child: Container(
-          key: const Key('BlockedField'),
+          key: const Key('UserBlockedField'),
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
             boxShadow: const [

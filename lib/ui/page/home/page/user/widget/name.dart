@@ -25,8 +25,8 @@ import '/ui/page/home/widget/padding.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns a [User.name] copyable field.
-class NameWidget extends StatelessWidget {
-  const NameWidget({super.key, this.user});
+class UserName extends StatelessWidget {
+  const UserName({super.key, this.user});
 
   /// Reactive [User] itself.
   final RxUser? user;
