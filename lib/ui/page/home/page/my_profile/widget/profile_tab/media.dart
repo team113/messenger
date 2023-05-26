@@ -34,9 +34,9 @@ class ProfileMedia extends StatelessWidget {
     this.videoSwitch,
     this.microphoneSwitch,
     this.outputSwitch,
-     this.videoText,
-     this.audioText,
-     this.outputText,
+    this.videoText,
+    this.audioText,
+    this.outputText,
   });
 
   /// List of [MediaDeviceDetails] of all the available devices.
