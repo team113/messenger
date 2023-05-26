@@ -110,9 +110,11 @@ class Selector<T> extends StatefulWidget {
       );
     }
 
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return showDialog(
       context: context,
-      barrierColor: Colors.transparent,
+      barrierColor: style.colors.transparent,
       useSafeArea: false,
       builder: builder,
     );
@@ -267,10 +269,10 @@ class _SelectorState<T> extends State<Selector<T>> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: Material(
             borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
+            color: style.colors.onPrimary,
             child: InkWell(
-              hoverColor: const Color(0x3363B4FF),
-              highlightColor: Colors.white.withOpacity(0.1),
+              hoverColor: style.colors.onSecondaryOpacity20,
+              highlightColor: style.colors.onPrimaryOpacity7,
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 _selected.value = item;
@@ -307,10 +309,10 @@ class _SelectorState<T> extends State<Selector<T>> {
                   borderRadius: style.contextMenuRadius,
                   border:
                       Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
                       blurRadius: 12,
-                      color: Color(0x33000000),
+                      color: style.colors.onBackgroundOpacity27,
                       blurStyle: BlurStyle.outer,
                     )
                   ],

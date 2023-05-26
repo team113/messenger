@@ -619,7 +619,6 @@ class Palette {
     Color? onBackgroundOpacity13,
     Color? onBackgroundOpacity20,
     Color? onBackgroundOpacity27,
-    Color? onBackgroundOpacity33,
     Color? onBackgroundOpacity40,
     Color? onBackgroundOpacity50,
     required this.transparent,
