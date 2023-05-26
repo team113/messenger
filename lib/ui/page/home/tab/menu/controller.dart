@@ -36,7 +36,7 @@ class MenuTabController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [GlobalKey]
+  /// [GlobalKey] of an [AvatarWidget] in the tab title.
   final GlobalKey profileKey = GlobalKey();
 
   /// [AuthService] used in a [logout].

@@ -17,6 +17,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
@@ -127,7 +128,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         return widget.child!;
       }
 
-      return Builder(builder: (_) => widget.builder!(_displayed));
+      return widget.builder!(_displayed);
     }
 
     final Widget child;
@@ -159,7 +160,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               _show(context, d.position);
             }
           },
-          child: PlatformUtils.isMobile
+          child: PlatformUtils.isMobile && widget.selector == null
               ? FloatingContextMenu(
                   alignment: widget.alignment,
                   moveDownwards: widget.moveDownwards,
@@ -170,7 +171,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   onClosed: () => _displayed = false,
                   child: widget.builder == null
                       ? child
-                      : Builder(builder: (_) => widget.builder!(_displayed)),
+                      : widget.builder!(_displayed),
                 )
               : GestureDetector(
                   behavior: HitTestBehavior.translucent,
@@ -179,7 +180,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                       : null,
                   child: widget.builder == null
                       ? child
-                      : Builder(builder: (_) => widget.builder!(_displayed)),
+                      : widget.builder!(_displayed),
                 ),
         ),
       );
@@ -199,6 +200,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     if (widget.actions.isEmpty) {
       return;
     }
+
+    HapticFeedback.lightImpact();
 
     if (widget.selector != null) {
       await Selector.show<ContextMenuItem>(
@@ -221,7 +224,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               children: [
                 if (b.leading != null) ...[
                   b.leading!,
-                  const SizedBox(width: 12)
+                  const SizedBox(width: 12),
                 ],
                 Text(b.label, style: thin?.copyWith(fontSize: 15)),
                 if (b.trailing != null) ...[
@@ -274,8 +277,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                 fit: StackFit.expand,
                 children: [
                   Positioned(
-                    left: position.dx,
-                    top: position.dy,
+                    left:
+                        position.dx + widget.margin.left - widget.margin.right,
+                    top: position.dy + widget.margin.top - widget.margin.bottom,
                     child: FractionalTranslation(
                       translation: Offset(
                         alignment.x > 0 ? 0 : -1,
