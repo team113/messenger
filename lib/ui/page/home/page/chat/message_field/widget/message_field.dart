@@ -28,6 +28,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 
+/// TODO: docs
 class MessageField extends StatelessWidget {
   const MessageField({
     super.key,
