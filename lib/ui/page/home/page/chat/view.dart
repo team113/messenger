@@ -92,6 +92,8 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
       init: ChatController(
@@ -108,7 +110,7 @@ class _ChatViewState extends State<ChatView>
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.
         void onDetailsTap() {
-          Chat? chat = c.chat?.chat.value;
+          final Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup || chat.isMonolog) {
               router.chatInfo(widget.id, push: true);
@@ -157,8 +159,8 @@ class _ChatViewState extends State<ChatView>
                           Material(
                             elevation: 6,
                             type: MaterialType.circle,
-                            shadowColor: const Color(0x55000000),
-                            color: Colors.white,
+                            shadowColor: style.colors.onBackgroundOpacity27,
+                            color: style.colors.onPrimary,
                             child: InkWell(
                               customBorder: const CircleBorder(),
                               onTap: onDetailsTap,
@@ -174,8 +176,8 @@ class _ChatViewState extends State<ChatView>
                           Flexible(
                             child: InkWell(
                               splashFactory: NoSplash.splashFactory,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
+                              hoverColor: style.colors.transparent,
+                              highlightColor: style.colors.transparent,
                               onTap: onDetailsTap,
                               child: DefaultTextStyle.merge(
                                 maxLines: 1,
@@ -247,8 +249,8 @@ class _ChatViewState extends State<ChatView>
                                         child: Container(
                                           height: 32,
                                           width: 32,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
+                                          decoration: BoxDecoration(
+                                            color: style.colors.dangerColor,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
@@ -267,9 +269,7 @@ class _ChatViewState extends State<ChatView>
                                           height: 32,
                                           width: 32,
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
+                                            color: style.colors.primary,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
@@ -516,7 +516,7 @@ class _ChatViewState extends State<ChatView>
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
-                                color: const Color(0x40000000),
+                                color: style.colors.onBackgroundOpacity27,
                                 child: Center(
                                   child: AnimatedDelayedScale(
                                     duration: const Duration(milliseconds: 300),
@@ -528,14 +528,15 @@ class _ChatViewState extends State<ChatView>
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(16),
-                                          color: const Color(0x40000000),
+                                          color: style
+                                              .colors.onBackgroundOpacity27,
                                         ),
-                                        child: const Padding(
-                                          padding: EdgeInsets.all(16),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
                                           child: Icon(
                                             Icons.add_rounded,
                                             size: 50,
-                                            color: Colors.white,
+                                            color: style.colors.onPrimary,
                                           ),
                                         ),
                                       ),
@@ -559,6 +560,8 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
 
@@ -805,10 +808,10 @@ class _ChatViewState extends State<ChatView>
               padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
               child: ConstrainedBox(
                 constraints: BoxConstraints.tight(const Size.square(40)),
-                child: const Center(
+                child: Center(
                   child: ColoredBox(
-                    color: Colors.transparent,
-                    child: CustomProgressIndicator(),
+                    color: style.colors.transparent,
+                    child: const CustomProgressIndicator(),
                   ),
                 ),
               ),

@@ -60,9 +60,11 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
     final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: style.colors.onBackground,
+        );
 
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
@@ -114,10 +116,7 @@ class MessageInfo extends StatelessWidget {
                   height: 50,
                   child: CustomAppBar(
                     border: !c.search.isEmpty.value || c.search.isFocused.value
-                        ? Border.all(
-                            color: Theme.of(context).colorScheme.secondary,
-                            width: 2,
-                          )
+                        ? Border.all(color: style.colors.primary, width: 2)
                         : null,
                     margin: const EdgeInsets.only(top: 4),
                     title: Theme(
@@ -216,17 +215,10 @@ class MessageInfo extends StatelessWidget {
                                 subtitle: [
                                   const SizedBox(height: 3),
                                   Text(
-                                    'label_read_at'.l10nfmt({
-                                      'day': '${time.day}'.padLeft(2, '0'),
-                                      'month': '${time.month}'.padLeft(2, '0'),
-                                      'year': '${time.year}'.padLeft(2, '0'),
-                                      'hour': '${time.hour}'.padLeft(2, '0'),
-                                      'minute':
-                                          '${time.minute}'.padLeft(2, '0'),
-                                    }),
+                                    'label_read_at'
+                                        .l10nfmt({'date': time.yMdHm}),
                                     style: TextStyle(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+                                      color: style.colors.secondary,
                                     ),
                                   ),
                                 ],
