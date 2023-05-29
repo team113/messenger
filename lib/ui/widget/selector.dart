@@ -176,29 +176,29 @@ class _SelectorState<T> extends State<Selector<T>> {
           Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
       final keyContext = widget.buttonKey?.currentContext;
       if (keyContext != null) {
-        final box = keyContext.findRenderObject() as RenderBox?;
-        offset = box?.localToGlobal(Offset.zero) ?? offset;
+        final buttonBox = keyContext.findRenderObject() as RenderBox?;
+        offset = buttonBox?.localToGlobal(Offset.zero) ?? offset;
 
-        Offset? size;
+        RenderBox? contextBox;
 
-        final itemsContext = _itemsKey.currentContext;
+        final BuildContext? itemsContext = _itemsKey.currentContext;
         if (itemsContext != null) {
-          final box = itemsContext.findRenderObject() as RenderBox?;
-          size = box?.localToGlobal(Offset.zero) ?? offset;
+          contextBox = itemsContext.findRenderObject() as RenderBox?;
         }
 
         if (widget.alignment == Alignment.topCenter) {
           offset = Offset(
-            offset.dx - (box?.size.width ?? 0) / 2,
+            offset.dx + (buttonBox?.size.width ?? 0) / 2,
             offset.dy,
           );
 
-          left =
-              offset.dx - (size?.dx ?? widget.width) / 2 - widget.margin.right;
+          left = offset.dx -
+              (contextBox?.size.width ?? widget.width) / 2 -
+              widget.margin.right;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.topLeft) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0),
             offset.dy - widget.margin.bottom,
           );
 
@@ -206,7 +206,7 @@ class _SelectorState<T> extends State<Selector<T>> {
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.topRight) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0),
             offset.dy - widget.margin.bottom,
           );
 
@@ -214,35 +214,35 @@ class _SelectorState<T> extends State<Selector<T>> {
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.bottomCenter) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0) / 2,
-            offset.dy + (box?.size.height ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0) / 2,
+            offset.dy + (buttonBox?.size.height ?? 0),
           );
 
           left = offset.dx - widget.width / 2;
           top = offset.dy;
         } else if (widget.alignment == Alignment.bottomRight) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0),
-            offset.dy + (box?.size.height ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0),
+            offset.dy + (buttonBox?.size.height ?? 0),
           );
 
           left = offset.dx - widget.margin.right;
           top = offset.dy - widget.margin.bottom;
         } else if (widget.alignment == Alignment.bottomLeft) {
           offset = Offset(
-            offset.dx - (box?.size.width ?? 0),
-            offset.dy + (box?.size.height ?? 0),
+            offset.dx - (buttonBox?.size.width ?? 0),
+            offset.dy + (buttonBox?.size.height ?? 0),
           );
 
           right = constraints.maxWidth - 100 - offset.dx;
           top = offset.dy - widget.margin.bottom;
         } else {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0) / 2,
-            offset.dy + (box?.size.height ?? 0) / 2,
+            offset.dx + (buttonBox?.size.width ?? 0) / 2,
+            offset.dy + (buttonBox?.size.height ?? 0) / 2,
           );
 
-          left = offset.dx - widget.width / 2;
+          left = offset.dx - (contextBox?.size.width ?? widget.width) / 2;
           top = offset.dy;
         }
       }

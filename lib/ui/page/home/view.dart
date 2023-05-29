@@ -225,6 +225,7 @@ class _HomeViewState extends State<HomeView> {
                                   actions: [
                                     if (c.myUser.value?.muted != null)
                                       ContextMenuButton(
+                                        key: const Key('UnmuteChatsButton'),
                                         label: 'btn_unmute_chats'.l10n,
                                         onPressed: () {
                                           c.toggleMute(true);
@@ -232,6 +233,7 @@ class _HomeViewState extends State<HomeView> {
                                       )
                                     else
                                       ContextMenuButton(
+                                        key: const Key('MuteChatsButton'),
                                         label: 'btn_mute_chats'.l10n,
                                         onPressed: () {
                                           c.toggleMute(false);

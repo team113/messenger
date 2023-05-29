@@ -15,14 +15,11 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Application muting and unmuting
+Feature: Application muting
 
-  Scenario: User mutes and unmutes application
+  Scenario: User mutes application
     Given I am Alice
 
     When I long press `ChatsButton` button
-    And I tap `MuteMyUserSwitch` button
+    And I tap `MuteChatsButton` button
     Then I wait until `Muted` is present
-
-    When I tap `MuteMyUserSwitch` button
-    Then I wait until `Unmuted` is present
