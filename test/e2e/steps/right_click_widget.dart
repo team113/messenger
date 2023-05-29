@@ -33,8 +33,9 @@ import '../world/custom_world.dart';
 /// - When I right click `WidgetKey` text
 /// - When I right click `WidgetKey` widget
 final StepDefinitionGeneric rightClickWidget = when1<WidgetKey, CustomWorld>(
-  RegExp(r'I right click {key} (?:button|element|label|icon|field|text|widget)$'),
-      (key, context) async {
+  RegExp(
+      r'I right click {key} (?:button|element|label|icon|field|text|widget)$'),
+  (key, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
