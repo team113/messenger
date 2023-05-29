@@ -17,23 +17,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/util/date_time.dart';
 
 import '/themes.dart';
 import 'swipeable_status.dart';
 
 /// [Widget] which returns a centered [time] label.
 class TimeLabelWidget extends StatelessWidget {
-  const TimeLabelWidget(
-    this.i, {
+  const TimeLabelWidget({
     super.key,
     required this.time,
     required this.opacity,
     this.animation,
   });
-
-  /// Initial index of this [TimeLabelWidget] in the list.
-  final int i;
 
   /// Opacity of this [TimeLabelWidget].
   final double opacity;
@@ -60,7 +56,7 @@ class TimeLabelWidget extends StatelessWidget {
           child: Text(DateFormat('dd.MM.yy').format(time)),
         ),
         child: AnimatedOpacity(
-          key: Key('$i$time'),
+          key: Key('$time'),
           opacity: opacity,
           duration: const Duration(milliseconds: 250),
           child: Center(

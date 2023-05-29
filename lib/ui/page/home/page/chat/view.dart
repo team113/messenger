@@ -45,7 +45,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/back_button.dart';
-import 'widget/bottom_bar.dart';
+import 'widget/chat_bottom_panel.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
@@ -496,7 +496,7 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: SizeChangedLayoutNotifier(
                           key: c.bottomBarKey,
-                          child: BottomBar(
+                          child: ChatBottomPanel(
                             chat: c.chat,
                             edit: c.edit.value,
                             send: c.send,
@@ -786,7 +786,6 @@ class _ChatViewState extends State<ChatView>
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
         child: TimeLabelWidget(
-          i,
           time: element.id.at.val,
           animation: _animation,
           opacity: c.stickyIndex.value == i
@@ -852,49 +851,6 @@ class _ChatViewState extends State<ChatView>
       c.isHorizontalScroll.value = false;
       c.horizontalScrollTimer.value = null;
     });
-  }
-}
-
-/// Extension adding an ability to get text represented [DateTime] relative to
-/// [DateTime.now].
-extension DateTimeToRelative on DateTime {
-  /// Returns relative to [now] text representation.
-  ///
-  /// [DateTime.now] is used if [now] is `null`.
-  String toRelative([DateTime? now]) {
-    DateTime local = isUtc ? toLocal() : this;
-    DateTime relative = now ?? DateTime.now();
-    int days = relative.julianDayNumber() - local.julianDayNumber();
-
-    int months = 0;
-    if (days >= 28) {
-      months =
-          relative.month + relative.year * 12 - local.month - local.year * 12;
-      if (relative.day < local.day) {
-        months--;
-      }
-    }
-
-    return 'label_ago_date'.l10nfmt({
-      'years': months ~/ 12,
-      'months': months,
-      'weeks': days ~/ 7,
-      'days': days,
-    });
-  }
-
-  /// Returns a Julian day number of this [DateTime].
-  int julianDayNumber() {
-    final int c0 = ((month - 3) / 12).floor();
-    final int x4 = year + c0;
-    final int x3 = (x4 / 100).floor();
-    final int x2 = x4 % 100;
-    final int x1 = month - (12 * c0) - 3;
-    return ((146097 * x3) / 4).floor() +
-        ((36525 * x2) / 100).floor() +
-        (((153 * x1) + 2) / 5).floor() +
-        day +
-        1721119;
   }
 }
 

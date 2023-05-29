@@ -26,8 +26,8 @@ import 'blocked_field.dart';
 
 /// [Widget] which returns a bottom bar of this [ChatView] to display under
 /// the messages list containing a send/edit field.
-class BottomBar extends StatelessWidget {
-  const BottomBar({
+class ChatBottomPanel extends StatelessWidget {
+  const ChatBottomPanel({
     super.key,
     required this.edit,
     this.send,
