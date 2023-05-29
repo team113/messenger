@@ -414,12 +414,12 @@ class AvatarWidget extends StatelessWidget {
                 child: ClipOval(
                   child: RetryImage(
                     maxWidth > 70
-                        ? avatar!.original.url
+                        ? avatar!.full.url
                         : maxWidth > 26
                             ? avatar!.big.url
                             : avatar!.medium.url,
                     checksum: maxWidth > 70
-                        ? avatar!.original.checksum
+                        ? avatar!.full.checksum
                         : maxWidth > 26
                             ? avatar!.big.checksum
                             : avatar!.medium.checksum,
