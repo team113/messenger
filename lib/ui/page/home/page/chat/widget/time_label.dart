@@ -32,7 +32,7 @@ class TimeLabelWidget extends StatelessWidget {
     this.animation,
   });
 
-  /// Index of this [TimeLabelWidget] in the list.
+  /// Initial index of this [TimeLabelWidget] in the list.
   final int i;
 
   /// Opacity of this [TimeLabelWidget].
@@ -42,8 +42,7 @@ class TimeLabelWidget extends StatelessWidget {
   /// displaying.
   final DateTime time;
 
-  /// [AnimationController] object that controls the animation of this
-  /// [TimeLabelWidget].
+  /// [AnimationController] controlling this [TimeLabelWidget].
   final AnimationController? animation;
 
   @override

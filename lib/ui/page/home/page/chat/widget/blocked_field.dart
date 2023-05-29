@@ -84,7 +84,7 @@ class BlockedField extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(
                                 fontSize: 17,
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: style.colors.primary,
                               ),
                             ),
                           ),

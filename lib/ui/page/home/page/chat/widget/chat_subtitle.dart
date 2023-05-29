@@ -52,7 +52,7 @@ class ChatSubtitle extends StatelessWidget {
   /// [Duration] object that represents the duration of the chat.
   final Duration? duration;
 
-  /// [Function] that retrieves information about a user.
+  /// Returns an [User] from [UserService] by the provided id.
   final Future<RxUser?>? Function(UserId id) getUser;
 
   @override

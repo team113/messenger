@@ -25,7 +25,7 @@ import '/themes.dart';
 class UnreadLabel extends StatelessWidget {
   const UnreadLabel(this.unreadMessages, {super.key});
 
-  /// Label indicating the number of unread messages.
+  /// Count of unread messages.
   final int? unreadMessages;
 
   @override

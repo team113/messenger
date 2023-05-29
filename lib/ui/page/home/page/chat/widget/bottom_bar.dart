@@ -41,26 +41,22 @@ class BottomBar extends StatelessWidget {
   /// [RxChat] object that represents the active chat.
   final RxChat? chat;
 
-  /// Reactive [MessageFieldController] object that represents the message
-  /// input [MessageFieldView] if the user is editing an existing message.
+  /// [MessageFieldController] for editing a [ChatMessage].
   final MessageFieldController? edit;
 
-  /// [MessageFieldController] object that represents the message input
-  /// [MessageFieldView] if the user is creating a new message.
+  /// [MessageFieldController] for sending a [ChatMessage].
   final MessageFieldController? send;
 
-  /// [Function] that is called when the user chooses to unblock the chat.
+  /// Callback, called when the user chooses to unblock the chat.
   final void Function()? unblacklist;
 
-  /// [Function] that is called when the user is typing a message.
+  /// Callback, called when the user is typing a message.
   final void Function()? keepTyping;
 
-  /// Reactive [MessageFieldController] object that represents the message
-  /// input [MessageFieldView] if the user is editing an existing message.
+  /// Callback, called when the user is editing a message.
   final Future<void> Function(ChatItemId)? onEdit;
 
-  /// [MessageFieldController] object that represents the message input
-  /// [MessageFieldView] if the user is creating a new message.
+  /// Callback, called when the user is sending a message.
   final Future<void> Function(ChatItemId)? onSend;
 
   @override
