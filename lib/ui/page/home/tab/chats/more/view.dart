@@ -15,22 +15,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
-import '/config.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
-import '/themes.dart';
-import '/ui/page/home/page/my_profile/link_details/view.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/chat_direct_link.dart';
+import 'widget/more_header.dart';
+import 'widget/switch_mute.dart';
 
 /// View for changing [MyUser.chatDirectLink] and [MyUser.muted].
 ///
@@ -69,11 +63,14 @@ class ChatsMoreView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 8),
-                  SwitchMute(c.myUser, c.isMuting, c.toggleMute),
+                  Obx(
+                    () => SwitchMute(
+                        c.myUser.value, c.isMuting.value, c.toggleMute),
+                  ),
                   const SizedBox(height: 21),
                   MoreHeader(text: 'label_your_direct_link'.l10n),
                   const SizedBox(height: 4),
-                  ChatDirectLink(c.myUser, c.link),
+                  ChatDirectLink(c.myUser.value, c.link),
                 ],
               ),
             ),
@@ -82,178 +79,5 @@ class ChatsMoreView extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-/// [Widget] which returns a styled as a header [Container] with the provided
-/// [text].
-class MoreHeader extends StatelessWidget {
-  const MoreHeader({super.key, required this.text});
-
-  /// Text that will be displayed in this [MoreHeader].
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Text(
-            text,
-            style: Theme.of(context)
-                .extension<Style>()!
-                .systemMessageStyle
-                .copyWith(color: Colors.black, fontSize: 18),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// [Widget] which returns a [Switch] toggling [MyUser.muted].
-class SwitchMute extends StatelessWidget {
-  const SwitchMute(this.myUser, this.isMuting, this.toggleMute, {super.key});
-
-  /// Reactive variable that stores the currently authenticated [MyUser].
-  final Rx<MyUser?> myUser;
-
-  /// Indicator whether there's an ongoing [toggleMute] happening.
-  final RxBool isMuting;
-
-  /// Toggles [MyUser.muted] status.
-  final Future<void> Function(bool enabled) toggleMute;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      return Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: (myUser.value?.muted == null
-                        ? 'label_enabled'
-                        : 'label_disabled')
-                    .l10n,
-                editable: false,
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Transform.scale(
-                scale: 0.7,
-                transformHitTests: false,
-                child: Theme(
-                  data: ThemeData(
-                    platform: TargetPlatform.macOS,
-                  ),
-                  child: Switch.adaptive(
-                    key: const Key('MuteMyUserSwitch'),
-                    activeColor: Theme.of(context).colorScheme.secondary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: myUser.value?.muted == null,
-                    onChanged: isMuting.value ? null : toggleMute,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    });
-  }
-}
-
-/// [Widget] which returns a [MyUser.chatDirectLink] editable field.
-class ChatDirectLink extends StatelessWidget {
-  const ChatDirectLink(this.myUser, this.link, {super.key});
-
-  /// Reactive variable that stores the currently authenticated [MyUser].
-  final Rx<MyUser?> myUser;
-
-  /// [MyUser.chatDirectLink] copyable state.
-  final TextFieldState link;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ReactiveTextField(
-            key: const Key('LinkField'),
-            state: link,
-            onSuffixPressed: link.isEmpty.value
-                ? null
-                : () {
-                    PlatformUtils.copy(
-                      text:
-                          '${Config.origin}${Routes.chatDirectLink}/${link.text}',
-                    );
-
-                    MessagePopup.success('label_copied'.l10n);
-                  },
-            trailing: link.isEmpty.value
-                ? null
-                : Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child: SvgImage.asset(
-                        'assets/icons/copy.svg',
-                        height: 15,
-                      ),
-                    ),
-                  ),
-            label: '${Config.origin}/',
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-            child: Row(
-              children: [
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: 'label_transition_count'.l10nfmt({
-                              'count':
-                                  myUser.value?.chatDirectLink?.usageCount ?? 0
-                            }) +
-                            'dot_space'.l10n,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'label_details'.l10n,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () async {
-                            await LinkDetailsView.show(context);
-                          },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    });
   }
 }
