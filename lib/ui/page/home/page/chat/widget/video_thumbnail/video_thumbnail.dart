@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
 import '/domain/service/file.dart';
+import '/themes.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
@@ -114,6 +115,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     double width = 0;
     double height = 0;
 
@@ -151,7 +154,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                   // [Container] for receiving pointer events over this
                   // [VideoThumbnail], since the [ContextMenuInterceptor] above
                   // intercepts them.
-                  Container(color: Colors.transparent),
+                  Container(color: style.colors.transparent),
                 ],
               ),
             )

@@ -62,8 +62,10 @@ class Block extends StatelessWidget {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     child: Text(
                       title!,
-                      style: style.systemMessageStyle
-                          .copyWith(color: Colors.black, fontSize: 18),
+                      style: style.systemMessageStyle.copyWith(
+                        color: style.colors.onBackground,
+                        fontSize: 18,
+                      ),
                     ),
                   ),
                 ),

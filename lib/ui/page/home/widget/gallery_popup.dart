@@ -29,6 +29,7 @@ import 'package:video_player/video_player.dart';
 
 import '/domain/service/file.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video.dart';
@@ -142,6 +143,8 @@ class GalleryPopup extends StatefulWidget {
     required BuildContext context,
     required GalleryPopup gallery,
   }) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return showGeneralDialog(
       context: context,
       pageBuilder: (
@@ -156,7 +159,7 @@ class GalleryPopup extends StatefulWidget {
         return themes.wrap(gallery);
       },
       barrierDismissible: false,
-      barrierColor: Colors.transparent,
+      barrierColor: style.colors.transparent,
       transitionDuration: Duration.zero,
       useRootNavigator: PlatformUtils.isMobile ? false : true,
     );
@@ -318,6 +321,8 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         if (!_firstLayout) {
@@ -349,7 +354,8 @@ class _GalleryPopupState extends State<GalleryPopup>
             AnimatedBuilder(
               animation: _fading,
               builder: (context, child) => Container(
-                color: Colors.black.withOpacity(0.9 * _fading.value),
+                color:
+                    style.colors.onBackground.withOpacity(0.9 * _fading.value),
               ),
             ),
             AnimatedBuilder(
@@ -407,6 +413,8 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the gallery view of its items itself.
   Widget _pageView() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       return ContextMenuRegion(
@@ -512,7 +520,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               ),
             ),
           ),
-          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+          backgroundDecoration: BoxDecoration(color: style.colors.transparent),
           pageController: _pageController,
           onPageChanged: (i) {
             _isInitialPage = false;
@@ -607,6 +615,8 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the [List] of [GalleryPopup] interface [Widget]s.
   List<Widget> _buildInterface() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
@@ -653,14 +663,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: const Color(0x794E5A78),
+                              color: style.colors.onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.only(right: 1),
                               child: Icon(
                                 Icons.keyboard_arrow_left_rounded,
-                                color: left ? Colors.white : Colors.grey,
+                                color: left
+                                    ? style.colors.onPrimary
+                                    : style.colors.secondary,
                                 size: 36,
                               ),
                             ),
@@ -704,14 +716,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: const Color(0x794E5A78),
+                              color: style.colors.onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.only(left: 1),
                               child: Icon(
                                 Icons.keyboard_arrow_right_rounded,
-                                color: right ? Colors.white : Colors.grey,
+                                color: right
+                                    ? style.colors.onPrimary
+                                    : style.colors.secondary,
                                 size: 36,
                               ),
                             ),
@@ -738,12 +752,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
-                    color: const Color(0x794E5A78),
+                    color: style.colors.onSecondaryOpacity50,
                     onPressed: _dismiss,
                     withBlur: true,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close_rounded,
-                      color: Colors.white,
+                      color: style.colors.onPrimary,
                       size: 28,
                     ),
                   ),
@@ -766,7 +780,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                     width: 60,
                     height: 60,
                     child: RoundFloatingButton(
-                      color: const Color(0x794E5A78),
+                      color: style.colors.onSecondaryOpacity50,
                       onPressed: _toggleFullscreen,
                       withBlur: true,
                       assetWidth: 22,
@@ -837,7 +851,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
-                    color: const Color(0x794E5A78),
+                    color: style.colors.onSecondaryOpacity50,
                     onPressed: () {
                       widget.onTrashPressed?.call(_page);
                       _dismiss();
