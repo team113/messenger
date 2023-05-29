@@ -40,7 +40,7 @@ import '/ui/page/home/widget/retry_image.dart';
 /// [avatar] is not specified.
 class AvatarWidget extends StatelessWidget {
   const AvatarWidget({
-    Key? key,
+    super.key,
     this.avatar,
     this.radius,
     this.maxRadius,
@@ -50,7 +50,7 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-  }) : super(key: key);
+  });
 
   /// Creates an [AvatarWidget] from the specified [contact].
   factory AvatarWidget.fromContact(
