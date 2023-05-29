@@ -142,35 +142,33 @@ class MessageField extends StatelessWidget {
               ),
             ),
           ),
-          Obx(() {
-            return GestureDetector(
-              onLongPress: canForward ? forwarding.toggle : null,
-              child: WidgetButton(
-                onPressed: field.submit,
-                child: SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: 300.milliseconds,
-                      child: forwarding.value
-                          ? SvgImage.asset(
-                              'assets/icons/forward.svg',
-                              width: 26,
-                              height: 22,
-                            )
-                          : SvgImage.asset(
-                              'assets/icons/send.svg',
-                              key: sendKey ?? const Key('Send'),
-                              height: 22.85,
-                              width: 25.18,
-                            ),
-                    ),
+          GestureDetector(
+            onLongPress: canForward ? forwarding.toggle : null,
+            child: WidgetButton(
+              onPressed: field.submit,
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: Center(
+                  child: AnimatedSwitcher(
+                    duration: 300.milliseconds,
+                    child: forwarding.value
+                        ? SvgImage.asset(
+                            'assets/icons/forward.svg',
+                            width: 26,
+                            height: 22,
+                          )
+                        : SvgImage.asset(
+                            'assets/icons/send.svg',
+                            key: sendKey ?? const Key('Send'),
+                            height: 22.85,
+                            width: 25.18,
+                          ),
                   ),
                 ),
               ),
-            );
-          }),
+            ),
+          ),
         ],
       ),
     );

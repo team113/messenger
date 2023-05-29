@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+// ignore_for_file: must_be_immutable
+
 import 'dart:math';
 import 'dart:ui';
 
@@ -47,7 +49,7 @@ import 'message_attachment.dart';
 /// [Widget] which returns a visual representation of the message attachments,
 /// replies, quotes and edited message.
 class MessageHeader extends StatelessWidget {
-  const MessageHeader({
+  MessageHeader({
     super.key,
     required this.attachments,
     required this.hoveredAttachment,
@@ -61,44 +63,59 @@ class MessageHeader extends StatelessWidget {
     required this.hoveredReply,
     required this.getUser,
     required this.onItemPressed,
+    required this.onExit,
+    required this.onExitAttachment,
+    required this.onDismissed,
+    required this.onClose,
   });
 
   /// Unique ID of an [User].
   final UserId? me;
 
   /// [Attachment]s of this [ChatMessage].
-  final RxList<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
+  final List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
       attachments;
 
   /// [Attachment] being hovered.
-  final Rx<Attachment?> hoveredAttachment;
+  final Attachment? hoveredAttachment;
 
   /// [TextFieldState] for a [ChatMessageText].
   final TextFieldState field;
 
   /// [ChatItem] being edited.
-  final Rx<ChatItem?> edited;
+  final ChatItem? edited;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController;
 
   /// [ChatItemQuoteInput]s to be forwarded.
-  final RxList<ChatItemQuoteInput> quotes;
+  final List<ChatItemQuoteInput> quotes;
 
   /// [ChatItem] being quoted to reply onto.
-  final RxList<ChatItem> replied;
+  final List<ChatItem> replied;
 
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? boxConstraints;
 
   /// Replied [ChatItem] being hovered.
-  final Rx<ChatItem?> hoveredReply;
+  ChatItem? hoveredReply;
 
   /// Returns an [User] from [UserService] by the provided id.
   final Future<RxUser?> Function(UserId id) getUser;
 
   /// Callback, called when a [ChatItem] being a reply or edited is pressed.
   final Future<void> Function(ChatItemId)? onItemPressed;
+
+  /// TODO: docs
+  final void Function(PointerExitEvent)? onExit;
+
+  /// TODO: docs
+  final void Function(PointerExitEvent)? onExitAttachment;
+
+  /// TODO: docs
+  final void Function(DismissDirection)? onDismissed;
+
+  final void Function()? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +244,7 @@ class MessageHeader extends StatelessWidget {
 
       final Widget expanded;
 
-      if (edited.value != null) {
+      if (edited != null) {
         expanded = Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -291,13 +308,11 @@ class MessageHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   snapshot.data != null
-                      ? Obx(() {
-                          return Text(
-                            snapshot.data!.user.value.name?.val ??
-                                snapshot.data!.user.value.num.val,
-                            style: style.boldBody.copyWith(color: color),
-                          );
-                        })
+                      ? Text(
+                          snapshot.data!.user.value.name?.val ??
+                              snapshot.data!.user.value.num.val,
+                          style: style.boldBody.copyWith(color: color),
+                        )
                       : Text(
                           'dot'.l10n * 3,
                           style: style.boldBody.copyWith(
@@ -321,8 +336,8 @@ class MessageHeader extends StatelessWidget {
 
       return MouseRegion(
         opaque: false,
-        onEnter: (d) => hoveredReply.value = item,
-        onExit: (d) => hoveredReply.value = null,
+        onExit: onExit,
+        onEnter: (d) => hoveredReply = item,
         child: Container(
           margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
           decoration: BoxDecoration(
@@ -333,39 +348,10 @@ class MessageHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: expanded),
-              Obx(() {
-                final Widget child;
-
-                if (hoveredReply.value == item || PlatformUtils.isMobile) {
-                  child = WidgetButton(
-                    key: const Key('CancelReplyButton'),
-                    onPressed: onClose,
-                    child: Container(
-                      width: 15,
-                      height: 15,
-                      margin: const EdgeInsets.only(right: 4, top: 4),
-                      child: Container(
-                        key: const Key('Close'),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: style.cardColor,
-                        ),
-                        alignment: Alignment.center,
-                        child: SvgImage.asset(
-                          'assets/icons/close_primary.svg',
-                          width: 7,
-                          height: 7,
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  child = const SizedBox();
-                }
-
-                return AnimatedSwitcher(
-                    duration: 200.milliseconds, child: child);
-              }),
+              AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: buildCloseButton(item, context),
+              ),
             ],
           ),
         ),
@@ -373,256 +359,291 @@ class MessageHeader extends StatelessWidget {
     }
 
     return LayoutBuilder(builder: (context, constraints) {
-      return Obx(() {
-        final bool grab = attachments.isNotEmpty
-            ? (125 + 2) * attachments.length > constraints.maxWidth - 16
-            : false;
+      final bool grab = attachments.isNotEmpty
+          ? (125 + 2) * attachments.length > constraints.maxWidth - 16
+          : false;
 
-        Widget? previews;
+      Widget? previews;
 
-        if (edited.value != null) {
-          previews = SingleChildScrollView(
-            controller: scrollController,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              child: Dismissible(
-                key: Key('${edited.value?.id}'),
-                direction: DismissDirection.horizontal,
-                onDismissed: (_) => edited.value = null,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: WidgetButton(
-                    onPressed: () => onItemPressed?.call(edited.value!.id),
-                    child: buildPreview(
-                      context,
-                      edited.value!,
-                      onClose: () => edited.value = null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else if (quotes.isNotEmpty) {
-          previews = ReorderableListView(
-            scrollController: scrollController,
-            shrinkWrap: true,
-            buildDefaultDragHandles: PlatformUtils.isMobile,
-            onReorder: (int old, int to) {
-              if (old < to) {
-                --to;
-              }
-
-              quotes.insert(to, quotes.removeAt(old));
-
-              HapticFeedback.lightImpact();
-            },
-            proxyDecorator: (child, _, animation) {
-              return AnimatedBuilder(
-                animation: animation,
-                builder: (_, child) {
-                  final double t = Curves.easeInOut.transform(animation.value);
-                  final double elevation = lerpDouble(0, 6, t)!;
-                  final Color color = Color.lerp(
-                    style.colors.transparent,
-                    style.colors.onBackgroundOpacity20,
-                    t,
-                  )!;
-
-                  return InitCallback(
-                    callback: HapticFeedback.selectionClick,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          CustomBoxShadow(color: color, blurRadius: elevation),
-                        ],
-                      ),
-                      child: child,
-                    ),
-                  );
-                },
-                child: child,
-              );
-            },
-            reverse: true,
-            padding: const EdgeInsets.symmetric(horizontal: 1),
-            children: quotes.map((e) {
-              return ReorderableDragStartListener(
-                key: Key('Handle_${e.item.id}'),
-                enabled: !PlatformUtils.isMobile,
-                index: quotes.indexOf(e),
-                child: Dismissible(
-                  key: Key('${e.item.id}'),
-                  direction: DismissDirection.horizontal,
-                  onDismissed: (_) {
-                    quotes.remove(e);
-                    if (quotes.isEmpty) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 2,
-                    ),
-                    child: buildPreview(
-                      context,
-                      e.item,
-                      onClose: () {
-                        quotes.remove(e);
-                        if (quotes.isEmpty) {
-                          Navigator.of(context).pop();
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          );
-        } else if (replied.isNotEmpty) {
-          previews = ReorderableListView(
-            scrollController: scrollController,
-            shrinkWrap: true,
-            buildDefaultDragHandles: PlatformUtils.isMobile,
-            onReorder: (int old, int to) {
-              if (old < to) {
-                --to;
-              }
-
-              replied.insert(to, replied.removeAt(old));
-
-              HapticFeedback.lightImpact();
-            },
-            proxyDecorator: (child, _, animation) {
-              return AnimatedBuilder(
-                animation: animation,
-                builder: (_, child) {
-                  final double t = Curves.easeInOut.transform(animation.value);
-                  final double elevation = lerpDouble(0, 6, t)!;
-                  final Color color = Color.lerp(
-                    style.colors.transparent,
-                    style.colors.onBackgroundOpacity20,
-                    t,
-                  )!;
-
-                  return InitCallback(
-                    callback: HapticFeedback.selectionClick,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          CustomBoxShadow(color: color, blurRadius: elevation),
-                        ],
-                      ),
-                      child: child,
-                    ),
-                  );
-                },
-                child: child,
-              );
-            },
-            reverse: true,
-            padding: const EdgeInsets.symmetric(horizontal: 1),
-            children: replied.map((e) {
-              return ReorderableDragStartListener(
-                key: Key('Handle_${e.id}'),
-                enabled: !PlatformUtils.isMobile,
-                index: replied.indexOf(e),
-                child: Dismissible(
-                  key: Key('${e.id}'),
-                  direction: DismissDirection.horizontal,
-                  onDismissed: (_) => replied.remove(e),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: WidgetButton(
-                      onPressed: () => onItemPressed?.call(e.id),
-                      child: buildPreview(
-                        context,
-                        e,
-                        onClose: () => replied.remove(e),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          );
-        }
-
-        return ConditionalBackdropFilter(
-          condition: style.cardBlur > 0,
-          filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-          borderRadius: BorderRadius.only(
-            topLeft: style.cardRadius.topLeft,
-            topRight: style.cardRadius.topRight,
-          ),
+      if (edited != null) {
+        previews = SingleChildScrollView(
+          controller: scrollController,
           child: Container(
-            color: style.colors.onPrimaryOpacity50,
-            child: AnimatedSize(
-              duration: 400.milliseconds,
-              curve: Curves.ease,
-              child: Container(
-                width: double.infinity,
-                padding: replied.isNotEmpty || attachments.isNotEmpty
-                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                    : EdgeInsets.zero,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (previews != null)
-                      ConstrainedBox(
-                        constraints: boxConstraints ??
-                            BoxConstraints(
-                              maxHeight: max(
-                                100,
-                                MediaQuery.of(context).size.height / 3.4,
-                              ),
-                            ),
-                        child: Scrollbar(
-                          controller: scrollController,
-                          child: previews,
-                        ),
-                      ),
-                    if (attachments.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: MouseRegion(
-                          cursor: grab
-                              ? SystemMouseCursors.grab
-                              : MouseCursor.defer,
-                          opaque: false,
-                          child: ScrollConfiguration(
-                            behavior: CustomScrollBehavior(),
-                            child: SingleChildScrollView(
-                              clipBehavior: Clip.none,
-                              physics: grab
-                                  ? null
-                                  : const NeverScrollableScrollPhysics(),
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: attachments
-                                    .map((e) => MessageAttachment(
-                                          entry: e,
-                                          field: field,
-                                          rxAttachments: attachments,
-                                          hoveredAttachment: hoveredAttachment,
-                                        ))
-                                    .toList(),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ]
-                  ],
+            padding: const EdgeInsets.all(4),
+            child: Dismissible(
+              key: Key('${edited?.id}'),
+              direction: DismissDirection.horizontal,
+              onDismissed: onDismissed,
+              // onDismissed: (_) => edited = null,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: WidgetButton(
+                  onPressed: () => onItemPressed?.call(edited!.id),
+                  child: buildPreview(
+                    context,
+                    edited!,
+                    onClose: onClose,
+                    // onClose: () => edited = null,
+                  ),
                 ),
               ),
             ),
           ),
         );
-      });
+      } else if (quotes.isNotEmpty) {
+        previews = ReorderableListView(
+          scrollController: scrollController,
+          shrinkWrap: true,
+          buildDefaultDragHandles: PlatformUtils.isMobile,
+          onReorder: (int old, int to) {
+            if (old < to) {
+              --to;
+            }
+
+            quotes.insert(to, quotes.removeAt(old));
+
+            HapticFeedback.lightImpact();
+          },
+          proxyDecorator: (child, _, animation) {
+            return AnimatedBuilder(
+              animation: animation,
+              builder: (_, child) {
+                final double t = Curves.easeInOut.transform(animation.value);
+                final double elevation = lerpDouble(0, 6, t)!;
+                final Color color = Color.lerp(
+                  style.colors.transparent,
+                  style.colors.onBackgroundOpacity20,
+                  t,
+                )!;
+
+                return InitCallback(
+                  callback: HapticFeedback.selectionClick,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        CustomBoxShadow(color: color, blurRadius: elevation),
+                      ],
+                    ),
+                    child: child,
+                  ),
+                );
+              },
+              child: child,
+            );
+          },
+          reverse: true,
+          padding: const EdgeInsets.symmetric(horizontal: 1),
+          children: quotes.map((e) {
+            return ReorderableDragStartListener(
+              key: Key('Handle_${e.item.id}'),
+              enabled: !PlatformUtils.isMobile,
+              index: quotes.indexOf(e),
+              child: Dismissible(
+                key: Key('${e.item.id}'),
+                direction: DismissDirection.horizontal,
+                onDismissed: (_) {
+                  quotes.remove(e);
+                  if (quotes.isEmpty) {
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 2,
+                  ),
+                  child: buildPreview(
+                    context,
+                    e.item,
+                    onClose: () {
+                      quotes.remove(e);
+                      if (quotes.isEmpty) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      } else if (replied.isNotEmpty) {
+        previews = ReorderableListView(
+          scrollController: scrollController,
+          shrinkWrap: true,
+          buildDefaultDragHandles: PlatformUtils.isMobile,
+          onReorder: (int old, int to) {
+            if (old < to) {
+              --to;
+            }
+
+            replied.insert(to, replied.removeAt(old));
+
+            HapticFeedback.lightImpact();
+          },
+          proxyDecorator: (child, _, animation) {
+            return AnimatedBuilder(
+              animation: animation,
+              builder: (_, child) {
+                final double t = Curves.easeInOut.transform(animation.value);
+                final double elevation = lerpDouble(0, 6, t)!;
+                final Color color = Color.lerp(
+                  style.colors.transparent,
+                  style.colors.onBackgroundOpacity20,
+                  t,
+                )!;
+
+                return InitCallback(
+                  callback: HapticFeedback.selectionClick,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        CustomBoxShadow(color: color, blurRadius: elevation),
+                      ],
+                    ),
+                    child: child,
+                  ),
+                );
+              },
+              child: child,
+            );
+          },
+          reverse: true,
+          padding: const EdgeInsets.symmetric(horizontal: 1),
+          children: replied.map((e) {
+            return ReorderableDragStartListener(
+              key: Key('Handle_${e.id}'),
+              enabled: !PlatformUtils.isMobile,
+              index: replied.indexOf(e),
+              child: Dismissible(
+                key: Key('${e.id}'),
+                direction: DismissDirection.horizontal,
+                onDismissed: (_) => replied.remove(e),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: WidgetButton(
+                    onPressed: () => onItemPressed?.call(e.id),
+                    child: buildPreview(
+                      context,
+                      e,
+                      onClose: () => replied.remove(e),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      }
+
+      return ConditionalBackdropFilter(
+        condition: style.cardBlur > 0,
+        filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+        borderRadius: BorderRadius.only(
+          topLeft: style.cardRadius.topLeft,
+          topRight: style.cardRadius.topRight,
+        ),
+        child: Container(
+          color: style.colors.onPrimaryOpacity50,
+          child: AnimatedSize(
+            duration: 400.milliseconds,
+            curve: Curves.ease,
+            child: Container(
+              width: double.infinity,
+              padding: replied.isNotEmpty || attachments.isNotEmpty
+                  ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                  : EdgeInsets.zero,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (previews != null)
+                    ConstrainedBox(
+                      constraints: boxConstraints ??
+                          BoxConstraints(
+                            maxHeight: max(
+                              100,
+                              MediaQuery.of(context).size.height / 3.4,
+                            ),
+                          ),
+                      child: Scrollbar(
+                        controller: scrollController,
+                        child: previews,
+                      ),
+                    ),
+                  if (attachments.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: MouseRegion(
+                        cursor:
+                            grab ? SystemMouseCursors.grab : MouseCursor.defer,
+                        opaque: false,
+                        child: ScrollConfiguration(
+                          behavior: CustomScrollBehavior(),
+                          child: SingleChildScrollView(
+                            clipBehavior: Clip.none,
+                            physics: grab
+                                ? null
+                                : const NeverScrollableScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: attachments
+                                  .map((e) => MessageAttachment(
+                                        entry: e,
+                                        field: field,
+                                        rxAttachments: attachments,
+                                        hoveredAttachment: hoveredAttachment,
+                                        onExit: onExitAttachment,
+                                      ))
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ]
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
     });
+  }
+
+  Widget buildCloseButton(ChatItem item, BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final Widget child;
+
+    if (hoveredReply == item || PlatformUtils.isMobile) {
+      child = WidgetButton(
+        key: const Key('CancelReplyButton'),
+        onPressed: onClose,
+        child: Container(
+          width: 15,
+          height: 15,
+          margin: const EdgeInsets.only(right: 4, top: 4),
+          child: Container(
+            key: const Key('Close'),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: style.cardColor,
+            ),
+            alignment: Alignment.center,
+            child: SvgImage.asset(
+              'assets/icons/close_primary.svg',
+              width: 7,
+              height: 7,
+            ),
+          ),
+        ),
+      );
+    } else {
+      child = const SizedBox();
+    }
+
+    return child;
   }
 }

@@ -15,6 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+// ignore_for_file: must_be_immutable
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -33,12 +36,13 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 
 class MessageAttachment extends StatelessWidget {
-  const MessageAttachment({
+  MessageAttachment({
     super.key,
     required this.entry,
     required this.field,
     required this.rxAttachments,
     required this.hoveredAttachment,
+    required this.onExit,
   });
 
   /// TODO: docs
@@ -48,11 +52,14 @@ class MessageAttachment extends StatelessWidget {
   final TextFieldState field;
 
   /// TODO: docs
-  final RxList<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
+  final List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
       rxAttachments;
 
   /// TODO: docs
-  final Rx<Attachment?> hoveredAttachment;
+  Attachment? hoveredAttachment;
+
+  /// TODO: docs
+  final void Function(PointerExitEvent)? onExit;
 
   @override
   Widget build(BuildContext context) {
@@ -207,8 +214,8 @@ class MessageAttachment extends StatelessWidget {
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
         opaque: false,
-        onEnter: (_) => hoveredAttachment.value = e,
-        onExit: (_) => hoveredAttachment.value = null,
+        onExit: onExit,
+        onEnter: (_) => hoveredAttachment = e,
         child: Container(
           width: size,
           height: size,
@@ -251,43 +258,10 @@ class MessageAttachment extends StatelessWidget {
                   alignment: Alignment.topRight,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 4, top: 4),
-                    child: Obx(() {
-                      final Widget child;
-
-                      if (hoveredAttachment.value == e ||
-                          PlatformUtils.isMobile) {
-                        child = InkWell(
-                          key: const Key('RemovePickedFile'),
-                          onTap: () =>
-                              rxAttachments.removeWhere((a) => a.value == e),
-                          child: Container(
-                            width: 15,
-                            height: 15,
-                            margin: const EdgeInsets.only(left: 8, bottom: 8),
-                            child: Container(
-                              key: const Key('Close'),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: style.cardColor,
-                              ),
-                              alignment: Alignment.center,
-                              child: SvgImage.asset(
-                                'assets/icons/close_primary.svg',
-                                width: 7,
-                                height: 7,
-                              ),
-                            ),
-                          ),
-                        );
-                      } else {
-                        child = const SizedBox();
-                      }
-
-                      return AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: child,
-                      );
-                    }),
+                    child: AnimatedSwitcher(
+                      duration: 200.milliseconds,
+                      child: removeAttachmentWidget(context, e),
+                    ),
                   ),
                 ),
             ],
@@ -302,5 +276,40 @@ class MessageAttachment extends StatelessWidget {
       onDismissed: (_) => rxAttachments.removeWhere((a) => a.value == e),
       child: attachment(),
     );
+  }
+
+  /// TODO: docs
+  Widget removeAttachmentWidget(
+    BuildContext context,
+    Attachment e,
+  ) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    if (hoveredAttachment == e || PlatformUtils.isMobile) {
+      return InkWell(
+        key: const Key('RemovePickedFile'),
+        onTap: () => rxAttachments.removeWhere((a) => a.value == e),
+        child: Container(
+          width: 15,
+          height: 15,
+          margin: const EdgeInsets.only(left: 8, bottom: 8),
+          child: Container(
+            key: const Key('Close'),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: style.cardColor,
+            ),
+            alignment: Alignment.center,
+            child: SvgImage.asset(
+              'assets/icons/close_primary.svg',
+              width: 7,
+              height: 7,
+            ),
+          ),
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 }

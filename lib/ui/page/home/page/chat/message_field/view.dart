@@ -135,19 +135,26 @@ class MessageFieldView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    MessageHeader(
-                      attachments: c.attachments,
-                      hoveredAttachment: c.hoveredAttachment,
-                      field: c.field,
-                      edited: c.edited,
-                      scrollController: c.scrollController,
-                      quotes: c.quotes,
-                      replied: c.replied,
-                      boxConstraints: constraints,
-                      me: c.me,
-                      hoveredReply: c.hoveredReply,
-                      getUser: c.getUser,
-                      onItemPressed: onItemPressed,
+                    Obx(
+                      () => MessageHeader(
+                        attachments: c.attachments,
+                        hoveredAttachment: c.hoveredAttachment.value,
+                        field: c.field,
+                        edited: c.edited.value,
+                        scrollController: c.scrollController,
+                        quotes: c.quotes,
+                        replied: c.replied,
+                        boxConstraints: constraints,
+                        me: c.me,
+                        hoveredReply: c.hoveredReply.value,
+                        getUser: c.getUser,
+                        onItemPressed: onItemPressed,
+                        onExit: (d) => c.hoveredReply.value = null,
+                        onExitAttachment: (_) =>
+                            c.hoveredAttachment.value = null,
+                        onDismissed: (_) => c.edited.value = null,
+                        onClose: () => c.edited.value = null,
+                      ),
                     ),
                     MessageField(
                       canAttach: canAttach,
@@ -161,7 +168,7 @@ class MessageFieldView extends StatelessWidget {
                       pickMedia: c.pickMedia,
                       pickVideoFromCamera: c.pickVideoFromCamera,
                       onChanged: onChanged,
-                    )
+                    ),
                   ],
                 ),
               ),
