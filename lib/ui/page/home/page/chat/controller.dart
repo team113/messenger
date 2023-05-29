@@ -403,15 +403,18 @@ class ChatController extends GetxController {
             }
           }
         } else {
-          if (send.field.text.trim().isNotEmpty ||
+          String text = send.field.text.trim();
+          if (send.money != null) {
+            text += '?donate=${send.money}';
+          }
+
+          if (text.isNotEmpty ||
               send.attachments.isNotEmpty ||
               send.replied.isNotEmpty) {
             _chatService
                 .sendChatMessage(
                   chat!.chat.value.id,
-                  text: send.field.text.trim().isEmpty
-                      ? null
-                      : ChatMessageText(send.field.text.trim()),
+                  text: text.isEmpty ? null : ChatMessageText(text),
                   repliesTo: send.replied.reversed.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )

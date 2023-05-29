@@ -9,8 +9,8 @@ import 'package:messenger/util/platform_utils.dart';
 
 import 'buttons.dart';
 
-class MessageFieldOverlay extends StatelessWidget {
-  const MessageFieldOverlay(this.c, {super.key});
+class MessageFieldMore extends StatelessWidget {
+  const MessageFieldMore(this.c, {super.key});
 
   final MessageFieldController c;
 
@@ -47,8 +47,7 @@ class MessageFieldOverlay extends StatelessWidget {
                 }
               },
               onPressed: () {
-                c.entry?.remove();
-                c.entry = null;
+                c.removeEntries<MessageFieldMore>();
               },
             );
           }),
@@ -75,8 +74,7 @@ class MessageFieldOverlay extends StatelessWidget {
         children: [
           Listener(
             onPointerDown: (_) {
-              c.entry?.remove();
-              c.entry = null;
+              c.removeEntries<MessageFieldMore>();
             },
             child: Container(
               width: constraints.maxWidth,
@@ -87,14 +85,10 @@ class MessageFieldOverlay extends StatelessWidget {
           Positioned(
             left: left,
             right: context.isNarrow ? right : null,
-            // right: 0,
             bottom: bottom + 10,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                // color: candidate.any((e) => e?.c == c)
-                //     ? const Color(0xE0165084)
-                //     : const Color(0x9D165084),
                 borderRadius: style.cardRadius,
                 boxShadow: [
                   CustomBoxShadow(
@@ -146,7 +140,7 @@ class _MenuButtonState extends State<_MenuButton> {
         onDown: (_) => setState(() => _pressed = true),
         onUp: (_) => setState(() => _pressed = false),
         onPressed: () {
-          widget.button.onPressed?.call();
+          widget.button.onPressed?.call(false);
           widget.onPressed?.call();
         },
         child: Container(

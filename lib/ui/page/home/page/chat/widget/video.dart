@@ -23,11 +23,12 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
-import 'desktop_controls.dart';
-import 'mobile_controls.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
+import 'desktop_controls.dart';
+import 'mobile_controls.dart';
 
 /// Video player with controls.
 class Video extends StatefulWidget {
@@ -70,7 +71,7 @@ class Video extends StatefulWidget {
 /// State of a [Video] used to initialize and dispose video controllers.
 class _VideoState extends State<Video> {
   /// [VideoPlayerController] controlling the actual video stream.
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
 
   /// [ChewieController] adding extra functionality over the
   /// [VideoPlayerController], used to display a [Chewie] player.
@@ -93,7 +94,7 @@ class _VideoState extends State<Video> {
   void dispose() {
     widget.onController?.call(null);
     _loading?.cancel();
-    _controller.dispose();
+    _controller?.dispose();
     _chewie?.dispose();
     super.dispose();
   }
@@ -113,7 +114,7 @@ class _VideoState extends State<Video> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      child: _controller.value.isInitialized
+      child: _controller?.value.isInitialized == true
           ? Theme(
               data: ThemeData(platform: TargetPlatform.iOS),
               child: Chewie(controller: _chewie!),
@@ -160,15 +161,15 @@ class _VideoState extends State<Video> {
 
   /// Initializes the [_controller] and [_chewie].
   Future<void> _initVideo() async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     try {
       _controller = VideoPlayerController.network(widget.url);
       widget.onController?.call(_controller);
-      await _controller.initialize();
+      await _controller!.initialize();
 
       _chewie = ChewieController(
-        videoPlayerController: _controller,
+        videoPlayerController: _controller!,
         autoPlay: true,
         looping: false,
         showOptions: false,

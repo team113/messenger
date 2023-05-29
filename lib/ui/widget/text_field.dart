@@ -345,7 +345,12 @@ class ReactiveTextField extends StatelessWidget {
                 // hintStyle: style?.copyWith(color: Color(0xFFC6C6C6)),
                 hintStyle: this.style?.copyWith(
                       // color: Theme.of(context).colorScheme.secondary,
-                      color: const Color(0xFFC6C6C6),
+                      // color: const Color(0xFFC6C6C6),
+                      color: Theme.of(context)
+                          .inputDecorationTheme
+                          .hintStyle
+                          ?.color,
+                      // color: const Color(0xFFC4C4C4),
                     ),
                 hintText: hint,
                 hintMaxLines: 1,

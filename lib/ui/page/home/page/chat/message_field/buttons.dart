@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/attachment_selector.dart';
 import 'package:messenger/util/platform_utils.dart';
 
+import 'donate.dart';
+
 abstract class ChatButton {
-  const ChatButton(this.c);
+  ChatButton(this.c);
 
   final MessageFieldController c;
+
+  final GlobalKey key = GlobalKey();
 
   /// Returns a text-represented hint for this [CallButton].
   String get hint;
@@ -23,7 +28,8 @@ abstract class ChatButton {
   double? get assetMiniHeight => 22;
   Offset get offsetMini => Offset.zero;
 
-  void Function()? get onPressed => null;
+  void Function(bool)? get onPressed => null;
+  void Function(bool)? get onHovered => null;
 
   IconData? get icon => null;
 
@@ -36,7 +42,7 @@ abstract class ChatButton {
 }
 
 class AudioMessageButton extends ChatButton {
-  const AudioMessageButton(super.c);
+  AudioMessageButton(super.c);
 
   @override
   String get hint => 'Аудио сообщение';
@@ -61,7 +67,7 @@ class AudioMessageButton extends ChatButton {
 }
 
 class VideoMessageButton extends ChatButton {
-  const VideoMessageButton(super.c);
+  VideoMessageButton(super.c);
 
   @override
   String get hint => 'Видео сообщение';
@@ -86,10 +92,10 @@ class VideoMessageButton extends ChatButton {
 }
 
 class AttachmentButton extends ChatButton {
-  const AttachmentButton(super.c);
+  AttachmentButton(super.c);
 
   @override
-  void Function()? get onPressed => () async {
+  void Function(bool)? get onPressed => (_) async {
         if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
           await c.pickFile();
         } else {
@@ -127,10 +133,10 @@ class AttachmentButton extends ChatButton {
 }
 
 class TakePhotoButton extends ChatButton {
-  const TakePhotoButton(super.c);
+  TakePhotoButton(super.c);
 
   @override
-  void Function()? get onPressed => () async {
+  void Function(bool)? get onPressed => (_) async {
         c.field.focus.unfocus();
         await c.pickImageFromCamera();
       };
@@ -158,10 +164,10 @@ class TakePhotoButton extends ChatButton {
 }
 
 class TakeVideoButton extends ChatButton {
-  const TakeVideoButton(super.c);
+  TakeVideoButton(super.c);
 
   @override
-  void Function()? get onPressed => () async {
+  void Function(bool)? get onPressed => (_) async {
         c.field.focus.unfocus();
         await c.pickVideoFromCamera();
       };
@@ -191,10 +197,10 @@ class TakeVideoButton extends ChatButton {
 }
 
 class GalleryButton extends ChatButton {
-  const GalleryButton(super.c);
+  GalleryButton(super.c);
 
   @override
-  void Function()? get onPressed => () async {
+  void Function(bool)? get onPressed => (_) async {
         c.field.focus.unfocus();
         await c.pickMedia();
       };
@@ -222,10 +228,10 @@ class GalleryButton extends ChatButton {
 }
 
 class FileButton extends ChatButton {
-  const FileButton(super.c);
+  FileButton(super.c);
 
   @override
-  void Function()? get onPressed => () async {
+  void Function(bool)? get onPressed => (_) async {
         c.field.focus.unfocus();
         await c.pickFile();
       };
@@ -253,10 +259,34 @@ class FileButton extends ChatButton {
 }
 
 class DonateButton extends ChatButton {
-  const DonateButton(super.c);
+  DonateButton(super.c);
 
   @override
   String get hint => 'Донат';
+
+  @override
+  void Function(bool)? get onHovered => (bool hovered) {
+        c.removeEntries<MessageFieldDonate>();
+        if (hovered) {
+          c.addEntry<MessageFieldDonate>(
+            MessageFieldDonate(
+              c,
+              globalKey: key.currentContext == null ? null : key,
+            ),
+          );
+        }
+      };
+
+  @override
+  void Function(bool)? get onPressed => (b) async {
+        c.removeEntries<MessageFieldDonate>();
+        c.addEntry<MessageFieldDonate>(
+          MessageFieldDonate(
+            c,
+            globalKey: !b || key.currentContext == null ? null : key,
+          ),
+        );
+      };
 
   @override
   String get asset => 'donate1';
@@ -281,7 +311,7 @@ class DonateButton extends ChatButton {
 }
 
 class ContactButton extends ChatButton {
-  const ContactButton(super.c);
+  ContactButton(super.c);
 
   @override
   IconData? get icon => Icons.person;
@@ -293,8 +323,8 @@ class ContactButton extends ChatButton {
   String get asset => 'video_on';
 }
 
-class GeopositionButton extends ChatButton {
-  const GeopositionButton(super.c);
+class LocationButton extends ChatButton {
+  LocationButton(super.c);
 
   @override
   IconData? get icon => Icons.pin_drop;
@@ -307,7 +337,7 @@ class GeopositionButton extends ChatButton {
 }
 
 class StickerButton extends ChatButton {
-  const StickerButton(super.c);
+  StickerButton(super.c);
 
   @override
   String get hint => 'Стикер';

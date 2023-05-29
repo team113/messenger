@@ -17,11 +17,9 @@
 
 import 'dart:math';
 
-import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/file.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -36,13 +34,6 @@ import '/domain/repository/user.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
-
-enum AvatarQuality {
-  original,
-  big,
-  medium,
-  small,
-}
 
 /// Widget to build an [Avatar].
 ///
@@ -60,7 +51,6 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-    this.quality = AvatarQuality.big,
     this.badgeColor,
     this.label,
   }) : super(key: key);
@@ -74,7 +64,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         key: key,
@@ -87,7 +76,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
@@ -100,7 +88,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool badge = true,
-    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -111,7 +98,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
       );
     }
 
@@ -131,7 +117,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
       );
     });
   }
@@ -145,7 +130,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool badge = true,
-    AvatarQuality quality = AvatarQuality.big,
     Color? badgeColor,
   }) =>
       AvatarWidget(
@@ -159,7 +143,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
         badgeColor: badgeColor,
       );
 
@@ -171,7 +154,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    AvatarQuality quality = AvatarQuality.big,
     bool badge = true,
   }) =>
       AvatarWidget(
@@ -185,7 +167,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -197,7 +178,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool badge = true,
-    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -207,7 +187,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
         badge: badge,
       );
     }
@@ -224,7 +203,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
       ),
     );
   }
@@ -246,11 +224,6 @@ class AvatarWidget extends StatelessWidget {
             'assets/icons/notes3.svg',
             height: 28.96 * constraints.maxWidth / 60,
           );
-          // return Icon(
-          //   Icons.edit_note,
-          //   size: constraints.maxWidth / 1.57, // 60 / x => 38
-          //   color: Colors.white,
-          // );
         }),
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
@@ -293,7 +266,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    AvatarQuality quality = AvatarQuality.big,
     Color? badgeColor,
   }) {
     if (chat == null) {
@@ -303,7 +275,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
         badgeColor: badgeColor,
       );
     }
@@ -336,7 +307,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
         badgeColor: badgeColor,
       );
     });
@@ -390,8 +360,6 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
-  final AvatarQuality quality;
-
   final Color? badgeColor;
 
   final Widget? label;
@@ -444,51 +412,26 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      final double badgeSize = maxWidth >= 40 ? maxWidth / 10 : maxWidth / 7.5;
+      final double badgeSize = maxWidth >= 40 ? maxWidth / 5 : maxWidth / 3.75;
 
-      StorageFile? file;
-
-      switch (quality) {
-        case AvatarQuality.original:
-          file = avatar?.original;
-          break;
-
-        case AvatarQuality.big:
-          file = avatar?.big;
-          break;
-
-        case AvatarQuality.medium:
-          file = avatar?.medium;
-          break;
-
-        case AvatarQuality.small:
-          file = avatar?.small;
-          break;
-      }
-
-      return badges.Badge(
-        showBadge: isOnline,
-        badgeStyle: badges.BadgeStyle(
-          badgeColor: badgeColor ?? Colors.white,
-          padding: EdgeInsets.all(badgeSize / 6),
-          elevation: 0,
-        ),
-        badgeContent: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            // color: isAway ? Colors.orange : Colors.green,
-            // ignore: prefer_const_constructors
-            color: isAway
-                ? style.colors.warningColor
-                : style.colors.acceptAuxiliaryColor,
-            // : const Color.fromARGB(255, 181, 225, 100),
+      return Badge(
+        largeSize: badgeSize * 1.16,
+        isLabelVisible: isOnline,
+        alignment: Alignment.bottomRight,
+        backgroundColor: style.colors.onPrimary,
+        padding: EdgeInsets.all(badgeSize / 12),
+        offset: maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
+        label: SizedBox(
+          width: badgeSize,
+          height: badgeSize,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isAway
+                  ? style.colors.warningColor
+                  : style.colors.acceptAuxiliaryColor,
+            ),
           ),
-          padding: EdgeInsets.all(badgeSize),
-        ),
-        badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
-        position: badges.BadgePosition.bottomEnd(
-          bottom: maxWidth >= 40 ? badgeSize / 3 : -badgeSize / 5,
-          end: maxWidth >= 40 ? badgeSize / 3 : -badgeSize / 5,
         ),
         child: Stack(
           children: [
@@ -532,8 +475,16 @@ class AvatarWidget extends StatelessWidget {
               Positioned.fill(
                 child: ClipOval(
                   child: RetryImage(
-                    file?.url ?? avatar!.original.url,
-                    checksum: file?.checksum ?? avatar!.original.checksum,
+                    maxWidth > 70
+                        ? avatar!.full.url
+                        : maxWidth > 26
+                            ? avatar!.big.url
+                            : avatar!.medium.url,
+                    checksum: maxWidth > 70
+                        ? avatar!.full.checksum
+                        : maxWidth > 26
+                            ? avatar!.big.checksum
+                            : avatar!.medium.checksum,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,

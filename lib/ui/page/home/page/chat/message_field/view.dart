@@ -46,7 +46,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'overlay.dart';
+import 'more.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
@@ -108,25 +108,25 @@ class MessageFieldView extends StatelessWidget {
     return Theme.of(context).copyWith(
       shadowColor: style.colors.onBackgroundOpacity27,
       iconTheme: IconThemeData(color: style.colors.primaryHighlight),
-      inputDecorationTheme: InputDecorationTheme(
-        border: border,
-        errorBorder: border,
-        enabledBorder: border,
-        focusedBorder: border,
-        disabledBorder: border,
-        focusedErrorBorder: border,
-        focusColor: style.colors.onPrimary,
-        fillColor: style.colors.onPrimary,
-        hoverColor: style.colors.transparent,
-        filled: true,
-        isDense: true,
-        contentPadding: EdgeInsets.fromLTRB(
-          15,
-          PlatformUtils.isDesktop ? 30 : 23,
-          15,
-          0,
-        ),
-      ),
+      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+            border: border,
+            errorBorder: border,
+            enabledBorder: border,
+            focusedBorder: border,
+            disabledBorder: border,
+            focusedErrorBorder: border,
+            focusColor: style.colors.onPrimary,
+            fillColor: style.colors.onPrimary,
+            hoverColor: style.colors.transparent,
+            filled: true,
+            isDense: true,
+            contentPadding: EdgeInsets.fromLTRB(
+              15,
+              PlatformUtils.isDesktop ? 30 : 23,
+              15,
+              0,
+            ),
+          ),
     );
   }
 
@@ -506,14 +506,8 @@ class MessageFieldView extends StatelessWidget {
             WidgetButton(
               onPressed: canAttach
                   ? () {
-                      c.entry?.remove();
-                      c.entry = null;
-
-                      c.entry = OverlayEntry(builder: (context) {
-                        return MessageFieldOverlay(c);
-                      });
-
-                      Overlay.of(context, rootOverlay: true).insert(c.entry!);
+                      c.removeEntries<MessageFieldMore>();
+                      c.addEntry<MessageFieldMore>(MessageFieldMore(c));
                     }
                   : null,
               // onPressed: canAttach
@@ -577,8 +571,7 @@ class MessageFieldView extends StatelessWidget {
             ),
             const SizedBox(width: 26 / 2 - 3),
             Obx(() {
-              if (c.buttons.isEmpty ||
-                  (!c.field.isEmpty.value && c.field.isFocused.value)) {
+              if (c.buttons.isEmpty || !c.field.isEmpty.value) {
                 return const SizedBox();
               }
 
@@ -590,37 +583,42 @@ class MessageFieldView extends StatelessWidget {
                 // print(3 * constraints.maxWidth / (36 * c.buttons.length));
               }
 
+              take = max(take, 0);
+
               return Row(
                 children: c.buttons.take(take).toList().reversed.map((e) {
                   return WidgetButton(
-                    onPressed: e.onPressed,
-                    child: SizedBox(
-                      // color: Colors.red,
-                      width: 36 + 4 + 4,
-                      height: 56,
-                      child: Center(
-                        child: e.icon == null
-                            ? Transform.translate(
-                                offset: e.offset,
-                                child: Container(
-                                  // color: Colors.red,
+                    onPressed: () => e.onPressed?.call(true),
+                    child: MouseRegion(
+                      onEnter: (_) => e.onHovered?.call(true),
+                      // onExit: (_) => e.onHovered?.call(false),
+                      opaque: false,
+                      child: SizedBox(
+                        key: e.key,
+                        // color: Colors.red,
+                        width: 36 + 4 + 4,
+                        height: 56,
+                        child: Center(
+                          child: e.icon == null
+                              ? Transform.translate(
+                                  offset: e.offset,
                                   child: SvgImage.asset(
                                     'assets/icons/${e.asset}.svg',
                                     width: e.assetWidth,
                                     height: e.assetHeight,
                                   ),
+                                )
+                              : Icon(
+                                  e.icon,
+                                  size: 28,
+                                  color: style.colors.primary,
                                 ),
-                              )
-                            : Icon(
-                                e.icon,
-                                size: 28,
-                                color: style.colors.primary,
-                              ),
-                        // child: SvgImage.asset(
-                        //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
-                        //   height: 22,
-                        //   width: 22,
-                        // ),
+                          // child: SvgImage.asset(
+                          //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
+                          //   height: 22,
+                          //   width: 22,
+                          // ),
+                        ),
                       ),
                     ),
                   );

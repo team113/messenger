@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -113,10 +114,10 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   void initState() {
-    Future.delayed(
-      Duration.zero,
-      () => _startInterfaceTimer(widget.showInterfaceFor),
-    );
+    // Future.delayed(
+    //   Duration.zero,
+    //   () => _startInterfaceTimer(widget.showInterfaceFor),
+    // );
     super.initState();
   }
 
@@ -143,7 +144,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder
@@ -254,7 +255,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
@@ -299,7 +300,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     return Obx(
       () => GestureDetector(
@@ -323,7 +324,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
     final bool isFinished = _latestValue.position >= _latestValue.duration;
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     return Center(
       child: AnimatedSwitcher(
@@ -359,7 +360,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the play/pause button.
   Widget _buildPlayPause(VideoPlayerController controller) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     return Transform.translate(
       offset: const Offset(0, 0),
@@ -380,7 +381,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the mute/unmute button with a volume overlay above it.
   Widget _buildMuteButton(VideoPlayerController controller) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     return MouseRegion(
       onEnter: (_) {
@@ -388,8 +389,8 @@ class _DesktopControlsState extends State<DesktopControls>
           Offset offset = Offset.zero;
           final keyContext = _volumeKey.currentContext;
           if (keyContext != null) {
-            final box = keyContext.findRenderObject() as RenderBox;
-            offset = box.localToGlobal(Offset.zero);
+            final box = keyContext.findRenderObject() as RenderBox?;
+            offset = box?.localToGlobal(Offset.zero) ?? Offset.zero;
           }
 
           _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
@@ -424,7 +425,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     return Stack(
       children: [
@@ -484,7 +485,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     final position = _latestValue.position;
     final duration = _latestValue.duration;
@@ -497,7 +498,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     return Expanded(
       child: VideoProgressBar(

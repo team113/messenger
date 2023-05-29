@@ -388,6 +388,15 @@ class _HomeViewState extends State<HomeView> {
                                     return AnimatedSwitcher(
                                       key: c.chatsKey,
                                       duration: 200.milliseconds,
+                                      layoutBuilder: (child, previous) {
+                                        return Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            ...previous,
+                                            if (child != null) child,
+                                          ],
+                                        );
+                                      },
                                       child: child,
                                     );
                                   }),

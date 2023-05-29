@@ -96,6 +96,17 @@ class ChatMessage extends ChatItem {
   @HiveField(8)
   final List<Attachment> attachments;
 
+  int? get donate {
+    final matches = text?.val.allMatches('?donate=');
+    if (matches?.isNotEmpty == true) {
+      return int.tryParse(
+        text!.val.substring(matches!.first.end, text!.val.length),
+      );
+    }
+
+    return null;
+  }
+
   /// Indicates whether the [other] message shares the same [text], [repliesTo],
   /// [authorId], [chatId] and [attachments] as this [ChatMessage].
   bool isEquals(ChatMessage other) {

@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:messenger/routes.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -171,6 +172,8 @@ class MessageFieldController extends GetxController {
 
   final RxBool displayMore = RxBool(false);
 
+  int? money;
+
   final GlobalKey globalKey = GlobalKey();
   late final RxList<ChatButton> panel = RxList([
     if (PlatformUtils.isMobile /*&& !PlatformUtils.isWeb*/) ...[
@@ -188,7 +191,7 @@ class MessageFieldController extends GetxController {
 
   final RxList<ChatButton> buttons = RxList([]);
 
-  OverlayEntry? entry;
+  final Map<Type, OverlayEntry> entries = {};
 
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
@@ -213,8 +216,10 @@ class MessageFieldController extends GetxController {
 
   @override
   void onClose() {
-    entry?.remove();
-    entry = null;
+    for (var e in entries.values) {
+      e.remove();
+    }
+    entries.clear();
 
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
@@ -222,6 +227,17 @@ class MessageFieldController extends GetxController {
 
     clear();
     super.onClose();
+  }
+
+  void removeEntries<T>() {
+    for (var e in entries.entries.where((e) => e.key == T).toList()) {
+      entries.remove(e.key)?.remove();
+    }
+  }
+
+  void addEntry<T>(Widget child) {
+    entries[T] = (OverlayEntry(builder: (_) => child));
+    router.overlay!.insert(entries[T]!);
   }
 
   /// Resets the [replied], [attachments] and [field].
@@ -283,6 +299,11 @@ class MessageFieldController extends GetxController {
 
   /// Toggles the [displayMore].
   void toggleMore() => displayMore.toggle();
+
+  void donate(int sum) {
+    money = sum;
+    onSubmit?.call();
+  }
 
   /// Opens a file choose popup of the specified [type] and adds the selected
   /// files to the [attachments].

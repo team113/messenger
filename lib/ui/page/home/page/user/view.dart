@@ -227,7 +227,6 @@ class UserView extends StatelessWidget {
                             key: c.avatarKey,
                             radius: 100,
                             badge: false,
-                            quality: AvatarQuality.original,
                           ),
                         ),
                         const SizedBox(height: 15),

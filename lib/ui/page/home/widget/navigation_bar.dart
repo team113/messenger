@@ -19,10 +19,10 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/util/platform_utils.dart';
 import 'animated_button.dart';
 
 /// Styled bottom navigation bar consisting of [items].
@@ -125,20 +125,20 @@ class CustomNavigationBar extends StatelessWidget {
                                         vertical: 0,
                                         horizontal: 4.4,
                                       ),
-                                      alignment:
-                                          const AlignmentDirectional(21, -4),
+                                      offset: const Offset(2, -2),
                                       label: b.badge == null
                                           ? null
                                           : Transform.translate(
                                               offset: PlatformUtils.isWeb
                                                   ? Offset(
-                                                      0.2,
-                                                      // context.isMobile ? 0 : -0.5,
+                                                      0,
                                                       PlatformUtils.isIOS
                                                           ? 0
                                                           : 0.25,
                                                     )
-                                                  : const Offset(0, -0.3),
+                                                  : PlatformUtils.isDesktop
+                                                      ? const Offset(0, -0.7)
+                                                      : Offset.zero,
                                               child: Text(
                                                 b.badge!,
                                                 textAlign: TextAlign.center,
