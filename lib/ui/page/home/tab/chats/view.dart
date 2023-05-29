@@ -36,6 +36,7 @@ import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -57,7 +58,6 @@ class ChatsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -76,8 +76,8 @@ class ChatsTabView extends StatelessWidget {
               return AnimatedContainer(
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
-                    ? const Color(0xFFEBEBEB)
-                    : const Color(0x00EBEBEB),
+                    ? style.colors.secondaryHighlight
+                    : style.colors.secondaryHighlight.withOpacity(0),
               );
             }),
             Obx(() {
@@ -86,7 +86,7 @@ class ChatsTabView extends StatelessWidget {
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
                   border: c.search.value != null || c.selecting.value
-                      ? Border.all(color: colors.secondary, width: 2)
+                      ? Border.all(color: style.colors.primary, width: 2)
                       : null,
                   title: Obx(() {
                     final Widget child;
@@ -142,7 +142,7 @@ class ChatsTabView extends StatelessWidget {
                               'label_synchronization'.l10n,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: colors.primary,
+                                color: style.colors.secondary,
                               ),
                             ),
                           ),
@@ -273,9 +273,9 @@ class ChatsTabView extends StatelessWidget {
                       } else {
                         center = Center(
                           key: UniqueKey(),
-                          child: const ColoredBox(
-                            color: Colors.transparent,
-                            child: CustomProgressIndicator(),
+                          child: ColoredBox(
+                            color: style.colors.transparent,
+                            child: const CustomProgressIndicator(),
                           ),
                         );
                       }
@@ -344,8 +344,9 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style:
-                                          TextStyle(color: colors.onSecondary),
+                                      style: TextStyle(
+                                        color: style.colors.onPrimary,
+                                      ),
                                     ),
                                   ],
                                 );
@@ -390,7 +391,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Text(
                                       text,
                                       style: style.systemMessageStyle.copyWith(
-                                        color: Colors.black,
+                                        color: style.colors.onBackground,
                                         fontSize: 15,
                                       ),
                                     ),
@@ -412,10 +413,10 @@ class ChatsTabView extends StatelessWidget {
                         c.elements.isEmpty) {
                       child = Center(
                         key: UniqueKey(),
-                        child: const ColoredBox(
-                          key: Key('Loading'),
-                          color: Colors.transparent,
-                          child: CustomProgressIndicator(),
+                        child: ColoredBox(
+                          key: const Key('Loading'),
+                          color: style.colors.transparent,
+                          child: const CustomProgressIndicator(),
                         ),
                       );
                     } else if (c.elements.isNotEmpty) {
@@ -478,7 +479,7 @@ class ChatsTabView extends StatelessWidget {
                                         element.category.name.capitalizeFirst!,
                                         style:
                                             style.systemMessageStyle.copyWith(
-                                          color: Colors.black,
+                                          color: style.colors.onBackground,
                                           fontSize: 15,
                                         ),
                                       ),
@@ -511,8 +512,9 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else {
-                      child = KeyedSubtree(
+                      child = AnimatedDelayedSwitcher(
                         key: UniqueKey(),
+                        delay: const Duration(milliseconds: 300),
                         child: Center(
                           key: const Key('NothingFound'),
                           child: Text('label_nothing_found'.l10n),
@@ -532,10 +534,10 @@ class ChatsTabView extends StatelessWidget {
                       if (c.status.value.isLoadingMore) {
                         child = Center(
                           key: UniqueKey(),
-                          child: const ColoredBox(
-                            key: Key('Loading'),
-                            color: Colors.transparent,
-                            child: CustomProgressIndicator(),
+                          child: ColoredBox(
+                            key: const Key('Loading'),
+                            color: style.colors.transparent,
+                            child: const CustomProgressIndicator(),
                           ),
                         );
                       } else {
@@ -677,8 +679,8 @@ class ChatsTabView extends StatelessWidget {
                                           final double elevation =
                                               lerpDouble(0, 6, t)!;
                                           final Color color = Color.lerp(
-                                            const Color(0x00000000),
-                                            const Color(0x33000000),
+                                            style.colors.transparent,
+                                            style.colors.onBackgroundOpacity20,
                                             t,
                                           )!;
 
@@ -840,7 +842,7 @@ class ChatsTabView extends StatelessWidget {
                 child = Container(
                   width: double.infinity,
                   height: double.infinity,
-                  color: const Color(0x33000000),
+                  color: style.colors.onBackgroundOpacity20,
                   child: const Center(child: CustomProgressIndicator()),
                 );
               } else {

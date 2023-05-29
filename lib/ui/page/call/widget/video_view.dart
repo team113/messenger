@@ -22,6 +22,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
+import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -178,6 +179,8 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
@@ -291,7 +294,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                       margin: const EdgeInsets.only(bottom: 7),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
-                        color: const Color(0xDD818181),
+                        color: style.colors.secondaryOpacity87,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -318,7 +321,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                           MaterialState.disabled
                                         })!.copyWith(
                                           fontSize: 13,
-                                          color: Colors.white,
+                                          color: style.colors.onPrimary,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,

@@ -30,6 +30,7 @@ import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
@@ -139,6 +140,8 @@ class RecentChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      final Style style = Theme.of(context).extension<Style>()!;
+
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
 
