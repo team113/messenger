@@ -23,7 +23,6 @@ All user visible changes to this project will be documented in this file. This p
         - Chat-monolog. ([#333], [#326])    
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
-    - Navigation buttons animation. ([#440])
 - Web:
     - Unread chats badge on favicon. ([#403])
 
@@ -43,6 +42,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Inverted selected chat colors. ([#405])
         - Chats with ongoing calls sorting above favorites. ([#392], [#371])
+    - Redesigned navigation buttons animation. ([#440])
 
 ### Fixed
 

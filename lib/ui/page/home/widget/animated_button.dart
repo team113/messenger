@@ -17,12 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-/// Button animating `hovered` and `click` events.
+/// Button animating its size on hover and clicks.
 class AnimatedButton extends StatefulWidget {
-  const AnimatedButton({
-    super.key,
-    required this.child,
-  });
+  const AnimatedButton({super.key, required this.child});
 
   /// Widget to animate.
   final Widget child;
@@ -34,7 +31,7 @@ class AnimatedButton extends StatefulWidget {
 /// State of the [AnimatedButton] maintaining the animation.
 class _AnimatedButtonState extends State<AnimatedButton>
     with SingleTickerProviderStateMixin {
-  /// [AnimationController] controlling the scale animation.
+  /// [AnimationController] controlling the animation.
   late AnimationController _controller;
 
   /// Indicator whether this [AnimatedButton] is hovered.
@@ -53,57 +50,55 @@ class _AnimatedButtonState extends State<AnimatedButton>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return MouseRegion(
-        opaque: false,
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() => _hovered = false),
-        child: Listener(
-          behavior: HitTestBehavior.translucent,
-          onPointerDown: (_) {
-            _controller.reset();
-            _controller.forward();
-          },
-          child: AnimatedScale(
-            duration: const Duration(milliseconds: 100),
-            scale: _hovered ? 1.05 : 1,
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: 1.0 -
-                      Tween<double>(begin: 0.0, end: 0.2)
-                          .animate(
-                            CurvedAnimation(
-                              parent: _controller,
-                              curve: const Interval(
-                                0.0,
-                                1.0,
-                                curve: Curves.ease,
-                              ),
+    return MouseRegion(
+      opaque: false,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: (_) {
+          _controller.reset();
+          _controller.forward();
+        },
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 100),
+          scale: _hovered ? 1.05 : 1,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (_, child) {
+              return Transform.scale(
+                scale: 1.0 -
+                    Tween<double>(begin: 0.0, end: 0.2)
+                        .animate(
+                          CurvedAnimation(
+                            parent: _controller,
+                            curve: const Interval(
+                              0.0,
+                              1.0,
+                              curve: Curves.ease,
                             ),
-                          )
-                          .value +
-                      Tween<double>(begin: 0.0, end: 0.2)
-                          .animate(
-                            CurvedAnimation(
-                              parent: _controller,
-                              curve: const Interval(
-                                0.5,
-                                1.0,
-                                curve: Curves.ease,
-                              ),
+                          ),
+                        )
+                        .value +
+                    Tween<double>(begin: 0.0, end: 0.2)
+                        .animate(
+                          CurvedAnimation(
+                            parent: _controller,
+                            curve: const Interval(
+                              0.5,
+                              1.0,
+                              curve: Curves.ease,
                             ),
-                          )
-                          .value,
-                  child: child,
-                );
-              },
-              child: widget.child,
-            ),
+                          ),
+                        )
+                        .value,
+                child: child,
+              );
+            },
+            child: widget.child,
           ),
         ),
-      );
-    });
+      ),
+    );
   }
 }

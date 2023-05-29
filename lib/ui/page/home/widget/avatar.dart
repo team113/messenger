@@ -362,7 +362,7 @@ class AvatarWidget extends StatelessWidget {
         alignment: Alignment.bottomRight,
         backgroundColor: style.colors.onPrimary,
         padding: EdgeInsets.all(badgeSize / 12),
-        offset: maxWidth >= 40 ? const Offset(-1.5, -1.5) : const Offset(1, 1),
+        offset: maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
         label: SizedBox(
           width: badgeSize,
           height: badgeSize,
