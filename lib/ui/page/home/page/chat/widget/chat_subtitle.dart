@@ -27,6 +27,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -49,79 +50,50 @@ class ChatSubtitle extends StatelessWidget {
   final UserId? me;
 
   /// [Duration] object that represents the duration of the chat.
-  final Rx<Duration?> duration;
+  final Duration? duration;
 
   /// [Function] that retrieves information about a user.
   final Future<RxUser?>? Function(UserId id) getUser;
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
+    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    return Obx(() {
-      if (chat!.chat.value.ongoingCall != null) {
-        final subtitle = StringBuffer();
-        if (!context.isMobile) {
-          subtitle.write(
-              '${'label_call_active'.l10n}${'space_vertical_space'.l10n}');
-        }
-
-        final Set<UserId> actualMembers =
-            chat!.chat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
-        subtitle.write(
-          'label_a_of_b'.l10nfmt(
-            {'a': actualMembers.length, 'b': chat!.members.length},
-          ),
-        );
-
-        if (duration.value != null) {
-          subtitle.write(
-            '${'space_vertical_space'.l10n}${duration.value?.hhMmSs()}',
-          );
-        }
-
-        return Text(subtitle.toString(), style: style);
+    if (chat!.chat.value.ongoingCall != null) {
+      final subtitle = StringBuffer();
+      if (!context.isMobile) {
+        subtitle
+            .write('${'label_call_active'.l10n}${'space_vertical_space'.l10n}');
       }
 
-      bool isTyping = chat?.typingUsers.any((e) => e.id != me) == true;
-      if (isTyping) {
-        if (chat?.chat.value.isGroup == false) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'label_typing'.l10n,
-                style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              const SizedBox(width: 3),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 3),
-                child: AnimatedTyping(),
-              ),
-            ],
-          );
-        }
+      final Set<UserId> actualMembers =
+          chat!.chat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
+      subtitle.write(
+        'label_a_of_b'.l10nfmt(
+          {'a': actualMembers.length, 'b': chat!.members.length},
+        ),
+      );
 
-        Iterable<String> typings = chat!.typingUsers
-            .where((e) => e.id != me)
-            .map((e) => e.name?.val ?? e.num.val);
+      if (duration != null) {
+        subtitle.write(
+          '${'space_vertical_space'.l10n}${duration?.hhMmSs()}',
+        );
+      }
 
+      return Text(subtitle.toString(), style: textStyle);
+    }
+
+    bool isTyping = chat?.typingUsers.any((e) => e.id != me) == true;
+    if (isTyping) {
+      if (chat?.chat.value.isGroup == false) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Flexible(
-              child: Text(
-                typings.join('comma_space'.l10n),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
+            Text(
+              'label_typing'.l10n,
+              style: textStyle?.copyWith(color: style.colors.primary),
             ),
             const SizedBox(width: 3),
             const Padding(
@@ -132,64 +104,85 @@ class ChatSubtitle extends StatelessWidget {
         );
       }
 
-      if (chat!.chat.value.isGroup) {
-        final String? subtitle = chat!.chat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(subtitle, style: style);
-        }
-      } else if (chat!.chat.value.isDialog) {
-        final ChatMember? partner =
-            chat!.chat.value.members.firstWhereOrNull((u) => u.user.id != me);
-        if (partner != null) {
-          return Row(
-            children: [
-              if (chat?.chat.value.muted != null) ...[
-                SvgImage.asset(
-                  'assets/icons/muted_dark.svg',
-                  width: 19.99 * 0.6,
-                  height: 15 * 0.6,
-                ),
-                const SizedBox(width: 5),
-              ],
-              Flexible(
-                child: FutureBuilder<RxUser?>(
-                  future: getUser(partner.user.id),
-                  builder: (_, snapshot) {
-                    if (snapshot.data != null) {
-                      return Obx(() {
-                        final String? subtitle = chat!.chat.value
-                            .getSubtitle(partner: snapshot.data!.user.value);
+      Iterable<String> typings = chat!.typingUsers
+          .where((e) => e.id != me)
+          .map((e) => e.name?.val ?? e.num.val);
 
-                        final UserTextStatus? status =
-                            snapshot.data!.user.value.status;
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Flexible(
+            child: Text(
+              typings.join('comma_space'.l10n),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: textStyle?.copyWith(color: style.colors.primary),
+            ),
+          ),
+          const SizedBox(width: 3),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 3),
+            child: AnimatedTyping(),
+          ),
+        ],
+      );
+    }
 
-                        if (status != null || subtitle != null) {
-                          final StringBuffer buffer =
-                              StringBuffer(status ?? '');
+    if (chat!.chat.value.isGroup) {
+      final String? subtitle = chat!.chat.value.getSubtitle();
+      if (subtitle != null) {
+        return Text(subtitle, style: textStyle);
+      }
+    } else if (chat!.chat.value.isDialog) {
+      final ChatMember? partner =
+          chat!.chat.value.members.firstWhereOrNull((u) => u.user.id != me);
+      if (partner != null) {
+        return Row(
+          children: [
+            if (chat?.chat.value.muted != null) ...[
+              SvgImage.asset(
+                'assets/icons/muted_dark.svg',
+                width: 19.99 * 0.6,
+                height: 15 * 0.6,
+              ),
+              const SizedBox(width: 5),
+            ],
+            Flexible(
+              child: FutureBuilder<RxUser?>(
+                future: getUser(partner.user.id),
+                builder: (_, snapshot) {
+                  if (snapshot.data != null) {
+                    final String? subtitle = chat!.chat.value
+                        .getSubtitle(partner: snapshot.data!.user.value);
 
-                          if (status != null && subtitle != null) {
-                            buffer.write('space_vertical_space'.l10n);
-                          }
+                    final UserTextStatus? status =
+                        snapshot.data!.user.value.status;
 
-                          buffer.write(subtitle ?? '');
+                    if (status != null || subtitle != null) {
+                      final StringBuffer buffer = StringBuffer(status ?? '');
 
-                          return Text(buffer.toString(), style: style);
-                        }
+                      if (status != null && subtitle != null) {
+                        buffer.write('space_vertical_space'.l10n);
+                      }
 
-                        return const SizedBox();
-                      });
+                      buffer.write(subtitle ?? '');
+
+                      return Text(buffer.toString(), style: textStyle);
                     }
 
                     return const SizedBox();
-                  },
-                ),
-              ),
-            ],
-          );
-        }
-      }
+                  }
 
-      return const SizedBox();
-    });
+                  return const SizedBox();
+                },
+              ),
+            ),
+          ],
+        );
+      }
+    }
+
+    return const SizedBox();
   }
 }

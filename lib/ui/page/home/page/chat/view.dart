@@ -198,7 +198,7 @@ class _ChatViewState extends State<ChatView>
                                       ChatSubtitle(
                                         chat: c.chat,
                                         me: c.me,
-                                        duration: c.duration,
+                                        duration: c.duration.value,
                                         getUser: c.getUser,
                                       ),
                                   ],
@@ -498,7 +498,7 @@ class _ChatViewState extends State<ChatView>
                           key: c.bottomBarKey,
                           child: BottomBar(
                             chat: c.chat,
-                            edit: c.edit,
+                            edit: c.edit.value,
                             send: c.send,
                             unblacklist: () => c.unblacklist(),
                             keepTyping: () => c.keepTyping(),

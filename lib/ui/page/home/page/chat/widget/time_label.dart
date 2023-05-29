@@ -58,7 +58,7 @@ class TimeLabelWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         swipeable: Padding(
           padding: const EdgeInsets.only(right: 4),
-          child: Text(DateFormat.yMd().format(time)),
+          child: Text(DateFormat('dd.MM.yy').format(time)),
         ),
         child: AnimatedOpacity(
           key: Key('$i$time'),
@@ -75,10 +75,7 @@ class TimeLabelWidget extends StatelessWidget {
                 border: style.systemMessageBorder,
                 color: style.systemMessageColor,
               ),
-              child: Text(
-                time.toRelative(),
-                style: style.systemMessageStyle,
-              ),
+              child: Text(time.toRelative(), style: style.systemMessageStyle),
             ),
           ),
         ),

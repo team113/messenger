@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../message_field/controller.dart';
 import '/domain/model/chat_item.dart';
@@ -44,7 +43,7 @@ class BottomBar extends StatelessWidget {
 
   /// Reactive [MessageFieldController] object that represents the message
   /// input [MessageFieldView] if the user is editing an existing message.
-  final Rx<MessageFieldController?> edit;
+  final MessageFieldController? edit;
 
   /// [MessageFieldController] object that represents the message input
   /// [MessageFieldView] if the user is creating a new message.
@@ -56,10 +55,12 @@ class BottomBar extends StatelessWidget {
   /// [Function] that is called when the user is typing a message.
   final void Function()? keepTyping;
 
-  ///
+  /// Reactive [MessageFieldController] object that represents the message
+  /// input [MessageFieldView] if the user is editing an existing message.
   final Future<void> Function(ChatItemId)? onEdit;
 
-  ///
+  /// [MessageFieldController] object that represents the message input
+  /// [MessageFieldView] if the user is creating a new message.
   final Future<void> Function(ChatItemId)? onSend;
 
   @override
@@ -68,21 +69,19 @@ class BottomBar extends StatelessWidget {
       return BlockedField(onPressed: unblacklist);
     }
 
-    return Obx(() {
-      return edit.value != null
-          ? MessageFieldView(
-              key: const Key('EditField'),
-              controller: edit.value,
-              onItemPressed: onEdit,
-              canAttach: false,
-            )
-          : MessageFieldView(
-              key: const Key('SendField'),
-              controller: send,
-              onChanged: chat!.chat.value.isMonolog ? null : keepTyping,
-              onItemPressed: onSend,
-              canForward: true,
-            );
-    });
+    return edit != null
+        ? MessageFieldView(
+            key: const Key('EditField'),
+            controller: edit,
+            onItemPressed: onEdit,
+            canAttach: false,
+          )
+        : MessageFieldView(
+            key: const Key('SendField'),
+            controller: send,
+            onChanged: chat!.chat.value.isMonolog ? null : keepTyping,
+            onItemPressed: onSend,
+            canForward: true,
+          );
   }
 }
