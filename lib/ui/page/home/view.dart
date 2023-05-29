@@ -225,11 +225,12 @@ class _HomeViewState extends State<HomeView> {
                                       duration: 200.milliseconds,
                                       layoutBuilder: (child, previous) {
                                         return Stack(
-                                            alignment: Alignment.center,
-                                            children: [
-                                              ...previous,
-                                              if (child != null) child
-                                            ]);
+                                          alignment: Alignment.center,
+                                          children: [
+                                            ...previous,
+                                            if (child != null) child,
+                                          ],
+                                        );
                                       },
                                       child: child,
                                     );
