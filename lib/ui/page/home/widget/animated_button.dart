@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-/// Button animating its size on hover and clicks.
+/// [Widget] animating its size on hover and clicks.
 class AnimatedButton extends StatefulWidget {
   const AnimatedButton({super.key, required this.child});
 
