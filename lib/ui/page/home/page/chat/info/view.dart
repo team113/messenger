@@ -29,15 +29,16 @@ import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'add_member/view.dart';
 import 'controller.dart';
 import 'widget/chat_avatar.dart';
 import 'widget/chat_link.dart';
-import 'widget/chat_members.dart';
 import 'widget/chat_name.dart' as widget;
 
 /// View of the [Routes.chatInfo] page.
@@ -212,7 +213,7 @@ class ChatInfoView extends StatelessWidget {
                       ChatAvatar(
                         c.chat,
                         avatarKey: c.avatarKey,
-                        avatar: c.avatar,
+                        avatar: c.avatar.value,
                         pickAvatar: c.pickAvatar,
                         deleteAvatar: c.deleteAvatar,
                       ),
@@ -223,16 +224,7 @@ class ChatInfoView extends StatelessWidget {
                   if (!c.isMonolog) ...[
                     Block(
                       title: 'label_chat_members'.l10n,
-                      children: [
-                        ChatMembers(
-                          id,
-                          chat: c.chat,
-                          me: c.me,
-                          redialChatCallMember: c.redialChatCallMember,
-                          removeChatCallMember: c.removeChatCallMember,
-                          removeChatMember: () => _removeChatMember,
-                        )
-                      ],
+                      children: [_members(c, context)],
                     ),
                     Block(
                       title: 'label_direct_chat_link'.l10n,
@@ -268,6 +260,169 @@ class ChatInfoView extends StatelessWidget {
       }
 
       return Container();
+    });
+  }
+
+  /// Returns a list of [Chat.members].
+  Widget _members(ChatInfoController c, BuildContext context) {
+    return Obx(() {
+      final RxUser? me = c.chat!.members[c.me];
+      final List<RxUser> members = [];
+
+      for (var u in c.chat!.members.entries) {
+        if (u.key != c.me) {
+          members.add(u.value);
+        }
+      }
+
+      if (me != null) {
+        members.insert(0, me);
+      }
+
+      final Style style = Theme.of(context).extension<Style>()!;
+
+      Widget bigButton({
+        Key? key,
+        Widget? leading,
+        required Widget title,
+        void Function()? onTap,
+      }) {
+        return SizedBox(
+          key: key,
+          height: 56,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: style.cardRadius,
+              border: style.cardBorder,
+              color: style.colors.transparent,
+            ),
+            child: Material(
+              type: MaterialType.card,
+              borderRadius: style.cardRadius,
+              color: style.cardColor.darken(0.05),
+              child: InkWell(
+                borderRadius: style.cardRadius,
+                onTap: onTap,
+                hoverColor: style.cardColor.darken(0.08),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: DefaultTextStyle(
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: style.colors.primary,
+                            fontWeight: FontWeight.w300,
+                          ),
+                          child: title,
+                        ),
+                      ),
+                      if (leading != null) ...[
+                        const SizedBox(width: 12),
+                        leading,
+                        const SizedBox(width: 4),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          bigButton(
+            key: const Key('AddMemberButton'),
+            leading: Icon(Icons.people, color: style.colors.primary),
+            title: Text('btn_add_member'.l10n),
+            onTap: () => AddChatMemberView.show(context, chatId: id),
+          ),
+          const SizedBox(height: 3),
+          ...members.map((e) {
+            final bool inCall = c.chat?.chat.value.ongoingCall?.members
+                    .any((u) => u.user.id == e.id) ==
+                true;
+
+            return ContactTile(
+              user: e,
+              darken: 0.05,
+              dense: true,
+              onTap: () => router.user(e.id, push: true),
+              trailing: [
+                if (e.id != c.me && c.chat?.chat.value.ongoingCall != null) ...[
+                  if (inCall)
+                    WidgetButton(
+                      key: const Key('Drop'),
+                      onPressed: () => c.removeChatCallMember(e.id),
+                      child: Container(
+                        height: 22,
+                        width: 22,
+                        decoration: BoxDecoration(
+                          color: style.colors.dangerColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: SvgImage.asset(
+                            'assets/icons/call_end.svg',
+                            width: 22,
+                            height: 22,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    Material(
+                      color: style.colors.primary,
+                      type: MaterialType.circle,
+                      child: InkWell(
+                        onTap: () => c.redialChatCallMember(e.id),
+                        borderRadius: BorderRadius.circular(60),
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: Center(
+                            child: SvgImage.asset(
+                              'assets/icons/audio_call_start.svg',
+                              width: 10,
+                              height: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 12),
+                ],
+                if (e.id == c.me)
+                  WidgetButton(
+                    onPressed: () => _removeChatMember(c, context, e),
+                    child: Text(
+                      'btn_leave'.l10n,
+                      style:
+                          TextStyle(color: style.colors.primary, fontSize: 15),
+                    ),
+                  )
+                else
+                  WidgetButton(
+                    key: const Key('DeleteMemberButton'),
+                    onPressed: () => _removeChatMember(c, context, e),
+                    child: SvgImage.asset(
+                      'assets/icons/delete.svg',
+                      height: 14 * 1.5,
+                    ),
+                  ),
+                const SizedBox(width: 6),
+              ],
+            );
+          }),
+        ],
+      );
     });
   }
 

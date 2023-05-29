@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../widget/padding.dart';
 import '/domain/model/chat.dart';
@@ -22,32 +21,30 @@ class ChatName extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return BasicPadding(
-        ReactiveTextField(
-          key: const Key('RenameChatField'),
-          state: name,
-          label: chat?.chat.value.name == null
-              ? chat?.title.value
-              : 'label_name'.l10n,
-          hint: 'label_name_hint'.l10n,
-          onSuffixPressed: name.text.isEmpty
-              ? null
-              : () {
-                  PlatformUtils.copy(text: name.text);
-                  MessagePopup.success('label_copied'.l10n);
-                },
-          trailing: name.text.isEmpty
-              ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-                  ),
+    return BasicPadding(
+      ReactiveTextField(
+        key: const Key('RenameChatField'),
+        state: name,
+        label: chat?.chat.value.name == null
+            ? chat?.title.value
+            : 'label_name'.l10n,
+        hint: 'label_name_hint'.l10n,
+        onSuffixPressed: name.text.isEmpty
+            ? null
+            : () {
+                PlatformUtils.copy(text: name.text);
+                MessagePopup.success('label_copied'.l10n);
+              },
+        trailing: name.text.isEmpty
+            ? null
+            : Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgImage.asset('assets/icons/copy.svg', height: 15),
                 ),
-        ),
-      );
-    });
+              ),
+      ),
+    );
   }
 }

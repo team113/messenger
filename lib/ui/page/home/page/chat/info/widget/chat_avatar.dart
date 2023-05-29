@@ -29,7 +29,7 @@ class ChatAvatar extends StatelessWidget {
   final GlobalKey<State<StatefulWidget>>? avatarKey;
 
   /// Status of the [Chat.avatar] upload or removal.
-  final Rx<RxStatus> avatar;
+  final RxStatus avatar;
 
   /// Opens a file choose popup and updates the [Chat.avatar] with the selected
   /// image, if any.
@@ -72,22 +72,20 @@ class ChatAvatar extends StatelessWidget {
               ),
             ),
             Positioned.fill(
-              child: Obx(() {
-                return AnimatedSwitcher(
-                  duration: 200.milliseconds,
-                  child: avatar.value.isLoading
-                      ? Container(
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: style.colors.onBackgroundOpacity13,
-                          ),
-                          child: const Center(child: CustomProgressIndicator()),
-                        )
-                      : const SizedBox.shrink(),
-                );
-              }),
+              child: AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: avatar.isLoading
+                    ? Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: style.colors.onBackgroundOpacity13,
+                        ),
+                        child: const Center(child: CustomProgressIndicator()),
+                      )
+                    : const SizedBox.shrink(),
+              ),
             ),
           ],
         ),
