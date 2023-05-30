@@ -44,8 +44,9 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'message_field/view.dart';
 import 'widget/back_button.dart';
-import 'widget/chat_bottom_panel.dart';
+import 'widget/blocked_field.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
@@ -496,17 +497,7 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: SizeChangedLayoutNotifier(
                           key: c.bottomBarKey,
-                          child: ChatBottomPanel(
-                            chat: c.chat,
-                            edit: c.edit.value,
-                            send: c.send,
-                            unblacklist: () => c.unblacklist(),
-                            keepTyping: () => c.keepTyping(),
-                            onEdit: (id) =>
-                                c.animateTo(id, offsetBasedOnBottom: true),
-                            onSend: (id) =>
-                                c.animateTo(id, offsetBasedOnBottom: true),
-                          ),
+                          child: _bottomBar(c),
                         ),
                       ),
                     ),
@@ -833,6 +824,31 @@ class _ChatViewState extends State<ChatView>
     }
 
     return const SizedBox();
+  }
+
+  /// Returns a bottom bar of this [ChatView] to display under the messages list
+  /// containing a send/edit field.
+  Widget _bottomBar(ChatController c) {
+    if (c.chat?.blacklisted == true) {
+      return BlockedField(onPressed: c.unblacklist);
+    }
+
+    return Obx(() {
+      return c.edit.value != null
+          ? MessageFieldView(
+              key: const Key('EditField'),
+              controller: c.edit.value,
+              onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+              canAttach: false,
+            )
+          : MessageFieldView(
+              key: const Key('SendField'),
+              controller: c.send,
+              onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
+              onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+              canForward: true,
+            );
+    });
   }
 
   /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
