@@ -890,7 +890,7 @@ class ChatsTabView extends StatelessWidget {
                   'btn_cancel'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: fonts.bodyLarge!.copyWith(
+                  style: fonts.labelLarge!.copyWith(
                     color: style.colors.onBackground,
                   ),
                 ),
@@ -904,7 +904,7 @@ class ChatsTabView extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style:
-                      fonts.bodyLarge!.copyWith(color: style.colors.onPrimary),
+                      fonts.labelLarge!.copyWith(color: style.colors.onPrimary),
                 ),
                 onPressed: c.createGroup,
                 color: style.colors.primary,

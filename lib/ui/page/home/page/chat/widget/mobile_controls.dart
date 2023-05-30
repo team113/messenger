@@ -328,7 +328,6 @@ class _MobileControlsState extends State<MobileControls>
             text: '/ ${formatDuration(duration)}',
             style: fonts.bodyMedium!.copyWith(
               color: style.colors.onPrimaryOpacity50,
-              fontWeight: FontWeight.normal,
             ),
           )
         ],

@@ -107,7 +107,7 @@ class StatusView extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'label_presence'.l10n,
-                            style: fonts.bodySmall,
+                            style: fonts.displaySmall,
                           ),
                         ),
                       ),

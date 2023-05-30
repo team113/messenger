@@ -452,8 +452,7 @@ Widget _link(BuildContext context, MyProfileController c) {
             children: [
               RichText(
                 text: TextSpan(
-                  style:
-                      fonts.bodySmall!.copyWith(fontWeight: FontWeight.normal),
+                  style: fonts.bodyMedium,
                   children: [
                     TextSpan(
                       text: 'label_transition_count'.l10nfmt({
@@ -622,8 +621,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style:
-                      fonts.bodySmall!.copyWith(fontWeight: FontWeight.normal),
+                  style: fonts.bodyMedium,
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
@@ -779,8 +777,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style:
-                      fonts.bodySmall!.copyWith(fontWeight: FontWeight.normal),
+                  style: fonts.bodyMedium,
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
@@ -1443,7 +1440,7 @@ Future<void> _deleteEmail(
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
       TextSpan(
         text: email.val,
-        style: fonts.bodyMedium!.copyWith(color: style.colors.onBackground),
+        style: fonts.bodyLarge!.copyWith(color: style.colors.onBackground),
       ),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],

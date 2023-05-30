@@ -193,7 +193,7 @@ class MenuTabView extends StatelessWidget {
                                             style: fonts.bodySmall!.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
-                                                  : null,
+                                                  : style.colors.onBackground,
                                             ),
                                             child: Text(subtitle),
                                           ),

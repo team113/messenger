@@ -185,7 +185,7 @@ class Themes {
           bodyLarge:
               textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
           bodyMedium:
-              textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+              textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w400),
           bodySmall: textStyle.copyWith(
             color: colors.secondary,
             fontWeight: FontWeight.w300,

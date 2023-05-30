@@ -192,9 +192,7 @@ class ChatsMoreView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: fonts.bodySmall!.copyWith(
-                      fontWeight: FontWeight.normal,
-                    ),
+                    style: fonts.bodyMedium,
                     children: [
                       TextSpan(
                         text: 'label_transition_count'.l10nfmt({
@@ -203,13 +201,13 @@ class ChatsMoreView extends StatelessWidget {
                                       0
                             }) +
                             'dot_space'.l10n,
-                        style: fonts.bodyLarge!.copyWith(
+                        style: fonts.bodySmall!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: fonts.bodyLarge!.copyWith(
+                        style: fonts.bodySmall!.copyWith(
                           color: style.colors.primary,
                         ),
                         recognizer: TapGestureRecognizer()

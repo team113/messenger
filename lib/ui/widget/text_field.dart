@@ -226,10 +226,9 @@ class ReactiveTextField extends StatelessWidget {
                                             child: Text(
                                               'btn_save'.l10n,
                                               style: context
-                                                  .textTheme.bodySmall!
+                                                  .textTheme.bodyMedium!
                                                   .copyWith(
                                                 color: style.colors.primary,
-                                                fontWeight: FontWeight.normal,
                                               ),
                                             ),
                                           )

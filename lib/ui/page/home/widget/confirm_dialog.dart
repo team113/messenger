@@ -217,7 +217,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
+              style: fonts.bodyLarge!.copyWith(color: style.colors.onPrimary),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());
