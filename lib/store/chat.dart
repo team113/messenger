@@ -927,7 +927,6 @@ class ChatRepository extends DisposableInterface
 
       chat?.chat.update((c) => c?.favoritePosition = oldPosition);
       chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-
       rethrow;
     }
   }
@@ -1196,15 +1195,16 @@ class ChatRepository extends DisposableInterface
           entry.init();
           entry.subscribe();
         } else {
-          if (chat.chat.value.isMonolog &&
-              localMonologFavoritePosition != null) {
-            event.value.value.favoritePosition = localMonologFavoritePosition;
-            localMonologFavoritePosition = null;
-          }
+          if (chat.chat.value.isMonolog) {
+            if (localMonologFavoritePosition != null) {
+              event.value.value.favoritePosition = localMonologFavoritePosition;
+              localMonologFavoritePosition = null;
+            }
 
-          if (chat.chat.value.isMonolog && _monologShouldBeHidden) {
-            event.value.value.isHidden = _monologShouldBeHidden;
-            _monologShouldBeHidden = false;
+            if (_monologShouldBeHidden) {
+              event.value.value.isHidden = _monologShouldBeHidden;
+              _monologShouldBeHidden = false;
+            }
           }
 
           chat.chat.value = event.value.value;
