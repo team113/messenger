@@ -37,7 +37,7 @@ class FileService extends DisposableService {
   static int maxSize = 1024 * 1024 * 1024; // 1 Gb
 
   /// Size of all files in the [cacheDirectory] in bytes.
-  Rx<int> cacheSize = Rx<int>(0);
+  final RxInt cacheSize = RxInt(0);
 
   /// [StreamSubscription] getting all files from the [cacheDirectory].
   StreamSubscription? cacheSubscription;
@@ -105,6 +105,7 @@ class FileService extends DisposableService {
               _files[File(e.path)] = stat.size;
             }
             break;
+
           case FileSystemEvent.delete:
             _files.removeWhere((file, size) {
               if (file.path == e.path) {
@@ -114,7 +115,9 @@ class FileService extends DisposableService {
               return false;
             });
             break;
+
           default:
+            // No-op.
             return;
         }
 
@@ -123,6 +126,7 @@ class FileService extends DisposableService {
     } on MissingPluginException {
       // No-op.
     }
+
     super.onInit();
   }
 
