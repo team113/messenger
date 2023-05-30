@@ -45,7 +45,7 @@ class IntroductionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       key: const Key('IntroductionView'),
@@ -60,7 +60,7 @@ class IntroductionView extends StatelessWidget {
                 const SizedBox(height: 14),
                 Center(
                   child:
-                      Text('btn_set_password'.l10n, style: theme.displaySmall),
+                      Text('btn_set_password'.l10n, style: fonts.displaySmall),
                 ),
                 const SizedBox(height: 18),
                 ReactiveTextField(
@@ -68,7 +68,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: theme.bodyLarge,
+                  style: fonts.bodyLarge,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -82,7 +82,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: theme.bodyLarge,
+                  style: fonts.bodyLarge,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -95,7 +95,7 @@ class IntroductionView extends StatelessWidget {
                   key: const Key('ChangePasswordButton'),
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: theme.bodyLarge!.copyWith(
+                    style: fonts.bodyLarge!.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
                           ? style.colors.onBackground
                           : style.colors.onPrimary,
@@ -114,7 +114,7 @@ class IntroductionView extends StatelessWidget {
                 Text(
                   'label_password_set'.l10n,
                   style:
-                      theme.bodyLarge!.copyWith(color: style.colors.secondary),
+                      fonts.bodyLarge!.copyWith(color: style.colors.secondary),
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -123,7 +123,7 @@ class IntroductionView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: theme.bodyLarge!.copyWith(
+                      style: fonts.bodyLarge!.copyWith(
                         color: style.colors.onPrimary,
                       ),
                     ),
@@ -138,7 +138,7 @@ class IntroductionView extends StatelessWidget {
               children = [
                 Text(
                   'label_introduction_description'.l10n,
-                  style: theme.bodyLarge!,
+                  style: fonts.bodyLarge!,
                 ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
@@ -146,7 +146,7 @@ class IntroductionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_set_password'.l10n,
-                    style: theme.bodyLarge!.copyWith(
+                    style: fonts.bodyLarge!.copyWith(
                       color: style.colors.onPrimary,
                     ),
                   ),
@@ -176,7 +176,7 @@ class IntroductionView extends StatelessWidget {
                     header: Center(
                       child: Text(
                         'label_account_created'.l10n,
-                        style: theme.displaySmall,
+                        style: fonts.displaySmall,
                       ),
                     ),
                   ),
@@ -193,14 +193,14 @@ class IntroductionView extends StatelessWidget {
                               'assets/icons/share.svg',
                               width: 18,
                             ),
-                            style: theme.bodyLarge,
+                            style: fonts.bodyLarge,
                           )
                         : CopyableTextField(
                             key: const Key('NumCopyable'),
                             state: c.num,
                             label: 'label_num'.l10n,
                             copy: c.myUser.value?.num.val,
-                            style: theme.displaySmall,
+                            style: fonts.displaySmall,
                           ),
                   ),
                   const SizedBox(height: 25),

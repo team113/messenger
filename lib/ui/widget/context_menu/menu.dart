@@ -138,7 +138,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
@@ -180,7 +180,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: theme.displaySmall!.copyWith(
+                style: fonts.displaySmall!.copyWith(
                   color: (isMouseOver && !context.isMobile)
                       ? style.colors.onPrimary
                       : style.colors.onBackground,

@@ -120,7 +120,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
@@ -144,7 +144,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: theme.displaySmall!.copyWith(
+                      style: fonts.displaySmall!.copyWith(
                         color: _variant == variant
                             ? style.colors.onPrimary
                             : style.colors.onBackground,
@@ -172,7 +172,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
       children: [
         ModalPopupHeader(
           header: Center(
-            child: Text(widget.title, style: theme.displaySmall),
+            child: Text(widget.title, style: fonts.displaySmall),
           ),
         ),
         const SizedBox(height: 12),
@@ -188,7 +188,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             child: Center(
               child: Text(
                 widget.description!,
-                style: theme.bodyLarge!.copyWith(color: style.colors.secondary),
+                style: fonts.bodyLarge!.copyWith(color: style.colors.secondary),
               ),
             ),
           ),
@@ -217,7 +217,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: theme.bodyMedium!.copyWith(color: style.colors.onPrimary),
+              style: fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());

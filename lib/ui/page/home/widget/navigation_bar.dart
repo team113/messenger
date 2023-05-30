@@ -49,7 +49,7 @@ class CustomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
@@ -110,7 +110,7 @@ class CustomNavigationBar extends StatelessWidget {
                                         : Text(
                                             b.badge!,
                                             textAlign: TextAlign.center,
-                                            style: theme.bodySmall!.copyWith(
+                                            style: fonts.bodySmall!.copyWith(
                                               color: style.colors.onPrimary,
                                             ),
                                           ),

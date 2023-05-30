@@ -84,7 +84,7 @@ class OutlinedRoundedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Container(
       constraints: BoxConstraints(
@@ -128,7 +128,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: theme.bodySmall!.copyWith(
+                  style: fonts.bodySmall!.copyWith(
                     color: style.colors.onBackground,
                     fontSize: 24 * 0.7,
                   ),
@@ -146,7 +146,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                           if (subtitle != null)
                             DefaultTextStyle.merge(
                               style:
-                                  theme.bodyLarge!.copyWith(fontSize: 13 * 0.7),
+                                  fonts.bodyLarge!.copyWith(fontSize: 13 * 0.7),
                               child: subtitle!,
                             ),
                         ],

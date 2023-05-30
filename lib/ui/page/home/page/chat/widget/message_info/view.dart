@@ -61,7 +61,7 @@ class MessageInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
@@ -72,7 +72,7 @@ class MessageInfo extends StatelessWidget {
             const SizedBox(height: 4),
             ModalPopupHeader(
               header: Center(
-                child: Text('label_message'.l10n, style: theme.displaySmall),
+                child: Text('label_message'.l10n, style: fonts.displaySmall),
               ),
             ),
             if (id != null)
@@ -90,7 +90,7 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: theme.bodySmall,
+                        style: fonts.bodySmall,
                       ),
                       const SizedBox(width: 8),
                       SvgImage.asset('assets/icons/copy.svg', height: 12),
@@ -125,7 +125,7 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: theme.labelMedium!.copyWith(
+                          style: fonts.labelMedium!.copyWith(
                             fontWeight: FontWeight.normal,
                           ),
                           onChanged: () => c.query.value = c.search.text,
@@ -219,7 +219,7 @@ class MessageInfo extends StatelessWidget {
                                       'minute':
                                           '${time.minute}'.padLeft(2, '0'),
                                     }),
-                                    style: theme.bodyLarge!.copyWith(
+                                    style: fonts.bodyLarge!.copyWith(
                                       color: style.colors.secondary,
                                     ),
                                   ),

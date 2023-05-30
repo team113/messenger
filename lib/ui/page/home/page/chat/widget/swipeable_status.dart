@@ -98,13 +98,13 @@ class SwipeableStatus extends StatelessWidget {
   /// Returns a [Row] of [swipeable] and a status.
   Widget _swipeableWithStatus(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return DefaultTextStyle.merge(
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: theme.bodySmall!.copyWith(color: style.colors.secondary),
+      style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),

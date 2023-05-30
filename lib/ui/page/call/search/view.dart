@@ -87,7 +87,7 @@ class SearchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       key: const Key('SearchView'),
@@ -109,7 +109,7 @@ class SearchView extends StatelessWidget {
               ModalPopupHeader(
                 onBack: onBack,
                 header: Center(
-                  child: Text(title, style: theme.displaySmall),
+                  child: Text(title, style: fonts.displaySmall),
                 ),
               ),
               const SizedBox(height: 12),
@@ -120,7 +120,7 @@ class SearchView extends StatelessWidget {
                     key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
-                    style: theme.bodyLarge,
+                    style: fonts.bodyLarge,
                     onChanged: () => c.query.value = c.search.text,
                   ),
                 ),
@@ -241,7 +241,7 @@ class SearchView extends StatelessWidget {
                         submit ?? 'btn_submit'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: theme.bodyLarge!.copyWith(
+                        style: fonts.bodyLarge!.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
                               : style.colors.onBackground,

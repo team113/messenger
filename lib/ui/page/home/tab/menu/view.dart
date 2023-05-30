@@ -41,7 +41,7 @@ class MenuTabView extends StatelessWidget {
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
         final Style style = Theme.of(context).extension<Style>()!;
-        final TextTheme theme = Theme.of(context).textTheme;
+        final TextTheme fonts = Theme.of(context).textTheme;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -78,7 +78,7 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: theme.displaySmall!.copyWith(
+                              style: fonts.displaySmall!.copyWith(
                                 color: style.colors.onBackground,
                               ),
                             ),
@@ -86,7 +86,7 @@ class MenuTabView extends StatelessWidget {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: theme.bodySmall!.copyWith(
+                                style: fonts.bodySmall!.copyWith(
                                   color: style.colors.secondary,
                                 ),
                               );
@@ -179,7 +179,7 @@ class MenuTabView extends StatelessWidget {
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
                                             style:
-                                                theme.headlineSmall!.copyWith(
+                                                fonts.headlineSmall!.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
                                                   : null,
@@ -190,7 +190,7 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle.merge(
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: theme.bodySmall!.copyWith(
+                                            style: fonts.bodySmall!.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
                                                   : null,

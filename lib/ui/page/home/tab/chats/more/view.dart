@@ -45,7 +45,7 @@ class ChatsMoreView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       key: const Key('ChatsMoreView'),
@@ -58,7 +58,7 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: theme.displaySmall!.copyWith(
+                  style: fonts.displaySmall!.copyWith(
                     color: style.colors.onBackground,
                   ),
                 ),
@@ -88,7 +88,7 @@ class ChatsMoreView extends StatelessWidget {
   /// Returns a styled as a header [Container] with the provided [text].
   Widget _header(BuildContext context, String text) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
@@ -98,7 +98,7 @@ class ChatsMoreView extends StatelessWidget {
           child: Text(
             text,
             style:
-                theme.displaySmall!.copyWith(color: style.colors.onBackground),
+                fonts.displaySmall!.copyWith(color: style.colors.onBackground),
           ),
         ),
       ),
@@ -154,7 +154,7 @@ class ChatsMoreView extends StatelessWidget {
   /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Obx(() {
       return Column(
@@ -192,7 +192,7 @@ class ChatsMoreView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: theme.bodySmall!.copyWith(
+                    style: fonts.bodySmall!.copyWith(
                       fontWeight: FontWeight.normal,
                     ),
                     children: [
@@ -203,13 +203,13 @@ class ChatsMoreView extends StatelessWidget {
                                       0
                             }) +
                             'dot_space'.l10n,
-                        style: theme.bodyLarge!.copyWith(
+                        style: fonts.bodyLarge!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: theme.bodyLarge!.copyWith(
+                        style: fonts.bodyLarge!.copyWith(
                           color: style.colors.primary,
                         ),
                         recognizer: TapGestureRecognizer()

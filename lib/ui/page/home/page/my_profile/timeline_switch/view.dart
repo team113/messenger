@@ -38,7 +38,7 @@ class TimelineSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: TimelineSwitchController(Get.find()),
@@ -54,7 +54,7 @@ class TimelineSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_display_timestamps'.l10n,
-                    style: theme.displaySmall,
+                    style: fonts.displaySmall,
                   ),
                 ),
               ),

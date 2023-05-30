@@ -90,7 +90,7 @@ class ChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return ContextMenuRegion(
       key: Key('Chat_${chat?.chat.value.id}'),
@@ -140,7 +140,7 @@ class ChatTile extends StatelessWidget {
                                         chat?.title.value ?? ('dot'.l10n * 3),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
-                                        style: theme.headlineSmall!.copyWith(
+                                        style: fonts.headlineSmall!.copyWith(
                                           color: selected
                                               ? style.colors.onPrimary
                                               : null,

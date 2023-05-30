@@ -253,7 +253,7 @@ class ReactiveTextField extends StatelessWidget {
 
     return Obx(() {
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextTheme theme = Theme.of(context).textTheme;
+      final TextTheme fonts = Theme.of(context).textTheme;
 
       return Theme(
         data: Theme.of(context).copyWith(
@@ -313,7 +313,7 @@ class ReactiveTextField extends StatelessWidget {
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: theme.bodyLarge!.copyWith(fontSize: 0),
+                errorStyle: fonts.bodyLarge!.copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -337,7 +337,7 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value!,
-                            style: (this.style ?? theme.bodySmall!).copyWith(
+                            style: (this.style ?? fonts.bodySmall!).copyWith(
                               color: style.colors.dangerColor,
                             ),
                           ),

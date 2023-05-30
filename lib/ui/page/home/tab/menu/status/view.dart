@@ -49,7 +49,7 @@ class StatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: StatusController(Get.find()),
@@ -61,7 +61,7 @@ class StatusView extends StatelessWidget {
               header: Center(
                 child: Text(
                   expanded ? 'label_status'.l10n : 'label_presence'.l10n,
-                  style: theme.displaySmall,
+                  style: fonts.displaySmall,
                 ),
               ),
             ),
@@ -107,7 +107,7 @@ class StatusView extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'label_presence'.l10n,
-                            style: theme.bodySmall,
+                            style: fonts.bodySmall,
                           ),
                         ),
                       ),

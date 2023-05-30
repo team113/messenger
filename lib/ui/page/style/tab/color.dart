@@ -40,7 +40,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     Widget color(Color color, [String? desc]) {
       final HSLColor hsl = HSLColor.fromColor(color);
@@ -63,7 +63,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               child: Center(
                 child: Text(
                   color.toHex(),
-                  style: theme.bodySmall!.copyWith(
+                  style: fonts.bodySmall!.copyWith(
                     color: hsl.lightness > 0.7 ? Colors.black : Colors.white,
                   ),
                 ),
@@ -77,7 +77,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               child: Text(
                 desc,
                 textAlign: TextAlign.center,
-                style: theme.bodySmall!.copyWith(
+                style: fonts.bodySmall!.copyWith(
                   color: isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
@@ -247,7 +247,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             const SizedBox(height: 50),
             Text(
               'Цвета аватаров:',
-              style: theme.displayLarge!.copyWith(
+              style: fonts.displayLarge!.copyWith(
                 color: isDarkMode
                     ? style.colors.onPrimary
                     : style.colors.onBackground,

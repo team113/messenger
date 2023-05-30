@@ -57,7 +57,7 @@ class ChatsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -106,7 +106,7 @@ class ChatsTabView extends StatelessWidget {
                               filled: false,
                               dense: true,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: theme.labelMedium!.copyWith(
+                              style: fonts.labelMedium!.copyWith(
                                 fontWeight: FontWeight.normal,
                               ),
                               onChanged: () => c.search.value!.query.value =
@@ -142,7 +142,7 @@ class ChatsTabView extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'label_synchronization'.l10n,
-                              style: theme.bodySmall!.copyWith(
+                              style: fonts.bodySmall!.copyWith(
                                 color: style.colors.secondary,
                               ),
                             ),
@@ -345,7 +345,7 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style: theme.bodySmall!.copyWith(
+                                      style: fonts.bodySmall!.copyWith(
                                         color: style.colors.onPrimary,
                                       ),
                                     ),
@@ -389,7 +389,7 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                   width: double.infinity,
                                   child: Center(
-                                    child: Text(text, style: theme.bodyLarge),
+                                    child: Text(text, style: fonts.bodyLarge),
                                   ),
                                 ),
                               );
@@ -472,7 +472,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         element.category.name.capitalizeFirst!,
-                                        style: theme.bodySmall!,
+                                        style: fonts.bodySmall!,
                                       ),
                                     ),
                                   ),
@@ -843,7 +843,7 @@ class ChatsTabView extends StatelessWidget {
   /// Returns an animated [OutlinedRoundedButton]s for creating a group.
   Widget _createGroup(BuildContext context, ChatsTabController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Obx(() {
       final Widget child;
@@ -890,7 +890,7 @@ class ChatsTabView extends StatelessWidget {
                   'btn_cancel'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: theme.bodyLarge!.copyWith(
+                  style: fonts.bodyLarge!.copyWith(
                     color: style.colors.onBackground,
                   ),
                 ),
@@ -904,7 +904,7 @@ class ChatsTabView extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style:
-                      theme.bodyLarge!.copyWith(color: style.colors.onPrimary),
+                      fonts.bodyLarge!.copyWith(color: style.colors.onPrimary),
                 ),
                 onPressed: c.createGroup,
                 color: style.colors.primary,
@@ -924,7 +924,7 @@ class ChatsTabView extends StatelessWidget {
   /// [Chat]s manipulation.
   Widget _selectButtons(BuildContext context, ChatsTabController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
@@ -952,7 +952,7 @@ class ChatsTabView extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style:
-                    theme.bodyLarge!.copyWith(color: style.colors.onBackground),
+                    fonts.bodyLarge!.copyWith(color: style.colors.onBackground),
               ),
               onPressed: c.toggleSelecting,
               shadows: shadows,
@@ -967,7 +967,7 @@ class ChatsTabView extends StatelessWidget {
                   'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: theme.bodyLarge!.copyWith(
+                  style: fonts.bodyLarge!.copyWith(
                     color: c.selectedChats.isEmpty
                         ? style.colors.onBackground
                         : style.colors.onPrimary,

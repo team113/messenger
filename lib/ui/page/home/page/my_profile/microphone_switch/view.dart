@@ -52,7 +52,7 @@ class MicrophoneSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: MicrophoneSwitchController(Get.find(), mic: mic),
@@ -68,7 +68,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_media_microphone'.l10n,
-                    style: theme.displaySmall,
+                    style: fonts.displaySmall,
                   ),
                 ),
               ),

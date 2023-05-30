@@ -41,7 +41,7 @@ class CallWindowSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
@@ -55,7 +55,7 @@ class CallWindowSwitchView extends StatelessWidget {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text('label_calls'.l10n, style: theme.displaySmall),
+                  child: Text('label_calls'.l10n, style: fonts.displaySmall),
                 ),
               ),
               const SizedBox(height: 13),

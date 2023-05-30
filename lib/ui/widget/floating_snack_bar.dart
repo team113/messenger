@@ -48,7 +48,7 @@ class FloatingSnackBar extends StatefulWidget {
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
   static void show(String title, {double bottom = 16}) {
     final Style style = Theme.of(router.context!).extension<Style>()!;
-    final TextTheme theme = Theme.of(router.context!).textTheme;
+    final TextTheme fonts = Theme.of(router.context!).textTheme;
 
     OverlayEntry? entry;
 
@@ -63,7 +63,7 @@ class FloatingSnackBar extends StatefulWidget {
         bottom: bottom,
         child: Text(
           title,
-          style: theme.bodyLarge!.copyWith(color: style.colors.onBackground),
+          style: fonts.bodyLarge!.copyWith(color: style.colors.onBackground),
         ),
       ),
     );

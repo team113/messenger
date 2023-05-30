@@ -50,7 +50,7 @@ class SearchUserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme theme = Theme.of(context).textTheme;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Obx(() {
       final ChatId? chatId =
@@ -78,7 +78,7 @@ class SearchUserTile extends StatelessWidget {
                 RegExp(r'.{4}'),
                 (match) => '${match.group(0)} ',
               )}',
-              style: theme.bodySmall!.copyWith(
+              style: fonts.bodySmall!.copyWith(
                 color:
                     selected ? style.colors.onPrimary : style.colors.secondary,
               ),
