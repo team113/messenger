@@ -42,6 +42,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Inverted selected chat colors. ([#405])
         - Chats with ongoing calls sorting above favorites. ([#392], [#371])
+    - Redesigned navigation buttons animation. ([#440])
 
 ### Fixed
 
@@ -79,6 +80,7 @@ All user visible changes to this project will be documented in this file. This p
 [#405]: /../../pull/405
 [#436]: /../../pull/436
 [#437]: /../../pull/437
+[#440]: /../../pull/440
 
 
 
