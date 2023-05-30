@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';

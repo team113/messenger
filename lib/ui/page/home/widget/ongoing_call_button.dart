@@ -41,11 +41,11 @@ class OngoingCallButton extends StatelessWidget {
   /// [OngoingCall].
   final Duration duration;
 
-  /// Callback, called when a drop [Chat.ongoingCall] in this [rxChat]
+  /// Callback, called when a drop [Chat.ongoingCall] in this chat
   /// action is triggered.
   final void Function()? onDrop;
 
-  /// Callback, called when a join [Chat.ongoingCall] in this [rxChat]
+  /// Callback, called when a join [Chat.ongoingCall] in this chat
   /// action is triggered.
   final void Function()? onJoin;
 

@@ -30,7 +30,7 @@ class StyledRoundedButton extends StatelessWidget {
     this.color,
   });
 
-  /// Widget to display before the [title].
+  /// Widget to display before the title.
   ///
   /// Typically an [Icon] or a [CircleAvatar] widget.
   final Widget? leading;
