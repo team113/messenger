@@ -20,10 +20,11 @@ import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 import 'widget/chat_direct_link.dart';
-import 'widget/more_header.dart';
+import 'widget/header.dart';
 import 'widget/switch_mute.dart';
 
 /// View for changing [MyUser.chatDirectLink] and [MyUser.muted].
@@ -39,6 +40,8 @@ class ChatsMoreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('ChatsMoreView'),
       init: ChatsMoreController(Get.find()),
@@ -50,10 +53,10 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: Colors.black, fontSize: 18),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: style.colors.onBackground,
+                        fontSize: 18,
+                      ),
                 ),
               ),
             ),
@@ -68,7 +71,7 @@ class ChatsMoreView extends StatelessWidget {
                         c.myUser.value, c.isMuting.value, c.toggleMute),
                   ),
                   const SizedBox(height: 21),
-                  MoreHeader(text: 'label_your_direct_link'.l10n),
+                  Header(text: 'label_your_direct_link'.l10n),
                   const SizedBox(height: 4),
                   ChatDirectLink(c.myUser.value, c.link),
                 ],

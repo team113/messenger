@@ -21,10 +21,10 @@ import '/themes.dart';
 
 /// [Widget] which returns a styled as a header [Container] with the provided
 /// [text].
-class MoreHeader extends StatelessWidget {
-  const MoreHeader({super.key, required this.text});
+class Header extends StatelessWidget {
+  const Header({super.key, required this.text});
 
-  /// Text that will be displayed in this [MoreHeader].
+  /// Text that will be displayed in this [Header].
   final String text;
 
   @override
@@ -38,8 +38,10 @@ class MoreHeader extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: style.systemMessageStyle
-                .copyWith(color: style.colors.onBackground, fontSize: 18),
+            style: style.systemMessageStyle.copyWith(
+              color: style.colors.onBackground,
+              fontSize: 18,
+            ),
           ),
         ),
       ),
