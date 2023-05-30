@@ -281,10 +281,7 @@ class UserView extends StatelessWidget {
             key: key,
             onPressed: onPressed,
             text: text ?? '',
-            style: fonts.bodyLarge!.copyWith(
-              color: style.colors.primary,
-              fontWeight: FontWeight.normal,
-            ),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
             trailing: trailing != null
                 ? Transform.translate(
                     offset: const Offset(0, -1),

@@ -496,9 +496,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   time,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: fonts.displaySmall!.copyWith(
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: fonts.headlineSmall,
                 ),
               ),
             ],
