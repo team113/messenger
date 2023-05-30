@@ -35,6 +35,7 @@ import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -75,7 +76,7 @@ class ChatsTabView extends StatelessWidget {
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
                     ? style.colors.secondaryHighlight
-                    : style.colors.secondaryHighlight.withOpacity(1),
+                    : style.colors.secondaryHighlight.withOpacity(0),
               );
             }),
             Obx(() {
@@ -510,8 +511,9 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else {
-                      child = KeyedSubtree(
+                      child = AnimatedDelayedSwitcher(
                         key: UniqueKey(),
+                        delay: const Duration(milliseconds: 300),
                         child: Center(
                           key: const Key('NothingFound'),
                           child: Text('label_nothing_found'.l10n),
@@ -900,7 +902,7 @@ class ChatsTabView extends StatelessWidget {
             children: [
               button(
                 child: Text(
-                  'btn_close'.l10n,
+                  'btn_cancel'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(color: style.colors.onBackground),
@@ -957,7 +959,7 @@ class ChatsTabView extends StatelessWidget {
           Expanded(
             child: OutlinedRoundedButton(
               title: Text(
-                'btn_close'.l10n,
+                'btn_cancel'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: TextStyle(color: style.colors.onBackground),

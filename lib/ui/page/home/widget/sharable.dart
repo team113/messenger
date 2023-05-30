@@ -64,7 +64,7 @@ class SharableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style styleColor = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -72,10 +72,7 @@ class SharableTextField extends StatelessWidget {
         if (icon != null)
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 25),
-            child: Icon(
-              icon,
-              color: styleColor.colors.secondary,
-            ),
+            child: Icon(icon, color: style.colors.secondary),
           ),
         Expanded(
           child: ContextMenuRegion(
@@ -97,7 +94,7 @@ class SharableTextField extends StatelessWidget {
                   suffix: trailing == null ? Icons.ios_share : null,
                   trailing: trailing,
                   label: label,
-                  style: style,
+                  style: this.style,
                 ),
               ),
             ),

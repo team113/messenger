@@ -285,7 +285,7 @@ class _RetryImageState extends State<RetryImage> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: style.colors.onBackgroundOpacity2,
+                                  color: style.colors.onBackgroundOpacity20,
                                   blurRadius: 8,
                                   blurStyle: BlurStyle.outer,
                                 ),
@@ -351,10 +351,7 @@ class _RetryImageState extends State<RetryImage> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
-      child: KeyedSubtree(
-        key: Key('Image_${widget.url}'),
-        child: child,
-      ),
+      child: KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
     );
   }
 

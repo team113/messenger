@@ -1151,6 +1151,7 @@ class HiveRxChat extends RxChat {
                         .removeWhere((e) => e.user.id == action.user.id);
                     chatEntity.value.lastReads
                         .removeWhere((e) => e.memberId == action.user.id);
+                    reads.removeWhere((e) => e.memberId == action.user.id);
                     await _chatRepository.onMemberRemoved(id, action.user.id);
                     break;
 
