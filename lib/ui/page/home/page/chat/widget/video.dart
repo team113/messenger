@@ -17,11 +17,10 @@
 
 import 'dart:async';
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
-import 'package:video_player/video_player.dart';
 
 import 'desktop_controls.dart';
 import 'mobile_controls.dart';
@@ -69,23 +68,31 @@ class Video extends StatefulWidget {
 
 /// State of a [Video] used to initialize and dispose video controllers.
 class _VideoState extends State<Video> {
-  /// [VideoPlayerController] controlling the actual video stream.
-  late VideoPlayerController _controller;
-
-  /// [ChewieController] adding extra functionality over the
-  /// [VideoPlayerController], used to display a [Chewie] player.
-  ChewieController? _chewie;
-
-  /// Indicator whether the [_initVideo] has failed.
-  bool _hasError = false;
 
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
+  final MeeduPlayerController _meeduPlayerController = MeeduPlayerController(
+    controlsStyle: ControlsStyle.custom,
+    fits: [BoxFit.contain],
+    enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
+  );
+
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _meeduPlayerController.videoFit.value = BoxFit.contain;
+      await _meeduPlayerController.setDataSource(
+        DataSource(
+          type: DataSourceType.network,
+          source:
+              "https://movietrailers.apple.com/movies/paramount/the-spongebob-movie-sponge-on-the-run/the-spongebob-movie-sponge-on-the-run-big-game_h720p.mov",
+        ),
+        autoplay: true,
+        looping: false,
+      );
+    });
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
-    _initVideo();
     super.initState();
   }
 
@@ -93,15 +100,20 @@ class _VideoState extends State<Video> {
   void dispose() {
     widget.onController?.call(null);
     _loading?.cancel();
-    _controller.dispose();
-    _chewie?.dispose();
+    _meeduPlayerController.dispose();
     super.dispose();
   }
 
   @override
   void didUpdateWidget(Video oldWidget) {
     if (oldWidget.url != widget.url) {
-      _initVideo();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _meeduPlayerController.setDataSource(
+          DataSource(type: DataSourceType.network, source: widget.url),
+          autoplay: true,
+          looping: false,
+        );
+      });
     }
 
     super.didUpdateWidget(oldWidget);
@@ -113,113 +125,71 @@ class _VideoState extends State<Video> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      child: _controller.value.isInitialized
-          ? Theme(
-              data: ThemeData(platform: TargetPlatform.iOS),
-              child: Chewie(controller: _chewie!),
-            )
-          : _hasError
-              ? Center(
-                  key: const Key('Error'),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error,
-                        size: 48,
-                        color: style.colors.dangerColor,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Video playback is not yet supported\non your operating system',
-                        style: TextStyle(color: style.colors.onPrimary),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                )
-              : GestureDetector(
-                  key: Key(_loading == null ? 'Loading' : 'Box'),
-                  onTap: () {},
-                  child: Center(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.99,
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      decoration: BoxDecoration(
-                        color: style.colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: _loading != null
-                          ? const SizedBox()
-                          : const Center(child: CustomProgressIndicator()),
+      child: RxBuilder((_) {
+        return _meeduPlayerController.dataStatus.loaded
+            ? Theme(
+                data: ThemeData(platform: TargetPlatform.iOS),
+                child: Stack(
+                  children: [
+                    MeeduVideoPlayer(
+                      controller: _meeduPlayerController,
+                      customControls: (_, __, ___) => const SizedBox(),
+                      //     DesktopControls(
+                      //   onClose: widget.onClose,
+                      //   toggleFullscreen: widget.toggleFullscreen,
+                      //   isFullscreen: widget.isFullscreen,
+                      //   showInterfaceFor: widget.showInterfaceFor,
+                      // ),
                     ),
-                  ),
+                    DesktopControls(
+                      controller: _meeduPlayerController,
+                      onClose: widget.onClose,
+                      toggleFullscreen: widget.toggleFullscreen,
+                      isFullscreen: widget.isFullscreen,
+                      showInterfaceFor: widget.showInterfaceFor,
+                    ),
+                  ],
                 ),
+              )
+            : _meeduPlayerController.dataStatus.error
+                ? Center(
+                    key: const Key('Error'),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error,
+                          size: 48,
+                          color: style.colors.dangerColor,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'An error occurred',
+                          style: TextStyle(color: style.colors.onPrimary),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  )
+                : GestureDetector(
+                    key: Key(_loading == null ? 'Loading' : 'Box'),
+                    onTap: () {},
+                    child: Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.99,
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        decoration: BoxDecoration(
+                          color: style.colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: _loading != null
+                            ? const SizedBox()
+                            : const Center(child: CustomProgressIndicator()),
+                      ),
+                    ),
+                  );
+      }),
     );
   }
 
-  /// Initializes the [_controller] and [_chewie].
-  Future<void> _initVideo() async {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    try {
-      _controller = VideoPlayerController.network(widget.url);
-      widget.onController?.call(_controller);
-      await _controller.initialize();
-
-      _chewie = ChewieController(
-        videoPlayerController: _controller,
-        autoPlay: true,
-        looping: false,
-        showOptions: false,
-        autoInitialize: true,
-        showControlsOnInitialize: false,
-        materialProgressColors: ChewieProgressColors(
-          playedColor: style.colors.primaryHighlight,
-          handleColor: style.colors.primaryHighlight,
-          bufferedColor: style.colors.onPrimary,
-          backgroundColor: style.colors.onPrimaryOpacity50,
-        ),
-        customControls: PlatformUtils.isMobile
-            ? const MobileControls()
-            : DesktopControls(
-                onClose: widget.onClose,
-                toggleFullscreen: widget.toggleFullscreen,
-                isFullscreen: widget.isFullscreen,
-                showInterfaceFor: widget.showInterfaceFor,
-              ),
-        routePageBuilder: (context, animation, _, provider) {
-          return Theme(
-            data: ThemeData(platform: TargetPlatform.iOS),
-            child: AnimatedBuilder(
-              animation: animation,
-              builder: (context, child) {
-                return Scaffold(
-                  resizeToAvoidBottomInset: false,
-                  body: Container(
-                    alignment: Alignment.center,
-                    color: style.colors.onBackground,
-                    child: provider,
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      );
-    } on PlatformException catch (e) {
-      if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
-        if (widget.onError != null) {
-          await widget.onError?.call();
-        } else {
-          _hasError = true;
-        }
-      } else {
-        // Plugin is not supported on the current platform.
-        _hasError = true;
-      }
-    }
-
-    setState(() => _loading?.cancel());
-  }
 }

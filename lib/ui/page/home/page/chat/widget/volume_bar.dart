@@ -17,7 +17,7 @@
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
 
 import '/routes.dart';
 import '/themes.dart';
@@ -40,7 +40,7 @@ class VideoVolumeBar extends StatefulWidget {
         super(key: key);
 
   /// [VideoPlayerController] used to control the volume.
-  final VideoPlayerController controller;
+  final MeeduPlayerController controller;
 
   /// [ChewieProgressColors] theme of this [VideoVolumeBar].
   final ChewieProgressColors colors;
@@ -70,17 +70,17 @@ class VideoVolumeBar extends StatefulWidget {
 /// State of a [VideoVolumeBar] used to redraw on [controller] changes.
 class _VideoVolumeBarState extends State<VideoVolumeBar> {
   /// Returns [VideoPlayerController] used to control the volume.
-  VideoPlayerController get controller => widget.controller;
+  MeeduPlayerController get controller => widget.controller;
 
   @override
   void initState() {
     super.initState();
-    controller.addListener(_listener);
+    //controller.addListener(_listener);
   }
 
   @override
   void deactivate() {
-    controller.removeListener(_listener);
+    //controller.removeListener(_listener);
     super.deactivate();
   }
 
@@ -90,21 +90,23 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
 
     return GestureDetector(
       onHorizontalDragStart: (DragStartDetails details) {
-        if (controller.value.isInitialized) {
-          widget.onDragStart?.call();
-        }
+        //if (controller.isInitialized) {
+        widget.onDragStart?.call();
+        //}
       },
       onHorizontalDragUpdate: (DragUpdateDetails details) {
-        if (controller.value.isInitialized) {
-          _seekToRelativePosition(details.globalPosition);
-          widget.onDragUpdate?.call();
-        }
+        //if (controller.value.isInitialized) {
+        _seekToRelativePosition(details.globalPosition);
+        widget.onDragUpdate?.call();
+        //}
       },
       onHorizontalDragEnd: (DragEndDetails details) => widget.onDragEnd?.call(),
       onTapDown: (TapDownDetails details) {
-        if (controller.value.isInitialized) {
-          _seekToRelativePosition(details.globalPosition);
-        }
+        controller.buffered;
+        controller.volume;
+        //if (controller.value.isInitialized) {
+        _seekToRelativePosition(details.globalPosition);
+        //}
       },
       child: LayoutBuilder(builder: (context, constraints) {
         return Center(
@@ -112,14 +114,20 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
             height: constraints.biggest.height,
             width: constraints.biggest.width,
             color: style.colors.transparent,
-            child: CustomPaint(
-              painter: _ProgressBarPainter(
-                value: controller.value,
-                colors: widget.colors,
-                barHeight: widget.barHeight,
-                handleHeight: widget.handleHeight,
-                drawShadow: widget.drawShadow,
-              ),
+            child: RxBuilder(
+              (_) {
+                return CustomPaint(
+                  painter: _ProgressBarPainter(
+                    duration: controller.duration.value,
+                    volume: controller.volume.value,
+                    buffered: controller.buffered.value,
+                    colors: widget.colors,
+                    barHeight: widget.barHeight,
+                    handleHeight: widget.handleHeight,
+                    drawShadow: widget.drawShadow,
+                  ),
+                );
+              },
             ),
           ),
         );
@@ -135,18 +143,14 @@ class _VideoVolumeBarState extends State<VideoVolumeBar> {
     final double relative = tapPos.dx / box.size.width;
     controller.setVolume(relative);
   }
-
-  /// [controller] listener rebuilding the widget if [mounted].
-  void _listener() {
-    if (!mounted) return;
-    setState(() {});
-  }
 }
 
 /// [CustomPainter] drawing a video volume progress bar.
 class _ProgressBarPainter extends CustomPainter {
   _ProgressBarPainter({
-    required this.value,
+    required this.duration,
+    required this.volume,
+    required this.buffered,
     required this.colors,
     required this.barHeight,
     required this.handleHeight,
@@ -154,7 +158,13 @@ class _ProgressBarPainter extends CustomPainter {
   });
 
   /// [VideoPlayerValue], used to get the current volume value.
-  VideoPlayerValue value;
+  Duration duration;
+
+  /// [VideoPlayerValue], used to get the current volume value.
+  double volume;
+
+  /// [VideoPlayerValue], used to get the current volume value.
+  List<DurationRange> buffered;
 
   /// [ChewieProgressColors] theme of the progress bar.
   ChewieProgressColors colors;
@@ -188,15 +198,15 @@ class _ProgressBarPainter extends CustomPainter {
       colors.backgroundPaint,
     );
 
-    if (!value.isInitialized) {
-      return;
-    }
+    // if (!value.isInitialized) {
+    //   return;
+    // }
 
-    final double playedPart = value.volume * size.width;
+    final double playedPart = volume * size.width;
 
-    for (final DurationRange range in value.buffered) {
-      final double start = range.startFraction(value.duration) * size.width;
-      final double end = range.endFraction(value.duration) * size.width;
+    for (final DurationRange range in buffered) {
+      final double start = range.startFraction(duration) * size.width;
+      final double end = range.endFraction(duration) * size.width;
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromPoints(
