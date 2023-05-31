@@ -17,7 +17,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

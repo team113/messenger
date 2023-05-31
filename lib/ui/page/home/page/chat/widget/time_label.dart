@@ -16,8 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:messenger/util/date_time.dart';
+import 'package:messenger/l10n/l10n.dart';
 
 import '/themes.dart';
 import 'swipeable_status.dart';
@@ -53,7 +52,7 @@ class TimeLabelWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         swipeable: Padding(
           padding: const EdgeInsets.only(right: 4),
-          child: Text(DateFormat('dd.MM.yy').format(time)),
+          child: Text(time.ddMMyy),
         ),
         child: AnimatedOpacity(
           key: Key('$time'),

@@ -775,15 +775,13 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is DateTimeElement) {
+      bool isStickyVisible = c.stickyIndex.value == i && c.showSticky.value;
+
       return SelectionContainer.disabled(
         child: TimeLabelWidget(
           time: element.id.at.val,
           animation: _animation,
-          opacity: c.stickyIndex.value == i
-              ? c.showSticky.isTrue
-                  ? 1
-                  : 0
-              : 1,
+          opacity: isStickyVisible ? 1 : 0,
         ),
       );
     } else if (element is UnreadMessagesElement) {

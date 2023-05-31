@@ -19,8 +19,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -28,6 +26,8 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
