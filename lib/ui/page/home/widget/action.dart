@@ -19,19 +19,18 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
-import 'dense.dart';
 
 /// [Widget] which builds a stylized button representing a single action.
 class ActionButton extends StatelessWidget {
   const ActionButton({
     super.key,
-    this.text,
+    this.text = '',
     this.onPressed,
     this.trailing,
   });
 
   /// Text to display in this [ActionButton].
-  final String? text;
+  final String text;
 
   /// Trailing to display in this [ActionButton].
   final Widget? trailing;
@@ -43,20 +42,18 @@ class ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Dense(
-        FieldButton(
-          onPressed: onPressed,
-          text: text ?? '',
-          style: TextStyle(color: style.colors.primary),
-          trailing: trailing != null
-              ? Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(scale: 1.15, child: trailing),
-                )
-              : null,
-        ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
+      child: FieldButton(
+        onPressed: onPressed,
+        text: text,
+        style: TextStyle(color: style.colors.primary),
+        trailing: trailing != null
+            ? Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(scale: 1.15, child: trailing),
+              )
+            : null,
       ),
     );
   }

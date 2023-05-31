@@ -18,33 +18,31 @@
 import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
+
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/padding.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns a [User.status] copyable field.
-class UserStatus extends StatelessWidget {
-  const UserStatus({super.key, this.user});
+class UserStatusWidget extends StatelessWidget {
+  const UserStatusWidget({super.key, this.status});
 
-  /// Unified reactive [User] entity.
-  final RxUser? user;
+  /// Custom text status of this [User].
+  final UserTextStatus? status;
 
   @override
   Widget build(BuildContext context) {
-    final UserTextStatus? status = user?.user.value.status;
-
     if (status == null) {
-      return Container();
+      return const SizedBox();
     }
 
     return BasicPadding(
       CopyableTextField(
         key: const Key('StatusField'),
-        state: TextFieldState(text: status.val),
+        state: TextFieldState(text: status!.val),
         label: 'label_status'.l10n,
-        copy: status.val,
+        copy: status!.val,
       ),
     );
   }

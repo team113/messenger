@@ -18,18 +18,17 @@
 import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/padding.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns a [User.num] copyable field.
-class UserNum extends StatelessWidget {
-  const UserNum({super.key, this.user});
+class UserNumWidget extends StatelessWidget {
+  const UserNumWidget({super.key, required this.num});
 
-  /// Unified reactive [User] entity.
-  final RxUser? user;
+  /// Unique number of this [User].
+  final UserNum num;
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +36,13 @@ class UserNum extends StatelessWidget {
       CopyableTextField(
         key: const Key('UserNum'),
         state: TextFieldState(
-          text: user!.user.value.num.val.replaceAllMapped(
+          text: num.val.replaceAllMapped(
             RegExp(r'.{4}'),
             (match) => '${match.group(0)} ',
           ),
         ),
         label: 'label_num'.l10n,
-        copy: user?.user.value.num.val,
+        copy: num.val,
       ),
     );
   }

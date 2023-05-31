@@ -23,8 +23,8 @@ import '/ui/page/home/widget/padding.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns the blacklisted information of this [User].
-class UserBlocked extends StatelessWidget {
-  const UserBlocked({super.key, this.isBlacklisted});
+class UserBlockedWidget extends StatelessWidget {
+  const UserBlockedWidget({super.key, this.isBlacklisted});
 
   /// Indicator whether [User] is blacklisted.
   final BlacklistRecord? isBlacklisted;

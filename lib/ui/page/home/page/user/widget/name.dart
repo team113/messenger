@@ -18,18 +18,17 @@
 import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/padding.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns a [User.name] copyable field.
-class UserName extends StatelessWidget {
-  const UserName({super.key, this.user});
+class UserNameWidget extends StatelessWidget {
+  const UserNameWidget({super.key, required this.user});
 
-  /// Unified reactive [User] entity.
-  final RxUser? user;
+  /// Unique [User].
+  final User user;
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +36,10 @@ class UserName extends StatelessWidget {
       CopyableTextField(
         key: const Key('NameField'),
         state: TextFieldState(
-          text: '${user?.user.value.name?.val ?? user?.user.value.num.val}',
+          text: user.name?.val ?? user.num.val,
         ),
         label: 'label_name'.l10n,
-        copy: '${user?.user.value.name?.val ?? user?.user.value.num.val}',
+        copy: user.name?.val ?? user.num.val,
       ),
     );
   }

@@ -17,31 +17,30 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/user/controller.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/padding.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns a [User.presence] text.
-class UserPresence extends StatelessWidget {
-  const UserPresence({super.key, this.user});
+class UserPresenceWidget extends StatelessWidget {
+  const UserPresenceWidget({super.key, this.user});
 
-  /// Unified reactive [User] entity.
-  final RxUser? user;
+  /// Unique [User].
+  final User? user;
 
   @override
   Widget build(BuildContext context) {
-    final Presence? presence = user?.user.value.presence;
+    final Presence? presence = user!.presence;
     if (presence == null) {
       return Container();
     }
 
-    final subtitle = user?.user.value.getStatus();
+    final subtitle = user!.getStatus();
 
     return BasicPadding(
       ReactiveTextField(
