@@ -21,7 +21,7 @@ import '../widget/caption.dart';
 
 /// Fonts tab view of the [Routes.style] page.
 class FontStyleTabView extends StatelessWidget {
-  const FontStyleTabView({Key? key}) : super(key: key);
+  const FontStyleTabView({super.key});
 
   Widget _font(String desc, String sample, TextStyle style) => Card(
         elevation: 3,

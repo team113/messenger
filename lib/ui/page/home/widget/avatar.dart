@@ -398,10 +398,9 @@ class AvatarWidget extends StatelessWidget {
               Center(
                 child: Text(
                   (title ?? '??').initials(),
-                  style: fonts.titleMedium!.copyWith(
+                  style: style.boldBody.copyWith(
                     fontSize: fonts.titleMedium!.fontSize! * (maxWidth / 40.0),
                     color: style.colors.onPrimary,
-                    fontWeight: FontWeight.bold,
                   ),
 
                   // Disable the accessibility size settings for this [Text].

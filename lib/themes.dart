@@ -77,9 +77,7 @@ class Themes {
           Style(
             colors: colors,
             barrierColor: colors.onBackgroundOpacity50,
-            boldBody: textStyle.copyWith(
-              color: colors.onBackground,
-            ),
+            boldBody: textStyle.copyWith(fontWeight: FontWeight.bold),
             cardBlur: 5,
             cardBorder:
                 Border.all(color: colors.secondaryHighlightDark, width: 0.5),
