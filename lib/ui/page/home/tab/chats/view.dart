@@ -470,7 +470,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         element.category.name.capitalizeFirst!,
-                                        style: fonts.bodySmall!,
+                                        style: fonts.bodyLarge,
                                       ),
                                     ),
                                   ),

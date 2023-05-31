@@ -443,7 +443,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             selectable: PlatformUtils.isDesktop || menu,
             onChanged: (a) => _selection = a,
             onSelecting: widget.onSelecting,
-            style: fonts.displaySmall,
+            style: fonts.labelLarge,
           );
         }
       } else if (quote is ChatCallQuote) {
