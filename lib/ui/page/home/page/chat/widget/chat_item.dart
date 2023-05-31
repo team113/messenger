@@ -1364,7 +1364,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           item.text!.val,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: fonts.displaySmall,
+          style: fonts.labelLarge,
         );
       }
     } else if (item is ChatCallQuote) {
