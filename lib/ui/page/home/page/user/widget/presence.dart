@@ -28,19 +28,19 @@ import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns a [User.presence] text.
 class UserPresenceWidget extends StatelessWidget {
-  const UserPresenceWidget({super.key, this.user});
+  const UserPresenceWidget({super.key, required this.user});
 
   /// Unique [User].
-  final User? user;
+  final User user;
 
   @override
   Widget build(BuildContext context) {
-    final Presence? presence = user!.presence;
+    final Presence? presence = user.presence;
     if (presence == null) {
       return Container();
     }
 
-    final subtitle = user!.getStatus();
+    final subtitle = user.getStatus();
 
     return BasicPadding(
       ReactiveTextField(

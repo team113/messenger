@@ -20,7 +20,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -32,10 +31,10 @@ import '/util/platform_utils.dart';
 /// [Widget] which returns a [WidgetButton] for removing the [User] from the
 /// blacklist.
 class UserBlockedField extends StatelessWidget {
-  const UserBlockedField({super.key, required this.unblacklist});
+  const UserBlockedField({super.key, required this.onPressed});
 
-  /// Removes the [User] from the blacklist of the authenticated [RxUser].
-  final Future<void> Function() unblacklist;
+  /// Callback, called when this [UserBlockedField] is pressed.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +77,7 @@ class UserBlockedField extends StatelessWidget {
                       child: Transform.translate(
                         offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
                         child: WidgetButton(
-                          onPressed: unblacklist,
+                          onPressed: onPressed,
                           child: IgnorePointer(
                             child: ReactiveTextField(
                               enabled: false,
