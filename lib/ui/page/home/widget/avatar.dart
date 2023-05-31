@@ -401,7 +401,7 @@ class AvatarWidget extends StatelessWidget {
                   style: fonts.titleMedium!.copyWith(
                     fontSize: fonts.titleMedium!.fontSize! * (maxWidth / 40.0),
                     color: style.colors.onPrimary,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.bold,
                   ),
 
                   // Disable the accessibility size settings for this [Text].
