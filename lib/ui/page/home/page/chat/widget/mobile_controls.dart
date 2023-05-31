@@ -331,9 +331,9 @@ class _MobileControlsState extends State<MobileControls>
             ),
           )
         ],
-        style: fonts.bodyMedium!.copyWith(
+        style: style.boldBody.copyWith(
+          fontSize: fonts.bodyMedium!.fontSize,
           color: style.colors.onPrimary,
-          fontWeight: FontWeight.bold,
         ),
       ),
     );

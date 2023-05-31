@@ -206,14 +206,14 @@ class _DataAttachmentState extends State<DataAttachment> {
                             Flexible(
                               child: Text(
                                 p.basenameWithoutExtension(e.filename),
-                                style: fonts.displaySmall,
+                                style: fonts.labelLarge,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Text(
                               p.extension(e.filename),
-                              style: fonts.displaySmall,
+                              style: fonts.labelLarge,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -228,7 +228,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                           }),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: fonts.bodySmall!.copyWith(
+                          style: fonts.bodyMedium!.copyWith(
                             color: style.colors.secondary,
                           ),
                         ),
