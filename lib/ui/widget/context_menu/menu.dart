@@ -180,12 +180,11 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: fonts.displaySmall!.copyWith(
+                style: fonts.labelLarge!.copyWith(
                   color: (isMouseOver && !context.isMobile)
                       ? style.colors.onPrimary
                       : style.colors.onBackground,
                   fontSize: context.isMobile ? 17 : 14,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
               if (PlatformUtils.isMobile && widget.trailing != null) ...[

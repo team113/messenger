@@ -90,7 +90,9 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: fonts.bodySmall,
+                        style: fonts.bodySmall!.copyWith(
+                          color: style.colors.onBackground,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       SvgImage.asset('assets/icons/copy.svg', height: 12),
@@ -217,7 +219,7 @@ class MessageInfo extends StatelessWidget {
                                       'minute':
                                           '${time.minute}'.padLeft(2, '0'),
                                     }),
-                                    style: fonts.bodyLarge!.copyWith(
+                                    style: fonts.bodySmall!.copyWith(
                                       color: style.colors.secondary,
                                     ),
                                   ),
