@@ -398,8 +398,8 @@ class AvatarWidget extends StatelessWidget {
               Center(
                 child: Text(
                   (title ?? '??').initials(),
-                  style: fonts.headlineMedium!.copyWith(
-                    fontSize: 15 * (maxWidth / 40.0),
+                  style: fonts.titleMedium!.copyWith(
+                    fontSize: fonts.titleMedium!.fontSize! * (maxWidth / 40.0),
                     color: style.colors.onPrimary,
                     fontWeight: FontWeight.w700,
                   ),
