@@ -22,7 +22,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '../../controller.dart';
 import '../call_cover.dart';
-import '../hand_raised_icon.dart';
+import '../raised_hand.dart';
 import '../video_view.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
@@ -160,9 +160,7 @@ class ParticipantWidget extends StatelessWidget {
             return AnimatedSwitcher(duration: 250.milliseconds, child: child);
           }),
           Positioned.fill(
-            child: HandRaisedIcon(
-              raised: participant.member.isHandRaised.value,
-            ),
+            child: RaisedHand(participant.member.isHandRaised.value),
           ),
         ],
       );

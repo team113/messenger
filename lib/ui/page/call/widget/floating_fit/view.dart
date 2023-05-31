@@ -153,60 +153,63 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                   ],
                 ),
                 if (!widget.fit)
-                  Obx(
-                    () => _FloatingPanel<T>(
-                      c.left.value,
-                      c.top.value,
-                      c.right.value,
-                      c.bottom.value,
-                      floatingKey: c.floatingKey,
-                      width: c.width.value,
-                      height: c.height.value,
-                      item: _paneled,
-                      itemBuilder: () => widget.itemBuilder(_paneled.item),
-                      overlayBuilder: () =>
-                          widget.overlayBuilder(_paneled.item),
-                      onPointerDown: (_) => widget.onManipulated?.call(true),
-                      onPointerUp: (_) => widget.onManipulated?.call(false),
-                      onTap: _swap,
-                      onScaleStart: (d) {
-                        c.bottomShifted = null;
+                  Positioned.fill(
+                    child: Obx(() {
+                      return _FloatingPanel<T>(
+                        panelKey: c.floatingKey,
+                        left: c.left.value,
+                        top: c.top.value,
+                        right: c.right.value,
+                        bottom: c.bottom.value,
+                        width: c.width.value,
+                        height: c.height.value,
+                        item: _paneled,
+                        itemBuilder: () => widget.itemBuilder(_paneled.item),
+                        overlayBuilder: () =>
+                            widget.overlayBuilder(_paneled.item),
+                        onPointerDown: (_) => widget.onManipulated?.call(true),
+                        onPointerUp: (_) => widget.onManipulated?.call(false),
+                        onTap: _swap,
+                        onScaleStart: (d) {
+                          c.bottomShifted = null;
 
-                        c.left.value ??=
-                            c.size.width - c.width.value - (c.right.value ?? 0);
-                        c.top.value ??= c.size.height -
-                            c.height.value -
-                            (c.bottom.value ?? 0);
+                          c.left.value ??= c.size.width -
+                              c.width.value -
+                              (c.right.value ?? 0);
+                          c.top.value ??= c.size.height -
+                              c.height.value -
+                              (c.bottom.value ?? 0);
 
-                        c.right.value = null;
-                        c.bottom.value = null;
+                          c.right.value = null;
+                          c.bottom.value = null;
 
-                        if (d.pointerCount == 1) {
-                          c.dragged.value = true;
-                          c.calculatePanning(d.focalPoint);
+                          if (d.pointerCount == 1) {
+                            c.dragged.value = true;
+                            c.calculatePanning(d.focalPoint);
+                            c.applyConstraints();
+                          } else if (d.pointerCount == 2) {
+                            c.unscaledSize = max(c.width.value, c.height.value);
+                            c.scaled.value = true;
+                            c.calculatePanning(d.focalPoint);
+                          }
+                        },
+                        onScaleUpdate: (d) {
+                          c.updateOffset(d.focalPoint);
+                          if (d.pointerCount == 2) {
+                            c.scaleFloating(d.scale);
+                          }
+
                           c.applyConstraints();
-                        } else if (d.pointerCount == 2) {
-                          c.unscaledSize = max(c.width.value, c.height.value);
-                          c.scaled.value = true;
-                          c.calculatePanning(d.focalPoint);
-                        }
-                      },
-                      onScaleUpdate: (d) {
-                        c.updateOffset(d.focalPoint);
-                        if (d.pointerCount == 2) {
-                          c.scaleFloating(d.scale);
-                        }
+                        },
+                        onScaleEnd: (d) {
+                          c.dragged.value = false;
+                          c.scaled.value = false;
+                          c.unscaledSize = null;
 
-                        c.applyConstraints();
-                      },
-                      onScaleEnd: (d) {
-                        c.dragged.value = false;
-                        c.scaled.value = false;
-                        c.unscaledSize = null;
-
-                        c.updateAttach();
-                      },
-                    ),
+                          c.updateAttach();
+                        },
+                      );
+                    }),
                   ),
               ],
             );
@@ -267,20 +270,19 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
   }
 }
 
-/// [Widget] which returns visual representation of a floating panel.
+/// Scalable floating panel of the provided [item].
 class _FloatingPanel<T> extends StatelessWidget {
-  const _FloatingPanel(
+  const _FloatingPanel({
+    this.panelKey,
     this.left,
     this.top,
     this.right,
-    this.bottom, {
-    super.key,
+    this.bottom,
     required this.item,
     required this.itemBuilder,
     required this.overlayBuilder,
     required this.width,
     required this.height,
-    this.floatingKey,
     this.onTap,
     this.onScaleStart,
     this.onScaleUpdate,
@@ -288,6 +290,9 @@ class _FloatingPanel<T> extends StatelessWidget {
     this.onPointerDown,
     this.onPointerUp,
   });
+
+  /// [Key] of the panel itself.
+  final Key? panelKey;
 
   /// [_FloatingItem] to put in this [_FloatingPanel].
   final _FloatingItem<T> item;
@@ -310,9 +315,6 @@ class _FloatingPanel<T> extends StatelessWidget {
   /// Height of this [_FloatingPanel].
   final double height;
 
-  /// [GlobalKey] of this [_FloatingPanel].
-  final GlobalKey<State<StatefulWidget>>? floatingKey;
-
   /// Callback, called when a scale operation starts.
   final void Function(ScaleStartDetails)? onScaleStart;
 
@@ -322,18 +324,17 @@ class _FloatingPanel<T> extends StatelessWidget {
   /// Callback, called when a scale operation ends.
   final void Function(ScaleEndDetails)? onScaleEnd;
 
-  /// Builder building the provided item.
+  /// Builder building the [item].
   final Widget Function() itemBuilder;
 
-  /// Builder building the provided item's overlay.
+  /// Builder building the [item]'s overlay.
   final Widget Function() overlayBuilder;
 
-  /// Callback, called when a pointer comes into contact with the screen, or
-  /// has its button pressed at this widget's location.
+  /// Callback, called when a pointer comes into contact with [_FloatingPanel].
   final void Function(PointerDownEvent)? onPointerDown;
 
   /// Callback, called when a pointer that triggered an [onPointerDown] is no
-  /// longer in contact with the screen.
+  /// longer in contact with the [_FloatingPanel].
   final void Function(PointerUpEvent)? onPointerUp;
 
   /// Callback, called when this [_FloatingPanel] is tapped.
@@ -341,25 +342,22 @@ class _FloatingPanel<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          _buildShadow(context),
-          _buildBackground(context),
-          _buildPanel(),
-          _buildGestureDetector(context),
-        ],
-      ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _buildShadow(context),
+        _buildBackground(context),
+        _buildPanel(),
+        _buildGestures(context),
+      ],
     );
   }
 
-  /// Shadow around this [_FloatingPanel].
+  /// Builds a [Container] with [CustomBoxShadow].
   Widget _buildShadow(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Positioned(
-      key: floatingKey,
       left: left,
       right: right,
       top: top,
@@ -412,7 +410,7 @@ class _FloatingPanel<T> extends StatelessWidget {
     );
   }
 
-  /// Content of this [_FloatingPanel].
+  /// Builds the [itemBuilder] with its [overlayBuilder] in a [Stack].
   Widget _buildPanel() {
     return Positioned(
       left: left,
@@ -424,6 +422,7 @@ class _FloatingPanel<T> extends StatelessWidget {
         width: width,
         height: height,
         child: ClipRRect(
+          key: panelKey,
           borderRadius: BorderRadius.circular(10),
           child: item.entry == null
               ? KeyedSubtree(
@@ -444,8 +443,8 @@ class _FloatingPanel<T> extends StatelessWidget {
     );
   }
 
-  /// Gestures controlling this [_FloatingPanel].
-  Widget _buildGestureDetector(BuildContext context) {
+  /// Builds a [GestureDetector] recognizing tap and scale gestures.
+  Widget _buildGestures(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Positioned(

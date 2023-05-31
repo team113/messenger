@@ -21,8 +21,8 @@ import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// [Widget] which returns a raised hand icon with animation.
-class HandRaisedIcon extends StatelessWidget {
-  const HandRaisedIcon({super.key, required this.raised});
+class RaisedHand extends StatelessWidget {
+  const RaisedHand(this.raised, {super.key});
 
   /// Indicator whether a hand is raised or not.
   final bool raised;
@@ -33,7 +33,7 @@ class HandRaisedIcon extends StatelessWidget {
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 150),
-      opacity: raised ? 1.0 : 0.0,
+      opacity: raised ? 1 : 0,
       child: CircleAvatar(
         radius: 45,
         backgroundColor: style.colors.secondaryOpacity87,

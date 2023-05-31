@@ -1210,7 +1210,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           if (widget.timestamp)
                             WidgetSpan(
                               child: Opacity(
-                                opacity: 1,
+                                opacity: 0,
                                 child: Padding(
                                   padding: const EdgeInsets.only(left: 4),
                                   child: _timestamp(widget.item.value),
