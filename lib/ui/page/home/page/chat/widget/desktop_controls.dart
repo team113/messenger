@@ -29,7 +29,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
 import 'package:get/get.dart';
 
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -72,12 +71,6 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Height of the bottom controls bar.
   final _barHeight = 48.0 * 1.5;
 
-  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
-  late MeeduPlayerController _meeduController;
-
-  /// [MeeduPlayerController], previously assigned to the [_meeduController].
-  MeeduPlayerController? _oldController;
-
   /// Indicator whether user interface should be hidden or not.
   bool _hideStuff = true;
 
@@ -116,6 +109,13 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   void initState() {
+    _statusSubscription =
+        widget.controller.playerStatus.status.stream.listen((event) {
+      if (event == PlayerStatus.paused) {
+        _startInterfaceTimer(3.seconds);
+      }
+    });
+
     Future.delayed(
       Duration.zero,
       () => _startInterfaceTimer(widget.showInterfaceFor),
@@ -125,27 +125,16 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   void dispose() {
-    _dispose();
+    _statusSubscription?.cancel();
+    _hideTimer?.cancel();
+    _initTimer?.cancel();
+    _showAfterExpandCollapseTimer?.cancel();
     _volumeEntry?.remove();
     super.dispose();
   }
 
   @override
-  void didChangeDependencies() {
-    _meeduController = widget.controller; //MeeduPlayerController.of(context);
-
-    if (_oldController != _meeduController) {
-      _oldController = _meeduController;
-      _dispose();
-      _initialize();
-    }
-
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-
     return MouseRegion(
       onHover: (_) => _cancelAndRestartTimer(),
       child: GestureDetector(
@@ -182,7 +171,7 @@ class _DesktopControlsState extends State<DesktopControls>
               ),
             ),
             RxBuilder((context) {
-              return _meeduController.isBuffering.value
+              return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
                   : _buildHitArea();
             }),
@@ -218,31 +207,11 @@ class _DesktopControlsState extends State<DesktopControls>
     );
   }
 
-  /// Initializes this [DesktopControls].
-  Future<void> _initialize() async {
-    _statusSubscription = _meeduController.playerStatus.status.stream
-        .listen((event) => _updateState());
-    _updateState();
-
-    if (_meeduController.playerStatus.playing || _meeduController.autoplay) {
-      _startHideTimer();
-    }
-
-  }
-
-  /// Disposes this [DesktopControls].
-  void _dispose() {
-    _statusSubscription?.cancel();
-    _hideTimer?.cancel();
-    _initTimer?.cancel();
-    _showAfterExpandCollapseTimer?.cancel();
-  }
-
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    final iconColor = Theme.of(router.context!).textTheme.labelLarge!.color;
+    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
       isOpen: _showBottomBar || _showInterface,
@@ -264,13 +233,13 @@ class _DesktopControlsState extends State<DesktopControls>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(width: 7),
-                  _buildPlayPause(_meeduController),
+                  _buildPlayPause(widget.controller),
                   const SizedBox(width: 12),
                   _buildPosition(iconColor),
                   const SizedBox(width: 12),
                   _buildProgressBar(),
                   const SizedBox(width: 12),
-                  _buildMuteButton(_meeduController),
+                  _buildMuteButton(widget.controller),
                   const SizedBox(width: 12),
                   _buildExpandButton(),
                   const SizedBox(width: 12),
@@ -285,7 +254,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Obx(
       () => GestureDetector(
@@ -308,16 +277,16 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return RxBuilder((_) {
       final bool isFinished =
-          _meeduController.position.value >= _meeduController.duration.value;
+          widget.controller.position.value >= widget.controller.duration.value;
 
       return Center(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
-          child: _meeduController.playerStatus.playing
+          child: widget.controller.playerStatus.playing
               ? Container()
               : AnimatedOpacity(
                   opacity:
@@ -336,7 +305,7 @@ class _DesktopControlsState extends State<DesktopControls>
                           ? Icon(Icons.replay, color: style.colors.onPrimary)
                           : AnimatedPlayPause(
                               color: style.colors.onPrimary,
-                              playing: _meeduController.playerStatus.playing,
+                              playing: widget.controller.playerStatus.playing,
                             ),
                       onPressed: _playPause,
                     ),
@@ -349,7 +318,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the play/pause button.
   Widget _buildPlayPause(MeeduPlayerController controller) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Transform.translate(
       offset: const Offset(0, 0),
@@ -372,7 +341,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the mute/unmute button with a volume overlay above it.
   Widget _buildMuteButton(MeeduPlayerController controller) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return MouseRegion(
       onEnter: (_) {
@@ -392,7 +361,7 @@ class _DesktopControlsState extends State<DesktopControls>
       child: GestureDetector(
         onTap: () {
           _cancelAndRestartTimer();
-          if (_meeduController.volume.value == 0) {
+          if (widget.controller.volume.value == 0) {
             controller.setVolume(_latestVolume ?? 0.5);
           } else {
             _latestVolume = controller.volume.value;
@@ -405,7 +374,7 @@ class _DesktopControlsState extends State<DesktopControls>
             height: _barHeight,
             child: RxBuilder((_) {
               return Icon(
-                _meeduController.volume.value > 0
+                widget.controller.volume.value > 0
                     ? Icons.volume_up
                     : Icons.volume_off,
                 color: style.colors.onPrimary,
@@ -420,7 +389,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Stack(
       children: [
@@ -460,7 +429,7 @@ class _DesktopControlsState extends State<DesktopControls>
                               horizontal: 10,
                             ),
                             child: VideoVolumeBar(
-                              _meeduController,
+                              widget.controller,
                               colors: ChewieProgressColors(
                                 playedColor: style.colors.primary,
                                 handleColor: style.colors.primary,
@@ -487,11 +456,11 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return RxBuilder((_) {
-      final position = _meeduController.position.value;
-      final duration = _meeduController.duration.value;
+      final position = widget.controller.position.value;
+      final duration = widget.controller.duration.value;
 
       return Text(
         '${formatDuration(position)} / ${formatDuration(duration)}',
@@ -502,11 +471,11 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Expanded(
       child: ProgressBar(
-        _meeduController,
+        widget.controller,
         barHeight: 2,
         handleHeight: 6,
         drawShadow: false,
@@ -546,18 +515,18 @@ class _DesktopControlsState extends State<DesktopControls>
   /// the playback is done.
   void _playPause() {
     final isFinished =
-        _meeduController.position.value >= _meeduController.duration.value;
+        widget.controller.position.value >= widget.controller.duration.value;
 
-    if (_meeduController.playerStatus.playing) {
+    if (widget.controller.playerStatus.playing) {
       _cancelAndRestartTimer();
-      _meeduController.pause();
+      widget.controller.pause();
     } else {
       _cancelAndRestartTimer();
 
       if (isFinished) {
-        _meeduController.seekTo(const Duration());
+        widget.controller.seekTo(const Duration());
       }
-      _meeduController.play();
+      widget.controller.play();
     }
 
     setState(() {});
@@ -587,14 +556,5 @@ class _DesktopControlsState extends State<DesktopControls>
     _hideTimer = Timer(duration ?? 1.seconds, () {
       setState(() => _hideStuff = true);
     });
-  }
-
-  /// Invokes [setState] with a new [_latestValue] if [mounted].
-  void _updateState() {
-    if (!mounted) return;
-
-    if (!_meeduController.playerStatus.playing) {
-      _startInterfaceTimer(3.seconds);
-    }
   }
 }

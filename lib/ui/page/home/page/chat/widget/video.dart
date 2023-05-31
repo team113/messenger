@@ -17,10 +17,12 @@
 
 import 'dart:async';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/backoff.dart';
 
 import 'desktop_controls.dart';
 import 'mobile_controls.dart';
@@ -66,9 +68,8 @@ class Video extends StatefulWidget {
   State<Video> createState() => _VideoState();
 }
 
-/// State of a [Video] used to initialize and dispose video controllers.
+/// State of a [Video] used to initialize and dispose video controller.
 class _VideoState extends State<Video> {
-
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
@@ -76,6 +77,8 @@ class _VideoState extends State<Video> {
     controlsStyle: ControlsStyle.custom,
     fits: [BoxFit.contain],
     enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
+    loadingWidget: const SizedBox(),
+    showLogs: kDebugMode,
   );
 
   @override
@@ -83,16 +86,33 @@ class _VideoState extends State<Video> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _meeduPlayerController.videoFit.value = BoxFit.contain;
       await _meeduPlayerController.setDataSource(
-        DataSource(
-          type: DataSourceType.network,
-          source:
-              "https://movietrailers.apple.com/movies/paramount/the-spongebob-movie-sponge-on-the-run/the-spongebob-movie-sponge-on-the-run-big-game_h720p.mov",
-        ),
+        DataSource(type: DataSourceType.network, source: widget.url),
         autoplay: true,
         looping: false,
       );
     });
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
+
+    bool shouldReload = false;
+    Backoff.run(() async {
+      try {
+        await PlatformUtils.dio.head(widget.url);
+        if (shouldReload) {
+          await _meeduPlayerController.setDataSource(
+            DataSource(type: DataSourceType.network, source: widget.url),
+            autoplay: true,
+            looping: false,
+          );
+        }
+      } catch (e) {
+        if (e is DioError && e.response?.statusCode == 403) {
+          widget.onError?.call();
+        } else {
+          shouldReload = true;
+          rethrow;
+        }
+      }
+    });
     super.initState();
   }
 
@@ -127,29 +147,22 @@ class _VideoState extends State<Video> {
       duration: const Duration(milliseconds: 300),
       child: RxBuilder((_) {
         return _meeduPlayerController.dataStatus.loaded
-            ? Theme(
-                data: ThemeData(platform: TargetPlatform.iOS),
-                child: Stack(
-                  children: [
-                    MeeduVideoPlayer(
-                      controller: _meeduPlayerController,
-                      customControls: (_, __, ___) => const SizedBox(),
-                      //     DesktopControls(
-                      //   onClose: widget.onClose,
-                      //   toggleFullscreen: widget.toggleFullscreen,
-                      //   isFullscreen: widget.isFullscreen,
-                      //   showInterfaceFor: widget.showInterfaceFor,
-                      // ),
-                    ),
-                    DesktopControls(
-                      controller: _meeduPlayerController,
-                      onClose: widget.onClose,
-                      toggleFullscreen: widget.toggleFullscreen,
-                      isFullscreen: widget.isFullscreen,
-                      showInterfaceFor: widget.showInterfaceFor,
-                    ),
-                  ],
-                ),
+            ? Stack(
+                children: [
+                  MeeduVideoPlayer(
+                    controller: _meeduPlayerController,
+                    customControls: (_, __, ___) => const SizedBox(),
+                  ),
+                  PlatformUtils.isMobile
+                      ? MobileControls(controller: _meeduPlayerController)
+                      : DesktopControls(
+                          controller: _meeduPlayerController,
+                          onClose: widget.onClose,
+                          toggleFullscreen: widget.toggleFullscreen,
+                          isFullscreen: widget.isFullscreen,
+                          showInterfaceFor: widget.showInterfaceFor,
+                        ),
+                ],
               )
             : _meeduPlayerController.dataStatus.error
                 ? Center(

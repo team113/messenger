@@ -468,8 +468,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               disableGestures: e.isVideo,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: e.isVideo
-                    ? Video(
+                child: Video(
                         e.link,
                         showInterfaceFor: _isInitialPage ? 3.seconds : null,
                         onClose: _dismiss,
@@ -486,16 +485,6 @@ class _GalleryPopupState extends State<GalleryPopup>
                           }
                         },
                         onError: () async {
-                          await e.onError?.call();
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        },
-                      )
-                    : RetryImage(
-                        e.link,
-                        checksum: e.checksum,
-                        onForbidden: () async {
                           await e.onError?.call();
                           if (mounted) {
                             setState(() {});
