@@ -171,7 +171,7 @@ class Themes {
           headlineMedium: textStyle.copyWith(fontSize: 18),
           headlineSmall: textStyle.copyWith(fontSize: 18),
           labelLarge:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+              textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 17),
           labelMedium:
               textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
           labelSmall:

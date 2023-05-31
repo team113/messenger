@@ -90,9 +90,7 @@ class ContactsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: fonts.labelMedium!.copyWith(
-                          fontWeight: FontWeight.normal,
-                        ),
+                        style: fonts.labelLarge,
                         onChanged: () => c.search.value?.query.value =
                             c.search.value?.search.text ?? '',
                       ),

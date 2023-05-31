@@ -106,9 +106,7 @@ class ChatsTabView extends StatelessWidget {
                               filled: false,
                               dense: true,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: fonts.labelMedium!.copyWith(
-                                fontWeight: FontWeight.normal,
-                              ),
+                              style: fonts.labelLarge,
                               onChanged: () => c.search.value!.query.value =
                                   c.search.value!.search.text,
                             ),
@@ -890,9 +888,7 @@ class ChatsTabView extends StatelessWidget {
                   'btn_cancel'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: fonts.labelLarge!.copyWith(
-                    color: style.colors.onBackground,
-                  ),
+                  style: fonts.labelMedium,
                 ),
                 onPressed: c.closeGroupCreating,
                 color: style.colors.onPrimary,
@@ -903,8 +899,8 @@ class ChatsTabView extends StatelessWidget {
                   'btn_create_group'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style:
-                      fonts.labelLarge!.copyWith(color: style.colors.onPrimary),
+                  style: fonts.labelMedium!
+                      .copyWith(color: style.colors.onPrimary),
                 ),
                 onPressed: c.createGroup,
                 color: style.colors.primary,

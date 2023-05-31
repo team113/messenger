@@ -655,7 +655,7 @@ class ElementStyleTabView extends StatelessWidget {
                 background: true,
                 title: 'Выпадающее меню с кнопками в чате.',
                 child: AnimatedFab(
-                  labelStyle: Theme.of(context).textTheme.labelMedium,
+                  labelStyle: Theme.of(context).textTheme.labelLarge,
                   closedIcon: Icon(
                     Icons.more_horiz,
                     color: style.colors.primaryHighlight,

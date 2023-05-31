@@ -88,7 +88,7 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: fonts.labelLarge!.copyWith(color: style.colors.onPrimary),
+              style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
             ),
             leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: c.register,
@@ -97,7 +97,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n, style: fonts.labelLarge),
+            title: Text('btn_login'.l10n, style: fonts.labelMedium),
             leading: SvgImage.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
@@ -240,7 +240,7 @@ class AuthView extends StatelessWidget {
         children: [
           ModalPopupHeader(
             header: Center(
-              child: Text('btn_download'.l10n, style: fonts.labelLarge),
+              child: Text('btn_download'.l10n, style: fonts.labelMedium),
             ),
           ),
           const SizedBox(height: 12),

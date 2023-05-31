@@ -915,10 +915,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 selectable: PlatformUtils.isDesktop || menu,
                 onSelecting: widget.onSelecting,
                 onChanged: (a) => _selection = a,
-                style: fonts.labelLarge!.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.normal,
-                ),
+                style: fonts.labelLarge!.copyWith(color: color),
               ),
             ),
           if (_text != null)
@@ -950,8 +947,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   selectable: PlatformUtils.isDesktop || menu,
                   onSelecting: widget.onSelecting,
                   onChanged: (a) => _selection = a,
-                  style:
-                      fonts.labelLarge!.copyWith(fontWeight: FontWeight.w400),
+                  style: fonts.labelLarge,
                 ),
               ),
             ),
