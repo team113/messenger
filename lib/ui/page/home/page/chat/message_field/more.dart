@@ -39,13 +39,15 @@ class MessageFieldMore extends StatelessWidget {
             return _MenuButton(
               e,
               pinned: contains,
-              onPinned: () {
-                if (c.buttons.contains(e)) {
-                  c.buttons.remove(e);
-                } else {
-                  c.buttons.add(e);
-                }
-              },
+              onPinned: contains || c.canPin.value
+                  ? () {
+                      if (c.buttons.contains(e)) {
+                        c.buttons.remove(e);
+                      } else {
+                        c.buttons.add(e);
+                      }
+                    }
+                  : null,
               onPressed: () {
                 c.removeEntries<MessageFieldMore>();
               },
@@ -190,7 +192,7 @@ class _MenuButtonState extends State<_MenuButton> {
               const Spacer(),
               const SizedBox(width: 16),
               WidgetButton(
-                onPressed: widget.onPinned,
+                onPressed: widget.onPinned ?? () {},
                 child: SizedBox(
                   // color: Colors.red,
                   height: 40,
@@ -203,7 +205,7 @@ class _MenuButtonState extends State<_MenuButton> {
                             height: 17,
                           )
                         : SvgImage.asset(
-                            'assets/icons/pin2.svg',
+                            'assets/icons/pin2${widget.onPinned != null ? '' : '_disabled'}.svg',
                             width: 9.65,
                             height: 17,
                           ),

@@ -363,3 +363,31 @@ class StickerButton extends ChatButton {
   @override
   double get assetMiniHeight => 21;
 }
+
+class SendButton extends ChatButton {
+  SendButton(super.c);
+
+  @override
+  String get hint => 'Стикер';
+
+  @override
+  String get asset => 'smile';
+
+  @override
+  double get assetWidth => 23;
+
+  @override
+  double get assetHeight => 23;
+
+  @override
+  Offset get offset => const Offset(0, -1);
+
+  @override
+  String get assetMini => 'smile_mini';
+
+  @override
+  double get assetMiniWidth => 21;
+
+  @override
+  double get assetMiniHeight => 21;
+}

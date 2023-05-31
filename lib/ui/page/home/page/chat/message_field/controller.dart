@@ -189,9 +189,14 @@ class MessageFieldController extends GetxController {
     StickerButton(this),
   ]);
 
-  final RxList<ChatButton> buttons = RxList([]);
+  late final RxList<ChatButton> buttons = RxList([
+    SendButton(this),
+  ]);
 
   final Map<Type, OverlayEntry> entries = {};
+
+  final RxBool canPin = RxBool(true);
+  final RxnInt donation = RxnInt(null);
 
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;

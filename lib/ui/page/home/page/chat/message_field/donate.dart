@@ -93,17 +93,19 @@ class MessageFieldDonate extends StatelessWidget {
               // height: 250,
               // padding: const EdgeInsets.all(8),
               child: SingleChildScrollView(
-                child: Wrap(
-                  alignment: WrapAlignment.center,
-                  // spacing: 8,
-                  // runSpacing: 8,
-                  children: [100, 1000, 2500, 5000, 7500, 10000, 0].map((e) {
-                    return _MenuButton(
-                      e,
-                      onPressed: () => c.removeEntries<MessageFieldDonate>(),
-                      onSend: (b) => c.donate(b ?? e),
-                    );
-                  }).toList(),
+                child: Column(
+                  children: [
+                    ...[10000, 5000, 1000, 500, 300, 100, 0].map((e) {
+                      return _MenuButton(
+                        e,
+                        onPressed: () {
+                          c.donation.value = e;
+                          c.removeEntries<MessageFieldDonate>();
+                        },
+                        onSend: (b) => c.donate(b ?? e),
+                      );
+                    })
+                  ],
                 ),
               ),
             ),
@@ -147,13 +149,13 @@ class _MenuButtonState extends State<_MenuButton> {
 
     if (widget.button >= 10000) {
       prefix = '_purple';
-    } else if (widget.button >= 7500) {
-      prefix = '_red';
     } else if (widget.button >= 5000) {
-      prefix = '_green';
-    } else if (widget.button >= 2500) {
-      prefix = '_orange';
+      prefix = '_red';
     } else if (widget.button >= 1000) {
+      prefix = '_green';
+    } else if (widget.button >= 500) {
+      prefix = '_orange';
+    } else if (widget.button >= 300) {
       prefix = '_teal';
     } else {
       prefix = '';
@@ -216,9 +218,9 @@ class _MenuButtonState extends State<_MenuButton> {
                   width: 50,
                   child: Center(
                     child: SvgImage.asset(
-                      'assets/icons/send_mini1.svg',
-                      width: 19.92,
-                      height: 17.24,
+                      'assets/icons/send_mini3.svg',
+                      width: 19.28,
+                      height: 16.6,
                     ),
                   ),
                 ),
@@ -277,9 +279,9 @@ class _MenuButtonState extends State<_MenuButton> {
                   width: 50,
                   child: Center(
                     child: SvgImage.asset(
-                      'assets/icons/send_mini1.svg',
-                      width: 19.92,
-                      height: 17.24,
+                      'assets/icons/send_mini3.svg',
+                      width: 19.28,
+                      height: 16.6,
                     ),
                   ),
                 ),

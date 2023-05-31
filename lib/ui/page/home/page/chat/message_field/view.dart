@@ -19,6 +19,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -45,8 +46,10 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'buttons.dart';
 import 'controller.dart';
 import 'more.dart';
+import 'wrap_buttons.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
@@ -146,29 +149,121 @@ class MessageFieldView extends StatelessWidget {
         return Theme(
           data: theme(context),
           child: SafeArea(
-            child: Container(
-              key: const Key('SendField'),
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
+            child: Column(
+              children: [
+                // Container(
+                //   margin: const EdgeInsets.only(bottom: 4),
+                //   decoration: BoxDecoration(
+                //     borderRadius: style.cardRadius,
+                //     boxShadow: [
+                //       CustomBoxShadow(
+                //         blurRadius: 8,
+                //         color: style.colors.onBackgroundOpacity13,
+                //       ),
+                //     ],
+                //   ),
+                //   child: ConditionalBackdropFilter(
+                //     condition: style.cardBlur > 0,
+                //     filter: ImageFilter.blur(
+                //       sigmaX: style.cardBlur,
+                //       sigmaY: style.cardBlur,
+                //     ),
+                //     borderRadius: style.cardRadius,
+                //     child: Column(
+                //       mainAxisSize: MainAxisSize.min,
+                //       children: [
+                //         Container(
+                //           decoration: BoxDecoration(
+                //             color: background ?? style.cardColor,
+                //           ),
+                //           child: Obx(() {
+                //             if (c.buttons.isEmpty) {
+                //               return const SizedBox();
+                //             }
+
+                //             // if (!c.field.isEmpty.value) {
+                //             //   return const SizedBox();
+                //             // }
+
+                //             return const SizedBox();
+
+                //             return Container(
+                //               decoration: const BoxDecoration(
+                //                 border: Border(
+                //                   bottom: BorderSide(color: Color(0xFFEEEEEE)),
+                //                 ),
+                //               ),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceEvenly,
+                //                 children: c.buttons.toList().reversed.map((e) {
+                //                   return WidgetButton(
+                //                     onPressed: () => e.onPressed?.call(true),
+                //                     child: MouseRegion(
+                //                       onEnter: (_) => e.onHovered?.call(true),
+                //                       // onExit: (_) => e.onHovered?.call(false),
+                //                       opaque: false,
+                //                       child: SizedBox(
+                //                         key: e.key,
+                //                         width: 50,
+                //                         height: 50,
+                //                         child: Center(
+                //                           child: e.icon == null
+                //                               ? Transform.translate(
+                //                                   offset: e.offset,
+                //                                   child: SvgImage.asset(
+                //                                     'assets/icons/${e.asset}.svg',
+                //                                     width: e.assetWidth,
+                //                                     height: e.assetHeight,
+                //                                   ),
+                //                                 )
+                //                               : Icon(
+                //                                   e.icon,
+                //                                   size: 28,
+                //                                   color: style.colors.primary,
+                //                                 ),
+                //                         ),
+                //                       ),
+                //                     ),
+                //                   );
+                //                 }).toList(),
+                //               ),
+                //             );
+                //           }),
+                //         )
+                //         // _buildField(c, context),
+                //       ],
+                //     ),
+                //   ),
+                // ),
+                Container(
+                  key: const Key('SendField'),
+                  decoration: BoxDecoration(
+                    borderRadius: style.cardRadius,
+                    boxShadow: [
+                      CustomBoxShadow(
+                        blurRadius: 8,
+                        color: style.colors.onBackgroundOpacity13,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: ConditionalBackdropFilter(
-                condition: style.cardBlur > 0,
-                filter: ImageFilter.blur(
-                  sigmaX: style.cardBlur,
-                  sigmaY: style.cardBlur,
+                  child: ConditionalBackdropFilter(
+                    condition: style.cardBlur > 0,
+                    filter: ImageFilter.blur(
+                      sigmaX: style.cardBlur,
+                      sigmaY: style.cardBlur,
+                    ),
+                    borderRadius: style.cardRadius,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildHeader(c, context),
+                        _buildField(c, context),
+                      ],
+                    ),
+                  ),
                 ),
-                borderRadius: style.cardRadius,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [_buildHeader(c, context), _buildField(c, context)],
-                ),
-              ),
+              ],
             ),
           ),
         );
@@ -409,6 +504,36 @@ class MessageFieldView extends StatelessWidget {
                           ),
                         ),
                       ),
+                    if (c.donation.value != null)
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Dismissible(
+                          key: Key('Donation'),
+                          direction: DismissDirection.horizontal,
+                          onDismissed: (_) => c.donation.value = null,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'G${c.donation.value}',
+                                      style: TextStyle(fontSize: 21),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     if (previews != null)
                       ConstrainedBox(
                         constraints: this.constraints ??
@@ -467,33 +592,11 @@ class MessageFieldView extends StatelessWidget {
   Widget _buildField(MessageFieldController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    // return Container(
-    //   width: double.infinity,
-    //   key: c.globalKey,
-    //   constraints: const BoxConstraints(minHeight: 56),
-    //   decoration: BoxDecoration(color: background ?? style.cardColor),
-    //   child: Obx(() {
-    //     return Dock(
-    //       // ignore: invalid_use_of_protected_member
-    //       items: c.buttons.value,
-    //       itemWidth: 48,
-    //       itemBuilder: (e) => e.build(hinted: false),
-    //       onReorder: (buttons) {
-    //         c.buttons.clear();
-    //         c.buttons.addAll(buttons);
-    //       },
-    //       // onDragStarted: (b) {
-    //       //   c.showDragAndDropButtonsHint = false;
-    //       //   c.draggedButton.value = b;
-    //       // },
-    //       // onDragEnded: (_) => c.draggedButton.value = null,
-    //       onLeave: (_) => c.displayMore.value = true,
-    //       onWillAccept: (d) => d?.c == c,
-    //     );
-    //   }),
-    // );
-
     return LayoutBuilder(builder: (context, constraints) {
+      final int buttons = ((constraints.maxWidth - 220) / 50).floor() + 1;
+      // final bool displayInRow = buttons >= c.buttons.length;
+      final bool displayInRow = true;
+
       return Container(
         key: c.globalKey,
         constraints: const BoxConstraints(minHeight: 56),
@@ -526,7 +629,7 @@ class MessageFieldView extends StatelessWidget {
               //     : null,
               child: SizedBox(
                 // color: Colors.yellow,
-                width: 56,
+                width: 50,
                 height: 56,
                 child: Center(
                   child: SvgImage.asset(
@@ -571,22 +674,111 @@ class MessageFieldView extends StatelessWidget {
             ),
             const SizedBox(width: 26 / 2 - 3),
             Obx(() {
-              if (c.buttons.isEmpty || !c.field.isEmpty.value) {
+              if (c.buttons.isEmpty ||
+                  !c.field.isEmpty.value ||
+                  !displayInRow) {
                 return const SizedBox();
               }
 
+              // int total = c.buttons.length;
+              // if (constraints.maxWidth - 160 < 70 * c.buttons.length) {
+              //   total = ((constraints.maxWidth - 220) / 70).floor() + 1;
+              // }
+
+              // return WrapButtons(
+              //   constraints,
+              //   buttons: c.buttons,
+              // );
+
               int take = c.buttons.length;
-              // print(
-              // '${constraints.maxWidth} - 220 < 36 * c.buttons.length : ${constraints.maxWidth - 220 < 36 * c.buttons.length}');
-              if (constraints.maxWidth - 220 < 36 * c.buttons.length) {
-                take = ((constraints.maxWidth - 220) / 36).round();
+              // // print(
+              // // '${constraints.maxWidth} - 220 < 36 * c.buttons.length : ${constraints.maxWidth - 220 < 36 * c.buttons.length}');
+              if (constraints.maxWidth - 160 < 50 * c.buttons.length) {
+                take = ((constraints.maxWidth - 160) / 50).round();
                 // print(3 * constraints.maxWidth / (36 * c.buttons.length));
               }
 
               take = max(take, 0);
 
-              return Row(
+              final int total = ((constraints.maxWidth - 160) / 50).round();
+
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                c.canPin.value = c.buttons.length < total;
+                // print('${c.canPin} ${c.buttons.length} ${total}');
+              });
+
+              // double coef = 1;
+              // if (constraints.maxWidth - 45 < 70 * c.buttons.length) {
+              //   coef = 1 / (80 * c.buttons.length / constraints.maxWidth);
+              // }
+
+              return Wrap(
                 children: c.buttons.take(take).toList().reversed.map((e) {
+                  if (e is SendButton) {
+                    return Obx(() {
+                      return GestureDetector(
+                        onLongPress: canForward ? c.forwarding.toggle : null,
+                        child: WidgetButton(
+                          onPressed: canSend
+                              ? () {
+                                  if (c.editing.value) {
+                                    c.field.unsubmit();
+                                  }
+                                  c.field.submit();
+                                }
+                              : null,
+                          child: Container(
+                            // color: Colors.red,
+                            // width: 50 - ((c.buttons.length - 1) * 3),
+                            width: 50,
+                            height: 56,
+                            // margin: const EdgeInsets.only(right: 8),
+                            child: Center(
+                              child: AnimatedSwitcher(
+                                duration: 300.milliseconds,
+                                child: c.forwarding.value
+                                    ? SvgImage.asset(
+                                        'assets/icons/forward.svg',
+                                        width: 26,
+                                        height: 22,
+                                      )
+                                    : c.field.isEmpty.value && false
+                                        ? Container(
+                                            // color: Colors.red,
+                                            width: 18.87,
+                                            height: 23.8,
+                                            child: SvgImage.asset(
+                                              'assets/icons/audio_message2.svg',
+                                              key: sendKey ?? const Key('Send'),
+                                              // height: 18.87,
+                                              width: 23.8,
+                                            ),
+                                          )
+                                        // ? Icon(
+                                        //     Icons.mic,
+                                        //     color: style.colors.primary,
+                                        //     size: 28,
+                                        //   )
+                                        // ? SvgImage.asset(
+                                        //     'assets/icons/microphone_on.svg',
+                                        //     key: sendKey ?? const Key('Send'),
+                                        //     height: 22.85,
+                                        //     width: 25.18,
+                                        //   )
+                                        : SvgImage.asset(
+                                            'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
+                                            key: sendKey ?? const Key('Send'),
+                                            width: 25.44,
+                                            height: 21.91,
+                                          ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    });
+                  }
+
                   return WidgetButton(
                     onPressed: () => e.onPressed?.call(true),
                     child: MouseRegion(
@@ -595,8 +787,7 @@ class MessageFieldView extends StatelessWidget {
                       opaque: false,
                       child: SizedBox(
                         key: e.key,
-                        // color: Colors.red,
-                        width: 36 + 4 + 4,
+                        width: 50,
                         height: 56,
                         child: Center(
                           child: e.icon == null
@@ -613,78 +804,119 @@ class MessageFieldView extends StatelessWidget {
                                   size: 28,
                                   color: style.colors.primary,
                                 ),
-                          // child: SvgImage.asset(
-                          //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
-                          //   height: 22,
-                          //   width: 22,
-                          // ),
                         ),
                       ),
                     ),
                   );
                 }).toList(),
               );
+
+              // return Row(
+              //   children: c.buttons.take(take).toList().reversed.map((e) {
+              //     return WidgetButton(
+              //       onPressed: () => e.onPressed?.call(true),
+              //       child: MouseRegion(
+              //         onEnter: (_) => e.onHovered?.call(true),
+              //         // onExit: (_) => e.onHovered?.call(false),
+              //         opaque: false,
+              //         child: SizedBox(
+              //           key: e.key,
+              //           width: 36 + 4 + 4,
+              //           height: 56,
+              //           child: Center(
+              //             child: e.icon == null
+              //                 ? Transform.translate(
+              //                     offset: e.offset,
+              //                     child: SvgImage.asset(
+              //                       'assets/icons/${e.asset}.svg',
+              //                       width: e.assetWidth,
+              //                       height: e.assetHeight,
+              //                     ),
+              //                   )
+              //                 : Icon(
+              //                     e.icon,
+              //                     size: 28,
+              //                     color: style.colors.primary,
+              //                   ),
+              //           ),
+              //         ),
+              //       ),
+              //     );
+              //   }).toList(),
+              // );
             }),
-            Obx(() {
-              return GestureDetector(
-                onLongPress: canForward ? c.forwarding.toggle : null,
-                child: WidgetButton(
-                  onPressed: canSend
-                      ? () {
-                          if (c.editing.value) {
-                            c.field.unsubmit();
-                          }
-                          c.field.submit();
-                        }
-                      : null,
-                  child: SizedBox(
-                    width: 36,
-                    height: 56,
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: 300.milliseconds,
-                        child: c.forwarding.value
-                            ? SvgImage.asset(
-                                'assets/icons/forward.svg',
-                                width: 26,
-                                height: 22,
-                              )
-                            : c.field.isEmpty.value && false
-                                ? Container(
-                                    // color: Colors.red,
-                                    width: 18.87,
-                                    height: 23.8,
-                                    child: SvgImage.asset(
-                                      'assets/icons/audio_message2.svg',
-                                      key: sendKey ?? const Key('Send'),
-                                      // height: 18.87,
-                                      width: 23.8,
-                                    ),
-                                  )
-                                // ? Icon(
-                                //     Icons.mic,
-                                //     color: style.colors.primary,
-                                //     size: 28,
-                                //   )
-                                // ? SvgImage.asset(
-                                //     'assets/icons/microphone_on.svg',
-                                //     key: sendKey ?? const Key('Send'),
-                                //     height: 22.85,
-                                //     width: 25.18,
-                                //   )
-                                : SvgImage.asset(
-                                    'assets/icons/send${disabled ? '_disabled' : ''}.svg',
-                                    key: sendKey ?? const Key('Send'),
-                                    height: 22.85,
-                                    width: 25.18,
-                                  ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-            const SizedBox(width: 26 / 2 - 3),
+            const SizedBox(width: 3),
+            // Obx(() {
+            //   return GestureDetector(
+            //     onLongPress: canForward ? c.forwarding.toggle : null,
+            //     child: WidgetButton(
+            //       onPressed: canSend
+            //           ? () {
+            //               if (c.editing.value) {
+            //                 c.field.unsubmit();
+            //               }
+            //               c.field.submit();
+            //             }
+            //           : null,
+            //       child: Container(
+            //         color: Colors.red,
+            //         // width: 50 - ((c.buttons.length - 1) * 3),
+            //         width: 56,
+            //         height: 56,
+            //         // margin: const EdgeInsets.only(right: 8),
+            //         child: Center(
+            //           child: AnimatedSwitcher(
+            //             duration: 300.milliseconds,
+            //             child: c.forwarding.value
+            //                 ? SvgImage.asset(
+            //                     'assets/icons/forward.svg',
+            //                     width: 26,
+            //                     height: 22,
+            //                   )
+            //                 : c.field.isEmpty.value && false
+            //                     ? Container(
+            //                         // color: Colors.red,
+            //                         width: 18.87,
+            //                         height: 23.8,
+            //                         child: SvgImage.asset(
+            //                           'assets/icons/audio_message2.svg',
+            //                           key: sendKey ?? const Key('Send'),
+            //                           // height: 18.87,
+            //                           width: 23.8,
+            //                         ),
+            //                       )
+            //                     // ? Icon(
+            //                     //     Icons.mic,
+            //                     //     color: style.colors.primary,
+            //                     //     size: 28,
+            //                     //   )
+            //                     // ? SvgImage.asset(
+            //                     //     'assets/icons/microphone_on.svg',
+            //                     //     key: sendKey ?? const Key('Send'),
+            //                     //     height: 22.85,
+            //                     //     width: 25.18,
+            //                     //   )
+            //                     : SvgImage.asset(
+            //                         'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
+            //                         key: sendKey ?? const Key('Send'),
+            //                         width: 25.44,
+            //                         height: 21.91,
+            //                       ),
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   );
+            // }),
+            // const SizedBox(width: 26 / 2 - 3),
+            // const SizedBox(width: 26 / 2 - 3),
+            // Obx(() {
+            //   if (c.buttons.isEmpty) {
+            //     return const SizedBox();
+            //   }
+
+            //   return const SizedBox(width: 26 / 2 - 3);
+            // }),
           ],
         ),
       );

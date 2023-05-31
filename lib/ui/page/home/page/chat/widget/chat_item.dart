@@ -2007,7 +2007,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
       _recognizers.clear();
 
-      final String? string = msg.text?.val.trim();
+      String? string = msg.text?.val.trim();
+      // string = msg.text?.val.replaceAll('?=', replace)
+
       if (string?.isEmpty == true) {
         _text = null;
       } else {
