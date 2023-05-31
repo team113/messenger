@@ -22,21 +22,21 @@ import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'dense.dart';
 
 /// [Widget] which builds a stylized button representing a single action.
-class ActionWidget extends StatelessWidget {
-  const ActionWidget({
+class ActionButton extends StatelessWidget {
+  const ActionButton({
     super.key,
     this.text,
     this.onPressed,
     this.trailing,
   });
 
-  /// Text to display in this [ActionWidget].
+  /// Text to display in this [ActionButton].
   final String? text;
 
-  /// Trailing to display in this [ActionWidget].
+  /// Trailing to display in this [ActionButton].
   final Widget? trailing;
 
-  /// Callback, called when this [ActionWidget] is pressed.
+  /// Callback, called when this [ActionButton] is pressed.
   final void Function()? onPressed;
 
   @override

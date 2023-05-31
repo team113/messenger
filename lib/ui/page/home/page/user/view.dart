@@ -260,7 +260,7 @@ class UserView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Obx(() {
-          return ActionWidget(
+          return ActionButton(
             key: Key(c.inContacts.value
                 ? 'DeleteFromContactsButton'
                 : 'AddToContactsButton'),
@@ -275,7 +275,7 @@ class UserView extends StatelessWidget {
           );
         }),
         Obx(() {
-          return ActionWidget(
+          return ActionButton(
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
@@ -293,7 +293,7 @@ class UserView extends StatelessWidget {
             final chat = c.user!.dialog.value!.chat.value;
             final bool isMuted = chat.muted != null;
 
-            return ActionWidget(
+            return ActionButton(
               text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
               trailing: isMuted
                   ? SvgImage.asset(
@@ -309,12 +309,12 @@ class UserView extends StatelessWidget {
               onPressed: isMuted ? c.unmuteChat : c.muteChat,
             );
           }),
-          ActionWidget(
+          ActionButton(
             text: 'btn_hide_chat'.l10n,
             trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _hideChat(c, context),
           ),
-          ActionWidget(
+          ActionButton(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
             trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
@@ -322,7 +322,7 @@ class UserView extends StatelessWidget {
           ),
         ],
         Obx(() {
-          return ActionWidget(
+          return ActionButton(
             key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
             text:
                 c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
@@ -344,7 +344,7 @@ class UserView extends StatelessWidget {
             }),
           );
         }),
-        ActionWidget(text: 'btn_report'.l10n, onPressed: () {}),
+        ActionButton(text: 'btn_report'.l10n, onPressed: () {}),
       ],
     );
   }
