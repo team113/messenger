@@ -83,17 +83,6 @@ class OngoingCallButton extends StatelessWidget {
                 PeriodicBuilder(
                   period: const Duration(seconds: 1),
                   builder: builder,
-                  // builder: (_) {
-                  //   final String text = duration.hhMmSs();
-
-                  //   return Text(
-                  //     text,
-                  //     style: Theme.of(context)
-                  //         .textTheme
-                  //         .titleSmall
-                  //         ?.copyWith(color: style.colors.onPrimary),
-                  //   ).fixedDigits();
-                  // },
                 )
               ],
             ),

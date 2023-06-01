@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -27,6 +26,7 @@ import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_status.dart';
 import '/ui/page/home/widget/chat_subtitle.dart';
