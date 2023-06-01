@@ -29,8 +29,8 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
 /// [Widget] which returns a [ListTile] with [contact]'s information.
-class ContactTileWidget extends StatelessWidget {
-  const ContactTileWidget(
+class StyledContactTile extends StatelessWidget {
+  const StyledContactTile(
     this.contact, {
     super.key,
     required this.favorites,
@@ -57,11 +57,11 @@ class ContactTileWidget extends StatelessWidget {
   /// Indicator whether multiple [ChatContact]s selection is active.
   final bool selecting;
 
-  /// Indicator whether the given contact is present in the
-  /// selectedContacts list.
+  /// Indicator whether this [StyledContactTile] should have its colors
+  /// inverted.
   final bool inverted;
 
-  /// Callback, called when this [ContactTileWidget] is tapped.
+  /// Callback, called when this [StyledContactTile] is tapped.
   final void Function()? onTap;
 
   /// Removes the specified [ChatContact] identified by its id from the
@@ -83,16 +83,15 @@ class ContactTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// Indicator whether the contact is in the user's favorites
-    /// list or not.
+    // Indicator whether the contact is in the user's favorites list or not.
     final bool favorite = favorites.contains(contact);
 
-    /// Status of the user associated with the contact, or null if there
-    /// is no user.
+    // Status of the user associated with the contact, or null if there is
+    // no user.
     final String? subtitle = contact.user.value?.user.value.getStatus();
 
-    /// Current dialog associated with the user for the contact,
-    /// or null if there is no user or dialog.
+    // Current dialog associated with the user for the contact, or null if
+    // there is no user or dialog.
     final dialog = contact.user.value?.dialog.value;
 
     return ContactTile(

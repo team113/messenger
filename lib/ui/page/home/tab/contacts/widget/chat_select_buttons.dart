@@ -36,10 +36,10 @@ class ChatSelectButtons extends StatelessWidget {
     required this.toggleSelecting,
   });
 
-  /// Reactive [List] of [ChatContactId]s of the selected [ChatContact]s.
+  /// [List] of [ChatContactId]s of the selected [ChatContact]s.
   final List<ChatContactId> selectedContacts;
 
-  /// TODO: docs
+  /// Count of selected [ChatContact]s to be deleted.
   final String deleteCount;
 
   /// Toggles the [ChatContact]s selection.
@@ -87,7 +87,7 @@ class ChatSelectButtons extends StatelessWidget {
             child: OutlinedRoundedButton(
               key: const Key('DeleteContacts'),
               title: Text(
-                deleteCount,
+                'btn_delete_count'.l10nfmt({'count': deleteCount}),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: TextStyle(

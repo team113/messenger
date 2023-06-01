@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -50,84 +51,90 @@ class TabCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
 
-    final bool inverted =
-        tab == router.profileSection.value && router.route == Routes.me;
+    return Obx(() {
+      final bool inverted =
+          tab == router.profileSection.value && router.route == Routes.me;
 
-    return Padding(
-      key: key,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: SizedBox(
-        height: 73,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            color: Colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: inverted ? colors.secondary : style.cardColor,
-            child: InkWell(
+      return Padding(
+        key: key,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: SizedBox(
+          height: 73,
+          child: Container(
+            decoration: BoxDecoration(
               borderRadius: style.cardRadius,
-              onTap: onTap ??
-                  () {
-                    if (router.profileSection.value == tab) {
-                      router.profileSection.refresh();
-                    } else {
-                      router.profileSection.value = tab;
-                    }
-                    router.me();
-                  },
-              hoverColor:
-                  inverted ? colors.secondary : style.cardColor.darken(0.03),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 12),
-                    Icon(
-                      icon,
-                      color: inverted ? colors.onSecondary : colors.secondary,
-                    ),
-                    const SizedBox(width: 18),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          DefaultTextStyle(
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall!
-                                .copyWith(
-                                  color: inverted ? colors.onSecondary : null,
-                                ),
-                            child: Text(title),
-                          ),
-                          const SizedBox(height: 6),
-                          DefaultTextStyle.merge(
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: inverted ? colors.onSecondary : null,
-                            ),
-                            child: Text(subtitle),
-                          ),
-                        ],
+              border: style.cardBorder,
+              color: style.colors.transparent,
+            ),
+            child: Material(
+              type: MaterialType.card,
+              borderRadius: style.cardRadius,
+              color: inverted ? style.colors.primary : style.cardColor,
+              child: InkWell(
+                borderRadius: style.cardRadius,
+                onTap: onTap ??
+                    () {
+                      if (router.profileSection.value == tab) {
+                        router.profileSection.refresh();
+                      } else {
+                        router.profileSection.value = tab;
+                      }
+                      router.me();
+                    },
+                hoverColor: inverted
+                    ? style.colors.primary
+                    : style.cardColor.darken(0.03),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 12),
+                      Icon(
+                        icon,
+                        color: inverted
+                            ? style.colors.onPrimary
+                            : style.colors.primary,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 18),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            DefaultTextStyle(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .copyWith(
+                                    color: inverted
+                                        ? style.colors.onPrimary
+                                        : null,
+                                  ),
+                              child: Text(title),
+                            ),
+                            const SizedBox(height: 6),
+                            DefaultTextStyle.merge(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: inverted ? style.colors.onPrimary : null,
+                              ),
+                              child: Text(subtitle),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

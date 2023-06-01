@@ -43,7 +43,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/chat_select_buttons.dart';
-import 'widget/contact_tile.dart';
+import 'widget/styled_contact_tile.dart';
 
 /// View of the `HomeTab.contacts` tab.
 class ContactsTabView extends StatelessWidget {
@@ -357,7 +357,7 @@ class ContactsTabView extends StatelessWidget {
                                               '${Routes.user}/${contact.user.value?.id}') ==
                                       true;
 
-                                  final Widget child = ContactTileWidget(
+                                  final Widget child = StyledContactTile(
                                     contact,
                                     favorites: c.favorites,
                                     selectedContacts: c.selectedContacts,
@@ -471,7 +471,7 @@ class ContactsTabView extends StatelessWidget {
                                   child: SlideAnimation(
                                     horizontalOffset: 50,
                                     child: FadeInAnimation(
-                                      child: ContactTileWidget(
+                                      child: StyledContactTile(
                                         e,
                                         favorites: c.favorites,
                                         selectedContacts: c.selectedContacts,
@@ -535,9 +535,7 @@ class ContactsTabView extends StatelessWidget {
           bottomNavigationBar: c.selecting.value
               ? ChatSelectButtons(
                   c.selectedContacts,
-                  deleteCount: 'btn_delete_count'.l10nfmt(
-                    {'count': c.selectedContacts.length},
-                  ),
+                  deleteCount: c.selectedContacts.length.toString(),
                   toggleSelecting: c.toggleSelecting,
                   removeContacts: () => _removeContacts(context, c),
                 )
