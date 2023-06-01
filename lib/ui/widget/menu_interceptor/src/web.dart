@@ -24,11 +24,11 @@ import 'package:flutter/widgets.dart';
 /// Wrapper to prevent a default web context menu over its [child].
 class ContextMenuInterceptor extends StatelessWidget {
   ContextMenuInterceptor({
-    Key? key,
+    super.key,
     required this.child,
     this.enabled = true,
     this.debug = false,
-  }) : super(key: key) {
+  }) {
     if (!_registered) {
       _register();
     }

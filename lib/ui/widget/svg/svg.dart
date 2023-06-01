@@ -175,7 +175,7 @@ class SvgImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (asset != null) {
-      return svgFromAsset(
+      return SvgFromAsset(
         asset!,
         alignment: alignment!,
         fit: fit!,
@@ -186,7 +186,7 @@ class SvgImage extends StatelessWidget {
         excludeFromSemantics: excludeFromSemantics!,
       );
     } else if (bytes != null) {
-      return svgFromBytes(
+      return SvgFromBytes(
         bytes!,
         alignment: alignment!,
         fit: fit!,
@@ -197,7 +197,7 @@ class SvgImage extends StatelessWidget {
         excludeFromSemantics: excludeFromSemantics!,
       );
     } else {
-      return svgFromFile(
+      return SvgFromFile(
         file!,
         alignment: alignment!,
         fit: fit!,

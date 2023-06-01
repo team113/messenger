@@ -107,12 +107,12 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
 /// [ContextMenuItem] representing a styled button used in [ContextMenu].
 class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   const ContextMenuButton({
-    Key? key,
+    super.key,
     required this.label,
     this.leading,
     this.trailing,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   /// Label of this [ContextMenuButton].
   final String label;

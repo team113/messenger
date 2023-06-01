@@ -162,8 +162,7 @@ class _AnimatedMenu extends StatefulWidget {
     required this.margin,
     this.onClosed,
     this.unconstrained = false,
-    Key? key,
-  }) : super(key: key);
+  });
 
   /// [Widget] this [_AnimatedMenu] is bound to.
   final Widget child;
