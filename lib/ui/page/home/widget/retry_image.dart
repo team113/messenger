@@ -351,10 +351,7 @@ class _RetryImageState extends State<RetryImage> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
-      child: KeyedSubtree(
-        key: Key('Image_${widget.url}'),
-        child: child,
-      ),
+      child: KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
     );
   }
 
