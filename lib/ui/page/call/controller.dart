@@ -216,12 +216,6 @@ class CallController extends GetxController {
   /// Maximum size a single [CallButton] is allowed to occupy in the [Dock].
   static const double buttonSize = 48.0;
 
-  /// Color of a call buttons that accept the call.
-  static const Color acceptColor = Color(0x7F34B139);
-
-  /// Color of a call buttons that end the call.
-  static const Color endColor = Color(0x7FFF0000);
-
   /// Secondary view current left position.
   final RxnDouble secondaryLeft = RxnDouble(0);
 
@@ -914,9 +908,12 @@ class CallController extends GetxController {
     if (state == LocalTrackState.enabled || state == LocalTrackState.enabling) {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
+      // TODO: `medea_jason` should have `onScreenChange` callback.
+      await _currentCall.value.enumerateDevices(media: false);
+
       if (_currentCall.value.displays.length > 1) {
-        final MediaDisplayInfo? display =
-            await ScreenShareView.show(context, _currentCall);
+        final MediaDisplayDetails? display =
+            await ScreenShareView.show(router.context!, _currentCall);
 
         if (display != null) {
           await _currentCall.value.setScreenShareEnabled(
@@ -956,7 +953,8 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    List<MediaDeviceInfo> cameras = _currentCall.value.devices.video().toList();
+    List<MediaDeviceDetails> cameras =
+        _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
       int selected = _currentCall.value.videoDevice.value == null
           ? 0
@@ -970,17 +968,19 @@ class CallController extends GetxController {
     }
   }
 
-  /// Toggles speaker on and off.
+  /// Toggles between the speakerphone and earpiece output.
+  ///
+  /// Does nothing, if output device is a bluetooth headset.
   Future<void> toggleSpeaker() async {
     if (PlatformUtils.isMobile) {
       keepUi();
     }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      final List<MediaDeviceInfo> outputs =
+      final List<MediaDeviceDetails> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
-        MediaDeviceInfo? device;
+        MediaDeviceDetails? device;
 
         if (PlatformUtils.isIOS) {
           device = _currentCall.value.devices.output().firstWhereOrNull(

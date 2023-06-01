@@ -31,7 +31,7 @@ import 'animated_transition.dart';
 /// Reorderable [Row] of provided [items].
 class Dock<T extends Object> extends StatefulWidget {
   const Dock({
-    Key? key,
+    super.key,
     required this.items,
     required this.itemBuilder,
     this.onReorder,
@@ -40,7 +40,7 @@ class Dock<T extends Object> extends StatefulWidget {
     this.onDragEnded,
     this.onLeave,
     this.onWillAccept,
-  }) : super(key: key);
+  });
 
   /// Items this [Dock] reorders.
   final List<T> items;

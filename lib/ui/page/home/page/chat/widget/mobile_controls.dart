@@ -26,6 +26,7 @@ import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
@@ -95,12 +96,16 @@ class _MobileControlsState extends State<MobileControls>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder?.call(
             context,
             _chewieController.videoPlayerController.value.errorDescription!,
           ) ??
-          const Center(child: Icon(Icons.error, color: Colors.white, size: 42));
+          Center(
+            child: Icon(Icons.error, color: style.colors.onPrimary, size: 42),
+          );
     }
 
     return MouseRegion(
@@ -143,7 +148,7 @@ class _MobileControlsState extends State<MobileControls>
                   }
                 },
                 child: Container(
-                  color: Colors.transparent,
+                  color: style.colors.transparent,
                   width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
                   height: double.infinity,
                 ),
@@ -165,7 +170,7 @@ class _MobileControlsState extends State<MobileControls>
                   }
                 },
                 child: Container(
-                  color: Colors.transparent,
+                  color: style.colors.transparent,
                   width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
                   height: double.infinity,
                 ),
@@ -203,17 +208,22 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the bottom controls bar.
   AnimatedOpacity _buildBottomBar(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
 
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 1.0,
       duration: const Duration(milliseconds: 300),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0x00000000), Color(0x66000000)],
+            colors: [
+              style.colors.transparent,
+              style.colors.onBackgroundOpacity40
+            ],
           ),
         ),
         child: SafeArea(
@@ -252,10 +262,12 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool isFinished = _latestValue.position >= _latestValue.duration;
     return CenterPlayButton(
-      backgroundColor: Colors.black54,
-      iconColor: Colors.white,
+      backgroundColor: style.colors.onBackgroundOpacity13,
+      iconColor: style.colors.onPrimary,
       isFinished: isFinished,
       isPlaying: _controller.value.isPlaying,
       show: !_dragging && !_hideStuff,
@@ -265,6 +277,8 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the mute/unmute button.
   GestureDetector _buildMuteButton() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GestureDetector(
       onTap: () {
         _cancelAndRestartTimer();
@@ -289,7 +303,7 @@ class _MobileControlsState extends State<MobileControls>
           child: Center(
             child: Icon(
               _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              color: Colors.white,
+              color: style.colors.onPrimary,
               size: 18,
             ),
           ),
@@ -300,6 +314,8 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [RichText] of the current video position.
   Widget _buildPosition(Color? iconColor) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final position = _latestValue.position;
     final duration = _latestValue.duration;
 
@@ -311,14 +327,14 @@ class _MobileControlsState extends State<MobileControls>
             text: '/ ${formatDuration(duration)}',
             style: TextStyle(
               fontSize: 14.0,
-              color: Colors.white.withOpacity(.75),
+              color: style.colors.onPrimaryOpacity50,
               fontWeight: FontWeight.normal,
             ),
           )
         ],
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14.0,
-          color: Colors.white,
+          color: style.colors.onPrimary,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -327,6 +343,8 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Expanded(
       child: VideoProgressBar(
         _controller,
@@ -343,11 +361,10 @@ class _MobileControlsState extends State<MobileControls>
         },
         colors: _chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: Theme.of(context).colorScheme.secondary,
-              handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor:
-                  Theme.of(context).colorScheme.background.withOpacity(0.5),
-              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
+              playedColor: style.colors.primary,
+              handleColor: style.colors.primary,
+              bufferedColor: style.colors.background.withOpacity(0.5),
+              backgroundColor: style.colors.secondary.withOpacity(0.5),
             ),
       ),
     );
