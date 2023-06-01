@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -38,6 +39,8 @@ class HomeBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final Widget image;
 
     final double width = sideBarWidth;
@@ -78,8 +81,8 @@ class HomeBackground extends StatelessWidget {
                 child: image,
               ),
             ),
-            const Positioned.fill(
-              child: ColoredBox(color: Color(0x0D000000)),
+            Positioned.fill(
+              child: ColoredBox(color: style.colors.onBackgroundOpacity7),
             ),
             if (!context.isNarrow) ...[
               Row(
@@ -93,7 +96,10 @@ class HomeBackground extends StatelessWidget {
                       child: const SizedBox.expand(),
                     ),
                   ),
-                  const Expanded(child: ColoredBox(color: Color(0x04000000))),
+                  Expanded(
+                      child: ColoredBox(
+                    color: style.colors.onBackgroundOpacity2,
+                  )),
                 ],
               ),
             ],

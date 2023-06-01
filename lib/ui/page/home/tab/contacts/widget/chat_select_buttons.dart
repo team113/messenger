@@ -50,10 +50,12 @@ class ChatSelectButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const List<CustomBoxShadow> shadows = [
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    List<CustomBoxShadow> shadows = [
       CustomBoxShadow(
         blurRadius: 8,
-        color: Color(0x22000000),
+        color: style.colors.onBackgroundOpacity13,
         blurStyle: BlurStyle.outer,
       ),
     ];
@@ -75,10 +77,10 @@ class ChatSelectButtons extends StatelessWidget {
                 'btn_close'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: const TextStyle(color: Colors.black),
+                style: TextStyle(color: style.colors.onBackground),
               ),
               onPressed: toggleSelecting,
-              color: Colors.white,
+              color: style.colors.onPrimary,
               shadows: shadows,
             ),
           ),
@@ -91,11 +93,13 @@ class ChatSelectButtons extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: TextStyle(
-                  color: selectedContacts.isEmpty ? Colors.black : Colors.white,
+                  color: selectedContacts.isEmpty
+                      ? style.colors.onBackground
+                      : style.colors.onPrimary,
                 ),
               ),
               onPressed: selectedContacts.isEmpty ? null : removeContacts,
-              color: Theme.of(context).colorScheme.secondary,
+              color: style.colors.primary,
               shadows: shadows,
             ),
           ),

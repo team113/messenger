@@ -21,6 +21,7 @@ import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -83,6 +84,8 @@ class StyledContactTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     // Indicator whether the contact is in the user's favorites list or not.
     final bool favorite = favorites.contains(contact);
 
@@ -142,7 +145,9 @@ class StyledContactTile extends StatelessWidget {
               ? Text(
                   subtitle,
                   style: TextStyle(
-                    color: inverted ? Colors.white : Colors.grey,
+                    color: inverted
+                        ? style.colors.onPrimary
+                        : style.colors.secondary,
                   ),
                 )
               : const SizedBox(),
@@ -169,7 +174,9 @@ class StyledContactTile extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color: inverted ? Colors.white : const Color(0xFFDEDEDE),
+                  color: inverted
+                      ? style.colors.onPrimary
+                      : style.colors.secondaryHighlightDarkest,
                   size: 20,
                 ),
               ),
