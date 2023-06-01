@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -36,6 +37,8 @@ class MenuTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
@@ -50,8 +53,8 @@ class MenuTabView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: const Color(0x55000000),
-                    color: Colors.white,
+                    shadowColor: style.colors.onBackgroundOpacity27,
+                    color: style.colors.onPrimary,
                     child: Center(
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(
@@ -75,7 +78,8 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: const TextStyle(color: Colors.black),
+                              style:
+                                  TextStyle(color: style.colors.onBackground),
                             ),
                             Obx(() {
                               return Text(
@@ -84,10 +88,7 @@ class MenuTabView extends StatelessWidget {
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
+                                    ?.copyWith(color: style.colors.secondary),
                               );
                             }),
                           ],

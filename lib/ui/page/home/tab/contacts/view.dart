@@ -51,7 +51,6 @@ class ContactsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -66,7 +65,7 @@ class ContactsTabView extends StatelessWidget {
         return Scaffold(
           appBar: CustomAppBar(
             border: c.search.value != null || c.selecting.value
-                ? Border.all(color: colors.secondary, width: 2)
+                ? Border.all(color: style.colors.primary, width: 2)
                 : null,
             title: Obx(() {
               final Widget child;
@@ -104,7 +103,10 @@ class ContactsTabView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'label_synchronization'.l10n,
-                        style: TextStyle(fontSize: 13, color: colors.primary),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: style.colors.secondary,
+                        ),
                       ),
                     ),
                   );
@@ -203,10 +205,10 @@ class ContactsTabView extends StatelessWidget {
                   c.elements.isEmpty) {
                 child = Center(
                   key: UniqueKey(),
-                  child: const ColoredBox(
-                    key: Key('Loading'),
-                    color: Colors.transparent,
-                    child: CustomProgressIndicator(),
+                  child: ColoredBox(
+                    key: const Key('Loading'),
+                    color: style.colors.transparent,
+                    child: const CustomProgressIndicator(),
                   ),
                 );
               } else if (c.elements.isNotEmpty) {
@@ -245,7 +247,7 @@ class ContactsTabView extends StatelessWidget {
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
                                   style: style.systemMessageStyle.copyWith(
-                                    color: Colors.black,
+                                    color: style.colors.onBackground,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -269,8 +271,9 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = KeyedSubtree(
+                child = AnimatedDelayedSwitcher(
                   key: UniqueKey(),
+                  delay: const Duration(milliseconds: 300),
                   child: Center(
                     key: const Key('NothingFound'),
                     child: Text('label_nothing_found'.l10n),
@@ -309,8 +312,8 @@ class ContactsTabView extends StatelessWidget {
                                       .transform(animation.value);
                                   final double elevation = lerpDouble(0, 6, t)!;
                                   final Color color = Color.lerp(
-                                    const Color(0x00000000),
-                                    const Color(0x33000000),
+                                    style.colors.transparent,
+                                    style.colors.onBackgroundOpacity20,
                                     t,
                                   )!;
 
@@ -497,17 +500,14 @@ class ContactsTabView extends StatelessWidget {
                   return AnimatedContainer(
                     duration: 200.milliseconds,
                     color: c.search.value != null
-                        ? const Color(0xFFEBEBEB)
-                        : const Color(0x00EBEBEB),
+                        ? style.colors.secondaryHighlight
+                        : style.colors.secondaryHighlight.withOpacity(0),
                   );
                 }),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: ContextMenuInterceptor(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: child,
-                    ),
+                ContextMenuInterceptor(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: child,
                   ),
                 ),
               ],
@@ -532,13 +532,15 @@ class ContactsTabView extends StatelessWidget {
     BuildContext context,
     RxChatContact contact,
   ) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: const TextStyle(color: Colors.black),
+          style: TextStyle(color: style.colors.onBackground),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],

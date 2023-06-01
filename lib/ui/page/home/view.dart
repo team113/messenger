@@ -20,7 +20,7 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/routes.dart';
@@ -94,10 +94,12 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (_deps == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: CustomProgressIndicator()),
+      return Scaffold(
+        backgroundColor: style.colors.onPrimary,
+        body: const Center(child: CustomProgressIndicator()),
       );
     }
 
@@ -134,8 +136,7 @@ class _HomeViewState extends State<HomeView> {
                     maxWidth: context.isNarrow ? context.width : width,
                   ),
                   child: Scaffold(
-                    backgroundColor:
-                        Theme.of(context).extension<Style>()!.sidebarColor,
+                    backgroundColor: style.sidebarColor,
                     body: Listener(
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {
@@ -173,21 +174,6 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        // [AnimatedOpacity] boilerplate.
-                        Widget tab({required Widget child, HomeTab? tab}) {
-                          return Obx(() {
-                            return AnimatedScale(
-                              duration: 150.milliseconds,
-                              scale: c.page.value == tab ? 1.2 : 1,
-                              child: AnimatedOpacity(
-                                duration: 150.milliseconds,
-                                opacity: c.page.value == tab ? 1 : 0.7,
-                                child: child,
-                              ),
-                            );
-                          });
-                        }
-
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
@@ -197,13 +183,10 @@ class _HomeViewState extends State<HomeView> {
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('ContactsButton'),
-                                child: tab(
-                                  tab: HomeTab.contacts,
-                                  child: SvgImage.asset(
-                                    'assets/icons/contacts.svg',
-                                    width: 30,
-                                    height: 30,
-                                  ),
+                                child: SvgImage.asset(
+                                  'assets/icons/contacts.svg',
+                                  width: 32,
+                                  height: 32,
                                 ),
                               ),
                               CustomNavigationBarItem(
@@ -212,40 +195,46 @@ class _HomeViewState extends State<HomeView> {
                                     ? null
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
-                                    ? const Color(0xFFC0C0C0)
-                                    : Colors.red,
+                                    ? style.colors.secondaryHighlightDarkest
+                                    : style.colors.dangerColor,
                                 child: RmbDetector(
                                   onPressed: () {
                                     HapticFeedback.lightImpact();
                                     ChatsMoreView.show(context);
                                   },
-                                  child: tab(
-                                    tab: HomeTab.chats,
-                                    child: Obx(() {
-                                      final Widget child;
+                                  child: Obx(() {
+                                    final Widget child;
 
-                                      if (c.myUser.value?.muted != null) {
-                                        child = SvgImage.asset(
-                                          'assets/icons/chats_muted.svg',
-                                          key: const Key('Muted'),
-                                          width: 36.06,
-                                          height: 30,
-                                        );
-                                      } else {
-                                        child = SvgImage.asset(
-                                          'assets/icons/chats.svg',
-                                          key: const Key('Unmuted'),
-                                          width: 36.06,
-                                          height: 30,
-                                        );
-                                      }
-
-                                      return AnimatedSwitcher(
-                                        duration: 200.milliseconds,
-                                        child: child,
+                                    if (c.myUser.value?.muted != null) {
+                                      child = SvgImage.asset(
+                                        'assets/icons/chats_muted.svg',
+                                        key: const Key('Muted'),
+                                        width: 39.26,
+                                        height: 33.5,
                                       );
-                                    }),
-                                  ),
+                                    } else {
+                                      child = SvgImage.asset(
+                                        'assets/icons/chats.svg',
+                                        key: const Key('Unmuted'),
+                                        width: 39.26,
+                                        height: 33.5,
+                                      );
+                                    }
+
+                                    return AnimatedSwitcher(
+                                      duration: 200.milliseconds,
+                                      layoutBuilder: (child, previous) {
+                                        return Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            ...previous,
+                                            if (child != null) child,
+                                          ],
+                                        );
+                                      },
+                                      child: child,
+                                    );
+                                  }),
                                 ),
                               ),
                               CustomNavigationBarItem(
@@ -255,16 +244,10 @@ class _HomeViewState extends State<HomeView> {
                                     HapticFeedback.lightImpact();
                                     StatusView.show(context);
                                   },
-                                  child: Padding(
+                                  child: AvatarWidget.fromMyUser(
+                                    c.myUser.value,
                                     key: c.profileKey,
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: tab(
-                                      tab: HomeTab.menu,
-                                      child: AvatarWidget.fromMyUser(
-                                        c.myUser.value,
-                                        radius: 15,
-                                      ),
-                                    ),
+                                    radius: 16,
                                   ),
                                 ),
                               ),
@@ -333,7 +316,7 @@ class _HomeViewState extends State<HomeView> {
               key: const Key('HomeView'),
               children: [
                 Container(
-                  color: Colors.white,
+                  color: style.colors.onPrimary,
                   width: double.infinity,
                   height: double.infinity,
                 ),
