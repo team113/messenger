@@ -26,7 +26,7 @@ import 'package:chewie/src/helpers/utils.dart';
 import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
@@ -170,7 +170,7 @@ class _DesktopControlsState extends State<DesktopControls>
                 ),
               ),
             ),
-            RxBuilder((context) {
+            RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
                   : _buildHitArea();

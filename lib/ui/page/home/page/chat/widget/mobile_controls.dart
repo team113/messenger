@@ -57,20 +57,12 @@ class _MobileControlsState extends State<MobileControls>
   /// [Timer], used to hide user interface after a timeout.
   Timer? _hideTimer;
 
-  /// [Timer], used to hide user interface on [_initialize].
-  Timer? _initTimer;
-
-  /// [Timer], used to show user interface for a while after fullscreen toggle.
-  Timer? _showAfterExpandCollapseTimer;
-
   /// Indicator whether the video progress bar is being dragged.
   bool _dragging = false;
 
   @override
   void dispose() {
     _hideTimer?.cancel();
-    _initTimer?.cancel();
-    _showAfterExpandCollapseTimer?.cancel();
     super.dispose();
   }
 

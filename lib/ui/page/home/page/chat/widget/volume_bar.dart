@@ -77,8 +77,6 @@ class VideoVolumeBar extends StatelessWidget {
       },
       onHorizontalDragEnd: (DragEndDetails details) => onDragEnd?.call(),
       onTapDown: (TapDownDetails details) {
-        controller.buffered;
-        controller.volume;
         _seekToRelativePosition(details.globalPosition, context);
       },
       child: LayoutBuilder(builder: (context, constraints) {

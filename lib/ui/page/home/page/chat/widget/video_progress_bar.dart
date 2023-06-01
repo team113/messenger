@@ -70,9 +70,6 @@ class _ProgressBarState extends State<ProgressBar> {
   /// [Offset] to seek to on `dragEnd` event.
   Offset? _latestDraggableOffset;
 
-  /// Returns [MeeduPlayerController] used to control playing progress.
-  MeeduPlayerController get controller => widget.controller;
-
   @override
   Widget build(BuildContext context) {
     final child = Center(
@@ -83,9 +80,9 @@ class _ProgressBarState extends State<ProgressBar> {
         child: RxBuilder((_) {
           return CustomPaint(
             painter: _ProgressBarPainter(
-              duration: controller.duration.value,
-              position: controller.position.value,
-              buffered: controller.buffered.value,
+              duration: widget.controller.duration.value,
+              position: widget.controller.position.value,
+              buffered: widget.controller.buffered.value,
               colors: widget.colors,
               barHeight: widget.barHeight,
               handleHeight: widget.handleHeight,
@@ -98,18 +95,18 @@ class _ProgressBarState extends State<ProgressBar> {
 
     return GestureDetector(
       onHorizontalDragStart: (DragStartDetails details) {
-        if (!controller.dataStatus.loaded) {
+        if (!widget.controller.dataStatus.loaded) {
           return;
         }
-        _controllerWasPlaying = controller.playerStatus.playing;
+        _controllerWasPlaying = widget.controller.playerStatus.playing;
         if (_controllerWasPlaying) {
-          controller.pause();
+          widget.controller.pause();
         }
 
         widget.onDragStart?.call();
       },
       onHorizontalDragUpdate: (DragUpdateDetails details) {
-        if (!controller.dataStatus.loaded) {
+        if (!widget.controller.dataStatus.loaded) {
           return;
         }
         _latestDraggableOffset = details.globalPosition;
@@ -119,7 +116,7 @@ class _ProgressBarState extends State<ProgressBar> {
       },
       onHorizontalDragEnd: (DragEndDetails details) {
         if (_controllerWasPlaying) {
-          controller.play();
+          widget.controller.play();
         }
 
         if (_latestDraggableOffset != null) {
@@ -130,7 +127,7 @@ class _ProgressBarState extends State<ProgressBar> {
         widget.onDragEnd?.call();
       },
       onTapDown: (TapDownDetails details) {
-        if (!controller.dataStatus.loaded) {
+        if (!widget.controller.dataStatus.loaded) {
           return;
         }
         _seekToRelativePosition(details.globalPosition);
@@ -145,7 +142,7 @@ class _ProgressBarState extends State<ProgressBar> {
     final box = context.findRenderObject()! as RenderBox;
     final Offset tapPos = box.globalToLocal(globalPosition);
     final double relative = tapPos.dx / box.size.width;
-    controller.seekTo(controller.duration.value * relative);
+    widget.controller.seekTo(widget.controller.duration.value * relative);
   }
 }
 
