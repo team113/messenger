@@ -23,30 +23,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
-import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
-import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
-import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/chat_select_buttons.dart';
+import 'widget/contact_tile.dart';
 
 /// View of the `HomeTab.contacts` tab.
 class ContactsTabView extends StatelessWidget {
@@ -354,7 +350,7 @@ class ContactsTabView extends StatelessWidget {
                                     contact,
                                     favorites: c.favorites,
                                     selectedContacts: c.selectedContacts,
-                                    selecting: c.selecting,
+                                    selecting: c.selecting.value,
                                     unfavoriteContact: () =>
                                         c.unfavoriteContact(
                                       contact.contact.value.id,
@@ -369,7 +365,8 @@ class ContactsTabView extends StatelessWidget {
                                     onTap: c.selecting.value
                                         ? () => c.selectContact(contact)
                                         : contact.contact.value.users.isNotEmpty
-                                            // TODO: Open [Routes.contact] page when it's implemented.
+                                            // TODO: Open [Routes.contact] page
+                                            // when it's implemented.
                                             ? () => router
                                                 .user(contact.user.value!.id)
                                             : null,
@@ -458,7 +455,7 @@ class ContactsTabView extends StatelessWidget {
                                         e,
                                         favorites: c.favorites,
                                         selectedContacts: c.selectedContacts,
-                                        selecting: c.selecting,
+                                        selecting: c.selecting.value,
                                         unfavoriteContact: () =>
                                             c.unfavoriteContact(
                                           e.contact.value.id,
@@ -474,7 +471,8 @@ class ContactsTabView extends StatelessWidget {
                                         onTap: c.selecting.value
                                             ? () => c.selectContact(e)
                                             : e.contact.value.users.isNotEmpty
-                                                // TODO: Open [Routes.contact] page when it's implemented.
+                                                // TODO: Open [Routes.contact]
+                                                // page when it's implemented.
                                                 ? () => router
                                                     .user(e.user.value!.id)
                                                 : null,
@@ -569,249 +567,5 @@ class ContactsTabView extends StatelessWidget {
     if (result == true) {
       await c.deleteContacts();
     }
-  }
-}
-
-/// [Widget] which returns a [ListTile] with [contact]'s information.
-class ContactTileWidget extends StatelessWidget {
-  const ContactTileWidget(
-    this.contact, {
-    super.key,
-    required this.favorites,
-    required this.selectedContacts,
-    required this.selecting,
-    this.unfavoriteContact,
-    this.favoriteContact,
-    this.removeFromContacts,
-    this.toggleSelecting,
-    this.avatarBuilder,
-    this.onTap,
-  });
-
-  /// Reactive favorited [ChatContact].
-  final RxChatContact contact;
-
-  /// Reactive [List] of favorited [ChatContact]s.
-  final RxList<RxChatContact> favorites;
-
-  /// Reactive [List] of [ChatContactId]s of the selected [ChatContact]s.
-  final RxList<ChatContactId> selectedContacts;
-
-  /// Indicator whether multiple [ChatContact]s selection is active.
-  final RxBool selecting;
-
-  /// Callback, called when this [ContactTileWidget] is tapped.
-  final void Function()? onTap;
-
-  /// Removes the specified [ChatContact] identified by its id from the
-  /// favorites.
-  final void Function()? unfavoriteContact;
-
-  /// Marks the specified [ChatContact] identified by its id as favorited.
-  final void Function()? favoriteContact;
-
-  /// Toggles the [ChatContact]s selection.
-  final void Function()? toggleSelecting;
-
-  /// Returns a [ListTile] with [contact]'s information.
-  final Widget Function(Widget)? avatarBuilder;
-
-  /// Opens a confirmation popup deleting the provided [contact] from address
-  /// book.
-  final void Function()? removeFromContacts;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      bool favorite = favorites.contains(contact);
-
-      final bool selected = router.routes
-              .lastWhereOrNull((e) => e.startsWith(Routes.user))
-              ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
-          true;
-
-      return ContactTile(
-        key: Key('Contact_${contact.id}'),
-        contact: contact,
-        folded: favorite,
-        selected: selected || selectedContacts.contains(contact.id),
-        enableContextMenu: !selecting.value,
-        avatarBuilder: selecting.value
-            ? (child) => WidgetButton(
-                  // TODO: Open [Routes.contact] page when it's implemented.
-                  onPressed: () => router.user(contact.user.value!.id),
-                  child: avatarBuilder?.call(child) ?? child,
-                )
-            : avatarBuilder,
-        onTap: onTap,
-        actions: [
-          favorite
-              ? ContextMenuButton(
-                  key: const Key('UnfavoriteContactButton'),
-                  label: 'btn_delete_from_favorites'.l10n,
-                  onPressed: unfavoriteContact,
-                  trailing: const Icon(Icons.star_border),
-                )
-              : ContextMenuButton(
-                  key: const Key('FavoriteContactButton'),
-                  label: 'btn_add_to_favorites'.l10n,
-                  onPressed: favoriteContact,
-                  trailing: const Icon(Icons.star),
-                ),
-          ContextMenuButton(
-            label: 'btn_delete'.l10n,
-            onPressed: removeFromContacts,
-            trailing: const Icon(Icons.delete),
-          ),
-          const ContextMenuDivider(),
-          ContextMenuButton(
-            key: const Key('SelectContactButton'),
-            label: 'btn_select'.l10n,
-            onPressed: toggleSelecting,
-            trailing: const Icon(Icons.select_all),
-          ),
-        ],
-        subtitle: [
-          Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: Obx(() {
-              final subtitle = contact.user.value?.user.value.getStatus();
-              if (subtitle != null) {
-                return Text(
-                  subtitle,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
-                );
-              }
-
-              return Container();
-            }),
-          ),
-        ],
-        trailing: [
-          Obx(() {
-            final dialog = contact.user.value?.dialog.value;
-
-            if (dialog?.chat.value.muted == null) {
-              return const SizedBox();
-            }
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SvgImage.asset(
-                'assets/icons/muted.svg',
-                key: Key('MuteIndicator_${contact.id}'),
-                width: 19.99,
-                height: 15,
-              ),
-            );
-          }),
-          Obx(() {
-            if (contact.user.value?.user.value.isBlacklisted == null) {
-              return const SizedBox();
-            }
-
-            return const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(Icons.block, color: Color(0xFFC0C0C0), size: 20),
-            );
-          }),
-          Obx(() {
-            if (!selecting.value) {
-              return const SizedBox();
-            }
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SelectedDot(
-                selected: selectedContacts.contains(contact.id),
-                size: 22,
-              ),
-            );
-          }),
-        ],
-      );
-    });
-  }
-}
-
-/// [Widget] which returns the animated [OutlinedRoundedButton]s for multiple
-/// selected chat contacts manipulation.
-class ChatSelectButtons extends StatelessWidget {
-  const ChatSelectButtons(
-    this.selectedContacts, {
-    super.key,
-    required this.removeContacts,
-    required this.toggleSelecting,
-  });
-
-  /// Reactive [List] of [ChatContactId]s of the selected [ChatContact]s.
-  final RxList<ChatContactId> selectedContacts;
-
-  /// Toggles the [ChatContact]s selection.
-  final void Function() toggleSelecting;
-
-  /// Opens a confirmation popup deleting the selected contacts.
-  final void Function() removeContacts;
-
-  @override
-  Widget build(BuildContext context) {
-    const List<CustomBoxShadow> shadows = [
-      CustomBoxShadow(
-        blurRadius: 8,
-        color: Color(0x22000000),
-        blurStyle: BlurStyle.outer,
-      ),
-    ];
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedRoundedButton(
-              title: Text(
-                'btn_close'.l10n,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: const TextStyle(color: Colors.black),
-              ),
-              onPressed: toggleSelecting,
-              color: Colors.white,
-              shadows: shadows,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Obx(() {
-            return Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('DeleteContacts'),
-                title: Text(
-                  'btn_delete_count'
-                      .l10nfmt({'count': selectedContacts.length}),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color:
-                        selectedContacts.isEmpty ? Colors.black : Colors.white,
-                  ),
-                ),
-                onPressed:
-                    selectedContacts.isEmpty ? null : () => removeContacts,
-                color: Theme.of(context).colorScheme.secondary,
-                shadows: shadows,
-              ),
-            );
-          }),
-        ],
-      ),
-    );
   }
 }

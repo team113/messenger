@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -26,7 +25,6 @@ import 'package:get/get.dart';
 
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -42,6 +40,7 @@ import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
+import 'widget/background.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 import 'widget/rmb_detector.dart';
@@ -338,7 +337,7 @@ class _HomeViewState extends State<HomeView> {
                   width: double.infinity,
                   height: double.infinity,
                 ),
-                HomeBackground(c.background, c.sideBarWidth),
+                HomeBackground(c.background.value, c.sideBarWidth.value),
                 if (c.authStatus.value.isSuccess) ...[
                   Container(child: context.isNarrow ? null : navigation),
                   sideBar,
@@ -352,92 +351,6 @@ class _HomeViewState extends State<HomeView> {
           }),
         );
       },
-    );
-  }
-}
-
-/// [Widget] which builds the [HomeController.background] visual
-/// representation.
-class HomeBackground extends StatelessWidget {
-  const HomeBackground(
-    this.background,
-    this.sideBarWidth, {
-    super.key,
-  });
-
-  /// Reactive background as a [Uint8List].
-  final Rx<Uint8List?> background;
-
-  /// Width of the side bar.
-  final RxDouble sideBarWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: IgnorePointer(
-        child: Obx(() {
-          final Widget image;
-          if (background.value != null) {
-            image = Image.memory(
-              background.value!,
-              key: Key('Background_${background.value?.lengthInBytes}'),
-              fit: BoxFit.cover,
-            );
-          } else {
-            image = const SizedBox();
-          }
-
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: SvgImage.asset(
-                  'assets/images/background_light.svg',
-                  key: const Key('DefaultBackground'),
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Positioned.fill(
-                child: AnimatedSwitcher(
-                  duration: 250.milliseconds,
-                  layoutBuilder: (child, previous) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [...previous, if (child != null) child]
-                          .map((e) => Positioned.fill(child: e))
-                          .toList(),
-                    );
-                  },
-                  child: image,
-                ),
-              ),
-              const Positioned.fill(
-                child: ColoredBox(color: Color(0x0D000000)),
-              ),
-              if (!context.isNarrow) ...[
-                Row(
-                  children: [
-                    ConditionalBackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                      child: Obx(() {
-                        double width = sideBarWidth.value;
-                        return ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: context.isNarrow ? 0 : width,
-                          ),
-                          child: const SizedBox.expand(),
-                        );
-                      }),
-                    ),
-                    const Expanded(child: ColoredBox(color: Color(0x04000000))),
-                  ],
-                ),
-              ],
-            ],
-          );
-        }),
-      ),
     );
   }
 }

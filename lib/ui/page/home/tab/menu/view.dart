@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -29,10 +28,11 @@ import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/tab_card.dart';
 
 /// View of the `HomeTab.menu` tab.
 class MenuTabView extends StatelessWidget {
-  const MenuTabView({Key? key}) : super(key: key);
+  const MenuTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -276,118 +276,5 @@ class MenuTabView extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-/// Tab card in a [ProfileTab] page
-class TabCard extends StatelessWidget {
-  const TabCard(
-    this.tab, {
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    this.onTap,
-  });
-
-  /// Current [ProfileTab].
-  final ProfileTab tab;
-
-  /// title of this [TabCard].
-  final String title;
-
-  /// Subtitle that describes this [TabCard].
-  final String subtitle;
-
-  /// Icon that represents this [TabCard].
-  final IconData icon;
-
-  /// Callback, called when this [TabCard] is tapped.
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
-
-    return Obx(() {
-      final bool inverted =
-          tab == router.profileSection.value && router.route == Routes.me;
-
-      return Padding(
-        key: key,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: SizedBox(
-          height: 73,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              border: style.cardBorder,
-              color: Colors.transparent,
-            ),
-            child: Material(
-              type: MaterialType.card,
-              borderRadius: style.cardRadius,
-              color: inverted ? colors.secondary : style.cardColor,
-              child: InkWell(
-                borderRadius: style.cardRadius,
-                onTap: onTap ??
-                    () {
-                      if (router.profileSection.value == tab) {
-                        router.profileSection.refresh();
-                      } else {
-                        router.profileSection.value = tab;
-                      }
-                      router.me();
-                    },
-                hoverColor:
-                    inverted ? colors.secondary : style.cardColor.darken(0.03),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 12),
-                      Icon(
-                        icon,
-                        color: inverted ? colors.onSecondary : colors.secondary,
-                      ),
-                      const SizedBox(width: 18),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            DefaultTextStyle(
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall!
-                                  .copyWith(
-                                    color: inverted ? colors.onSecondary : null,
-                                  ),
-                              child: Text(title),
-                            ),
-                            const SizedBox(height: 6),
-                            DefaultTextStyle.merge(
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: inverted ? colors.onSecondary : null,
-                              ),
-                              child: Text(subtitle),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    });
   }
 }
