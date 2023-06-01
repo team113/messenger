@@ -406,27 +406,6 @@ class HiveRxChat extends RxChat {
     await _readTimer?.future;
   }
 
-  /// Creates a local [ChatMessage] with the provided arguments.
-  ChatItem postLocalMessage({
-    PreciseDateTime? existingDateTime,
-    ChatMessageText? text,
-    List<Attachment>? attachments,
-    List<ChatItem> repliesTo = const [],
-  }) {
-    HiveChatMessage message = HiveChatMessage.sending(
-      chatId: chat.value.id,
-      me: me!,
-      text: text,
-      repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
-      attachments: attachments ?? [],
-      existingDateTime: existingDateTime,
-    );
-
-    put(message, ignoreVersion: true);
-
-    return message.value;
-  }
-
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
@@ -435,7 +414,7 @@ class HiveRxChat extends RxChat {
   ///
   /// Specify [repliesTo] argument if the posted [ChatMessage] is going to be a
   /// reply to some other [ChatItem].
-  Future<void> postChatMessage({
+  Future<ChatItem> postChatMessage({
     ChatItemId? existingId,
     PreciseDateTime? existingDateTime,
     ChatMessageText? text,
@@ -464,8 +443,7 @@ class HiveRxChat extends RxChat {
     // If the [ChatMessage] being posted is local, then no remote queries should
     // be performed, so return the constructed item right away.
     if (id.isLocal) {
-      message.value.status.value = SendingStatus.error;
-      return;
+      return message.value;
     }
 
     _pending.add(message.value);
@@ -538,6 +516,8 @@ class HiveRxChat extends RxChat {
     } finally {
       put(message, ignoreVersion: true);
     }
+
+    return message.value;
   }
 
   /// Puts the provided [item] to [Hive].

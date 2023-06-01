@@ -642,14 +642,6 @@ class ChatsTabController extends GetxController {
             .compareTo(b.chat.value.favoritePosition!);
       }
 
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
       if (a.chat.value.id.isLocalMonolog(me) &&
           !b.chat.value.id.isLocalMonolog(me)) {
         return 1;

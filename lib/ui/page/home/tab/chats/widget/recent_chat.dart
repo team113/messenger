@@ -149,13 +149,14 @@ class RecentChatTile extends StatelessWidget {
         chat: rxChat,
         status: [
           _status(context, inverted),
-          Text(
-            chat.updatedAt.val.toLocal().short,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: inverted ? style.colors.onPrimary : null),
-          ),
+          if (!chat.id.isLocalMonolog(me))
+            Text(
+              chat.updatedAt.val.toLocal().short,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.copyWith(color: inverted ? style.colors.onPrimary : null),
+            ),
         ],
         subtitle: [
           const SizedBox(height: 5),

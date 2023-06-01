@@ -307,7 +307,7 @@ class ChatRepository extends DisposableInterface
     ChatItem? local;
 
     if (chatId.isLocal) {
-      local = rxChat?.postLocalMessage(
+      local = await rxChat?.postChatMessage(
         existingDateTime: PreciseDateTime.now().add(10.seconds),
         text: text,
         attachments: attachments,
@@ -317,7 +317,7 @@ class ChatRepository extends DisposableInterface
       try {
         rxChat = await ensureRemoteDialog(chatId);
       } catch (_) {
-        // No-op.
+        local?.status.value = SendingStatus.error;
       }
     }
 
