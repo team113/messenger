@@ -100,6 +100,9 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     showLogs: kDebugMode,
   );
 
+  /// [CancelToken] for cancelling the [VideoThumbnail.url] head fetching.
+  CancelToken? _cancelToken;
+
   @override
   void initState() {
     _initVideo();
@@ -109,6 +112,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   @override
   void dispose() {
     _controller.dispose();
+    _cancelToken?.cancel();
     super.dispose();
   }
 
@@ -192,30 +196,34 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
           ? DataSourceExt.bytes(bytes)
           : DataSource(type: DataSourceType.network, source: widget.url),
       autoplay: false,
-      looping: false,
     );
 
-    if (widget.url != null) {
+    if (widget.url != null && bytes == null) {
+      _cancelToken?.cancel();
+      _cancelToken = CancelToken();
+
       bool shouldReload = false;
-      Backoff.run(() async {
-        try {
-          await PlatformUtils.dio.head(widget.url!);
-          if (shouldReload) {
-            await _controller.setDataSource(
-              DataSource(type: DataSourceType.network, source: widget.url),
-              autoplay: true,
-              looping: false,
-            );
+      Backoff.run(
+        () async {
+          try {
+            await PlatformUtils.dio.head(widget.url!);
+            if (shouldReload) {
+              await _controller.setDataSource(
+                DataSource(type: DataSourceType.network, source: widget.url),
+                autoplay: false,
+              );
+            }
+          } catch (e) {
+            if (e is DioError && e.response?.statusCode == 403) {
+              widget.onError?.call();
+            } else {
+              shouldReload = true;
+              rethrow;
+            }
           }
-        } catch (e) {
-          if (e is DioError && e.response?.statusCode == 403) {
-            widget.onError?.call();
-          } else {
-            shouldReload = true;
-            rethrow;
-          }
-        }
-      });
+        },
+        _cancelToken,
+      );
     }
   }
 }

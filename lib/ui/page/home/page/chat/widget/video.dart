@@ -22,12 +22,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/backoff.dart';
 
 import 'desktop_controls.dart';
 import 'mobile_controls.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
 /// Video player with controls.
@@ -73,6 +73,9 @@ class _VideoState extends State<Video> {
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
+  /// [CancelToken] for cancelling the [Video.url] head fetching.
+  CancelToken? _cancelToken;
+
   final MeeduPlayerController _controller = MeeduPlayerController(
     controlsStyle: ControlsStyle.custom,
     fits: [BoxFit.contain],
@@ -84,28 +87,13 @@ class _VideoState extends State<Video> {
   @override
   void initState() {
     _controller.videoFit.value = BoxFit.contain;
+    widget.onController?.call(_controller);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _initVideo();
     });
-    _loading = Timer(1.seconds, () => setState(() => _loading = null));
 
-    bool shouldReload = false;
-    Backoff.run(() async {
-      try {
-        await PlatformUtils.dio.head(widget.url);
-        if (shouldReload) {
-          _initVideo();
-        }
-      } catch (e) {
-        if (e is DioError && e.response?.statusCode == 403) {
-          widget.onError?.call();
-        } else {
-          shouldReload = true;
-          rethrow;
-        }
-      }
-    });
+    _loading = Timer(1.seconds, () => setState(() => _loading = null));
     super.initState();
   }
 
@@ -114,6 +102,7 @@ class _VideoState extends State<Video> {
     widget.onController?.call(null);
     _loading?.cancel();
     _controller.dispose();
+    _cancelToken?.cancel();
     super.dispose();
   }
 
@@ -198,9 +187,32 @@ class _VideoState extends State<Video> {
   Future<void> _initVideo() async {
     _controller.setDataSource(
       DataSource(type: DataSourceType.network, source: widget.url),
-      autoplay: true,
-      looping: false,
     );
-    widget.onController?.call(_controller);
+
+    _cancelToken?.cancel();
+    _cancelToken = CancelToken();
+
+    bool shouldReload = false;
+    Backoff.run(
+          () async {
+        try {
+          await PlatformUtils.dio.head(widget.url);
+          if (shouldReload) {
+            // Reinitialize video if an unexpected error was thrown.
+            _controller.setDataSource(
+              DataSource(type: DataSourceType.network, source: widget.url),
+            );
+          }
+        } catch (e) {
+          if (e is DioError && e.response?.statusCode == 403) {
+            widget.onError?.call();
+          } else {
+            shouldReload = true;
+            rethrow;
+          }
+        }
+      },
+      _cancelToken,
+    );
   }
 }
