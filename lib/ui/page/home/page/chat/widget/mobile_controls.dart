@@ -250,15 +250,15 @@ class _MobileControlsState extends State<MobileControls>
             right: 8.0,
           ),
           child: Center(
-            child: RxBuilder(
-              (_) {
-                return Icon(
-                  widget.controller.volume.value > 0 ? Icons.volume_up : Icons.volume_off,
-                  color: style.colors.onPrimary,
-                  size: 18,
-                );
-              }
-            ),
+            child: RxBuilder((_) {
+              return Icon(
+                widget.controller.volume.value > 0
+                    ? Icons.volume_up
+                    : Icons.volume_off,
+                color: style.colors.onPrimary,
+                size: 18,
+              );
+            }),
           ),
         ),
       ),
@@ -269,33 +269,31 @@ class _MobileControlsState extends State<MobileControls>
   Widget _buildPosition(Color? iconColor) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return RxBuilder(
-      (_) {
-        final position = widget.controller.position.value;
-        final duration = widget.controller.duration.value;
+    return RxBuilder((_) {
+      final position = widget.controller.position.value;
+      final duration = widget.controller.duration.value;
 
-        return RichText(
-          text: TextSpan(
-            text: '${formatDuration(position)} ',
-            children: <InlineSpan>[
-              TextSpan(
-                text: '/ ${formatDuration(duration)}',
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: style.colors.onPrimaryOpacity50,
-                  fontWeight: FontWeight.normal,
-                ),
-              )
-            ],
-            style: TextStyle(
-              fontSize: 14.0,
-              color: style.colors.onPrimary,
-              fontWeight: FontWeight.bold,
-            ),
+      return RichText(
+        text: TextSpan(
+          text: '${formatDuration(position)} ',
+          children: <InlineSpan>[
+            TextSpan(
+              text: '/ ${formatDuration(duration)}',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: style.colors.onPrimaryOpacity50,
+                fontWeight: FontWeight.normal,
+              ),
+            )
+          ],
+          style: TextStyle(
+            fontSize: 14.0,
+            color: style.colors.onPrimary,
+            fontWeight: FontWeight.bold,
           ),
-        );
-      }
-    );
+        ),
+      );
+    });
   }
 
   /// Returns the [VideoProgressBar] of the current video progression.
@@ -317,11 +315,11 @@ class _MobileControlsState extends State<MobileControls>
           _startHideTimer();
         },
         colors: ChewieProgressColors(
-              playedColor: style.colors.primary,
-              handleColor: style.colors.primary,
-              bufferedColor: style.colors.background.withOpacity(0.5),
-              backgroundColor: style.colors.secondary.withOpacity(0.5),
-            ),
+          playedColor: style.colors.primary,
+          handleColor: style.colors.primary,
+          bufferedColor: style.colors.background.withOpacity(0.5),
+          backgroundColor: style.colors.secondary.withOpacity(0.5),
+        ),
       ),
     );
   }
@@ -329,7 +327,8 @@ class _MobileControlsState extends State<MobileControls>
   /// Toggles play and pause of the [_controller]. Starts video from the start
   /// if the playback is done.
   void _playPause() {
-    final isFinished = widget.controller.position.value >= widget.controller.duration.value;
+    final isFinished =
+        widget.controller.position.value >= widget.controller.duration.value;
 
     if (widget.controller.playerStatus.playing) {
       _hideStuff = false;

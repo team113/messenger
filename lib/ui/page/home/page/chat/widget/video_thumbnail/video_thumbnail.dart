@@ -15,13 +15,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/util/backoff.dart';
+import '/util/platform_utils.dart';
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
     if (dart.library.html) 'src/web.dart';
@@ -90,7 +93,12 @@ class VideoThumbnail extends StatefulWidget {
 /// [VideoPlayerController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
   /// [VideoPlayerController] to display the first frame of the video.
-  VideoPlayerController? _controller;
+  final MeeduPlayerController _controller = MeeduPlayerController(
+    controlsStyle: ControlsStyle.custom,
+    enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
+    loadingWidget: const SizedBox(),
+    showLogs: kDebugMode,
+  );
 
   @override
   void initState() {
@@ -100,7 +108,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -117,76 +125,97 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    double width = 0;
-    double height = 0;
-
-    if (_controller?.value.isInitialized == true) {
-      width = _controller!.value.size.width;
-      height = _controller!.value.size.height;
-
-      if (widget.height != null) {
-        width = width * widget.height! / height;
-        height = widget.height!;
-      }
-    }
-
     return AnimatedSize(
       duration: const Duration(milliseconds: 200),
-      child: _controller?.value.isInitialized == true
-          ? SizedBox(
-              width: width,
-              height: height,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipRect(
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: SizedBox(
-                        width: _controller!.value.size.width,
-                        height: _controller!.value.size.height,
-                        child: IgnorePointer(child: VideoPlayer(_controller!)),
+      child: RxBuilder((_) {
+        double width = 0;
+        double height = 0;
+
+        if (_controller.videoPlayerController?.value.isInitialized == true) {
+          width = _controller.videoPlayerController!.value.size.width;
+          height = _controller.videoPlayerController!.value.size.height;
+
+          if (widget.height != null) {
+            width = width * widget.height! / height;
+            height = widget.height!;
+          }
+        }
+        return _controller.dataStatus.loaded
+            ? SizedBox(
+                width: width,
+                height: height,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ClipRect(
+                      child: FittedBox(
+                        fit: BoxFit.cover,
+                        child: SizedBox(
+                          width: _controller
+                                  .videoPlayerController?.value.size.width ??
+                              1920,
+                          height: _controller
+                                  .videoPlayerController?.value.size.height ??
+                              1080,
+                          child: IgnorePointer(
+                            child: MeeduVideoPlayer(
+                              controller: _controller,
+                              customControls: (_, __, ___) => const SizedBox(),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  ContextMenuInterceptor(child: const SizedBox()),
+                    ContextMenuInterceptor(child: const SizedBox()),
 
-                  // [Container] for receiving pointer events over this
-                  // [VideoThumbnail], since the [ContextMenuInterceptor] above
-                  // intercepts them.
-                  Container(color: style.colors.transparent),
-                ],
-              ),
-            )
-          : SizedBox(width: 250, height: widget.height ?? 250),
+                    // [Container] for receiving pointer events over this
+                    // [VideoThumbnail], since the [ContextMenuInterceptor] above
+                    // intercepts them.
+                    Container(color: style.colors.transparent),
+                  ],
+                ),
+              )
+            : SizedBox(width: 250, height: widget.height ?? 250);
+      }),
     );
   }
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    try {
-      Uint8List? bytes = widget.bytes;
-      if (widget.checksum != null) {
-        bytes ??= FIFOCache.get(widget.checksum!);
-      }
-
-      if (bytes != null) {
-        _controller = VideoPlayerControllerExt.bytes(bytes);
-      } else {
-        _controller = VideoPlayerController.network(widget.url!);
-      }
-
-      await _controller!.initialize();
-    } on PlatformException catch (e) {
-      if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
-        if (widget.onError != null) {
-          await widget.onError?.call();
-        }
-      }
+    Uint8List? bytes = widget.bytes;
+    if (widget.checksum != null) {
+      bytes ??= FIFOCache.get(widget.checksum!);
     }
 
-    if (mounted) {
-      setState(() {});
+    _controller.setDataSource(
+      bytes != null
+          ? DataSourceExt.bytes(bytes)
+          : DataSource(type: DataSourceType.network, source: widget.url),
+      autoplay: false,
+      looping: false,
+    );
+
+    if (widget.url != null) {
+      bool shouldReload = false;
+      Backoff.run(() async {
+        try {
+          await PlatformUtils.dio.head(widget.url!);
+          if (shouldReload) {
+            await _controller.setDataSource(
+              DataSource(type: DataSourceType.network, source: widget.url),
+              autoplay: true,
+              looping: false,
+            );
+          }
+        } catch (e) {
+          if (e is DioError && e.response?.statusCode == 403) {
+            widget.onError?.call();
+          } else {
+            shouldReload = true;
+            rethrow;
+          }
+        }
+      });
     }
   }
 }

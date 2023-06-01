@@ -53,7 +53,7 @@ class Video extends StatefulWidget {
   final VoidCallback? toggleFullscreen;
 
   /// Callback, called when a [VideoPlayerController] is assigned or disposed.
-  final void Function(VideoPlayerController?)? onController;
+  final void Function(MeeduPlayerController?)? onController;
 
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
@@ -73,7 +73,7 @@ class _VideoState extends State<Video> {
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
-  final MeeduPlayerController _meeduPlayerController = MeeduPlayerController(
+  final MeeduPlayerController _controller = MeeduPlayerController(
     controlsStyle: ControlsStyle.custom,
     fits: [BoxFit.contain],
     enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
@@ -83,13 +83,10 @@ class _VideoState extends State<Video> {
 
   @override
   void initState() {
+    _controller.videoFit.value = BoxFit.contain;
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _meeduPlayerController.videoFit.value = BoxFit.contain;
-      await _meeduPlayerController.setDataSource(
-        DataSource(type: DataSourceType.network, source: widget.url),
-        autoplay: true,
-        looping: false,
-      );
+      _initVideo();
     });
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
 
@@ -98,11 +95,7 @@ class _VideoState extends State<Video> {
       try {
         await PlatformUtils.dio.head(widget.url);
         if (shouldReload) {
-          await _meeduPlayerController.setDataSource(
-            DataSource(type: DataSourceType.network, source: widget.url),
-            autoplay: true,
-            looping: false,
-          );
+          _initVideo();
         }
       } catch (e) {
         if (e is DioError && e.response?.statusCode == 403) {
@@ -120,7 +113,7 @@ class _VideoState extends State<Video> {
   void dispose() {
     widget.onController?.call(null);
     _loading?.cancel();
-    _meeduPlayerController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -128,11 +121,7 @@ class _VideoState extends State<Video> {
   void didUpdateWidget(Video oldWidget) {
     if (oldWidget.url != widget.url) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _meeduPlayerController.setDataSource(
-          DataSource(type: DataSourceType.network, source: widget.url),
-          autoplay: true,
-          looping: false,
-        );
+        _initVideo();
       });
     }
 
@@ -146,17 +135,17 @@ class _VideoState extends State<Video> {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: RxBuilder((_) {
-        return _meeduPlayerController.dataStatus.loaded
+        return _controller.dataStatus.loaded
             ? Stack(
                 children: [
                   MeeduVideoPlayer(
-                    controller: _meeduPlayerController,
+                    controller: _controller,
                     customControls: (_, __, ___) => const SizedBox(),
                   ),
                   PlatformUtils.isMobile
-                      ? MobileControls(controller: _meeduPlayerController)
+                      ? MobileControls(controller: _controller)
                       : DesktopControls(
-                          controller: _meeduPlayerController,
+                          controller: _controller,
                           onClose: widget.onClose,
                           toggleFullscreen: widget.toggleFullscreen,
                           isFullscreen: widget.isFullscreen,
@@ -164,7 +153,7 @@ class _VideoState extends State<Video> {
                         ),
                 ],
               )
-            : _meeduPlayerController.dataStatus.error
+            : _controller.dataStatus.error
                 ? Center(
                     key: const Key('Error'),
                     child: Column(
@@ -205,4 +194,13 @@ class _VideoState extends State<Video> {
     );
   }
 
+  /// Initializes the [_controller].
+  Future<void> _initVideo() async {
+    _controller.setDataSource(
+      DataSource(type: DataSourceType.network, source: widget.url),
+      autoplay: true,
+      looping: false,
+    );
+    widget.onController?.call(_controller);
+  }
 }

@@ -22,10 +22,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:video_player/video_player.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -187,7 +187,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// [Map] of [VideoPlayerController] controlling the video playback used to
   /// play/pause the active videos on keyboard presses.
-  final Map<int, VideoPlayerController> _videoControllers = {};
+  final Map<int, MeeduPlayerController> _videoControllers = {};
 
   /// [CurvedAnimation] of the [_sliding] animation.
   late CurvedAnimation _curve;
@@ -469,28 +469,28 @@ class _GalleryPopupState extends State<GalleryPopup>
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
                 child: Video(
-                        e.link,
-                        showInterfaceFor: _isInitialPage ? 3.seconds : null,
-                        onClose: _dismiss,
-                        isFullscreen: _isFullscreen,
-                        toggleFullscreen: () {
-                          node.requestFocus();
-                          _toggleFullscreen();
-                        },
-                        onController: (c) {
-                          if (c == null) {
-                            _videoControllers.remove(index);
-                          } else {
-                            _videoControllers[index] = c;
-                          }
-                        },
-                        onError: () async {
-                          await e.onError?.call();
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        },
-                      ),
+                  e.link,
+                  showInterfaceFor: _isInitialPage ? 3.seconds : null,
+                  onClose: _dismiss,
+                  isFullscreen: _isFullscreen,
+                  toggleFullscreen: () {
+                    node.requestFocus();
+                    _toggleFullscreen();
+                  },
+                  onController: (c) {
+                    if (c == null) {
+                      _videoControllers.remove(index);
+                    } else {
+                      _videoControllers[index] = c;
+                    }
+                  },
+                  onError: () async {
+                    await e.onError?.call();
+                    if (mounted) {
+                      setState(() {});
+                    }
+                  },
+                ),
               ),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
@@ -932,7 +932,7 @@ class _GalleryPopupState extends State<GalleryPopup>
         _dismiss();
       } else if (k.physicalKey == PhysicalKeyboardKey.space) {
         _videoControllers.forEach((_, v) {
-          if (v.value.isPlaying == true) {
+          if (v.playerStatus.playing) {
             v.pause();
           } else {
             v.play();
