@@ -95,6 +95,7 @@ class _ChatViewState extends State<ChatView>
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
@@ -430,6 +431,9 @@ class _ChatViewState extends State<ChatView>
                                   child: Text(
                                     key: const Key('NoMessages'),
                                     'label_no_messages'.l10n,
+                                    style: fonts.bodySmall!.copyWith(
+                                      color: style.colors.onBackground,
+                                    ),
                                   ),
                                 );
                               }

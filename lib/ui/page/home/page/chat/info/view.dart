@@ -384,7 +384,6 @@ class ChatInfoView extends StatelessWidget {
   /// Returns a [Chat.directLink] editable field.
   Widget _link(ChatInfoController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Obx(() {
       return Column(
@@ -429,16 +428,14 @@ class ChatInfoView extends StatelessWidget {
                                   c.chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
-                        style: fonts.bodyMedium!.copyWith(
+                        style: style.smallestBody.copyWith(
                           color: style.colors.secondary,
-                          fontSize: 11,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: fonts.bodyMedium!.copyWith(
+                        style: style.smallestBody.copyWith(
                           color: style.colors.primary,
-                          fontSize: 11,
                         ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),

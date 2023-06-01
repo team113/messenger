@@ -77,7 +77,12 @@ class Themes {
           Style(
             colors: colors,
             barrierColor: colors.onBackgroundOpacity50,
+            smallestBody: textStyle.copyWith(fontSize: 11),
             boldBody: textStyle.copyWith(fontWeight: FontWeight.bold),
+            boldDisplay: textStyle.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 27,
+            ),
             cardBlur: 5,
             cardBorder:
                 Border.all(color: colors.secondaryHighlightDark, width: 0.5),
@@ -383,7 +388,9 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.colors,
     required this.barrierColor,
+    required this.smallestBody,
     required this.boldBody,
+    required this.boldDisplay,
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
@@ -411,8 +418,14 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the modal background barrier.
   final Color barrierColor;
 
+  /// [TextStyle] to use in the smallest body to make content readable.
+  final TextStyle smallestBody;
+
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
+
+  /// [TextStyle] to use in the display to make content readable.
+  final TextStyle boldDisplay;
 
   /// Blur to apply to card-like [Widget]s.
   final double cardBlur;
@@ -478,7 +491,9 @@ class Style extends ThemeExtension<Style> {
     Palette? colors,
     TextStyle? thinTextStyle,
     Color? barrierColor,
+    TextStyle? smallestBody,
     TextStyle? boldBody,
+    TextStyle? boldDisplay,
     double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
@@ -502,7 +517,9 @@ class Style extends ThemeExtension<Style> {
     return Style(
       colors: colors ?? this.colors,
       barrierColor: barrierColor ?? this.barrierColor,
+      smallestBody: smallestBody ?? this.smallestBody,
       boldBody: boldBody ?? this.boldBody,
+      boldDisplay: boldDisplay ?? this.boldDisplay,
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
@@ -536,7 +553,9 @@ class Style extends ThemeExtension<Style> {
     return Style(
       colors: Palette.lerp(colors, other.colors, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
+      smallestBody: TextStyle.lerp(smallestBody, other.smallestBody, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      boldDisplay: TextStyle.lerp(boldDisplay, other.boldDisplay, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,

@@ -460,16 +460,14 @@ Widget _link(BuildContext context, MyProfileController c) {
                                 c.myUser.value?.chatDirectLink?.usageCount ?? 0
                           }) +
                           'dot_space'.l10n,
-                      style: fonts.bodyMedium!.copyWith(
+                      style: style.smallestBody.copyWith(
                         color: style.colors.secondary,
-                        fontSize: 11,
                       ),
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: fonts.bodyMedium!.copyWith(
+                      style: style.smallestBody.copyWith(
                         color: style.colors.primary,
-                        fontSize: 11,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
