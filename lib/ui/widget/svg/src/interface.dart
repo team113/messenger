@@ -135,9 +135,9 @@ class SvgFromBytes extends StatelessWidget {
 /// the image dimensions will change as the image is loaded, which will result
 /// in ugly layout changes.
 class SvgFromFile extends StatelessWidget {
-  const SvgFromFile(this.file,{
+  const SvgFromFile(
+    this.file, {
     super.key,
-    
     this.alignment = Alignment.center,
     this.fit = BoxFit.cover,
     this.width,
