@@ -350,11 +350,20 @@ class ContactsTabView extends StatelessWidget {
                               return KeyedSubtree(
                                 key: Key(contact.id.val),
                                 child: Obx(() {
+                                  final bool selected = router.routes
+                                          .lastWhereOrNull(
+                                              (e) => e.startsWith(Routes.user))
+                                          ?.startsWith(
+                                              '${Routes.user}/${contact.user.value?.id}') ==
+                                      true;
+
                                   final Widget child = ContactTileWidget(
                                     contact,
                                     favorites: c.favorites,
                                     selectedContacts: c.selectedContacts,
                                     selecting: c.selecting.value,
+                                    inverted: selected ||
+                                        c.selectedContacts.contains(contact.id),
                                     unfavoriteContact: () =>
                                         c.unfavoriteContact(
                                       contact.contact.value.id,
@@ -449,6 +458,13 @@ class ContactsTabView extends StatelessWidget {
                           sliver: SliverList(
                             delegate: SliverChildListDelegate.fixed(
                               c.contacts.mapIndexed((i, e) {
+                                final bool selected = router.routes
+                                        .lastWhereOrNull(
+                                            (e) => e.startsWith(Routes.user))
+                                        ?.startsWith(
+                                            '${Routes.user}/${e.user.value?.id}') ==
+                                    true;
+
                                 return AnimationConfiguration.staggeredList(
                                   position: i,
                                   duration: const Duration(milliseconds: 375),
@@ -460,6 +476,8 @@ class ContactsTabView extends StatelessWidget {
                                         favorites: c.favorites,
                                         selectedContacts: c.selectedContacts,
                                         selecting: c.selecting.value,
+                                        inverted: selected ||
+                                            c.selectedContacts.contains(e.id),
                                         unfavoriteContact: () =>
                                             c.unfavoriteContact(
                                           e.contact.value.id,
@@ -517,6 +535,9 @@ class ContactsTabView extends StatelessWidget {
           bottomNavigationBar: c.selecting.value
               ? ChatSelectButtons(
                   c.selectedContacts,
+                  deleteCount: 'btn_delete_count'.l10nfmt(
+                    {'count': c.selectedContacts.length},
+                  ),
                   toggleSelecting: c.toggleSelecting,
                   removeContacts: () => _removeContacts(context, c),
                 )

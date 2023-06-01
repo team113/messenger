@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '/domain/model/contact.dart';
@@ -43,6 +42,7 @@ class ContactTileWidget extends StatelessWidget {
     this.toggleSelecting,
     this.avatarBuilder,
     this.onTap,
+    required this.inverted,
   });
 
   /// Reactive favorited [ChatContact].
@@ -56,6 +56,10 @@ class ContactTileWidget extends StatelessWidget {
 
   /// Indicator whether multiple [ChatContact]s selection is active.
   final bool selecting;
+
+  /// Indicator whether the given contact is present in the
+  /// selectedContacts list.
+  final bool inverted;
 
   /// Callback, called when this [ContactTileWidget] is tapped.
   final void Function()? onTap;
@@ -79,17 +83,16 @@ class ContactTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool favorite = favorites.contains(contact);
+    /// Indicator whether the contact is in the user's favorites
+    /// list or not.
+    final bool favorite = favorites.contains(contact);
 
-    final bool selected = router.routes
-            .lastWhereOrNull((e) => e.startsWith(Routes.user))
-            ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
-        true;
+    /// Status of the user associated with the contact, or null if there
+    /// is no user.
+    final String? subtitle = contact.user.value?.user.value.getStatus();
 
-    final bool inverted = selected || selectedContacts.contains(contact.id);
-
-    final subtitle = contact.user.value?.user.value.getStatus();
-
+    /// Current dialog associated with the user for the contact,
+    /// or null if there is no user or dialog.
     final dialog = contact.user.value?.dialog.value;
 
     return ContactTile(
