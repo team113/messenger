@@ -194,7 +194,7 @@ class _VideoState extends State<Video> {
 
     bool shouldReload = false;
     Backoff.run(
-          () async {
+      () async {
         try {
           await PlatformUtils.dio.head(widget.url);
           if (shouldReload) {
