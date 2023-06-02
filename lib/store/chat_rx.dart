@@ -52,7 +52,7 @@ import 'chat.dart';
 import 'event/chat.dart';
 
 /// [RxChat] implementation backed by local [Hive] storage.
-class HiveRxChat extends RxChat implements Comparable {
+class HiveRxChat extends RxChat {
   HiveRxChat(
     this._chatRepository,
     this._chatLocal,
