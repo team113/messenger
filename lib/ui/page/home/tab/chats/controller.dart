@@ -617,41 +617,7 @@ class ChatsTabController extends GetxController {
 
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
-    chats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      } else if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall != null) {
-        return a.chat.value.ongoingCall!.at
-            .compareTo(b.chat.value.ongoingCall!.at);
-      }
-
-      if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition == null) {
-        return -1;
-      } else if (a.chat.value.favoritePosition == null &&
-          b.chat.value.favoritePosition != null) {
-        return 1;
-      } else if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition != null) {
-        return a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!);
-      }
-
-      if (a.chat.value.id.isLocalMonolog(me) &&
-          !b.chat.value.id.isLocalMonolog(me)) {
-        return 1;
-      } else if (!a.chat.value.id.isLocalMonolog(me) &&
-          b.chat.value.id.isLocalMonolog(me)) {
-        return -1;
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-    });
+    chats.sort();
   }
 
   /// Disables the [search], if its focus is lost or its query is empty.
