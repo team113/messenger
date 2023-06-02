@@ -26,9 +26,9 @@ import '/themes.dart';
 class MobileSelector<T> extends StatelessWidget {
   const MobileSelector({
     super.key,
-    this.initial,
     required this.initialItem,
     required this.items,
+    this.initial,
     this.child,
     this.onSelectedItemChanged,
   });
@@ -42,10 +42,10 @@ class MobileSelector<T> extends StatelessWidget {
   /// [List] of items to select from.
   final List<T> items;
 
-  /// TODO: docs
+  /// Optional [Widget] of this [MobileSelector].
   final Widget? child;
 
-  /// TODO: docs
+  /// Callback, called when the currently centered item changes.
   final void Function(int)? onSelectedItemChanged;
 
   @override

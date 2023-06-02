@@ -56,7 +56,7 @@ class SuffixIcon extends StatelessWidget {
   /// should be treated as a [RxStatus.error].
   final bool treatErrorAsStatus;
 
-  ///  [RxStatus] of this [ReactiveFieldState].
+  /// [RxStatus] of this [ReactiveFieldState].
   final RxStatus status;
 
   /// Error message.

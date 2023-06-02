@@ -25,16 +25,16 @@ import '/themes.dart';
 class DesktopSelector<T> extends StatelessWidget {
   const DesktopSelector({
     super.key,
-    required this.buttonKey,
     required this.items,
     required this.alignment,
     required this.width,
-    required this.margin,
-    required this.buttonBuilder,
     required this.itemBuilder,
     required this.selected,
-    required this.debounce,
-    required this.onSelected,
+    this.buttonKey,
+    this.margin,
+    this.buttonBuilder,
+    this.debounce,
+    this.onSelected,
   });
 
   /// [GlobalKey] of an [Object] displaying this [Selector].
