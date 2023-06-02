@@ -22,11 +22,11 @@ import 'package:flutter/material.dart';
 /// [AnimatedSwitcher] with an optional [delay].
 class AnimatedDelayedSwitcher extends StatefulWidget {
   const AnimatedDelayedSwitcher({
-    Key? key,
+    super.key,
     this.delay = Duration.zero,
     this.duration = const Duration(milliseconds: 300),
     required this.child,
-  }) : super(key: key);
+  });
 
   /// [Duration] of the delay.
   final Duration delay;

@@ -22,11 +22,11 @@ import '/themes.dart';
 /// Simple [GestureDetector]-based button without any decorations.
 class WidgetButton extends StatelessWidget {
   const WidgetButton({
-    Key? key,
+    super.key,
     required this.child,
     this.behavior,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   /// [Widget] to press.
   final Widget child;
