@@ -55,7 +55,7 @@ class DesktopSelector<T> extends StatelessWidget {
   /// Currently selected item.
   final Rx<T> selected;
 
-  /// [Worker] debouncing the [_selected] value, if any debounce is specified.
+  /// [Worker] debouncing the [selected] value, if any debounce is specified.
   final Worker? debounce;
 
   /// Callback, called when the provided item is selected.
