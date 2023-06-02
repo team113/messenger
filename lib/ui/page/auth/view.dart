@@ -65,7 +65,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: fonts.displayLarge!.copyWith(color: style.colors.secondary),
+            style: style.displayLarge.copyWith(color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -73,7 +73,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: fonts.bodyLarge!.copyWith(color: style.colors.secondary),
+            style: style.titleSmall.copyWith(color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -88,7 +88,7 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
+              style: style.labelMedium.copyWith(color: style.colors.onPrimary),
             ),
             leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: c.register,

@@ -72,9 +72,94 @@ class Themes {
 
     final ThemeData theme = ThemeData.light();
 
+    /// Display - это крупный, яркий и привлекательный шрифт, который обычно
+    /// используется для заголовков на главном экране приложения или на
+    /// титульной странице.
+    ///
+    /// Headline - это шрифт, который обычно используется для названий и
+    /// заголовков на экранах с контентом, таких как страницы продуктов,
+    /// статей или главных разделов в приложении.
+    ///
+    /// Label - это шрифт, который обычно используется для меток и кратких
+    /// описаний элементов интерфейса, таких как кнопок, полей ввода и
+    /// переключателей.
+    ///
+    /// Title - это шрифт, который обычно используется для названий разделов
+    /// в меню или на страницах, чтобы помочь пользователям быстро
+    /// ориентироваться в приложении.
+    ///
+    /// Body - это шрифт, который обычно используется для основного текстового
+    /// контента, такого как описания продуктов, подробного описания функций
+    /// или инструкции для использования.
     return theme.copyWith(
         extensions: [
           Style(
+            ///---------///
+            /// Messenger(Страница авторизации)
+            displayLarge: textStyle.copyWith(
+              color: colors.secondary,
+              fontWeight: FontWeight.w300,
+              fontSize: 24,
+            ),
+
+            ///
+            displayMedium: textStyle.copyWith(
+              color: colors.secondary,
+              fontWeight: FontWeight.w300,
+              fontSize: 15.4,
+            ),
+
+            ///
+            displaySmall:
+                textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 18),
+
+            ///
+            headlineLarge:
+                textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
+
+            ///
+            headlineMedium: textStyle.copyWith(fontSize: 18),
+
+            ///
+            headlineSmall: textStyle.copyWith(fontSize: 18),
+
+            ///
+            labelLarge:
+                textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 17),
+
+            /// Тексты на кнопках (Страница авторизации)
+            labelMedium:
+                textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+
+            ///
+            labelSmall:
+                textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 13),
+
+            ///
+            titleLarge: textStyle.copyWith(fontSize: 16),
+
+            ///
+            titleMedium: textStyle.copyWith(fontSize: 15),
+
+            /// by Gapopa (Страница авторизации)
+            titleSmall: textStyle.copyWith(
+              color: colors.secondary,
+              fontSize: 15,
+              fontWeight: FontWeight.w300,
+            ),
+
+            ///
+            bodyLarge:
+                textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+
+            ///
+            bodyMedium:
+                textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w400),
+
+            ///
+            bodySmall: textStyle.copyWith(fontSize: 11),
+
+            ///---------///
             colors: colors,
             barrierColor: colors.onBackgroundOpacity50,
             smallestBody: textStyle.copyWith(fontSize: 11),
@@ -386,6 +471,21 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
+    required this.displayLarge,
+    required this.displayMedium,
+    required this.displaySmall,
+    required this.headlineLarge,
+    required this.headlineMedium,
+    required this.headlineSmall,
+    required this.labelLarge,
+    required this.labelMedium,
+    required this.labelSmall,
+    required this.titleLarge,
+    required this.titleMedium,
+    required this.titleSmall,
+    required this.bodyLarge,
+    required this.bodyMedium,
+    required this.bodySmall,
     required this.colors,
     required this.barrierColor,
     required this.smallestBody,
@@ -417,6 +517,36 @@ class Style extends ThemeExtension<Style> {
 
   /// [Color] of the modal background barrier.
   final Color barrierColor;
+
+  final TextStyle displayLarge;
+
+  final TextStyle displayMedium;
+
+  final TextStyle displaySmall;
+
+  final TextStyle headlineLarge;
+
+  final TextStyle headlineMedium;
+
+  final TextStyle headlineSmall;
+
+  final TextStyle labelLarge;
+
+  final TextStyle labelMedium;
+
+  final TextStyle labelSmall;
+
+  final TextStyle titleLarge;
+
+  final TextStyle titleMedium;
+
+  final TextStyle titleSmall;
+
+  final TextStyle bodyLarge;
+
+  final TextStyle bodyMedium;
+
+  final TextStyle bodySmall;
 
   /// [TextStyle] to use in the smallest body to make content readable.
   final TextStyle smallestBody;
@@ -491,6 +621,21 @@ class Style extends ThemeExtension<Style> {
     Palette? colors,
     TextStyle? thinTextStyle,
     Color? barrierColor,
+    TextStyle? displayLarge,
+    TextStyle? displayMedium,
+    TextStyle? displaySmall,
+    TextStyle? headlineLarge,
+    TextStyle? headlineMedium,
+    TextStyle? headlineSmall,
+    TextStyle? labelLarge,
+    TextStyle? labelMedium,
+    TextStyle? labelSmall,
+    TextStyle? titleLarge,
+    TextStyle? titleMedium,
+    TextStyle? titleSmall,
+    TextStyle? bodyLarge,
+    TextStyle? bodyMedium,
+    TextStyle? bodySmall,
     TextStyle? smallestBody,
     TextStyle? boldBody,
     TextStyle? boldDisplay,
@@ -517,6 +662,21 @@ class Style extends ThemeExtension<Style> {
     return Style(
       colors: colors ?? this.colors,
       barrierColor: barrierColor ?? this.barrierColor,
+      displayLarge: displayLarge ?? this.displayLarge,
+      displayMedium: displayMedium ?? this.displayMedium,
+      displaySmall: displaySmall ?? this.displaySmall,
+      headlineLarge: headlineLarge ?? this.headlineLarge,
+      headlineMedium: headlineMedium ?? this.headlineMedium,
+      headlineSmall: headlineSmall ?? this.headlineSmall,
+      labelLarge: labelLarge ?? this.labelLarge,
+      labelMedium: labelMedium ?? this.labelMedium,
+      labelSmall: labelSmall ?? this.labelSmall,
+      titleLarge: titleLarge ?? this.titleLarge,
+      titleMedium: titleMedium ?? this.titleMedium,
+      titleSmall: titleSmall ?? this.titleSmall,
+      bodyLarge: bodyLarge ?? this.bodyLarge,
+      bodyMedium: bodyMedium ?? this.bodyMedium,
+      bodySmall: bodySmall ?? this.bodySmall,
       smallestBody: smallestBody ?? this.smallestBody,
       boldBody: boldBody ?? this.boldBody,
       boldDisplay: boldDisplay ?? this.boldDisplay,
@@ -553,6 +713,21 @@ class Style extends ThemeExtension<Style> {
     return Style(
       colors: Palette.lerp(colors, other.colors, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
+      displayLarge: TextStyle.lerp(displayLarge, other.displayLarge, t)!,
+      displayMedium: TextStyle.lerp(displayMedium, other.displayMedium, t)!,
+      displaySmall: TextStyle.lerp(displaySmall, other.displaySmall, t)!,
+      headlineLarge: TextStyle.lerp(headlineLarge, other.headlineLarge, t)!,
+      headlineMedium: TextStyle.lerp(headlineMedium, other.headlineMedium, t)!,
+      headlineSmall: TextStyle.lerp(headlineSmall, other.headlineSmall, t)!,
+      labelLarge: TextStyle.lerp(labelLarge, other.labelLarge, t)!,
+      labelMedium: TextStyle.lerp(labelMedium, other.labelMedium, t)!,
+      labelSmall: TextStyle.lerp(labelSmall, other.labelSmall, t)!,
+      titleLarge: TextStyle.lerp(titleLarge, other.titleLarge, t)!,
+      titleMedium: TextStyle.lerp(titleMedium, other.titleMedium, t)!,
+      titleSmall: TextStyle.lerp(titleSmall, other.titleSmall, t)!,
+      bodyLarge: TextStyle.lerp(bodyLarge, other.bodyLarge, t)!,
+      bodyMedium: TextStyle.lerp(bodyMedium, other.bodyMedium, t)!,
+      bodySmall: TextStyle.lerp(bodySmall, other.bodySmall, t)!,
       smallestBody: TextStyle.lerp(smallestBody, other.smallestBody, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       boldDisplay: TextStyle.lerp(boldDisplay, other.boldDisplay, t)!,
