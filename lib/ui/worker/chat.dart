@@ -165,7 +165,7 @@ class ChatWorker extends DisposableService {
 
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
-      onNotification: (body, tag, image) async {
+      onNotification: (body, tag, image, sound) async {
         if (_displayNotification) {
           await _notificationService.show(
             c.title.value,
@@ -174,6 +174,7 @@ class ChatWorker extends DisposableService {
             icon: c.avatar.value?.original.url,
             tag: tag,
             image: image,
+            sound: sound,
           );
 
           await _flashTaskbarIcon();
@@ -209,7 +210,7 @@ class ChatWorker extends DisposableService {
 class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
-    void Function(String, String?, String?)? onNotification,
+    void Function(String, String?, String?, String?)? onNotification,
     UserId? Function()? me,
     required Future<RxUser?> Function(UserId) getUser,
   }) : updatedAt = PreciseDateTime.now() {
@@ -227,6 +228,7 @@ class _ChatWatchData {
             final StringBuffer body = StringBuffer();
             final ChatItem msg = chat.lastItem!;
             String? image;
+            String? sound;
 
             if (msg is ChatMessage) {
               final String? text = _message(
@@ -241,6 +243,8 @@ class _ChatWatchData {
                   .firstOrNull
                   ?.big
                   .url;
+
+              sound = msg.donate != null ? 'donate' : null;
 
               if (text != null) {
                 body.write(text);
@@ -291,6 +295,7 @@ class _ChatWatchData {
                     ? '${chat.id}_${chat.lastItem?.id}'
                     : null,
                 image,
+                sound,
               );
             }
           }

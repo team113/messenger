@@ -149,6 +149,7 @@ class NotificationService extends DisposableService {
     String? icon,
     String? tag,
     String? image,
+    String? sound,
   }) async {
     // Don't display a notification with the provided [tag], if it's in the
     // [_tags] list already, or otherwise add it to that list.
@@ -170,7 +171,7 @@ class NotificationService extends DisposableService {
     if (PlatformUtils.isWeb) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(
-          AssetSource('audio/notification2.mp3'),
+          AssetSource('audio/${sound ?? 'notification2'}.mp3'),
           position: Duration.zero,
           mode: PlayerMode.lowLatency,
         );

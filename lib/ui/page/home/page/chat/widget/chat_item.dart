@@ -845,7 +845,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       context,
       (menu, constraints) {
         final List<Widget> children = [
-          if (msg.donate != null)
+          if (msg.donate != null) ...[
             Container(
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius.copyWith(
@@ -867,52 +867,47 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SelectionText.rich(
+                          TextSpan(
                             children: [
-                              SelectionText.rich(
-                                TextSpan(
-                                  text: widget.user?.user.value.name?.val ??
-                                      widget.user?.user.value.num.val ??
-                                      'dot'.l10n * 3,
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap =
-                                        () => router.user(_author, push: true),
-                                ),
-                                selectable: PlatformUtils.isDesktop || menu,
-                                onSelecting: widget.onSelecting,
-                                onChanged: (a) => _selection = a,
-                                style: style.boldBody
-                                    .copyWith(color: Colors.white),
+                              TextSpan(
+                                text: _fromMe
+                                    ? 'You'
+                                    : widget.user?.user.value.name?.val ??
+                                        widget.user?.user.value.num.val ??
+                                        'dot'.l10n * 3,
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap =
+                                      () => router.user(_author, push: true),
                               ),
-                              // Text(
-                              //   ' ',
-                              //   style: style.boldBody.copyWith(
-                              //     color: Colors.white,
-                              //     fontSize: 13,
-                              //   ),
-                              // ),
+                              const TextSpan(text: ' donated '),
+                              // TextSpan(text: 'G${msg.donate}'),
                             ],
                           ),
+                          selectable: PlatformUtils.isDesktop || menu,
+                          onSelecting: widget.onSelecting,
+                          onChanged: (a) => _selection = a,
+                          style: style.boldBody.copyWith(
+                            color: Colors.white,
+                            // fontSize: 17,
+                          ),
                         ),
+                        // Text(
+                        //   ' ',
+                        //   style: style.boldBody.copyWith(
+                        //     color: Colors.white,
+                        //     fontSize: 13,
+                        //   ),
+                        // ),
                       ),
-                      const SizedBox(width: 32),
-                      Text(
-                        'G${msg.donate}',
-                        style: style.boldBody.copyWith(
-                          color: Colors.white,
-                          // fontSize: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 32),
-                      SvgImage.asset(
-                        'assets/icons/donate_mini_white.svg',
-                        width: 22.84 * 0.8,
-                        height: 22 * 0.8,
-                      ),
+                      // const SizedBox(width: 8),
+                      // SvgImage.asset(
+                      //   'assets/icons/donate_mini_white.svg',
+                      //   width: 22.84 * 1,
+                      //   height: 22 * 1,
+                      // ),
                       const SizedBox(width: 8),
                     ],
                   ),
@@ -972,8 +967,57 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   // ),
                 ],
               ),
-            )
-          else ...[
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: style.cardRadius.copyWith(),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.green,
+                        Colors.green.darken(0.1),
+                      ],
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgImage.asset(
+                        // 'assets/icons/donate_mini_white.svg',
+                        'assets/icons/donate_mini_white.svg',
+                        width: 22.84 * 1,
+                        height: 22 * 1,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: SelectionText.rich(
+                          TextSpan(
+                            children: [
+                              // const TextSpan(text: ' donated '),
+                              TextSpan(text: 'G${msg.donate}'),
+                            ],
+                          ),
+                          selectable: PlatformUtils.isDesktop || menu,
+                          onSelecting: widget.onSelecting,
+                          onChanged: (a) => _selection = a,
+                          style: style.boldBody.copyWith(
+                            color: Colors.white,
+                            // fontSize: 17,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ] else ...[
             if (!_fromMe &&
                 widget.chat.value?.isGroup == true &&
                 widget.avatar) ...[
