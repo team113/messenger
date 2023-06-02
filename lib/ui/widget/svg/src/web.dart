@@ -39,32 +39,6 @@ import '/util/log.dart';
 /// should be placed in a context that sets tight layout constraints. Otherwise,
 /// the image dimensions will change as the image is loaded, which will result
 /// in ugly layout changes.
-Widget svgFromAsset(
-  String asset, {
-  Key? key,
-  Alignment alignment = Alignment.center,
-  bool excludeFromSemantics = false,
-  BoxFit fit = BoxFit.contain,
-  double? height,
-  String? package,
-  WidgetBuilder? placeholderBuilder,
-  String? semanticsLabel,
-  double? width,
-}) {
-  String path = package == null ? asset : 'packages/$package/$asset';
-  return _BrowserSvg(
-    key: key,
-    loader: _AssetSvgLoader(path),
-    alignment: alignment,
-    excludeFromSemantics: excludeFromSemantics,
-    fit: fit,
-    height: height,
-    placeholderBuilder: placeholderBuilder,
-    semanticsLabel: semanticsLabel,
-    width: width,
-  );
-}
-
 class SvgFromAsset extends StatelessWidget {
   const SvgFromAsset(
     this.asset, {
@@ -192,29 +166,6 @@ class SvgFromBytes extends StatelessWidget {
 /// should be placed in a context setting layout constraints tightly. Otherwise,
 /// the image dimensions will change as the image is loaded, which will result
 /// in ugly layout changes.
-Widget svgFromFile(
-  File file, {
-  Key? key,
-  Alignment alignment = Alignment.center,
-  bool excludeFromSemantics = false,
-  BoxFit fit = BoxFit.cover,
-  double? width,
-  double? height,
-  WidgetBuilder? placeholderBuilder,
-  String? semanticsLabel,
-}) =>
-    _BrowserSvg(
-      key: key,
-      loader: _FileSvgLoader(file),
-      alignment: alignment,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
-
 class SvgFromFile extends StatelessWidget {
   const SvgFromFile(
     this.file, {
@@ -344,7 +295,7 @@ class _FileSvgLoader implements _SvgLoader {
 /// `html` renderer and through [SvgPicture.memory] on `CanvasKit` renderer.
 class _BrowserSvg extends StatefulWidget {
   const _BrowserSvg({
-    Key? key,
+    super.key,
     required this.loader,
     required this.width,
     required this.height,
@@ -353,7 +304,7 @@ class _BrowserSvg extends StatefulWidget {
     required this.fit,
     required this.placeholderBuilder,
     required this.semanticsLabel,
-  }) : super(key: key);
+  });
 
   /// Loader to load the SVG from.
   final _SvgLoader loader;
