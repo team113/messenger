@@ -17,7 +17,6 @@
 
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
@@ -25,22 +24,26 @@ import 'package:rive/rive.dart' hide LinearGradient;
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/language/controller.dart';
 import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
-import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/animated_logo.dart';
+import 'widget/cupertino_button.dart';
 
 /// View of the [Routes.auth] page.
 class AuthView extends StatelessWidget {
-  const AuthView({Key? key}) : super(key: key);
+  const AuthView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
@@ -49,9 +52,9 @@ class AuthView extends StatelessWidget {
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
-        final TextStyle? thin =
-            context.textTheme.bodySmall?.copyWith(color: Colors.black);
-        final Color primary = Theme.of(context).colorScheme.primary;
+        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
+          color: style.colors.onBackground,
+        );
 
         // Header part of the page.
         //
@@ -59,16 +62,13 @@ class AuthView extends StatelessWidget {
         // load all the images ahead of animation to reduce the possible
         // flickering.
         List<Widget> header = [
-          ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
-              .map((e) => Offstage(child: SvgImage.asset(e)))
-              .toList(),
           ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
               .map((e) => Offstage(child: SvgImage.asset(e)))
               .toList(),
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: thin?.copyWith(fontSize: 24, color: primary),
+            style: thin?.copyWith(fontSize: 24, color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -76,79 +76,14 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin?.copyWith(fontSize: 15.4, color: primary),
+            style:
+                thin?.copyWith(fontSize: 15.4, color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),
           const SizedBox(height: 25),
         ];
-
-        const double height = 250;
-
-        // Animated logo widget.
-        Widget logo = LayoutBuilder(builder: (context, constraints) {
-          Widget placeholder = SizedBox(
-            height: constraints.maxHeight > 250
-                ? height
-                : constraints.maxHeight <= 140
-                    ? 140
-                    : height,
-            child: const Center(child: CustomProgressIndicator()),
-          );
-
-          return ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 350),
-              child: AnimatedSize(
-                curve: Curves.ease,
-                duration: const Duration(milliseconds: 200),
-                child: SizedBox(
-                  height: constraints.maxHeight >= height ? height : 140,
-                  child: constraints.maxHeight >= height
-                      ? Container(
-                          key: const ValueKey('logo'),
-                          child: RiveAnimation.asset(
-                            'assets/images/logo/logo.riv',
-                            onInit: (a) {
-                              if (!Config.disableInfiniteAnimations) {
-                                final StateMachineController? machine =
-                                    StateMachineController.fromArtboard(
-                                        a, 'Machine');
-                                a.addController(machine!);
-                                c.blink = machine.findInput<bool>('blink')
-                                    as SMITrigger?;
-
-                                Future.delayed(
-                                  const Duration(milliseconds: 500),
-                                  c.animate,
-                                );
-                              }
-                            },
-                          ),
-                        )
-                      : Obx(() {
-                          return SvgImage.asset(
-                            'assets/images/logo/head000${c.logoFrame.value}.svg',
-                            placeholderBuilder: (context) => placeholder,
-                            height: 140,
-                          );
-                        }),
-                ),
-              ));
-        });
-
-        // Language selection popup.
-        Widget language = CupertinoButton(
-          key: c.languageKey,
-          child: Text(
-            'label_language_entry'.l10nfmt({
-              'code': L10n.chosen.value!.locale.countryCode,
-              'name': L10n.chosen.value!.name,
-            }),
-            style: thin?.copyWith(fontSize: 13, color: primary),
-          ),
-          onPressed: () => LanguageSelectionView.show(context, null),
-        );
 
         // Footer part of the page.
         List<Widget> footer = [
@@ -157,11 +92,11 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: style.colors.onPrimary),
             ),
             leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: c.register,
-            color: Theme.of(context).colorScheme.secondary,
+            color: style.colors.primary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
@@ -211,7 +146,14 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
-          language,
+          StyledCupertinoButton(
+            key: c.languageKey,
+            label: 'label_language_entry'.l10nfmt({
+              'code': L10n.chosen.value!.locale.countryCode,
+              'name': L10n.chosen.value!.name,
+            }),
+            onPressed: () => LanguageSelectionView.show(context, null),
+          ),
         ];
 
         return Stack(
@@ -221,7 +163,7 @@ class AuthView extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: const Color(0xFFF6F8F9),
+                color: style.colors.background,
               ),
             ),
             IgnorePointer(
@@ -235,7 +177,7 @@ class AuthView extends StatelessWidget {
             GestureDetector(
               onTap: c.animate,
               child: Scaffold(
-                backgroundColor: Colors.transparent,
+                backgroundColor: style.colors.transparent,
                 body: Center(
                   child: SingleChildScrollView(
                     child: Center(
@@ -248,7 +190,18 @@ class AuthView extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ...header,
-                            Flexible(child: logo),
+                            Flexible(
+                              child: Obx(
+                                () => AnimatedLogo(
+                                  key: const ValueKey('Logo'),
+                                  svgAsset:
+                                      'assets/images/logo/head000${c.logoFrame.value}.svg',
+                                  onInit: Config.disableInfiniteAnimations
+                                      ? null
+                                      : (a) => _setBlink(c, a),
+                                ),
+                              ),
+                            ),
                             ...footer,
                             SizedBox(
                               height: MediaQuery.of(context).viewPadding.bottom,
@@ -267,8 +220,22 @@ class AuthView extends StatelessWidget {
     );
   }
 
+  /// Sets the [AuthController.blink] from the provided [Artboard] and invokes
+  /// a [AuthController.animate] to animate it.
+  Future<void> _setBlink(AuthController c, Artboard a) async {
+    final StateMachineController machine =
+        StateMachineController(a.stateMachines.first);
+    a.addController(machine);
+
+    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
+
+    await Future.delayed(const Duration(milliseconds: 500), c.animate);
+  }
+
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     await ModalPopup.show(
       context: context,
       child: Column(
@@ -278,10 +245,10 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: Colors.black, fontSize: 18),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: style.colors.onBackground,
+                      fontSize: 18,
+                    ),
               ),
             ),
           ),
