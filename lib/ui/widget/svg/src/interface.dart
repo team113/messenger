@@ -59,7 +59,7 @@ class SvgFromAsset extends StatelessWidget {
   /// Height to constrain this image with.
   final double? height;
 
-  /// TODO: docs
+  /// [String] that identifies the package of the asset.
   final String? package;
 
   /// Builder, building a [Widget] to display when this SVG image is being
