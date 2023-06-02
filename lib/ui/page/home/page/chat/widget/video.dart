@@ -23,12 +23,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
-import 'desktop_controls.dart';
-import 'mobile_controls.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
+import 'desktop_controls.dart';
+import 'mobile_controls.dart';
 
 /// Video player with controls.
 class Video extends StatefulWidget {
@@ -90,7 +91,7 @@ class _VideoState extends State<Video> {
     widget.onController?.call(_controller);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _initVideo();
+      await _initVideo();
     });
 
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
@@ -109,8 +110,8 @@ class _VideoState extends State<Video> {
   @override
   void didUpdateWidget(Video oldWidget) {
     if (oldWidget.url != widget.url) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _initVideo();
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await _initVideo();
       });
     }
 
@@ -155,7 +156,7 @@ class _VideoState extends State<Video> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'An error occurred',
+                          'err_unknown'.l10n,
                           style: TextStyle(color: style.colors.onPrimary),
                           textAlign: TextAlign.center,
                         ),
@@ -185,7 +186,7 @@ class _VideoState extends State<Video> {
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    _controller.setDataSource(
+    await _controller.setDataSource(
       DataSource(type: DataSourceType.network, source: widget.url),
     );
 
@@ -199,7 +200,7 @@ class _VideoState extends State<Video> {
           await PlatformUtils.dio.head(widget.url);
           if (shouldReload) {
             // Reinitialize video if an unexpected error was thrown.
-            _controller.setDataSource(
+            await _controller.setDataSource(
               DataSource(type: DataSourceType.network, source: widget.url),
             );
           }

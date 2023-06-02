@@ -203,7 +203,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       _cancelToken = CancelToken();
 
       bool shouldReload = false;
-      Backoff.run(
+
+      await Backoff.run(
         () async {
           try {
             await PlatformUtils.dio.head(widget.url!);
