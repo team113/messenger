@@ -25,10 +25,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -171,7 +172,7 @@ class ChatsTabController extends GetxController {
 
     for (RxChat chat in chats) {
       _sortingData[chat.chat.value.id] =
-          _ChatSortingData(chat.chat, _sortChats);
+          _ChatSortingData(chat, _sortChats);
     }
 
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
@@ -199,7 +200,7 @@ class ChatsTabController extends GetxController {
           chats.add(event.value!);
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
-              _ChatSortingData(event.value!.chat, _sortChats);
+              _ChatSortingData(event.value!, _sortChats);
 
           if (event.value!.chat.value.isDialog) {
             listenUpdates(event.value!);
@@ -668,12 +669,13 @@ class ChatsTabController extends GetxController {
 class _ChatSortingData {
   /// Returns a [_ChatSortingData] capturing the provided [chat] changes to
   /// invoke a [sort] on [Chat.updatedAt] or [Chat.ongoingCall] updates.
-  _ChatSortingData(Rx<Chat> chat, [void Function()? sort]) {
-    updatedAt = chat.value.updatedAt;
-    hasCall = chat.value.ongoingCall != null;
+  _ChatSortingData(RxChat chat, [void Function()? sort]) {
+    updatedAt = chat.chat.value.updatedAt;
+    hasCall = chat.chat.value.ongoingCall != null;
+    draft = chat.draft.value;
 
     worker = ever(
-      chat,
+      chat.chat,
       (Chat chat) {
         bool hasCall = chat.ongoingCall != null;
         if (chat.updatedAt != updatedAt || hasCall != this.hasCall) {
@@ -683,17 +685,34 @@ class _ChatSortingData {
         }
       },
     );
+
+    draftWorker = ever(
+      chat.draft,
+      (ChatMessage? draft) {
+        if (draft != this.draft) {
+          sort?.call();
+          this.draft = draft;
+        }
+      },
+    );
   }
 
   /// Worker capturing the [Chat] changes to invoke sorting on [updatedAt] and
   /// [hasCall] mismatches.
   late final Worker worker;
 
+  /// Worker capturing the [RxChat.draft] changes to invoke sorting on [draft]
+  /// mismatches.
+  late final Worker draftWorker;
+
   /// Previously captured [Chat.updatedAt] value.
   late PreciseDateTime updatedAt;
 
   /// Previously captured indicator of [Chat.ongoingCall] being non-`null`.
   late bool hasCall;
+
+  /// Previously captured indicator of [Chat.ongoingCall] being non-`null`.
+  ChatMessage? draft;
 
   /// Disposes this [_ChatSortingData].
   void dispose() => worker.dispose();

@@ -1200,6 +1200,10 @@ class HiveRxChat extends RxChat {
 
   @override
   int compareTo(other) {
+    if (other is! RxChat) {
+      return 0;
+    }
+
     if (chat.value.ongoingCall != null &&
         other.chat.value.ongoingCall == null) {
       return -1;
@@ -1222,6 +1226,14 @@ class HiveRxChat extends RxChat {
         other.chat.value.favoritePosition != null) {
       return chat.value.favoritePosition!
           .compareTo(other.chat.value.favoritePosition!);
+    }
+
+    if (draft.value != null && other.draft.value == null) {
+      return -1;
+    } else if (draft.value == null && other.draft.value != null) {
+      return 1;
+    } else if (draft.value != null && other.draft.value != null) {
+      return other.draft.value!.at.compareTo(draft.value!.at);
     }
 
     if (chat.value.id.isLocalMonolog(me) &&
