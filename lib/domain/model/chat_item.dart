@@ -97,11 +97,9 @@ class ChatMessage extends ChatItem {
   final List<Attachment> attachments;
 
   int? get donate {
-    final matches = text?.val.allMatches('?donate=');
-    if (matches?.isNotEmpty == true) {
-      return int.tryParse(
-        text!.val.substring(matches!.first.end, text!.val.length),
-      );
+    final index = text?.val.lastIndexOf('?donate=');
+    if (index != null && index != -1) {
+      return int.tryParse(text!.val.substring(index + 8, text!.val.length));
     }
 
     return null;

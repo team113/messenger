@@ -117,7 +117,6 @@ class CallWorker extends DisposableService {
     _initWebUtils();
 
     bool wakelock = _callService.calls.isNotEmpty;
-
     if (wakelock && !PlatformUtils.isLinux) {
       Wakelock.enable().onError((_, __) => false);
     }

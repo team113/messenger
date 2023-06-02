@@ -172,8 +172,6 @@ class MessageFieldController extends GetxController {
 
   final RxBool displayMore = RxBool(false);
 
-  int? money;
-
   final GlobalKey globalKey = GlobalKey();
   late final RxList<ChatButton> panel = RxList([
     if (PlatformUtils.isMobile /*&& !PlatformUtils.isWeb*/) ...[
@@ -247,6 +245,7 @@ class MessageFieldController extends GetxController {
 
   /// Resets the [replied], [attachments] and [field].
   void clear() {
+    donation.value = null;
     editing.value = false;
     replied.clear();
     attachments.clear();
@@ -306,7 +305,7 @@ class MessageFieldController extends GetxController {
   void toggleMore() => displayMore.toggle();
 
   void donate(int sum) {
-    money = sum;
+    donation.value = sum;
     onSubmit?.call();
   }
 

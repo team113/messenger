@@ -404,8 +404,8 @@ class ChatController extends GetxController {
           }
         } else {
           String text = send.field.text.trim();
-          if (send.money != null) {
-            text += '?donate=${send.money}';
+          if (send.donation.value != null) {
+            text += '?donate=${send.donation.value}';
           }
 
           if (text.isNotEmpty ||
@@ -664,6 +664,7 @@ class ChatController extends GetxController {
 
       paid = chat!.members.values.any((e) =>
               e.user.value.name?.val == 'alex1' ||
+              e.user.value.name?.val == 'Alex1' ||
               e.user.value.name?.val == 'alex2' ||
               e.user.value.name?.val == 'kirey') &&
           chat!.chat.value.isDialog;
