@@ -31,7 +31,9 @@ import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
-import '../widget/participant.dart';
+import '../widget/participant/decorator.dart';
+import '../widget/participant/overlay.dart';
+import '../widget/participant/widget.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
 import '/domain/model/avatar.dart';
@@ -521,7 +523,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         // Populate the sliding panel height and its content.
         if (c.state.value == OngoingCallState.active ||
             c.state.value == OngoingCallState.joining) {
-          panelHeight = 360 + 36;
+          panelHeight = 360 + 37;
           panelHeight = min(c.size.height - 45, panelHeight);
 
           panelChildren = [

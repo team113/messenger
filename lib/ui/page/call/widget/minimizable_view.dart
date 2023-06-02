@@ -23,14 +23,14 @@ import '/themes.dart';
 /// Animated minimizable draggable [Widget] controlled by a [GestureDetector].
 class MinimizableView extends StatefulWidget {
   const MinimizableView({
-    Key? key,
+    super.key,
     this.onInit,
     this.onDispose,
     this.onSizeChanged,
     this.minimizationEnabled = true,
     this.minimizationDelta = 50,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// Callback, called when the [AnimationController] of this [MinimizableView]
   /// is initialized.
