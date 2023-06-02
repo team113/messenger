@@ -59,11 +59,10 @@ class _WebImageState extends State<WebImage> {
   CancelToken _cancelToken = CancelToken();
 
   /// Indicator whether [_backoff] is running.
-  bool _loading = false;
+  bool _backoffRunning = false;
 
-  /// [GlobalKey] for the [CircularProgressIndicator] indicating loading of
-  /// the image.
-  final GlobalKey _progressIndicatorKey = GlobalKey();
+  /// Indicator whether image is loading.
+  bool _loading = true;
 
   @override
   void didUpdateWidget(WebImage oldWidget) {
@@ -84,18 +83,18 @@ class _WebImageState extends State<WebImage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return Center(
-        child: CircularProgressIndicator(key: _progressIndicatorKey),
-      );
-    }
-
-    return IgnorePointer(
-      child: _HtmlImage(
-        src: widget.src,
-        progressIndicatorKey: _progressIndicatorKey,
-        onError: _backoff,
-      ),
+    return Stack(
+      children: [
+        if (!_backoffRunning)
+          IgnorePointer(
+            child: _HtmlImage(
+              src: widget.src,
+              onLoaded: () => _loading = false,
+              onError: _backoff,
+            ),
+          ),
+        if (_loading) const Center(child: CircularProgressIndicator()),
+      ],
     );
   }
 
@@ -104,12 +103,12 @@ class _WebImageState extends State<WebImage> {
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
   Future<void> _backoff() async {
-    if (_loading) {
+    if (_backoffRunning) {
       return;
     }
 
     if (mounted) {
-      setState(() => _loading = true);
+      setState(() => _backoffRunning = true);
     }
 
     try {
@@ -128,7 +127,7 @@ class _WebImageState extends State<WebImage> {
 
           if (data?.data != null && data!.statusCode == 200) {
             if (mounted) {
-              setState(() => _loading = false);
+              setState(() => _backoffRunning = false);
             }
           } else {
             throw Exception('Image head is not loaded');
@@ -146,16 +145,15 @@ class _WebImageState extends State<WebImage> {
 class _HtmlImage extends StatefulWidget {
   const _HtmlImage({
     required this.src,
-    required this.progressIndicatorKey,
     this.onError,
+    this.onLoaded,
   });
 
   /// URL of the image to display.
   final String src;
 
-  /// [GlobalKey] for the [CircularProgressIndicator] indicating loading of
-  /// the image.
-  final GlobalKey progressIndicatorKey;
+  /// Callback, called when image loaded.
+  final VoidCallback? onLoaded;
 
   /// Callback, called when image loading failed.
   final VoidCallback? onError;
@@ -169,9 +167,6 @@ class _HtmlImage extends StatefulWidget {
 class _HtmlImageState extends State<_HtmlImage> {
   /// Native [html.ImageElement] itself.
   html.ImageElement? _element;
-
-  /// Indicator whether the image is fully loaded.
-  bool _loaded = false;
 
   /// Unique identifier for a platform view.
   late int _elementId;
@@ -205,24 +200,13 @@ class _HtmlImageState extends State<_HtmlImage> {
     _errorSubscription?.cancel();
     _element?.removeAttribute('src');
     _element?.remove();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Opacity(
-          opacity: _loaded ? 1 : 0,
-          child: HtmlElementView(
-              viewType: '${_elementId}__webImageViewType__${widget.src}__'),
-        ),
-        if (!_loaded)
-          Center(
-            child: CircularProgressIndicator(key: widget.progressIndicatorKey),
-          ),
-      ],
+    return HtmlElementView(
+      viewType: '${_elementId}__webImageViewType__${widget.src}__',
     );
   }
 
@@ -239,17 +223,17 @@ class _HtmlImageState extends State<_HtmlImage> {
           ..style.height = '100%'
           ..style.objectFit = 'scale-down';
 
-        _loaded = _element?.complete == true;
+        if (_element?.complete == true) {
+          widget.onLoaded?.call();
+        }
 
         _loadSubscription?.cancel();
         _loadSubscription = _element?.onLoad.listen((_) {
-          if (!_loaded && mounted) {
-            setState(() => _loaded = true);
-          }
+          widget.onLoaded?.call();
         });
 
         _errorSubscription?.cancel();
-        _errorSubscription = _element?.onError.listen((_) async {
+        _errorSubscription = _element?.onError.listen((_) {
           widget.onError?.call();
         });
 
