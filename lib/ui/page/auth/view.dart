@@ -43,7 +43,6 @@ class AuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: AuthController(Get.find()),
@@ -88,7 +87,10 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: style.labelMedium.copyWith(color: style.colors.onPrimary),
+              style: style.bodyLarge.copyWith(
+                color: style.colors.onPrimary,
+                fontWeight: FontWeight.w300,
+              ),
             ),
             leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: c.register,
@@ -97,7 +99,12 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n, style: fonts.labelMedium),
+            title: Text(
+              'btn_login'.l10n,
+              style: style.bodyLarge.copyWith(
+                fontWeight: FontWeight.w300,
+              ),
+            ),
             leading: SvgImage.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,

@@ -201,13 +201,13 @@ class ChatsMoreView extends StatelessWidget {
                                       0
                             }) +
                             'dot_space'.l10n,
-                        style: style.bodySmall.copyWith(
+                        style: style.labelSmall.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: style.bodySmall.copyWith(
+                        style: style.labelSmall.copyWith(
                           color: style.colors.primary,
                         ),
                         recognizer: TapGestureRecognizer()

@@ -91,20 +91,19 @@ class Themes {
     /// Body - это шрифт, который обычно используется для основного текстового
     /// контента, такого как описания продуктов, подробного описания функций
     /// или инструкции для использования.
+    ///
     return theme.copyWith(
         extensions: [
           Style(
             ///---------///
             /// Messenger(Страница авторизации)
             displayLarge: textStyle.copyWith(
-              color: colors.secondary,
               fontWeight: FontWeight.w300,
               fontSize: 24,
             ),
 
             ///
             displayMedium: textStyle.copyWith(
-              color: colors.secondary,
               fontWeight: FontWeight.w300,
               fontSize: 15.4,
             ),
@@ -123,17 +122,14 @@ class Themes {
             ///
             headlineSmall: textStyle.copyWith(fontSize: 18),
 
-            ///
-            labelLarge:
-                textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 17),
-
             /// Тексты на кнопках (Страница авторизации)
-            labelMedium:
-                textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+            labelLarge: textStyle.copyWith(fontSize: 17),
 
             ///
-            labelSmall:
-                textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 13),
+            labelMedium: textStyle.copyWith(fontSize: 13),
+
+            ///
+            labelSmall: textStyle.copyWith(fontSize: 11),
 
             ///
             titleLarge: textStyle.copyWith(fontSize: 16),
@@ -143,14 +139,12 @@ class Themes {
 
             /// by Gapopa (Страница авторизации)
             titleSmall: textStyle.copyWith(
-              color: colors.secondary,
               fontSize: 15,
               fontWeight: FontWeight.w300,
             ),
 
             ///
-            bodyLarge:
-                textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+            bodyLarge: textStyle.copyWith(fontSize: 17),
 
             ///
             bodyMedium:

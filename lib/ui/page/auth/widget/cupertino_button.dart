@@ -45,7 +45,10 @@ class StyledCupertinoButton extends StatelessWidget {
         onPressed: onPressed,
         child: Text(
           label,
-          style: style.labelSmall.copyWith(color: style.colors.secondary),
+          style: style.labelMedium.copyWith(
+            color: style.colors.secondary,
+            fontWeight: FontWeight.w300,
+          ),
         ),
       ),
     );
