@@ -19,6 +19,7 @@ Feature: Chat members
 
   Background: User is in group chat with Bob
     Given I am Alice
+    And I wait for 1 second
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
     And I am in "Alice and Bob" chat

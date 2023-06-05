@@ -99,6 +99,7 @@ import 'steps/text_field.dart';
 import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
 import 'steps/users.dart';
+import 'steps/wait_for.dart';
 import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_fetched.dart';
@@ -195,6 +196,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         updateAvatar,
         updateName,
         user,
+        waitFor,
         waitForAppToSettle,
         waitUntilAttachmentStatus,
         waitUntilFileStatus,
