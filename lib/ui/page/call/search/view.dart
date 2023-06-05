@@ -110,9 +110,7 @@ class SearchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     title,
-                    style: style.headlineSmall.copyWith(
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: style.headlineSmall,
                   ),
                 ),
               ),

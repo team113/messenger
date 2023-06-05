@@ -866,7 +866,7 @@ Widget _chat(BuildContext context, CallController c) {
                                 chat?.title.value ?? 'dot'.l10n * 3,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: style.headlineSmall.copyWith(
+                                style: style.headlineMedium.copyWith(
                                   color: style.colors.onPrimary,
                                 ),
                               ),

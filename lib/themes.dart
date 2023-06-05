@@ -117,9 +117,11 @@ class Themes {
             ///
             headlineMedium: textStyle.copyWith(fontSize: 18),
 
-            /// имя в звонке на мобилке
             ///
-            headlineSmall: textStyle.copyWith(fontSize: 18),
+            headlineSmall: textStyle.copyWith(
+              fontSize: 18,
+              fontWeight: FontWeight.w300,
+            ),
 
             ///
             titleLarge: textStyle.copyWith(fontSize: 17),
