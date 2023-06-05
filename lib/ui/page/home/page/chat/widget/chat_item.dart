@@ -2050,7 +2050,7 @@ extension LinkParsingExtension on String {
       return TextSpan(text: this);
     }
 
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style? style = context?.theme.extension<Style>()!;
 
     String text = this;
     final List<TextSpan> spans = [];
@@ -2079,7 +2079,7 @@ extension LinkParsingExtension on String {
       spans.add(
         TextSpan(
           text: link,
-          style: style.linkStyle,
+          style: style?.linkStyle,
           recognizer: recognizer
             ..onTap = () async {
               final Uri uri;
