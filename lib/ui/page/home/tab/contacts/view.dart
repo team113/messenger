@@ -457,7 +457,7 @@ class ContactsTabView extends StatelessWidget {
                     duration: 200.milliseconds,
                     color: c.search.value != null
                         ? style.colors.secondaryHighlight
-                        : style.colors.transparent,
+                        : style.colors.secondaryHighlight.withOpacity(0),
                   );
                 }),
                 ContextMenuInterceptor(

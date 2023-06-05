@@ -17,7 +17,6 @@
 
 import 'dart:math';
 
-import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,7 +40,7 @@ import '/ui/page/home/widget/retry_image.dart';
 /// [avatar] is not specified.
 class AvatarWidget extends StatelessWidget {
   const AvatarWidget({
-    Key? key,
+    super.key,
     this.avatar,
     this.radius,
     this.maxRadius,
@@ -51,7 +50,7 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-  }) : super(key: key);
+  });
 
   /// Creates an [AvatarWidget] from the specified [contact].
   factory AvatarWidget.fromContact(
@@ -85,7 +84,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool showBadge = true,
+    bool badge = true,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -102,7 +101,8 @@ class AvatarWidget extends StatelessWidget {
     return Obx(() {
       return AvatarWidget(
         key: key,
-        isOnline: contact.contact.value.users.length == 1 &&
+        isOnline: badge &&
+            contact.contact.value.users.length == 1 &&
             contact.user.value?.user.value.online == true,
         isAway: contact.user.value?.user.value.presence == Presence.away,
         avatar: contact.user.value?.user.value.avatar,
@@ -355,71 +355,83 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      final double badgeSize = maxWidth / 10;
+      final double badgeSize = maxWidth >= 40 ? maxWidth / 5 : maxWidth / 3.75;
 
-      return badges.Badge(
-        showBadge: isOnline,
-        badgeStyle: badges.BadgeStyle(
-          badgeColor: style.colors.onPrimary,
-          padding: EdgeInsets.all(badgeSize / 6),
-          elevation: 0,
-        ),
-        badgeContent: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isAway
-                ? style.colors.warningColor
-                : style.colors.acceptAuxiliaryColor,
-          ),
-          padding: EdgeInsets.all(badgeSize),
-        ),
-        badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
-        position: badges.BadgePosition.bottomEnd(
-          bottom: badgeSize / 3,
-          end: badgeSize / 3,
-        ),
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: minHeight,
-            minWidth: minWidth,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-          ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [gradient.lighten(), gradient],
+      return Badge(
+        largeSize: badgeSize * 1.16,
+        isLabelVisible: isOnline,
+        alignment: Alignment.bottomRight,
+        backgroundColor: style.colors.onPrimary,
+        padding: EdgeInsets.all(badgeSize / 12),
+        offset: maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
+        label: SizedBox(
+          width: badgeSize,
+          height: badgeSize,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isAway
+                  ? style.colors.warningColor
+                  : style.colors.acceptAuxiliaryColor,
             ),
-            shape: BoxShape.circle,
           ),
-          child: Stack(
-            children: [
-              Center(
-                child: Text(
-                  (title ?? '??').initials(),
-                  style: style.boldBody.copyWith(
-                    fontSize: fonts.titleMedium!.fontSize! * (maxWidth / 40.0),
-                    color: style.colors.onPrimary,
-                  ),
+        ),
+        child: Stack(
+          children: [
+            Container(
+              margin: const EdgeInsets.all(0.5),
+              constraints: BoxConstraints(
+                minHeight: minHeight,
+                minWidth: minWidth,
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [gradient.lighten(), gradient],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: SelectionContainer.disabled(
+                  child: Text(
+                    (title ?? '??').initials(),
+                    style: style.boldBody.copyWith(
+                      fontSize:
+                          fonts.titleMedium!.fontSize! * (maxWidth / 40.0),
+                      color: style.colors.onPrimary,
+                    ),
 
-                  // Disable the accessibility size settings for this [Text].
-                  textScaleFactor: 1,
+                    // Disable the accessibility size settings for this [Text].
+                    textScaleFactor: 1,
+                  ),
                 ),
               ),
-              if (avatar != null)
-                ClipOval(
+            ),
+            if (avatar != null)
+              Positioned.fill(
+                child: ClipOval(
                   child: RetryImage(
-                    avatar!.original.url,
-                    checksum: avatar!.original.checksum,
+                    maxWidth > 70
+                        ? avatar!.full.url
+                        : maxWidth > 26
+                            ? avatar!.big.url
+                            : avatar!.medium.url,
+                    checksum: maxWidth > 70
+                        ? avatar!.full.checksum
+                        : maxWidth > 26
+                            ? avatar!.big.checksum
+                            : avatar!.medium.checksum,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,
                     displayProgress: false,
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       );
     });

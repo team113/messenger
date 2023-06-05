@@ -33,6 +33,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isRead = false,
     this.isSending = false,
     this.isError = false,
+    this.status = true,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
   });
@@ -67,6 +68,9 @@ class SwipeableStatus extends StatelessWidget {
   /// Indicator whether status is error.
   final bool isError;
 
+  /// Indicator whether status should be displayed.
+  final bool status;
+
   /// Position of a [swipeable] relatively to the [child].
   final CrossAxisAlignment crossAxisAlignment;
 
@@ -88,14 +92,17 @@ class SwipeableStatus extends StatelessWidget {
         _animatedBuilder(
           Padding(
             padding: padding,
-            child: SizedBox(width: width, child: _swipeableWithStatus(context)),
+            child: SizedBox(
+              width: status ? width : width - 15,
+              child: _swipeableWithStatus(context),
+            ),
           ),
         ),
       ],
     );
   }
 
-  /// Returns a [Row] of [swipeable] and a status.
+  /// Returns a [Row] of [swipeable] and a optional status.
   Widget _swipeableWithStatus(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
     final TextTheme fonts = Theme.of(context).textTheme;
@@ -117,23 +124,25 @@ class SwipeableStatus extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isSent || isDelivered || isRead || isSending || isError)
-              Icon(
-                (isRead || isDelivered)
-                    ? Icons.done_all
-                    : isSending
-                        ? Icons.access_alarm
-                        : isError
-                            ? Icons.error_outline
-                            : Icons.done,
-                color: isRead
-                    ? style.colors.primary
-                    : isError
-                        ? style.colors.dangerColor
-                        : style.colors.secondary,
-                size: 12,
-              ),
-            const SizedBox(width: 3),
+            if (status) ...[
+              if (isSent || isDelivered || isRead || isSending || isError)
+                Icon(
+                  (isRead || isDelivered)
+                      ? Icons.done_all
+                      : isSending
+                          ? Icons.access_alarm
+                          : isError
+                              ? Icons.error_outline
+                              : Icons.done,
+                  color: isRead
+                      ? style.colors.primary
+                      : isError
+                          ? style.colors.dangerColor
+                          : style.colors.secondary,
+                  size: 12,
+                ),
+              const SizedBox(width: 3),
+            ],
             SelectionContainer.disabled(child: swipeable),
           ],
         ),

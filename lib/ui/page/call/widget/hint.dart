@@ -24,11 +24,11 @@ import '/ui/widget/svg/svg.dart';
 /// Styled popup window with a [text] used to serve as a hint.
 class HintWidget extends StatelessWidget {
   const HintWidget({
-    Key? key,
+    super.key,
     required this.text,
     this.onTap,
     this.isError = false,
-  }) : super(key: key);
+  });
 
   /// Text of a hint.
   final String text;

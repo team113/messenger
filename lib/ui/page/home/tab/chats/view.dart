@@ -77,7 +77,7 @@ class ChatsTabView extends StatelessWidget {
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
                     ? style.colors.secondaryHighlight
-                    : style.colors.transparent,
+                    : style.colors.secondaryHighlight.withOpacity(0),
               );
             }),
             Obx(() {

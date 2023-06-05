@@ -207,7 +207,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 ),
                 color(
                   style.colors.onSecondaryOpacity50,
-                  'Цвет сообщения, которое было отправлено и прочитано.',
+                  'Цвет кнопок в галерее.',
                 ),
                 color(
                   style.colors.onSecondaryOpacity20,
@@ -217,7 +217,11 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 color(style.colors.primary, 'Цвет кнопок и ссылок.'),
                 color(
                   style.colors.primaryHighlightShiniest,
-                  'Цвет сообщения, которое было отправлено, но не прочитано.',
+                  'Цвет прочитанного сообщения.',
+                ),
+                color(
+                  style.colors.primaryHighlightLightest,
+                  'Цвет обводки прочитанного сообщения.',
                 ),
                 color(
                   style.colors.backgroundAuxiliaryLighter,
@@ -225,7 +229,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 ),
                 color(
                   style.colors.backgroundAuxiliaryLightest,
-                  'Цвет фона участников группы.',
+                  'Цвет фона участников группы и непрочитанного сообщения.',
                 ),
                 color(
                   style.colors.acceptAuxiliaryColor,

@@ -184,7 +184,7 @@ class _DataAttachmentState extends State<DataAttachment> {
         onExit: (_) => setState(() => _hovered = false),
         child: Padding(
           key: Key('File_${e.id}'),
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
           child: WidgetButton(
             onPressed: widget.onPressed,
             child: Container(

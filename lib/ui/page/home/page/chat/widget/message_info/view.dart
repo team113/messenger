@@ -211,15 +211,9 @@ class MessageInfo extends StatelessWidget {
                                 subtitle: [
                                   const SizedBox(height: 3),
                                   Text(
-                                    'label_read_at'.l10nfmt({
-                                      'day': '${time.day}'.padLeft(2, '0'),
-                                      'month': '${time.month}'.padLeft(2, '0'),
-                                      'year': '${time.year}'.padLeft(2, '0'),
-                                      'hour': '${time.hour}'.padLeft(2, '0'),
-                                      'minute':
-                                          '${time.minute}'.padLeft(2, '0'),
-                                    }),
-                                    style: fonts.bodySmall!.copyWith(
+                                    'label_read_at'
+                                        .l10nfmt({'date': time.yMdHm}),
+                                    style: TextStyle(
                                       color: style.colors.secondary,
                                     ),
                                   ),
