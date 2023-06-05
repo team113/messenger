@@ -149,7 +149,7 @@ class RecentChatTile extends StatelessWidget {
         chat: rxChat,
         status: [
           _status(context, inverted),
-          if (!chat.id.isLocalMonolog(me))
+          if (!chat.id.isLocalChatWith(me))
             Text(
               chat.updatedAt.val.toLocal().short,
               style: Theme.of(context)

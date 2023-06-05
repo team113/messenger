@@ -285,8 +285,9 @@ class ChatId extends NewType<String> {
       ? UserId(val.replaceFirst('local_', ''))
       : throw Exception('ChatId is not local');
 
-  /// Indicates whether this [ChatId] is an ID of a local monolog.
-  bool isLocalMonolog(UserId? me) => isLocal && userId == me;
+  /// Indicates whether this [ChatId] is an ID of a local chat with the user
+  /// with the provided [id].
+  bool isLocalChatWith(UserId? id) => isLocal && userId == id;
 }
 
 /// Name of a [Chat].

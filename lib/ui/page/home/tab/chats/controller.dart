@@ -171,8 +171,7 @@ class ChatsTabController extends GetxController {
     _sortChats();
 
     for (RxChat chat in chats) {
-      _sortingData[chat.chat.value.id] =
-          _ChatSortingData(chat, _sortChats);
+      _sortingData[chat.chat.value.id] = _ChatSortingData(chat, _sortChats);
     }
 
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
