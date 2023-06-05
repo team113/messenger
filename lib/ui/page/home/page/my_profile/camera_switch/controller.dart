@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
@@ -23,6 +25,7 @@ import 'package:mutex/mutex.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/util/media_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -35,20 +38,14 @@ class CameraSwitchController extends GetxController {
   /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices devices = RxList<MediaDeviceInfo>([]);
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
   /// ID of the initially selected video device.
   RxnString camera;
 
   /// [RtcVideoRenderer] rendering the currently selected [camera] device.
   final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
-
-  /// Client for communicating with the [_mediaManager].
-  Jason? _jason;
-
-  /// Handle to a media manager tracking all the connected devices.
-  MediaManagerHandle? _mediaManager;
 
   /// [LocalMediaTrack] of the currently selected [camera] device.
   LocalMediaTrack? _localTrack;
@@ -59,22 +56,19 @@ class CameraSwitchController extends GetxController {
   /// Mutex guarding [initRenderer].
   final Mutex _initRendererGuard = Mutex();
 
+  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
+  /// the [devices].
+  StreamSubscription? _devicesSubscription;
+
   @override
   void onInit() async {
     _cameraWorker = ever(camera, (e) => initRenderer());
+    _devicesSubscription = MediaUtils.onDeviceChange
+        .listen((e) => devices.value = e.video().toList());
 
-    try {
-      _jason = Jason();
-      _mediaManager = _jason?.mediaManager();
-      _mediaManager?.onDeviceChange(() => _enumerateDevices());
-
-      await WebUtils.cameraPermission();
-      await _enumerateDevices();
-    } catch (_) {
-      // [Jason] may not be supported on the current platform.
-      _jason = null;
-      _mediaManager = null;
-    }
+    await WebUtils.cameraPermission();
+    devices.value =
+        await MediaUtils.enumerateDevices(MediaDeviceKind.VideoInput);
 
     initRenderer();
 
@@ -83,13 +77,10 @@ class CameraSwitchController extends GetxController {
 
   @override
   void onClose() {
-    _mediaManager?.free();
-    _mediaManager = null;
-    _jason?.free();
-    _jason = null;
     renderer.value?.dispose();
     _localTrack?.free();
     _cameraWorker?.dispose();
+    _devicesSubscription?.cancel();
     super.onClose();
   }
 
@@ -110,14 +101,8 @@ class CameraSwitchController extends GetxController {
     final String? camera = this.camera.value;
 
     await _initRendererGuard.protect(() async {
-      DeviceVideoTrackConstraints constraints = DeviceVideoTrackConstraints();
-      if (camera != null) {
-        constraints.deviceId(camera);
-      }
-
-      final settings = MediaStreamSettings()..deviceVideo(constraints);
       final List<LocalMediaTrack> tracks =
-          await _mediaManager?.initLocalTracks(settings) ?? [];
+          await MediaUtils.getTracks(video: VideoPreferences(device: camera));
 
       if (isClosed) {
         tracks.firstOrNull?.free();
@@ -146,16 +131,5 @@ class CameraSwitchController extends GetxController {
     if (camera != this.camera.value && !isClosed) {
       initRenderer();
     }
-  }
-
-  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
-  /// available cameras.
-  Future<void> _enumerateDevices() async {
-    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
-        .where(
-          (e) =>
-              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.videoinput,
-        )
-        .toList();
   }
 }

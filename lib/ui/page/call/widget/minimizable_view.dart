@@ -17,19 +17,20 @@
 
 import 'package:flutter/material.dart';
 
+import '/routes.dart';
 import '/themes.dart';
 
 /// Animated minimizable draggable [Widget] controlled by a [GestureDetector].
 class MinimizableView extends StatefulWidget {
   const MinimizableView({
-    Key? key,
+    super.key,
     this.onInit,
     this.onDispose,
     this.onSizeChanged,
     this.minimizationEnabled = true,
     this.minimizationDelta = 50,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// Callback, called when the [AnimationController] of this [MinimizableView]
   /// is initialized.
@@ -97,11 +98,14 @@ class _MinimizableViewState extends State<MinimizableView>
     begin: const BoxDecoration(borderRadius: BorderRadius.zero),
     end: BoxDecoration(
       borderRadius: BorderRadius.circular(10.0),
-      boxShadow: const <BoxShadow>[
+      boxShadow: <BoxShadow>[
         CustomBoxShadow(
-          color: Color(0x66666666),
+          color: Theme.of(router.context!)
+              .extension<Style>()!
+              .colors
+              .onBackgroundOpacity40,
           blurRadius: 10.0,
-          offset: Offset(0, 0),
+          offset: const Offset(0, 0),
         )
       ],
     ),
@@ -115,7 +119,6 @@ class _MinimizableViewState extends State<MinimizableView>
       debugLabel: '$runtimeType',
     );
     _controller.addListener(_animationListener);
-    _controller.addStatusListener(_animationStatusListener);
 
     widget.onInit?.call(_controller);
     super.initState();
@@ -232,14 +235,6 @@ class _MinimizableViewState extends State<MinimizableView>
         SizeTween(begin: _lastBiggest, end: _size).evaluate(_controller)!);
 
     setState(() {});
-  }
-
-  /// Resets the [_bottom] and [_right] on [AnimationStatus.dismissed] status.
-  void _animationStatusListener(AnimationStatus status) {
-    if (status == AnimationStatus.dismissed) {
-      _bottom = 10;
-      _right = 10;
-    }
   }
 
   /// Handles a [GestureDetector.onVerticalDragEnd] callback.

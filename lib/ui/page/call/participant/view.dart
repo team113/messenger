@@ -24,6 +24,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
@@ -65,8 +66,11 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: style.colors.onBackground,
+        );
 
     return GetBuilder(
       init: ParticipantController(
@@ -157,13 +161,13 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: style.colors.onPrimary),
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: style.colors.primary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -304,7 +308,7 @@ class CallMemberTile extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: const TextStyle(color: Colors.black),
+                      style: TextStyle(color: style.colors.onBackground),
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],
@@ -318,10 +322,7 @@ class CallMemberTile extends StatelessWidget {
             child: user.id == me
                 ? Text(
                     'btn_leave'.l10n,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 15,
-                    ),
+                    style: TextStyle(color: style.colors.primary, fontSize: 15),
                   )
                 : SvgImage.asset('assets/icons/delete.svg', height: 14 * 1.5),
           ),

@@ -256,7 +256,7 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver': '0',
-        }
+        },
       }).createChatDirectLink as MyUserEventsVersionedMixin?),
     );
 
