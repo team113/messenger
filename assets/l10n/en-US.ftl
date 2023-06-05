@@ -226,6 +226,13 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
+email_confirmation =
+    {$domain} verification code: {$token}
+    Valid until {$expiresAt}.
+
+    Best regards,
+    Administration of {$domain}
+email_confirmation_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
 err_call_already_exists = Call already exists
@@ -797,6 +804,13 @@ label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_blacklist = Your blacklist
 label_your_direct_link = Direct link to chat with you
+password_recovery =
+    {$domain} recovery code: {$token}
+    Valid until {$expiresAt}.
+
+    Best regards,
+    Administration of {$domain}
+password_recovery_subject = {$domain} recovery code
 plus = +
 space = {" "}
 space_or_space = {" "}or{" "}
