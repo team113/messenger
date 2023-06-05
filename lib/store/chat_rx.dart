@@ -1224,14 +1224,6 @@ class HiveRxChat extends RxChat {
           .compareTo(other.chat.value.favoritePosition!);
     }
 
-    if (draft.value != null && other.draft.value == null) {
-      return -1;
-    } else if (draft.value == null && other.draft.value != null) {
-      return 1;
-    } else if (draft.value != null && other.draft.value != null) {
-      return other.draft.value!.at.compareTo(draft.value!.at);
-    }
-
     if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
       return 1;
     } else if (!chat.value.id.isLocalWith(me) &&
