@@ -119,17 +119,9 @@ class Themes {
             ///
             headlineMedium: textStyle.copyWith(fontSize: 18),
 
+            /// имя в звонке на мобилке
             ///
             headlineSmall: textStyle.copyWith(fontSize: 18),
-
-            ///
-            labelLarge: textStyle.copyWith(fontSize: 17),
-
-            ///
-            labelMedium: textStyle.copyWith(fontSize: 13),
-
-            ///
-            labelSmall: textStyle.copyWith(fontSize: 11),
 
             ///
             titleLarge: textStyle.copyWith(fontSize: 16),
@@ -143,12 +135,21 @@ class Themes {
               fontWeight: FontWeight.w300,
             ),
 
+            /// таймер звонка на мобилке
+            /// статус пользователя в звонке на мобилке
+            labelLarge: textStyle.copyWith(fontSize: 15),
+
+            /// стейт звонка на мобилке
+            labelMedium: textStyle.copyWith(fontSize: 13),
+
+            /// description кнопок на мобилке в звонке
+            labelSmall: textStyle.copyWith(fontSize: 11),
+
             /// Тексты на кнопках (Страница авторизации)
             bodyLarge: textStyle.copyWith(fontSize: 17),
 
             ///
-            bodyMedium:
-                textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w400),
+            bodyMedium: textStyle.copyWith(fontSize: 13),
 
             ///
             bodySmall: textStyle.copyWith(fontSize: 11),
