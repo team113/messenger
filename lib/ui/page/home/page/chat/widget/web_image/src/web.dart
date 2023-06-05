@@ -70,7 +70,7 @@ class _WebImageState extends State<WebImage> {
     if (oldWidget.src != widget.src) {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
-      _loading = false;
+      _backoffRunning = false;
     }
 
     super.didUpdateWidget(oldWidget);
