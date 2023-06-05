@@ -61,6 +61,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
@@ -1082,25 +1083,38 @@ class ChatController extends GetxController {
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 
-  /// Returns a [List] of [Attachment]s representing a collection of all the
-  /// media files of this [chat].
-  List<Attachment> calculateGallery() {
-    final List<Attachment> attachments = [];
+  /// Returns a [List] of [GalleryAttachment]s representing a collection of all
+  /// the media files of this [chat].
+  List<GalleryAttachment> calculateGallery() {
+    final List<GalleryAttachment> attachments = [];
 
     for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
       if (m.value is ChatMessage) {
         final ChatMessage msg = m.value as ChatMessage;
-        attachments.addAll(msg.attachments.where(
-          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
-        ));
+        attachments.addAll(msg.attachments
+            .where(
+              (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+            )
+            .map(
+              (e) =>
+                  GalleryAttachment(e, () => chat?.updateAttachments(m.value)),
+            ));
       } else if (m.value is ChatForward) {
         final ChatForward msg = m.value as ChatForward;
         final ChatItemQuote item = msg.quote;
 
         if (item is ChatMessageQuote) {
-          attachments.addAll(item.attachments.where(
-            (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
-          ));
+          attachments.addAll(item.attachments
+              .where(
+                (e) =>
+                    e is ImageAttachment || (e is FileAttachment && e.isVideo),
+              )
+              .map(
+                (e) => GalleryAttachment(
+                  e,
+                  () => chat?.updateAttachments(m.value),
+                ),
+              ));
         }
       }
     }
@@ -1453,6 +1467,18 @@ class UnreadMessagesElement extends ListElement {
 class LoaderElement extends ListElement {
   LoaderElement(PreciseDateTime at)
       : super(ListElementId(at, const ChatItemId('2')));
+}
+
+/// Wrapper around an [Attachment] showing in the [GalleryPopup].
+class GalleryAttachment {
+  GalleryAttachment(this.attachment, this.onForbiddenError);
+
+  /// [Attachment] of this [GalleryAttachment].
+  Attachment attachment;
+
+  /// Callback, called when the [attachment] loading fails with a forbidden
+  /// network error.
+  Future<void>? Function()? onForbiddenError;
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.

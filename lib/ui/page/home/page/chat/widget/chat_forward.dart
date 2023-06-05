@@ -141,7 +141,7 @@ class ChatForwardWidget extends StatefulWidget {
   ///
   /// If not specified, then only media of these [forwards] and [note] will be
   /// in a gallery.
-  final List<Attachment> Function()? onGallery;
+  final List<GalleryAttachment> Function()? onGallery;
 
   /// Callback, called when a drag of these [forwards] starts or ends.
   final void Function(bool)? onDrag;
@@ -448,7 +448,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 ? ChatItemWidget.mediaAttachment(
                     context,
                     media.first,
-                    media,
+                    media
+                        .map((e) =>
+                            GalleryAttachment(e, widget.onAttachmentError))
+                        .toList(),
                     key: _galleryKeys[msg.id]?.firstOrNull,
                     onGallery: widget.onGallery,
                     onError: widget.onAttachmentError,
@@ -465,7 +468,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             (i, e) => ChatItemWidget.mediaAttachment(
                               context,
                               e,
-                              media,
+                              media
+                                  .map((e) => GalleryAttachment(
+                                      e, widget.onAttachmentError))
+                                  .toList(),
                               key: _galleryKeys[msg.id]?[i],
                               onGallery: widget.onGallery,
                               onError: widget.onAttachmentError,
@@ -739,7 +745,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   ? ChatItemWidget.mediaAttachment(
                       context,
                       media.first,
-                      media,
+                      media
+                          .map((e) =>
+                              GalleryAttachment(e, widget.onAttachmentError))
+                          .toList(),
                       key: _galleryKeys[item.id]?.lastOrNull,
                       onGallery: widget.onGallery,
                       onError: widget.onAttachmentError,
@@ -756,7 +765,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               (i, e) => ChatItemWidget.mediaAttachment(
                                 context,
                                 e,
-                                media,
+                                media
+                                    .map(
+                                      (e) => GalleryAttachment(
+                                        e,
+                                        widget.onAttachmentError,
+                                      ),
+                                    )
+                                    .toList(),
                                 key: _galleryKeys[item.id]?[i],
                                 onGallery: widget.onGallery,
                                 onError: widget.onAttachmentError,
