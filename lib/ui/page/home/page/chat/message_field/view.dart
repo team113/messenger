@@ -674,9 +674,7 @@ class MessageFieldView extends StatelessWidget {
             ),
             const SizedBox(width: 26 / 2 - 3),
             Obx(() {
-              if (c.buttons.isEmpty ||
-                  !c.field.isEmpty.value ||
-                  !displayInRow) {
+              if (c.buttons.isEmpty || !displayInRow) {
                 return const SizedBox();
               }
 
@@ -713,7 +711,11 @@ class MessageFieldView extends StatelessWidget {
               // }
 
               return Wrap(
-                children: c.buttons.take(take).toList().reversed.map((e) {
+                children: c.buttons
+                    .take(c.field.isEmpty.value ? take : 1)
+                    .toList()
+                    .reversed
+                    .map((e) {
                   if (e is SendButton) {
                     return Obx(() {
                       return GestureDetector(

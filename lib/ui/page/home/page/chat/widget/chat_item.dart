@@ -847,167 +847,209 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final List<Widget> children = [
           if (msg.donate != null) ...[
             Container(
+              padding: const EdgeInsets.all(0.75),
               decoration: BoxDecoration(
-                borderRadius: style.cardRadius.copyWith(
-                  bottomLeft: Radius.zero,
-                  bottomRight: Radius.zero,
-                ),
-                gradient: LinearGradient(
+                borderRadius: BorderRadius.circular(8),
+                gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.green,
-                    Colors.green.darken(0.1),
+                    Color(0xFFFFFF8B),
+                    Color(0xFFFFFC82),
+                    Color(0xFFFFF68A),
+                    Color(0xFFE1AB18),
+                    // Colors.green,
+                    // Colors.green.darken(0.1),
                   ],
+                  stops: [0, 0.32, 0.68, 1],
                 ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: SelectionText.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: _fromMe
-                                    ? 'You'
-                                    : widget.user?.user.value.name?.val ??
-                                        widget.user?.user.value.num.val ??
-                                        'dot'.l10n * 3,
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap =
-                                      () => router.user(_author, push: true),
-                              ),
-                              const TextSpan(text: ' donated '),
-                              // TextSpan(text: 'G${msg.donate}'),
-                            ],
-                          ),
-                          selectable: PlatformUtils.isDesktop || menu,
-                          onSelecting: widget.onSelecting,
-                          onChanged: (a) => _selection = a,
-                          style: style.boldBody.copyWith(
-                            color: Colors.white,
-                            // fontSize: 17,
-                          ),
-                        ),
-                        // Text(
-                        //   ' ',
-                        //   style: style.boldBody.copyWith(
-                        //     color: Colors.white,
-                        //     fontSize: 13,
-                        //   ),
-                        // ),
-                      ),
-                      // const SizedBox(width: 8),
-                      // SvgImage.asset(
-                      //   'assets/icons/donate_mini_white.svg',
-                      //   width: 22.84 * 1,
-                      //   height: 22 * 1,
-                      // ),
-                      const SizedBox(width: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient: const LinearGradient(
+                    // begin: Alignment.topCenter,
+                    // end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFFFFFF8B),
+                      Color(0xFFFFFC82),
+                      Color(0xFFFFF68A),
+                      Color(0xFFE1AB18),
+                      // Colors.green,
+                      // Colors.green.darken(0.1),
                     ],
+                    stops: [0, 0.32, 0.68, 1],
                   ),
-                  const SizedBox(height: 4),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: SelectionText.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: _fromMe
+                                      ? 'Donation'
+                                      : widget.user?.user.value.name?.val ??
+                                          widget.user?.user.value.num.val ??
+                                          'dot'.l10n * 3,
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap =
+                                        () => router.user(_author, push: true),
+                                ),
+                                // const TextSpan(text: ' donated '),
+                                // TextSpan(text: 'G${msg.donate}'),
+                              ],
+                            ),
+                            selectable: PlatformUtils.isDesktop || menu,
+                            onSelecting: widget.onSelecting,
+                            onChanged: (a) => _selection = a,
+                            style: style.boldBody.copyWith(
+                              color: _fromMe ? Colors.black : color,
+                            ),
+                          ),
+                          // Text(
+                          //   ' ',
+                          //   style: style.boldBody.copyWith(
+                          //     color: Colors.white,
+                          //     fontSize: 13,
+                          //   ),
+                          // ),
+                        ),
+                        // const SizedBox(width: 8),
+                        // SvgImage.asset(
+                        //   'assets/icons/donate_mini_white.svg',
+                        //   width: 22.84 * 1,
+                        //   height: 22 * 1,
+                        // ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
 
-                  // SelectionContainer.disabled(
-                  //   child: AnimatedContainer(
-                  //     duration: const Duration(milliseconds: 500),
-                  //     margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                  //     decoration: BoxDecoration(
-                  //       gradient: LinearGradient(
-                  //         begin: Alignment.topCenter,
-                  //         end: Alignment.bottomCenter,
-                  //         colors: [
-                  //           Colors.green,
-                  //           Colors.green.darken(0.1),
-                  //         ],
-                  //       ),
-                  //       borderRadius: style.cardRadius,
-                  //       border: Border.fromBorderSide(
-                  //         BorderSide(
-                  //           color: style.colors.onBackgroundOpacity13,
-                  //           width: 0.5,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     child: AnimatedOpacity(
-                  //       duration: const Duration(milliseconds: 500),
-                  //       opacity: _isRead || !_fromMe ? 1 : 0.55,
-                  //       child: Padding(
-                  //         padding: const EdgeInsets.all(8.0),
-                  //         child: Row(
-                  //           children: [
-                  //             SvgImage.asset(
-                  //               'assets/icons/donate_mini_white.svg',
-                  //               width: 22.84 * 1.4,
-                  //               height: 22 * 1.4,
-                  //             ),
-                  //             const SizedBox(width: 8),
-                  //             Expanded(
-                  //               child: Text(
-                  //                 'G${msg.donate}',
-                  //                 style: const TextStyle(
-                  //                   color: Colors.white,
-                  //                   fontSize: 32,
-                  //                 ),
-                  //               ),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: _text != null || msg.attachments.isNotEmpty ? 6 : 0,
-                  // ),
-                ],
+                    // SelectionContainer.disabled(
+                    //   child: AnimatedContainer(
+                    //     duration: const Duration(milliseconds: 500),
+                    //     margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    //     decoration: BoxDecoration(
+                    //       gradient: LinearGradient(
+                    //         begin: Alignment.topCenter,
+                    //         end: Alignment.bottomCenter,
+                    //         colors: [
+                    //           Colors.green,
+                    //           Colors.green.darken(0.1),
+                    //         ],
+                    //       ),
+                    //       borderRadius: style.cardRadius,
+                    //       border: Border.fromBorderSide(
+                    //         BorderSide(
+                    //           color: style.colors.onBackgroundOpacity13,
+                    //           width: 0.5,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     child: AnimatedOpacity(
+                    //       duration: const Duration(milliseconds: 500),
+                    //       opacity: _isRead || !_fromMe ? 1 : 0.55,
+                    //       child: Padding(
+                    //         padding: const EdgeInsets.all(8.0),
+                    //         child: Row(
+                    //           children: [
+                    //             SvgImage.asset(
+                    //               'assets/icons/donate_mini_white.svg',
+                    //               width: 22.84 * 1.4,
+                    //               height: 22 * 1.4,
+                    //             ),
+                    //             const SizedBox(width: 8),
+                    //             Expanded(
+                    //               child: Text(
+                    //                 'G${msg.donate}',
+                    //                 style: const TextStyle(
+                    //                   color: Colors.white,
+                    //                   fontSize: 32,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: _text != null || msg.attachments.isNotEmpty ? 6 : 0,
+                    // ),
+                  ],
+                ),
               ),
             ),
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                padding: const EdgeInsets.fromLTRB(12, 4 + 4, 12, 4 + 4),
                 child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: style.cardRadius.copyWith(),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.green,
-                        Colors.green.darken(0.1),
-                      ],
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(8),
+                  // decoration: BoxDecoration(
+                  //   borderRadius: style.cardRadius.copyWith(),
+                  //   gradient: LinearGradient(
+                  //     begin: Alignment.topCenter,
+                  //     end: Alignment.bottomCenter,
+                  //     colors: [
+                  //       Colors.green,
+                  //       Colors.green.darken(0.1),
+                  //     ],
+                  //   ),
+                  // ),
+                  // padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SvgImage.asset(
-                        // 'assets/icons/donate_mini_white.svg',
-                        'assets/icons/donate_mini_white.svg',
-                        width: 22.84 * 1,
-                        height: 22 * 1,
-                      ),
-                      const SizedBox(width: 8),
+                      // SvgImage.asset(
+                      //   // 'assets/icons/donate_mini_white.svg',
+                      //   'assets/icons/donate_mini_white.svg',
+                      //   width: 22.84 * 1,
+                      //   height: 22 * 1,
+                      // ),
+                      // const SizedBox(width: 8),
                       Flexible(
                         child: SelectionText.rich(
                           TextSpan(
                             children: [
-                              // const TextSpan(text: ' donated '),
-                              TextSpan(text: 'G${msg.donate}'),
+                              if (!_fromMe) const TextSpan(text: '+'),
+
+                              // const TextSpan(
+                              //   text: ' ',
+                              //   style: TextStyle(fontSize: 4),
+                              // ),
+                              TextSpan(text: '${msg.donate}'),
+
+                              TextSpan(
+                                text: '¤',
+                                style: style.boldBody.copyWith(
+                                  fontFamily: 'Gapopa',
+                                  // fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFE1AB18),
+                                  // fontWeight: FontWeight.w300,
+                                  // fontSize: 13,
+                                ),
+                              ),
+                              if (_fromMe)
+                                const TextSpan(text: ' donation')
+                              else
+                                const TextSpan(text: ' donation'),
                             ],
                           ),
                           selectable: PlatformUtils.isDesktop || menu,
                           onSelecting: widget.onSelecting,
                           onChanged: (a) => _selection = a,
                           style: style.boldBody.copyWith(
-                            color: Colors.white,
+                            // fontWeight: FontWeight.bold,
+                            color: const Color(0xFFE1AB18),
+                            // color: Colors.white,
                             // fontSize: 17,
                           ),
                         ),
@@ -1044,31 +1086,31 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             style: style.boldBody.copyWith(color: color),
                           ),
                         ),
-                        Text(
-                          'donated',
-                          style: style.boldBody.copyWith(
-                            color: Colors.white,
-                            fontSize: 17,
-                          ),
-                        ),
+                        // Text(
+                        //   'donated',
+                        //   style: style.boldBody.copyWith(
+                        //     color: Colors.white,
+                        //     fontSize: 17,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  SvgImage.asset(
-                    'assets/icons/donate_mini_white.svg',
-                    width: 22.84 * 0.7,
-                    height: 22 * 0.7,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'G${msg.donate}',
-                    style: style.boldBody.copyWith(
-                      color: Colors.white,
-                      fontSize: 17,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
+                  // const SizedBox(width: 8),
+                  // SvgImage.asset(
+                  //   'assets/icons/donate_mini_white.svg',
+                  //   width: 22.84 * 0.7,
+                  //   height: 22 * 0.7,
+                  // ),
+                  // const SizedBox(width: 4),
+                  // Text(
+                  //   'G${msg.donate}',
+                  //   style: style.boldBody.copyWith(
+                  //     color: Colors.white,
+                  //     fontSize: 17,
+                  //   ),
+                  // ),
+                  // const SizedBox(width: 8),
                 ],
               ),
               const SizedBox(height: 4),
