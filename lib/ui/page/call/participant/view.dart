@@ -67,7 +67,6 @@ class ParticipantView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: ParticipantController(
@@ -123,7 +122,9 @@ class ParticipantView extends StatelessWidget {
                             'a': ids.length,
                             'b': c.chat.value?.members.length ?? 1,
                           }),
-                          style: fonts.displaySmall,
+                          style: style.headlineSmall.copyWith(
+                            fontWeight: FontWeight.w300,
+                          ),
                         ),
                       ),
                     ),
@@ -149,8 +150,9 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: fonts.bodyLarge!.copyWith(
+                          style: style.bodyLarge.copyWith(
                             color: style.colors.onPrimary,
+                            fontWeight: FontWeight.w300,
                           ),
                         ),
                         onPressed: () {
@@ -183,7 +185,6 @@ class ParticipantView extends StatelessWidget {
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Obx(() {
       bool inCall = false;
@@ -256,7 +257,9 @@ class ParticipantView extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: fonts.bodyLarge,
+                      style: style.labelLarge.copyWith(
+                        fontWeight: FontWeight.w300,
+                      ),
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],
@@ -270,8 +273,10 @@ class ParticipantView extends StatelessWidget {
             child: user.id == c.me
                 ? Text(
                     'btn_leave'.l10n,
-                    style:
-                        fonts.bodyLarge!.copyWith(color: style.colors.primary),
+                    style: style.labelLarge.copyWith(
+                      color: style.colors.primary,
+                      fontWeight: FontWeight.w300,
+                    ),
                   )
                 : SvgImage.asset('assets/icons/delete.svg', height: 14 * 1.5),
           ),

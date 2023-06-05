@@ -54,7 +54,6 @@ class ScreenShareView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     Widget framelessBuilder = const SizedBox(
       height: videoHeight,
@@ -76,7 +75,9 @@ class ScreenShareView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_screen_sharing'.l10n,
-                    style: fonts.displaySmall,
+                    style: style.headlineSmall.copyWith(
+                      fontWeight: FontWeight.w300,
+                    ),
                   ),
                 ),
               ),
@@ -133,8 +134,9 @@ class ScreenShareView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_share'.l10n,
-                    style: fonts.bodyLarge!.copyWith(
+                    style: style.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   onPressed: () {

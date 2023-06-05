@@ -49,7 +49,6 @@ class CallSettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     Widget header(
       String text, {
@@ -60,7 +59,12 @@ class CallSettingsView extends StatelessWidget {
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Text(text, style: fonts.displaySmall),
+            child: Text(
+              text,
+              style: style.headlineSmall.copyWith(
+                fontWeight: FontWeight.w300,
+              ),
+            ),
           ),
         ),
       );
@@ -109,7 +113,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: fonts.titleMedium!.copyWith(
+                            style: style.bodyMedium.copyWith(
                               color: style.colors.primary,
                             ),
                           );
@@ -144,7 +148,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: fonts.titleMedium!.copyWith(
+                            style: style.bodyMedium.copyWith(
                               color: style.colors.primary,
                             ),
                           );
@@ -179,7 +183,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: fonts.titleMedium!.copyWith(
+                            style: style.bodyMedium.copyWith(
                               color: style.colors.primary,
                             ),
                           );
@@ -201,7 +205,7 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: fonts.titleMedium!.copyWith(
+                          style: style.bodyMedium.copyWith(
                             color: style.colors.primary,
                           ),
                         ),

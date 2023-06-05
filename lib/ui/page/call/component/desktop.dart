@@ -56,7 +56,6 @@ import 'common.dart';
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
-  final TextTheme fonts = Theme.of(context).textTheme;
 
   return LayoutBuilder(
     builder: (context, constraints) {
@@ -696,8 +695,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: fonts.bodySmall!.copyWith(
+                        style: style.labelMedium.copyWith(
                           color: style.colors.onPrimary,
+                          fontWeight: FontWeight.w300,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1119,7 +1119,6 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextTheme fonts = Theme.of(context).textTheme;
 
       return Container(
         key: const ValueKey('TitleBar'),
@@ -1158,8 +1157,9 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: fonts.bodySmall!.copyWith(
+                          style: style.labelMedium.copyWith(
                             color: style.colors.onPrimary,
+                            fontWeight: FontWeight.w300,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1473,7 +1473,6 @@ Widget _primaryView(CallController c) {
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
   final Style style = Theme.of(context).extension<Style>()!;
-  final TextTheme fonts = Theme.of(context).textTheme;
 
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
@@ -2072,8 +2071,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: fonts.bodySmall!.copyWith(
+                                        style: style.labelMedium.copyWith(
                                           color: style.colors.onPrimary,
+                                          fontWeight: FontWeight.w300,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,

@@ -149,10 +149,10 @@ class Themes {
             bodyLarge: textStyle.copyWith(fontSize: 17),
 
             ///
-            bodyMedium: textStyle.copyWith(fontSize: 13),
+            bodyMedium: textStyle.copyWith(fontSize: 15),
 
             ///
-            bodySmall: textStyle.copyWith(fontSize: 11),
+            bodySmall: textStyle.copyWith(fontSize: 13),
 
             ///---------///
             colors: colors,
