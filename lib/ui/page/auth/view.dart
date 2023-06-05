@@ -114,7 +114,12 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           if (isIosWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
+              title: Text(
+                'btn_download'.l10n,
+                style: style.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
                 child:
@@ -124,7 +129,12 @@ class AuthView extends StatelessWidget {
             ),
           if (isAndroidWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
+              title: Text(
+                'btn_download'.l10n,
+                style: style.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
                 child:
@@ -134,7 +144,12 @@ class AuthView extends StatelessWidget {
             ),
           if (isDesktopWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
+              title: Text(
+                'btn_download'.l10n,
+                style: style.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
               leading: PlatformUtils.isMacOS
                   ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
                   : (PlatformUtils.isWindows)
@@ -247,7 +262,12 @@ class AuthView extends StatelessWidget {
         children: [
           ModalPopupHeader(
             header: Center(
-              child: Text('btn_download'.l10n, style: fonts.labelMedium),
+              child: Text(
+                'btn_download'.l10n,
+                style: fonts.headlineSmall!.copyWith(
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 12),

@@ -122,7 +122,7 @@ class Themes {
             ///
             headlineSmall: textStyle.copyWith(fontSize: 18),
 
-            /// Тексты на кнопках (Страница авторизации)
+            ///
             labelLarge: textStyle.copyWith(fontSize: 17),
 
             ///
@@ -143,7 +143,7 @@ class Themes {
               fontWeight: FontWeight.w300,
             ),
 
-            ///
+            /// Тексты на кнопках (Страница авторизации)
             bodyLarge: textStyle.copyWith(fontSize: 17),
 
             ///
