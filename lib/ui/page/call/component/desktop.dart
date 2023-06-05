@@ -488,6 +488,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                         e.hint,
                                         style: style.labelSmall.copyWith(
                                           color: style.colors.onPrimary,
+                                          fontWeight: FontWeight.w300,
                                         ),
                                         textAlign: TextAlign.center,
                                       )

@@ -97,16 +97,13 @@ class Themes {
         extensions: [
           Style(
             ///---------///
-            /// Messenger(Страница авторизации)
-            displayLarge: textStyle.copyWith(
-              fontWeight: FontWeight.w300,
-              fontSize: 24,
-            ),
-
             ///
+            displayLarge: textStyle.copyWith(fontSize: 27),
+
+            /// Messenger(Страница авторизации)
             displayMedium: textStyle.copyWith(
               fontWeight: FontWeight.w300,
-              fontSize: 15.4,
+              fontSize: 24,
             ),
 
             ///
@@ -125,7 +122,7 @@ class Themes {
             headlineSmall: textStyle.copyWith(fontSize: 18),
 
             ///
-            titleLarge: textStyle.copyWith(fontSize: 16),
+            titleLarge: textStyle.copyWith(fontSize: 17),
 
             ///
             titleMedium: textStyle.copyWith(fontSize: 15),
