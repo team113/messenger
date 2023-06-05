@@ -17,7 +17,12 @@
 
 import 'package:flutter/widgets.dart';
 
-/// Web [html.ImageElement] used to show images natively.
+/// Web [html.ImageElement] showing images natively.
+///
+/// Uses exponential backoff algorithm to re-fetch the [src] in case of errors.
+///
+/// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
+/// errors.
 ///
 /// Uses [Image.network] on non-web platforms.
 class WebImage extends StatelessWidget {

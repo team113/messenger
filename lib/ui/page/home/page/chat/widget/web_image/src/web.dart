@@ -28,8 +28,9 @@ import 'package:flutter/services.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
-/// Wrapper around a [_HtmlImage] using exponential backoff algorithm to
-/// re-fetch the [src] in case an error loading an image into [_HtmlImage].
+/// Web [html.ImageElement] showing images natively.
+///
+/// Uses exponential backoff algorithm to re-fetch the [src] in case of errors.
 ///
 /// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
 /// errors.
@@ -98,7 +99,7 @@ class _WebImageState extends State<WebImage> {
     );
   }
 
-  /// Loads the image head from the [WebImage.src] to ensure that image can be
+  /// Loads the image header from the [WebImage.src] to ensure that image can be
   /// loaded.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
@@ -130,7 +131,7 @@ class _WebImageState extends State<WebImage> {
               setState(() => _backoffRunning = false);
             }
           } else {
-            throw Exception('Image head is not loaded');
+            throw Exception('Image `HEAD` request failed');
           }
         },
         _cancelToken,
