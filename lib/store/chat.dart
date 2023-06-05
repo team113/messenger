@@ -451,6 +451,10 @@ class ChatRepository extends DisposableInterface
         _monologShouldBeHidden = true;
         monolog = _chat(await _graphQlProvider.createMonologChat(null));
 
+        // Delete the local [Chat]-monolog from [Hive], since it won't be
+        // removed as is will be hidden right away.
+        await remove(id);
+
         id = monolog.chat.value.id;
         await _monologLocal.set(id);
       }
@@ -1329,7 +1333,6 @@ class ChatRepository extends DisposableInterface
 
           if (localChat != null) {
             chats.move(localId, data.chat.value.id);
-
             await localChat.updateChat(data.chat.value);
             entry = localChat;
           }

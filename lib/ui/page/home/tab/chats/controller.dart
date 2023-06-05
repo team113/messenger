@@ -168,10 +168,11 @@ class ChatsTabController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    _sortChats();
+    chats.sort();
 
     for (RxChat chat in chats) {
-      _sortingData[chat.chat.value.id] = _ChatSortingData(chat, _sortChats);
+      _sortingData[chat.chat.value.id] =
+          _ChatSortingData(chat, () => chats.sort());
     }
 
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
@@ -197,9 +198,9 @@ class ChatsTabController extends GetxController {
       switch (event.op) {
         case OperationKind.added:
           chats.add(event.value!);
-          _sortChats();
+          chats.sort();
           _sortingData[event.value!.chat.value.id] ??=
-              _ChatSortingData(event.value!, _sortChats);
+              _ChatSortingData(event.value!, () => chats.sort());
 
           if (event.value!.chat.value.isDialog) {
             listenUpdates(event.value!);
@@ -228,7 +229,7 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          _sortChats();
+          chats.sort();
           break;
       }
     });
@@ -615,11 +616,6 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
-  void _sortChats() {
-    chats.sort();
-  }
-
   /// Disables the [search], if its focus is lost or its query is empty.
   void _disableSearchFocusListener() {
     if (search.value?.search.focus.hasFocus == false &&
@@ -710,7 +706,7 @@ class _ChatSortingData {
   /// Previously captured indicator of [Chat.ongoingCall] being non-`null`.
   late bool hasCall;
 
-  /// Previously captured indicator of [Chat.ongoingCall] being non-`null`.
+  /// Previously captured [RxChat.draft] value.
   ChatMessage? draft;
 
   /// Disposes this [_ChatSortingData].
