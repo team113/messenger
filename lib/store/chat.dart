@@ -258,7 +258,7 @@ class ChatRepository extends DisposableInterface
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
     if (chatId.isLocal) {
-      if (chatId.isLocalChatWith(me)) {
+      if (chatId.isLocalWith(me)) {
         return await ensureRemoteMonolog();
       }
 
@@ -397,7 +397,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> renameChat(ChatId id, ChatName? name) async {
-    if (id.isLocalChatWith(me)) {
+    if (id.isLocalWith(me)) {
       await ensureRemoteMonolog(name);
       return;
     }
@@ -447,7 +447,7 @@ class ChatRepository extends DisposableInterface
     ChatData? monolog;
 
     try {
-      if (id.isLocalChatWith(me)) {
+      if (id.isLocalWith(me)) {
         _monologShouldBeHidden = true;
         monolog = _chat(await _graphQlProvider.createMonologChat(null));
 
@@ -782,7 +782,7 @@ class ChatRepository extends DisposableInterface
       chat?.chat.update((c) => c?.avatar = null);
     }
 
-    if (id.isLocalChatWith(me)) {
+    if (id.isLocalWith(me)) {
       id = (await ensureRemoteMonolog()).id;
     }
 
@@ -912,7 +912,7 @@ class ChatRepository extends DisposableInterface
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
     try {
-      if (id.isLocalChatWith(me)) {
+      if (id.isLocalWith(me)) {
         localMonologFavoritePosition = newPosition;
         final ChatData monolog =
             _chat(await _graphQlProvider.createMonologChat(null));

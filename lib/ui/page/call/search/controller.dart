@@ -316,7 +316,7 @@ class SearchController extends GetxController {
 
       chats.value = {
         for (var c in sorted.where((p) {
-          if (p.id.isLocal && !p.id.isLocalChatWith(me)) {
+          if (p.id.isLocal && !p.id.isLocalWith(me)) {
             return false;
           }
 

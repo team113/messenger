@@ -1232,11 +1232,10 @@ class HiveRxChat extends RxChat {
       return other.draft.value!.at.compareTo(draft.value!.at);
     }
 
-    if (chat.value.id.isLocalChatWith(me) &&
-        !other.chat.value.id.isLocalChatWith(me)) {
+    if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
       return 1;
-    } else if (!chat.value.id.isLocalChatWith(me) &&
-        other.chat.value.id.isLocalChatWith(me)) {
+    } else if (!chat.value.id.isLocalWith(me) &&
+        other.chat.value.id.isLocalWith(me)) {
       return -1;
     }
 
