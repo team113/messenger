@@ -243,6 +243,8 @@ class CallMemberTile extends StatelessWidget {
         isRedialed = member.isRedialing.isTrue;
       }
 
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return ContactTile(
         user: user,
         dense: true,
