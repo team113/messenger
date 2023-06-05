@@ -190,7 +190,7 @@ abstract class AbstractChatRepository {
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
-abstract class RxChat implements Comparable {
+abstract class RxChat implements Comparable<RxChat> {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 

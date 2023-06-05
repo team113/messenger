@@ -1199,11 +1199,7 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  int compareTo(other) {
-    if (other is! RxChat) {
-      return 0;
-    }
-
+  int compareTo(RxChat other) {
     if (chat.value.ongoingCall != null &&
         other.chat.value.ongoingCall == null) {
       return -1;

@@ -451,10 +451,6 @@ class ChatRepository extends DisposableInterface
         _monologShouldBeHidden = true;
         monolog = _chat(await _graphQlProvider.createMonologChat(null));
 
-        // Delete the local [Chat]-monolog from [Hive], since it won't be
-        // removed as is will be hidden right away.
-        await remove(id);
-
         id = monolog.chat.value.id;
         await _monologLocal.set(id);
       }
@@ -914,9 +910,11 @@ class ChatRepository extends DisposableInterface
     try {
       if (id.isLocalChatWith(me)) {
         localMonologFavoritePosition = newPosition;
-        final HiveRxChat chat = await ensureRemoteMonolog();
-        await favoriteChat(chat.id, position);
-        return;
+        final ChatData monolog =
+            _chat(await _graphQlProvider.createMonologChat(null));
+
+        id = monolog.chat.value.id;
+        await _monologLocal.set(id);
       }
 
       await _graphQlProvider.favoriteChat(id, newPosition);
@@ -1331,13 +1329,6 @@ class ChatRepository extends DisposableInterface
 
           if (localChat != null) {
             chats.move(localId, data.chat.value.id);
-
-            bool isLocalMonologFavorited = data.chat.value.isMonolog &&
-                localMonologFavoritePosition != null;
-            if (isLocalMonologFavorited) {
-              data.chat.value.favoritePosition = localMonologFavoritePosition;
-              localMonologFavoritePosition = null;
-            }
 
             await localChat.updateChat(data.chat.value);
             entry = localChat;
