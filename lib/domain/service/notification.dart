@@ -171,7 +171,7 @@ class NotificationService extends DisposableService {
       return;
     }
 
-    if (PlatformUtils.isWeb) {
+    if (PlatformUtils.isWeb || PlatformUtils.isWindows) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(
           AssetSource('audio/notification.mp3'),
@@ -184,14 +184,16 @@ class NotificationService extends DisposableService {
         }
       });
 
-      WebUtils.showNotification(
-        title,
-        body: body,
-        lang: payload,
-        icon: icon ?? image,
-        tag: tag,
-      ).onError((_, __) => false);
-    } else if (!PlatformUtils.isWindows) {
+      if(PlatformUtils.isWeb) {
+        WebUtils.showNotification(
+          title,
+          body: body,
+          lang: payload,
+          icon: icon ?? image,
+          tag: tag,
+        ).onError((_, __) => false);
+      }
+    } else {
       String? imagePath;
 
       // In order to show an image in local notification, we need to download it

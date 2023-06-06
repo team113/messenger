@@ -90,9 +90,6 @@ class CallWorker extends DisposableService {
 
   /// [Worker] reacting on the [RouterState.lifecycle] changes.
   Worker? _lifecycleWorker;
-  
-  /// [StreamSubscription] to the data coming from the [_background] service.
-  StreamSubscription? _onDataReceived;
 
   /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
   Timer? _fadeTimer;
@@ -113,9 +110,6 @@ class CallWorker extends DisposableService {
 
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
-
-  /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onInit() {
