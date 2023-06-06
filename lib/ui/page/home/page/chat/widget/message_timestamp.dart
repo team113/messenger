@@ -35,6 +35,7 @@ class MessageTimestamp extends StatelessWidget {
     this.inverted = false,
     this.fontSize,
     this.price,
+    this.donation = false,
   });
 
   /// [PreciseDateTime] to display in this [MessageTimestamp].
@@ -62,6 +63,7 @@ class MessageTimestamp extends StatelessWidget {
   final double? fontSize;
 
   final double? price;
+  final bool donation;
 
   @override
   Widget build(BuildContext context) {
@@ -78,36 +80,57 @@ class MessageTimestamp extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (price != null) ...[
+        if (donation) ...[
           SelectionContainer.disabled(
             child: Text(
-              '¤',
-              style: style.systemMessageStyle.copyWith(
-                fontFamily: 'Gapopa',
-                fontWeight: FontWeight.w300,
-                color: paidColor,
-                height: 1.0,
-                fontSize: fontSize ?? 11,
-              ),
-            ),
-          ),
-          SelectionContainer.disabled(
-            child: Text(
-              price!.toStringAsFixed(0),
+              'Gift',
               style: style.systemMessageStyle.copyWith(
                 fontSize: fontSize ?? 11,
-                color: paidColor,
+                color: const Color(0xFFA98010),
               ),
             ),
           ),
         ],
-        if (price != null && (at != null || status != null)) ...[
+        if (donation && (at != null || status != null)) ...[
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
             color: Theme.of(context).colorScheme.secondary,
             height: 10,
             width: 0.5,
           ),
+        ],
+        if (!donation) ...[
+          if (price != null) ...[
+            SelectionContainer.disabled(
+              child: Text(
+                '¤',
+                style: style.systemMessageStyle.copyWith(
+                  fontFamily: 'Gapopa',
+                  fontWeight: FontWeight.w300,
+                  color: paidColor,
+                  height: 1.0,
+                  fontSize: fontSize ?? 11,
+                ),
+              ),
+            ),
+            SelectionContainer.disabled(
+              child: Text(
+                price!.toStringAsFixed(0),
+                style: style.systemMessageStyle.copyWith(
+                  fontSize: fontSize ?? 11,
+                  color: paidColor,
+                ),
+              ),
+            ),
+          ],
+          if (price != null && (at != null || status != null)) ...[
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              color: Theme.of(context).colorScheme.secondary,
+              height: 10,
+              width: 0.5,
+            ),
+          ],
         ],
         if (status != null &&
             (isSent || isDelivered || isRead || isSending || isError)) ...[
