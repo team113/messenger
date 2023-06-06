@@ -202,11 +202,12 @@ class CallWorker extends DisposableService {
                           c.caller?.num.val;
 
                       _notificationService.show(
-                        title ?? 'label_incoming_call'.l10n,
-                        body: title == null ? null : 'label_incoming_call'.l10n,
-                        payload: '${Routes.chats}/${c.chatId}',
-                        icon: chat?.avatar.value?.original.url,
-                      );
+                          title ?? 'label_incoming_call'.l10n,
+                          body:
+                              title == null ? null : 'label_incoming_call'.l10n,
+                          payload: '${Routes.chats}/${c.chatId}',
+                          icon: chat?.avatar.value?.original.url,
+                          tag: '${c.chatId}_${c.call.value?.id}');
                     }
                   });
                 }

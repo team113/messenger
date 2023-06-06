@@ -47,6 +47,9 @@ class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
+  /// Path to the temporary directory.
+  String? _temporaryDirectory;
+
   /// [Dio] client to use in queries.
   ///
   /// May be overridden to be mocked in tests.
@@ -203,6 +206,16 @@ class PlatformUtilsImpl {
     return _downloadDirectory!;
   }
 
+  /// Returns a path to the temporary directory.
+  Future<String> get temporaryDirectory async {
+    if (_temporaryDirectory != null) {
+      return _temporaryDirectory!;
+    }
+
+    _temporaryDirectory = (await getTemporaryDirectory()).path;
+    return _temporaryDirectory!;
+  }
+
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
   Map<String, dynamic> get callKeep {
@@ -345,7 +358,7 @@ class PlatformUtilsImpl {
             final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
             final String path = temporary
-                ? (await getTemporaryDirectory()).path
+                ? await temporaryDirectory
                 : await downloadsDirectory;
 
             file = File('$path/$filename');

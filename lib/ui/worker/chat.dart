@@ -113,7 +113,6 @@ class ChatWorker extends DisposableService {
 
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) async {
       _focused = focused;
-
       if (_focused) {
         _flashed = false;
       }
@@ -181,7 +180,7 @@ class ChatWorker extends DisposableService {
         }
       },
       me: () => _chatService.me,
-      getUser: (id) => _userService.get(id),
+      getUser: _userService.get,
     );
   }
 

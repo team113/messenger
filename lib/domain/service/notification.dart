@@ -97,6 +97,10 @@ class NotificationService extends DisposableService {
     void Function(String)? onResponse,
     Future<void> Function(RemoteMessage message)? onBackground,
   }) async {
+    if (WebUtils.isPopup) {
+      return;
+    }
+
     _language = language ?? _language;
 
     PlatformUtils.isFocused.then((value) => _focused = value);
@@ -112,7 +116,7 @@ class NotificationService extends DisposableService {
       },
     );
 
-    if (PlatformUtils.pushNotifications && !WebUtils.isPopup) {
+    if (PlatformUtils.pushNotifications) {
       try {
         await _initPushNotifications(
           options: firebaseOptions,
@@ -184,7 +188,7 @@ class NotificationService extends DisposableService {
         }
       });
 
-      if(PlatformUtils.isWeb) {
+      if (PlatformUtils.isWeb) {
         WebUtils.showNotification(
           title,
           body: body,
@@ -200,6 +204,7 @@ class NotificationService extends DisposableService {
       // first to a [File] and then pass the path to it to the plugin.
       if (image != null) {
         try {
+          // TODO: Images should be downloaded to cache.
           final File? file = await PlatformUtils.download(
             image,
             'notification_${DateTime.now()}.jpg',
@@ -405,20 +410,20 @@ class NotificationService extends DisposableService {
   Future<void> _initAudio() async {
     if (PlatformUtils.isWeb || PlatformUtils.isWindows) {
       // [AudioPlayer] constructor creates a hanging [Future], which can't be
-    // awaited.
-    await runZonedGuarded(
-      () async {
-        _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
-        await AudioCache.instance.loadAll(['audio/notification.mp3']);
-      },
-      (e, _) {
-        if (e is MissingPluginException) {
-          _audioPlayer = null;
-        } else {
-          throw e;
-        }
-      },
-    );
+      // awaited.
+      await runZonedGuarded(
+        () async {
+          _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
+          await AudioCache.instance.loadAll(['audio/notification.mp3']);
+        },
+        (e, _) {
+          if (e is MissingPluginException) {
+            _audioPlayer = null;
+          } else {
+            throw e;
+          }
+        },
+      );
     }
   }
 }
