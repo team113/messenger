@@ -19,32 +19,31 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/widget/padding.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// [Widget] which returns the blacklisted information of this [User].
-class UserBlockedWidget extends StatelessWidget {
-  const UserBlockedWidget({super.key, this.isBlacklisted});
+/// Visual representation of the provided [BlacklistRecord].
+class BlacklistRecordWidget extends StatelessWidget {
+  const BlacklistRecordWidget(this.record, {super.key});
 
-  /// Indicator whether [User] is blacklisted.
-  final BlacklistRecord? isBlacklisted;
+  /// [BlacklistRecord] to display.
+  final BlacklistRecord record;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (isBlacklisted?.at != null)
-          BasicPadding(
-            ReactiveTextField(
-              state: TextFieldState(text: isBlacklisted!.at.toString()),
-              label: 'label_date'.l10n,
-              enabled: false,
-            ),
+        Paddings.basic(
+          ReactiveTextField(
+            state: TextFieldState(text: record.at.toString()),
+            label: 'label_date'.l10n,
+            enabled: false,
           ),
-        if (isBlacklisted?.reason != null)
-          BasicPadding(
+        ),
+        if (record.reason != null)
+          Paddings.basic(
             ReactiveTextField(
-              state: TextFieldState(text: isBlacklisted!.reason?.val),
+              state: TextFieldState(text: record.reason?.val),
               label: 'label_reason'.l10n,
               enabled: false,
             ),

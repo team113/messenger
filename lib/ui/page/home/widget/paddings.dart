@@ -17,15 +17,22 @@
 
 import 'package:flutter/material.dart';
 
-/// Basic [Padding] wrapper.
-class BasicPadding extends StatelessWidget {
-  const BasicPadding(this.child, {super.key});
+/// Constant unified [EdgeInsets] to use in the application.
+abstract class Insets {
+  /// Basic [EdgeInsets] to wrap a [Widget] with.
+  static const basic = EdgeInsets.all(8);
 
-  /// [Widget] that will be wrapped with padding.
-  final Widget child;
+  /// Dense [EdgeInsets] to wrap a [Widget] with.
+  static const dense = EdgeInsets.fromLTRB(8, 4, 8, 4);
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(padding: const EdgeInsets.all(8), child: child);
-  }
+/// Constant unified [Padding]s to use in the application.
+abstract class Paddings {
+  /// Returns the [Padding] with the [Insets.basic] insets.
+  static Widget basic(Widget child) =>
+      Padding(padding: Insets.basic, child: child);
+
+  /// Returns the [Padding] with the [Insets.dense] insets.
+  static Widget dense(Widget child) =>
+      Padding(padding: Insets.dense, child: child);
 }

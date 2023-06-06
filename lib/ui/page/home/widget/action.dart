@@ -18,7 +18,8 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import 'field_button.dart';
+import 'paddings.dart';
 
 /// [Widget] which builds a stylized button representing a single action.
 class ActionButton extends StatelessWidget {
@@ -43,7 +44,7 @@ class ActionButton extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
+      padding: Insets.dense.add(const EdgeInsets.only(bottom: 8)),
       child: FieldButton(
         onPressed: onPressed,
         text: text,

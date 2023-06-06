@@ -22,30 +22,26 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
-import '/ui/page/home/page/user/controller.dart';
-import '/ui/page/home/widget/padding.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// [Widget] which returns a [User.presence] text.
-class UserPresenceWidget extends StatelessWidget {
-  const UserPresenceWidget({super.key, required this.user});
+/// [ReactiveTextField] visual representation of the provided [Presence].
+class UserPresenceField extends StatelessWidget {
+  const UserPresenceField(this.presence, this.status, {super.key});
 
   /// Unique [User].
-  final User user;
+  final Presence presence;
+
+  /// [String] to display in the [ReactiveTextField] of this
+  /// [UserPresenceField].
+  final String? status;
 
   @override
   Widget build(BuildContext context) {
-    final Presence? presence = user.presence;
-    if (presence == null) {
-      return Container();
-    }
-
-    final subtitle = user.getStatus();
-
-    return BasicPadding(
+    return Paddings.basic(
       ReactiveTextField(
         key: const Key('Presence'),
-        state: TextFieldState(text: subtitle),
+        state: TextFieldState(text: status),
         label: 'label_presence'.l10n,
         enabled: false,
         trailing: CircleAvatar(

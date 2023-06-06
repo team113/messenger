@@ -28,14 +28,15 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
-import 'widget/blocked.dart';
-import 'widget/blocked_field.dart';
+import 'widget/blacklist_record.dart';
 import 'widget/name.dart';
 import 'widget/num.dart';
 import 'widget/presence.dart';
@@ -186,9 +187,7 @@ class UserView extends StatelessWidget {
                       if (c.isBlacklisted != null)
                         Block(
                           title: 'label_user_is_blocked'.l10n,
-                          children: [
-                            UserBlockedWidget(isBlacklisted: c.isBlacklisted),
-                          ],
+                          children: [BlacklistRecordWidget(c.isBlacklisted!)],
                         ),
                       Block(
                         title: 'label_public_information'.l10n,
@@ -219,14 +218,22 @@ class UserView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          UserNameWidget(user: c.user!.user.value),
-                          UserStatusWidget(status: c.user!.user.value.status),
-                          UserPresenceWidget(user: c.user!.user.value),
+                          UserNameCopyable(
+                            c.user!.user.value.name,
+                            c.user!.user.value.num,
+                          ),
+                          if (c.user!.user.value.status != null)
+                            UserStatusCopyable(c.user!.user.value.status!),
+                          if (c.user!.user.value.presence != null)
+                            UserPresenceField(
+                              c.user!.user.value.presence!,
+                              c.user!.user.value.getStatus(),
+                            ),
                         ],
                       ),
                       Block(
                         title: 'label_contact_information'.l10n,
-                        children: [UserNumWidget(num: c.user!.user.value.num)],
+                        children: [UserNumCopyable(c.user!.user.value.num)],
                       ),
                       Block(
                         title: 'label_actions'.l10n,
@@ -243,8 +250,8 @@ class UserView extends StatelessWidget {
                 }
 
                 return Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: UserBlockedField(onPressed: c.unblacklist),
+                  padding: Insets.dense.copyWith(top: 0),
+                  child: SafeArea(child: UnblockButton(c.unblacklist)),
                 );
               }),
             );

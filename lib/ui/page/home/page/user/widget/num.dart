@@ -20,25 +20,25 @@ import 'package:flutter/material.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/widget/padding.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// [Widget] which returns a [User.num] copyable field.
-class UserNumWidget extends StatelessWidget {
-  const UserNumWidget({super.key, required this.num});
+/// [CopyableTextField] representation of the provided [UserNum].
+class UserNumCopyable extends StatelessWidget {
+  const UserNumCopyable(this.num, {super.key});
 
-  /// Unique number of this [User].
+  /// [UserNum] to display.
   final UserNum num;
 
   @override
   Widget build(BuildContext context) {
-    return BasicPadding(
+    return Paddings.basic(
       CopyableTextField(
         key: const Key('UserNum'),
         state: TextFieldState(
           text: num.val.replaceAllMapped(
             RegExp(r'.{4}'),
-            (match) => '${match.group(0)} ',
+            (match) => '${match.group(0)}${'space'.l10n}',
           ),
         ),
         label: 'label_num'.l10n,

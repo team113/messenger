@@ -20,26 +20,27 @@ import 'package:flutter/material.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/widget/padding.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// [Widget] which returns a [User.name] copyable field.
-class UserNameWidget extends StatelessWidget {
-  const UserNameWidget({super.key, required this.user});
+/// [CopyableTextField] representation of the provided [UserName] or [UserNum].
+class UserNameCopyable extends StatelessWidget {
+  const UserNameCopyable(this.name, this.num, {super.key});
 
-  /// Unique [User].
-  final User user;
+  /// [UserName] to display.
+  final UserName? name;
+
+  /// [UserNum] to display, if [name] is `null`.
+  final UserNum num;
 
   @override
   Widget build(BuildContext context) {
-    return BasicPadding(
+    return Paddings.basic(
       CopyableTextField(
         key: const Key('NameField'),
-        state: TextFieldState(
-          text: user.name?.val ?? user.num.val,
-        ),
+        state: TextFieldState(text: name?.val ?? num.val),
         label: 'label_name'.l10n,
-        copy: user.name?.val ?? user.num.val,
+        copy: name?.val ?? num.val,
       ),
     );
   }

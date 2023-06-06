@@ -18,31 +18,26 @@
 import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
-
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/widget/padding.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// [Widget] which returns a [User.status] copyable field.
-class UserStatusWidget extends StatelessWidget {
-  const UserStatusWidget({super.key, this.status});
+/// [CopyableTextField] representation of the provided [UserTextStatus].
+class UserStatusCopyable extends StatelessWidget {
+  const UserStatusCopyable(this.status, {super.key});
 
-  /// Custom text status of this [User].
-  final UserTextStatus? status;
+  /// [UserTextStatus] to display.
+  final UserTextStatus status;
 
   @override
   Widget build(BuildContext context) {
-    if (status == null) {
-      return const SizedBox();
-    }
-
-    return BasicPadding(
+    return Paddings.basic(
       CopyableTextField(
         key: const Key('StatusField'),
-        state: TextFieldState(text: status!.val),
+        state: TextFieldState(text: status.val),
         label: 'label_status'.l10n,
-        copy: status!.val,
+        copy: status.val,
       ),
     );
   }
