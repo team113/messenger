@@ -357,9 +357,8 @@ class PlatformUtilsImpl {
           if (file == null) {
             final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
-            final String path = temporary
-                ? await temporaryDirectory
-                : await downloadsDirectory;
+            final String path =
+                temporary ? await temporaryDirectory : await downloadsDirectory;
 
             file = File('$path/$filename');
             for (int i = 1; await file!.exists(); ++i) {
