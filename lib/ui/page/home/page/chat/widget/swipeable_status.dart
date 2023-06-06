@@ -39,7 +39,7 @@ class SwipeableStatus extends StatelessWidget {
   });
 
   /// Expanded width of the [swipeable].
-  static const double width = 75;
+  static const double width = 65;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -105,13 +105,12 @@ class SwipeableStatus extends StatelessWidget {
   /// Returns a [Row] of [swipeable] and a optional status.
   Widget _swipeableWithStatus(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return DefaultTextStyle.merge(
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+      style: style.labelSmall.copyWith(color: style.colors.secondary),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),

@@ -102,9 +102,12 @@ class MessageTimestamp extends StatelessWidget {
         SelectionContainer.disabled(
           child: Text(
             date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
-            style: style.systemMessageStyle.copyWith(
+            style: style.bodySmall.copyWith(
               fontSize: fontSize ?? 11,
-              color: inverted ? style.colors.secondaryHighlightDark : null,
+              color: inverted
+                  ? style.colors.secondaryHighlightDark
+                  : style.colors.secondary,
+              fontWeight: FontWeight.w300,
             ),
           ),
         ),

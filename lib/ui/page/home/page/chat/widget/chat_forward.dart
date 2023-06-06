@@ -273,7 +273,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             style.colors.userColors.length];
 
     return DefaultTextStyle(
-      style: fonts.displaySmall!,
+      style: style.bodyLarge,
       child: Obx(() {
         return _rounded(
           context,
@@ -325,7 +325,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               selectable: PlatformUtils.isDesktop || menu,
                               onChanged: (a) => _selection = a,
                               onSelecting: widget.onSelecting,
-                              style: fonts.displaySmall!.copyWith(color: color),
+                              style: fonts.headlineSmall!.copyWith(
+                                color: color,
+                              ),
                             ),
                           ),
                         ],
@@ -382,7 +384,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       final ChatItemQuote quote = msg.quote;
 
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextTheme fonts = Theme.of(context).textTheme;
 
       List<Widget> content = [];
 
@@ -436,7 +437,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           selectable: PlatformUtils.isDesktop || menu,
                           onChanged: (a) => _selection = a,
                           onSelecting: widget.onSelecting,
-                          style: style.boldBody.copyWith(color: color),
+                          style: style.titleLarge.copyWith(color: color),
                         ),
                       ),
                     ),
@@ -531,7 +532,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: fonts.labelLarge,
+                      style: style.bodyLarge,
                     ),
                   ),
                 ),
@@ -591,7 +592,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     time,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: style.boldBody,
+                    style: style.bodyLarge,
                   ),
                 ),
               ],
@@ -599,9 +600,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           )
         ];
       } else if (quote is ChatInfoQuote) {
-        content = [Text(quote.action.toString(), style: fonts.displaySmall)];
+        content = [Text(quote.action.toString(), style: style.bodyLarge)];
       } else {
-        content = [Text('err_unknown'.l10n, style: fonts.displaySmall)];
+        content = [Text('err_unknown'.l10n, style: style.bodyLarge)];
       }
 
       return AnimatedContainer(
@@ -681,7 +682,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     if (item is ChatMessage) {
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextTheme fonts = Theme.of(context).textTheme;
 
       final TextSpan? text = _text[item.id];
 
@@ -724,7 +724,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: fonts.displaySmall!.copyWith(color: color),
+                      style: style.bodyLarge.copyWith(color: color),
                     ),
                   ),
                 ),
@@ -805,7 +805,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onChanged: (a) => _selection = a,
                         onSelecting: widget.onSelecting,
-                        style: style.boldBody,
+                        style: style.bodyLarge,
                       ),
                     ),
                   ),

@@ -124,7 +124,10 @@ class Themes {
             ),
 
             ///
-            titleLarge: textStyle.copyWith(fontSize: 17),
+            titleLarge: textStyle.copyWith(
+              fontSize: 17,
+              fontWeight: FontWeight.normal,
+            ),
 
             ///
             titleMedium: textStyle.copyWith(fontSize: 15),

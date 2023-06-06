@@ -480,9 +480,7 @@ class MessageFieldView extends StatelessWidget {
                   filled: false,
                   dense: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: style.bodyLarge.copyWith(
-                    color: style.colors.onBackground,
-                  ),
+                  style: style.bodyLarge,
                   type: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
@@ -642,7 +640,7 @@ class MessageFieldView extends StatelessWidget {
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
                       style: style.bodySmall.copyWith(
-                        color: style.colors.onBackground,
+                        fontWeight: FontWeight.w300,
                       ),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
@@ -651,7 +649,7 @@ class MessageFieldView extends StatelessWidget {
                   Text(
                     p.extension(e.filename),
                     style: style.bodySmall.copyWith(
-                      color: style.colors.onBackground,
+                      fontWeight: FontWeight.w300,
                     ),
                   )
                 ],

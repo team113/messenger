@@ -51,7 +51,6 @@ class _DataAttachmentState extends State<DataAttachment> {
 
     return Obx(() {
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextTheme fonts = Theme.of(context).textTheme;
 
       Widget leading = Container();
 
@@ -206,14 +205,14 @@ class _DataAttachmentState extends State<DataAttachment> {
                             Flexible(
                               child: Text(
                                 p.basenameWithoutExtension(e.filename),
-                                style: fonts.labelLarge,
+                                style: style.titleLarge,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Text(
                               p.extension(e.filename),
-                              style: fonts.labelLarge,
+                              style: style.titleLarge,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -228,7 +227,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                           }),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: fonts.bodyMedium!.copyWith(
+                          style: style.bodySmall.copyWith(
                             color: style.colors.secondary,
                           ),
                         ),
