@@ -95,11 +95,18 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
+  /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
+  Timer? _fadeTimer;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
-  /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
-  Timer? _fadeTimer;
+  /// Returns the name of an incoming call sound asset.
+  String get _incoming =>
+      PlatformUtils.isWeb ? 'chinese-web.mp3' : 'chinese.mp3';
+
+  /// Returns the name of an outgoing call sound asset.
+  String get _outgoing => 'ringing.mp3';
 
   @override
   void onInit() {
@@ -108,17 +115,21 @@ class CallWorker extends DisposableService {
     _initWebUtils();
 
     bool wakelock = _callService.calls.isNotEmpty;
-    if (wakelock) {
+    if (wakelock && !PlatformUtils.isLinux) {
       Wakelock.enable().onError((_, __) => false);
     }
 
     _subscription = _callService.calls.changes.listen((event) async {
-      if (!wakelock && _callService.calls.isNotEmpty) {
-        wakelock = true;
-        Wakelock.enable().onError((_, __) => false);
-      } else if (wakelock && _callService.calls.isEmpty) {
-        wakelock = false;
-        Wakelock.disable().onError((_, __) => false);
+      // TODO: Wait for Linux `wakelock` implementation to be done and merged:
+      //       https://github.com/creativecreatorormaybenot/wakelock/pull/186
+      if (!PlatformUtils.isLinux) {
+        if (!wakelock && _callService.calls.isNotEmpty) {
+          wakelock = true;
+          Wakelock.enable().onError((_, __) => false);
+        } else if (wakelock && _callService.calls.isEmpty) {
+          wakelock = false;
+          Wakelock.disable().onError((_, __) => false);
+        }
       }
 
       switch (event.op) {
@@ -137,9 +148,9 @@ class CallWorker extends DisposableService {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
             } else if (calling) {
-              play('ringing.mp3');
+              play(_outgoing);
             } else if (!PlatformUtils.isMobile || isInForeground) {
-              play('chinese.mp3', fade: true);
+              play(_incoming, fade: true);
               Vibration.hasVibrator().then((bool? v) {
                 _vibrationTimer?.cancel();
 
@@ -277,8 +288,8 @@ class CallWorker extends DisposableService {
     _audioPlayer?.dispose();
     _audioPlayer = null;
 
-    AudioCache.instance.clear('audio/ringing.mp3');
-    AudioCache.instance.clear('audio/chinese.mp3');
+    AudioCache.instance.clear('audio/$_incoming');
+    AudioCache.instance.clear('audio/$_outgoing');
     AudioCache.instance.clear('audio/pop.mp3');
 
     _subscription.cancel();
@@ -338,7 +349,6 @@ class CallWorker extends DisposableService {
     _fadeTimer?.cancel();
     _fadeTimer = null;
     await _audioPlayer?.setReleaseMode(ReleaseMode.release);
-    await _audioPlayer?.stop();
     await _audioPlayer?.release();
   }
 
@@ -350,8 +360,8 @@ class CallWorker extends DisposableService {
       () async {
         _audioPlayer = AudioPlayer();
         await AudioCache.instance.loadAll([
-          'audio/ringing.mp3',
-          'audio/chinese.mp3',
+          'audio/$_incoming',
+          'audio/$_outgoing',
           'audio/pop.mp3',
         ]);
       },
