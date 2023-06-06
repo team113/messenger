@@ -45,7 +45,6 @@ class AddEmailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: AddEmailController(
@@ -72,8 +71,9 @@ class AddEmailView extends StatelessWidget {
                           c.resent.value
                               ? 'label_add_email_confirmation_sent_again'.l10n
                               : 'label_add_email_confirmation_sent'.l10n,
-                          style: fonts.bodyLarge!.copyWith(
+                          style: style.bodyMedium.copyWith(
                             color: style.colors.secondary,
+                            fontWeight: FontWeight.w300,
                           ),
                         );
                       }),
@@ -99,10 +99,11 @@ class AddEmailView extends StatelessWidget {
                                     : 'label_resend_timeout'.l10nfmt(
                                         {'timeout': c.resendEmailTimeout.value},
                                       ),
-                                style: fonts.bodyLarge!.copyWith(
+                                style: style.bodyMedium.copyWith(
                                   color: c.resendEmailTimeout.value == 0
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,
+                                  fontWeight: FontWeight.w300,
                                 ),
                               ),
                               onPressed: c.resendEmailTimeout.value == 0
@@ -118,10 +119,11 @@ class AddEmailView extends StatelessWidget {
                               maxWidth: double.infinity,
                               title: Text(
                                 'btn_proceed'.l10n,
-                                style: fonts.bodyLarge!.copyWith(
+                                style: style.bodyMedium.copyWith(
                                   color: c.emailCode.isEmpty.value
                                       ? style.colors.onBackground
                                       : style.colors.onPrimary,
+                                  fontWeight: FontWeight.w300,
                                 ),
                               ),
                               onPressed: c.emailCode.isEmpty.value
@@ -149,8 +151,9 @@ class AddEmailView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         'label_add_email_description'.l10n,
-                        style: fonts.bodyLarge!.copyWith(
+                        style: style.bodyMedium.copyWith(
                           color: style.colors.secondary,
+                          fontWeight: FontWeight.w300,
                         ),
                       ),
                     ),
@@ -168,10 +171,11 @@ class AddEmailView extends StatelessWidget {
                         maxWidth: double.infinity,
                         title: Text(
                           'btn_proceed'.l10n,
-                          style: fonts.bodyLarge!.copyWith(
+                          style: style.bodyMedium.copyWith(
                             color: c.email.isEmpty.value
                                 ? style.colors.onBackground
                                 : style.colors.onPrimary,
+                            fontWeight: FontWeight.w300,
                           ),
                         ),
                         onPressed:
@@ -195,7 +199,12 @@ class AddEmailView extends StatelessWidget {
                 const SizedBox(height: 4),
                 ModalPopupHeader(
                   header: Center(
-                    child: Text('label_add_email'.l10n, style: fonts.bodyLarge),
+                    child: Text(
+                      'label_add_email'.l10n,
+                      style: style.headlineMedium.copyWith(
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 13),

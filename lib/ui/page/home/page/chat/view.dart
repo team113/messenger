@@ -906,6 +906,7 @@ class _ChatViewState extends State<ChatView>
           return Text(
             subtitle,
             style: style.bodySmall.copyWith(
+              color: style.colors.secondary,
               fontWeight: FontWeight.w300,
             ),
           );
