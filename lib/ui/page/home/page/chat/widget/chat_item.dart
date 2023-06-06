@@ -2114,11 +2114,7 @@ extension LinkParsingExtension on String {
       spans.add(
         TextSpan(
           text: link,
-          style: style!.bodyLarge.copyWith(
-            color: style.colors.primary,
-            decoration: TextDecoration.underline,
-            decorationThickness: 2,
-          ),
+          style: style?.linkStyle,
           recognizer: recognizer
             ..onTap = () async {
               final Uri uri;
