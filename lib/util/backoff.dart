@@ -55,11 +55,7 @@ class Backoff {
               backoff *= 2;
             }
 
-            if (e is Exception) {
-              Log.error(e.toString());
-            } else {
-              Log.error(e);
-            }
+            Log.error(e);
           }
         }
       }),

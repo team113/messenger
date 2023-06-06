@@ -449,8 +449,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     context,
                     media.first,
                     media
-                        .map((e) =>
-                            GalleryAttachment(e, widget.onAttachmentError))
+                        .map(
+                          (e) => GalleryAttachment(e, widget.onAttachmentError),
+                        )
                         .toList(),
                     key: _galleryKeys[msg.id]?.firstOrNull,
                     onGallery: widget.onGallery,

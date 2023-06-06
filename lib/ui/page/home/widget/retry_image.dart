@@ -400,6 +400,8 @@ class _RetryImageState extends State<RetryImage> {
               if (mounted) {
                 setState(() {});
               }
+            } else {
+              throw Exception('Fallback image is not loaded');
             }
           },
           _fallbackToken,

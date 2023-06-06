@@ -29,6 +29,7 @@ class Log {
       core.print('[$tag]: $message');
 
   /// Prints the provided [object] into the console as an error.
-  static void error(core.Object? object) =>
-      PlatformUtils.isWeb ? WebUtils.consoleError(object) : core.print(object);
+  static void error(core.Object? object) => PlatformUtils.isWeb
+      ? WebUtils.consoleError(object.toString())
+      : core.print(object);
 }

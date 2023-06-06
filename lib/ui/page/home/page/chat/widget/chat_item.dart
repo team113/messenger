@@ -1316,8 +1316,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 : RetryImage(
                     image.medium.url,
                     checksum: image.medium.checksum,
-                    onForbidden: () async =>
-                        await widget.onAttachmentError?.call(),
+                    onForbidden: widget.onAttachmentError,
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
