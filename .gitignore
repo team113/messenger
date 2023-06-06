@@ -1,5 +1,5 @@
 /.idea/
-/android/.idea/
+/android/.idea
 /.vscode/
 /*.iml
 .DS_Store

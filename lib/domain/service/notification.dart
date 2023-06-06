@@ -138,6 +138,7 @@ class NotificationService extends DisposableService {
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
     _audioPlayer?.dispose();
+    _audioPlayer = null;
     AudioCache.instance.clear('audio/notification.mp3');
   }
 
@@ -400,13 +401,22 @@ class NotificationService extends DisposableService {
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
-    if (PlatformUtils.isWeb) {
-      try {
+    if (PlatformUtils.isWeb || PlatformUtils.isWindows) {
+      // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    await runZonedGuarded(
+      () async {
         _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
         await AudioCache.instance.loadAll(['audio/notification.mp3']);
-      } on MissingPluginException {
-        _audioPlayer = null;
-      }
+      },
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
+      },
+    );
     }
   }
 }

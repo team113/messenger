@@ -25,7 +25,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 
 /// Authentication related functionality.
-abstract class AuthGraphQlMixin {
+mixin AuthGraphQlMixin {
   GraphQlClient get client;
   AccessToken? get token;
   set token(AccessToken? value);

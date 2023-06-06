@@ -26,6 +26,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/service/call.dart';
+import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 import 'view.dart';
 
@@ -47,14 +48,14 @@ class ScreenShareController extends GetxController {
   final void Function()? pop;
 
   /// [RtcVideoRenderer]s of the [OngoingCall.displays].
-  final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
-      RxMap<MediaDisplayInfo, RtcVideoRenderer>();
+  final RxMap<MediaDisplayDetails, RtcVideoRenderer> renderers =
+      RxMap<MediaDisplayDetails, RtcVideoRenderer>();
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// Currently selected [MediaDisplayInfo].
-  final Rx<MediaDisplayInfo?> selected = Rx(null);
+  /// Currently selected [MediaDisplayDetails].
+  final Rx<MediaDisplayDetails?> selected = Rx(null);
 
   /// Subscription for the [CallService.calls] changes.
   late final StreamSubscription? _callsSubscription;
@@ -65,12 +66,6 @@ class ScreenShareController extends GetxController {
   /// [CallService] for [pop]ping the view when [ChatCall] in the [Chat]
   /// identified by the [OngoingCall.chatId] is removed.
   final CallService _callService;
-
-  /// Handle to a media manager tracking all the connected devices.
-  late MediaManagerHandle _mediaManager;
-
-  /// Client for communication with a media server.
-  late Jason _jason;
 
   /// Stored [LocalMediaTrack]s to free in the [onClose].
   final List<LocalMediaTrack> _localTracks = [];
@@ -93,15 +88,12 @@ class ScreenShareController extends GetxController {
     });
 
     _displaysSubscription = call.value.displays.listen((e) {
-      for (MediaDisplayInfo display in e) {
+      for (MediaDisplayDetails display in e) {
         if (renderers[display] == null) {
           initRenderer(display);
         }
       }
     });
-
-    _jason = Jason();
-    _mediaManager = _jason.mediaManager();
 
     for (var e in call.value.displays) {
       initRenderer(e);
@@ -116,18 +108,14 @@ class ScreenShareController extends GetxController {
   void onClose() {
     _callsSubscription?.cancel();
     _displaysSubscription?.cancel();
-
     freeTracks();
-    _mediaManager.free();
-    _jason.free();
-
     super.onClose();
   }
 
   /// Initializes a [RtcVideoRenderer] for the provided [display].
-  Future<void> initRenderer(MediaDisplayInfo display) async {
-    final List<LocalMediaTrack> tracks = await _mediaManager.initLocalTracks(
-      _mediaStreamSettings(display.deviceId()),
+  Future<void> initRenderer(MediaDisplayDetails display) async {
+    final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
+      screen: ScreenPreferences(device: display.deviceId(), framerate: 5),
     );
 
     _localTracks.addAll(tracks);
@@ -150,17 +138,5 @@ class ScreenShareController extends GetxController {
       t.free();
     }
     _localTracks.clear();
-  }
-
-  /// Constructs the [MediaStreamSettings] with the provided [screenDevice].
-  MediaStreamSettings _mediaStreamSettings(String screenDevice) {
-    MediaStreamSettings settings = MediaStreamSettings();
-
-    DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
-    constraints.deviceId(screenDevice);
-    constraints.idealFrameRate(5);
-
-    settings.displayVideo(constraints);
-    return settings;
   }
 }

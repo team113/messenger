@@ -32,7 +32,7 @@ alert_chat_will_be_hidden1 = Chat{" "}
 alert_chat_will_be_hidden2 = {" "}will be hidden.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
 alert_contact_will_be_removed1 = Contact{" "}
-alert_contact_will_be_removed2 = {" "}will be removed.
+alert_contact_will_be_removed2 = {" "}will be deleted.
 alert_contacts_will_be_deleted = Contacts ({$count}) will be deleted. Continue?
 alert_dialog_will_be_cleared1 = Dialog with user{" "}
 alert_dialog_will_be_cleared2 = {" "}will be cleared.
@@ -486,7 +486,6 @@ label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
 label_block = Block
-label_blocked_count = Blocked: {$count}
 label_blocked_users = Blocked users
 label_cache_and_downloads = Cache and downloads
 label_call_active = Active call
@@ -567,7 +566,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_disabled = Disabled
-label_display_timestamps = Display time stamps
+label_display_timestamps = Display timestamps
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -592,6 +591,10 @@ label_favorite_contacts = Favorite
 label_file = File
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
+label_forwarded_messages = {$count ->
+    [1] Пересланное сообщение
+   *[other] Пересланные сообщения
+}
 label_gallery = Gallery
 label_group_created = Group created
 label_group_created_by = {$author} created the group
@@ -712,7 +715,7 @@ label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information
 label_public_section_hint = Avatar and name
-label_read_at = Read at: {$day}.{$month}.{$year} {$hour}:{$minute}
+label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
 label_recent = Recent
@@ -787,6 +790,7 @@ label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = removed
 label_user_removed_user3 = {" "}{$user}
 label_users = Users
+label_users_count = Users: {$count}
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number
 label_video = Video
