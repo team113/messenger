@@ -22,6 +22,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -52,7 +53,7 @@ class MicrophoneSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme fonts = Theme.of(context).textTheme;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
       init: MicrophoneSwitchController(Get.find(), mic: mic),
@@ -68,7 +69,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_media_microphone'.l10n,
-                    style: fonts.displaySmall,
+                    style: style.headlineSmall,
                   ),
                 ),
               ),

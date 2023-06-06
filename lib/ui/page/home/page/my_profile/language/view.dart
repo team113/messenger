@@ -50,7 +50,6 @@ class LanguageSelectionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
@@ -64,7 +63,10 @@ class LanguageSelectionView extends StatelessWidget {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text('label_language'.l10n, style: fonts.labelMedium),
+                  child: Text(
+                    'label_language'.l10n,
+                    style: style.headlineSmall,
+                  ),
                 ),
               ),
               const SizedBox(height: 4),
@@ -103,8 +105,9 @@ class LanguageSelectionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: fonts.bodyLarge!.copyWith(
+                    style: style.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   onPressed: () {
