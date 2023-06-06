@@ -21,7 +21,7 @@ import '/themes.dart';
 import 'field_button.dart';
 import 'paddings.dart';
 
-/// [Widget] which builds a stylized button representing a single action.
+/// Stylized [FieldButton] representing a single action.
 class ActionButton extends StatelessWidget {
   const ActionButton({
     super.key,

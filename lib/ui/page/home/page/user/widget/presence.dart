@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/widget/paddings.dart';
@@ -29,7 +28,7 @@ import '/ui/widget/text_field.dart';
 class UserPresenceField extends StatelessWidget {
   const UserPresenceField(this.presence, this.status, {super.key});
 
-  /// Unique [User].
+  /// [Presence] to display.
   final Presence presence;
 
   /// [String] to display in the [ReactiveTextField] of this

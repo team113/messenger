@@ -17,61 +17,56 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/widget/widget_button.dart';
 
-/// [Widget] which returns a [WidgetButton] for removing the [User] from the
-/// blacklist.
+/// [WidgetButton] stylized as a rectangular shaped button meant to be used as
+/// an unblock button.
 class UnblockButton extends StatelessWidget {
   const UnblockButton(this.onPressed, {super.key});
 
-  /// Callback, called when this [UserBlockedField] is pressed.
+  /// Callback, called when this [UnblockButton] is pressed.
   final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return Theme(
-      data: MessageFieldView.theme(context),
-      child: Container(
-        key: const Key('UserBlockedField'),
-        decoration: BoxDecoration(
-          borderRadius: style.cardRadius,
-          boxShadow: [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: style.colors.onBackgroundOpacity13,
-            ),
-          ],
-        ),
-        child: WidgetButton(
-          onPressed: onPressed,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 56),
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              color: style.cardColor,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Text(
-                    'btn_unblock'.l10n,
-                    textAlign: TextAlign.center,
-                    style: style.boldBody.copyWith(
-                      fontSize: 17,
-                      color: style.colors.primary,
-                    ),
+    return Container(
+      key: const Key('UnblockButton'),
+      decoration: BoxDecoration(
+        borderRadius: style.cardRadius,
+        boxShadow: [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: style.colors.onBackgroundOpacity13,
+          ),
+        ],
+      ),
+      child: WidgetButton(
+        onPressed: onPressed,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 56),
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            color: style.cardColor,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  'btn_unblock'.l10n,
+                  textAlign: TextAlign.center,
+                  style: style.boldBody.copyWith(
+                    fontSize: 17,
+                    color: style.colors.primary,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
