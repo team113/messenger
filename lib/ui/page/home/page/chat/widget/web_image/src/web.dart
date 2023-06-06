@@ -71,6 +71,7 @@ class _WebImageState extends State<WebImage> {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
       _backoffRunning = false;
+      _loading = true;
     }
 
     super.didUpdateWidget(oldWidget);
