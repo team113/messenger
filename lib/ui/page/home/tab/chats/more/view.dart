@@ -45,7 +45,6 @@ class ChatsMoreView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       key: const Key('ChatsMoreView'),
@@ -58,9 +57,7 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: fonts.displaySmall!.copyWith(
-                    color: style.colors.onBackground,
-                  ),
+                  style: style.headlineSmall,
                 ),
               ),
             ),
@@ -88,7 +85,6 @@ class ChatsMoreView extends StatelessWidget {
   /// Returns a styled as a header [Container] with the provided [text].
   Widget _header(BuildContext context, String text) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
@@ -97,8 +93,7 @@ class ChatsMoreView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style:
-                fonts.displaySmall!.copyWith(color: style.colors.onBackground),
+            style: style.headlineSmall,
           ),
         ),
       ),
@@ -154,7 +149,6 @@ class ChatsMoreView extends StatelessWidget {
   /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Obx(() {
       return Column(
@@ -192,7 +186,6 @@ class ChatsMoreView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: fonts.bodyMedium,
                     children: [
                       TextSpan(
                         text: 'label_transition_count'.l10nfmt({

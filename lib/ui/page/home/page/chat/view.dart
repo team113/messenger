@@ -858,7 +858,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: style.bodySmall.copyWith(
+                style: style.labelMedium.copyWith(
                   color: style.colors.primary,
                   fontWeight: FontWeight.w300,
                 ),
@@ -885,7 +885,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.bodySmall.copyWith(
+                style: style.labelMedium.copyWith(
                   color: style.colors.primary,
                   fontWeight: FontWeight.w300,
                 ),
@@ -951,6 +951,7 @@ class _ChatViewState extends State<ChatView>
                             buffer.toString(),
                             style: style.bodySmall.copyWith(
                               fontWeight: FontWeight.w300,
+                              color: style.colors.secondary,
                             ),
                           );
                         }
