@@ -107,7 +107,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Temporary file contains [VideoThumbnail.bytes].
   File? _file;
 
-  /// [CancelToken] for cancelling the [VideoThumbnail.url] head fetching.
+  /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
   CancelToken? _cancelToken;
 
   @override
@@ -220,6 +220,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       source = DataSource(type: DataSourceType.network, source: widget.url);
     }
 
+    // [MeeduPlayerController.setDataSource] should be awaited.
+    // Needs https://github.com/zezo357/flutter_meedu_videoplayer/issues/102
     _controller.setDataSource(source, autoplay: false);
 
     if (widget.url != null && bytes == null) {

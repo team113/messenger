@@ -74,7 +74,7 @@ class _VideoState extends State<Video> {
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
-  /// [CancelToken] for cancelling the [Video.url] head fetching.
+  /// [CancelToken] for cancelling the [Video.url] header fetching.
   CancelToken? _cancelToken;
 
   final MeeduPlayerController _controller = MeeduPlayerController(
@@ -88,7 +88,6 @@ class _VideoState extends State<Video> {
 
   @override
   void initState() {
-    _controller.videoFit.value = BoxFit.contain;
     widget.onController?.call(_controller);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -165,8 +164,11 @@ class _VideoState extends State<Video> {
                     ),
                   )
                 : GestureDetector(
-                    key: Key(_loading == null ? 'Loading' : 'Box'),
-                    onTap: () {},
+                    key: Key(_loading != null ? 'Box' : 'Loading'),
+                    onTap: () {
+                      // Intercept `onTap` event to prevent [GalleryPopup]
+                      // closing.
+                    },
                     child: Center(
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.99,
@@ -187,6 +189,8 @@ class _VideoState extends State<Video> {
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
+    // [MeeduPlayerController.setDataSource] should be awaited.
+    // Needs https://github.com/zezo357/flutter_meedu_videoplayer/issues/102
     _controller.setDataSource(
       DataSource(type: DataSourceType.network, source: widget.url),
     );
