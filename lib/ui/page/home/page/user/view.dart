@@ -53,7 +53,6 @@ class UserView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
@@ -120,8 +119,9 @@ class UserView extends StatelessWidget {
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
-                                  style: fonts.bodySmall!.copyWith(
+                                  style: style.bodySmall.copyWith(
                                     color: style.colors.secondary,
+                                    fontWeight: FontWeight.w300,
                                   ),
                                 )
                             ],
@@ -265,7 +265,6 @@ class UserView extends StatelessWidget {
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     // Builds a stylized button representing a single action.
     Widget action({
@@ -281,7 +280,7 @@ class UserView extends StatelessWidget {
             key: key,
             onPressed: onPressed,
             text: text ?? '',
-            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+            style: style.bodyMedium.copyWith(color: style.colors.primary),
             trailing: trailing != null
                 ? Transform.translate(
                     offset: const Offset(0, -1),
@@ -490,7 +489,6 @@ class UserView extends StatelessWidget {
   /// Returns a [WidgetButton] for removing the [User] from the blacklist.
   Widget _blockedField(BuildContext context, UserController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Theme(
       data: MessageFieldView.theme(context),
@@ -539,7 +537,7 @@ class UserView extends StatelessWidget {
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: fonts.displaySmall!.copyWith(
+                              style: style.bodyLarge.copyWith(
                                 color: style.colors.primary,
                               ),
                               type: TextInputType.multiline,
@@ -565,7 +563,6 @@ class UserView extends StatelessWidget {
     BuildContext context,
   ) async {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
@@ -573,7 +570,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: fonts.bodyLarge!.copyWith(color: style.colors.onBackground),
+          style: style.labelLarge.copyWith(fontWeight: FontWeight.w300),
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -587,7 +584,6 @@ class UserView extends StatelessWidget {
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
   Future<void> _hideChat(UserController c, BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
@@ -595,7 +591,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: fonts.bodyLarge!.copyWith(color: style.colors.onBackground),
+          style: style.labelLarge.copyWith(fontWeight: FontWeight.w300),
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
@@ -609,7 +605,6 @@ class UserView extends StatelessWidget {
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
@@ -617,7 +612,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: fonts.bodyLarge!.copyWith(color: style.colors.onBackground),
+          style: style.labelLarge.copyWith(fontWeight: FontWeight.w300),
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
@@ -631,7 +626,6 @@ class UserView extends StatelessWidget {
   /// Opens a confirmation popup blacklisting the [User].
   Future<void> _blacklistUser(UserController c, BuildContext context) async {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
@@ -639,7 +633,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: fonts.bodyLarge!.copyWith(color: style.colors.onBackground),
+          style: style.labelLarge.copyWith(fontWeight: FontWeight.w300),
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],
