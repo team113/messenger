@@ -63,7 +63,7 @@ class GalleryItem {
     String name, {
     int? size,
     String? checksum,
-    Future<void> Function()? onError,
+    FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
@@ -80,7 +80,7 @@ class GalleryItem {
     String name, {
     int? size,
     String? checksum,
-    Future<void> Function()? onError,
+    FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
@@ -107,7 +107,7 @@ class GalleryItem {
   final int? size;
 
   /// Callback, called on the fetch errors of this [GalleryItem].
-  final Future<void> Function()? onError;
+  final FutureOr<void> Function()? onError;
 }
 
 /// Animated gallery of [GalleryItem]s.
