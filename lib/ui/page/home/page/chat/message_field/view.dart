@@ -541,6 +541,7 @@ class MessageFieldView extends StatelessWidget {
       final Style style = Theme.of(context).extension<Style>()!;
 
       if (isImage || isVideo) {
+        // TODO: Backend should support single attachment updating.
         final Widget child = MediaAttachment(
           attachment: e,
           width: size,

@@ -15,10 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
+
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -100,6 +105,9 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     showLogs: kDebugMode,
   );
 
+  /// Temporary file contains [VideoThumbnail.bytes].
+  File? _file;
+
   /// [CancelToken] for cancelling the [VideoThumbnail.url] head fetching.
   CancelToken? _cancelToken;
 
@@ -120,6 +128,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   void didUpdateWidget(VideoThumbnail oldWidget) {
     if (oldWidget.bytes != widget.bytes || oldWidget.url != widget.url) {
       _initVideo();
+      _file?.delete();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -191,12 +200,28 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       bytes ??= FIFOCache.get(widget.checksum!);
     }
 
-    _controller.setDataSource(
-      bytes != null
-          ? DataSourceExt.bytes(bytes)
-          : DataSource(type: DataSourceType.network, source: widget.url),
-      autoplay: false,
-    );
+    DataSource source;
+
+    if (bytes != null) {
+      if (PlatformUtils.isWeb) {
+        source = DataSourceExt.bytes(bytes);
+      } else {
+        final String checksum =
+            widget.checksum ?? sha256.convert(bytes).toString();
+        // TODO: [_file] should be saved to the cache.
+        _file = File('${(await getTemporaryDirectory()).path}/$checksum');
+
+        if (!_file!.existsSync() || _file!.lengthSync() != bytes.length) {
+          _file!.writeAsBytesSync(bytes);
+        }
+
+        source = DataSource(type: DataSourceType.file, file: _file);
+      }
+    } else {
+      source = DataSource(type: DataSourceType.network, source: widget.url);
+    }
+
+    _controller.setDataSource(source, autoplay: false);
 
     if (widget.url != null && bytes == null) {
       _cancelToken?.cancel();
@@ -209,7 +234,9 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
           try {
             await PlatformUtils.dio.head(widget.url!);
             if (shouldReload) {
-              await _controller.setDataSource(
+              // Reinitialize the [_controller] if an unexpected error was
+              // thrown.
+              _controller.setDataSource(
                 DataSource(type: DataSourceType.network, source: widget.url),
                 autoplay: false,
               );
@@ -217,6 +244,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
           } catch (e) {
             if (e is DioError && e.response?.statusCode == 403) {
               widget.onError?.call();
+              _cancelToken?.cancel();
             } else {
               shouldReload = true;
               rethrow;

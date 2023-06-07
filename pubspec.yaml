@@ -35,7 +35,7 @@ dependencies:
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^14.0.0+2
-  flutter_meedu_videoplayer: ^4.2.10
+  flutter_meedu_videoplayer: ^4.2.11-dev-7
   flutter_spinkit: ^5.2.0
   flutter_staggered_animations: ^1.1.1
   flutter_svg: ^2.0.5

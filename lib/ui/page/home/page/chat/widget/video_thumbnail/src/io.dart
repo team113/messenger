@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
@@ -23,6 +22,5 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 /// Extension adding [DataSource] constructor from [Uint8List].
 extension DataSourceExt on DataSource {
   /// Creates a [DataSource] from the provided [bytes].
-  static DataSource bytes(Uint8List bytes) =>
-      DataSource(type: DataSourceType.file, file: File.fromRawPath(bytes));
+  static DataSource bytes(Uint8List bytes) => throw UnimplementedError();
 }

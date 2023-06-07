@@ -80,6 +80,7 @@ class _VideoState extends State<Video> {
   final MeeduPlayerController _controller = MeeduPlayerController(
     controlsStyle: ControlsStyle.custom,
     fits: [BoxFit.contain],
+    initialFit: BoxFit.contain,
     enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
     loadingWidget: const SizedBox(),
     showLogs: kDebugMode,
@@ -186,7 +187,7 @@ class _VideoState extends State<Video> {
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    await _controller.setDataSource(
+    _controller.setDataSource(
       DataSource(type: DataSourceType.network, source: widget.url),
     );
 
@@ -199,7 +200,7 @@ class _VideoState extends State<Video> {
         try {
           await PlatformUtils.dio.head(widget.url);
           if (shouldReload) {
-            // Reinitialize video if an unexpected error was thrown.
+            // Reinitialize the [_controller] if an unexpected error was thrown.
             await _controller.setDataSource(
               DataSource(type: DataSourceType.network, source: widget.url),
             );
@@ -207,6 +208,7 @@ class _VideoState extends State<Video> {
         } catch (e) {
           if (e is DioError && e.response?.statusCode == 403) {
             widget.onError?.call();
+            _cancelToken?.cancel();
           } else {
             shouldReload = true;
             rethrow;
