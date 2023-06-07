@@ -116,7 +116,6 @@ class ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return ContextMenuRegion(
       key: contact != null || user != null
@@ -187,8 +186,10 @@ class ContactTile extends StatelessWidget {
                                       : 'btn_your_profile'.l10n),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: fonts.headlineSmall!.copyWith(
-                                color: selected ? style.colors.onPrimary : null,
+                              style: style.headlineMedium.copyWith(
+                                color: selected
+                                    ? style.colors.onPrimary
+                                    : style.colors.onBackground,
                               ),
                             ),
                           ),

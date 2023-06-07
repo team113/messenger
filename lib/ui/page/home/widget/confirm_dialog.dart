@@ -120,7 +120,6 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
@@ -144,10 +143,11 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: fonts.displaySmall!.copyWith(
+                      style: style.headlineMedium.copyWith(
                         color: _variant == variant
                             ? style.colors.onPrimary
                             : style.colors.onBackground,
+                        fontWeight: FontWeight.w300,
                       ),
                       child: variant.child,
                     ),
@@ -172,7 +172,12 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
       children: [
         ModalPopupHeader(
           header: Center(
-            child: Text(widget.title, style: fonts.displaySmall),
+            child: Text(
+              widget.title,
+              style: style.headlineMedium.copyWith(
+                fontWeight: FontWeight.w300,
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -188,7 +193,10 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             child: Center(
               child: Text(
                 widget.description!,
-                style: fonts.bodyLarge!.copyWith(color: style.colors.secondary),
+                style: style.headlineMedium.copyWith(
+                  color: style.colors.secondary,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             ),
           ),
@@ -217,7 +225,10 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: fonts.bodyLarge!.copyWith(color: style.colors.onPrimary),
+              style: style.bodyMedium.copyWith(
+                color: style.colors.onPrimary,
+                fontWeight: FontWeight.w300,
+              ),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());
