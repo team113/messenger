@@ -120,6 +120,7 @@ class UserView extends StatelessWidget {
                                   subtitle,
                                   style: style.bodySmall.copyWith(
                                     color: style.colors.secondary,
+                                    fontWeight: FontWeight.w300,
                                   ),
                                 )
                             ],

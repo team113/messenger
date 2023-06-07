@@ -75,9 +75,7 @@ class ScreenShareView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_screen_sharing'.l10n,
-                    style: style.headlineSmall.copyWith(
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: style.headlineSmall,
                   ),
                 ),
               ),

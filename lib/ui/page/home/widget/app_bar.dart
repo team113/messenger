@@ -108,7 +108,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ...leading,
                       Expanded(
                         child: DefaultTextStyle.merge(
-                          style: style.headlineSmall,
+                          style: style.headlineMedium.copyWith(
+                            fontWeight: FontWeight.w300,
+                          ),
                           child:
                               Center(child: title ?? const SizedBox.shrink()),
                         ),

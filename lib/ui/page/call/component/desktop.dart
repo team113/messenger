@@ -700,6 +700,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         'label_call_title'.l10nfmt(c.titleArguments),
                         style: style.labelMedium.copyWith(
                           color: style.colors.onPrimary,
+                          fontWeight: FontWeight.w300,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1161,6 +1162,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                           'label_call_title'.l10nfmt(c.titleArguments),
                           style: style.labelMedium.copyWith(
                             color: style.colors.onPrimary,
+                            fontWeight: FontWeight.w300,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -2074,6 +2076,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                         'Draggable',
                                         style: style.labelMedium.copyWith(
                                           color: style.colors.onPrimary,
+                                          fontWeight: FontWeight.w300,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,

@@ -360,7 +360,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     state,
                                     style: style.labelMedium.copyWith(
                                       color: style.colors.onBackgroundOpacity2,
-                                      fontWeight: FontWeight.normal,
                                     ),
                                   ),
                                   if (withDots) const AnimatedDots(),

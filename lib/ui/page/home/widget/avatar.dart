@@ -397,8 +397,8 @@ class AvatarWidget extends StatelessWidget {
                 child: SelectionContainer.disabled(
                   child: Text(
                     (title ?? '??').initials(),
-                    style: style.labelLarge.copyWith(
-                      fontSize: style.labelLarge.fontSize! * (maxWidth / 40.0),
+                    style: style.titleMedium.copyWith(
+                      fontSize: style.titleMedium.fontSize! * (maxWidth / 40.0),
                       color: style.colors.onPrimary,
                       fontWeight: FontWeight.bold,
                     ),

@@ -143,6 +143,7 @@ class CustomNavigationBar extends StatelessWidget {
                                             ),
                                       textStyle: style.bodySmall.copyWith(
                                         color: style.colors.onPrimary,
+                                        fontWeight: FontWeight.w300,
                                       ),
                                       backgroundColor: b.badgeColor ??
                                           style.colors.dangerColor,

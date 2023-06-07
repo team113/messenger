@@ -148,8 +148,9 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: style.titleLarge.copyWith(
+                          style: style.bodyLarge.copyWith(
                             color: style.colors.onPrimary,
+                            fontWeight: FontWeight.w300,
                           ),
                         ),
                         onPressed: () {

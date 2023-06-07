@@ -80,6 +80,7 @@ class SearchUserTile extends StatelessWidget {
               style: style.labelMedium.copyWith(
                 color:
                     selected ? style.colors.onPrimary : style.colors.secondary,
+                fontWeight: FontWeight.w300,
               ),
             ),
           ],

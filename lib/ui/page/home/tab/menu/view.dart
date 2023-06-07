@@ -87,6 +87,7 @@ class MenuTabView extends StatelessWidget {
                                     'label_online'.l10n,
                                 style: style.labelMedium.copyWith(
                                   color: style.colors.secondary,
+                                  fontWeight: FontWeight.w300,
                                 ),
                               );
                             }),
@@ -193,6 +194,7 @@ class MenuTabView extends StatelessWidget {
                                               color: inverted
                                                   ? style.colors.onPrimary
                                                   : style.colors.onBackground,
+                                              fontWeight: FontWeight.w300,
                                             ),
                                             child: Text(subtitle),
                                           ),

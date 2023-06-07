@@ -243,10 +243,11 @@ class SearchView extends StatelessWidget {
                         submit ?? 'btn_submit'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: style.titleLarge.copyWith(
+                        style: style.bodyLarge.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
                               : style.colors.onBackground,
+                          fontWeight: FontWeight.w300,
                         ),
                       ),
                       onPressed:

@@ -531,10 +531,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       text: 'label_group_created_by2'.l10nfmt(args),
                       style: style.bodySmall.copyWith(
                         color: style.colors.secondary,
+                        fontWeight: FontWeight.w300,
                       ),
                     ),
                   ],
-                  style: style.bodySmall.copyWith(color: style.colors.primary),
+                  style: style.bodySmall.copyWith(
+                    color: style.colors.primary,
+                    fontWeight: FontWeight.w300,
+                  ),
                 ),
               );
             }
@@ -573,6 +577,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     text: 'label_user_added_user2'.l10nfmt(args),
                     style: style.bodySmall.copyWith(
                       color: style.colors.secondary,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   TextSpan(
@@ -581,7 +586,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.bodySmall.copyWith(color: style.colors.primary),
+                style: style.bodySmall.copyWith(
+                  color: style.colors.primary,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             );
           });
@@ -602,10 +610,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   text: 'label_was_added2'.l10nfmt(args),
                   style: style.bodySmall.copyWith(
                     color: style.colors.secondary,
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ],
-              style: style.bodySmall.copyWith(color: style.colors.primary),
+              style: style.bodySmall.copyWith(
+                color: style.colors.primary,
+                fontWeight: FontWeight.w300,
+              ),
             ),
           );
         }
@@ -636,6 +648,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     text: 'label_user_removed_user2'.l10nfmt(args),
                     style: style.bodySmall.copyWith(
                       color: style.colors.secondary,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   TextSpan(
@@ -644,7 +657,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.bodySmall.copyWith(color: style.colors.primary),
+                style: style.bodySmall.copyWith(
+                  color: style.colors.primary,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             );
           });
@@ -665,10 +681,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   text: 'label_was_removed2'.l10nfmt(args),
                   style: style.bodySmall.copyWith(
                     color: style.colors.secondary,
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ],
-              style: style.bodySmall.copyWith(color: style.colors.primary),
+              style: style.bodySmall.copyWith(
+                color: style.colors.primary,
+                fontWeight: FontWeight.w300,
+              ),
             ),
           );
         }
@@ -701,10 +721,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: style.bodySmall.copyWith(color: style.colors.secondary),
+                style: style.bodySmall.copyWith(
+                  color: style.colors.secondary,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             ],
-            style: style.bodySmall.copyWith(color: style.colors.primary),
+            style: style.bodySmall.copyWith(
+              color: style.colors.primary,
+              fontWeight: FontWeight.w300,
+            ),
           ),
         );
         break;
@@ -737,10 +763,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: style.bodySmall.copyWith(color: style.colors.secondary),
+                style: style.bodySmall.copyWith(
+                  color: style.colors.secondary,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             ],
-            style: style.bodySmall.copyWith(color: style.colors.primary),
+            style: style.bodySmall.copyWith(
+              color: style.colors.primary,
+              fontWeight: FontWeight.w300,
+            ),
           ),
         );
         break;
@@ -770,7 +802,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               border: style.systemMessageBorder,
               color: style.systemMessageColor,
             ),
-            child: DefaultTextStyle(style: style.bodySmall, child: content),
+            child: DefaultTextStyle(
+                style: style.bodySmall.copyWith(
+                  fontWeight: FontWeight.w300,
+                ),
+                child: content),
           ),
         ),
       ),
@@ -1126,7 +1162,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: style.bodyLarge.copyWith(),
+                    style: style.titleLarge.copyWith(),
                   ),
                 ),
                 if (time != null) ...[
@@ -1322,7 +1358,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: style.labelLarge.copyWith(
+                    style: style.titleMedium.copyWith(
                       color: style.colors.secondary,
                     ),
                   ),
@@ -1385,7 +1421,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: style.bodyLarge)),
+          Flexible(child: Text(title, style: style.titleLarge)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -1437,7 +1473,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             snapshot.data?.user.value.name?.val ??
                                 snapshot.data?.user.value.num.val ??
                                 'dot'.l10n * 3,
-                            style: style.bodyLarge.copyWith(color: color),
+                            style: style.titleLarge.copyWith(color: color),
                           ),
                         ),
                       ],

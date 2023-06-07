@@ -109,6 +109,7 @@ class ContactsTabView extends StatelessWidget {
                         'label_synchronization'.l10n,
                         style: style.labelMedium.copyWith(
                           color: style.colors.secondary,
+                          fontWeight: FontWeight.w300,
                         ),
                       ),
                     ),
@@ -555,6 +556,7 @@ class ContactsTabView extends StatelessWidget {
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.secondary,
+                    fontWeight: FontWeight.w300,
                   ),
                 );
               }
@@ -648,7 +650,7 @@ class ContactsTabView extends StatelessWidget {
                 'btn_cancel'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: style.titleLarge,
+                style: style.bodyLarge.copyWith(fontWeight: FontWeight.w300),
               ),
               onPressed: c.toggleSelecting,
               shadows: shadows,
@@ -664,10 +666,11 @@ class ContactsTabView extends StatelessWidget {
                       .l10nfmt({'count': c.selectedContacts.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: style.titleLarge.copyWith(
+                  style: style.bodyLarge.copyWith(
                     color: c.selectedContacts.isEmpty
                         ? style.colors.onBackground
                         : style.colors.onPrimary,
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 onPressed: c.selectedContacts.isEmpty
