@@ -41,7 +41,6 @@ class CallCoverWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     return Stack(
       children: [
@@ -84,8 +83,8 @@ class CallCoverWidget extends StatelessWidget {
                 child: Text(
                   title ?? '??',
                   textAlign: TextAlign.center,
-                  style: style.bodyLarge.copyWith(
-                    fontSize: (fonts.titleMedium!.fontSize! *
+                  style: style.titleMedium.copyWith(
+                    fontSize: (style.titleMedium.fontSize! *
                             constraints.biggest.shortestSide /
                             100)
                         .clamp(15, 108),

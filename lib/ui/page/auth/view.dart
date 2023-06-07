@@ -254,7 +254,8 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final TextTheme fonts = Theme.of(context).textTheme;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     await ModalPopup.show(
       context: context,
       child: Column(
@@ -264,9 +265,7 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: fonts.headlineSmall!.copyWith(
-                  fontWeight: FontWeight.w300,
-                ),
+                style: style.headlineSmall,
               ),
             ),
           ),

@@ -225,10 +225,9 @@ class ReactiveTextField extends StatelessWidget {
                                             key: const ValueKey('Approve'),
                                             child: Text(
                                               'btn_save'.l10n,
-                                              style: context
-                                                  .textTheme.bodyMedium!
-                                                  .copyWith(
+                                              style: style.labelMedium.copyWith(
                                                 color: style.colors.primary,
+                                                fontWeight: FontWeight.w300,
                                               ),
                                             ),
                                           )
@@ -252,7 +251,6 @@ class ReactiveTextField extends StatelessWidget {
 
     return Obx(() {
       final Style style = Theme.of(context).extension<Style>()!;
-      final TextTheme fonts = Theme.of(context).textTheme;
 
       return Theme(
         data: Theme.of(context).copyWith(
@@ -312,7 +310,7 @@ class ReactiveTextField extends StatelessWidget {
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: fonts.bodyLarge!.copyWith(fontSize: 0),
+                errorStyle: style.bodyLarge.copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -336,8 +334,9 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value!,
-                            style: (this.style ?? fonts.bodySmall!).copyWith(
+                            style: (this.style ?? style.labelMedium).copyWith(
                               color: style.colors.dangerColor,
+                              fontWeight: FontWeight.w300,
                             ),
                           ),
                         ),

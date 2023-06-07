@@ -53,7 +53,6 @@ class MessagePopup {
     List<Widget> additional = const [],
   }) {
     final Style style = Theme.of(router.context!).extension<Style>()!;
-    final TextTheme fonts = Theme.of(router.context!).textTheme;
 
     return ModalPopup.show(
       context: router.context!,
@@ -65,7 +64,7 @@ class MessagePopup {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text(title, style: fonts.displaySmall),
+                  child: Text(title, style: style.headlineSmall),
                 ),
               ),
               const SizedBox(height: 13),
@@ -80,8 +79,9 @@ class MessagePopup {
                           child: RichText(
                             text: TextSpan(
                               children: description,
-                              style: fonts.bodyLarge!.copyWith(
+                              style: style.labelLarge.copyWith(
                                 color: style.colors.secondary,
+                                fontWeight: FontWeight.w300,
                               ),
                             ),
                           ),
@@ -104,8 +104,9 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: fonts.bodyLarge!.copyWith(
+                    style: style.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),

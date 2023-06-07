@@ -265,7 +265,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
 
     final Color color = widget.user?.user.value.id == widget.me
         ? style.colors.primary
@@ -325,7 +324,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               selectable: PlatformUtils.isDesktop || menu,
                               onChanged: (a) => _selection = a,
                               onSelecting: widget.onSelecting,
-                              style: fonts.headlineSmall!.copyWith(
+                              style: style.headlineMedium.copyWith(
                                 color: color,
                               ),
                             ),
