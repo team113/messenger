@@ -58,9 +58,7 @@ class BlacklistView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_users_count'.l10nfmt({'count': c.blacklist.length}),
-                    style: style.headlineMedium.copyWith(
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: style.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -95,7 +93,6 @@ class BlacklistView extends StatelessWidget {
                               '28.12.2022',
                               style: style.bodySmall.copyWith(
                                 color: style.colors.secondary,
-                                fontWeight: FontWeight.w300,
                               ),
                             ),
                           ],
@@ -106,7 +103,6 @@ class BlacklistView extends StatelessWidget {
                                 'btn_unblock_short'.l10n,
                                 style: style.bodySmall.copyWith(
                                   color: style.colors.primary,
-                                  fontWeight: FontWeight.w300,
                                 ),
                               ),
                             ),

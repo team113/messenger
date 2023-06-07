@@ -73,91 +73,79 @@ class Themes {
 
     final ThemeData theme = ThemeData.light();
 
-    /// Display - это крупный, яркий и привлекательный шрифт, который обычно
-    /// используется для заголовков на главном экране приложения или на
-    /// титульной странице.
-    ///
-    /// Headline - это шрифт, который обычно используется для названий и
-    /// заголовков на экранах с контентом, таких как страницы продуктов,
-    /// статей или главных разделов в приложении.
-    ///
-    /// Label - это шрифт, который обычно используется для меток и кратких
-    /// описаний элементов интерфейса, таких как кнопок, полей ввода и
-    /// переключателей.
-    ///
-    /// Title - это шрифт, который обычно используется для названий разделов
-    /// в меню или на страницах, чтобы помочь пользователям быстро
-    /// ориентироваться в приложении.
-    ///
-    /// Body - это шрифт, который обычно используется для основного текстового
-    /// контента, такого как описания продуктов, подробного описания функций
-    /// или инструкции для использования.
-    ///
     return theme.copyWith(
         extensions: [
           Style(
-            ///---------///
             ///
-            displayLarge: textStyle.copyWith(fontSize: 27),
+            /// 1 use
+            displayLarge: textStyle.copyWith(
+              fontSize: 27,
+              fontWeight: FontWeight.bold,
+            ),
 
-            /// Messenger(Страница авторизации)
+            /// 1 use
             displayMedium: textStyle.copyWith(
               fontWeight: FontWeight.w300,
               fontSize: 24,
             ),
 
-            ///
+            /// 0 uses
             displaySmall:
                 textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 18),
 
-            ///
+            /// 0 uses
             headlineLarge:
                 textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
 
-            ///
+            /// A LOT USES
             headlineMedium: textStyle.copyWith(fontSize: 18),
 
-            ///
+            /// A LOT USES
             headlineSmall: textStyle.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.w300,
             ),
 
-            ///
+            /// DEPRECATED
             titleLarge: textStyle.copyWith(
               fontSize: 17,
-              fontWeight: FontWeight.normal,
+              fontWeight: FontWeight.w300,
             ),
 
-            ///
+            /// 0 uses
             titleMedium: textStyle.copyWith(fontSize: 15),
 
-            /// by Gapopa (Страница авторизации)
+            /// 2 uses
             titleSmall: textStyle.copyWith(
               fontSize: 15,
               fontWeight: FontWeight.w300,
             ),
 
-            /// таймер звонка на мобилке
-            /// статус пользователя в звонке на мобилке
+            /// A lot uses
             labelLarge: textStyle.copyWith(fontSize: 15),
 
-            /// стейт звонка на мобилке
+            /// A lot uses
             labelMedium: textStyle.copyWith(fontSize: 13),
 
-            /// description кнопок на мобилке в звонке
+            /// A lot uses
             labelSmall: textStyle.copyWith(fontSize: 11),
 
-            /// Тексты на кнопках (Страница авторизации)
+            /// A lot uses
             bodyLarge: textStyle.copyWith(fontSize: 17),
 
-            ///
-            bodyMedium: textStyle.copyWith(fontSize: 15),
+            /// A lot uses
+            bodyMedium: textStyle.copyWith(
+              fontSize: 15,
+              fontWeight: FontWeight.w300,
+            ),
+
+            /// A lot uses
+            bodySmall: textStyle.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
+            ),
 
             ///
-            bodySmall: textStyle.copyWith(fontSize: 13),
-
-            ///---------///
             colors: colors,
             barrierColor: colors.onBackgroundOpacity50,
             smallestBody: textStyle.copyWith(fontSize: 11),

@@ -76,7 +76,6 @@ class HintWidget extends StatelessWidget {
                         : 'label_hint_from_gapopa'.l10n,
                     style: style.bodySmall.copyWith(
                       color: style.colors.secondaryOpacity87,
-                      fontWeight: FontWeight.w300,
                     ),
                   ),
                 ),
@@ -102,7 +101,6 @@ class HintWidget extends StatelessWidget {
                 text,
                 style: style.bodySmall.copyWith(
                   color: style.colors.secondaryOpacity87,
-                  fontWeight: FontWeight.w300,
                 ),
               ),
             ),

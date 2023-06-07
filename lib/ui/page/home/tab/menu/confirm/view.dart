@@ -154,18 +154,15 @@ class ConfirmLogoutView extends StatelessWidget {
                 Center(
                   child: RichText(
                     text: TextSpan(
-                      style: style.bodyLarge.copyWith(
+                      style: style.titleLarge.copyWith(
                         color: style.colors.secondary,
-                        fontWeight: FontWeight.w300,
                       ),
                       children: [
                         TextSpan(
                           text: 'alert_are_you_sure_want_to_log_out1'.l10n,
                         ),
                         TextSpan(
-                          style: style.bodyLarge.copyWith(
-                            fontWeight: FontWeight.w300,
-                          ),
+                          style: style.titleLarge,
                           text: c.myUser.value?.name?.val ??
                               c.myUser.value?.num.val ??
                               '',
@@ -184,9 +181,8 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_logout'.l10n,
-                      style: style.bodyLarge.copyWith(
+                      style: style.titleLarge.copyWith(
                         color: style.colors.onPrimary,
-                        fontWeight: FontWeight.w300,
                       ),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
@@ -213,9 +209,8 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: style.bodyLarge.copyWith(
+                            style: style.titleLarge.copyWith(
                               color: style.colors.onPrimary,
-                              fontWeight: FontWeight.w300,
                             ),
                           ),
                           onPressed: () =>

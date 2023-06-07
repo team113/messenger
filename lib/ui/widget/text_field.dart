@@ -227,7 +227,6 @@ class ReactiveTextField extends StatelessWidget {
                                               'btn_save'.l10n,
                                               style: style.labelMedium.copyWith(
                                                 color: style.colors.primary,
-                                                fontWeight: FontWeight.w300,
                                               ),
                                             ),
                                           )
@@ -336,7 +335,6 @@ class ReactiveTextField extends StatelessWidget {
                             state.error.value!,
                             style: (this.style ?? style.labelMedium).copyWith(
                               color: style.colors.dangerColor,
-                              fontWeight: FontWeight.w300,
                             ),
                           ),
                         ),

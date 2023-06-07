@@ -127,7 +127,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: style.bodyLarge.copyWith(fontWeight: FontWeight.w300),
+                  style: style.titleLarge,
                   child: Center(
                     child: Padding(
                       padding: leading == null
@@ -141,10 +141,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                           if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: style.bodySmall.copyWith(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w300,
-                              ),
+                              style: style.bodySmall.copyWith(fontSize: 9),
                               child: subtitle!,
                             ),
                         ],

@@ -83,12 +83,11 @@ class CallCoverWidget extends StatelessWidget {
                 child: Text(
                   title ?? '??',
                   textAlign: TextAlign.center,
-                  style: style.titleMedium.copyWith(
-                    fontSize: (style.titleMedium.fontSize! *
+                  style: style.displayLarge.copyWith(
+                    fontSize: (style.labelLarge.fontSize! *
                             constraints.biggest.shortestSide /
                             100)
                         .clamp(15, 108),
-                    fontWeight: FontWeight.bold,
                     color: style.colors.onPrimary,
                   ),
 

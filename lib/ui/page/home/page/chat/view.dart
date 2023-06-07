@@ -431,9 +431,7 @@ class _ChatViewState extends State<ChatView>
                                   child: Text(
                                     key: const Key('NoMessages'),
                                     'label_no_messages'.l10n,
-                                    style: style.labelMedium.copyWith(
-                                      fontWeight: FontWeight.w300,
-                                    ),
+                                    style: style.labelMedium,
                                   ),
                                 );
                               }
@@ -844,10 +842,7 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(
-          subtitle.toString(),
-          style: style.bodySmall.copyWith(fontWeight: FontWeight.w300),
-        );
+        return Text(subtitle.toString(), style: style.bodySmall);
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -859,10 +854,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: style.labelMedium.copyWith(
-                  color: style.colors.primary,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: style.labelMedium.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -886,10 +878,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.labelMedium.copyWith(
-                  color: style.colors.primary,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: style.labelMedium.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -906,10 +895,7 @@ class _ChatViewState extends State<ChatView>
         if (subtitle != null) {
           return Text(
             subtitle,
-            style: style.bodySmall.copyWith(
-              color: style.colors.secondary,
-              fontWeight: FontWeight.w300,
-            ),
+            style: style.bodySmall.copyWith(color: style.colors.secondary),
           );
         }
       } else if (chat.value.isDialog) {
@@ -951,7 +937,6 @@ class _ChatViewState extends State<ChatView>
                           return Text(
                             buffer.toString(),
                             style: style.bodySmall.copyWith(
-                              fontWeight: FontWeight.w300,
                               color: style.colors.secondary,
                             ),
                           );
@@ -1012,7 +997,6 @@ class _ChatViewState extends State<ChatView>
                   time.toRelative(),
                   style: style.bodySmall.copyWith(
                     color: style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ),
@@ -1086,7 +1070,6 @@ class _ChatViewState extends State<ChatView>
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
           style: style.bodySmall.copyWith(
             color: style.colors.secondary,
-            fontWeight: FontWeight.w300,
           ),
         ),
       ),

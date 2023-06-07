@@ -165,7 +165,10 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 widget.text!,
                 textAlign: TextAlign.center,
                 style: widget.style ??
-                    style.bodySmall.copyWith(color: style.colors.onPrimary),
+                    style.labelMedium.copyWith(
+                      color: style.colors.onPrimary,
+                      fontWeight: FontWeight.normal,
+                    ),
                 maxLines: 2,
               ),
             ],
@@ -223,6 +226,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                         Shadow(blurRadius: 6, color: style.colors.onBackground),
                         Shadow(blurRadius: 6, color: style.colors.onBackground),
                       ],
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
                 ),

@@ -205,14 +205,14 @@ class _DataAttachmentState extends State<DataAttachment> {
                             Flexible(
                               child: Text(
                                 p.basenameWithoutExtension(e.filename),
-                                style: style.titleLarge,
+                                style: style.bodyLarge,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Text(
                               p.extension(e.filename),
-                              style: style.titleLarge,
+                              style: style.bodyLarge,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
