@@ -22,7 +22,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
-import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '/themes.dart';
