@@ -1503,13 +1503,16 @@ Widget _welcome(BuildContext context, MyProfileController c) {
     List<Attachment> attachments = const [],
     PreciseDateTime? at,
   }) {
-    List<Attachment> media = attachments.where((e) {
+    final List<Attachment> media = attachments.where((e) {
       return ((e is ImageAttachment) ||
           (e is FileAttachment && e.isVideo) ||
           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
-    List<Attachment> files = attachments.where((e) {
+    final Iterable<GalleryAttachment> galleries =
+        media.map((e) => GalleryAttachment(e, null));
+
+    final List<Attachment> files = attachments.where((e) {
       return ((e is FileAttachment && !e.isVideo) ||
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
@@ -1594,7 +1597,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                           ? ChatItemWidget.mediaAttachment(
                               context,
                               media.first,
-                              media,
+                              galleries,
                               filled: false,
                             )
                           : SizedBox(
@@ -1607,7 +1610,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                                       (i, e) => ChatItemWidget.mediaAttachment(
                                         context,
                                         e,
-                                        media,
+                                        galleries,
                                       ),
                                     )
                                     .toList(),

@@ -67,11 +67,12 @@ class _WebImageState extends State<WebImage> {
 
   @override
   void didUpdateWidget(WebImage oldWidget) {
-    print('[WebImage] didUpdateWidget ${oldWidget.src != widget.src}');
     if (oldWidget.src != widget.src) {
+      print('[WebImage] didUpdateWidget');
       _cancelToken.cancel();
       _cancelToken = CancelToken();
       _backoffRunning = false;
+      _loading = true;
     }
 
     super.didUpdateWidget(oldWidget);

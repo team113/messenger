@@ -18,6 +18,10 @@ dependencies:
   collection: ^1.17.0
   crypto: ^3.0.3
   desktop_drop: ^0.4.1
+  flutter_neumorphic:
+    git:
+      url: https://github.com/den0206/Flutter-Neumorphic.git
+      ref: feature/remoce_accentcolor
   dio: ^5.1.2
   dough:
     git:

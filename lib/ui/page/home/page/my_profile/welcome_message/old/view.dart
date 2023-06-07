@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -102,13 +103,16 @@ class WelcomeMessageView extends StatelessWidget {
       List<Attachment> attachments = const [],
       PreciseDateTime? at,
     }) {
-      List<Attachment> media = attachments.where((e) {
+      final List<Attachment> media = attachments.where((e) {
         return ((e is ImageAttachment) ||
             (e is FileAttachment && e.isVideo) ||
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
-      List<Attachment> files = attachments.where((e) {
+      final Iterable<GalleryAttachment> galleries =
+          media.map((e) => GalleryAttachment(e, null));
+
+      final List<Attachment> files = attachments.where((e) {
         return ((e is FileAttachment && !e.isVideo) ||
             (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
       }).toList();
@@ -191,7 +195,7 @@ class WelcomeMessageView extends StatelessWidget {
                             ? ChatItemWidget.mediaAttachment(
                                 context,
                                 media.first,
-                                media,
+                                galleries,
                                 filled: false,
                               )
                             : SizedBox(
@@ -205,7 +209,7 @@ class WelcomeMessageView extends StatelessWidget {
                                             ChatItemWidget.mediaAttachment(
                                           context,
                                           e,
-                                          media,
+                                          galleries,
                                         ),
                                       )
                                       .toList(),

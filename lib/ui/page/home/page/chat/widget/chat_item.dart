@@ -23,13 +23,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
+import '../controller.dart'
+    show ChatCallFinishReasonL10n, ChatController, GalleryAttachment;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -155,7 +156,7 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a gallery list is required.
   ///
   /// If not specified, then only media in this [item] will be in a gallery.
-  final List<Attachment> Function()? onGallery;
+  final List<GalleryAttachment> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final void Function(ChatItemQuote)? onRepliedTap;
@@ -187,9 +188,9 @@ class ChatItemWidget extends StatefulWidget {
   static Widget mediaAttachment(
     BuildContext context,
     Attachment e,
-    List<Attachment> media, {
+    Iterable<GalleryAttachment> media, {
     GlobalKey? key,
-    List<Attachment> Function()? onGallery,
+    Iterable<GalleryAttachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
     bool autoLoad = true,
@@ -263,40 +264,36 @@ class ChatItemWidget extends StatefulWidget {
           onTap: isLocal
               ? null
               : () {
-                  final List<Attachment> attachments =
+                  final Iterable<GalleryAttachment> attachments =
                       onGallery?.call() ?? media;
 
-                  int initial = attachments.indexOf(e);
+                  int initial = attachments.indexed
+                      .firstWhere((a) => a.$2.attachment == e)
+                      .$1;
                   if (initial == -1) {
                     initial = 0;
                   }
 
                   List<GalleryItem> gallery = [];
                   for (var o in attachments) {
-                    StorageFile file = o.original;
+                    final StorageFile file = o.attachment.original;
                     GalleryItem? item;
 
-                    if (o is FileAttachment) {
+                    if (o.attachment is FileAttachment) {
                       item = GalleryItem.video(
                         file.url,
-                        o.filename,
+                        o.attachment.filename,
                         size: file.size,
                         checksum: file.checksum,
-                        onError: () async {
-                          await onError?.call();
-                          item?.link = o.original.url;
-                        },
+                        onError: o.onForbidden,
                       );
-                    } else if (o is ImageAttachment) {
+                    } else if (o.attachment is ImageAttachment) {
                       item = GalleryItem.image(
                         file.url,
-                        o.filename,
+                        o.attachment.filename,
                         size: file.size,
                         checksum: file.checksum,
-                        onError: () async {
-                          await onError?.call();
-                          item?.link = o.original.url;
-                        },
+                        onError: o.onForbidden,
                       );
                     }
 
@@ -827,10 +824,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
+    final Iterable<GalleryAttachment> galleries =
+        media.map((e) => GalleryAttachment(e, widget.onAttachmentError));
+
     final List<Attachment> files = msg.attachments.where((e) {
       return ((e is FileAttachment && !e.isVideo) ||
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
+
+    final bool avatar = widget.avatar; // || msg.donate != null;
 
     final Color color = _fromMe
         ? style.colors.primary
@@ -844,232 +846,63 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final bool timestamp =
         (widget.timestamp || msg.donate != null || widget.paid) &&
-            _text != null;
+            (_text != null || msg.donate != null);
 
     return _rounded(
       context,
       // constrained: msg.donate == null,
       (menu, constraints) {
         final List<Widget> children = [
-          if (msg.donate != null) ...[
-            Container(
-              padding: const EdgeInsets.all(1.5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                gradient: const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFFFFFF8B),
-                    Color(0xFFFFFC82),
-                    Color(0xFFFFF68A),
-                    Color(0xFFE1AB18),
-                    // Colors.green,
-                    // Colors.green.darken(0.1),
-                  ],
-                  stops: [0, 0.32, 0.68, 1],
-                ),
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  gradient: const LinearGradient(
-                    // begin: Alignment.topCenter,
-                    // end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFFFFFF8B),
-                      Color(0xFFFFFC82),
-                      Color(0xFFFFF68A),
-                      Color(0xFFE1AB18),
-                      // Colors.green,
-                      // Colors.green.darken(0.1),
+          // if (msg.donate == null) ...[
+          if (msg.donate != null) const SizedBox(height: 3),
+          if (!_fromMe && widget.chat.value?.isGroup == true && avatar) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Flexible(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                        child: SelectionText.rich(
+                          TextSpan(
+                            text: widget.user?.user.value.name?.val ??
+                                widget.user?.user.value.num.val ??
+                                'dot'.l10n * 3,
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => router.user(_author, push: true),
+                          ),
+                          selectable: PlatformUtils.isDesktop || menu,
+                          onSelecting: widget.onSelecting,
+                          onChanged: (a) => _selection = a,
+                          style: style.boldBody.copyWith(color: color),
+                        ),
+                      ),
                     ],
-                    stops: [0, 0.32, 0.68, 1],
                   ),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 6),
-                    if (_fromMe) ...[
-                      Row(
-                        children: [
-                          if (_text == null) ...[
-                            const SizedBox(width: 16),
-                            Opacity(
-                              opacity: 0,
-                              child: Transform.translate(
-                                offset: const Offset(0, 8),
-                                child: _timestamp(msg, false, !_fromMe),
-                              ),
-                            ),
-                          ],
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: SelectionText.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: '${msg.donate}',
-                                    style: style.boldBody.copyWith(
-                                      color: const Color(0xFFA98010),
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: '¤',
-                                    style: style.boldBody.copyWith(
-                                      fontFamily: 'Gapopa',
-                                      color: const Color(0xFFA98010),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          if (_text == null) ...[
-                            const SizedBox(width: 16),
-                            Transform.translate(
-                              offset: const Offset(0, 12),
-                              child: _timestamp(msg, false, !_fromMe),
-                            ),
-                          ],
-                          const SizedBox(width: 6),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      const SizedBox(height: 6),
-                    ] else ...[
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                          child: SelectionText.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: widget.user?.user.value.name?.val ??
-                                      widget.user?.user.value.num.val ??
-                                      'dot'.l10n * 3,
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap =
-                                        () => router.user(_author, push: true),
-                                ),
-                              ],
-                            ),
-                            selectable: PlatformUtils.isDesktop || menu,
-                            onSelecting: widget.onSelecting,
-                            onChanged: (a) => _selection = a,
-                            style: style.boldBody.copyWith(color: color),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SelectionText.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: '${msg.donate}',
-                                    style: style.boldBody.copyWith(
-                                      color: const Color(0xFFA98010),
-                                      fontSize: 24,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: '¤',
-                                    style: style.boldBody.copyWith(
-                                      fontFamily: 'Gapopa',
-                                      color: const Color(0xFFA98010),
-                                      fontSize: 24,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Transform.translate(
-                            //   offset: Offset(0, -6),
-                            //   child: SelectionContainer.disabled(
-                            //     child: Text(
-                            //       'Gift',
-                            //       style: style.systemMessageStyle.copyWith(
-                            //         fontSize: 11,
-                            //         color: const Color(0xFFA98010),
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      // if (_text != null) const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          const Spacer(),
-                          if (_text == null)
-                            _timestamp(msg, false, !_fromMe)
-                          else
-                            SelectionContainer.disabled(
-                              child: Text(
-                                'Gift',
-                                style: style.systemMessageStyle.copyWith(
-                                  fontSize: 11,
-                                  // color: const Color(0xFFA98010),
-                                ),
-                              ),
-                            ),
-                          const SizedBox(width: 8),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                    ],
-                  ],
-                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+          ] else
+            SizedBox(
+              height: msg.repliesTo.isNotEmpty || media.isEmpty ? 6 : 0,
+            ),
+
+          // ] else ...[
+          //   if (_text != null) const SizedBox(height: 12),
+          // ],
+
+          if (msg.donate != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: Align(
+                alignment:
+                    _fromMe ? Alignment.centerRight : Alignment.centerLeft,
+                child: _donate(context, msg.donate!),
               ),
             ),
-            if (_text != null) const SizedBox(height: 6),
-          ] else ...[
-            if (!_fromMe &&
-                widget.chat.value?.isGroup == true &&
-                widget.avatar) ...[
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Flexible(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                          child: SelectionText.rich(
-                            TextSpan(
-                              text: widget.user?.user.value.name?.val ??
-                                  widget.user?.user.value.num.val ??
-                                  'dot'.l10n * 3,
-                              recognizer: TapGestureRecognizer()
-                                ..onTap =
-                                    () => router.user(_author, push: true),
-                            ),
-                            selectable: PlatformUtils.isDesktop || menu,
-                            onSelecting: widget.onSelecting,
-                            onChanged: (a) => _selection = a,
-                            style: style.boldBody.copyWith(color: color),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-            ] else
-              SizedBox(
-                height: msg.repliesTo.isNotEmpty || media.isEmpty ? 6 : 0,
-              ),
-          ],
+
           if (msg.repliesTo.isNotEmpty) ...[
             ...msg.repliesTo.expand((e) {
               return [
@@ -1111,13 +944,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 topLeft: msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
                             widget.chat.value?.isGroup == true &&
-                            widget.avatar)
+                            avatar)
                     ? Radius.zero
                     : const Radius.circular(15),
                 topRight: msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
                             widget.chat.value?.isGroup == true &&
-                            widget.avatar)
+                            avatar)
                     ? Radius.zero
                     : const Radius.circular(15),
                 bottomLeft:
@@ -1132,7 +965,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ? ChatItemWidget.mediaAttachment(
                         context,
                         media.first,
-                        media,
+                        galleries,
                         filled: false,
                         key: _galleryKeys[0],
                         onError: widget.onAttachmentError,
@@ -1149,7 +982,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 (i, e) => ChatItemWidget.mediaAttachment(
                                   context,
                                   e,
-                                  media,
+                                  galleries,
                                   key: _galleryKeys[i],
                                   onError: widget.onAttachmentError,
                                   onGallery: widget.onGallery,
@@ -1187,7 +1020,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
             const SizedBox(height: 6),
           ],
-          if (_text != null || (timestamp && msg.attachments.isEmpty)) ...[
+          if ((_text != null || msg.donate != null) ||
+              (timestamp && msg.attachments.isEmpty)) ...[
             Row(
               children: [
                 Flexible(
@@ -1199,7 +1033,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       child: SelectionText.rich(
                         TextSpan(
                           children: [
-                            if (_text != null) _text!,
+                            if (_text != null)
+                              _text!
+                            else
+                              TextSpan(
+                                text: 'Sent a gift',
+                                style: style.boldBody.copyWith(
+                                  color: style.colors.secondary,
+                                ),
+                              ),
                             if (timestamp && !timeInBubble) ...[
                               const WidgetSpan(child: SizedBox(width: 4)),
                               WidgetSpan(
@@ -1221,61 +1063,194 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ],
             ),
-            if (_text != null) const SizedBox(height: 6),
+            if (_text != null || msg.donate != null) const SizedBox(height: 6),
           ],
         ];
+
+        final message = Stack(
+          children: [
+            ConditionalIntrinsicWidth(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                decoration: BoxDecoration(
+                  color: _fromMe
+                      ? _isRead
+                          ? style.readMessageColor
+                          : style.unreadMessageColor
+                      : style.messageColor,
+                  borderRadius: BorderRadius.circular(15).copyWith(
+                      // topLeft: Radius.zero,
+                      ),
+                  border: _fromMe
+                      ? _isRead
+                          ? style.secondaryBorder
+                          : Border.all(
+                              color: style.readMessageColor,
+                              width: 0.5,
+                            )
+                      : style.primaryBorder,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: children,
+                ),
+              ),
+            ),
+            if (timestamp)
+              Positioned(
+                right: timeInBubble ? 6 : 8,
+                bottom: 4,
+                child: timeInBubble
+                    ? ConditionalBackdropFilter(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          decoration: BoxDecoration(
+                            color: style.colors.onBackgroundOpacity27,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: _timestamp(msg, true),
+                        ),
+                      )
+                    : _timestamp(msg),
+              )
+          ],
+        );
+
+        // Widget? donate;
+
+        // if (msg.donate != null) {
+        //   donate = Align(
+        //     alignment: _fromMe ? Alignment.centerRight : Alignment.centerLeft,
+        //     child: donate(msg.donate),
+        //   );
+        // }
 
         return Container(
           padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
           child: Stack(
             children: [
-              ConditionalIntrinsicWidth(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  decoration: BoxDecoration(
-                    color: _fromMe
-                        ? _isRead
-                            ? style.readMessageColor
-                            : style.unreadMessageColor
-                        : style.messageColor,
-                    borderRadius: BorderRadius.circular(15),
-                    border: _fromMe
-                        ? _isRead
-                            ? style.secondaryBorder
-                            : Border.all(
-                                color: style.readMessageColor,
-                                width: 0.5,
-                              )
-                        : style.primaryBorder,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: children,
-                  ),
-                ),
+              Column(
+                crossAxisAlignment:
+                    _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                children: [
+                  // if (donate != null) donate,
+                  // const SizedBox(height: 1),
+                  // if (donate != null) Opacity(opacity: 0, child: donate),
+                  message,
+                ],
               ),
-              if (timestamp)
-                Positioned(
-                  right: timeInBubble ? 6 : 8,
-                  bottom: 4,
-                  child: timeInBubble
-                      ? ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.only(left: 4, right: 4),
-                            decoration: BoxDecoration(
-                              color: style.colors.onBackgroundOpacity27,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: _timestamp(msg, true),
-                          ),
-                        )
-                      : _timestamp(msg),
-                )
+
+              // if (donate != null)
+              //   Transform.translate(offset: const Offset(0, 3), child: donate),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _donate(BuildContext context, int donate) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Container(
+      width: 300,
+      constraints: const BoxConstraints(maxWidth: 300),
+      padding: const EdgeInsets.all(1.5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFFFFFF8B),
+            Color(0xFFFFFC82),
+            Color(0xFFFFF68A),
+            Color(0xFFE1AB18),
+            // Colors.green,
+            // Colors.green.darken(0.1),
+          ],
+          stops: [0, 0.32, 0.68, 1],
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          gradient: const LinearGradient(
+            // begin: Alignment.topCenter,
+            // end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFFFFF8B),
+              Color(0xFFFFFC82),
+              Color(0xFFFFF68A),
+              Color(0xFFE1AB18),
+              // Colors.green,
+              // Colors.green.darken(0.1),
+            ],
+            stops: [0, 0.32, 0.68, 1],
+          ),
+        ),
+        child: Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    // if (_text == null) ...[
+                    //   const SizedBox(width: 16),
+                    //   Opacity(
+                    //     opacity: 0,
+                    //     child: Transform.translate(
+                    //       offset: const Offset(0, 8),
+                    //       child: _timestamp(msg, false, !_fromMe),
+                    //     ),
+                    //   ),
+                    // ],
+                    // const SizedBox(width: 6),
+                    Expanded(
+                      child: SelectionText.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '$donate',
+                              style: style.boldBody.copyWith(
+                                color: const Color(0xFFA98010),
+                              ),
+                            ),
+                            TextSpan(
+                              text: '¤',
+                              style: style.boldBody.copyWith(
+                                fontFamily: 'Gapopa',
+                                color: const Color(0xFFA98010),
+                              ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                const SizedBox(height: 6),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 4, bottom: 4),
+              child: Text(
+                'Gift',
+                style: style.systemMessageStyle.copyWith(
+                  color: const Color(0xFFA98010),
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1784,6 +1759,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
+    final bool avatar =
+        widget.avatar; // || (item is ChatMessage && item.donate != null);
+
     return SwipeableStatus(
       animation: widget.animation,
       translate: _fromMe,
@@ -1899,7 +1877,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               if (!_fromMe && widget.chat.value!.isGroup)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: widget.avatar
+                  child: avatar
                       ? InkWell(
                           customBorder: const CircleBorder(),
                           onTap: () => router.user(item.authorId, push: true),

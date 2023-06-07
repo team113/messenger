@@ -1266,25 +1266,43 @@ class ChatController extends GetxController {
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 
-  /// Returns a [List] of [Attachment]s representing a collection of all the
-  /// media files of this [chat].
-  List<Attachment> calculateGallery() {
-    final List<Attachment> attachments = [];
+  /// Returns a [List] of [GalleryAttachment]s representing a collection of all
+  /// the media files of this [chat].
+  List<GalleryAttachment> calculateGallery() {
+    final List<GalleryAttachment> attachments = [];
 
     for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
       if (m.value is ChatMessage) {
         final ChatMessage msg = m.value as ChatMessage;
-        attachments.addAll(msg.attachments.where(
-          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
-        ));
+        attachments.addAll(
+          msg.attachments
+              .where(
+                (e) =>
+                    e is ImageAttachment || (e is FileAttachment && e.isVideo),
+              )
+              .map(
+                (e) => GalleryAttachment(e, () => chat?.updateAttachments(msg)),
+              ),
+        );
       } else if (m.value is ChatForward) {
         final ChatForward msg = m.value as ChatForward;
         final ChatItemQuote item = msg.quote;
 
         if (item is ChatMessageQuote) {
-          attachments.addAll(item.attachments.where(
-            (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
-          ));
+          attachments.addAll(
+            item.attachments
+                .where(
+                  (e) =>
+                      e is ImageAttachment ||
+                      (e is FileAttachment && e.isVideo),
+                )
+                .map(
+                  (e) => GalleryAttachment(
+                    e,
+                    () => chat?.updateAttachments(msg),
+                  ),
+                ),
+          );
         }
       }
     }
@@ -1662,6 +1680,19 @@ class FeeElement extends ListElement {
       : super(ListElementId(PreciseDateTime.now(), ChatItemId('$fromMe')));
 
   final bool fromMe;
+}
+
+/// Wrapper wrapping an [Attachment] to show in a [GalleryPopup] and a
+/// [onForbidden] callback used to re-fetch it in case of forbidden error.
+class GalleryAttachment {
+  const GalleryAttachment(this.attachment, this.onForbidden);
+
+  /// [Attachment] of this [GalleryAttachment].
+  final Attachment attachment;
+
+  /// Callback, called when the [attachment] loading fails with a forbidden
+  /// network error.
+  final FutureOr<void> Function()? onForbidden;
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.

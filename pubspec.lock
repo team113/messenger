@@ -647,6 +647,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0+1"
+  flutter_neumorphic:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "feature/remoce_accentcolor"
+      resolved-ref: ad0b48874f52a9da1efb3ac60b1c519a7f57f427
+      url: "https://github.com/den0206/Flutter-Neumorphic.git"
+    source: git
+    version: "3.2.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:

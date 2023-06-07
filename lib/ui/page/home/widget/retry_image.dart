@@ -360,8 +360,6 @@ class _RetryImageState extends State<RetryImage> {
     );
   }
 
-  static const bool _firstTime = true;
-
   /// Loads the [_fallback] from the provided URL.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
@@ -452,6 +450,8 @@ class _RetryImageState extends State<RetryImage> {
               if (mounted) {
                 setState(() {});
               }
+            } else {
+              throw Exception('Fallback image is not loaded');
             }
           },
           _fallbackToken,
