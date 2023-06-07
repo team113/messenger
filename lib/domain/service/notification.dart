@@ -175,6 +175,10 @@ class NotificationService extends DisposableService {
       return;
     }
 
+    // Play a notification sound on Web and on Windows.
+    //
+    // Other platforms don't require playing a sound explicitly, as the local or
+    // push notification displayed plays it instead.
     if (PlatformUtils.isWeb || PlatformUtils.isWindows) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(
@@ -187,17 +191,17 @@ class NotificationService extends DisposableService {
           throw e;
         }
       });
+    }
 
-      if (PlatformUtils.isWeb) {
-        WebUtils.showNotification(
-          title,
-          body: body,
-          lang: payload,
-          icon: icon ?? image,
-          tag: tag,
-        ).onError((_, __) => false);
-      }
-    } else {
+    if (PlatformUtils.isWeb) {
+      WebUtils.showNotification(
+        title,
+        body: body,
+        lang: payload,
+        icon: icon ?? image,
+        tag: tag,
+      ).onError((_, __) => false);
+    } else if (!PlatformUtils.isWindows) {
       String? imagePath;
 
       // In order to show an image in local notification, we need to download it
