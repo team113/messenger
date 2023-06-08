@@ -497,7 +497,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: MessageTimestamp(
                         at: quote.at,
                         date: true,
-                        fontSize: 12,
+                        fontSize: fonts.labelSmall!.fontSize,
                       ),
                     ),
                 ],
@@ -522,7 +522,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               child: MessageTimestamp(
                                 at: quote.at,
                                 date: true,
-                                fontSize: 12,
+                                fontSize: fonts.labelSmall!.fontSize,
                               ),
                             ),
                           ),
@@ -531,7 +531,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: fonts.bodyLarge!,
+                      style: fonts.bodyLarge,
                     ),
                   ),
                 ),
@@ -591,7 +591,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     time,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: fonts.bodyLarge!,
+                    style: fonts.bodyLarge,
                   ),
                 ),
               ],
@@ -599,9 +599,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           )
         ];
       } else if (quote is ChatInfoQuote) {
-        content = [Text(quote.action.toString(), style: fonts.bodyLarge!)];
+        content = [Text(quote.action.toString(), style: fonts.bodyLarge)];
       } else {
-        content = [Text('err_unknown'.l10n, style: fonts.bodyLarge!)];
+        content = [Text('err_unknown'.l10n, style: fonts.bodyLarge)];
       }
 
       return AnimatedContainer(
@@ -655,7 +655,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               child: MessageTimestamp(
                                 at: quote.at,
                                 date: true,
-                                fontSize: 12,
+                                fontSize: fonts.labelSmall!.fontSize,
                                 inverted: true,
                               ),
                             ),
@@ -663,7 +663,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         : MessageTimestamp(
                             at: quote.at,
                             date: true,
-                            fontSize: 12,
+                            fontSize: fonts.labelSmall!.fontSize,
                           ),
                   )
                 ],
@@ -804,7 +804,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onChanged: (a) => _selection = a,
                         onSelecting: widget.onSelecting,
-                        style: fonts.bodyLarge!,
+                        style: fonts.bodyLarge,
                       ),
                     ),
                   ),

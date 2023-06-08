@@ -60,7 +60,7 @@ class Block extends StatelessWidget {
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    child: Text(title!, style: fonts.headlineLarge!),
+                    child: Text(title!, style: fonts.headlineLarge),
                   ),
                 ),
               ),

@@ -89,7 +89,7 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: fonts.bodySmall!,
+                        style: fonts.bodySmall,
                       ),
                       const SizedBox(width: 8),
                       SvgImage.asset('assets/icons/copy.svg', height: 12),
@@ -124,7 +124,7 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: fonts.bodyLarge!,
+                          style: fonts.bodyLarge,
                           onChanged: () => c.query.value = c.search.text,
                         ),
                       ),

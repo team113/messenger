@@ -334,8 +334,9 @@ class ChatInfoView extends StatelessWidget {
             if (c.chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
-                style:
-                    fonts.bodySmall!.copyWith(color: style.colors.onBackground),
+                style: fonts.bodySmall!.copyWith(
+                  color: style.colors.onBackground,
+                ),
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
@@ -757,7 +758,7 @@ class ChatInfoView extends StatelessWidget {
           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
           TextSpan(
             text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: fonts.labelLarge!,
+            style: fonts.labelLarge,
           ),
           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
         ],

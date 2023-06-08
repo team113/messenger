@@ -83,7 +83,7 @@ class ReactiveDropdown<T> extends StatelessWidget {
                     : null,
                 borderRadius: BorderRadius.circular(18),
                 isExpanded: true,
-                style: fonts.titleMedium!,
+                style: fonts.titleMedium,
                 icon: const SizedBox(),
                 underline: const SizedBox(),
               ),

@@ -60,7 +60,7 @@ class FloatingSnackBar extends StatefulWidget {
           entry = null;
         },
         bottom: bottom,
-        child: Text(title, style: fonts.titleMedium!),
+        child: Text(title, style: fonts.titleMedium),
       ),
     );
 

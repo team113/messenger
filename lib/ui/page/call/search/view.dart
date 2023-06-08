@@ -108,10 +108,7 @@ class SearchView extends StatelessWidget {
               ModalPopupHeader(
                 onBack: onBack,
                 header: Center(
-                  child: Text(
-                    title,
-                    style: fonts.headlineMedium,
-                  ),
+                  child: Text(title, style: fonts.headlineMedium),
                 ),
               ),
               const SizedBox(height: 12),
@@ -122,7 +119,7 @@ class SearchView extends StatelessWidget {
                     key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
-                    style: fonts.titleMedium!,
+                    style: fonts.titleMedium,
                     onChanged: () => c.query.value = c.search.text,
                   ),
                 ),

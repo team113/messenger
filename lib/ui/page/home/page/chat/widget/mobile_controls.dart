@@ -330,9 +330,7 @@ class _MobileControlsState extends State<MobileControls>
             ),
           )
         ],
-        style: fonts.labelMedium!.copyWith(
-          color: style.colors.onPrimary,
-        ),
+        style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
       ),
     );
   }

@@ -240,10 +240,7 @@ class AuthView extends StatelessWidget {
         children: [
           ModalPopupHeader(
             header: Center(
-              child: Text(
-                'btn_download'.l10n,
-                style: fonts.headlineMedium,
-              ),
+              child: Text('btn_download'.l10n, style: fonts.headlineMedium),
             ),
           ),
           const SizedBox(height: 12),

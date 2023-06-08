@@ -185,8 +185,10 @@ class LoginView extends StatelessWidget {
             default:
               header = ModalPopupHeader(
                 header: Center(
-                  child:
-                      Text('label_entrance'.l10n, style: fonts.headlineMedium),
+                  child: Text(
+                    'label_entrance'.l10n,
+                    style: fonts.headlineMedium,
+                  ),
                 ),
               );
 

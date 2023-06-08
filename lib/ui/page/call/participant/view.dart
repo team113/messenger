@@ -254,7 +254,7 @@ class ParticipantView extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: fonts.labelLarge!,
+                      style: fonts.labelLarge,
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],

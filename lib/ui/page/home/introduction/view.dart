@@ -69,7 +69,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: fonts.bodyMedium!,
+                  style: fonts.bodyMedium,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -83,7 +83,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: fonts.bodyMedium!,
+                  style: fonts.bodyMedium,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -140,7 +140,7 @@ class IntroductionView extends StatelessWidget {
               children = [
                 Text(
                   'label_introduction_description'.l10n,
-                  style: fonts.bodyMedium!,
+                  style: fonts.bodyMedium,
                 ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
@@ -195,7 +195,7 @@ class IntroductionView extends StatelessWidget {
                               'assets/icons/share.svg',
                               width: 18,
                             ),
-                            style: fonts.bodyMedium!,
+                            style: fonts.bodyMedium,
                           )
                         : CopyableTextField(
                             key: const Key('NumCopyable'),

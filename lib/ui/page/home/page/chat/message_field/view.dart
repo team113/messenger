@@ -480,7 +480,7 @@ class MessageFieldView extends StatelessWidget {
                   filled: false,
                   dense: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: fonts.bodyLarge!,
+                  style: fonts.bodyLarge,
                   type: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
@@ -639,7 +639,7 @@ class MessageFieldView extends StatelessWidget {
                   Flexible(
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
-                      style: fonts.bodySmall!,
+                      style: fonts.bodySmall,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -828,7 +828,7 @@ class MessageFieldView extends StatelessWidget {
           item.text!.val,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: fonts.bodyLarge!,
+          style: fonts.bodyLarge,
         );
       }
     } else if (item is ChatCall) {
@@ -869,7 +869,7 @@ class MessageFieldView extends StatelessWidget {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: fonts.bodyLarge!)),
+          Flexible(child: Text(title, style: fonts.bodyLarge)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -888,12 +888,12 @@ class MessageFieldView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: fonts.bodyLarge!);
+      content = Text('label_forwarded_message'.l10n, style: fonts.bodyLarge);
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: fonts.bodyLarge!);
+      content = Text(item.action.toString(), style: fonts.bodyLarge);
     } else {
-      content = Text('err_unknown'.l10n, style: fonts.bodyLarge!);
+      content = Text('err_unknown'.l10n, style: fonts.bodyLarge);
     }
 
     final Widget expanded;

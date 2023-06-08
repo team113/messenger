@@ -55,8 +55,10 @@ class ConfirmLogoutView extends StatelessWidget {
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = null,
                 header: Center(
-                  child: Text('btn_set_password'.l10n,
-                      style: fonts.headlineMedium),
+                  child: Text(
+                    'btn_set_password'.l10n,
+                    style: fonts.headlineMedium,
+                  ),
                 ),
               );
 
@@ -66,7 +68,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: fonts.titleMedium!,
+                  style: fonts.titleMedium,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -80,7 +82,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: fonts.titleMedium!,
+                  style: fonts.titleMedium,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -110,8 +112,10 @@ class ConfirmLogoutView extends StatelessWidget {
             case ConfirmLogoutViewStage.success:
               header = ModalPopupHeader(
                 header: Center(
-                  child: Text('btn_set_password'.l10n,
-                      style: fonts.headlineMedium),
+                  child: Text(
+                    'btn_set_password'.l10n,
+                    style: fonts.headlineMedium,
+                  ),
                 ),
               );
 
@@ -221,7 +225,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_logout'.l10n,
-                            style: fonts.bodyMedium!,
+                            style: fonts.bodyMedium,
                           ),
                           onPressed: () => Navigator.of(context).pop(true),
                           color: style.colors.secondaryHighlight,

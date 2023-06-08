@@ -981,7 +981,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             (PlatformUtils.isDesktop || menu) && _text != null,
                         onSelecting: widget.onSelecting,
                         onChanged: (a) => _selection = a,
-                        style: fonts.bodyLarge!,
+                        style: fonts.bodyLarge,
                       ),
                     ),
                   ),
@@ -1126,7 +1126,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: fonts.bodyLarge!,
+                    style: fonts.bodyLarge,
                   ),
                 ),
                 if (time != null) ...[
@@ -1339,7 +1339,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (item.text != null && item.text!.val.isNotEmpty) {
         content = SelectionContainer.disabled(
-          child: Text(item.text!.val, maxLines: 1, style: fonts.titleMedium!),
+          child: Text(item.text!.val, maxLines: 1, style: fonts.titleMedium),
         );
       }
     } else if (item is ChatCallQuote) {
@@ -1383,7 +1383,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: fonts.bodyLarge!)),
+          Flexible(child: Text(title, style: fonts.bodyLarge)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -1392,7 +1392,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: fonts.bodyLarge!,
+                style: fonts.bodyLarge,
               ),
             ),
           ],

@@ -89,7 +89,7 @@ class ContactsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: fonts.bodyLarge!,
+                        style: fonts.bodyLarge,
                         onChanged: () => c.search.value?.query.value =
                             c.search.value?.search.text ?? '',
                       ),
@@ -249,7 +249,7 @@ class ContactsTabView extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
-                                  style: fonts.labelLarge!,
+                                  style: fonts.labelLarge,
                                 ),
                               ),
                             ),
@@ -694,7 +694,7 @@ class ContactsTabView extends StatelessWidget {
       'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
-        TextSpan(text: contact.contact.value.name.val, style: fonts.bodySmall!),
+        TextSpan(text: contact.contact.value.name.val, style: fonts.bodySmall),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
     );
