@@ -64,6 +64,7 @@ import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'conditional_intrinsic.dart';
 import 'data_attachment.dart';
+import 'embossed_text.dart';
 import 'media_attachment.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
@@ -832,7 +833,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
-    final bool avatar = widget.avatar; // || msg.donate != null;
+    final bool avatar = widget.avatar || msg.donate != null;
 
     final Color color = _fromMe
         ? style.colors.primary
@@ -846,62 +847,107 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final bool timestamp =
         (widget.timestamp || msg.donate != null || widget.paid) &&
-            (_text != null || msg.donate != null);
+            (_text != null); // || msg.donate != null);
 
     return _rounded(
       context,
       // constrained: msg.donate == null,
       (menu, constraints) {
         final List<Widget> children = [
-          // if (msg.donate == null) ...[
-          if (msg.donate != null) const SizedBox(height: 3),
-          if (!_fromMe && widget.chat.value?.isGroup == true && avatar) ...[
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Flexible(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                        child: SelectionText.rich(
-                          TextSpan(
-                            text: widget.user?.user.value.name?.val ??
-                                widget.user?.user.value.num.val ??
-                                'dot'.l10n * 3,
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => router.user(_author, push: true),
+          if (msg.donate == null) ...[
+            if (msg.donate != null) const SizedBox(height: 3),
+            if (!_fromMe && widget.chat.value?.isGroup == true && avatar) ...[
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Flexible(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                          child: SelectionText.rich(
+                            TextSpan(
+                              text: widget.user?.user.value.name?.val ??
+                                  widget.user?.user.value.num.val ??
+                                  'dot'.l10n * 3,
+                              recognizer: TapGestureRecognizer()
+                                ..onTap =
+                                    () => router.user(_author, push: true),
+                            ),
+                            selectable: PlatformUtils.isDesktop || menu,
+                            onSelecting: widget.onSelecting,
+                            onChanged: (a) => _selection = a,
+                            style: style.boldBody.copyWith(color: color),
                           ),
-                          selectable: PlatformUtils.isDesktop || menu,
-                          onSelecting: widget.onSelecting,
-                          onChanged: (a) => _selection = a,
-                          style: style.boldBody.copyWith(color: color),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-          ] else
-            SizedBox(
-              height: msg.repliesTo.isNotEmpty || media.isEmpty ? 6 : 0,
-            ),
-
-          // ] else ...[
-          //   if (_text != null) const SizedBox(height: 12),
-          // ],
-
-          if (msg.donate != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Align(
-                alignment:
-                    _fromMe ? Alignment.centerRight : Alignment.centerLeft,
-                child: _donate(context, msg.donate!),
+                ],
               ),
+              const SizedBox(height: 4),
+            ] else
+              SizedBox(
+                height: msg.repliesTo.isNotEmpty || media.isEmpty ? 6 : 0,
+              ),
+          ] else ...[
+            _donate(
+              context,
+              donate: msg.donate!,
+              timestamp: _text == null,
+              header: !_fromMe && widget.chat.value?.isGroup == true && avatar
+                  ? [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                                  child: EmbossedText(
+                                    widget.user?.user.value.name?.val ??
+                                        widget.user?.user.value.num.val ??
+                                        'dot'.l10n * 3,
+                                    // recognizer: TapGestureRecognizer()
+                                    //   ..onTap = () =>
+                                    //       router.user(_author, push: true),
+                                    style: style.boldBody.copyWith(
+                                      color: const Color(0xFFFFFE8A),
+                                      // color: color,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      // const SizedBox(height: 4),
+                    ]
+                  : [],
+              footer: !_fromMe && widget.chat.value?.isGroup == true && avatar
+                  ? [
+                      const SizedBox(height: 16),
+                    ]
+                  : [],
             ),
+            if ((msg.repliesTo.isNotEmpty || msg.attachments.isNotEmpty))
+              const SizedBox(height: 1),
+            if ((msg.repliesTo.isEmpty && msg.attachments.isEmpty) &&
+                _text != null)
+              const SizedBox(height: 6),
+          ],
+
+          // if (msg.donate != null)
+          //   Padding(
+          //     padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+          //     child: Align(
+          //       alignment:
+          //           _fromMe ? Alignment.centerRight : Alignment.centerLeft,
+          //       child: _donate(context, donate: msg.donate!),
+          //     ),
+          //   ),
 
           if (msg.repliesTo.isNotEmpty) ...[
             ...msg.repliesTo.expand((e) {
@@ -1020,8 +1066,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
             const SizedBox(height: 6),
           ],
-          if ((_text != null || msg.donate != null) ||
-              (timestamp && msg.attachments.isEmpty)) ...[
+          if (_text != null || (timestamp && msg.attachments.isEmpty)) ...[
             Row(
               children: [
                 Flexible(
@@ -1033,15 +1078,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       child: SelectionText.rich(
                         TextSpan(
                           children: [
-                            if (_text != null)
-                              _text!
-                            else
-                              TextSpan(
-                                text: 'Sent a gift',
-                                style: style.boldBody.copyWith(
-                                  color: style.colors.secondary,
-                                ),
-                              ),
+                            if (_text != null) _text!,
+                            // else
+                            //   TextSpan(
+                            //     text: 'Sent a gift',
+                            //     style: style.boldBody.copyWith(
+                            //       color: style.colors.secondary,
+                            //     ),
+                            //   ),
                             if (timestamp && !timeInBubble) ...[
                               const WidgetSpan(child: SizedBox(width: 4)),
                               WidgetSpan(
@@ -1063,13 +1107,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ],
             ),
-            if (_text != null || msg.donate != null) const SizedBox(height: 6),
+            if (_text != null) const SizedBox(height: 6),
           ],
         ];
 
         final message = Stack(
           children: [
             ConditionalIntrinsicWidth(
+              condition: msg.donate == null,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
                 decoration: BoxDecoration(
@@ -1150,15 +1195,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
-  Widget _donate(BuildContext context, int donate) {
+  Widget _donate(
+    BuildContext context, {
+    required int donate,
+    List<Widget> header = const [],
+    List<Widget> footer = const [],
+    bool timestamp = false,
+  }) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
-      width: 300,
-      constraints: const BoxConstraints(maxWidth: 300),
-      padding: const EdgeInsets.all(1.5),
+      // width: 300,
+      // constraints: const BoxConstraints(maxWidth: 300),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8).copyWith(
+            // bottomLeft: Radius.zero,
+            // bottomRight: Radius.zero,
+            ),
         gradient: const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -1197,6 +1251,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 6),
+                ...header,
                 Row(
                   children: [
                     // if (_text == null) ...[
@@ -1210,43 +1265,100 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     //   ),
                     // ],
                     // const SizedBox(width: 6),
+
                     Expanded(
-                      child: SelectionText.rich(
-                        TextSpan(
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            TextSpan(
-                              text: '$donate',
+                            EmbossedText(
+                              '$donate',
                               style: style.boldBody.copyWith(
-                                color: const Color(0xFFA98010),
+                                fontSize: 32,
+                                color: const Color(0xFFFFFE8A),
                               ),
                             ),
-                            TextSpan(
-                              text: '¤',
+                            EmbossedText(
+                              '¤',
                               style: style.boldBody.copyWith(
+                                fontSize: 32,
                                 fontFamily: 'Gapopa',
-                                color: const Color(0xFFA98010),
+                                color: const Color(0xFFFFFE8A),
                               ),
                             ),
                           ],
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
+
+                    // Expanded(
+                    //   child: SelectionText.rich(
+                    //     TextSpan(
+                    //       children: [
+                    //         TextSpan(
+                    //           text: '$donate',
+                    //           style: style.boldBody.copyWith(
+                    //             // color: const Color(0xFFFFF63D),
+                    //             color: const Color(0xFFFFFE8A),
+                    //             shadows: const [
+                    //               // box-shadow: -8px -8px 16px 0px #FFF63DE5 inset;
+                    //               // box-shadow: 8px -8px 16px 0px #C6A82933 inset;
+                    //               // box-shadow: -1px -1px 2px 0px #C6A82980;
+                    //               // box-shadow: 1px 1px 2px 0px #FFF63D4D;
+                    //               Shadow(
+                    //                 offset: Offset(-8, -8),
+                    //                 blurRadius: 16,
+                    //                 color: Color(0xE5FFF63D),
+                    //               ),
+                    //               Shadow(
+                    //                 offset: Offset(8, -8),
+                    //                 blurRadius: 16,
+                    //                 color: Color(0x33C6A829),
+                    //               ),
+                    //               Shadow(
+                    //                 offset: Offset(-1, -1),
+                    //                 blurRadius: 2,
+                    //                 color: Color(0x80C6A829),
+                    //               ),
+                    //               Shadow(
+                    //                 offset: Offset(1, 1),
+                    //                 blurRadius: 2,
+                    //                 color: Color(0x4DFFF63D),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //         TextSpan(
+                    //           text: '¤',
+                    //           style: style.boldBody.copyWith(
+                    //             fontFamily: 'Gapopa',
+                    //             color: const Color(0xFFA98010),
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //     textAlign: TextAlign.center,
+                    //   ),
+                    // ),
                   ],
                 ),
+                ...footer,
                 const SizedBox(height: 2),
                 const SizedBox(height: 6),
               ],
             ),
             Padding(
               padding: const EdgeInsets.only(right: 4, bottom: 4),
-              child: Text(
-                'Gift',
-                style: style.systemMessageStyle.copyWith(
-                  color: const Color(0xFFA98010),
-                  fontSize: 11,
-                ),
-              ),
+              child: timestamp
+                  ? _timestamp(widget.item.value, false, true)
+                  : EmbossedText(
+                      'Gift',
+                      style: style.systemMessageStyle.copyWith(
+                        // color: const Color(0xFFA98010),
+                        color: const Color(0xFFFFFE8A),
+                        fontSize: 11,
+                      ),
+                    ),
             ),
           ],
         ),
