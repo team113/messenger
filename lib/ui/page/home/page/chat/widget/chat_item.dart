@@ -1173,7 +1173,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       time,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: style.titleSmall,
+                      style: style.labelLarge.copyWith(
+                        color: style.colors.secondary,
+                        fontWeight: FontWeight.w300,
+                      ),
                     ).fixedDigits(),
                   ),
                 ],

@@ -107,40 +107,40 @@ class Themes {
               fontWeight: FontWeight.w300,
             ),
 
-            ///
+            /// A lot uses
             titleLarge: textStyle.copyWith(
               fontSize: 17,
               fontWeight: FontWeight.w300,
             ),
 
-            /// replaced with bodyMedium
+            /// 0 uses
             titleMedium: textStyle.copyWith(fontSize: 15),
 
-            ///
+            /// 1 uses
             titleSmall: textStyle.copyWith(
               fontSize: 15,
               fontWeight: FontWeight.w300,
             ),
 
-            ///
+            /// A lot uses
             labelLarge: textStyle.copyWith(fontSize: 15),
 
-            ///
+            /// A lot uses
             labelMedium: textStyle.copyWith(fontSize: 13),
 
-            ///
+            /// A lot uses
             labelSmall: textStyle.copyWith(fontSize: 11),
 
-            ///
+            /// A lot uses
             bodyLarge: textStyle.copyWith(fontSize: 17),
 
-            ///
+            /// A lot uses
             bodyMedium: textStyle.copyWith(
               fontSize: 15,
               fontWeight: FontWeight.w300,
             ),
 
-            ///
+            /// A lot uses
             bodySmall: textStyle.copyWith(fontSize: 13),
 
             ///---------///
