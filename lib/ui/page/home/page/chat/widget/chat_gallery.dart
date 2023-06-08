@@ -37,14 +37,14 @@ class ChatGallery extends StatefulWidget {
   /// Optional [GlobalKey] of the [Object] to animate gallery from/to.
   final GlobalKey? initialKey;
 
-  /// Initial gallery index of the [GalleryItem]s in [children].
+  /// Initial gallery index of the [GalleryAttachment]s in [attachments].
   final int initial;
 
   @override
   State<ChatGallery> createState() => _ChatGalleryState();
 }
 
-/// State of the [ChatGallery] used to rebuild on [GalleryAttachment]s fetching
+/// State of the [ChatGallery] used to update [GalleryItem.link]s on fetching
 /// errors.
 class _ChatGalleryState extends State<ChatGallery> {
   @override
