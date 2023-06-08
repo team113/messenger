@@ -66,7 +66,9 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: style.labelLarge,
+                  style: style.labelLarge.copyWith(
+                    fontWeight: FontWeight.normal,
+                  ),
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -80,7 +82,9 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: style.labelLarge,
+                  style: style.labelLarge.copyWith(
+                    fontWeight: FontWeight.normal,
+                  ),
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -120,7 +124,6 @@ class ConfirmLogoutView extends StatelessWidget {
                   'label_password_set'.l10n,
                   style: style.labelLarge.copyWith(
                     color: style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -191,7 +194,6 @@ class ConfirmLogoutView extends StatelessWidget {
                     text: TextSpan(
                       style: style.labelLarge.copyWith(
                         color: style.colors.secondary,
-                        fontWeight: FontWeight.w300,
                       ),
                       children: [
                         TextSpan(text: 'label_password_not_set'.l10n),

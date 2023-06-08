@@ -109,7 +109,6 @@ class ContactsTabView extends StatelessWidget {
                         'label_synchronization'.l10n,
                         style: style.labelMedium.copyWith(
                           color: style.colors.secondary,
-                          fontWeight: FontWeight.w300,
                         ),
                       ),
                     ),
@@ -250,9 +249,7 @@ class ContactsTabView extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
-                                  style: style.labelLarge.copyWith(
-                                    fontWeight: FontWeight.w300,
-                                  ),
+                                  style: style.labelLarge,
                                 ),
                               ),
                             ),
@@ -556,7 +553,6 @@ class ContactsTabView extends StatelessWidget {
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 );
               }

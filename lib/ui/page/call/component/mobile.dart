@@ -360,6 +360,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     state,
                                     style: style.labelMedium.copyWith(
                                       color: style.colors.onBackgroundOpacity2,
+                                      fontWeight: FontWeight.normal,
                                     ),
                                   ),
                                   if (withDots) const AnimatedDots(),
@@ -875,7 +876,6 @@ Widget _chat(BuildContext context, CallController c) {
                               c.duration.value.hhMmSs(),
                               style: style.labelLarge.copyWith(
                                 color: style.colors.onPrimary,
-                                fontWeight: FontWeight.w300,
                               ),
                             ),
                           ],
@@ -896,7 +896,6 @@ Widget _chat(BuildContext context, CallController c) {
                                     'label_online'.l10n,
                                 style: style.labelLarge.copyWith(
                                   color: style.colors.onPrimary,
-                                  fontWeight: FontWeight.w300,
                                 ),
                               ),
                               const Spacer(),
@@ -907,7 +906,6 @@ Widget _chat(BuildContext context, CallController c) {
                                 }),
                                 style: style.labelLarge.copyWith(
                                   color: style.colors.onPrimary,
-                                  fontWeight: FontWeight.w300,
                                 ),
                               ),
                             ],

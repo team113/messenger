@@ -122,10 +122,16 @@ class Themes {
             ),
 
             /// A lot uses
-            labelLarge: textStyle.copyWith(fontSize: 15),
+            labelLarge: textStyle.copyWith(
+              fontSize: 15,
+              fontWeight: FontWeight.w300,
+            ),
 
             /// A lot uses
-            labelMedium: textStyle.copyWith(fontSize: 13),
+            labelMedium: textStyle.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
+            ),
 
             /// A lot uses
             labelSmall: textStyle.copyWith(fontSize: 11),

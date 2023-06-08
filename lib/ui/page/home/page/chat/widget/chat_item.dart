@@ -1327,6 +1327,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     '${'plus'.l10n}$count',
                     style: style.labelLarge.copyWith(
                       color: style.colors.secondary,
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
                 ),
@@ -1343,7 +1344,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           child: Text(
             item.text!.val,
             maxLines: 1,
-            style: style.labelLarge,
+            style: style.labelLarge.copyWith(
+              fontWeight: FontWeight.normal,
+            ),
           ),
         );
       }

@@ -184,6 +184,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       ? style.colors.onPrimary
                       : style.colors.onBackground,
                   fontSize: context.isMobile ? style.bodyLarge.fontSize : 14,
+                  fontWeight: FontWeight.normal,
                 ),
               ),
               if (PlatformUtils.isMobile && widget.trailing != null) ...[

@@ -67,7 +67,6 @@ class RectangleButton extends StatelessWidget {
                     color: selected
                         ? style.colors.onPrimary
                         : style.colors.onBackground,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ),

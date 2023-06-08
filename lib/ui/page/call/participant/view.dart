@@ -254,9 +254,7 @@ class ParticipantView extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: style.labelLarge.copyWith(
-                        fontWeight: FontWeight.w300,
-                      ),
+                      style: style.labelLarge,
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],
@@ -272,7 +270,6 @@ class ParticipantView extends StatelessWidget {
                     'btn_leave'.l10n,
                     style: style.labelLarge.copyWith(
                       color: style.colors.primary,
-                      fontWeight: FontWeight.w300,
                     ),
                   )
                 : SvgImage.asset('assets/icons/delete.svg', height: 14 * 1.5),

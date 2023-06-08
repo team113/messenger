@@ -81,7 +81,6 @@ class MessagePopup {
                               children: description,
                               style: style.labelLarge.copyWith(
                                 color: style.colors.secondary,
-                                fontWeight: FontWeight.w300,
                               ),
                             ),
                           ),

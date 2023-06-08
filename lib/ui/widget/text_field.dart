@@ -336,7 +336,6 @@ class ReactiveTextField extends StatelessWidget {
                             state.error.value!,
                             style: (this.style ?? style.labelMedium).copyWith(
                               color: style.colors.dangerColor,
-                              fontWeight: FontWeight.w300,
                             ),
                           ),
                         ),

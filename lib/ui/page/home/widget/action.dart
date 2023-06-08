@@ -50,6 +50,7 @@ class ActionButton extends StatelessWidget {
         text: text,
         style: style.labelLarge.copyWith(
           color: style.colors.primary,
+          fontWeight: FontWeight.normal,
         ),
         trailing: trailing != null
             ? Transform.translate(

@@ -69,7 +69,6 @@ class LoginView extends StatelessWidget {
                   'label_recover_account_description'.l10n,
                   style: style.labelLarge.copyWith(
                     color: style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -105,7 +104,6 @@ class LoginView extends StatelessWidget {
                   'label_recovery_code_sent'.l10n,
                   style: style.labelLarge.copyWith(
                     color: style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -143,7 +141,6 @@ class LoginView extends StatelessWidget {
                   'label_recovery_enter_new_password'.l10n,
                   style: style.labelLarge.copyWith(
                     color: style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -201,7 +198,6 @@ class LoginView extends StatelessWidget {
                       'label_password_changed'.l10n,
                       style: style.labelLarge.copyWith(
                         color: style.colors.secondary,
-                        fontWeight: FontWeight.w300,
                       ),
                     ),
                   ),

@@ -122,7 +122,9 @@ class SearchView extends StatelessWidget {
                     key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
-                    style: style.labelLarge,
+                    style: style.labelLarge.copyWith(
+                      fontWeight: FontWeight.normal,
+                    ),
                     onChanged: () => c.query.value = c.search.text,
                   ),
                 ),

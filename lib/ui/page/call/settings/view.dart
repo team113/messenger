@@ -113,6 +113,7 @@ class CallSettingsView extends StatelessWidget {
                             ),
                             style: style.labelLarge.copyWith(
                               color: style.colors.primary,
+                              fontWeight: FontWeight.normal,
                             ),
                           );
                         }),
@@ -148,6 +149,7 @@ class CallSettingsView extends StatelessWidget {
                             ),
                             style: style.labelLarge.copyWith(
                               color: style.colors.primary,
+                              fontWeight: FontWeight.normal,
                             ),
                           );
                         }),
@@ -183,6 +185,7 @@ class CallSettingsView extends StatelessWidget {
                             ),
                             style: style.labelLarge.copyWith(
                               color: style.colors.primary,
+                              fontWeight: FontWeight.normal,
                             ),
                           );
                         }),
@@ -205,6 +208,7 @@ class CallSettingsView extends StatelessWidget {
                           maxLines: null,
                           style: style.labelLarge.copyWith(
                             color: style.colors.primary,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),

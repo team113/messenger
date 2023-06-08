@@ -431,9 +431,7 @@ class _ChatViewState extends State<ChatView>
                                   child: Text(
                                     key: const Key('NoMessages'),
                                     'label_no_messages'.l10n,
-                                    style: style.labelMedium.copyWith(
-                                      fontWeight: FontWeight.w300,
-                                    ),
+                                    style: style.labelMedium,
                                   ),
                                 );
                               }
@@ -859,10 +857,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: style.labelMedium.copyWith(
-                  color: style.colors.primary,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: style.labelMedium.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -886,10 +881,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.labelMedium.copyWith(
-                  color: style.colors.primary,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: style.labelMedium.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),

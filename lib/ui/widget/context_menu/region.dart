@@ -219,12 +219,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   b.leading!,
                   const SizedBox(width: 12)
                 ],
-                Text(
-                  b.label,
-                  style: style.labelLarge.copyWith(
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
+                Text(b.label, style: style.labelLarge),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,

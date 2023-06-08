@@ -153,7 +153,6 @@ class RecentChatTile extends StatelessWidget {
             chat.updatedAt.val.toLocal().short,
             style: style.labelLarge.copyWith(
               color: inverted ? style.colors.onPrimary : style.colors.secondary,
-              fontWeight: FontWeight.w300,
             ),
           ),
         ],
@@ -351,7 +350,6 @@ class RecentChatTile extends StatelessWidget {
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.primary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 const SizedBox(width: 3),
@@ -377,7 +375,6 @@ class RecentChatTile extends StatelessWidget {
                         color: inverted
                             ? style.colors.onPrimary
                             : style.colors.primary,
-                        fontWeight: FontWeight.w300,
                       ),
                     ),
                   ),

@@ -141,7 +141,6 @@ class ChatsTabView extends StatelessWidget {
                               'label_synchronization'.l10n,
                               style: style.labelMedium.copyWith(
                                 color: style.colors.secondary,
-                                fontWeight: FontWeight.w300,
                               ),
                             ),
                           ),
@@ -387,12 +386,7 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                   width: double.infinity,
                                   child: Center(
-                                    child: Text(
-                                      text,
-                                      style: style.labelLarge.copyWith(
-                                        fontWeight: FontWeight.w300,
-                                      ),
-                                    ),
+                                    child: Text(text, style: style.labelLarge),
                                   ),
                                 ),
                               );
@@ -475,9 +469,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         element.category.name.capitalizeFirst!,
-                                        style: style.labelLarge.copyWith(
-                                          fontWeight: FontWeight.w300,
-                                        ),
+                                        style: style.labelLarge,
                                       ),
                                     ),
                                   ),
