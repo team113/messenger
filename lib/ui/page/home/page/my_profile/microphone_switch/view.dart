@@ -69,7 +69,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_media_microphone'.l10n,
-                    style: style.headlineSmall,
+                    style: style.headlineMedium,
                   ),
                 ),
               ),

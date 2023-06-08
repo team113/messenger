@@ -60,7 +60,7 @@ class IntroductionView extends StatelessWidget {
                 Center(
                   child: Text(
                     'btn_set_password'.l10n,
-                    style: style.headlineSmall,
+                    style: style.headlineMedium,
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -178,7 +178,7 @@ class IntroductionView extends StatelessWidget {
                     header: Center(
                       child: Text(
                         'label_account_created'.l10n,
-                        style: style.headlineSmall,
+                        style: style.headlineMedium,
                       ),
                     ),
                   ),
@@ -202,7 +202,7 @@ class IntroductionView extends StatelessWidget {
                             state: c.num,
                             label: 'label_num'.l10n,
                             copy: c.myUser.value?.num.val,
-                            style: style.headlineSmall,
+                            style: style.headlineMedium,
                           ),
                   ),
                   const SizedBox(height: 25),

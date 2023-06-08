@@ -110,7 +110,7 @@ class SearchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     title,
-                    style: style.headlineSmall,
+                    style: style.headlineMedium,
                   ),
                 ),
               ),

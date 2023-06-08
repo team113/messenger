@@ -70,7 +70,7 @@ class CameraSwitchView extends StatelessWidget {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text('label_camera'.l10n, style: style.headlineSmall),
+                  child: Text('label_camera'.l10n, style: style.headlineMedium),
                 ),
               ),
               Flexible(

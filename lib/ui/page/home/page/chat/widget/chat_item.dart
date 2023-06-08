@@ -531,14 +531,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       text: 'label_group_created_by2'.l10nfmt(args),
                       style: style.bodySmall.copyWith(
                         color: style.colors.secondary,
-                        fontWeight: FontWeight.w300,
                       ),
                     ),
                   ],
-                  style: style.bodySmall.copyWith(
-                    color: style.colors.primary,
-                    fontWeight: FontWeight.w300,
-                  ),
+                  style: style.bodySmall.copyWith(color: style.colors.primary),
                 ),
               );
             }
@@ -577,7 +573,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     text: 'label_user_added_user2'.l10nfmt(args),
                     style: style.bodySmall.copyWith(
                       color: style.colors.secondary,
-                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   TextSpan(
@@ -586,10 +581,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.bodySmall.copyWith(
-                  color: style.colors.primary,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: style.bodySmall.copyWith(color: style.colors.primary),
               ),
             );
           });
@@ -610,14 +602,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   text: 'label_was_added2'.l10nfmt(args),
                   style: style.bodySmall.copyWith(
                     color: style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ],
-              style: style.bodySmall.copyWith(
-                color: style.colors.primary,
-                fontWeight: FontWeight.w300,
-              ),
+              style: style.bodySmall.copyWith(color: style.colors.primary),
             ),
           );
         }
@@ -648,7 +636,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     text: 'label_user_removed_user2'.l10nfmt(args),
                     style: style.bodySmall.copyWith(
                       color: style.colors.secondary,
-                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   TextSpan(
@@ -657,10 +644,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.bodySmall.copyWith(
-                  color: style.colors.primary,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: style.bodySmall.copyWith(color: style.colors.primary),
               ),
             );
           });
@@ -681,14 +665,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   text: 'label_was_removed2'.l10nfmt(args),
                   style: style.bodySmall.copyWith(
                     color: style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ],
-              style: style.bodySmall.copyWith(
-                color: style.colors.primary,
-                fontWeight: FontWeight.w300,
-              ),
+              style: style.bodySmall.copyWith(color: style.colors.primary),
             ),
           );
         }
@@ -721,16 +701,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: style.bodySmall.copyWith(
-                  color: style.colors.secondary,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: style.bodySmall.copyWith(color: style.colors.secondary),
               ),
             ],
-            style: style.bodySmall.copyWith(
-              color: style.colors.primary,
-              fontWeight: FontWeight.w300,
-            ),
+            style: style.bodySmall.copyWith(color: style.colors.primary),
           ),
         );
         break;
@@ -763,16 +737,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: style.bodySmall.copyWith(
-                  color: style.colors.secondary,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: style.bodySmall.copyWith(color: style.colors.secondary),
               ),
             ],
-            style: style.bodySmall.copyWith(
-              color: style.colors.primary,
-              fontWeight: FontWeight.w300,
-            ),
+            style: style.bodySmall.copyWith(color: style.colors.primary),
           ),
         );
         break;
@@ -802,11 +770,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               border: style.systemMessageBorder,
               color: style.systemMessageColor,
             ),
-            child: DefaultTextStyle(
-                style: style.bodySmall.copyWith(
-                  fontWeight: FontWeight.w300,
-                ),
-                child: content),
+            child: DefaultTextStyle(style: style.bodySmall, child: content),
           ),
         ),
       ),
@@ -1441,9 +1405,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     } else if (item is ChatInfoQuote) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: style.headlineSmall);
+      content = Text(item.action.toString(), style: style.headlineMedium);
     } else {
-      content = Text('err_unknown'.l10n, style: style.headlineSmall);
+      content = Text('err_unknown'.l10n, style: style.headlineMedium);
     }
 
     return FutureBuilder<RxUser?>(

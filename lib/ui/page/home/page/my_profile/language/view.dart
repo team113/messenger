@@ -65,7 +65,7 @@ class LanguageSelectionView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_language'.l10n,
-                    style: style.headlineSmall,
+                    style: style.headlineMedium,
                   ),
                 ),
               ),

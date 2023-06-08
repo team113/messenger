@@ -95,7 +95,7 @@ class CallTitle extends StatelessWidget {
                 if (withDots) const SizedBox(width: 13),
                 Text(
                   state!,
-                  style: style.headlineSmall,
+                  style: style.headlineMedium,
                 ),
                 if (withDots) const AnimatedDots(),
               ],

@@ -324,7 +324,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               selectable: PlatformUtils.isDesktop || menu,
                               onChanged: (a) => _selection = a,
                               onSelecting: widget.onSelecting,
-                              style: style.headlineMedium.copyWith(
+                              style: style.headlineLarge.copyWith(
                                 color: color,
                               ),
                             ),
@@ -338,6 +338,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 .l10nfmt({'count': widget.forwards.length}),
                             style: style.bodySmall.copyWith(
                               color: style.colors.secondary,
+                              fontWeight: FontWeight.normal,
                             ),
                           ),
                         ),

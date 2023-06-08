@@ -77,7 +77,7 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: style.headlineSmall.copyWith(
+                              style: style.headlineMedium.copyWith(
                                 fontWeight: FontWeight.w300,
                               ),
                             ),
@@ -178,8 +178,7 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle(
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
-                                            style:
-                                                style.headlineMedium.copyWith(
+                                            style: style.headlineLarge.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
                                                   : style.colors.onBackground,

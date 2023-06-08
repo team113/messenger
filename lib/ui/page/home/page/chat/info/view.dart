@@ -252,10 +252,7 @@ class ChatInfoView extends StatelessWidget {
         if (subtitle != null) {
           return Text(
             subtitle,
-            style: style.bodySmall.copyWith(
-              color: style.colors.secondary,
-              fontWeight: FontWeight.w300,
-            ),
+            style: style.bodySmall.copyWith(color: style.colors.secondary),
           );
         }
       }

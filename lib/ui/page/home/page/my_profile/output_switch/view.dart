@@ -69,7 +69,7 @@ class OutputSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_media_output'.l10n,
-                    style: style.headlineSmall,
+                    style: style.headlineMedium,
                   ),
                 ),
               ),

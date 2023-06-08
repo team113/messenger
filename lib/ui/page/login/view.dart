@@ -58,7 +58,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: style.headlineSmall,
+                    style: style.headlineMedium,
                   ),
                 ),
               );
@@ -95,7 +95,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: style.headlineSmall,
+                    style: style.headlineMedium,
                   ),
                 ),
               );
@@ -133,7 +133,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: style.headlineMedium,
+                    style: style.headlineLarge,
                   ),
                 ),
               );
@@ -189,7 +189,7 @@ class LoginView extends StatelessWidget {
               header = ModalPopupHeader(
                 header: Center(
                   child:
-                      Text('label_entrance'.l10n, style: style.headlineSmall),
+                      Text('label_entrance'.l10n, style: style.headlineMedium),
                 ),
               );
 
@@ -244,7 +244,6 @@ class LoginView extends StatelessWidget {
                           'btn_forgot_password'.l10n,
                           style: style.bodySmall.copyWith(
                             color: style.colors.primary,
-                            fontWeight: FontWeight.w300,
                           ),
                         ),
                       ),

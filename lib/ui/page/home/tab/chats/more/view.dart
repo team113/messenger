@@ -57,7 +57,7 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: style.headlineSmall,
+                  style: style.headlineMedium,
                 ),
               ),
             ),
@@ -93,7 +93,7 @@ class ChatsMoreView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: style.headlineSmall,
+            style: style.headlineMedium,
           ),
         ),
       ),

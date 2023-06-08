@@ -846,7 +846,7 @@ class _ChatViewState extends State<ChatView>
 
         return Text(
           subtitle.toString(),
-          style: style.bodySmall.copyWith(fontWeight: FontWeight.w300),
+          style: style.bodySmall,
         );
       }
 
@@ -906,10 +906,7 @@ class _ChatViewState extends State<ChatView>
         if (subtitle != null) {
           return Text(
             subtitle,
-            style: style.bodySmall.copyWith(
-              color: style.colors.secondary,
-              fontWeight: FontWeight.w300,
-            ),
+            style: style.bodySmall.copyWith(color: style.colors.secondary),
           );
         }
       } else if (chat.value.isDialog) {
@@ -951,7 +948,6 @@ class _ChatViewState extends State<ChatView>
                           return Text(
                             buffer.toString(),
                             style: style.bodySmall.copyWith(
-                              fontWeight: FontWeight.w300,
                               color: style.colors.secondary,
                             ),
                           );
@@ -1012,7 +1008,6 @@ class _ChatViewState extends State<ChatView>
                   time.toRelative(),
                   style: style.bodySmall.copyWith(
                     color: style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ),
@@ -1084,10 +1079,7 @@ class _ChatViewState extends State<ChatView>
       child: Center(
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
-          style: style.bodySmall.copyWith(
-            color: style.colors.secondary,
-            fontWeight: FontWeight.w300,
-          ),
+          style: style.bodySmall.copyWith(color: style.colors.secondary),
         ),
       ),
     );

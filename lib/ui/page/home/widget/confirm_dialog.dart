@@ -143,7 +143,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: style.headlineSmall.copyWith(
+                      style: style.headlineMedium.copyWith(
                         color: _variant == variant
                             ? style.colors.onPrimary
                             : style.colors.onBackground,
@@ -171,7 +171,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
       children: [
         ModalPopupHeader(
           header: Center(
-            child: Text(widget.title, style: style.headlineSmall),
+            child: Text(widget.title, style: style.headlineMedium),
           ),
         ),
         const SizedBox(height: 12),

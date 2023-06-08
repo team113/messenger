@@ -571,7 +571,7 @@ class ElementStyleTabView extends StatelessWidget {
                             children: [
                               Text(
                                 'Иван Иванович',
-                                style: style.headlineSmall.copyWith(
+                                style: style.headlineMedium.copyWith(
                                   color: style.colors.onPrimary,
                                 ),
                                 overflow: TextOverflow.ellipsis,

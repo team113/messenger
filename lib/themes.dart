@@ -94,18 +94,17 @@ class Themes {
             displaySmall:
                 textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 18),
 
-            /// 0 uses
-            headlineLarge:
-                textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
-
             /// 7 uses
-            headlineMedium: textStyle.copyWith(fontSize: 18),
+            headlineLarge: textStyle.copyWith(fontSize: 18),
 
             /// A lot uses
-            headlineSmall: textStyle.copyWith(
+            headlineMedium: textStyle.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.w300,
             ),
+
+            /// 0 uses
+            headlineSmall: textStyle.copyWith(),
 
             /// A lot uses
             titleLarge: textStyle.copyWith(
@@ -141,7 +140,10 @@ class Themes {
             ),
 
             /// A lot uses
-            bodySmall: textStyle.copyWith(fontSize: 13),
+            bodySmall: textStyle.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
+            ),
 
             ///---------///
             colors: colors,

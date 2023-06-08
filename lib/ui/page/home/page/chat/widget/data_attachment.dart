@@ -229,6 +229,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                           overflow: TextOverflow.ellipsis,
                           style: style.bodySmall.copyWith(
                             color: style.colors.secondary,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ],

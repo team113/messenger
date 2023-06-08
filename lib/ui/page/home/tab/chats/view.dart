@@ -345,7 +345,6 @@ class ChatsTabView extends StatelessWidget {
                                       'label_required'.l10n,
                                       style: style.bodySmall.copyWith(
                                         color: style.colors.onPrimary,
-                                        fontWeight: FontWeight.w300,
                                       ),
                                     ),
                                   ],

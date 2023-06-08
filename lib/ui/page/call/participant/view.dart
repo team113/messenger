@@ -122,7 +122,7 @@ class ParticipantView extends StatelessWidget {
                             'a': ids.length,
                             'b': c.chat.value?.members.length ?? 1,
                           }),
-                          style: style.headlineSmall,
+                          style: style.headlineMedium,
                         ),
                       ),
                     ),

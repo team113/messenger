@@ -107,7 +107,6 @@ class MessageTimestamp extends StatelessWidget {
               color: inverted
                   ? style.colors.secondaryHighlightDark
                   : style.colors.secondary,
-              fontWeight: FontWeight.w300,
             ),
           ),
         ),

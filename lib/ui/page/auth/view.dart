@@ -242,7 +242,7 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: style.headlineSmall,
+                style: style.headlineMedium,
               ),
             ),
           ),

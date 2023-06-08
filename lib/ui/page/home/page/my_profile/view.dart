@@ -541,7 +541,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'label_visible_to'.l10n,
-                              style: style.headlineSmall,
+                              style: style.headlineMedium,
                             ),
                           ),
                         ],
@@ -630,7 +630,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: style.headlineSmall,
+                                  style: style.headlineMedium,
                                 ),
                               ),
                             ],
@@ -782,7 +782,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: style.headlineSmall,
+                                  style: style.headlineMedium,
                                 ),
                               ),
                             ],

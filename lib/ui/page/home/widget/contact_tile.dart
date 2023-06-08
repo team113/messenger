@@ -186,7 +186,7 @@ class ContactTile extends StatelessWidget {
                                       : 'btn_your_profile'.l10n),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: style.headlineMedium.copyWith(
+                              style: style.headlineLarge.copyWith(
                                 color: selected
                                     ? style.colors.onPrimary
                                     : style.colors.onBackground,

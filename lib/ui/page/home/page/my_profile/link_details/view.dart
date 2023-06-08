@@ -48,7 +48,7 @@ class LinkDetailsView extends StatelessWidget {
             header: Center(
               child: Text(
                 'label_your_direct_link'.l10n,
-                style: style.headlineSmall,
+                style: style.headlineMedium,
               ),
             ),
           ),

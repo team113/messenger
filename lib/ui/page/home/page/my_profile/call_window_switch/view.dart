@@ -56,7 +56,7 @@ class CallWindowSwitchView extends StatelessWidget {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text('label_calls'.l10n, style: style.headlineSmall),
+                  child: Text('label_calls'.l10n, style: style.headlineMedium),
                 ),
               ),
               const SizedBox(height: 13),

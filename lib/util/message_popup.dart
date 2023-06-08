@@ -64,7 +64,7 @@ class MessagePopup {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text(title, style: style.headlineSmall),
+                  child: Text(title, style: style.headlineMedium),
                 ),
               ),
               const SizedBox(height: 13),

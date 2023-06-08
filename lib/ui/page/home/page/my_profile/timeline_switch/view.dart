@@ -55,7 +55,7 @@ class TimelineSwitchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_display_timestamps'.l10n,
-                    style: style.headlineSmall,
+                    style: style.headlineMedium,
                   ),
                 ),
               ),
