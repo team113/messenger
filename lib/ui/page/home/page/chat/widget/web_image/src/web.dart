@@ -48,7 +48,7 @@ class WebImage extends StatefulWidget {
 
   /// Callback, called when loading an image from the provided [src] fails with
   /// a forbidden network error.
-  final Future<void> Function()? onForbidden;
+  final FutureOr<void> Function()? onForbidden;
 
   @override
   State<WebImage> createState() => _WebImageState();

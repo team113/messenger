@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 /// Web [html.ImageElement] showing images natively.
@@ -37,7 +39,7 @@ class WebImage extends StatelessWidget {
 
   /// Callback, called when loading an image from the provided [src] fails with
   /// a forbidden network error.
-  final Future<void> Function()? onForbidden;
+  final FutureOr<void> Function()? onForbidden;
 
   @override
   Widget build(BuildContext context) => Image.network(src);

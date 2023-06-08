@@ -40,7 +40,6 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
-import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -64,6 +63,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'chat_gallery.dart';
 import 'data_attachment.dart';
 import 'media_attachment.dart';
 import 'message_info/view.dart';
@@ -267,36 +267,10 @@ class ChatItemWidget extends StatefulWidget {
                     initial = 0;
                   }
 
-                  List<GalleryItem> gallery = [];
-                  for (var o in attachments) {
-                    final StorageFile file = o.attachment.original;
-                    GalleryItem? item;
-
-                    if (o.attachment is FileAttachment) {
-                      item = GalleryItem.video(
-                        file.url,
-                        o.attachment.filename,
-                        size: file.size,
-                        checksum: file.checksum,
-                        onError: o.onForbidden,
-                      );
-                    } else if (o.attachment is ImageAttachment) {
-                      item = GalleryItem.image(
-                        file.url,
-                        o.attachment.filename,
-                        size: file.size,
-                        checksum: file.checksum,
-                        onError: o.onForbidden,
-                      );
-                    }
-
-                    gallery.add(item!);
-                  }
-
                   GalleryPopup.show(
                     context: context,
-                    gallery: GalleryPopup(
-                      children: gallery,
+                    gallery: ChatGallery(
+                      attachments: attachments,
                       initial: initial,
                       initialKey: key,
                     ),
