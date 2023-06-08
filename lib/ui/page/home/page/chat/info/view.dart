@@ -507,7 +507,6 @@ class ChatInfoView extends StatelessWidget {
                           maxLines: 1,
                           style: style.bodyMedium.copyWith(
                             color: style.colors.primary,
-                            fontWeight: FontWeight.w300,
                           ),
                           child: title,
                         ),
@@ -595,7 +594,7 @@ class ChatInfoView extends StatelessWidget {
                     onPressed: () => _removeChatMember(c, context, e),
                     child: Text(
                       'btn_leave'.l10n,
-                      style: style.bodyMedium.copyWith(
+                      style: style.labelLarge.copyWith(
                         color: style.colors.primary,
                       ),
                     ),

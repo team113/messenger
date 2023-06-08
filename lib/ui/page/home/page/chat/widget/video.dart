@@ -134,7 +134,6 @@ class _VideoState extends State<Video> {
                         'Video playback is not yet supported\non your operating system',
                         style: style.bodyMedium.copyWith(
                           color: style.colors.onPrimary,
-                          fontWeight: FontWeight.w300,
                         ),
                         textAlign: TextAlign.center,
                       ),

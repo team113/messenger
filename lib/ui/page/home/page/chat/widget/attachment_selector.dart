@@ -90,7 +90,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: style.bodyMedium,
+          style: style.labelLarge,
           color: style.colors.primary,
           child: SizedBox(
             width: 60,

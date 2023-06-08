@@ -1358,7 +1358,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: style.bodyMedium.copyWith(
+                    style: style.labelLarge.copyWith(
                       color: style.colors.secondary,
                     ),
                   ),
@@ -1376,7 +1376,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           child: Text(
             item.text!.val,
             maxLines: 1,
-            style: style.bodyMedium,
+            style: style.labelLarge,
           ),
         );
       }

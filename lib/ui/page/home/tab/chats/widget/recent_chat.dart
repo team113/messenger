@@ -627,7 +627,6 @@ class RecentChatTile extends StatelessWidget {
       return DefaultTextStyle(
         style: style.bodyMedium.copyWith(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          fontWeight: FontWeight.w300,
         ),
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
@@ -892,7 +891,6 @@ class RecentChatTile extends StatelessWidget {
                           text,
                           style: style.bodyMedium.copyWith(
                             color: style.colors.onPrimary,
-                            fontWeight: FontWeight.w300,
                           ),
                         ).fixedDigits();
                       },
@@ -923,10 +921,7 @@ class RecentChatTile extends StatelessWidget {
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: rxChat.title.value,
-          style: style.bodyMedium.copyWith(fontWeight: FontWeight.w300),
-        ),
+        TextSpan(text: rxChat.title.value, style: style.bodyMedium),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );

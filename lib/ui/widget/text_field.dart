@@ -225,7 +225,7 @@ class ReactiveTextField extends StatelessWidget {
                                             key: const ValueKey('Approve'),
                                             child: Text(
                                               'btn_save'.l10n,
-                                              style: style.labelMedium.copyWith(
+                                              style: style.labelSmall.copyWith(
                                                 color: style.colors.primary,
                                                 fontWeight: FontWeight.w300,
                                               ),

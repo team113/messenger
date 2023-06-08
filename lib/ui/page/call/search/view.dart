@@ -122,7 +122,7 @@ class SearchView extends StatelessWidget {
                     key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
-                    style: style.bodyMedium,
+                    style: style.labelLarge,
                     onChanged: () => c.query.value = c.search.text,
                   ),
                 ),
@@ -243,7 +243,7 @@ class SearchView extends StatelessWidget {
                         submit ?? 'btn_submit'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: style.titleLarge.copyWith(
+                        style: style.bodyLarge.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
                               : style.colors.onBackground,

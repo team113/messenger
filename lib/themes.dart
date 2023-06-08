@@ -113,7 +113,7 @@ class Themes {
               fontWeight: FontWeight.w300,
             ),
 
-            /// 6 uses, can be replaced to bodyMedium
+            /// replaced with bodyMedium
             titleMedium: textStyle.copyWith(fontSize: 15),
 
             ///
@@ -135,7 +135,10 @@ class Themes {
             bodyLarge: textStyle.copyWith(fontSize: 17),
 
             ///
-            bodyMedium: textStyle.copyWith(fontSize: 15),
+            bodyMedium: textStyle.copyWith(
+              fontSize: 15,
+              fontWeight: FontWeight.w300,
+            ),
 
             ///
             bodySmall: textStyle.copyWith(fontSize: 13),

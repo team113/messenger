@@ -364,7 +364,7 @@ Widget _status(MyProfileController c, BuildContext context) {
                 child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
-      style: style.bodyMedium.copyWith(color: style.colors.onBackground),
+      style: style.labelLarge,
     ),
   );
 }
@@ -383,7 +383,7 @@ Widget _presence(MyProfileController c, BuildContext context) {
         text: presence?.localizedString(),
         trailing:
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: style.bodyMedium.copyWith(color: style.colors.primary),
+        style: style.labelLarge.copyWith(color: style.colors.primary),
       ),
     );
   });
@@ -671,7 +671,6 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 Theme.of(context).inputDecorationTheme.copyWith(
                       floatingLabelStyle: style.bodyMedium.copyWith(
                         color: style.colors.primary,
-                        fontWeight: FontWeight.w300,
                       ),
                     ),
           ),
@@ -695,7 +694,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.emails.unconfirmed!,
             ),
-            style: style.bodyMedium.copyWith(color: style.colors.secondary),
+            style: style.labelLarge.copyWith(color: style.colors.secondary),
           ),
         ),
       ]);
@@ -712,7 +711,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: style.bodyMedium.copyWith(color: style.colors.primary),
+          style: style.labelLarge.copyWith(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -824,7 +823,6 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 Theme.of(context).inputDecorationTheme.copyWith(
                       floatingLabelStyle: style.bodyMedium.copyWith(
                         color: style.colors.primary,
-                        fontWeight: FontWeight.w300,
                       ),
                     ),
           ),
@@ -848,7 +846,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: style.bodyMedium.copyWith(color: style.colors.secondary),
+            style: style.labelLarge.copyWith(color: style.colors.secondary),
           ),
         ),
       ]);
@@ -865,7 +863,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: style.bodyMedium.copyWith(color: style.colors.primary),
+          style: style.labelLarge.copyWith(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -896,7 +894,7 @@ Widget _password(BuildContext context, MyProfileController c) {
               ? 'btn_change_password'.l10n
               : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
-          style: style.bodyMedium.copyWith(
+          style: style.labelLarge.copyWith(
             color: c.myUser.value?.hasPassword != true
                 ? style.colors.dangerColor
                 : style.colors.primary,
@@ -926,7 +924,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
-          style: style.bodyMedium.copyWith(color: style.colors.primary),
+          style: style.labelLarge.copyWith(color: style.colors.primary),
         ),
       ),
     ],
@@ -1082,7 +1080,9 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
-            style: style.bodyMedium.copyWith(color: style.colors.primary),
+            style: style.labelLarge.copyWith(
+              color: style.colors.primary,
+            ),
           );
         }),
       ),
@@ -1104,7 +1104,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
             padding: const EdgeInsets.only(left: 21.0),
             child: Text(
               'label_display_timestamps'.l10n,
-              style: style.bodyMedium.copyWith(color: style.colors.secondary),
+              style: style.labelLarge.copyWith(color: style.colors.secondary),
             ),
           ),
         ),
@@ -1118,7 +1118,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
-            style: style.bodyMedium.copyWith(color: style.colors.primary),
+            style: style.labelLarge.copyWith(color: style.colors.primary),
           );
         }),
       ),
@@ -1152,7 +1152,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: style.bodyMedium.copyWith(color: style.colors.primary),
+            style: style.labelLarge.copyWith(color: style.colors.primary),
           );
         }),
       ),
@@ -1176,7 +1176,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: style.bodyMedium.copyWith(color: style.colors.primary),
+            style: style.labelLarge.copyWith(color: style.colors.primary),
           );
         }),
       ),
@@ -1200,7 +1200,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: style.bodyMedium.copyWith(color: style.colors.primary),
+            style: style.labelLarge.copyWith(color: style.colors.primary),
           );
         }),
       ),
@@ -1226,10 +1226,7 @@ Widget _notifications(BuildContext context, MyProfileController c) {
                     .l10n,
                 editable: false,
               ),
-              style: style.bodyMedium.copyWith(
-                color: style.colors.secondary,
-                fontWeight: FontWeight.w300,
-              ),
+              style: style.bodyMedium.copyWith(color: style.colors.secondary),
             ),
           ),
           Align(
@@ -1323,7 +1320,7 @@ Widget _language(BuildContext context, MyProfileController c) {
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
       }),
-      style: style.bodyMedium.copyWith(color: style.colors.primary),
+      style: style.labelLarge.copyWith(color: style.colors.primary),
     ),
   );
 }
@@ -1339,7 +1336,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
-          style: style.bodyMedium.copyWith(
+          style: style.labelLarge.copyWith(
             color: c.blacklist.isEmpty
                 ? style.colors.onBackground
                 : style.colors.primary,
@@ -1365,10 +1362,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 text: 'label_load_images'.l10n,
                 editable: false,
               ),
-              style: style.bodyMedium.copyWith(
-                color: style.colors.secondary,
-                fontWeight: FontWeight.w300,
-              ),
+              style: style.bodyMedium.copyWith(color: style.colors.secondary),
             ),
           ),
           Align(

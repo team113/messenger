@@ -111,7 +111,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: style.bodyMedium.copyWith(
+                            style: style.labelLarge.copyWith(
                               color: style.colors.primary,
                             ),
                           );
@@ -146,7 +146,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: style.bodyMedium.copyWith(
+                            style: style.labelLarge.copyWith(
                               color: style.colors.primary,
                             ),
                           );
@@ -181,7 +181,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: style.bodyMedium.copyWith(
+                            style: style.labelLarge.copyWith(
                               color: style.colors.primary,
                             ),
                           );
@@ -203,7 +203,7 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: style.bodyMedium.copyWith(
+                          style: style.labelLarge.copyWith(
                             color: style.colors.primary,
                           ),
                         ),

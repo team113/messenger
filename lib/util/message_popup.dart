@@ -106,7 +106,6 @@ class MessagePopup {
                     'btn_proceed'.l10n,
                     style: style.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
-                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),

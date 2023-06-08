@@ -72,7 +72,6 @@ class AddPhoneView extends StatelessWidget {
                               ? 'label_add_phone_confirmation_sent_again'.l10n
                               : 'label_add_phone_confirmation_sent'.l10n,
                           style: style.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w300,
                             color: style.colors.secondary,
                           ),
                         );
@@ -100,7 +99,6 @@ class AddPhoneView extends StatelessWidget {
                                         {'timeout': c.resendPhoneTimeout.value},
                                       ),
                                 style: style.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w300,
                                   color: c.resendPhoneTimeout.value == 0
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,
@@ -120,7 +118,6 @@ class AddPhoneView extends StatelessWidget {
                               title: Text(
                                 'btn_proceed'.l10n,
                                 style: style.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w300,
                                   color: c.phoneCode.isEmpty.value
                                       ? style.colors.onBackground
                                       : style.colors.onPrimary,
@@ -152,7 +149,6 @@ class AddPhoneView extends StatelessWidget {
                       child: Text(
                         'label_add_phone_description'.l10n,
                         style: style.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w300,
                           color: style.colors.secondary,
                         ),
                       ),
@@ -176,7 +172,6 @@ class AddPhoneView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: style.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w300,
                             color: c.phone.isEmpty.value
                                 ? style.colors.onBackground
                                 : style.colors.onPrimary,

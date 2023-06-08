@@ -187,8 +187,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             child: Center(
               child: Text(
                 widget.description!,
-                style: style.headlineSmall.copyWith(
+                style: style.labelLarge.copyWith(
                   color: style.colors.secondary,
+                  fontWeight: FontWeight.w300,
                 ),
               ),
             ),
@@ -218,10 +219,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: style.bodyMedium.copyWith(
-                color: style.colors.onPrimary,
-                fontWeight: FontWeight.w300,
-              ),
+              style: style.bodyMedium.copyWith(color: style.colors.onPrimary),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());

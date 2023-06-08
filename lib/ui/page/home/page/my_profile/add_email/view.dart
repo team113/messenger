@@ -73,7 +73,6 @@ class AddEmailView extends StatelessWidget {
                               : 'label_add_email_confirmation_sent'.l10n,
                           style: style.bodyMedium.copyWith(
                             color: style.colors.secondary,
-                            fontWeight: FontWeight.w300,
                           ),
                         );
                       }),
@@ -103,7 +102,6 @@ class AddEmailView extends StatelessWidget {
                                   color: c.resendEmailTimeout.value == 0
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,
-                                  fontWeight: FontWeight.w300,
                                 ),
                               ),
                               onPressed: c.resendEmailTimeout.value == 0
@@ -123,7 +121,6 @@ class AddEmailView extends StatelessWidget {
                                   color: c.emailCode.isEmpty.value
                                       ? style.colors.onBackground
                                       : style.colors.onPrimary,
-                                  fontWeight: FontWeight.w300,
                                 ),
                               ),
                               onPressed: c.emailCode.isEmpty.value
@@ -153,7 +150,6 @@ class AddEmailView extends StatelessWidget {
                         'label_add_email_description'.l10n,
                         style: style.bodyMedium.copyWith(
                           color: style.colors.secondary,
-                          fontWeight: FontWeight.w300,
                         ),
                       ),
                     ),
@@ -175,7 +171,6 @@ class AddEmailView extends StatelessWidget {
                             color: c.email.isEmpty.value
                                 ? style.colors.onBackground
                                 : style.colors.onPrimary,
-                            fontWeight: FontWeight.w300,
                           ),
                         ),
                         onPressed:

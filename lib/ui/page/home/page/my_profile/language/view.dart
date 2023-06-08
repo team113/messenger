@@ -107,7 +107,6 @@ class LanguageSelectionView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: style.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
-                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   onPressed: () {

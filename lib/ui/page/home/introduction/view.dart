@@ -69,9 +69,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: style.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w300,
-                  ),
+                  style: style.bodyMedium,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -85,9 +83,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: style.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w300,
-                  ),
+                  style: style.bodyMedium,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -104,7 +100,6 @@ class IntroductionView extends StatelessWidget {
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
                           ? style.colors.onBackground
                           : style.colors.onPrimary,
-                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
@@ -121,7 +116,6 @@ class IntroductionView extends StatelessWidget {
                   'label_password_set'.l10n,
                   style: style.bodyMedium.copyWith(
                     color: style.colors.secondary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -133,7 +127,6 @@ class IntroductionView extends StatelessWidget {
                       'btn_close'.l10n,
                       style: style.bodyMedium.copyWith(
                         color: style.colors.onPrimary,
-                        fontWeight: FontWeight.w300,
                       ),
                     ),
                     onPressed: Navigator.of(context).pop,
@@ -147,9 +140,7 @@ class IntroductionView extends StatelessWidget {
               children = [
                 Text(
                   'label_introduction_description'.l10n,
-                  style: style.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w300,
-                  ),
+                  style: style.bodyMedium,
                 ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
@@ -159,7 +150,6 @@ class IntroductionView extends StatelessWidget {
                     'btn_set_password'.l10n,
                     style: style.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
-                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   onPressed: () =>
@@ -205,9 +195,7 @@ class IntroductionView extends StatelessWidget {
                               'assets/icons/share.svg',
                               width: 18,
                             ),
-                            style: style.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w300,
-                            ),
+                            style: style.bodyMedium,
                           )
                         : CopyableTextField(
                             key: const Key('NumCopyable'),

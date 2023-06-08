@@ -66,7 +66,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: style.bodyMedium,
+                  style: style.labelLarge,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -80,7 +80,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: style.bodyMedium,
+                  style: style.labelLarge,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -97,7 +97,6 @@ class ConfirmLogoutView extends StatelessWidget {
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
                           ? style.colors.onBackground
                           : style.colors.onPrimary,
-                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
@@ -133,7 +132,6 @@ class ConfirmLogoutView extends StatelessWidget {
                       'btn_close'.l10n,
                       style: style.bodyMedium.copyWith(
                         color: style.colors.onPrimary,
-                        fontWeight: FontWeight.w300,
                       ),
                     ),
                     onPressed: Navigator.of(context).pop,
@@ -225,9 +223,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_logout'.l10n,
-                            style: style.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w300,
-                            ),
+                            style: style.bodyMedium,
                           ),
                           onPressed: () => Navigator.of(context).pop(true),
                           color: style.colors.secondaryHighlight,

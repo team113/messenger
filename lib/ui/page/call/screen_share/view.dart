@@ -134,7 +134,6 @@ class ScreenShareView extends StatelessWidget {
                     'btn_share'.l10n,
                     style: style.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
-                      fontWeight: FontWeight.w300,
                     ),
                   ),
                   onPressed: () {

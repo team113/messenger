@@ -66,7 +66,6 @@ class ChangePasswordView extends StatelessWidget {
                             ? 'label_password_set'.l10n
                             : 'label_password_changed'.l10n,
                         style: style.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w300,
                           color: style.colors.secondary,
                         ),
                       ),
@@ -78,7 +77,6 @@ class ChangePasswordView extends StatelessWidget {
                       title: Text(
                         'btn_close'.l10n,
                         style: style.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w300,
                           color: style.colors.onPrimary,
                         ),
                       ),
@@ -103,7 +101,6 @@ class ChangePasswordView extends StatelessWidget {
                         child: Text(
                           'label_password_not_set_info'.l10n,
                           style: style.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w300,
                             color: style.colors.secondary,
                           ),
                         ),
@@ -166,7 +163,6 @@ class ChangePasswordView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: style.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w300,
                             color: enabled
                                 ? style.colors.onPrimary
                                 : style.colors.onBackground,

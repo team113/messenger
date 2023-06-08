@@ -147,10 +147,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.user.value?.user.value.name?.val ??
               participant.user.value?.user.value.num.val ??
               'dot'.l10n * 3,
-          style: style.bodyMedium.copyWith(
-            color: style.colors.onPrimary,
-            fontWeight: FontWeight.w300,
-          ),
+          style: style.bodyMedium.copyWith(color: style.colors.onPrimary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
