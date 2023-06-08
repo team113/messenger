@@ -185,7 +185,7 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [PageController] controlling the [PageView].
   late final PageController _pageController;
 
-  /// [Map] of [VideoPlayerController] controlling the video playback used to
+  /// [Map] of [MeeduPlayerController] controlling the video playback used to
   /// play/pause the active videos on keyboard presses.
   final Map<int, MeeduPlayerController> _videoControllers = {};
 

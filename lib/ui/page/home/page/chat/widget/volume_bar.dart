@@ -39,7 +39,7 @@ class VideoVolumeBar extends StatelessWidget {
   })  : colors = colors ?? ChewieProgressColors(),
         super(key: key);
 
-  /// [VideoPlayerController] used to control the volume.
+  /// [MeeduPlayerController] used to control the volume.
   final MeeduPlayerController controller;
 
   /// [ChewieProgressColors] theme of this [VideoVolumeBar].

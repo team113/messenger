@@ -53,13 +53,13 @@ class Video extends StatefulWidget {
   /// Callback, called when a toggle fullscreen action is fired.
   final VoidCallback? toggleFullscreen;
 
-  /// Callback, called when a [VideoPlayerController] is assigned or disposed.
+  /// Callback, called when a [MeeduPlayerController] is assigned or disposed.
   final void Function(MeeduPlayerController?)? onController;
 
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
-  /// Callback, called on the [VideoPlayerController] initialization errors.
+  /// Callback, called on the [MeeduPlayerController] initialization errors.
   final Future<void> Function()? onError;
 
   /// [Duration] to initially show an user interface for.

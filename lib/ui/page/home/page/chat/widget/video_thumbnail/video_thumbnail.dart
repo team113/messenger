@@ -86,7 +86,7 @@ class VideoThumbnail extends StatefulWidget {
   /// Optional height this [VideoThumbnail] occupies.
   final double? height;
 
-  /// Callback, called on the [VideoPlayerController] initialization errors.
+  /// Callback, called on the video loading errors.
   final Future<void> Function()? onError;
 
   @override
@@ -94,9 +94,9 @@ class VideoThumbnail extends StatefulWidget {
 }
 
 /// State of a [VideoThumbnail], used to initialize and dispose a
-/// [VideoPlayerController].
+/// [MeeduPlayerController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
-  /// [VideoPlayerController] to display the first frame of the video.
+  /// [MeeduPlayerController] to display the first frame of the video.
   final MeeduPlayerController _controller = MeeduPlayerController(
     controlsStyle: ControlsStyle.custom,
     enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
