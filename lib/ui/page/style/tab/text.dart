@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '../widget/caption.dart';
+import '/themes.dart';
 
 /// Fonts tab view of the [Routes.style] page.
 class FontStyleTabView extends StatelessWidget {
@@ -46,7 +47,7 @@ class FontStyleTabView extends StatelessWidget {
                 ),
                 trailing: Text(
                   'Шрифт: ${style.fontSize} пт, цвет: ${style.color?.toHex()}',
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  style: const TextStyle(fontSize: 15, color: Colors.grey),
                 ),
               ),
             ],
@@ -56,7 +57,7 @@ class FontStyleTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme textTheme = Theme.of(context).textTheme;
+    final (_, fonts) = Theme.of(context).styles();
 
     return DefaultTextStyle.merge(
       maxLines: 1,
@@ -67,77 +68,77 @@ class FontStyleTabView extends StatelessWidget {
           _font(
             'Largest of the display styles.',
             'displayLarge',
-            textTheme.displayLarge!,
+            fonts.displayLarge!,
           ),
           _font(
             'Middle size of the display styles.',
             'displayMedium',
-            textTheme.displayMedium!,
+            fonts.displayMedium!,
           ),
           _font(
             'Smallest of the display styles.',
             'displaySmall',
-            textTheme.displaySmall!,
+            fonts.displaySmall!,
           ),
           _font(
             'Largest of the headline styles.',
             'headlineLarge',
-            textTheme.headlineLarge!,
+            fonts.headlineLarge!,
           ),
           _font(
             'Middle size of the headline styles.',
             'headlineMedium',
-            textTheme.headlineMedium!,
+            fonts.headlineMedium!,
           ),
           _font(
             'Smallest of the headline styles.',
             'headlineSmall',
-            textTheme.headlineSmall!,
+            fonts.headlineSmall!,
           ),
           _font(
             'Largest of the title styles.',
             'titleLarge',
-            textTheme.titleLarge!,
+            fonts.titleLarge!,
           ),
           _font(
             'Middle size of the title styles.',
             'titleMedium',
-            textTheme.titleMedium!,
+            fonts.titleMedium!,
           ),
           _font(
             'Smallest of the title styles.',
             'titleSmall',
-            textTheme.titleSmall!,
+            fonts.titleSmall!,
           ),
           _font(
             'Largest of the label styles.',
             'labelLarge',
-            textTheme.labelLarge!,
+            fonts.labelLarge!,
           ),
           _font(
             'Middle size of the label styles.',
             'labelMedium',
-            textTheme.labelMedium!,
+            fonts.labelMedium!,
           ),
           _font(
             'Smallest of the label styles.',
             'labelSmall',
-            textTheme.labelSmall!,
+            fonts.labelSmall!,
           ),
           _font(
             'Largest of the body styles.',
             'bodyLarge',
-            textTheme.bodyLarge!,
+            fonts.bodyLarge!,
           ),
           _font(
             'Middle size of the body styles.',
             'bodyMedium',
-            textTheme.bodyMedium!,
+            fonts.bodyMedium!,
           ),
           _font(
             'Smallest of the body styles.',
             'bodySmall',
-            textTheme.bodySmall!,
+            fonts.bodySmall!,
           ),
           const SizedBox(height: 60),
         ],

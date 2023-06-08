@@ -96,7 +96,7 @@ class _MobileControlsState extends State<MobileControls>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder?.call(
@@ -208,7 +208,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the bottom controls bar.
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
 
@@ -262,7 +262,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     final bool isFinished = _latestValue.position >= _latestValue.duration;
     return CenterPlayButton(
@@ -277,7 +277,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the mute/unmute button.
   GestureDetector _buildMuteButton() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return GestureDetector(
       onTap: () {
@@ -314,7 +314,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [RichText] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     final position = _latestValue.position;
     final duration = _latestValue.duration;
@@ -325,13 +325,12 @@ class _MobileControlsState extends State<MobileControls>
         children: <InlineSpan>[
           TextSpan(
             text: '/ ${formatDuration(duration)}',
-            style: style.labelMedium.copyWith(
+            style: fonts.labelMedium!.copyWith(
               color: style.colors.onPrimaryOpacity50,
             ),
           )
         ],
-        style: style.boldBody.copyWith(
-          fontSize: style.labelMedium.fontSize,
+        style: fonts.labelMedium!.copyWith(
           color: style.colors.onPrimary,
         ),
       ),
@@ -340,7 +339,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return Expanded(
       child: VideoProgressBar(

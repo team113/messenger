@@ -40,7 +40,7 @@ class ConfirmLogoutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
@@ -56,7 +56,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 onBack: () => c.stage.value = null,
                 header: Center(
                   child: Text('btn_set_password'.l10n,
-                      style: style.headlineMedium),
+                      style: fonts.headlineMedium),
                 ),
               );
 
@@ -66,7 +66,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: style.titleMedium,
+                  style: fonts.titleMedium!,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -80,7 +80,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: style.titleMedium,
+                  style: fonts.titleMedium!,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -93,7 +93,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   key: const Key('ChangePasswordButton'),
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: style.bodyMedium.copyWith(
+                    style: fonts.bodyMedium!.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
                           ? style.colors.onBackground
                           : style.colors.onPrimary,
@@ -111,14 +111,14 @@ class ConfirmLogoutView extends StatelessWidget {
               header = ModalPopupHeader(
                 header: Center(
                   child: Text('btn_set_password'.l10n,
-                      style: style.headlineMedium),
+                      style: fonts.headlineMedium),
                 ),
               );
 
               children = [
                 Text(
                   'label_password_set'.l10n,
-                  style: style.labelLarge.copyWith(
+                  style: fonts.labelLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -129,7 +129,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: style.bodyMedium.copyWith(
+                      style: fonts.bodyMedium!.copyWith(
                         color: style.colors.onPrimary,
                       ),
                     ),
@@ -143,7 +143,7 @@ class ConfirmLogoutView extends StatelessWidget {
             default:
               header = ModalPopupHeader(
                 header: Center(
-                  child: Text('btn_logout'.l10n, style: style.headlineMedium),
+                  child: Text('btn_logout'.l10n, style: fonts.headlineMedium),
                 ),
               );
 
@@ -151,7 +151,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 Center(
                   child: RichText(
                     text: TextSpan(
-                      style: style.titleLarge.copyWith(
+                      style: fonts.titleLarge!.copyWith(
                         color: style.colors.secondary,
                       ),
                       children: [
@@ -159,7 +159,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           text: 'alert_are_you_sure_want_to_log_out1'.l10n,
                         ),
                         TextSpan(
-                          style: style.titleLarge,
+                          style: fonts.titleLarge,
                           text: c.myUser.value?.name?.val ??
                               c.myUser.value?.num.val ??
                               '',
@@ -178,7 +178,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_logout'.l10n,
-                      style: style.titleLarge.copyWith(
+                      style: fonts.titleLarge!.copyWith(
                         color: style.colors.onPrimary,
                       ),
                     ),
@@ -188,7 +188,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ] else ...[
                   RichText(
                     text: TextSpan(
-                      style: style.labelLarge.copyWith(
+                      style: fonts.labelLarge!.copyWith(
                         color: style.colors.secondary,
                       ),
                       children: [
@@ -205,7 +205,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: style.titleLarge.copyWith(
+                            style: fonts.titleLarge!.copyWith(
                               color: style.colors.onPrimary,
                             ),
                           ),
@@ -221,7 +221,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_logout'.l10n,
-                            style: style.bodyMedium,
+                            style: fonts.bodyMedium!,
                           ),
                           onPressed: () => Navigator.of(context).pop(true),
                           color: style.colors.secondaryHighlight,

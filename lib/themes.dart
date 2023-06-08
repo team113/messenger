@@ -76,62 +76,8 @@ class Themes {
     return theme.copyWith(
         extensions: [
           Style(
-            displayLarge: textStyle.copyWith(
-              fontSize: 27,
-              fontWeight: FontWeight.bold,
-            ),
-            displayMedium: textStyle.copyWith(
-              fontWeight: FontWeight.w300,
-              fontSize: 24,
-            ),
-            displaySmall: textStyle.copyWith(
-              fontWeight: FontWeight.w600,
-              fontSize: 11,
-            ),
-            headlineLarge: textStyle.copyWith(fontSize: 18),
-            headlineMedium: textStyle.copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.w300,
-            ),
-            headlineSmall: textStyle.copyWith(fontSize: 13),
-            titleLarge: textStyle.copyWith(
-              fontSize: 17,
-              fontWeight: FontWeight.w300,
-            ),
-            titleMedium: textStyle.copyWith(fontSize: 15),
-            titleSmall: textStyle.copyWith(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
-            labelLarge: textStyle.copyWith(
-              fontSize: 15,
-              fontWeight: FontWeight.w300,
-            ),
-            labelMedium: textStyle.copyWith(
-              fontSize: 13,
-              fontWeight: FontWeight.w300,
-            ),
-            labelSmall: textStyle.copyWith(
-              fontSize: 11,
-              fontWeight: FontWeight.w300,
-            ),
-            bodyLarge: textStyle.copyWith(fontSize: 17),
-            bodyMedium: textStyle.copyWith(
-              fontSize: 15,
-              fontWeight: FontWeight.w300,
-            ),
-            bodySmall: textStyle.copyWith(
-              fontSize: 13,
-              fontWeight: FontWeight.w300,
-            ),
             colors: colors,
             barrierColor: colors.onBackgroundOpacity50,
-            smallestBody: textStyle.copyWith(fontSize: 11),
-            boldBody: textStyle.copyWith(fontWeight: FontWeight.bold),
-            boldDisplay: textStyle.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: 27,
-            ),
             cardBlur: 5,
             cardBorder:
                 Border.all(color: colors.secondaryHighlightDark, width: 0.5),
@@ -207,41 +153,53 @@ class Themes {
         iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
         textTheme: Typography.blackCupertino.copyWith(
           displayLarge: textStyle.copyWith(
-            color: colors.secondary,
+            fontSize: 27,
+            fontWeight: FontWeight.bold,
+          ),
+          displayMedium: textStyle.copyWith(
             fontWeight: FontWeight.w300,
             fontSize: 24,
           ),
-          displayMedium: textStyle.copyWith(
-            color: colors.secondary,
-            fontWeight: FontWeight.w300,
-            fontSize: 15.4,
+          displaySmall: textStyle.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 11,
           ),
-          displaySmall:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 18),
-          headlineLarge:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
-          headlineMedium: textStyle.copyWith(fontSize: 18),
-          headlineSmall: textStyle.copyWith(fontSize: 18),
-          labelLarge:
-              textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 17),
-          labelMedium:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
-          labelSmall:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
+          headlineLarge: textStyle.copyWith(fontSize: 18),
+          headlineMedium: textStyle.copyWith(
+            fontSize: 18,
+            fontWeight: FontWeight.w300,
+          ),
+          headlineSmall: textStyle.copyWith(fontSize: 13),
+          titleLarge: textStyle.copyWith(
+            fontSize: 17,
+            fontWeight: FontWeight.w300,
+          ),
           titleMedium: textStyle.copyWith(fontSize: 15),
           titleSmall: textStyle.copyWith(
-            color: colors.secondary,
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+          ),
+          labelLarge: textStyle.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyLarge:
-              textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
-          bodyMedium:
-              textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w400),
-          bodySmall: textStyle.copyWith(
-            color: colors.secondary,
-            fontWeight: FontWeight.w300,
+          labelMedium: textStyle.copyWith(
             fontSize: 13,
+            fontWeight: FontWeight.w300,
+          ),
+          labelSmall: textStyle.copyWith(
+            fontSize: 11,
+            fontWeight: FontWeight.w300,
+            letterSpacing: 0.4,
+          ),
+          bodyLarge: textStyle.copyWith(fontSize: 17),
+          bodyMedium: textStyle.copyWith(
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          bodySmall: textStyle.copyWith(
+            fontSize: 13,
+            fontWeight: FontWeight.w300,
           ),
         ),
         inputDecorationTheme: theme.inputDecorationTheme.copyWith(
@@ -435,26 +393,8 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
-    required this.displayLarge,
-    required this.displayMedium,
-    required this.displaySmall,
-    required this.headlineLarge,
-    required this.headlineMedium,
-    required this.headlineSmall,
-    required this.labelLarge,
-    required this.labelMedium,
-    required this.labelSmall,
-    required this.titleLarge,
-    required this.titleMedium,
-    required this.titleSmall,
-    required this.bodyLarge,
-    required this.bodyMedium,
-    required this.bodySmall,
     required this.colors,
     required this.barrierColor,
-    required this.smallestBody,
-    required this.boldBody,
-    required this.boldDisplay,
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
@@ -481,45 +421,6 @@ class Style extends ThemeExtension<Style> {
 
   /// [Color] of the modal background barrier.
   final Color barrierColor;
-
-  final TextStyle displayLarge;
-
-  final TextStyle displayMedium;
-
-  final TextStyle displaySmall;
-
-  final TextStyle headlineLarge;
-
-  final TextStyle headlineMedium;
-
-  final TextStyle headlineSmall;
-
-  final TextStyle labelLarge;
-
-  final TextStyle labelMedium;
-
-  final TextStyle labelSmall;
-
-  final TextStyle titleLarge;
-
-  final TextStyle titleMedium;
-
-  final TextStyle titleSmall;
-
-  final TextStyle bodyLarge;
-
-  final TextStyle bodyMedium;
-
-  final TextStyle bodySmall;
-
-  /// [TextStyle] to use in the smallest body to make content readable.
-  final TextStyle smallestBody;
-
-  /// [TextStyle] to use in the body to make content readable.
-  final TextStyle boldBody;
-
-  /// [TextStyle] to use in the display to make content readable.
-  final TextStyle boldDisplay;
 
   /// Blur to apply to card-like [Widget]s.
   final double cardBlur;
@@ -626,24 +527,6 @@ class Style extends ThemeExtension<Style> {
     return Style(
       colors: colors ?? this.colors,
       barrierColor: barrierColor ?? this.barrierColor,
-      displayLarge: displayLarge ?? this.displayLarge,
-      displayMedium: displayMedium ?? this.displayMedium,
-      displaySmall: displaySmall ?? this.displaySmall,
-      headlineLarge: headlineLarge ?? this.headlineLarge,
-      headlineMedium: headlineMedium ?? this.headlineMedium,
-      headlineSmall: headlineSmall ?? this.headlineSmall,
-      labelLarge: labelLarge ?? this.labelLarge,
-      labelMedium: labelMedium ?? this.labelMedium,
-      labelSmall: labelSmall ?? this.labelSmall,
-      titleLarge: titleLarge ?? this.titleLarge,
-      titleMedium: titleMedium ?? this.titleMedium,
-      titleSmall: titleSmall ?? this.titleSmall,
-      bodyLarge: bodyLarge ?? this.bodyLarge,
-      bodyMedium: bodyMedium ?? this.bodyMedium,
-      bodySmall: bodySmall ?? this.bodySmall,
-      smallestBody: smallestBody ?? this.smallestBody,
-      boldBody: boldBody ?? this.boldBody,
-      boldDisplay: boldDisplay ?? this.boldDisplay,
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
@@ -677,24 +560,6 @@ class Style extends ThemeExtension<Style> {
     return Style(
       colors: Palette.lerp(colors, other.colors, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
-      displayLarge: TextStyle.lerp(displayLarge, other.displayLarge, t)!,
-      displayMedium: TextStyle.lerp(displayMedium, other.displayMedium, t)!,
-      displaySmall: TextStyle.lerp(displaySmall, other.displaySmall, t)!,
-      headlineLarge: TextStyle.lerp(headlineLarge, other.headlineLarge, t)!,
-      headlineMedium: TextStyle.lerp(headlineMedium, other.headlineMedium, t)!,
-      headlineSmall: TextStyle.lerp(headlineSmall, other.headlineSmall, t)!,
-      labelLarge: TextStyle.lerp(labelLarge, other.labelLarge, t)!,
-      labelMedium: TextStyle.lerp(labelMedium, other.labelMedium, t)!,
-      labelSmall: TextStyle.lerp(labelSmall, other.labelSmall, t)!,
-      titleLarge: TextStyle.lerp(titleLarge, other.titleLarge, t)!,
-      titleMedium: TextStyle.lerp(titleMedium, other.titleMedium, t)!,
-      titleSmall: TextStyle.lerp(titleSmall, other.titleSmall, t)!,
-      bodyLarge: TextStyle.lerp(bodyLarge, other.bodyLarge, t)!,
-      bodyMedium: TextStyle.lerp(bodyMedium, other.bodyMedium, t)!,
-      bodySmall: TextStyle.lerp(bodySmall, other.bodySmall, t)!,
-      smallestBody: TextStyle.lerp(smallestBody, other.smallestBody, t)!,
-      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
-      boldDisplay: TextStyle.lerp(boldDisplay, other.boldDisplay, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
@@ -1101,4 +966,16 @@ class Palette {
           other.userColors.isNotEmpty ? other.userColors : color.userColors,
     );
   }
+}
+
+/// Extension adding tuple variables from [ThemeData].
+extension ThemeStyles on ThemeData {
+  /// Font data defined in the [ThemeData].
+  TextTheme get fonts => textTheme;
+
+  /// Style data defined in the [ThemeData].
+  Style get style => extension<Style>()!;
+
+  /// Returns a tuple containing the [Style] and [TextTheme] variables.
+  (Style, TextTheme) styles() => (style, fonts);
 }

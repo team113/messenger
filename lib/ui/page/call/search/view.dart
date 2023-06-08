@@ -86,7 +86,7 @@ class SearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return GetBuilder(
       key: const Key('SearchView'),
@@ -110,7 +110,7 @@ class SearchView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     title,
-                    style: style.headlineMedium,
+                    style: fonts.headlineMedium,
                   ),
                 ),
               ),
@@ -122,7 +122,7 @@ class SearchView extends StatelessWidget {
                     key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
-                    style: style.titleMedium,
+                    style: fonts.titleMedium!,
                     onChanged: () => c.query.value = c.search.text,
                   ),
                 ),
@@ -243,7 +243,7 @@ class SearchView extends StatelessWidget {
                         submit ?? 'btn_submit'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: style.titleLarge.copyWith(
+                        style: fonts.titleLarge!.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
                               : style.colors.onBackground,

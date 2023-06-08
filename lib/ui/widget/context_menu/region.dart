@@ -133,7 +133,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     final Widget child;
 
     if (_darkened && PlatformUtils.isDesktop) {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, _) = Theme.of(context).styles();
 
       child = Stack(
         children: [
@@ -190,7 +190,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     if (widget.actions.isEmpty) {
       return;
@@ -219,7 +219,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   b.leading!,
                   const SizedBox(width: 12)
                 ],
-                Text(b.label, style: style.labelLarge),
+                Text(b.label, style: fonts.labelLarge!),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,

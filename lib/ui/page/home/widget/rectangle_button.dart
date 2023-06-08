@@ -45,7 +45,7 @@ class RectangleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return Material(
       borderRadius: BorderRadius.circular(10),
@@ -63,7 +63,7 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: style.labelLarge.copyWith(
+                  style: fonts.labelLarge!.copyWith(
                     color: selected
                         ? style.colors.onPrimary
                         : style.colors.onBackground,

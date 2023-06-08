@@ -53,7 +53,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return Obx(() {
       bool isMuted;
@@ -147,7 +147,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.user.value?.user.value.name?.val ??
               participant.user.value?.user.value.num.val ??
               'dot'.l10n * 3,
-          style: style.bodyMedium.copyWith(color: style.colors.onPrimary),
+          style: fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

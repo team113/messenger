@@ -142,7 +142,7 @@ class GalleryPopup extends StatefulWidget {
     required BuildContext context,
     required GalleryPopup gallery,
   }) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return showGeneralDialog(
       context: context,
@@ -320,7 +320,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -412,7 +412,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the gallery view of its items itself.
   Widget _pageView() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -614,7 +614,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the [List] of [GalleryPopup] interface [Widget]s.
   List<Widget> _buildInterface() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;

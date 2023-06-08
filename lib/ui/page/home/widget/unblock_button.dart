@@ -31,7 +31,7 @@ class UnblockButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return Container(
       key: const Key('UnblockButton'),
@@ -60,7 +60,7 @@ class UnblockButton extends StatelessWidget {
                 child: Text(
                   'btn_unblock'.l10n,
                   textAlign: TextAlign.center,
-                  style: style.bodyLarge.copyWith(color: style.colors.primary),
+                  style: fonts.bodyLarge!.copyWith(color: style.colors.primary),
                 ),
               ),
             ],

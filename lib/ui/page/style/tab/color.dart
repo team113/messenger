@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../routes.dart';
 import '../widget/caption.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -39,7 +40,9 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
 
   @override
   Widget build(BuildContext context) {
+    // final (fonts, style) = Theme.of(router.context!).styles();
     final Style style = Theme.of(context).extension<Style>()!;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     Widget color(Color color, [String? desc]) {
       final HSLColor hsl = HSLColor.fromColor(color);
@@ -62,7 +65,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               child: Center(
                 child: Text(
                   color.toHex(),
-                  style: style.bodySmall.copyWith(
+                  style: fonts.bodySmall!.copyWith(
                     color: hsl.lightness > 0.7 ? Colors.black : Colors.white,
                   ),
                 ),
@@ -76,7 +79,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               child: Text(
                 desc,
                 textAlign: TextAlign.center,
-                style: style.bodySmall.copyWith(
+                style: fonts.bodySmall!.copyWith(
                   color: isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
@@ -250,7 +253,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             const SizedBox(height: 50),
             Text(
               'Цвета аватаров:',
-              style: style.displayLarge.copyWith(
+              style: fonts.displayLarge!.copyWith(
                 color: isDarkMode
                     ? style.colors.onPrimary
                     : style.colors.onBackground,

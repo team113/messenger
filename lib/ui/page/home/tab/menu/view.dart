@@ -40,7 +40,7 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        final Style style = Theme.of(context).extension<Style>()!;
+        final (style, fonts) = Theme.of(context).styles();
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -77,13 +77,13 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: style.headlineMedium,
+                              style: fonts.headlineMedium,
                             ),
                             Obx(() {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: style.labelMedium.copyWith(
+                                style: fonts.labelMedium!.copyWith(
                                   color: style.colors.secondary,
                                 ),
                               );
@@ -175,7 +175,8 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle(
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
-                                            style: style.headlineLarge.copyWith(
+                                            style:
+                                                fonts.headlineLarge!.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
                                                   : style.colors.onBackground,
@@ -186,7 +187,7 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle.merge(
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: style.labelMedium.copyWith(
+                                            style: fonts.labelMedium!.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
                                                   : style.colors.onBackground,

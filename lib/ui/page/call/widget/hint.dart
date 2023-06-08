@@ -41,7 +41,7 @@ class HintWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return Card(
       elevation: 8,
@@ -74,7 +74,7 @@ class HintWidget extends StatelessWidget {
                     isError
                         ? 'label_error'.l10n
                         : 'label_hint_from_gapopa'.l10n,
-                    style: style.bodySmall.copyWith(
+                    style: fonts.bodySmall!.copyWith(
                       color: style.colors.secondaryOpacity87,
                     ),
                   ),
@@ -99,7 +99,7 @@ class HintWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 text,
-                style: style.bodySmall.copyWith(
+                style: fonts.bodySmall!.copyWith(
                   color: style.colors.secondaryOpacity87,
                 ),
               ),

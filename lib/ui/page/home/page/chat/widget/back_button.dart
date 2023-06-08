@@ -26,7 +26,7 @@ class StyledBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     if (ModalRoute.of(context)?.canPop == true) {
       return WidgetButton(

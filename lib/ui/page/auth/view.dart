@@ -42,7 +42,7 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return GetBuilder(
       init: AuthController(Get.find()),
@@ -64,7 +64,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: style.displayMedium.copyWith(color: style.colors.secondary),
+            style: fonts.displayMedium!.copyWith(color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -72,7 +72,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: style.labelLarge.copyWith(color: style.colors.secondary),
+            style: fonts.labelLarge!.copyWith(color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -87,7 +87,7 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: style.titleLarge.copyWith(color: style.colors.onPrimary),
+              style: fonts.titleLarge!.copyWith(color: style.colors.onPrimary),
             ),
             leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: c.register,
@@ -96,7 +96,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n, style: style.titleLarge),
+            title: Text('btn_login'.l10n, style: fonts.titleLarge),
             leading: SvgImage.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
@@ -106,7 +106,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           if (isIosWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: style.titleLarge),
+              title: Text('btn_download'.l10n, style: fonts.titleLarge),
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
                 child:
@@ -116,7 +116,7 @@ class AuthView extends StatelessWidget {
             ),
           if (isAndroidWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: style.titleLarge),
+              title: Text('btn_download'.l10n, style: fonts.titleLarge),
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
                 child:
@@ -126,7 +126,7 @@ class AuthView extends StatelessWidget {
             ),
           if (isDesktopWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: style.titleLarge),
+              title: Text('btn_download'.l10n, style: fonts.titleLarge),
               leading: PlatformUtils.isMacOS
                   ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
                   : (PlatformUtils.isWindows)
@@ -231,7 +231,7 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final TextTheme fonts = Theme.of(context).textTheme;
 
     await ModalPopup.show(
       context: context,
@@ -242,7 +242,7 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: style.headlineMedium,
+                style: fonts.headlineMedium,
               ),
             ),
           ),

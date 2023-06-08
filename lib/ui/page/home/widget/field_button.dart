@@ -78,7 +78,7 @@ class _FieldButtonState extends State<FieldButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     final Widget child = MouseRegion(
       onEnter: PlatformUtils.isMobile

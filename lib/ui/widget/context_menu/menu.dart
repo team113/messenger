@@ -29,7 +29,7 @@ class ContextMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     final List<Widget> widgets = [];
 
@@ -93,7 +93,7 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
@@ -137,7 +137,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
@@ -179,11 +179,11 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: style.titleMedium.copyWith(
+                style: fonts.titleMedium!.copyWith(
                   color: (isMouseOver && !context.isMobile)
                       ? style.colors.onPrimary
                       : style.colors.onBackground,
-                  fontSize: context.isMobile ? style.bodyLarge.fontSize : 14,
+                  fontSize: context.isMobile ? fonts.bodyLarge!.fontSize : 14,
                 ),
               ),
               if (PlatformUtils.isMobile && widget.trailing != null) ...[

@@ -90,7 +90,7 @@ class MessageFieldView extends StatelessWidget {
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(25),
@@ -124,7 +124,7 @@ class MessageFieldView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return GetBuilder(
       init: controller ?? MessageFieldController(Get.find(), Get.find()),
@@ -166,7 +166,7 @@ class MessageFieldView extends StatelessWidget {
   /// Returns a visual representation of the message attachments, replies,
   /// quotes and edited message.
   Widget _buildHeader(MessageFieldController c, BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return LayoutBuilder(builder: (context, constraints) {
       return Obx(() {
@@ -426,7 +426,7 @@ class MessageFieldView extends StatelessWidget {
   /// Builds a visual representation of the send field itself along with its
   /// buttons.
   Widget _buildField(MessageFieldController c, BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return Container(
       constraints: const BoxConstraints(minHeight: 56),
@@ -480,7 +480,7 @@ class MessageFieldView extends StatelessWidget {
                   filled: false,
                   dense: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: style.bodyLarge,
+                  style: fonts.bodyLarge!,
                   type: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
@@ -539,7 +539,7 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles();
 
       if (isImage || isVideo) {
         final Widget child = MediaAttachment(
@@ -639,12 +639,12 @@ class MessageFieldView extends StatelessWidget {
                   Flexible(
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
-                      style: style.bodySmall,
+                      style: fonts.bodySmall!,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(p.extension(e.filename), style: style.bodySmall)
+                  Text(p.extension(e.filename), style: fonts.bodySmall!)
                 ],
               ),
             ),
@@ -657,7 +657,7 @@ class MessageFieldView extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: style.bodySmall.copyWith(color: style.colors.secondary),
+                style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -670,7 +670,7 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the [content] along with manipulation buttons and statuses.
     Widget attachment() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, _) = Theme.of(context).styles();
 
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
@@ -779,7 +779,7 @@ class MessageFieldView extends StatelessWidget {
     MessageFieldController c, {
     void Function()? onClose,
   }) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     final bool fromMe = item.authorId == c.me;
 
@@ -828,7 +828,7 @@ class MessageFieldView extends StatelessWidget {
           item.text!.val,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: style.bodyLarge,
+          style: fonts.bodyLarge!,
         );
       }
     } else if (item is ChatCall) {
@@ -869,7 +869,7 @@ class MessageFieldView extends StatelessWidget {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: style.bodyLarge)),
+          Flexible(child: Text(title, style: fonts.bodyLarge!)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -878,7 +878,7 @@ class MessageFieldView extends StatelessWidget {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.headlineSmall.copyWith(
+                style: fonts.headlineSmall!.copyWith(
                   color: style.colors.secondary,
                 ),
               ),
@@ -888,12 +888,12 @@ class MessageFieldView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: style.bodyLarge);
+      content = Text('label_forwarded_message'.l10n, style: fonts.bodyLarge!);
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: style.bodyLarge);
+      content = Text(item.action.toString(), style: fonts.bodyLarge!);
     } else {
-      content = Text('err_unknown'.l10n, style: style.bodyLarge);
+      content = Text('err_unknown'.l10n, style: fonts.bodyLarge!);
     }
 
     final Widget expanded;
@@ -919,7 +919,7 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: style.bodyLarge.copyWith(
+                    style: fonts.bodyLarge!.copyWith(
                       color: style.colors.primary,
                     ),
                   ),
@@ -963,12 +963,12 @@ class MessageFieldView extends StatelessWidget {
                         return Text(
                           snapshot.data!.user.value.name?.val ??
                               snapshot.data!.user.value.num.val,
-                          style: style.bodyLarge.copyWith(color: color),
+                          style: fonts.bodyLarge!.copyWith(color: color),
                         );
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style: style.bodyLarge.copyWith(
+                        style: fonts.bodyLarge!.copyWith(
                           color: style.colors.primary,
                         ),
                       ),

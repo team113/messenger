@@ -57,7 +57,7 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final (style, fonts) = Theme.of(context).styles();
 
   return LayoutBuilder(
     builder: (context, constraints) {
@@ -486,7 +486,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: style.labelSmall.copyWith(
+                                        style: fonts.labelSmall!.copyWith(
                                           color: style.colors.onPrimary,
                                         ),
                                         textAlign: TextAlign.center,
@@ -697,7 +697,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: style.labelMedium.copyWith(
+                        style: fonts.labelMedium!.copyWith(
                           color: style.colors.onPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -1119,7 +1119,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles();
 
       return Container(
         key: const ValueKey('TitleBar'),
@@ -1158,7 +1158,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: style.labelMedium.copyWith(
+                          style: fonts.labelMedium!.copyWith(
                             color: style.colors.onPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -1472,7 +1472,7 @@ Widget _primaryView(CallController c) {
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final (style, fonts) = Theme.of(context).styles();
 
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
@@ -2071,7 +2071,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: style.labelMedium.copyWith(
+                                        style: fonts.labelMedium!.copyWith(
                                           color: style.colors.onPrimary,
                                         ),
                                         maxLines: 1,

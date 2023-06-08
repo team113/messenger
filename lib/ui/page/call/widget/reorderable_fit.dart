@@ -594,7 +594,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
     Widget cell(int index, [bool withOverlay = true]) {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, _) = Theme.of(context).styles();
 
       var item = _items[index];
       return Stack(
@@ -1091,7 +1091,7 @@ class _ReorderableDraggableState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return DoughRecipe(
       data: DoughRecipeData(

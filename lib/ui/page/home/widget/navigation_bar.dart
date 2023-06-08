@@ -49,7 +49,7 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     // [AnimatedOpacity] boilerplate.
     Widget tab({required Widget child, bool selected = false}) {
@@ -141,7 +141,7 @@ class CustomNavigationBar extends StatelessWidget {
                                                 textAlign: TextAlign.center,
                                               ),
                                             ),
-                                      textStyle: style.bodySmall.copyWith(
+                                      textStyle: fonts.bodySmall!.copyWith(
                                         color: style.colors.onPrimary,
                                       ),
                                       backgroundColor: b.badgeColor ??

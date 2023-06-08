@@ -109,7 +109,7 @@ class _VideoState extends State<Video> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -132,7 +132,7 @@ class _VideoState extends State<Video> {
                       const SizedBox(height: 10),
                       Text(
                         'Video playback is not yet supported\non your operating system',
-                        style: style.bodyMedium.copyWith(
+                        style: fonts.bodyMedium!.copyWith(
                           color: style.colors.onPrimary,
                         ),
                         textAlign: TextAlign.center,
@@ -162,7 +162,7 @@ class _VideoState extends State<Video> {
 
   /// Initializes the [_controller] and [_chewie].
   Future<void> _initVideo() async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     try {
       _controller = VideoPlayerController.network(widget.url);

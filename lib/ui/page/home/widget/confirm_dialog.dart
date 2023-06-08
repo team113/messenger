@@ -119,7 +119,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
@@ -143,7 +143,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: style.headlineMedium.copyWith(
+                      style: fonts.headlineMedium!.copyWith(
                         color: _variant == variant
                             ? style.colors.onPrimary
                             : style.colors.onBackground,
@@ -171,7 +171,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
       children: [
         ModalPopupHeader(
           header: Center(
-            child: Text(widget.title, style: style.headlineMedium),
+            child: Text(widget.title, style: fonts.headlineMedium),
           ),
         ),
         const SizedBox(height: 12),
@@ -187,7 +187,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             child: Center(
               child: Text(
                 widget.description!,
-                style: style.labelLarge.copyWith(color: style.colors.secondary),
+                style:
+                    fonts.labelLarge!.copyWith(color: style.colors.secondary),
               ),
             ),
           ),
@@ -216,7 +217,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: style.bodyMedium.copyWith(color: style.colors.onPrimary),
+              style: fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());

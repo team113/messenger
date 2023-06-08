@@ -143,7 +143,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     if (_latestValue.hasError) {
       return _chewieController.errorBuilder
@@ -254,7 +254,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
@@ -299,7 +299,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return Obx(
       () => GestureDetector(
@@ -323,7 +323,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
     final bool isFinished = _latestValue.position >= _latestValue.duration;
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return Center(
       child: AnimatedSwitcher(
@@ -359,7 +359,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the play/pause button.
   Widget _buildPlayPause(VideoPlayerController controller) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return Transform.translate(
       offset: const Offset(0, 0),
@@ -380,7 +380,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the mute/unmute button with a volume overlay above it.
   Widget _buildMuteButton(VideoPlayerController controller) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return MouseRegion(
       onEnter: (_) {
@@ -424,7 +424,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return Stack(
       children: [
@@ -484,14 +484,14 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     final position = _latestValue.position;
     final duration = _latestValue.duration;
 
     return Text(
       '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: style.headlineSmall.copyWith(
+      style: fonts.headlineSmall!.copyWith(
         color: style.colors.onPrimary,
       ),
     );
@@ -499,7 +499,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return Expanded(
       child: VideoProgressBar(

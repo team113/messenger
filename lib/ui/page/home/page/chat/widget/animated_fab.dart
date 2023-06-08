@@ -151,7 +151,7 @@ class _AnimatedFabState extends State<AnimatedFab>
     _overlayEntry = OverlayEntry(
       builder: (ctx) => LayoutBuilder(
         builder: (context, constraints) {
-          final Style style = Theme.of(context).extension<Style>()!;
+          final (style, _) = Theme.of(context).styles();
 
           if (!firstLayout) {
             final keyContext = _key.currentContext;

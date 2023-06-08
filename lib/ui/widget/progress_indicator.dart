@@ -65,7 +65,7 @@ class CustomProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return ConditionalBackdropFilter(
       condition: blur,
@@ -282,7 +282,7 @@ class _CircularProgressIndicatorState
 
   /// Returns the [Color] of the progress indicator.
   Color _getValueColor(BuildContext context, {Color? defaultColor}) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return widget.valueColor?.value ??
         widget.color ??
@@ -299,7 +299,7 @@ class _CircularProgressIndicatorState
     double offsetValue,
     double rotationValue,
   ) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     final Color? trackColor = widget.backgroundColor ??
         ProgressIndicatorTheme.of(context).circularTrackColor;

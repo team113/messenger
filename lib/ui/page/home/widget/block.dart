@@ -36,7 +36,7 @@ class Block extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return Center(
       child: Container(
@@ -60,7 +60,7 @@ class Block extends StatelessWidget {
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    child: Text(title!, style: style.headlineLarge),
+                    child: Text(title!, style: fonts.headlineLarge!),
                   ),
                 ),
               ),

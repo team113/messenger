@@ -63,15 +63,13 @@ class _AnimatedDotsState extends State<AnimatedDots> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     return SizedBox(
       width: 13,
       child: Text(
         'dot'.l10n * _count,
-        style: style.titleMedium.copyWith(
-          color: style.colors.onPrimary,
-        ),
+        style: fonts.titleMedium!.copyWith(color: style.colors.onPrimary),
       ),
     );
   }

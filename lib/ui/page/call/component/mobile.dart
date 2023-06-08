@@ -57,7 +57,7 @@ import 'common.dart';
 
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final (style, fonts) = Theme.of(context).styles();
 
   return LayoutBuilder(builder: (context, constraints) {
     bool isOutgoing =
@@ -358,7 +358,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 children: [
                                   Text(
                                     state,
-                                    style: style.headlineSmall.copyWith(
+                                    style: fonts.headlineSmall!.copyWith(
                                       color: style.colors.onBackgroundOpacity2,
                                     ),
                                   ),
@@ -828,7 +828,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 /// Builds a tile representation of the [CallController.chat].
 Widget _chat(BuildContext context, CallController c) {
   return Obx(() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles();
 
     final RxChat? chat = c.chat.value;
 
@@ -866,14 +866,14 @@ Widget _chat(BuildContext context, CallController c) {
                                 chat?.title.value ?? 'dot'.l10n * 3,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: style.headlineLarge.copyWith(
+                                style: fonts.headlineLarge!.copyWith(
                                   color: style.colors.onPrimary,
                                 ),
                               ),
                             ),
                             Text(
                               c.duration.value.hhMmSs(),
-                              style: style.labelLarge.copyWith(
+                              style: fonts.labelLarge!.copyWith(
                                 color: style.colors.onPrimary,
                               ),
                             ),
@@ -893,7 +893,7 @@ Widget _chat(BuildContext context, CallController c) {
                                         .status
                                         ?.val ??
                                     'label_online'.l10n,
-                                style: style.labelLarge.copyWith(
+                                style: fonts.labelLarge!.copyWith(
                                   color: style.colors.onPrimary,
                                 ),
                               ),
@@ -903,7 +903,7 @@ Widget _chat(BuildContext context, CallController c) {
                                   'a': '${actualMembers.length}',
                                   'b': '${c.chat.value?.members.length}',
                                 }),
-                                style: style.labelLarge.copyWith(
+                                style: fonts.labelLarge!.copyWith(
                                   color: style.colors.onPrimary,
                                 ),
                               ),

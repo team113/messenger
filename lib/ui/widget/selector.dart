@@ -112,7 +112,7 @@ class Selector<T> extends StatefulWidget {
       );
     }
 
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     if (isMobile) {
       return showModalBottomSheet(
@@ -180,7 +180,7 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   /// Returns mobile design of this [Selector].
   Widget _mobile(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return Container(
       height: 12 + 3 + 12 + 14 * 2 + min(widget.items.length * 38, 330) + 12,
@@ -293,7 +293,7 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   /// Returns desktop design of this [Selector].
   Widget _desktop(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, _) = Theme.of(context).styles();
 
     return LayoutBuilder(builder: (context, constraints) {
       double? left, right;
