@@ -650,7 +650,7 @@ class ContactsTabView extends StatelessWidget {
                 'btn_cancel'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: style.bodyLarge.copyWith(fontWeight: FontWeight.w300),
+                style: style.titleLarge,
               ),
               onPressed: c.toggleSelecting,
               shadows: shadows,
@@ -666,11 +666,10 @@ class ContactsTabView extends StatelessWidget {
                       .l10nfmt({'count': c.selectedContacts.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: style.bodyLarge.copyWith(
+                  style: style.titleLarge.copyWith(
                     color: c.selectedContacts.isEmpty
                         ? style.colors.onBackground
                         : style.colors.onPrimary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 onPressed: c.selectedContacts.isEmpty

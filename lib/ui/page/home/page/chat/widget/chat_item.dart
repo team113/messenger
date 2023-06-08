@@ -1162,7 +1162,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: style.titleLarge.copyWith(),
+                    style: style.bodyLarge,
                   ),
                 ),
                 if (time != null) ...[
@@ -1358,7 +1358,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: style.titleMedium.copyWith(
+                    style: style.bodyMedium.copyWith(
                       color: style.colors.secondary,
                     ),
                   ),
@@ -1421,7 +1421,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: style.titleLarge)),
+          Flexible(child: Text(title, style: style.bodyLarge)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -1473,7 +1473,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             snapshot.data?.user.value.name?.val ??
                                 snapshot.data?.user.value.num.val ??
                                 'dot'.l10n * 3,
-                            style: style.titleLarge.copyWith(color: color),
+                            style: style.bodyLarge.copyWith(color: color),
                           ),
                         ),
                       ],

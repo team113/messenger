@@ -73,51 +73,35 @@ class Themes {
 
     final ThemeData theme = ThemeData.light();
 
-    /// Display - это крупный, яркий и привлекательный шрифт, который обычно
-    /// используется для заголовков на главном экране приложения или на
-    /// титульной странице.
-    ///
-    /// Headline - это шрифт, который обычно используется для названий и
-    /// заголовков на экранах с контентом, таких как страницы продуктов,
-    /// статей или главных разделов в приложении.
-    ///
-    /// Label - это шрифт, который обычно используется для меток и кратких
-    /// описаний элементов интерфейса, таких как кнопок, полей ввода и
-    /// переключателей.
-    ///
-    /// Title - это шрифт, который обычно используется для названий разделов
-    /// в меню или на страницах, чтобы помочь пользователям быстро
-    /// ориентироваться в приложении.
-    ///
-    /// Body - это шрифт, который обычно используется для основного текстового
-    /// контента, такого как описания продуктов, подробного описания функций
-    /// или инструкции для использования.
     ///
     return theme.copyWith(
         extensions: [
           Style(
             ///---------///
-            ///
-            displayLarge: textStyle.copyWith(fontSize: 27),
+            /// 1 use in CallTitle
+            displayLarge: textStyle.copyWith(
+              fontSize: 27,
+              fontWeight: FontWeight.bold,
+            ),
 
-            /// Messenger(Страница авторизации)
+            /// 1 use in AuthPage
             displayMedium: textStyle.copyWith(
               fontWeight: FontWeight.w300,
               fontSize: 24,
             ),
 
-            ///
+            /// 0 uses
             displaySmall:
                 textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 18),
 
-            ///
+            /// 0 uses
             headlineLarge:
                 textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
 
-            ///
+            /// 7 uses
             headlineMedium: textStyle.copyWith(fontSize: 18),
 
-            ///
+            /// A lot uses
             headlineSmall: textStyle.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.w300,
@@ -126,29 +110,28 @@ class Themes {
             ///
             titleLarge: textStyle.copyWith(
               fontSize: 17,
-              fontWeight: FontWeight.normal,
+              fontWeight: FontWeight.w300,
             ),
 
-            ///
+            /// 6 uses, can be replaced to bodyMedium
             titleMedium: textStyle.copyWith(fontSize: 15),
 
-            /// by Gapopa (Страница авторизации)
+            ///
             titleSmall: textStyle.copyWith(
               fontSize: 15,
               fontWeight: FontWeight.w300,
             ),
 
-            /// таймер звонка на мобилке
-            /// статус пользователя в звонке на мобилке
+            ///
             labelLarge: textStyle.copyWith(fontSize: 15),
 
-            /// стейт звонка на мобилке
+            ///
             labelMedium: textStyle.copyWith(fontSize: 13),
 
-            /// description кнопок на мобилке в звонке
+            ///
             labelSmall: textStyle.copyWith(fontSize: 11),
 
-            /// Тексты на кнопках (Страница авторизации)
+            ///
             bodyLarge: textStyle.copyWith(fontSize: 17),
 
             ///

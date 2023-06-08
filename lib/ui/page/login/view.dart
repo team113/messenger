@@ -58,9 +58,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: style.headlineMedium.copyWith(
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: style.headlineSmall,
                   ),
                 ),
               );
@@ -97,9 +95,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: style.headlineMedium.copyWith(
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: style.headlineSmall,
                   ),
                 ),
               );

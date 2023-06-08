@@ -58,9 +58,7 @@ class BlacklistView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_users_count'.l10nfmt({'count': c.blacklist.length}),
-                    style: style.headlineMedium.copyWith(
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: style.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
                 ),

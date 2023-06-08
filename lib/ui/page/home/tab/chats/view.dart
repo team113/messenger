@@ -895,9 +895,7 @@ class ChatsTabView extends StatelessWidget {
                   'btn_cancel'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: style.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w300,
-                  ),
+                  style: style.titleLarge,
                 ),
                 onPressed: c.closeGroupCreating,
                 color: style.colors.onPrimary,
@@ -908,9 +906,8 @@ class ChatsTabView extends StatelessWidget {
                   'btn_create_group'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: style.bodyLarge.copyWith(
+                  style: style.titleLarge.copyWith(
                     color: style.colors.onPrimary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 onPressed: c.createGroup,
@@ -957,7 +954,7 @@ class ChatsTabView extends StatelessWidget {
                 'btn_cancel'.l10n,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: style.bodyLarge.copyWith(fontWeight: FontWeight.w300),
+                style: style.titleLarge,
               ),
               onPressed: c.toggleSelecting,
               shadows: shadows,
@@ -972,11 +969,10 @@ class ChatsTabView extends StatelessWidget {
                   'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: style.bodyLarge.copyWith(
+                  style: style.titleLarge.copyWith(
                     color: c.selectedChats.isEmpty
                         ? style.colors.onBackground
                         : style.colors.onPrimary,
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 onPressed: c.selectedChats.isEmpty
