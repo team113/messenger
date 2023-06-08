@@ -491,9 +491,8 @@ class _DesktopControlsState extends State<DesktopControls>
 
     return Text(
       '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: style.labelMedium.copyWith(
+      style: style.headlineSmall.copyWith(
         color: style.colors.onPrimary,
-        fontWeight: FontWeight.normal,
       ),
     );
   }

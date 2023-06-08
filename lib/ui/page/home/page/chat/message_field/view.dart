@@ -878,9 +878,8 @@ class MessageFieldView extends StatelessWidget {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.bodySmall.copyWith(
+                style: style.headlineSmall.copyWith(
                   color: style.colors.secondary,
-                  fontWeight: FontWeight.normal,
                 ),
               ),
             ),

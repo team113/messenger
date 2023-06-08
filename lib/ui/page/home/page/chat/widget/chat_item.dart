@@ -1139,7 +1139,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       overflow: TextOverflow.ellipsis,
                       style: style.labelLarge.copyWith(
                         color: style.colors.secondary,
-                        fontWeight: FontWeight.w300,
                       ),
                     ).fixedDigits(),
                   ),
@@ -1325,9 +1324,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: style.labelLarge.copyWith(
+                    style: style.titleMedium.copyWith(
                       color: style.colors.secondary,
-                      fontWeight: FontWeight.normal,
                     ),
                   ),
                 ),
@@ -1341,13 +1339,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (item.text != null && item.text!.val.isNotEmpty) {
         content = SelectionContainer.disabled(
-          child: Text(
-            item.text!.val,
-            maxLines: 1,
-            style: style.labelLarge.copyWith(
-              fontWeight: FontWeight.normal,
-            ),
-          ),
+          child: Text(item.text!.val, maxLines: 1, style: style.titleMedium),
         );
       }
     } else if (item is ChatCallQuote) {

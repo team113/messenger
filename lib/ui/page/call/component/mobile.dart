@@ -358,9 +358,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 children: [
                                   Text(
                                     state,
-                                    style: style.labelMedium.copyWith(
+                                    style: style.headlineSmall.copyWith(
                                       color: style.colors.onBackgroundOpacity2,
-                                      fontWeight: FontWeight.normal,
                                     ),
                                   ),
                                   if (withDots) const AnimatedDots(),

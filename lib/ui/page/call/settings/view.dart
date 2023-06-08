@@ -111,9 +111,8 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: style.labelLarge.copyWith(
+                            style: style.titleMedium.copyWith(
                               color: style.colors.primary,
-                              fontWeight: FontWeight.normal,
                             ),
                           );
                         }),
@@ -147,9 +146,8 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: style.labelLarge.copyWith(
+                            style: style.titleMedium.copyWith(
                               color: style.colors.primary,
-                              fontWeight: FontWeight.normal,
                             ),
                           );
                         }),
@@ -183,9 +181,8 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: style.labelLarge.copyWith(
+                            style: style.titleMedium.copyWith(
                               color: style.colors.primary,
-                              fontWeight: FontWeight.normal,
                             ),
                           );
                         }),
@@ -206,9 +203,8 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: style.labelLarge.copyWith(
+                          style: style.titleMedium.copyWith(
                             color: style.colors.primary,
-                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),

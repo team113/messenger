@@ -69,9 +69,8 @@ class _AnimatedDotsState extends State<AnimatedDots> {
       width: 13,
       child: Text(
         'dot'.l10n * _count,
-        style: style.labelLarge.copyWith(
+        style: style.titleMedium.copyWith(
           color: style.colors.onPrimary,
-          fontWeight: FontWeight.normal,
         ),
       ),
     );

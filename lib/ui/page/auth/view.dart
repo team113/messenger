@@ -72,7 +72,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: style.titleSmall.copyWith(color: style.colors.secondary),
+            style: style.labelLarge.copyWith(color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,

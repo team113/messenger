@@ -73,85 +73,57 @@ class Themes {
 
     final ThemeData theme = ThemeData.light();
 
-    ///
     return theme.copyWith(
         extensions: [
           Style(
-            ///---------///
-            /// 1 use in CallTitle
             displayLarge: textStyle.copyWith(
               fontSize: 27,
               fontWeight: FontWeight.bold,
             ),
-
-            /// 1 use in AuthPage
             displayMedium: textStyle.copyWith(
               fontWeight: FontWeight.w300,
               fontSize: 24,
             ),
-
-            /// 0 uses
-            displaySmall:
-                textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 18),
-
-            /// 7 uses
+            displaySmall: textStyle.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+            ),
             headlineLarge: textStyle.copyWith(fontSize: 18),
-
-            /// A lot uses
             headlineMedium: textStyle.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.w300,
             ),
-
-            /// 0 uses
-            headlineSmall: textStyle.copyWith(),
-
-            /// A lot uses
+            headlineSmall: textStyle.copyWith(fontSize: 13),
             titleLarge: textStyle.copyWith(
               fontSize: 17,
               fontWeight: FontWeight.w300,
             ),
-
-            /// 0 uses
             titleMedium: textStyle.copyWith(fontSize: 15),
-
-            /// 1 uses
             titleSmall: textStyle.copyWith(
               fontSize: 15,
-              fontWeight: FontWeight.w300,
+              fontWeight: FontWeight.bold,
             ),
-
-            /// A lot uses
             labelLarge: textStyle.copyWith(
               fontSize: 15,
               fontWeight: FontWeight.w300,
             ),
-
-            /// A lot uses
             labelMedium: textStyle.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
-
-            /// A lot uses
-            labelSmall: textStyle.copyWith(fontSize: 11),
-
-            /// A lot uses
+            labelSmall: textStyle.copyWith(
+              fontSize: 11,
+              fontWeight: FontWeight.w300,
+            ),
             bodyLarge: textStyle.copyWith(fontSize: 17),
-
-            /// A lot uses
             bodyMedium: textStyle.copyWith(
               fontSize: 15,
               fontWeight: FontWeight.w300,
             ),
-
-            /// A lot uses
             bodySmall: textStyle.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
-
-            ///---------///
             colors: colors,
             barrierColor: colors.onBackgroundOpacity50,
             smallestBody: textStyle.copyWith(fontSize: 11),

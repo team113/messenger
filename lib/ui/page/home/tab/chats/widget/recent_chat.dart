@@ -817,13 +817,12 @@ class RecentChatTile extends StatelessWidget {
             rxChat.unreadCount.value > 99
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
-            style: style.labelSmall.copyWith(
+            style: style.displaySmall.copyWith(
               color: muted
                   ? inverted
                       ? style.colors.secondary
                       : style.colors.onPrimary
                   : style.colors.onPrimary,
-              fontWeight: FontWeight.w600,
             ),
             maxLines: 1,
             overflow: TextOverflow.clip,

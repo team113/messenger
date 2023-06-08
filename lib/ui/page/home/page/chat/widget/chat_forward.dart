@@ -336,9 +336,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           child: Text(
                             'label_forwarded_messages'
                                 .l10nfmt({'count': widget.forwards.length}),
-                            style: style.bodySmall.copyWith(
+                            style: style.headlineSmall.copyWith(
                               color: style.colors.secondary,
-                              fontWeight: FontWeight.normal,
                             ),
                           ),
                         ),

@@ -254,7 +254,6 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 color: isDarkMode
                     ? style.colors.onPrimary
                     : style.colors.onBackground,
-                fontWeight: FontWeight.w300,
               ),
             ),
             const SizedBox(height: 16),

@@ -593,7 +593,6 @@ class ChatInfoView extends StatelessWidget {
                       'btn_leave'.l10n,
                       style: style.labelLarge.copyWith(
                         color: style.colors.primary,
-                        fontWeight: FontWeight.normal,
                       ),
                     ),
                   )

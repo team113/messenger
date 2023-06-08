@@ -77,9 +77,7 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: style.headlineMedium.copyWith(
-                                fontWeight: FontWeight.w300,
-                              ),
+                              style: style.headlineMedium,
                             ),
                             Obx(() {
                               return Text(

@@ -694,10 +694,7 @@ class ContactsTabView extends StatelessWidget {
       'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
-        TextSpan(
-          text: contact.contact.value.name.val,
-          style: style.labelSmall.copyWith(fontWeight: FontWeight.w300),
-        ),
+        TextSpan(text: contact.contact.value.name.val, style: style.labelSmall),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
     );
