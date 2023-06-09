@@ -115,17 +115,21 @@ class CallWorker extends DisposableService {
     _initWebUtils();
 
     bool wakelock = _callService.calls.isNotEmpty;
-    if (wakelock) {
+    if (wakelock && !PlatformUtils.isLinux) {
       Wakelock.enable().onError((_, __) => false);
     }
 
     _subscription = _callService.calls.changes.listen((event) async {
-      if (!wakelock && _callService.calls.isNotEmpty) {
-        wakelock = true;
-        Wakelock.enable().onError((_, __) => false);
-      } else if (wakelock && _callService.calls.isEmpty) {
-        wakelock = false;
-        Wakelock.disable().onError((_, __) => false);
+      // TODO: Wait for Linux `wakelock` implementation to be done and merged:
+      //       https://github.com/creativecreatorormaybenot/wakelock/pull/186
+      if (!PlatformUtils.isLinux) {
+        if (!wakelock && _callService.calls.isNotEmpty) {
+          wakelock = true;
+          Wakelock.enable().onError((_, __) => false);
+        } else if (wakelock && _callService.calls.isEmpty) {
+          wakelock = false;
+          Wakelock.disable().onError((_, __) => false);
+        }
       }
 
       switch (event.op) {

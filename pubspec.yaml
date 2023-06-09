@@ -11,7 +11,6 @@ dependencies:
   async: ^2.10.0
   audioplayers: ^4.0.1
   back_button_interceptor: ^6.0.2
-  badges: ^3.1.1
   callkeep: ^0.3.3
   carousel_slider: ^4.2.1
   chewie: ^1.5.0

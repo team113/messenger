@@ -38,6 +38,8 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -46,7 +48,6 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'message_field/view.dart';
 import 'widget/back_button.dart';
-import 'widget/blocked_field.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
@@ -472,7 +473,7 @@ class _ChatViewState extends State<ChatView>
                       );
                     }),
                     bottomNavigationBar: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                      padding: Insets.dense.copyWith(top: 0),
                       child:
                           NotificationListener<SizeChangedLayoutNotification>(
                         onNotification: (l) {
@@ -828,7 +829,7 @@ class _ChatViewState extends State<ChatView>
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
     if (c.chat?.blacklisted == true) {
-      return BlockedField(onPressed: c.unblacklist);
+      return SafeArea(child: UnblockButton(c.unblacklist));
     }
 
     return Obx(() {
