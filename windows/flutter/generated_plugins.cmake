@@ -6,11 +6,16 @@ list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   connectivity_plus
   desktop_drop
+  flutter_meedu_videoplayer
+  fullscreen_window
   medea_flutter_webrtc
   medea_jason
+  media_kit_libs_windows_video
+  media_kit_video
   pasteboard
   permission_handler_windows
   rive_common
+  screen_brightness_windows
   screen_retriever
   sentry_flutter
   share_plus
@@ -20,6 +25,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
+  media_kit_native_event_loop
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

@@ -27,6 +27,7 @@ import 'package:callkeep/callkeep.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -58,6 +59,12 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
+
+  // TODO: iOS should use `video_player`:
+  //       https://github.com/flutter/flutter/issues/56665
+  //
+  // Don't await to override the [windowManager] defaults.
+  initMeeduPlayer(iosUseMediaKit: true);
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {

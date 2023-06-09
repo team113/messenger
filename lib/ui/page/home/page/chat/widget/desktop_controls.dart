@@ -26,24 +26,28 @@ import 'package:chewie/src/helpers/utils.dart';
 import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
-import 'package:video_player/video_player.dart';
 
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
-import 'progress_bar.dart';
+import 'video_progress_bar.dart';
+import 'volume_bar.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
   const DesktopControls({
     Key? key,
+    required this.controller,
     this.onClose,
     this.toggleFullscreen,
     this.isFullscreen,
     this.showInterfaceFor,
   }) : super(key: key);
+
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
+  final MeeduPlayerController controller;
 
   /// Callback, called when a close video action is fired.
   final VoidCallback? onClose;
@@ -67,15 +71,6 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Height of the bottom controls bar.
   final _barHeight = 48.0 * 1.5;
 
-  /// [VideoPlayerController] controlling the video playback.
-  late VideoPlayerController _controller;
-
-  /// [ChewieController] controlling the [Chewie] functionality.
-  late ChewieController _chewieController;
-
-  /// [ChewieController], previously assigned to the [_chewieController].
-  ChewieController? _oldController;
-
   /// Indicator whether user interface should be hidden or not.
   bool _hideStuff = true;
 
@@ -90,9 +85,6 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// [OverlayEntry] of the volume popup bar.
   OverlayEntry? _volumeEntry;
-
-  /// Latest [VideoPlayerValue] value.
-  late VideoPlayerValue _latestValue;
 
   /// Latest volume value.
   double? _latestVolume;
@@ -109,51 +101,40 @@ class _DesktopControlsState extends State<DesktopControls>
   /// [Timer] for showing user interface for a while after fullscreen toggle.
   Timer? _showAfterExpandCollapseTimer;
 
+  /// [StreamSubscription] to the [MeeduPlayerController.playerStatus] changes.
+  StreamSubscription? _statusSubscription;
+
   /// Indicator whether the video progress bar is being dragged.
   bool _dragging = false;
 
   @override
   void initState() {
-    // Future.delayed(
-    //   Duration.zero,
-    //   () => _startInterfaceTimer(widget.showInterfaceFor),
-    // );
+    _statusSubscription =
+        widget.controller.playerStatus.status.stream.listen((event) {
+      if (event == PlayerStatus.paused) {
+        _startInterfaceTimer(3.seconds);
+      }
+    });
+
+    Future.delayed(
+      Duration.zero,
+      () => _startInterfaceTimer(widget.showInterfaceFor),
+    );
     super.initState();
   }
 
   @override
   void dispose() {
-    _dispose();
+    _statusSubscription?.cancel();
+    _hideTimer?.cancel();
+    _initTimer?.cancel();
+    _showAfterExpandCollapseTimer?.cancel();
     _volumeEntry?.remove();
     super.dispose();
   }
 
   @override
-  void didChangeDependencies() {
-    _chewieController = ChewieController.of(context);
-    _controller = _chewieController.videoPlayerController;
-
-    if (_oldController != _chewieController) {
-      _oldController = _chewieController;
-      _dispose();
-      _initialize();
-    }
-
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
-
-    if (_latestValue.hasError) {
-      return _chewieController.errorBuilder
-              ?.call(context, _controller.value.errorDescription!) ??
-          Center(
-            child: Icon(Icons.error, color: style.colors.onPrimary, size: 42),
-          );
-    }
-
     return MouseRegion(
       onHover: (_) => _cancelAndRestartTimer(),
       child: GestureDetector(
@@ -166,37 +147,34 @@ class _DesktopControlsState extends State<DesktopControls>
               behavior: HitTestBehavior.deferToChild,
               onTap: widget.onClose,
               child: Center(
-                child: AspectRatio(
-                  aspectRatio: _chewieController.aspectRatio ??
-                      _controller.value.aspectRatio,
-                  // Single tap inside [AspectRatio] toggles play/pause.
-                  child: Listener(
+                child: Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: (e) {
+                    if (e.buttons & kPrimaryButton != 0 &&
+                        _volumeEntry == null) {
+                      _playPause();
+                    }
+                  },
+                  // Double tap inside [AspectRatio] toggles fullscreen.
+                  child: GestureDetector(
                     behavior: HitTestBehavior.translucent,
-                    onPointerDown: (e) {
-                      if (e.buttons & kPrimaryButton != 0 &&
-                          _volumeEntry == null) {
-                        _playPause();
-                      }
-                    },
-                    // Double tap inside [AspectRatio] toggles fullscreen.
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {},
-                      onDoubleTap: _onExpandCollapse,
-                      // Required for the [GestureDetector]s to take the full
-                      // width and height.
-                      child: const SizedBox(
-                        width: double.infinity,
-                        height: double.infinity,
-                      ),
+                    onTap: () {},
+                    onDoubleTap: _onExpandCollapse,
+                    // Required for the [GestureDetector]s to take the full
+                    // width and height.
+                    child: const SizedBox(
+                      width: double.infinity,
+                      height: double.infinity,
                     ),
                   ),
                 ),
               ),
             ),
-            _latestValue.isBuffering
-                ? const Center(child: CustomProgressIndicator())
-                : _buildHitArea(),
+            RxBuilder((_) {
+              return widget.controller.isBuffering.value
+                  ? const Center(child: CustomProgressIndicator())
+                  : _buildHitArea();
+            }),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [_buildBottomBar(context)],
@@ -229,33 +207,9 @@ class _DesktopControlsState extends State<DesktopControls>
     );
   }
 
-  /// Initializes this [DesktopControls].
-  Future<void> _initialize() async {
-    _controller.addListener(_updateState);
-    _updateState();
-
-    if (_controller.value.isPlaying || _chewieController.autoPlay) {
-      _startHideTimer();
-    }
-
-    if (_chewieController.showControlsOnInitialize) {
-      _initTimer = Timer(const Duration(milliseconds: 200), () {
-        setState(() => _hideStuff = false);
-      });
-    }
-  }
-
-  /// Disposes this [DesktopControls].
-  void _dispose() {
-    _controller.removeListener(_updateState);
-    _hideTimer?.cancel();
-    _initTimer?.cancel();
-    _showAfterExpandCollapseTimer?.cancel();
-  }
-
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
@@ -279,13 +233,13 @@ class _DesktopControlsState extends State<DesktopControls>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(width: 7),
-                  _buildPlayPause(_controller),
+                  _buildPlayPause(widget.controller),
                   const SizedBox(width: 12),
                   _buildPosition(iconColor),
                   const SizedBox(width: 12),
                   _buildProgressBar(),
                   const SizedBox(width: 12),
-                  _buildMuteButton(_controller),
+                  _buildMuteButton(widget.controller),
                   const SizedBox(width: 12),
                   _buildExpandButton(),
                   const SizedBox(width: 12),
@@ -300,7 +254,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Obx(
       () => GestureDetector(
@@ -323,44 +277,48 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final bool isFinished = _latestValue.position >= _latestValue.duration;
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    return Center(
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        child: _controller.value.isPlaying
-            ? Container()
-            : AnimatedOpacity(
-                opacity:
-                    !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 300),
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: style.colors.onBackgroundOpacity13,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    iconSize: 32,
-                    icon: isFinished
-                        ? Icon(Icons.replay, color: style.colors.onPrimary)
-                        : AnimatedPlayPause(
-                            color: style.colors.onPrimary,
-                            playing: _controller.value.isPlaying,
-                          ),
-                    onPressed: _playPause,
+    return RxBuilder((_) {
+      final bool isFinished =
+          widget.controller.position.value >= widget.controller.duration.value;
+
+      return Center(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: widget.controller.playerStatus.playing
+              ? Container()
+              : AnimatedOpacity(
+                  opacity:
+                      !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: style.colors.onBackgroundOpacity13,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      iconSize: 32,
+                      icon: isFinished
+                          ? Icon(Icons.replay, color: style.colors.onPrimary)
+                          : AnimatedPlayPause(
+                              color: style.colors.onPrimary,
+                              playing: widget.controller.playerStatus.playing,
+                            ),
+                      onPressed: _playPause,
+                    ),
                   ),
                 ),
-              ),
-      ),
-    );
+        ),
+      );
+    });
   }
 
   /// Returns the play/pause button.
-  Widget _buildPlayPause(VideoPlayerController controller) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+  Widget _buildPlayPause(MeeduPlayerController controller) {
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Transform.translate(
       offset: const Offset(0, 0),
@@ -369,19 +327,21 @@ class _DesktopControlsState extends State<DesktopControls>
         child: Container(
           height: _barHeight,
           color: style.colors.transparent,
-          child: AnimatedPlayPause(
-            size: 21,
-            playing: controller.value.isPlaying,
-            color: style.colors.onPrimary,
-          ),
+          child: RxBuilder((_) {
+            return AnimatedPlayPause(
+              size: 21,
+              playing: controller.playerStatus.playing,
+              color: style.colors.onPrimary,
+            );
+          }),
         ),
       ),
     );
   }
 
   /// Returns the mute/unmute button with a volume overlay above it.
-  Widget _buildMuteButton(VideoPlayerController controller) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+  Widget _buildMuteButton(MeeduPlayerController controller) {
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return MouseRegion(
       onEnter: (_) {
@@ -389,8 +349,8 @@ class _DesktopControlsState extends State<DesktopControls>
           Offset offset = Offset.zero;
           final keyContext = _volumeKey.currentContext;
           if (keyContext != null) {
-            final box = keyContext.findRenderObject() as RenderBox?;
-            offset = box?.localToGlobal(Offset.zero) ?? Offset.zero;
+            final box = keyContext.findRenderObject() as RenderBox;
+            offset = box.localToGlobal(Offset.zero);
           }
 
           _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
@@ -401,10 +361,10 @@ class _DesktopControlsState extends State<DesktopControls>
       child: GestureDetector(
         onTap: () {
           _cancelAndRestartTimer();
-          if (_latestValue.volume == 0) {
+          if (widget.controller.volume.value == 0) {
             controller.setVolume(_latestVolume ?? 0.5);
           } else {
-            _latestVolume = controller.value.volume;
+            _latestVolume = controller.volume.value;
             controller.setVolume(0.0);
           }
         },
@@ -412,11 +372,15 @@ class _DesktopControlsState extends State<DesktopControls>
           child: SizedBox(
             key: _volumeKey,
             height: _barHeight,
-            child: Icon(
-              _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              color: style.colors.onPrimary,
-              size: 18,
-            ),
+            child: RxBuilder((_) {
+              return Icon(
+                widget.controller.volume.value > 0
+                    ? Icons.volume_up
+                    : Icons.volume_off,
+                color: style.colors.onPrimary,
+                size: 18,
+              );
+            }),
           ),
         ),
       ),
@@ -425,7 +389,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Stack(
       children: [
@@ -465,8 +429,15 @@ class _DesktopControlsState extends State<DesktopControls>
                               horizontal: 10,
                             ),
                             child: VideoVolumeBar(
-                              _chewieController.videoPlayerController,
-                              colors: _chewieController.materialProgressColors!,
+                              widget.controller,
+                              colors: ChewieProgressColors(
+                                playedColor: style.colors.primary,
+                                handleColor: style.colors.primary,
+                                bufferedColor:
+                                    style.colors.background.withOpacity(0.5),
+                                backgroundColor:
+                                    style.colors.secondary.withOpacity(0.5),
+                              ),
                             ),
                           ),
                         ),
@@ -485,24 +456,26 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    final position = _latestValue.position;
-    final duration = _latestValue.duration;
+    return RxBuilder((_) {
+      final position = widget.controller.position.value;
+      final duration = widget.controller.duration.value;
 
-    return Text(
-      '${formatDuration(position)} / ${formatDuration(duration)}',
-      style: TextStyle(fontSize: 14.0, color: style.colors.onPrimary),
-    );
+      return Text(
+        '${formatDuration(position)} / ${formatDuration(duration)}',
+        style: TextStyle(fontSize: 14.0, color: style.colors.onPrimary),
+      );
+    });
   }
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Expanded(
-      child: VideoProgressBar(
-        _controller,
+      child: ProgressBar(
+        widget.controller,
         barHeight: 2,
         handleHeight: 6,
         drawShadow: false,
@@ -514,13 +487,12 @@ class _DesktopControlsState extends State<DesktopControls>
           setState(() => _dragging = false);
           _startHideTimer();
         },
-        colors: _chewieController.materialProgressColors ??
-            ChewieProgressColors(
-              playedColor: style.colors.primary,
-              handleColor: style.colors.primary,
-              bufferedColor: style.colors.background.withOpacity(0.5),
-              backgroundColor: style.colors.secondary.withOpacity(0.5),
-            ),
+        colors: ChewieProgressColors(
+          playedColor: style.colors.primary,
+          handleColor: style.colors.primary,
+          bufferedColor: style.colors.background.withOpacity(0.5),
+          backgroundColor: style.colors.secondary.withOpacity(0.5),
+        ),
       ),
     );
   }
@@ -542,24 +514,19 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Toggles play and pause of a [_controller]. Starts video from the start if
   /// the playback is done.
   void _playPause() {
-    final isFinished = _latestValue.position >= _latestValue.duration;
+    final isFinished =
+        widget.controller.position.value >= widget.controller.duration.value;
 
-    if (_controller.value.isPlaying) {
+    if (widget.controller.playerStatus.playing) {
       _cancelAndRestartTimer();
-      _controller.pause();
+      widget.controller.pause();
     } else {
       _cancelAndRestartTimer();
 
-      if (!_controller.value.isInitialized) {
-        _controller.initialize().then((_) {
-          _controller.play();
-        });
-      } else {
-        if (isFinished) {
-          _controller.seekTo(const Duration());
-        }
-        _controller.play();
+      if (isFinished) {
+        widget.controller.seekTo(const Duration());
       }
+      widget.controller.play();
     }
 
     setState(() {});
@@ -589,15 +556,5 @@ class _DesktopControlsState extends State<DesktopControls>
     _hideTimer = Timer(duration ?? 1.seconds, () {
       setState(() => _hideStuff = true);
     });
-  }
-
-  /// Invokes [setState] with a new [_latestValue] if [mounted].
-  void _updateState() {
-    if (!mounted) return;
-    setState(() => _latestValue = _controller.value);
-
-    if (!_controller.value.isPlaying) {
-      _startInterfaceTimer(3.seconds);
-    }
   }
 }
