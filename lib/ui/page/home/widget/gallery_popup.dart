@@ -160,7 +160,7 @@ class GalleryPopup extends StatefulWidget {
       barrierDismissible: false,
       barrierColor: style.colors.transparent,
       transitionDuration: Duration.zero,
-      useRootNavigator: PlatformUtils.isMobile ? false : true,
+      useRootNavigator: context.isMobile ? false : true,
     );
   }
 

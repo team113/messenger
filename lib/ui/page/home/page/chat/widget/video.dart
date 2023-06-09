@@ -156,7 +156,9 @@ class _VideoState extends State<Video> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'err_unknown'.l10n,
+                          _controller.errorText == null
+                              ? 'err_unknown'.l10n
+                              : _controller.errorText!,
                           style: TextStyle(color: style.colors.onPrimary),
                           textAlign: TextAlign.center,
                         ),
@@ -189,8 +191,8 @@ class _VideoState extends State<Video> {
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    // [MeeduPlayerController.setDataSource] should be awaited.
-    // Needs https://github.com/zezo357/flutter_meedu_videoplayer/issues/102
+    // TODO: [MeeduPlayerController.setDataSource] should be awaited.
+    //       https://github.com/zezo357/flutter_meedu_videoplayer/issues/102
     _controller.setDataSource(
       DataSource(type: DataSourceType.network, source: widget.url),
     );

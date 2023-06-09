@@ -26,7 +26,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Unread chats badge on favicon. ([#403])
 - Desktop:
-    - Video playback. ([#445], [#438])
+    - Video support. ([#445], [#438])
 
 ### Changed
 

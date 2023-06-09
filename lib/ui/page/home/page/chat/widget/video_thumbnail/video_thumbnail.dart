@@ -104,7 +104,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     showLogs: kDebugMode,
   );
 
-  /// Temporary file contains [VideoThumbnail.bytes].
+  // TODO: Should be kept in a cache file service.
+  /// Temporary file containing the [VideoThumbnail.bytes].
   File? _file;
 
   /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
@@ -199,7 +200,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       bytes ??= FIFOCache.get(widget.checksum!);
     }
 
-    DataSource source;
+    final DataSource source;
 
     if (bytes != null) {
       if (PlatformUtils.isWeb) {
@@ -207,9 +208,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       } else {
         final String checksum =
             widget.checksum ?? sha256.convert(bytes).toString();
-        // TODO: [_file] should be saved to the cache.
-        _file = File('${(await getTemporaryDirectory()).path}/$checksum');
 
+        _file = File('${(await getTemporaryDirectory()).path}/$checksum');
         if (!_file!.existsSync() || _file!.lengthSync() != bytes.length) {
           _file!.writeAsBytesSync(bytes);
         }
@@ -220,8 +220,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       source = DataSource(type: DataSourceType.network, source: widget.url);
     }
 
-    // [MeeduPlayerController.setDataSource] should be awaited.
-    // Needs https://github.com/zezo357/flutter_meedu_videoplayer/issues/102
+    // TODO: [MeeduPlayerController.setDataSource] should be awaited.
+    //       https://github.com/zezo357/flutter_meedu_videoplayer/issues/102
     _controller.setDataSource(source, autoplay: false);
 
     if (widget.url != null && bytes == null) {
@@ -234,9 +234,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
         () async {
           try {
             await PlatformUtils.dio.head(widget.url!);
+
+            // Reinitialize the [_controller] if an unexpected error was
+            // thrown.
             if (shouldReload) {
-              // Reinitialize the [_controller] if an unexpected error was
-              // thrown.
               _controller.setDataSource(
                 DataSource(type: DataSourceType.network, source: widget.url),
                 autoplay: false,

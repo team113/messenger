@@ -1029,6 +1029,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.11"
+  media_kit_libs_ios_video:
+    dependency: "direct main"
+    description:
+      name: media_kit_libs_ios_video
+      sha256: "28c6ddd5ed43263641293832c8d1fb3f24af81b4eba0b61d6da9bedadbf2e1b1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   media_kit_libs_linux:
     dependency: transitive
     description:

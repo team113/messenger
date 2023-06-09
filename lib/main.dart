@@ -57,7 +57,12 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
-  initMeeduPlayer();
+
+  // TODO: iOS should use `video_player`:
+  //       https://github.com/flutter/flutter/issues/56665
+  //
+  // Don't await to override the [windowManager] defaults.
+  initMeeduPlayer(iosUseMediaKit: true);
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
