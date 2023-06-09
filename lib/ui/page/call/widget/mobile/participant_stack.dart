@@ -17,7 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../participant.dart';
+import '../participant/decorator.dart';
+import '../participant/overlay.dart';
+import '../participant/widget.dart';
 import '/ui/page/call/controller.dart';
 
 /// [Stack] of widgets to display a [Participant] entity participating
