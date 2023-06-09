@@ -54,7 +54,7 @@ class RecentChatTile extends StatelessWidget {
     this.selected = false,
     this.trailing,
     this.getUser,
-    this.inCall,
+    this.callDisplayed,
     this.onLeave,
     this.onHide,
     this.onDrop,
@@ -91,7 +91,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Callback, called to check whether this device of the currently
   /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
-  final bool Function()? inCall;
+  final bool Function()? callDisplayed;
 
   /// Callback, called when this [rxChat] leave action is triggered.
   final void Function()? onLeave;
@@ -852,9 +852,9 @@ class RecentChatTile extends StatelessWidget {
 
       // Returns a rounded rectangular button representing an [OngoingCall]
       // associated action.
-      Widget button(bool active) {
+      Widget button(bool displayed) {
         return DecoratedBox(
-          key: active
+          key: displayed
               ? const Key('JoinCallButton')
               : const Key('DropCallButton'),
           position: DecorationPosition.foreground,
@@ -866,16 +866,16 @@ class RecentChatTile extends StatelessWidget {
             elevation: 0,
             type: MaterialType.button,
             borderRadius: BorderRadius.circular(20),
-            color: active ? style.colors.dangerColor : style.colors.primary,
+            color: displayed ? style.colors.dangerColor : style.colors.primary,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: active ? onDrop : onJoin,
+              onTap: displayed ? onDrop : onJoin,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
                 child: Row(
                   children: [
                     Icon(
-                      active ? Icons.call_end : Icons.call,
+                      displayed ? Icons.call_end : Icons.call,
                       size: 16,
                       color: style.colors.onPrimary,
                     ),
@@ -908,7 +908,7 @@ class RecentChatTile extends StatelessWidget {
         padding: const EdgeInsets.only(left: 5),
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
-          child: button(inCall?.call() == true),
+          child: button(callDisplayed?.call() == true),
         ),
       );
     });

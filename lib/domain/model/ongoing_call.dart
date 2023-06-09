@@ -354,22 +354,24 @@ class OngoingCall {
         _pickVideoDevice(previous, removed);
       });
 
-      _displaysSubscription = MediaUtils.onDisplayChange.listen((e) async {
-        final List<MediaDisplayDetails> previous =
-            List.from(displays, growable: false);
+      if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+        _displaysSubscription = MediaUtils.onDisplayChange.listen((e) async {
+          final List<MediaDisplayDetails> previous =
+              List.from(displays, growable: false);
 
-        displays.value = e;
+          displays.value = e;
 
-        final List<MediaDisplayDetails> removed = [];
+          final List<MediaDisplayDetails> removed = [];
 
-        for (MediaDisplayDetails d in previous) {
-          if (displays.none((p) => p.deviceId() == d.deviceId())) {
-            removed.add(d);
+          for (MediaDisplayDetails d in previous) {
+            if (displays.none((p) => p.deviceId() == d.deviceId())) {
+              removed.add(d);
+            }
           }
-        }
 
-        _pickScreenDevice(removed);
-      });
+          _pickScreenDevice(removed);
+        });
+      }
 
       _initRoom();
 

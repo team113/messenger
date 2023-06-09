@@ -333,22 +333,27 @@ Widget mobileCall(CallController c, BuildContext context) {
                             bool isDialog =
                                 c.chat.value?.chat.value.isDialog == true;
 
-                            String state =
-                                c.state.value == OngoingCallState.active
-                                    ? c.duration.value
-                                        .toString()
-                                        .split('.')
-                                        .first
-                                        .padLeft(8, '0')
-                                    : c.state.value == OngoingCallState.joining
-                                        ? 'label_call_joining'.l10n
-                                        : isOutgoing
-                                            ? isDialog
-                                                ? 'label_call_calling'.l10n
-                                                : 'label_call_connecting'.l10n
-                                            : c.withVideo == true
-                                                ? 'label_video_call'.l10n
-                                                : 'label_audio_call'.l10n;
+                            final Map<String, dynamic> args = {'by': 'x'};
+                            if (!isOutgoing && !isDialog) {
+                              args['by'] = c.callerName;
+                            }
+
+                            String state = c.state.value ==
+                                    OngoingCallState.active
+                                ? c.duration.value
+                                    .toString()
+                                    .split('.')
+                                    .first
+                                    .padLeft(8, '0')
+                                : c.state.value == OngoingCallState.joining
+                                    ? 'label_call_joining'.l10n
+                                    : isOutgoing
+                                        ? isDialog
+                                            ? 'label_call_calling'.l10n
+                                            : 'label_call_connecting'.l10n
+                                        : c.withVideo == true
+                                            ? 'label_video_call'.l10nfmt(args)
+                                            : 'label_audio_call'.l10nfmt(args);
 
                             return Padding(
                               padding: const EdgeInsets.only(left: 4, right: 4),
