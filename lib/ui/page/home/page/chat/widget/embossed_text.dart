@@ -6,6 +6,8 @@ class EmbossedText extends StatelessWidget {
     super.key,
     this.style,
     this.textAlign,
+    this.overflow,
+    this.maxLines,
   }) : span = null;
 
   const EmbossedText.rich(
@@ -13,10 +15,14 @@ class EmbossedText extends StatelessWidget {
     super.key,
     this.style,
     this.textAlign,
+    this.overflow,
+    this.maxLines,
   }) : text = null;
 
   final TextStyle? style;
   final TextAlign? textAlign;
+  final TextOverflow? overflow;
+  final int? maxLines;
 
   /// Text to be selected.
   final String? text;
@@ -43,34 +49,90 @@ class EmbossedText extends StatelessWidget {
         );
 
     final shadows = textStyle.copyWith(
-      color: Colors.transparent,
+      // color: Colors.transparent,
       // foreground: null,
       shadows: const [
+        // 10
+        // box-shadow: 2px 1px 4px 0px rgba(208, 182, 22, 0.65);
+        // box-shadow: -1px 2px 2px 0px rgba(208, 182, 22, 0.65);
+        Shadow(
+          offset: Offset(2, 1),
+          blurRadius: 4,
+          color: Color.fromRGBO(208, 182, 22, 0.65),
+        ),
+        Shadow(
+          offset: Offset(-1, 2),
+          blurRadius: 2,
+          color: Color.fromRGBO(208, 182, 22, 0.65),
+        ),
+
+        // 9
+        // box-shadow: 1px 1px 5px 0px rgba(208, 182, 22, 0.65);
+        Shadow(
+          offset: Offset(1, 1),
+          blurRadius: 5,
+          color: Color.fromRGBO(208, 182, 22, 0.65),
+        ),
+
+        // 8
+        // box-shadow: 1px 1px 5px 0px rgba(234, 209, 56, 0.9);
+        // Shadow(
+        //   offset: Offset(1, 1),
+        //   blurRadius: 5,
+        //   color: Color.fromRGBO(234, 209, 56, 0.9),
+        // ),
+
+        // 7
+        // box-shadow: 1px 1px 3px 0px rgba(224, 199, 46, 0.9);
+        // box-shadow: -1px -1px 2px 0px rgba(255, 243, 56, 0.9);
+        // box-shadow: 1px -1px 2px 0px rgba(224, 199, 46, 0.2);
+        // box-shadow: -1px 1px 2px 0px rgba(224, 199, 46, 0.2);
+        // Shadow(
+        //   offset: Offset(1, 1),
+        //   blurRadius: 3,
+        //   color: Color.fromRGBO(224, 199, 46, 0.2),
+        // ),
+        // Shadow(
+        //   offset: Offset(-1, -1),
+        //   blurRadius: 2,
+        //   color: Color.fromRGBO(255, 243, 56, 0.9),
+        // ),
+        // Shadow(
+        //   offset: Offset(1, -1),
+        //   blurRadius: 2,
+        //   color: Color.fromRGBO(224, 199, 46, 0.2),
+        // ),
+        // Shadow(
+        //   offset: Offset(-1, 1),
+        //   blurRadius: 2,
+        //   color: Color.fromRGBO(224, 199, 46, 0.2),
+        // ),
+
         // 6
         // box-shadow: 1px 1px 3px 0px #947900E5 inset;
         // box-shadow: -1px -1px 2px 0px #FFE100E5 inset;
         // box-shadow: 1px -1px 2px 0px #94790033 inset;
         // box-shadow: -1px 1px 2px 0px #94790033 inset;
-        Shadow(
-          offset: Offset(1, 1),
-          blurRadius: 3,
-          color: Color(0xE5947900),
-        ),
-        Shadow(
-          offset: Offset(-1, -1),
-          blurRadius: 2,
-          color: Color(0xE5FFE100),
-        ),
-        Shadow(
-          offset: Offset(1, -1),
-          blurRadius: 2,
-          color: Color(0x33947900),
-        ),
-        Shadow(
-          offset: Offset(-1, 1),
-          blurRadius: 2,
-          color: Color(0x33947900),
-        ),
+        // Shadow(
+        //   offset: Offset(1, 1),
+        //   blurRadius: 3,
+        //   color: Color(0xE5947900),
+        // ),
+        // Shadow(
+        //   offset: Offset(-1, -1),
+        //   blurRadius: 2,
+        //   color: Color(0xE5FFE100),
+        // ),
+        // Shadow(
+        //   offset: Offset(1, -1),
+        //   blurRadius: 2,
+        //   color: Color(0x33947900),
+        // ),
+        // Shadow(
+        //   offset: Offset(-1, 1),
+        //   blurRadius: 2,
+        //   color: Color(0x33947900),
+        // ),
 
         // 5
         // box-shadow: 1px 1px 3px 0px #867424E5;
@@ -171,16 +233,48 @@ class EmbossedText extends StatelessWidget {
     if (span != null) {
       return Stack(
         children: [
-          Text.rich(span!, style: textStyle, textAlign: textAlign),
-          Text.rich(span!, style: shadows, textAlign: textAlign),
+          Text.rich(
+            span!,
+            style: textStyle,
+            textAlign: textAlign,
+            overflow: overflow,
+            maxLines: maxLines,
+          ),
+          Text.rich(
+            span!,
+            style: shadows,
+            textAlign: textAlign,
+            overflow: overflow,
+            maxLines: maxLines,
+          ),
         ],
       );
     }
 
+    return Text(
+      text!,
+      style: shadows,
+      textAlign: textAlign,
+      overflow: overflow,
+      maxLines: maxLines,
+    );
+
     return Stack(
       children: [
-        Text(text!, style: shadows, textAlign: textAlign),
-        Text(text!, style: textStyle, textAlign: textAlign),
+        Text(
+          text!,
+          style: shadows,
+          textAlign: textAlign,
+          overflow: overflow,
+          maxLines: maxLines,
+        ),
+        Text(
+          text!,
+          style: textStyle,
+          textAlign: textAlign,
+          overflow: overflow,
+          maxLines: maxLines,
+        ),
       ],
     );
   }

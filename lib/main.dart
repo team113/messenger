@@ -28,6 +28,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
+// ignore: implementation_imports
+import 'package:flutter_meedu_videoplayer/src/video_player_used.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -62,9 +64,17 @@ Future<void> main() async {
 
   // TODO: iOS should use `video_player`:
   //       https://github.com/flutter/flutter/issues/56665
-  //
-  // Don't await to override the [windowManager] defaults.
-  initMeeduPlayer(iosUseMediaKit: true);
+  if (PlatformUtils.isDesktop || PlatformUtils.isIOS) {
+    VideoPlayerUsed.mediaKit = true;
+  } else {
+    VideoPlayerUsed.videoPlayer = true;
+  }
+
+  // TODO: Invoke `initMeeduPlayer` when `windowManager` is not invoked.
+  initVideoPlayerMediaKitIfNeeded(
+    iosUseMediaKit: true,
+    logLevel: MPVLogLevel.error,
+  );
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {

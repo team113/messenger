@@ -157,6 +157,7 @@ class MessageFieldController extends GetxController {
   final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
 
   final RxBool editing = RxBool(false);
+  final RxBool donationHovered = RxBool(false);
 
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);

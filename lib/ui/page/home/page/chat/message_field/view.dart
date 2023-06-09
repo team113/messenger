@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/donate.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -507,28 +508,64 @@ class MessageFieldView extends StatelessWidget {
                     if (c.donation.value != null)
                       Padding(
                         padding: const EdgeInsets.all(4.0),
-                        child: Dismissible(
-                          key: Key('Donation'),
-                          direction: DismissDirection.horizontal,
-                          onDismissed: (_) => c.donation.value = null,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'G${c.donation.value}',
-                                      style: TextStyle(fontSize: 21),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: MouseRegion(
+                            opaque: false,
+                            onEnter: (d) => c.donationHovered.value = true,
+                            onExit: (d) => c.donationHovered.value = false,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(maxWidth: 550),
+                              child: Dismissible(
+                                key: const Key('Donation'),
+                                direction: DismissDirection.horizontal,
+                                onDismissed: (_) => c.donation.value = null,
+                                child: Stack(
+                                  alignment: Alignment.topRight,
+                                  children: [
+                                    DonateWidget(
+                                      donate: c.donation.value!,
                                     ),
-                                  ),
-                                ],
+                                    AnimatedOpacity(
+                                      opacity: c.donationHovered.value ||
+                                              PlatformUtils.isMobile
+                                          ? 1
+                                          : 0,
+                                      duration: 200.milliseconds,
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            0, 8, 6, 0),
+                                        child: WidgetButton(
+                                          key: const Key('CancelReplyButton'),
+                                          onPressed: () =>
+                                              c.donation.value = null,
+                                          child: _close(context),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                // child: Padding(
+                                //   padding: const EdgeInsets.symmetric(vertical: 2),
+                                //   child: Container(
+                                //     padding:
+                                //         const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                                //     decoration: BoxDecoration(
+                                //       color: Colors.white,
+                                //       borderRadius: BorderRadius.circular(10),
+                                //     ),
+                                //     child: Row(
+                                //       children: [
+                                //         Expanded(
+                                //           child: Text(
+                                //             'G${c.donation.value}',
+                                //             style: TextStyle(fontSize: 21),
+                                //           ),
+                                //         ),
+                                //       ],
+                                //     ),
+                                //   ),
+                                // ),
                               ),
                             ),
                           ),
@@ -1135,24 +1172,7 @@ class MessageFieldView extends StatelessWidget {
                           key: const Key('RemovePickedFile'),
                           onTap: () =>
                               c.attachments.removeWhere((a) => a.value == e),
-                          child: Container(
-                            width: 16,
-                            height: 16,
-                            margin: const EdgeInsets.only(left: 8, bottom: 8),
-                            child: Container(
-                              key: const Key('Close'),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: style.cardColor,
-                              ),
-                              alignment: Alignment.center,
-                              child: SvgImage.asset(
-                                'assets/icons/close_primary.svg',
-                                width: 8,
-                                height: 8,
-                              ),
-                            ),
-                          ),
+                          child: _close(context),
                         );
                       } else {
                         child = const SizedBox();
@@ -1468,29 +1488,13 @@ class MessageFieldView extends StatelessWidget {
             Obx(() {
               final Widget child;
 
-              if (c.hoveredReply.value == item ||
-                  PlatformUtils.isMobile ||
-                  true) {
+              if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
                 child = WidgetButton(
                   key: const Key('CancelReplyButton'),
                   onPressed: onClose,
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    margin: const EdgeInsets.only(right: 4, top: 4),
-                    child: Container(
-                      key: const Key('Close'),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: style.cardColor,
-                      ),
-                      alignment: Alignment.center,
-                      child: SvgImage.asset(
-                        'assets/icons/close_primary.svg',
-                        width: 8,
-                        height: 8,
-                      ),
-                    ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
+                    child: _close(context),
                   ),
                 );
               } else {
@@ -1500,6 +1504,29 @@ class MessageFieldView extends StatelessWidget {
               return AnimatedSwitcher(duration: 200.milliseconds, child: child);
             }),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _close(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Container(
+      width: 16 * 1.5,
+      height: 16 * 1.5,
+      margin: const EdgeInsets.only(left: 8, bottom: 8),
+      child: Container(
+        key: const Key('Close'),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: style.cardColor,
+        ),
+        alignment: Alignment.center,
+        child: SvgImage.asset(
+          'assets/icons/close_primary.svg',
+          width: 8 * 1.3,
+          height: 8 * 1.3,
         ),
       ),
     );
