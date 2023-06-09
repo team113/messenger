@@ -26,7 +26,7 @@ class UnreadLabel extends StatelessWidget {
   const UnreadLabel(this.unreadMessages, {super.key});
 
   /// Count of unread messages.
-  final int? unreadMessages;
+  final int unreadMessages;
 
   @override
   Widget build(BuildContext context) {

@@ -126,8 +126,9 @@ extension L10nDateExtension on DateTime {
   String get yMd => DateFormat.yMd().format(this);
 
   /// Returns this [DateTime] formatted in `ddMMyy` format.
-  String get yyMd =>
-      DateFormat.Md().addPattern('.yy').format(this).replaceAll(' ', '');
+  String get yyMd => Intl.defaultLocale == 'ru_RU'
+      ? DateFormat('dd.MM.yy').format(this)
+      : DateFormat('MM/dd/yy').format(this);
 
   /// Returns this [DateTime] formatted as short weekday name.
   String get e => DateFormat.E().format(this);
