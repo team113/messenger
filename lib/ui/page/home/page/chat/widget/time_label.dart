@@ -52,7 +52,7 @@ class TimeLabelWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         swipeable: Padding(
           padding: const EdgeInsets.only(right: 4),
-          child: Text(time.ddMMyy),
+          child: Text(time.yyMd),
         ),
         child: AnimatedOpacity(
           key: Key('$time'),

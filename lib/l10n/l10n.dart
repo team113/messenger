@@ -126,7 +126,8 @@ extension L10nDateExtension on DateTime {
   String get yMd => DateFormat.yMd().format(this);
 
   /// Returns this [DateTime] formatted in `ddMMyy` format.
-  String get ddMMyy => DateFormat('dd.MM.yy').format(this);
+  String get yyMd =>
+      DateFormat.Md().addPattern('.yy').format(this).replaceAll(' ', '');
 
   /// Returns this [DateTime] formatted as short weekday name.
   String get e => DateFormat.E().format(this);
@@ -155,18 +156,14 @@ extension L10nDateExtension on DateTime {
       return e;
     }
   }
-}
 
-/// Extension adding an ability to get text represented [DateTime] relative to
-/// [DateTime.now].
-extension DateTimeToRelative on DateTime {
   /// Returns relative to [now] text representation.
   ///
   /// [DateTime.now] is used if [now] is `null`.
   String toRelative([DateTime? now]) {
     DateTime local = isUtc ? toLocal() : this;
     DateTime relative = now ?? DateTime.now();
-    int days = relative._julianDayNumber() - local._julianDayNumber();
+    int days = relative.julianDayNumber() - local.julianDayNumber();
 
     int months = 0;
     if (days >= 28) {
@@ -186,7 +183,7 @@ extension DateTimeToRelative on DateTime {
   }
 
   /// Returns a Julian day number of this [DateTime].
-  int _julianDayNumber() {
+  int julianDayNumber() {
     final int c0 = ((month - 3) / 12).floor();
     final int x4 = year + c0;
     final int x3 = (x4 / 100).floor();
