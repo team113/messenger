@@ -517,6 +517,10 @@ label_favorite_contacts = Избранные
 label_file = Файл
 label_forward_message = Переслать сообщение
 label_forwarded_message = Пересланное сообщение
+label_forwarded_messages = {$count ->
+    [1] Forwarded message
+   *[other] Forwarded messages
+}
 label_gallery = Галерея
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
@@ -640,7 +644,7 @@ label_presence_present = Онлайн
 label_profile = Профиль
 label_public_information = Публичная информация
 label_public_section_hint = Аватар и имя
-label_read_at = Прочитано: {$day}.{$month}.{$year} {$hour}:{$minute}
+label_read_at = Прочитано: {$date}
 label_read_by = Прочитано
 label_reason = Причина
 label_recent = Недавние

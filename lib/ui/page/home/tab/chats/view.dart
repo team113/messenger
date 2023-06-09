@@ -31,8 +31,8 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -76,7 +76,7 @@ class ChatsTabView extends StatelessWidget {
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
                     ? style.colors.secondaryHighlight
-                    : style.colors.transparent,
+                    : style.colors.secondaryHighlight.withOpacity(0),
               );
             }),
             Obx(() {

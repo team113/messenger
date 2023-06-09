@@ -351,10 +351,7 @@ class _RetryImageState extends State<RetryImage> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
-      child: KeyedSubtree(
-        key: Key('Image_${widget.url}'),
-        child: child,
-      ),
+      child: KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
     );
   }
 
@@ -391,6 +388,7 @@ class _RetryImageState extends State<RetryImage> {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
                 _cancelToken.cancel();
+                _fallbackToken.cancel();
               }
             }
 
@@ -456,6 +454,8 @@ class _RetryImageState extends State<RetryImage> {
             } on DioError catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
+                _cancelToken.cancel();
+                _fallbackToken.cancel();
               }
             }
 

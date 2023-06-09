@@ -150,7 +150,7 @@ class RecentChatTile extends StatelessWidget {
         status: [
           _status(context, inverted),
           Text(
-            chat.updatedAt.val.toLocal().toShort(),
+            chat.updatedAt.val.toLocal().short,
             style: Theme.of(context)
                 .textTheme
                 .titleSmall
@@ -299,6 +299,7 @@ class RecentChatTile extends StatelessWidget {
 
         if (draft.attachments.isNotEmpty) {
           if (draft.text == null) {
+            // TODO: Backend should support single attachment updating.
             images.addAll(
               draft.attachments.map((e) {
                 return Padding(
@@ -308,6 +309,7 @@ class RecentChatTile extends StatelessWidget {
               }),
             );
           } else {
+            // TODO: Backend should support single attachment updating.
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
@@ -647,9 +649,7 @@ class RecentChatTile extends StatelessWidget {
       if (e.file.isImage && e.file.bytes.value != null) {
         content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
       } else if (e.file.isVideo) {
-        // TODO: `video_player` being used doesn't support desktop platforms.
-        if ((PlatformUtils.isMobile || PlatformUtils.isWeb) &&
-            e.file.bytes.value != null) {
+        if (e.file.bytes.value != null) {
           content = FittedBox(
             fit: BoxFit.cover,
             child: VideoThumbnail.bytes(
@@ -694,27 +694,16 @@ class RecentChatTile extends StatelessWidget {
 
     if (e is FileAttachment) {
       if (e.isVideo) {
-        if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
-          content = FittedBox(
-            fit: BoxFit.cover,
-            child: VideoThumbnail.url(
-              url: e.original.url,
-              checksum: e.original.checksum,
-              key: key,
-              height: 300,
-              onError: onError,
-            ),
-          );
-        } else {
-          content = Container(
-            color: inverted ? style.colors.primary : style.colors.secondary,
-            child: Icon(
-              Icons.video_file,
-              size: 18,
-              color: inverted ? style.colors.secondary : style.colors.primary,
-            ),
-          );
-        }
+        content = FittedBox(
+          fit: BoxFit.cover,
+          child: VideoThumbnail.url(
+            url: e.original.url,
+            checksum: e.original.checksum,
+            key: key,
+            height: 300,
+            onError: onError,
+          ),
+        );
       } else {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
@@ -943,36 +932,4 @@ class RecentChatTile extends StatelessWidget {
         onLongPress: () {},
         child: child,
       );
-}
-
-/// Extension adding conversion from [DateTime] to its short text relative to
-/// the [DateTime.now].
-extension DateTimeToShort on DateTime {
-  /// Returns short text representing this [DateTime].
-  ///
-  /// Returns string in format `HH:MM`, if [DateTime] is within today. Returns a
-  /// short weekday name, if [difference] between this [DateTime] and
-  /// [DateTime.now] is less than 7 days. Otherwise returns a string in format
-  /// of `YYYY-MM-DD`.
-  String toShort() {
-    final DateTime now = DateTime.now();
-    final DateTime from = DateTime(now.year, now.month, now.day);
-    final DateTime to = DateTime(year, month, day);
-
-    final int differenceInDays = from.difference(to).inDays;
-
-    if (differenceInDays > 6) {
-      final String day = this.day.toString().padLeft(2, '0');
-      final String month = this.month.toString().padLeft(2, '0');
-
-      return '$year-$month-$day';
-    } else if (differenceInDays < 1) {
-      final String hour = this.hour.toString().padLeft(2, '0');
-      final String minute = this.minute.toString().padLeft(2, '0');
-
-      return '$hour:$minute';
-    } else {
-      return 'label_short_weekday'.l10nfmt({'weekday': weekday});
-    }
-  }
 }
