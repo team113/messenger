@@ -141,7 +141,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                           if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: fonts.bodySmall!.copyWith(fontSize: 9),
+                              style: fonts.labelSmall,
                               child: subtitle!,
                             ),
                         ],

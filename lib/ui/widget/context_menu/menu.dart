@@ -183,7 +183,9 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                   color: (isMouseOver && !context.isMobile)
                       ? style.colors.onPrimary
                       : style.colors.onBackground,
-                  fontSize: context.isMobile ? fonts.bodyLarge!.fontSize : 14,
+                  fontSize: context.isMobile
+                      ? fonts.bodyLarge!.fontSize
+                      : fonts.bodySmall!.fontSize,
                 ),
               ),
               if (PlatformUtils.isMobile && widget.trailing != null) ...[

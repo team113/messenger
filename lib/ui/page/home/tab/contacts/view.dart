@@ -276,7 +276,10 @@ class ContactsTabView extends StatelessWidget {
                   delay: const Duration(milliseconds: 300),
                   child: Center(
                     key: const Key('NothingFound'),
-                    child: Text('label_nothing_found'.l10n),
+                    child: Text(
+                      'label_nothing_found'.l10n,
+                      style: fonts.labelMedium,
+                    ),
                   ),
                 );
               }

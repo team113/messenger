@@ -266,7 +266,10 @@ class ChatsTabView extends StatelessWidget {
                           true) {
                         center = Center(
                           key: UniqueKey(),
-                          child: Text('label_nothing_found'.l10n),
+                          child: Text(
+                            'label_nothing_found'.l10n,
+                            style: fonts.labelMedium,
+                          ),
                         );
                       } else {
                         center = Center(
@@ -505,7 +508,10 @@ class ChatsTabView extends StatelessWidget {
                         delay: const Duration(milliseconds: 300),
                         child: Center(
                           key: const Key('NothingFound'),
-                          child: Text('label_nothing_found'.l10n),
+                          child: Text(
+                            'label_nothing_found'.l10n,
+                            style: fonts.labelMedium,
+                          ),
                         ),
                       );
                     }

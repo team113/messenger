@@ -191,7 +191,10 @@ class MessageInfo extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               child: Center(
-                                child: Text('label_nothing_found'.l10n),
+                                child: Text(
+                                  'label_nothing_found'.l10n,
+                                  style: fonts.labelMedium,
+                                ),
                               ),
                             )
                           else
