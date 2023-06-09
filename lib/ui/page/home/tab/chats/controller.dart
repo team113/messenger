@@ -199,7 +199,7 @@ class ChatsTabController extends GetxController {
           chats.add(event.value!);
           chats.sort();
           _sortingData[event.value!.chat.value.id] ??=
-              _ChatSortingData(event.value!.chat, () => chats.sort());
+              _ChatSortingData(event.value!.chat, chats.sort);
 
           if (event.value!.chat.value.isDialog) {
             listenUpdates(event.value!);

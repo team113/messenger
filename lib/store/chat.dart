@@ -86,12 +86,6 @@ class ChatRepository extends DisposableInterface
   @override
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
-  /// [ChatFavoritePosition] of the local [Chat]-monolog.
-  ///
-  /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
-  /// adding a local [Chat]-monolog to favorites.
-  ChatFavoritePosition? localMonologFavoritePosition;
-
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -143,6 +137,12 @@ class ChatRepository extends DisposableInterface
   /// Used to prevent the [Chat]-monolog from re-appearing if the local
   /// [Chat]-monolog was hidden.
   bool _monologShouldBeHidden = false;
+
+  /// [ChatFavoritePosition] of the local [Chat]-monolog.
+  ///
+  /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
+  /// adding a local [Chat]-monolog to favorites.
+  ChatFavoritePosition? _localMonologFavoritePosition;
 
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
@@ -913,7 +913,7 @@ class ChatRepository extends DisposableInterface
 
     try {
       if (id.isLocalWith(me)) {
-        localMonologFavoritePosition = newPosition;
+        _localMonologFavoritePosition = newPosition;
         final ChatData monolog =
             _chat(await _graphQlProvider.createMonologChat(null));
 
@@ -924,7 +924,7 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.favoriteChat(id, newPosition);
     } catch (e) {
       if (chat?.chat.value.isMonolog == true) {
-        localMonologFavoritePosition = null;
+        _localMonologFavoritePosition = null;
       }
 
       chat?.chat.update((c) => c?.favoritePosition = oldPosition);
@@ -1198,9 +1198,10 @@ class ChatRepository extends DisposableInterface
           entry.subscribe();
         } else {
           if (chat.chat.value.isMonolog) {
-            if (localMonologFavoritePosition != null) {
-              event.value.value.favoritePosition = localMonologFavoritePosition;
-              localMonologFavoritePosition = null;
+            if (_localMonologFavoritePosition != null) {
+              event.value.value.favoritePosition =
+                  _localMonologFavoritePosition;
+              _localMonologFavoritePosition = null;
             }
 
             if (_monologShouldBeHidden) {

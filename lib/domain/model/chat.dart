@@ -285,8 +285,8 @@ class ChatId extends NewType<String> {
       ? UserId(val.replaceFirst('local_', ''))
       : throw Exception('ChatId is not local');
 
-  /// Indicates whether this [ChatId] is a dummy ID and [userId] is equal to the
-  /// provided [id].
+  /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
+  /// equals the provided [id].
   bool isLocalWith(UserId? id) => isLocal && userId == id;
 }
 
