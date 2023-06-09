@@ -23,11 +23,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/page/call/widget/desktop/launchpad.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
+import '../widget/desktop/call_dock.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
 import '../widget/participant/decorator.dart';
@@ -266,270 +268,6 @@ Widget desktopCall(CallController c, BuildContext context) {
         _secondaryTarget(c),
       ]);
 
-      /// Builds the [Dock] containing the [CallController.buttons].
-      Widget dock() {
-        return Obx(() {
-          final bool isOutgoing =
-              (c.outgoing || c.state.value == OngoingCallState.local) &&
-                  !c.started;
-
-          bool showBottomUi = (c.showUi.isTrue ||
-              c.draggedButton.value != null ||
-              c.state.value != OngoingCallState.active ||
-              (c.state.value == OngoingCallState.active &&
-                  c.locals.isEmpty &&
-                  c.remotes.isEmpty &&
-                  c.focused.isEmpty &&
-                  c.paneled.isEmpty));
-
-          return AnimatedPadding(
-            key: const Key('DockedAnimatedPadding'),
-            padding: const EdgeInsets.only(bottom: 5),
-            curve: Curves.ease,
-            duration: 200.milliseconds,
-            child: AnimatedSwitcher(
-              key: const Key('DockedAnimatedSwitcher'),
-              duration: 200.milliseconds,
-              child: AnimatedSlider(
-                key: const Key('DockedPanelPadding'),
-                isOpen: showBottomUi,
-                duration: 400.milliseconds,
-                translate: false,
-                listener: () =>
-                    Future.delayed(Duration.zero, c.relocateSecondary),
-                child: MouseRegion(
-                  onEnter: (d) => c.keepUi(true),
-                  onHover: (d) => c.keepUi(true),
-                  onExit: c.showUi.value && !c.displayMore.value
-                      ? (d) => c.keepUi(false)
-                      : (d) => c.keepUi(),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: style.colors.transparent,
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        CustomBoxShadow(
-                          color: style.colors.onBackgroundOpacity20,
-                          blurRadius: 8,
-                          blurStyle: BlurStyle.outer,
-                        )
-                      ],
-                    ),
-                    margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                    child: ConditionalBackdropFilter(
-                      key: c.dockKey,
-                      borderRadius: BorderRadius.circular(30),
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: style.colors.onSecondaryOpacity20,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 13,
-                          horizontal: 5,
-                        ),
-                        child: Obx(() {
-                          final bool answer =
-                              (c.state.value != OngoingCallState.joining &&
-                                  c.state.value != OngoingCallState.active &&
-                                  !isOutgoing);
-
-                          if (answer) {
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const SizedBox(width: 11),
-                                SizedBox.square(
-                                  dimension: CallController.buttonSize,
-                                  child: AcceptAudioButton(
-                                    c,
-                                    highlight: !c.withVideo,
-                                  ).build(),
-                                ),
-                                const SizedBox(width: 24),
-                                SizedBox.square(
-                                  dimension: CallController.buttonSize,
-                                  child: AcceptVideoButton(
-                                    c,
-                                    highlight: c.withVideo,
-                                  ).build(),
-                                ),
-                                const SizedBox(width: 24),
-                                SizedBox.square(
-                                  dimension: CallController.buttonSize,
-                                  child: DeclineButton(c).build(),
-                                ),
-                                const SizedBox(width: 11),
-                              ],
-                            );
-                          } else {
-                            return Dock<CallButton>(
-                              items: c.buttons,
-                              itemWidth: CallController.buttonSize,
-                              itemBuilder: (e) => e.build(
-                                hinted: c.draggedButton.value == null,
-                              ),
-                              onReorder: (buttons) {
-                                c.buttons.clear();
-                                c.buttons.addAll(buttons);
-                                c.relocateSecondary();
-                              },
-                              onDragStarted: (b) {
-                                c.showDragAndDropButtonsHint = false;
-                                c.draggedButton.value = b;
-                              },
-                              onDragEnded: (_) => c.draggedButton.value = null,
-                              onLeave: (_) => c.displayMore.value = true,
-                              onWillAccept: (d) => d?.c == c,
-                            );
-                          }
-                        }),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        });
-      }
-
-      /// Builds the more panel containing the [CallController.panel].
-      Widget launchpad() {
-        Widget builder(
-          BuildContext context,
-          List<CallButton?> candidate,
-          List<dynamic> rejected,
-        ) {
-          return Obx(() {
-            bool enabled = c.displayMore.isTrue &&
-                c.primaryDrags.value == 0 &&
-                c.secondaryDrags.value == 0;
-
-            return MouseRegion(
-              onEnter: enabled ? (d) => c.keepUi(true) : null,
-              onHover: enabled ? (d) => c.keepUi(true) : null,
-              onExit: enabled ? (d) => c.keepUi() : null,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: style.colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    CustomBoxShadow(
-                      color: style.colors.onBackgroundOpacity20,
-                      blurRadius: 8,
-                      blurStyle: BlurStyle.outer,
-                    )
-                  ],
-                ),
-                margin: const EdgeInsets.all(2),
-                child: ConditionalBackdropFilter(
-                  borderRadius: BorderRadius.circular(30),
-                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: Obx(() {
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      decoration: BoxDecoration(
-                        color: candidate.any((e) => e?.c == c)
-                            ? style.colors.onSecondaryOpacity88
-                            : style.colors.onSecondaryOpacity60,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 440),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 35),
-                            Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.start,
-                              alignment: WrapAlignment.center,
-                              spacing: 4,
-                              runSpacing: 21,
-                              children: c.panel.map((e) {
-                                return SizedBox(
-                                  width: 100,
-                                  height: 100,
-                                  child: Column(
-                                    children: [
-                                      DelayedDraggable(
-                                        feedback: Transform.translate(
-                                          offset: const Offset(
-                                            CallController.buttonSize / 2 * -1,
-                                            CallController.buttonSize / 2 * -1,
-                                          ),
-                                          child: SizedBox(
-                                            height: CallController.buttonSize,
-                                            width: CallController.buttonSize,
-                                            child: e.build(),
-                                          ),
-                                        ),
-                                        data: e,
-                                        onDragStarted: () {
-                                          c.showDragAndDropButtonsHint = false;
-                                          c.draggedButton.value = e;
-                                        },
-                                        onDragCompleted: () =>
-                                            c.draggedButton.value = null,
-                                        onDragEnd: (_) =>
-                                            c.draggedButton.value = null,
-                                        onDraggableCanceled: (_, __) =>
-                                            c.draggedButton.value = null,
-                                        maxSimultaneousDrags:
-                                            e.isRemovable ? null : 0,
-                                        dragAnchorStrategy:
-                                            pointerDragAnchorStrategy,
-                                        child: e.build(hinted: false),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        e.hint,
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: style.colors.onPrimary,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      )
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                            const SizedBox(height: 20),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-            );
-          });
-        }
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 30),
-          child: Obx(() {
-            return AnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
-              child: c.displayMore.value
-                  ? DragTarget<CallButton>(
-                      onAccept: (CallButton data) {
-                        c.buttons.remove(data);
-                        c.draggedButton.value = null;
-                      },
-                      onWillAccept: (CallButton? a) =>
-                          a?.c == c && a?.isRemovable == true,
-                      builder: builder,
-                    )
-                  : Container(),
-            );
-          }),
-        );
-      }
-
       // Footer part of the call with buttons.
       List<Widget> footer = [
         // Animated bottom buttons.
@@ -545,8 +283,142 @@ Widget desktopCall(CallController c, BuildContext context) {
                   mainAxisSize: MainAxisSize.min,
                   verticalDirection: VerticalDirection.up,
                   children: [
-                    dock(),
-                    launchpad(),
+                    Obx(() {
+                      final bool isOutgoing = (c.outgoing ||
+                              c.state.value == OngoingCallState.local) &&
+                          !c.started;
+
+                      bool showBottomUi = (c.showUi.isTrue ||
+                          c.draggedButton.value != null ||
+                          c.state.value != OngoingCallState.active ||
+                          (c.state.value == OngoingCallState.active &&
+                              c.locals.isEmpty &&
+                              c.remotes.isEmpty &&
+                              c.focused.isEmpty &&
+                              c.paneled.isEmpty));
+
+                      final bool answer =
+                          (c.state.value != OngoingCallState.joining &&
+                              c.state.value != OngoingCallState.active &&
+                              !isOutgoing);
+
+                      return CallDockWidget(
+                        dockKey: c.dockKey,
+                        isOutgoing: isOutgoing,
+                        showBottomUi: showBottomUi,
+                        answer: answer,
+                        listener: () =>
+                            Future.delayed(Duration.zero, c.relocateSecondary),
+                        onEnter: (d) => c.keepUi(true),
+                        onHover: (d) => c.keepUi(true),
+                        onExit: c.showUi.value && !c.displayMore.value
+                            ? (d) => c.keepUi(false)
+                            : (d) => c.keepUi(),
+                        acceptAudioButton: SizedBox.square(
+                          dimension: CallController.buttonSize,
+                          child: AcceptAudioButton(
+                            c,
+                            highlight: !c.withVideo,
+                          ).build(),
+                        ),
+                        acceptVideoButton: SizedBox.square(
+                          dimension: CallController.buttonSize,
+                          child: AcceptVideoButton(
+                            c,
+                            highlight: c.withVideo,
+                          ).build(),
+                        ),
+                        declineButton: SizedBox.square(
+                          dimension: CallController.buttonSize,
+                          child: DeclineButton(c).build(),
+                        ),
+                        dock: Dock<CallButton>(
+                          items: c.buttons,
+                          itemWidth: CallController.buttonSize,
+                          itemBuilder: (e) => e.build(
+                            hinted: c.draggedButton.value == null,
+                          ),
+                          onReorder: (buttons) {
+                            c.buttons.clear();
+                            c.buttons.addAll(buttons);
+                            c.relocateSecondary();
+                          },
+                          onDragStarted: (b) {
+                            c.showDragAndDropButtonsHint = false;
+                            c.draggedButton.value = b;
+                          },
+                          onDragEnded: (_) => c.draggedButton.value = null,
+                          onLeave: (_) => c.displayMore.value = true,
+                          onWillAccept: (d) => d?.c == c,
+                        ),
+                      );
+                    }),
+                    Obx(() {
+                      bool enabled = c.displayMore.isTrue &&
+                          c.primaryDrags.value == 0 &&
+                          c.secondaryDrags.value == 0;
+                      return LaunchpadWidget(
+                        enabled: enabled,
+                        displayMore: c.displayMore.value,
+                        test: (e) => e?.c == c,
+                        onEnter: enabled ? (d) => c.keepUi(true) : null,
+                        onHover: enabled ? (d) => c.keepUi(true) : null,
+                        onExit: enabled ? (d) => c.keepUi() : null,
+                        onAccept: (CallButton data) {
+                          c.buttons.remove(data);
+                          c.draggedButton.value = null;
+                        },
+                        onWillAccept: (CallButton? a) =>
+                            a?.c == c && a?.isRemovable == true,
+                        paneledItems: c.panel.map((e) {
+                          return SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: Column(
+                              children: [
+                                DelayedDraggable(
+                                  feedback: Transform.translate(
+                                    offset: const Offset(
+                                      CallController.buttonSize / 2 * -1,
+                                      CallController.buttonSize / 2 * -1,
+                                    ),
+                                    child: SizedBox(
+                                      height: CallController.buttonSize,
+                                      width: CallController.buttonSize,
+                                      child: e.build(),
+                                    ),
+                                  ),
+                                  data: e,
+                                  onDragStarted: () {
+                                    c.showDragAndDropButtonsHint = false;
+                                    c.draggedButton.value = e;
+                                  },
+                                  onDragCompleted: () =>
+                                      c.draggedButton.value = null,
+                                  onDragEnd: (_) =>
+                                      c.draggedButton.value = null,
+                                  onDraggableCanceled: (_, __) =>
+                                      c.draggedButton.value = null,
+                                  maxSimultaneousDrags:
+                                      e.isRemovable ? null : 0,
+                                  dragAnchorStrategy: pointerDragAnchorStrategy,
+                                  child: e.build(hinted: false),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  e.hint,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: style.colors.onPrimary,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                )
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    }),
                   ],
                 ),
               ),
