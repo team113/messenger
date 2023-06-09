@@ -15,37 +15,36 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/controller.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/blacklist_record.dart';
+import 'widget/name.dart';
+import 'widget/num.dart';
+import 'widget/presence.dart';
+import 'widget/status.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
-  const UserView(this.id, {Key? key}) : super(key: key);
+  const UserView(this.id, {super.key});
 
   /// ID of the [User] this [UserView] represents.
   final UserId id;
@@ -188,7 +187,7 @@ class UserView extends StatelessWidget {
                       if (c.isBlacklisted != null)
                         Block(
                           title: 'label_user_is_blocked'.l10n,
-                          children: [_blocked(c, context)],
+                          children: [BlacklistRecordWidget(c.isBlacklisted!)],
                         ),
                       Block(
                         title: 'label_public_information'.l10n,
@@ -219,14 +218,22 @@ class UserView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          _name(c, context),
-                          _status(c, context),
-                          _presence(c, context),
+                          UserNameCopyable(
+                            c.user!.user.value.name,
+                            c.user!.user.value.num,
+                          ),
+                          if (c.user!.user.value.status != null)
+                            UserStatusCopyable(c.user!.user.value.status!),
+                          if (c.user!.user.value.presence != null)
+                            UserPresenceField(
+                              c.user!.user.value.presence!,
+                              c.user!.user.value.getStatus(),
+                            ),
                         ],
                       ),
                       Block(
                         title: 'label_contact_information'.l10n,
-                        children: [_num(c, context)],
+                        children: [UserNumCopyable(c.user!.user.value.num)],
                       ),
                       Block(
                         title: 'label_actions'.l10n,
@@ -243,8 +250,8 @@ class UserView extends StatelessWidget {
                 }
 
                 return Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: _blockedField(context, c),
+                  padding: Insets.dense.copyWith(top: 0),
+                  child: SafeArea(child: UnblockButton(c.unblacklist)),
                 );
               }),
             );
@@ -254,49 +261,13 @@ class UserView extends StatelessWidget {
     );
   }
 
-  /// Dense [Padding] wrapper.
-  Widget _dense(Widget child) =>
-      Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
-
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
-
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    // Builds a stylized button representing a single action.
-    Widget action({
-      Key? key,
-      String? text,
-      void Function()? onPressed,
-      Widget? trailing,
-    }) {
-      return Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: _dense(
-          FieldButton(
-            key: key,
-            onPressed: onPressed,
-            text: text ?? '',
-            style: TextStyle(color: style.colors.primary),
-            trailing: trailing != null
-                ? Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(scale: 1.15, child: trailing),
-                  )
-                : null,
-          ),
-        ),
-      );
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Obx(() {
-          return action(
+          return ActionButton(
             key: Key(c.inContacts.value
                 ? 'DeleteFromContactsButton'
                 : 'AddToContactsButton'),
@@ -311,7 +282,7 @@ class UserView extends StatelessWidget {
           );
         }),
         Obx(() {
-          return action(
+          return ActionButton(
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
@@ -329,7 +300,7 @@ class UserView extends StatelessWidget {
             final chat = c.user!.dialog.value!.chat.value;
             final bool isMuted = chat.muted != null;
 
-            return action(
+            return ActionButton(
               text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
               trailing: isMuted
                   ? SvgImage.asset(
@@ -345,12 +316,12 @@ class UserView extends StatelessWidget {
               onPressed: isMuted ? c.unmuteChat : c.muteChat,
             );
           }),
-          action(
+          ActionButton(
             text: 'btn_hide_chat'.l10n,
             trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _hideChat(c, context),
           ),
-          action(
+          ActionButton(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
             trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
@@ -358,7 +329,7 @@ class UserView extends StatelessWidget {
           ),
         ],
         Obx(() {
-          return action(
+          return ActionButton(
             key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
             text:
                 c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
@@ -380,181 +351,8 @@ class UserView extends StatelessWidget {
             }),
           );
         }),
-        action(text: 'btn_report'.l10n, onPressed: () {}),
+        ActionButton(text: 'btn_report'.l10n, onPressed: () {}),
       ],
-    );
-  }
-
-  /// Returns a [User.name] copyable field.
-  Widget _name(UserController c, BuildContext context) {
-    return _padding(
-      CopyableTextField(
-        key: const Key('NameField'),
-        state: TextFieldState(
-          text: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
-        ),
-        label: 'label_name'.l10n,
-        copy: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
-      ),
-    );
-  }
-
-  /// Returns a [User.status] copyable field.
-  Widget _status(UserController c, BuildContext context) {
-    return Obx(() {
-      final UserTextStatus? status = c.user?.user.value.status;
-
-      if (status == null) {
-        return Container();
-      }
-
-      return _padding(
-        CopyableTextField(
-          key: const Key('StatusField'),
-          state: TextFieldState(text: status.val),
-          label: 'label_status'.l10n,
-          copy: status.val,
-        ),
-      );
-    });
-  }
-
-  /// Returns a [User.num] copyable field.
-  Widget _num(UserController c, BuildContext context) {
-    return _padding(
-      CopyableTextField(
-        key: const Key('UserNum'),
-        state: TextFieldState(
-          text: c.user!.user.value.num.val.replaceAllMapped(
-            RegExp(r'.{4}'),
-            (match) => '${match.group(0)} ',
-          ),
-        ),
-        label: 'label_num'.l10n,
-        copy: c.user?.user.value.num.val,
-      ),
-    );
-  }
-
-  /// Returns a [User.presence] text.
-  Widget _presence(UserController c, BuildContext context) {
-    return Obx(() {
-      final Presence? presence = c.user?.user.value.presence;
-      if (presence == null) {
-        return Container();
-      }
-
-      final subtitle = c.user?.user.value.getStatus();
-
-      return _padding(
-        ReactiveTextField(
-          key: const Key('Presence'),
-          state: TextFieldState(text: subtitle),
-          label: 'label_presence'.l10n,
-          enabled: false,
-          trailing: CircleAvatar(
-            key: Key(presence.name.capitalizeFirst!),
-            backgroundColor: presence.getColor(),
-            radius: 7,
-          ),
-        ),
-      );
-    });
-  }
-
-  /// Returns the blacklisted information of this [User].
-  Widget _blocked(UserController c, BuildContext context) {
-    return Column(
-      children: [
-        if (c.isBlacklisted?.at != null)
-          _padding(
-            ReactiveTextField(
-              state: TextFieldState(text: c.isBlacklisted!.at.toString()),
-              label: 'label_date'.l10n,
-              enabled: false,
-            ),
-          ),
-        if (c.isBlacklisted?.reason != null)
-          _padding(
-            ReactiveTextField(
-              state: TextFieldState(text: c.isBlacklisted!.reason?.val),
-              label: 'label_reason'.l10n,
-              enabled: false,
-            ),
-          ),
-      ],
-    );
-  }
-
-  /// Returns a [WidgetButton] for removing the [User] from the blacklist.
-  Widget _blockedField(BuildContext context, UserController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Theme(
-      data: MessageFieldView.theme(context),
-      child: SafeArea(
-        child: Container(
-          key: const Key('BlockedField'),
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            boxShadow: [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: style.colors.onBackgroundOpacity13,
-              ),
-            ],
-          ),
-          child: ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
-            ),
-            borderRadius: style.cardRadius,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 56),
-              decoration: BoxDecoration(color: style.cardColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                        bottom: 13,
-                      ),
-                      child: Transform.translate(
-                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                        child: WidgetButton(
-                          onPressed: c.unblacklist,
-                          child: IgnorePointer(
-                            child: ReactiveTextField(
-                              enabled: false,
-                              key: const Key('MessageField'),
-                              state: TextFieldState(text: 'btn_unblock'.l10n),
-                              filled: false,
-                              dense: true,
-                              textAlign: TextAlign.center,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(
-                                fontSize: 17,
-                                color: style.colors.primary,
-                              ),
-                              type: TextInputType.multiline,
-                              textInputAction: TextInputAction.newline,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 

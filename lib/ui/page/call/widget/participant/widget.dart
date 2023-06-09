@@ -159,7 +159,7 @@ class ParticipantWidget extends StatelessWidget {
 
             return AnimatedSwitcher(duration: 250.milliseconds, child: child);
           }),
-          Positioned.fill(
+          Center(
             child: RaisedHand(participant.member.isHandRaised.value),
           ),
         ],
