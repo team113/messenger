@@ -1180,7 +1180,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8 ),
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
