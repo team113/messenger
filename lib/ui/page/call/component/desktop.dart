@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/ui/page/call/widget/desktop/launchpad.dart';
+import 'package:messenger/ui/page/call/widget/desktop/title_bar.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
@@ -37,7 +38,6 @@ import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
-import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -48,7 +48,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -758,7 +757,24 @@ Widget desktopCall(CallController c, BuildContext context) {
                       )
                     ],
                   ),
-                  child: _titleBar(context, c),
+                  child: Obx(
+                    () => TitleBar(
+                      chat: c.chat.value,
+                      label: 'label_call_title'.l10nfmt(c.titleArguments),
+                      fullscreen: c.fullscreen.value,
+                      height: CallController.titleHeight,
+                      constraints: BoxConstraints(maxWidth: c.size.width - 60),
+                      toggleFullscreen: c.toggleFullscreen,
+                      onTap: WebUtils.isPopup
+                          ? null
+                          : () {
+                              router.chat(c.chatId.value);
+                              if (c.fullscreen.value) {
+                                c.toggleFullscreen();
+                              }
+                            },
+                    ),
+                  ),
                 ),
               ),
             Expanded(child: Stack(children: [...content, ...ui])),
@@ -989,89 +1005,6 @@ Widget desktopCall(CallController c, BuildContext context) {
     },
   );
 }
-
-/// Title bar of the call containing information about the call and control
-/// buttons.
-Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
-
-      return Container(
-        key: const ValueKey('TitleBar'),
-        color: style.colors.backgroundAuxiliaryLight,
-        height: CallController.titleHeight,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Handles double tap to toggle fullscreen.
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onDoubleTap: c.toggleFullscreen,
-            ),
-
-            // Left part of the title bar that displays the recipient or
-            // the caller, its avatar and the call's state.
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: c.size.width - 60),
-                child: InkWell(
-                  onTap: WebUtils.isPopup
-                      ? null
-                      : () {
-                          router.chat(c.chatId.value);
-                          if (c.fullscreen.value) {
-                            c.toggleFullscreen();
-                          }
-                        },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(width: 10),
-                      AvatarWidget.fromRxChat(c.chat.value, radius: 8),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          'label_call_title'.l10nfmt(c.titleArguments),
-                          style: context.textTheme.bodyLarge?.copyWith(
-                            fontSize: 13,
-                            color: style.colors.onPrimary,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Right part of the title bar that displays buttons.
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 3),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TooltipButton(
-                      onTap: c.toggleFullscreen,
-                      hint: c.fullscreen.value
-                          ? 'btn_fullscreen_exit'.l10n
-                          : 'btn_fullscreen_enter'.l10n,
-                      child: SvgImage.asset(
-                        'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
-                        width: 12,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
