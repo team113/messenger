@@ -660,7 +660,10 @@ class HiveRxChat extends RxChat {
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
-      saved.forEach(_local.put);
+      for (var e in saved) {
+        e.value.chatId = newChat.id;
+        _local.put(e);
+      }
 
       _initLocalSubscription();
     }
@@ -1220,6 +1223,42 @@ class HiveRxChat extends RxChat {
         }
         break;
     }
+  }
+
+  @override
+  int compareTo(RxChat other) {
+    if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall == null) {
+      return -1;
+    } else if (chat.value.ongoingCall == null &&
+        other.chat.value.ongoingCall != null) {
+      return 1;
+    } else if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall != null) {
+      return chat.value.ongoingCall!.at
+          .compareTo(other.chat.value.ongoingCall!.at);
+    }
+
+    if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition == null) {
+      return -1;
+    } else if (chat.value.favoritePosition == null &&
+        other.chat.value.favoritePosition != null) {
+      return 1;
+    } else if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition != null) {
+      return chat.value.favoritePosition!
+          .compareTo(other.chat.value.favoritePosition!);
+    }
+
+    if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
+      return 1;
+    } else if (!chat.value.id.isLocalWith(me) &&
+        other.chat.value.id.isLocalWith(me)) {
+      return -1;
+    }
+
+    return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
   }
 }
 

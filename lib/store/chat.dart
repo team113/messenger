@@ -138,6 +138,12 @@ class ChatRepository extends DisposableInterface
   /// [Chat]-monolog was hidden.
   bool _monologShouldBeHidden = false;
 
+  /// [ChatFavoritePosition] of the local [Chat]-monolog.
+  ///
+  /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
+  /// adding a local [Chat]-monolog to favorites.
+  ChatFavoritePosition? _localMonologFavoritePosition;
+
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
@@ -252,8 +258,7 @@ class ChatRepository extends DisposableInterface
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
     if (chatId.isLocal) {
-      // If recipient is us, then return an [ensureRemoteMonolog].
-      if (chatId.userId == me) {
+      if (chatId.isLocalWith(me)) {
         return await ensureRemoteMonolog();
       }
 
@@ -309,7 +314,11 @@ class ChatRepository extends DisposableInterface
         repliesTo: repliesTo,
       );
 
-      rxChat = await ensureRemoteDialog(chatId);
+      try {
+        rxChat = await ensureRemoteDialog(chatId);
+      } catch (_) {
+        local?.status.value = SendingStatus.error;
+      }
     }
 
     await rxChat?.postChatMessage(
@@ -348,7 +357,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> resendChatItem(ChatItem item) async {
-    HiveRxChat? rxChat = _chats[item.chatId] ?? (await get(item.chatId));
+    HiveRxChat? rxChat = _chats[item.chatId];
 
     // TODO: Account [ChatForward]s.
     if (item is ChatMessage) {
@@ -359,6 +368,11 @@ class ChatRepository extends DisposableInterface
               .onError<UploadAttachmentException>((_, __) => e)
               .onError<ConnectionException>((_, __) => e);
         }
+      }
+
+      // If this [item] is posted in a local [Chat], then make it remote first.
+      if (item.chatId.isLocal) {
+        rxChat = await ensureRemoteDialog(item.chatId);
       }
 
       await rxChat?.postChatMessage(
@@ -383,7 +397,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> renameChat(ChatId id, ChatName? name) async {
-    if (id.isLocal && id.userId == me) {
+    if (id.isLocalWith(me)) {
       await ensureRemoteMonolog(name);
       return;
     }
@@ -433,7 +447,7 @@ class ChatRepository extends DisposableInterface
     ChatData? monolog;
 
     try {
-      if (id.isLocal && id.userId == me) {
+      if (id.isLocalWith(me)) {
         _monologShouldBeHidden = true;
         monolog = _chat(await _graphQlProvider.createMonologChat(null));
 
@@ -768,7 +782,7 @@ class ChatRepository extends DisposableInterface
       chat?.chat.update((c) => c?.avatar = null);
     }
 
-    if (id.isLocal && id.userId == me) {
+    if (id.isLocalWith(me)) {
       id = (await ensureRemoteMonolog()).id;
     }
 
@@ -898,8 +912,21 @@ class ChatRepository extends DisposableInterface
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
     try {
+      if (id.isLocalWith(me)) {
+        _localMonologFavoritePosition = newPosition;
+        final ChatData monolog =
+            _chat(await _graphQlProvider.createMonologChat(null));
+
+        id = monolog.chat.value.id;
+        await _monologLocal.set(id);
+      }
+
       await _graphQlProvider.favoriteChat(id, newPosition);
     } catch (e) {
+      if (chat?.chat.value.isMonolog == true) {
+        _localMonologFavoritePosition = null;
+      }
+
       chat?.chat.update((c) => c?.favoritePosition = oldPosition);
       chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
       rethrow;
@@ -1170,6 +1197,19 @@ class ChatRepository extends DisposableInterface
           entry.init();
           entry.subscribe();
         } else {
+          if (chat.chat.value.isMonolog) {
+            if (_localMonologFavoritePosition != null) {
+              event.value.value.favoritePosition =
+                  _localMonologFavoritePosition;
+              _localMonologFavoritePosition = null;
+            }
+
+            if (_monologShouldBeHidden) {
+              event.value.value.isHidden = _monologShouldBeHidden;
+              _monologShouldBeHidden = false;
+            }
+          }
+
           chat.chat.value = event.value.value;
           chat.chat.refresh();
         }
@@ -1225,11 +1265,6 @@ class ChatRepository extends DisposableInterface
         // Update the chat only if it's new since, otherwise its state is
         // maintained by itself via [chatEvents].
         if (chats[event.chat.chat.value.id] == null) {
-          if (event.chat.chat.value.isMonolog && _monologShouldBeHidden) {
-            _monologShouldBeHidden = false;
-            break;
-          }
-
           _putEntry(event.chat);
         }
         break;
