@@ -46,12 +46,12 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -1837,144 +1837,11 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                       controller: c.send,
                     ),
                   ),
-                  if (false)
-                    Obx(() {
-                      final Widget child;
-
-                      if (c.welcome.value != null && !c.send.editing.value) {
-                        child =
-                            const SizedBox(height: 16, width: double.infinity);
-                      } else {
-                        child = Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                          child: MessageFieldView(
-                            fieldKey: const Key('ForwardField'),
-                            sendKey: const Key('SendForward'),
-                            constraints: const BoxConstraints(),
-                            controller: c.send,
-                          ),
-                        );
-                      }
-
-                      return child;
-
-                      return AnimatedSizeAndFade(
-                        fadeDuration: 250.milliseconds,
-                        sizeDuration: 250.milliseconds,
-                        child: child,
-                      );
-                    }),
-                  // const SizedBox(height: 10),
-                  // editOrDelete,
                 ],
               );
             }),
           ],
         ),
-      ),
-
-      if (false)
-        Obx(() {
-          if (c.welcome.value == null /* || c.send.editing.value*/) {
-            return const SizedBox();
-          }
-
-          return Padding(
-            padding: const EdgeInsets.only(top: 10, bottom: 10),
-            child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (c.welcome.value != null)
-                    WidgetButton(
-                      onPressed: () async {
-                        c.send.editing.value = true;
-                        c.send.field.unchecked = c.welcome.value?.text?.val;
-                        c.send.attachments.value = c.welcome.value?.attachments
-                                .map((e) => MapEntry(GlobalKey(), e))
-                                .toList() ??
-                            [];
-
-                        // final ChatMessage? m = await WelcomeMessageView.show(
-                        //   context,
-                        //   initial: c.welcome.value,
-                        // );
-
-                        // if (m != null) {
-                        //   c.welcome.value = m;
-                        // }
-                      },
-                      child: Text(
-                        c.welcome.value == null
-                            ? 'btn_add'.l10n
-                            : 'btn_edit'.l10n,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                  if (c.welcome.value != null) ...[
-                    Text(
-                      'space_or_space'.l10n,
-                      style: const TextStyle(color: Colors.black, fontSize: 11),
-                    ),
-                    WidgetButton(
-                      onPressed: () => c.welcome.value = null,
-                      child: Text(
-                        'btn_delete'.l10n.toLowerCase(),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          );
-        }),
-      // Obx(() {
-      //   final Widget child;
-
-      //   if (c.welcome.value != null && !c.send.editing.value) {
-      //     child = const SizedBox(height: 16, width: double.infinity);
-      //   } else {
-      //     child = Padding(
-      //       padding:
-      //           EdgeInsets.fromLTRB(0, c.welcome.value == null ? 0 : 16, 0, 0),
-      //       child: MessageFieldView(
-      //         fieldKey: const Key('ForwardField'),
-      //         sendKey: const Key('SendForward'),
-      //         constraints: const BoxConstraints(),
-      //         controller: c.send,
-      //       ),
-      //     );
-      //   }
-
-      //   return child;
-
-      //   return AnimatedSizeAndFade(
-      //     fadeDuration: 250.milliseconds,
-      //     sizeDuration: 250.milliseconds,
-      //     child: child,
-      //   );
-      // }),
-
-      // _dense(
-      //   FieldButton(
-      //     text: 'Change',
-      //     onPressed: () => WelcomeMessageView.show(context),
-      //   ),
-      // ),
-    ],
-  );
-
-  return Column(
-    children: [
-      _padding(
-        ReactiveTextField(state: TextFieldState(), label: 'label_comment'.l10n),
       ),
     ],
   );

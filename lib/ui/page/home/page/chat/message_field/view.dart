@@ -50,7 +50,6 @@ import '/util/platform_utils.dart';
 import 'buttons.dart';
 import 'controller.dart';
 import 'more.dart';
-import 'wrap_buttons.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
@@ -152,91 +151,6 @@ class MessageFieldView extends StatelessWidget {
           child: SafeArea(
             child: Column(
               children: [
-                // Container(
-                //   margin: const EdgeInsets.only(bottom: 4),
-                //   decoration: BoxDecoration(
-                //     borderRadius: style.cardRadius,
-                //     boxShadow: [
-                //       CustomBoxShadow(
-                //         blurRadius: 8,
-                //         color: style.colors.onBackgroundOpacity13,
-                //       ),
-                //     ],
-                //   ),
-                //   child: ConditionalBackdropFilter(
-                //     condition: style.cardBlur > 0,
-                //     filter: ImageFilter.blur(
-                //       sigmaX: style.cardBlur,
-                //       sigmaY: style.cardBlur,
-                //     ),
-                //     borderRadius: style.cardRadius,
-                //     child: Column(
-                //       mainAxisSize: MainAxisSize.min,
-                //       children: [
-                //         Container(
-                //           decoration: BoxDecoration(
-                //             color: background ?? style.cardColor,
-                //           ),
-                //           child: Obx(() {
-                //             if (c.buttons.isEmpty) {
-                //               return const SizedBox();
-                //             }
-
-                //             // if (!c.field.isEmpty.value) {
-                //             //   return const SizedBox();
-                //             // }
-
-                //             return const SizedBox();
-
-                //             return Container(
-                //               decoration: const BoxDecoration(
-                //                 border: Border(
-                //                   bottom: BorderSide(color: Color(0xFFEEEEEE)),
-                //                 ),
-                //               ),
-                //               child: Row(
-                //                 mainAxisAlignment:
-                //                     MainAxisAlignment.spaceEvenly,
-                //                 children: c.buttons.toList().reversed.map((e) {
-                //                   return WidgetButton(
-                //                     onPressed: () => e.onPressed?.call(true),
-                //                     child: MouseRegion(
-                //                       onEnter: (_) => e.onHovered?.call(true),
-                //                       // onExit: (_) => e.onHovered?.call(false),
-                //                       opaque: false,
-                //                       child: SizedBox(
-                //                         key: e.key,
-                //                         width: 50,
-                //                         height: 50,
-                //                         child: Center(
-                //                           child: e.icon == null
-                //                               ? Transform.translate(
-                //                                   offset: e.offset,
-                //                                   child: SvgImage.asset(
-                //                                     'assets/icons/${e.asset}.svg',
-                //                                     width: e.assetWidth,
-                //                                     height: e.assetHeight,
-                //                                   ),
-                //                                 )
-                //                               : Icon(
-                //                                   e.icon,
-                //                                   size: 28,
-                //                                   color: style.colors.primary,
-                //                                 ),
-                //                         ),
-                //                       ),
-                //                     ),
-                //                   );
-                //                 }).toList(),
-                //               ),
-                //             );
-                //           }),
-                //         )
-                //         // _buildField(c, context),
-                //       ],
-                //     ),
-                //   ),
-                // ),
                 Container(
                   key: const Key('SendField'),
                   decoration: BoxDecoration(
@@ -285,31 +199,6 @@ class MessageFieldView extends StatelessWidget {
 
         Widget? previews;
 
-        // if (c.edited.value != null) {
-        //   previews = SingleChildScrollView(
-        //     controller: c.scrollController,
-        //     child: Container(
-        //       padding: const EdgeInsets.all(4),
-        //       child: Dismissible(
-        //         key: Key('${c.edited.value?.id}'),
-        //         direction: DismissDirection.horizontal,
-        //         onDismissed: (_) => c.edited.value = null,
-        //         child: Padding(
-        //           padding: const EdgeInsets.symmetric(vertical: 2),
-        //           child: WidgetButton(
-        //             onPressed: () => onItemPressed?.call(c.edited.value!.id),
-        //             child: _buildPreview(
-        //               context,
-        //               c.edited.value!,
-        //               c,
-        //               onClose: () => c.edited.value = null,
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //     ),
-        //   );
-        // } else
         if (c.quotes.isNotEmpty) {
           previews = ReorderableListView(
             scrollController: c.scrollController,
@@ -630,9 +519,9 @@ class MessageFieldView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return LayoutBuilder(builder: (context, constraints) {
-      final int buttons = ((constraints.maxWidth - 220) / 50).floor() + 1;
+      // final int buttons = ((constraints.maxWidth - 220) / 50).floor() + 1;
       // final bool displayInRow = buttons >= c.buttons.length;
-      final bool displayInRow = true;
+      // final bool displayInRow = true;
 
       return Container(
         key: c.globalKey,
@@ -711,7 +600,7 @@ class MessageFieldView extends StatelessWidget {
             ),
             const SizedBox(width: 26 / 2 - 3),
             Obx(() {
-              if (c.buttons.isEmpty || !displayInRow) {
+              if (c.buttons.isEmpty || !true) {
                 return const SizedBox();
               }
 
@@ -766,12 +655,9 @@ class MessageFieldView extends StatelessWidget {
                                   c.field.submit();
                                 }
                               : null,
-                          child: Container(
-                            // color: Colors.red,
-                            // width: 50 - ((c.buttons.length - 1) * 3),
+                          child: SizedBox(
                             width: 50,
                             height: 56,
-                            // margin: const EdgeInsets.only(right: 8),
                             child: Center(
                               child: AnimatedSwitcher(
                                 duration: 300.milliseconds,
@@ -781,35 +667,12 @@ class MessageFieldView extends StatelessWidget {
                                         width: 26,
                                         height: 22,
                                       )
-                                    : c.field.isEmpty.value && false
-                                        ? Container(
-                                            // color: Colors.red,
-                                            width: 18.87,
-                                            height: 23.8,
-                                            child: SvgImage.asset(
-                                              'assets/icons/audio_message2.svg',
-                                              key: sendKey ?? const Key('Send'),
-                                              // height: 18.87,
-                                              width: 23.8,
-                                            ),
-                                          )
-                                        // ? Icon(
-                                        //     Icons.mic,
-                                        //     color: style.colors.primary,
-                                        //     size: 28,
-                                        //   )
-                                        // ? SvgImage.asset(
-                                        //     'assets/icons/microphone_on.svg',
-                                        //     key: sendKey ?? const Key('Send'),
-                                        //     height: 22.85,
-                                        //     width: 25.18,
-                                        //   )
-                                        : SvgImage.asset(
-                                            'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
-                                            key: sendKey ?? const Key('Send'),
-                                            width: 25.44,
-                                            height: 21.91,
-                                          ),
+                                    : SvgImage.asset(
+                                        'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
+                                        key: sendKey ?? const Key('Send'),
+                                        width: 25.44,
+                                        height: 21.91,
+                                      ),
                               ),
                             ),
                           ),
@@ -849,113 +712,8 @@ class MessageFieldView extends StatelessWidget {
                   );
                 }).toList(),
               );
-
-              // return Row(
-              //   children: c.buttons.take(take).toList().reversed.map((e) {
-              //     return WidgetButton(
-              //       onPressed: () => e.onPressed?.call(true),
-              //       child: MouseRegion(
-              //         onEnter: (_) => e.onHovered?.call(true),
-              //         // onExit: (_) => e.onHovered?.call(false),
-              //         opaque: false,
-              //         child: SizedBox(
-              //           key: e.key,
-              //           width: 36 + 4 + 4,
-              //           height: 56,
-              //           child: Center(
-              //             child: e.icon == null
-              //                 ? Transform.translate(
-              //                     offset: e.offset,
-              //                     child: SvgImage.asset(
-              //                       'assets/icons/${e.asset}.svg',
-              //                       width: e.assetWidth,
-              //                       height: e.assetHeight,
-              //                     ),
-              //                   )
-              //                 : Icon(
-              //                     e.icon,
-              //                     size: 28,
-              //                     color: style.colors.primary,
-              //                   ),
-              //           ),
-              //         ),
-              //       ),
-              //     );
-              //   }).toList(),
-              // );
             }),
             const SizedBox(width: 3),
-            // Obx(() {
-            //   return GestureDetector(
-            //     onLongPress: canForward ? c.forwarding.toggle : null,
-            //     child: WidgetButton(
-            //       onPressed: canSend
-            //           ? () {
-            //               if (c.editing.value) {
-            //                 c.field.unsubmit();
-            //               }
-            //               c.field.submit();
-            //             }
-            //           : null,
-            //       child: Container(
-            //         color: Colors.red,
-            //         // width: 50 - ((c.buttons.length - 1) * 3),
-            //         width: 56,
-            //         height: 56,
-            //         // margin: const EdgeInsets.only(right: 8),
-            //         child: Center(
-            //           child: AnimatedSwitcher(
-            //             duration: 300.milliseconds,
-            //             child: c.forwarding.value
-            //                 ? SvgImage.asset(
-            //                     'assets/icons/forward.svg',
-            //                     width: 26,
-            //                     height: 22,
-            //                   )
-            //                 : c.field.isEmpty.value && false
-            //                     ? Container(
-            //                         // color: Colors.red,
-            //                         width: 18.87,
-            //                         height: 23.8,
-            //                         child: SvgImage.asset(
-            //                           'assets/icons/audio_message2.svg',
-            //                           key: sendKey ?? const Key('Send'),
-            //                           // height: 18.87,
-            //                           width: 23.8,
-            //                         ),
-            //                       )
-            //                     // ? Icon(
-            //                     //     Icons.mic,
-            //                     //     color: style.colors.primary,
-            //                     //     size: 28,
-            //                     //   )
-            //                     // ? SvgImage.asset(
-            //                     //     'assets/icons/microphone_on.svg',
-            //                     //     key: sendKey ?? const Key('Send'),
-            //                     //     height: 22.85,
-            //                     //     width: 25.18,
-            //                     //   )
-            //                     : SvgImage.asset(
-            //                         'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
-            //                         key: sendKey ?? const Key('Send'),
-            //                         width: 25.44,
-            //                         height: 21.91,
-            //                       ),
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   );
-            // }),
-            // const SizedBox(width: 26 / 2 - 3),
-            // const SizedBox(width: 26 / 2 - 3),
-            // Obx(() {
-            //   if (c.buttons.isEmpty) {
-            //     return const SizedBox();
-            //   }
-
-            //   return const SizedBox(width: 26 / 2 - 3);
-            // }),
           ],
         ),
       );
@@ -983,6 +741,7 @@ class MessageFieldView extends StatelessWidget {
       final Style style = Theme.of(context).extension<Style>()!;
 
       if (isImage || isVideo) {
+        // TODO: Backend should support single attachment updating.
         final Widget child = MediaAttachment(
           attachment: e,
           width: size,

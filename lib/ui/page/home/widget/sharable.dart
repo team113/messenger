@@ -72,7 +72,7 @@ class SharableTextField extends StatelessWidget {
         if (icon != null)
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 25),
-            child: Icon(icon, color: style.colors.primary),
+            child: Icon(icon, color: style.colors.secondary),
           ),
         Expanded(
           child: ContextMenuRegion(

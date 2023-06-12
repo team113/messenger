@@ -23,7 +23,6 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/routes.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/selected_dot.dart';

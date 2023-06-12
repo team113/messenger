@@ -22,13 +22,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
-import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
-import 'package:messenger/util/message_popup.dart';
 
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
@@ -38,15 +34,19 @@ import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/recent_chat.dart';
@@ -61,7 +61,6 @@ class ChatsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -81,7 +80,7 @@ class ChatsTabView extends StatelessWidget {
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
                     ? style.colors.secondaryHighlight
-                    : style.colors.transparent,
+                    : style.colors.secondaryHighlight.withOpacity(0),
               );
             }),
             Obx(() {
@@ -92,7 +91,7 @@ class ChatsTabView extends StatelessWidget {
                   border: (c.searching.value ||
                           c.search.value?.search.isFocused.value == true ||
                           c.search.value?.query.value.isNotEmpty == true)
-                      ? Border.all(color: colors.secondary, width: 2)
+                      ? Border.all(color: style.colors.secondary, width: 2)
                       : null,
                   // border: c.search.value != null || c.selecting.value
                   //     ? Border.all(color: colors.secondary, width: 2)
@@ -251,16 +250,6 @@ class ChatsTabView extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.only(left: 20, right: 6),
                             height: double.infinity,
-                            // child: Icon(
-                            //   Icons.more_horiz,
-                            //   color: Theme.of(context).colorScheme.primary,
-                            // ),
-                            // child: Icon(
-                            //   key: const Key('ArrowBack'),
-                            //   Icons.select_all,
-                            //   size: 20,
-                            //   color: Theme.of(context).colorScheme.primary,
-                            // ),
                             child: SelectedDot(
                               selected: selected,
                               inverted: false,
@@ -269,7 +258,6 @@ class ChatsTabView extends StatelessWidget {
                             ),
                           ),
                         );
-                        return const SizedBox(width: 49.77);
                       }
 
                       return AnimatedSwitcher(
@@ -286,10 +274,6 @@ class ChatsTabView extends StatelessWidget {
                               right: 6,
                             ),
                             height: double.infinity,
-                            // child: Icon(
-                            //   Icons.more_horiz,
-                            //   color: Theme.of(context).colorScheme.primary,
-                            // ),
                             child: c.searching.value
                                 ? Icon(
                                     key: const Key('ArrowBack'),
@@ -458,9 +442,9 @@ class ChatsTabView extends StatelessWidget {
                       } else {
                         center = Center(
                           key: UniqueKey(),
-                          child: const ColoredBox(
-                            color: Colors.transparent,
-                            child: CustomProgressIndicator(),
+                          child: ColoredBox(
+                            color: style.colors.transparent,
+                            child: const CustomProgressIndicator(),
                           ),
                         );
                       }
@@ -826,117 +810,9 @@ class ChatsTabView extends StatelessWidget {
                               });
                             }
 
-                            final Widget search = Container(
-                              // color: Colors.red,
-                              width: double.infinity,
-                              height: 40,
-                              margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-                              child: CustomAppBar(
-                                safeArea: false,
-                                margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                shadow: false,
-                                border: c.search2.search.isFocused.value
-                                    ? Border.all(
-                                        color: colors.secondary,
-                                        width: 2,
-                                      )
-                                    : null,
-                                title: Theme(
-                                  data: MessageFieldView.theme(context),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    child: Transform.translate(
-                                      offset: const Offset(0, 1),
-                                      child: ReactiveTextField(
-                                        key: const Key('SearchField'),
-                                        state: c.search2.search,
-                                        hint: 'label_search'.l10n,
-                                        maxLines: 1,
-                                        filled: false,
-                                        dense: true,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 8,
-                                        ),
-                                        style: style.boldBody
-                                            .copyWith(fontSize: 15),
-                                        onChanged: () => c.search2.query.value =
-                                            c.search2.search.text,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                leading: [
-                                  WidgetButton(
-                                    key: const Key('SearchButton'),
-                                    onPressed: c.searching.value
-                                        ? null
-                                        : c.startSearch,
-                                    child: Container(
-                                      padding: const EdgeInsets.only(
-                                        left: 20,
-                                        right: 12,
-                                      ),
-                                      height: double.infinity,
-                                      child: SvgImage.asset(
-                                        'assets/icons/search_14.svg',
-                                        // width: 17.77,
-                                        height: 13.5,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                                actions: [
-                                  Obx(() {
-                                    final Widget child;
-
-                                    if (c.search2.search.isEmpty.value) {
-                                      child = const SizedBox();
-                                    } else {
-                                      child = WidgetButton(
-                                        key: const Key('CloseSearchButton'),
-                                        onPressed: () {
-                                          c.search2.search.clear();
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.only(
-                                            left: 12,
-                                            right: 18,
-                                          ),
-                                          height: double.infinity,
-                                          child: SvgImage.asset(
-                                            'assets/icons/close_primary.svg',
-                                            key: const Key('CloseSearch'),
-                                            height: 12,
-                                          ),
-                                        ),
-                                      );
-                                    }
-
-                                    return AnimatedSwitcher(
-                                      duration: 250.milliseconds,
-                                      child: child,
-                                    );
-                                  }),
-                                ],
-                              ),
-                            );
-
                             return CustomScrollView(
                               controller: c.scrollController,
                               slivers: [
-                                // SliverPadding(
-                                //   padding: const EdgeInsets.only(
-                                //     top: CustomAppBar.height,
-                                //     left: 10,
-                                //     right: 10,
-                                //     bottom: 2,
-                                //   ),
-                                //   sliver: SliverToBoxAdapter(
-                                //     child: search,
-                                //   ),
-                                // ),
                                 SliverPadding(
                                   padding: const EdgeInsets.only(
                                     top: CustomAppBar.height,

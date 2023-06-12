@@ -15,32 +15,30 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
+import 'package:flutter/material.dart';
 
-import 'package:flutter/widgets.dart';
+import '/domain/model/user.dart';
+import '/l10n/l10n.dart';
+import '/ui/page/home/page/my_profile/widget/copyable.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/text_field.dart';
 
-/// Web [html.ImageElement] showing images natively.
-///
-/// Uses exponential backoff algorithm to re-fetch the [src] in case of errors.
-///
-/// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
-/// errors.
-///
-/// Uses [Image.network] on non-web platforms.
-class WebImage extends StatelessWidget {
-  const WebImage(
-    this.src, {
-    super.key,
-    this.onForbidden,
-  });
+/// [CopyableTextField] representation of the provided [UserTextStatus].
+class UserStatusCopyable extends StatelessWidget {
+  const UserStatusCopyable(this.status, {super.key});
 
-  /// URL of the image to display.
-  final String src;
-
-  /// Callback, called when loading an image from the provided [src] fails with
-  /// a forbidden network error.
-  final FutureOr<void> Function()? onForbidden;
+  /// [UserTextStatus] to display.
+  final UserTextStatus status;
 
   @override
-  Widget build(BuildContext context) => Image.network(src);
+  Widget build(BuildContext context) {
+    return Paddings.basic(
+      CopyableTextField(
+        key: const Key('StatusField'),
+        state: TextFieldState(text: status.val),
+        label: 'label_status'.l10n,
+        copy: status.val,
+      ),
+    );
+  }
 }

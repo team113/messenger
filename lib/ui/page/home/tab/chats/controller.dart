@@ -27,8 +27,8 @@ import 'package:get/get.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -173,11 +173,11 @@ class ChatsTabController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    _sortChats();
+    chats.sort();
 
     for (RxChat chat in chats) {
       _sortingData[chat.chat.value.id] =
-          _ChatSortingData(chat.chat, _sortChats);
+          _ChatSortingData(chat.chat, () => chats.sort());
     }
 
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
@@ -198,20 +198,14 @@ class ChatsTabController extends GetxController {
       }
     }
 
-    // chats
-    //     .whereType<ChatElement>()
-    //     .where((c) => c.chat.chat.value.isDialog)
-    //     .map((e) => e.chat)
-    //     .forEach(listenUpdates);
     chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
     _chatsSubscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          // chats.add(ChatElement(event.value!));
           chats.add(event.value!);
-          _sortChats();
+          chats.sort();
           _sortingData[event.value!.chat.value.id] ??=
-              _ChatSortingData(event.value!.chat, _sortChats);
+              _ChatSortingData(event.value!.chat, chats.sort);
 
           if (event.value!.chat.value.isDialog) {
             listenUpdates(event.value!);
@@ -220,9 +214,6 @@ class ChatsTabController extends GetxController {
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
-          // chats.removeWhere(
-          //   (e) => e is ChatElement && e.chat.chat.value.id == event.key,
-          // );
           chats.removeWhere((e) => e.chat.value.id == event.key);
 
           if (event.value!.chat.value.isDialog) {
@@ -243,7 +234,7 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          _sortChats();
+          chats.sort();
           break;
       }
     });
@@ -638,82 +629,6 @@ class ChatsTabController extends GetxController {
     } else {
       search.value = null;
     }
-  }
-
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
-  void _sortChats() {
-    chats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      } else if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall != null) {
-        return a.chat.value.ongoingCall!.at
-            .compareTo(b.chat.value.ongoingCall!.at);
-      }
-
-      if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition == null) {
-        return -1;
-      } else if (a.chat.value.favoritePosition == null &&
-          b.chat.value.favoritePosition != null) {
-        return 1;
-      } else if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition != null) {
-        return a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!);
-      }
-
-      if (a.chat.value.id.isLocal && !b.chat.value.id.isLocal) {
-        return 1;
-      } else if (!a.chat.value.id.isLocal && b.chat.value.id.isLocal) {
-        return -1;
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-
-      // if (a is LoaderElement) {
-      //   return 1;
-      // } else if (b is LoaderElement) {
-      //   return -1;
-      // } else if (a is ChatElement && b is ChatElement) {
-      //   final RxChat c = a.chat;
-      //   final RxChat d = b.chat;
-
-      //   if (c.chat.value.favoritePosition != null &&
-      //       d.chat.value.favoritePosition == null) {
-      //     return -1;
-      //   } else if (c.chat.value.favoritePosition == null &&
-      //       d.chat.value.favoritePosition != null) {
-      //     return 1;
-      //   } else if (c.chat.value.favoritePosition != null &&
-      //       d.chat.value.favoritePosition != null) {
-      //     return c.chat.value.favoritePosition!
-      //         .compareTo(d.chat.value.favoritePosition!);
-      //   }
-
-      //   if (c.chat.value.ongoingCall != null &&
-      //       d.chat.value.ongoingCall == null) {
-      //     return -1;
-      //   } else if (c.chat.value.ongoingCall == null &&
-      //       d.chat.value.ongoingCall != null) {
-      //     return 1;
-      //   }
-
-      //   if (a.chat.id.isLocal && !b.chat.id.isLocal) {
-      //     return -1;
-      //   } else if (!a.chat.id.isLocal && b.chat.id.isLocal) {
-      //     return 1;
-      //   }
-
-      //   return d.chat.value.updatedAt.compareTo(c.chat.value.updatedAt);
-      // }
-
-      // return 0;
-    });
   }
 
   /// Disables the [search], if its focus is lost or its query is empty.

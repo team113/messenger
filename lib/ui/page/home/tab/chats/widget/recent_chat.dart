@@ -18,12 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
-import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/ui/page/home/widget/field_button.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -34,8 +31,10 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
@@ -46,6 +45,7 @@ import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
@@ -172,13 +172,14 @@ class RecentChatTile extends StatelessWidget {
         status: [
           const SizedBox(width: 4),
           _status(context, inverted),
-          Text(
-            chat.updatedAt.val.toLocal().toShort(),
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: inverted ? style.colors.onPrimary : null),
-          ),
+          if (!chat.id.isLocalWith(me))
+            Text(
+              chat.updatedAt.val.toLocal().short,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.copyWith(color: inverted ? style.colors.onPrimary : null),
+            ),
         ],
         subtitle: [
           const SizedBox(height: 5),
@@ -306,77 +307,6 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      // if (chat.ongoingCall != null) {
-      //   final Widget trailing = WidgetButton(
-      //     key: inCall?.call() == true
-      //         ? const Key('JoinCallButton')
-      //         : const Key('DropCallButton'),
-      //     onPressed: inCall?.call() == true ? onDrop : onJoin,
-      //     child: Container(
-      //       padding: const EdgeInsets.all(4),
-      //       decoration: BoxDecoration(
-      //         borderRadius: BorderRadius.circular(20),
-      //         color: inCall?.call() == true
-      //             ? Colors.red
-      //             : Theme.of(context).colorScheme.primary,
-      //       ),
-      //       child: LayoutBuilder(builder: (context, constraints) {
-      //         return Row(
-      //           mainAxisSize: MainAxisSize.min,
-      //           children: [
-      //             const SizedBox(width: 8),
-      //             Icon(
-      //               inCall?.call() == true ? Icons.call_end : Icons.call,
-      //               size: 16,
-      //               color: Colors.white,
-      //             ),
-      //             const SizedBox(width: 8),
-      //             if (constraints.maxWidth > 110)
-      //               Expanded(
-      //                 child: Text(
-      //                   inCall?.call() == true
-      //                       ? 'btn_call_end'.l10n
-      //                       : 'btn_join_call'.l10n,
-      //                   style: Theme.of(context)
-      //                       .textTheme
-      //                       .titleSmall
-      //                       ?.copyWith(color: Colors.white),
-      //                   maxLines: 1,
-      //                   overflow: TextOverflow.ellipsis,
-      //                 ),
-      //               ),
-      //             const SizedBox(width: 8),
-      //             PeriodicBuilder(
-      //               period: const Duration(seconds: 1),
-      //               builder: (_) {
-      //                 return Text(
-      //                   DateTime.now()
-      //                       .difference(chat.ongoingCall!.at.val)
-      //                       .hhMmSs(),
-      //                   style: Theme.of(context)
-      //                       .textTheme
-      //                       .titleSmall
-      //                       ?.copyWith(color: Colors.white),
-      //                 );
-      //               },
-      //             ),
-      //             const SizedBox(width: 8),
-      //           ],
-      //         );
-      //       }),
-      //     ),
-      //   );
-
-      //   return DefaultTextStyle(
-      //     style: Theme.of(context)
-      //         .textTheme
-      //         .titleSmall!
-      //         .copyWith(color: invert ? Colors.white : null),
-      //     overflow: TextOverflow.ellipsis,
-      //     child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
-      //   );
-      // }
-
       final ChatItem? item;
       if (rxChat.messages.isNotEmpty) {
         item = rxChat.messages.last.value;
@@ -409,6 +339,7 @@ class RecentChatTile extends StatelessWidget {
 
         if (draft.attachments.isNotEmpty) {
           if (draft.text == null) {
+            // TODO: Backend should support single attachment updating.
             images.addAll(
               draft.attachments.map((e) {
                 return Padding(
@@ -418,6 +349,7 @@ class RecentChatTile extends StatelessWidget {
               }),
             );
           } else {
+            // TODO: Backend should support single attachment updating.
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
@@ -588,65 +520,8 @@ class RecentChatTile extends StatelessWidget {
               )
             else
               ...images,
-            if (desc.isNotEmpty)
-              Flexible(
-                child: Text(
-                  desc.toString(),
-                  style: item.authorId == me
-                      ? null
-                      : const TextStyle(
-                          // color: rxChat.messageCost != 0
-                          //     ? const Color(0xFF8383ff)
-                          //     : null,
-                          ),
-                ),
-              ),
+            if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
           ];
-
-          // if (rxChat.messageCost != 0 && item.authorId != me) {
-          //   subtitle = [
-          //     Flexible(
-          //       child: RichText(
-          //         text: TextSpan(
-          //           children: const [
-          //             TextSpan(
-          //               text: 'Платное сообщение, ',
-          //               style: TextStyle(color: Color(0xFF8383FF)),
-          //             ),
-          //             TextSpan(
-          //               text: '¤',
-          //               style: TextStyle(
-          //                 height: 0.8,
-          //                 fontFamily: 'Gapopa',
-          //                 fontWeight: FontWeight.w300,
-          //                 color: Color(0xFF8383FF),
-          //                 fontSize: 15,
-          //               ),
-          //             ),
-          //             TextSpan(
-          //               text: '123',
-          //               style: TextStyle(color: Color(0xFF8383FF)),
-          //             ),
-          //           ],
-          //           style: Theme.of(context)
-          //               .textTheme
-          //               .titleSmall!
-          //               .copyWith(color: Color(0xFF8383FF)),
-          //         ),
-          //       ),
-          //       // child: Text(
-          //       //   desc.toString(),
-          //       //   style: item.authorId == me
-          //       //       ? null
-          //       //       : TextStyle(
-          //       //           color: rxChat.messageCost != 0
-          //       //               ? const Color(0xFF8383FF)
-          //       //               : null,
-          //       //         ),
-          //       // ),
-          //     ),
-          //   ];
-          // }
         } else if (item is ChatForward) {
           subtitle = [
             if (chat.isGroup)
@@ -1148,37 +1023,4 @@ class RecentChatTile extends StatelessWidget {
         onLongPress: () {},
         child: child,
       );
-}
-
-/// Extension adding conversion from [DateTime] to its short text relative to
-/// the [DateTime.now].
-extension DateTimeToShort on DateTime {
-  /// Returns short text representing this [DateTime].
-  ///
-  /// Returns string in format `HH:MM`, if [DateTime] is within today. Returns a
-  /// short weekday name, if [difference] between this [DateTime] and
-  /// [DateTime.now] is less than 7 days. Otherwise returns a string in format
-  /// of `YYYY-MM-DD`.
-  String toShort() {
-    final DateTime now = DateTime.now();
-    final DateTime from = DateTime(now.year, now.month, now.day);
-    final DateTime to = DateTime(year, month, day);
-
-    final int differenceInDays = from.difference(to).inDays;
-
-    if (differenceInDays > 6) {
-      final String day = this.day.toString().padLeft(2, '0');
-      final String month = this.month.toString().padLeft(2, '0');
-
-      return '$year-$month-$day';
-    } else if (differenceInDays < 1) {
-      final String hour = this.hour.toString().padLeft(2, '0');
-      final String minute = this.minute.toString().padLeft(2, '0');
-
-      return '$hour:$minute';
-    } else {
-      return 'label_days_ago'.l10nfmt({'days': differenceInDays});
-      return 'label_short_weekday'.l10nfmt({'weekday': weekday});
-    }
-  }
 }

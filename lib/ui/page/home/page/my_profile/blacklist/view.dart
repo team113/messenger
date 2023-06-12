@@ -94,19 +94,7 @@ class BlacklistView extends StatelessWidget {
                           subtitle: [
                             const SizedBox(height: 5),
                             Text(
-                              'label_date_ymd'.l10nfmt({
-                                'year': user
-                                    .user.value.isBlacklisted!.at.val.year
-                                    .toString()
-                                    .padLeft(4, '0'),
-                                'month': user
-                                    .user.value.isBlacklisted!.at.val.month
-                                    .toString()
-                                    .padLeft(2, '0'),
-                                'day': user.user.value.isBlacklisted!.at.val.day
-                                    .toString()
-                                    .padLeft(2, '0'),
-                              }),
+                              user.user.value.isBlacklisted!.at.val.yMd,
                               style: TextStyle(
                                 color: style.colors.secondary,
                                 fontSize: 13,

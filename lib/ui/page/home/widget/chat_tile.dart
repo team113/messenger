@@ -105,57 +105,12 @@ class ChatTile extends StatefulWidget {
 }
 
 class _ChatTileState extends State<ChatTile> {
-  bool _hovered = false;
-
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
     final ColorScheme colors = Theme.of(context).colorScheme;
 
-    // const Color unselected = Color.fromARGB(255, 248, 255, 250);
-    const Color unselected = Color.fromARGB(255, 241, 250, 244);
-    const Color hovered = Color.fromARGB(255, 222, 245, 228);
-    const Color tapped = Color.fromRGBO(189, 224, 198, 1);
-
-    final Border specialBorder = Border.all(
-      // color: Color(0xFFbde0c6),
-      // color: Colors.orange,
-      // color: Colors.amber,
-      // color: Color(0xFFD0D0D0),
-      // color: Theme.of(context).colorScheme.primary,
-      color: style.cardHoveredBorder.top.color.darken(0.1),
-      width: 1,
-    );
-
-    // final Border specialBorderGrey =
-    //     Border.all(color: Color(0xFF8383ff), width: 1);
-    final Border specialBorderGrey = Border.all(
-      // color: Color(0xFFbde0c6),
-      // color: Colors.orange,
-      // color: Colors.amber,
-      color: const Color(0xFFD0D0D0),
-      // color: Color(0xFFDEDEDE),
-      // color: const Color(0xFFEBEBEB),
-      width: 1,
-    );
-    // final Border specialBorderGrey =
-    //     Border.all(color: Color(0xFFD0D0D0), width: 1);
-
-    final Color secondary = Theme.of(context).colorScheme.primary;
-
-    // const Color normal = Colors.white;
-    // const Color hover = Color.fromARGB(255, 181, 225, 255);
-    // const Color paid = Color.fromRGBO(211, 237, 255, 1);
-    // const Color chosen = Color(0xFF63B4FF);
-
-    // const Color normal = Colors.white;
-    // const Color hover = Color(0xFF96cdff);
-    // const Color paid = Color(0xFFc9e5ff);
-    // const Color chosen = Color.fromARGB(255, 63, 182, 255);
-
     const Color normal = Colors.white;
-    const Color hover = Color(0xFFd0e9ff);
-    // const Color paid = Color(0xFFe0f0ff);
     const Color paid = Color.fromRGBO(213, 232, 253, 1);
     const Color chosen = Color(0xFF63B4FF);
 
@@ -190,60 +145,20 @@ class _ChatTileState extends State<ChatTile> {
             radius: 15,
             folded: widget.folded,
             child: InkWellWithHover(
-              onHover: (b) => setState(() => _hovered = b),
               selectedColor: chosen,
               unselectedColor: widget.highlight ? paid : normal,
               selectedHoverColor: chosen,
               unselectedHoverColor:
                   (widget.highlight ? paid : normal).darken(0.03),
-
               border: widget.selected
                   ? chosenBorder
                   : widget.highlight
                       ? paidBorder
                       : normalBorder,
               hoveredBorder: widget.selected ? chosenBorder : hoverBorder,
-
-              // selectedColor: invert
-              //     ? secondary
-              //     : special
-              //         ? tapped
-              //         : style.cardSelectedColor,
-              // unselectedColor: special
-              //     ? unselected
-              //     : highlight
-              //         ? style.cardHoveredColor.darken(darken)
-              //         : style.cardColor.darken(darken),
               selected: widget.selected,
-              // outlined: outlined,
-              // // hoveredBorder:
-              // //     selected ? style.primaryBorder : style.cardHoveredBorder,
-              // // border: selected ? style.primaryBorder : style.cardBorder,
-              // hoveredBorder: outlined
-              //     ? selected
-              //         ? specialBorder
-              //         : specialBorderGrey
-              //     : selected
-              //         ? style.primaryBorder
-              //         : style.cardHoveredBorder,
-              // border: outlined
-              //     ? selected
-              //         ? specialBorder
-              //         : specialBorderGrey
-              //     : selected
-              //         ? style.primaryBorder
-              //         : style.cardBorder,
               borderRadius: style.cardRadius,
               onTap: widget.onTap,
-              // unselectedHoverColor: style.cardSelectedColor,
-              // // special ? hovered : style.cardHoveredColor.darken(darken),
-              // selectedHoverColor: invert
-              //     ? secondary
-              //     : special
-              //         ? tapped
-              //         : style.cardSelectedColor,
-              // selectedHoverColor: style.cardHoveredColor.darken(darken),
-              // selectedHoverColor: style.cardSelectedColor.darken(0.03),
               folded: widget.chat?.chat.value.favoritePosition != null,
               child: Padding(
                 key: widget.chat?.chat.value.favoritePosition != null
@@ -253,21 +168,8 @@ class _ChatTileState extends State<ChatTile> {
                 child: Row(
                   children: [
                     widget.avatarBuilder(
-                      // widget.selected
-                      //     ? chosen
-                      //     : _hovered
-                      //         ? hover
-                      //         : normal,
                       Colors.white,
-                      AvatarWidget.fromRxChat(
-                        widget.chat,
-                        radius: 30,
-                        // badgeColor: widget.selected
-                        //     ? chosen
-                        //     : _hovered
-                        //         ? hover
-                        //         : normal,
-                      ),
+                      AvatarWidget.fromRxChat(widget.chat, radius: 30),
                     ),
                     const SizedBox(width: 12),
                     ...widget.leading,

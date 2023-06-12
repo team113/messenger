@@ -90,10 +90,12 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
-    final border = OutlineInputBorder(
-      borderRadius: widget.borderRadius ?? BorderRadius.zero,
-      borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
-    );
+    // final Style style = Theme.of(context).extension<Style>()!;
+
+    // final border = OutlineInputBorder(
+    //   borderRadius: widget.borderRadius ?? BorderRadius.zero,
+    //   borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
+    // );
 
     return ClipPath(
       clipper:
@@ -139,17 +141,6 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                               .top
                               .color
                               .darken(0.1),
-                          // color: const Color(0xFFEE9B01),
-                          // color: Colors.yellow,
-                          // color: const Color(0xFFFFED00),
-                          // color: widget.selected
-                          //     ? widget.outlined
-                          //         ? Theme.of(context)
-                          //             .colorScheme
-                          //             .secondary
-                          //             .darken(0.1)
-                          //         : widget.selectedHoverColor?.darken(0.1)
-                          //     : widget.hoveredBorder!.top.color.darken(0.1),
                           borderRadius: const BorderRadius.only(
                             bottomRight: Radius.circular(4),
                           ),
@@ -167,26 +158,6 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
               ),
             ),
           ),
-          // if (widget.outlined)
-          //   Positioned.fill(
-          //     child: IgnorePointer(
-          //       child: InputDecorator(
-          //         decoration: InputDecoration(
-          //           label: Text(
-          //             '1232321',
-          //             style: TextStyle(fontSize: 11),
-          //           ),
-          //           border: border,
-          //           errorBorder: border,
-          //           enabledBorder: border,
-          //           focusedBorder: border,
-          //           disabledBorder: border,
-          //           focusedErrorBorder: border,
-          //         ),
-          //         child: Container(height: double.infinity),
-          //       ),
-          //     ),
-          //   ),
         ],
       ),
     );

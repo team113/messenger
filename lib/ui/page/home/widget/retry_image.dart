@@ -111,7 +111,7 @@ class RetryImage extends StatefulWidget {
 
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
-  final Future<void> Function()? onForbidden;
+  final FutureOr<void> Function()? onForbidden;
 
   /// [BoxFit] to apply to this [RetryImage].
   final BoxFit? fit;
@@ -256,7 +256,6 @@ class _RetryImageState extends State<RetryImage> {
         child: Container(
           key: const Key('Loading'),
           height: widget.height,
-          // width: 200,
           constraints: const BoxConstraints(minWidth: 200),
           alignment: Alignment.center,
           child: Container(
@@ -353,10 +352,7 @@ class _RetryImageState extends State<RetryImage> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
-      child: KeyedSubtree(
-        key: Key('Image_${widget.url}'),
-        child: child,
-      ),
+      child: KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
     );
   }
 
@@ -373,17 +369,6 @@ class _RetryImageState extends State<RetryImage> {
       widget.url.lastIndexOf('filename=') + 'filename='.length,
       '',
     );
-
-    // print('[$tag] 403 error handling started...');
-
-    // final Stopwatch forbidden = Stopwatch()..start();
-
-    // await widget.onForbidden?.call();
-    // _cancelToken.cancel();
-
-    // print(
-    //   '[$tag] 403 error handling done for ${forbidden.elapsedMicroseconds} µs',
-    // );
 
     Uint8List? cached;
     if (widget.fallbackChecksum != null) {
@@ -405,21 +390,6 @@ class _RetryImageState extends State<RetryImage> {
             final Stopwatch watch = Stopwatch()..start();
 
             try {
-              // if (_firstTime) {
-              //   throw DioError(
-              //     requestOptions:
-              //         RequestOptions(responseType: ResponseType.json, path: ''),
-              //     response: Response(
-              //       statusCode: 403,
-              //       requestOptions: RequestOptions(
-              //         responseType: ResponseType.json,
-              //         path: '',
-              //       ),
-              //     ),
-              //   );
-              //   _firstTime = false;
-              // }
-
               data = await PlatformUtils.dio.get(
                 widget.fallbackUrl!,
                 options: Options(responseType: ResponseType.bytes),

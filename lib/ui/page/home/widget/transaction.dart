@@ -18,10 +18,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 
@@ -144,7 +144,7 @@ class TransactionWidget extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              transaction.at.toShort(),
+                              transaction.at.short,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall

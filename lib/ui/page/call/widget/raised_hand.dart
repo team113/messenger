@@ -15,32 +15,30 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
+import 'package:flutter/material.dart';
 
-import 'package:flutter/widgets.dart';
+import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
-/// Web [html.ImageElement] showing images natively.
-///
-/// Uses exponential backoff algorithm to re-fetch the [src] in case of errors.
-///
-/// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
-/// errors.
-///
-/// Uses [Image.network] on non-web platforms.
-class WebImage extends StatelessWidget {
-  const WebImage(
-    this.src, {
-    super.key,
-    this.onForbidden,
-  });
+/// [Widget] which returns a raised hand icon with animation.
+class RaisedHand extends StatelessWidget {
+  const RaisedHand(this.raised, {super.key});
 
-  /// URL of the image to display.
-  final String src;
-
-  /// Callback, called when loading an image from the provided [src] fails with
-  /// a forbidden network error.
-  final FutureOr<void> Function()? onForbidden;
+  /// Indicator whether a hand is raised or not.
+  final bool raised;
 
   @override
-  Widget build(BuildContext context) => Image.network(src);
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 150),
+      opacity: raised ? 1 : 0,
+      child: CircleAvatar(
+        radius: 45,
+        backgroundColor: style.colors.secondaryOpacity87,
+        child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
+      ),
+    );
+  }
 }

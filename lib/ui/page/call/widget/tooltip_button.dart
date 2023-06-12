@@ -23,12 +23,12 @@ import '/themes.dart';
 /// [InkWell] button with a [Tooltip] of a [hint].
 class TooltipButton extends StatelessWidget {
   const TooltipButton({
-    Key? key,
+    super.key,
     this.child,
     this.onTap,
     this.hint,
     this.verticalOffset,
-  }) : super(key: key);
+  });
 
   /// Widget of this button.
   final Widget? child;

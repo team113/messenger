@@ -48,7 +48,7 @@ class WebImage extends StatefulWidget {
 
   /// Callback, called when loading an image from the provided [src] fails with
   /// a forbidden network error.
-  final Future<void> Function()? onForbidden;
+  final FutureOr<void> Function()? onForbidden;
 
   @override
   State<WebImage> createState() => _WebImageState();
@@ -68,7 +68,6 @@ class _WebImageState extends State<WebImage> {
   @override
   void didUpdateWidget(WebImage oldWidget) {
     if (oldWidget.src != widget.src) {
-      print('[WebImage] didUpdateWidget');
       _cancelToken.cancel();
       _cancelToken = CancelToken();
       _backoffRunning = false;
@@ -123,7 +122,6 @@ class _WebImageState extends State<WebImage> {
             data = await PlatformUtils.dio.head(widget.src);
           } on DioError catch (e) {
             if (e.response?.statusCode == 403) {
-              print('[WebImage] onForbidden');
               await widget.onForbidden?.call();
               _cancelToken.cancel();
             }

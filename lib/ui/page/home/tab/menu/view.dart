@@ -152,11 +152,6 @@ class MenuTabView extends StatelessWidget {
                 onPressed: () => AccountsView.show(context),
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
-                  // child: SizedBox(
-                  //   height: 32,
-                  //   width: 32,
-                  //   child: RiveAsset('assets/icons/switch_account.riv'),
-                  // ),
                   child: Obx(() {
                     if (router.accounts.value == 0) {
                       return SvgImage.asset(

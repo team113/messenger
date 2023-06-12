@@ -21,7 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 
@@ -37,6 +36,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -241,67 +241,6 @@ class ContactsTabView extends StatelessWidget {
                   ],
                 );
               }),
-              // Obx(() {
-              //   final Widget child;
-
-              //   if (c.search.value != null || c.selecting.value) {
-              //     child = SvgImage.asset(
-              //       key: const Key('CloseSearch'),
-              //       'assets/icons/close_primary.svg',
-              //       height: 15,
-              //       width: 15,
-              //     );
-              //   } else {
-              //     child = SvgImage.asset(
-              //       // 'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-              //       // key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-              //       // width: 29.69,
-              //       // height: 21,
-              //       'assets/icons/chats_small.svg',
-              //       // width: 21.77,
-              //       height: 23.62,
-              //     );
-              //   }
-
-              //   return WidgetButton(
-              //     onPressed: () {
-              //       if (c.selecting.value) {
-              //         c.toggleSelecting();
-              //       } else if (c.search.value != null) {
-              //         c.toggleSearch(false);
-              //       } else {
-              //         if (onSwitched != null) {
-              //           onSwitched?.call();
-              //         } else {
-              //           c.toggleSorting();
-              //         }
-              //       }
-              //     },
-              //     child: Container(
-              //       alignment: Alignment.center,
-              //       // width: 29.69 + 12 + 18,
-              //       width: 29.69 + 8,
-              //       height: double.infinity,
-              //       child: Center(
-              //         child: AnimatedSwitcher(
-              //           duration: 250.milliseconds,
-              //           child: child,
-              //         ),
-              //       ),
-              //     ),
-              //   );
-              // }),
-              // WidgetButton(
-              //   onPressed: () {},
-              //   child: Container(
-              //     padding: const EdgeInsets.only(left: 12, right: 18),
-              //     height: double.infinity,
-              //     child: Icon(
-              //       Icons.more_vert,
-              //       color: Theme.of(context).colorScheme.primary,
-              //     ),
-              //   ),
-              // ),
             ],
             leading: [
               Obx(() {
@@ -329,16 +268,6 @@ class ContactsTabView extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.only(left: 20, right: 6),
                       height: double.infinity,
-                      // child: Icon(
-                      //   Icons.more_horiz,
-                      //   color: Theme.of(context).colorScheme.primary,
-                      // ),
-                      // child: Icon(
-                      //   key: const Key('ArrowBack'),
-                      //   Icons.select_all,
-                      //   size: 20,
-                      //   color: Theme.of(context).colorScheme.primary,
-                      // ),
                       child: SelectedDot(
                         selected: selected,
                         inverted: false,
@@ -347,7 +276,6 @@ class ContactsTabView extends StatelessWidget {
                       ),
                     ),
                   );
-                  return const SizedBox(width: 49.77);
                 }
 
                 return AnimatedSwitcher(
@@ -359,7 +287,6 @@ class ContactsTabView extends StatelessWidget {
                     onPressed: c.search.value == null
                         ? () => c.toggleSearch(true)
                         : () {},
-                    //  () => c.toggleSearch(c.search.value == null),
                     child: Container(
                       padding: const EdgeInsets.only(left: 20, right: 6),
                       height: double.infinity,
@@ -378,24 +305,6 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               }),
-              // Obx(() {
-              //   if (c.selecting.value) {
-              //     return const SizedBox(width: 49.77);
-              //   }
-
-              //   return WidgetButton(
-              //     key: const Key('SearchButton'),
-              //     onPressed: c.search.value != null ? null : c.toggleSearch,
-              //     child: Container(
-              //       padding: const EdgeInsets.only(left: 20, right: 12),
-              //       height: double.infinity,
-              //       child: SvgImage.asset(
-              //         'assets/icons/search.svg',
-              //         width: 17.77,
-              //       ),
-              //     ),
-              //   );
-              // }),
             ],
           ),
           extendBodyBehindAppBar: true,
@@ -646,20 +555,6 @@ class ContactsTabView extends StatelessWidget {
                                     ),
                                   );
                                 }),
-                                // Center(
-                                //   child: Padding(
-                                //     padding:
-                                //         const EdgeInsets.fromLTRB(0, 12, 0, 12),
-                                //     child: ConstrainedBox(
-                                //       constraints: BoxConstraints.tight(
-                                //         const Size.square(40),
-                                //       ),
-                                //       child: const Center(
-                                //         child: CustomProgressIndicator(),
-                                //       ),
-                                //     ),
-                                //   ),
-                                // ),
                               ],
                             ),
                           ),
@@ -761,7 +656,6 @@ class ContactsTabView extends StatelessWidget {
                 ? 'label_sort_by_visit'.l10n
                 : 'label_sort_by_name'.l10n,
             onPressed: c.toggleSorting,
-            // trailing: const Icon(Icons.group_outlined),
             trailing: SvgImage.asset(
               'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
               key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),

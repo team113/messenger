@@ -449,12 +449,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 maxScale: PhotoViewComputedScale.contained * 3,
                 errorBuilder: (_, __, ___) {
                   return InitCallback(
-                    callback: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
+                    callback: e.onError,
                     child: const SizedBox(
                       height: 300,
                       child: Center(child: CustomProgressIndicator()),
@@ -484,12 +479,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                       _videoControllers[index] = c;
                     }
                   },
-                  onError: () async {
-                    await e.onError?.call();
-                    if (mounted) {
-                      setState(() {});
-                    }
-                  },
+                  onError: e.onError,
                 ),
               ),
               minScale: PhotoViewComputedScale.contained,
@@ -565,12 +555,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         _videoControllers[index] = c;
                       }
                     },
-                    onError: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
+                    onError: e.onError,
                   )
                 : GestureDetector(
                     onTap: () {
@@ -585,22 +570,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                     child: PlatformUtils.isWeb
                         ? WebImage(
                             e.link,
-                            onForbidden: () async {
-                              await e.onError?.call();
-                              if (mounted) {
-                                setState(() {});
-                              }
-                            },
+                            onForbidden: e.onError,
                           )
                         : RetryImage(
                             e.link,
                             checksum: e.checksum,
-                            onForbidden: () async {
-                              await e.onError?.call();
-                              if (mounted) {
-                                setState(() {});
-                              }
-                            },
+                            onForbidden: e.onError,
                           ),
                   ),
           ),

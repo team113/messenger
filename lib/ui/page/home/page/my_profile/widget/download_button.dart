@@ -20,11 +20,11 @@ import 'package:flutter/material.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'field_button.dart';
 
 /// [FieldButton] stylized with the provided [asset] and [title] downloading a
 /// file by the specified [link] when pressed.

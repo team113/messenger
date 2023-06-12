@@ -19,8 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
+import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 
 class DownloadableButton extends StatefulWidget {
@@ -97,8 +96,6 @@ class _DownloadableFileState extends State<DownloadableButton> {
         duration: 250.milliseconds,
         child: leading,
       );
-
-      final Style style = Theme.of(context).extension<Style>()!;
 
       return FieldButton(
         onPressed: () async {

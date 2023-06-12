@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -10,8 +8,6 @@ import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
-
-import 'buttons.dart';
 
 class MessageFieldDonate extends StatelessWidget {
   const MessageFieldDonate(this.c, {super.key, this.globalKey});

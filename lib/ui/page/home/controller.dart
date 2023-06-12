@@ -23,7 +23,6 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/transaction.dart';
-import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/partner.dart';
 import 'package:messenger/util/message_popup.dart';
@@ -44,7 +43,6 @@ class HomeController extends GetxController {
   HomeController(
     this._auth,
     this._myUserService,
-    this._chatService,
     this._settings,
     this._balanceService,
     this._partnerService,
@@ -91,8 +89,6 @@ class HomeController extends GetxController {
 
   /// [MyUserService] to listen to the [MyUser] changes.
   final MyUserService _myUserService;
-
-  final ChatService _chatService;
 
   /// [AbstractSettingsRepository] containing the [ApplicationSettings] used to
   /// determine whether an [IntroductionView] was already shown.

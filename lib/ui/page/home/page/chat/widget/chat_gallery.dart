@@ -55,12 +55,13 @@ class ChatGallery extends StatefulWidget {
   State<ChatGallery> createState() => _ChatGalleryState();
 }
 
-/// State of the [ChatGallery] used to update [GalleryItem.link]s on fetching
+/// State of a [ChatGallery] updating the [GalleryItem.link]s on fetching
 /// errors.
 class _ChatGalleryState extends State<ChatGallery> {
   @override
   Widget build(BuildContext context) {
-    List<GalleryItem> gallery = [];
+    final List<GalleryItem> gallery = [];
+
     for (var o in widget.attachments) {
       final StorageFile file = o.attachment.original;
 
