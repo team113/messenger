@@ -17,17 +17,19 @@
 
 import 'dart:async';
 
-import 'package:chewie/chewie.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
-import 'package:video_player/video_player.dart';
 
-import 'desktop_controls.dart';
-import 'mobile_controls.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/backoff.dart';
 import '/util/platform_utils.dart';
+import 'desktop_controls.dart';
+import 'mobile_controls.dart';
 
 /// Video player with controls.
 class Video extends StatefulWidget {
@@ -51,14 +53,14 @@ class Video extends StatefulWidget {
   /// Callback, called when a toggle fullscreen action is fired.
   final VoidCallback? toggleFullscreen;
 
-  /// Callback, called when a [VideoPlayerController] is assigned or disposed.
-  final void Function(VideoPlayerController?)? onController;
+  /// Callback, called when a [MeeduPlayerController] is assigned or disposed.
+  final void Function(MeeduPlayerController?)? onController;
 
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
-  /// Callback, called on the [VideoPlayerController] initialization errors.
-  final Future<void> Function()? onError;
+  /// Callback, called on the [MeeduPlayerController] initialization errors.
+  final FutureOr<void> Function()? onError;
 
   /// [Duration] to initially show an user interface for.
   final Duration? showInterfaceFor;
@@ -67,25 +69,32 @@ class Video extends StatefulWidget {
   State<Video> createState() => _VideoState();
 }
 
-/// State of a [Video] used to initialize and dispose video controllers.
+/// State of a [Video] used to initialize and dispose video controller.
 class _VideoState extends State<Video> {
-  /// [VideoPlayerController] controlling the actual video stream.
-  late VideoPlayerController _controller;
-
-  /// [ChewieController] adding extra functionality over the
-  /// [VideoPlayerController], used to display a [Chewie] player.
-  ChewieController? _chewie;
-
-  /// Indicator whether the [_initVideo] has failed.
-  bool _hasError = false;
-
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
+  /// [CancelToken] for cancelling the [Video.url] header fetching.
+  CancelToken? _cancelToken;
+
+  final MeeduPlayerController _controller = MeeduPlayerController(
+    controlsStyle: ControlsStyle.custom,
+    fits: [BoxFit.contain],
+    initialFit: BoxFit.contain,
+    enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
+    loadingWidget: const SizedBox(),
+    showLogs: kDebugMode,
+  );
+
   @override
   void initState() {
+    widget.onController?.call(_controller);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _initVideo();
+    });
+
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
-    _initVideo();
     super.initState();
   }
 
@@ -94,14 +103,16 @@ class _VideoState extends State<Video> {
     widget.onController?.call(null);
     _loading?.cancel();
     _controller.dispose();
-    _chewie?.dispose();
+    _cancelToken?.cancel();
     super.dispose();
   }
 
   @override
   void didUpdateWidget(Video oldWidget) {
     if (oldWidget.url != widget.url) {
-      _initVideo();
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await _initVideo();
+      });
     }
 
     super.didUpdateWidget(oldWidget);
@@ -113,115 +124,106 @@ class _VideoState extends State<Video> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      child: _controller.value.isInitialized
-          ? Theme(
-              data: ThemeData(platform: TargetPlatform.iOS),
-              child: Chewie(controller: _chewie!),
-            )
-          : _hasError
-              ? Center(
-                  key: const Key('Error'),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error,
-                        size: 48,
-                        color: style.colors.dangerColor,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Video playback is not yet supported\non your operating system',
-                        style: fonts.bodyMedium!.copyWith(
-                          color: style.colors.onPrimary,
+      child: RxBuilder((_) {
+        return _controller.dataStatus.loaded
+            ? Stack(
+                children: [
+                  MeeduVideoPlayer(
+                    controller: _controller,
+                    customControls: (_, __, ___) => const SizedBox(),
+                  ),
+                  PlatformUtils.isMobile
+                      ? MobileControls(controller: _controller)
+                      : DesktopControls(
+                          controller: _controller,
+                          onClose: widget.onClose,
+                          toggleFullscreen: widget.toggleFullscreen,
+                          isFullscreen: widget.isFullscreen,
+                          showInterfaceFor: widget.showInterfaceFor,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                )
-              : GestureDetector(
-                  key: Key(_loading == null ? 'Loading' : 'Box'),
-                  onTap: () {},
-                  child: Center(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.99,
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      decoration: BoxDecoration(
-                        color: style.colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: _loading != null
-                          ? const SizedBox()
-                          : const Center(child: CustomProgressIndicator()),
+                ],
+              )
+            : _controller.dataStatus.error
+                ? Center(
+                    key: const Key('Error'),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error,
+                          size: 48,
+                          color: style.colors.dangerColor,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          _controller.errorText == null
+                              ? 'err_unknown'.l10n
+                              : _controller.errorText!,
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.onPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                  ),
-                ),
+                  )
+                : GestureDetector(
+                    key: Key(_loading != null ? 'Box' : 'Loading'),
+                    onTap: () {
+                      // Intercept `onTap` event to prevent [GalleryPopup]
+                      // closing.
+                    },
+                    child: Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.99,
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        decoration: BoxDecoration(
+                          color: style.colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: _loading != null
+                            ? const SizedBox()
+                            : const Center(child: CustomProgressIndicator()),
+                      ),
+                    ),
+                  );
+      }),
     );
   }
 
-  /// Initializes the [_controller] and [_chewie].
+  /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    final (style, _) = Theme.of(context).styles();
+    // TODO: [MeeduPlayerController.setDataSource] should be awaited.
+    //       https://github.com/zezo357/flutter_meedu_videoplayer/issues/102
+    _controller.setDataSource(
+      DataSource(type: DataSourceType.network, source: widget.url),
+    );
 
-    try {
-      _controller = VideoPlayerController.network(widget.url);
-      widget.onController?.call(_controller);
-      await _controller.initialize();
+    _cancelToken?.cancel();
+    _cancelToken = CancelToken();
 
-      _chewie = ChewieController(
-        videoPlayerController: _controller,
-        autoPlay: true,
-        looping: false,
-        showOptions: false,
-        autoInitialize: true,
-        showControlsOnInitialize: false,
-        materialProgressColors: ChewieProgressColors(
-          playedColor: style.colors.primaryHighlight,
-          handleColor: style.colors.primaryHighlight,
-          bufferedColor: style.colors.onPrimary,
-          backgroundColor: style.colors.onPrimaryOpacity50,
-        ),
-        customControls: PlatformUtils.isMobile
-            ? const MobileControls()
-            : DesktopControls(
-                onClose: widget.onClose,
-                toggleFullscreen: widget.toggleFullscreen,
-                isFullscreen: widget.isFullscreen,
-                showInterfaceFor: widget.showInterfaceFor,
-              ),
-        routePageBuilder: (context, animation, _, provider) {
-          return Theme(
-            data: ThemeData(platform: TargetPlatform.iOS),
-            child: AnimatedBuilder(
-              animation: animation,
-              builder: (context, child) {
-                return Scaffold(
-                  resizeToAvoidBottomInset: false,
-                  body: Container(
-                    alignment: Alignment.center,
-                    color: style.colors.onBackground,
-                    child: provider,
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      );
-    } on PlatformException catch (e) {
-      if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
-        if (widget.onError != null) {
-          await widget.onError?.call();
-        } else {
-          _hasError = true;
+    bool shouldReload = false;
+    Backoff.run(
+      () async {
+        try {
+          await PlatformUtils.dio.head(widget.url);
+          if (shouldReload) {
+            // Reinitialize the [_controller] if an unexpected error was thrown.
+            await _controller.setDataSource(
+              DataSource(type: DataSourceType.network, source: widget.url),
+            );
+          }
+        } catch (e) {
+          if (e is DioError && e.response?.statusCode == 403) {
+            widget.onError?.call();
+            _cancelToken?.cancel();
+          } else {
+            shouldReload = true;
+            rethrow;
+          }
         }
-      } else {
-        // Plugin is not supported on the current platform.
-        _hasError = true;
-      }
-    }
-
-    setState(() => _loading?.cancel());
+      },
+      _cancelToken,
+    );
   }
 }

@@ -398,7 +398,10 @@ label_attachments = [{$count} { $count ->
     [few] прикрепления
     *[other] прикреплений
     }]
-label_audio_call = Аудиозвонок
+label_audio_call = Аудиозвонок{$by ->
+        [x]{""}
+        *[other] {" "}от {$by}
+    }
 label_audio_notifications = Звуковые уведомления
 label_avatar_removed = {$author} удалил аватар
 label_avatar_removed1 = {$author}
@@ -444,6 +447,7 @@ label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
 label_chat_members = Участники
 label_chat_monolog = Себе
+label_chat_name_hint = Название чата
 label_chats = Чаты
 label_clear_history = Очистить историю
 label_confirm = Подтвердить
@@ -724,7 +728,10 @@ label_users_count = Пользователей: {$count}
 label_verify_email = Верифицировать E-mail
 label_verify_number = Верифицировать номер телефона
 label_video = Видео
-label_video_call = Видеозвонок
+label_video_call = Видеозвонок{$by ->
+        [x]{""}
+        *[other] {" "}от {$by}
+    }
 label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:

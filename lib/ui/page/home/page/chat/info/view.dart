@@ -363,7 +363,7 @@ class ChatInfoView extends StatelessWidget {
           label: c.chat?.chat.value.name == null
               ? c.chat?.title.value
               : 'label_name'.l10n,
-          hint: 'label_name_hint'.l10n,
+          hint: 'label_chat_name_hint'.l10n,
           onSuffixPressed: c.name.text.isEmpty
               ? null
               : () {
@@ -632,27 +632,25 @@ class ChatInfoView extends StatelessWidget {
               ),
             ),
           ),
-        if (!c.isLocal)
-          Obx(() {
-            final bool favorited = c.chat?.chat.value.favoritePosition != null;
-
-            return ActionButton(
-              key: Key(
-                favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
+        Obx(() {
+          final bool favorited = c.chat?.chat.value.favoritePosition != null;
+          return ActionButton(
+            key: Key(
+              favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
+            ),
+            onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
+            text: favorited
+                ? 'btn_delete_from_favorites'.l10n
+                : 'btn_add_to_favorites'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
-              onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
-              text: favorited
-                  ? 'btn_delete_from_favorites'.l10n
-                  : 'btn_add_to_favorites'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-                ),
-              ),
-            );
-          }),
+            ),
+          );
+        }),
         if (!c.isMonolog)
           Obx(() {
             final bool muted = c.chat?.chat.value.muted != null;
