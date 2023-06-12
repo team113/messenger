@@ -15,14 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:video_player/video_player.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
-/// Extension adding [VideoPlayerController] constructor from [Uint8List].
-extension VideoPlayerControllerExt on VideoPlayerController {
-  /// Creates a [VideoPlayerController] from the provided [bytes].
-  static VideoPlayerController bytes(Uint8List bytes) =>
-      VideoPlayerController.file(File.fromRawPath(bytes));
+/// Extension adding [DataSource] constructor from [Uint8List].
+extension DataSourceExt on DataSource {
+  /// Creates a [DataSource] from the provided [bytes].
+  static DataSource bytes(Uint8List bytes) => throw UnimplementedError();
 }

@@ -111,7 +111,7 @@ class RetryImage extends StatefulWidget {
 
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
-  final Future<void> Function()? onForbidden;
+  final FutureOr<void> Function()? onForbidden;
 
   /// [BoxFit] to apply to this [RetryImage].
   final BoxFit? fit;
@@ -388,6 +388,7 @@ class _RetryImageState extends State<RetryImage> {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
                 _cancelToken.cancel();
+                _fallbackToken.cancel();
               }
             }
 
@@ -400,6 +401,8 @@ class _RetryImageState extends State<RetryImage> {
               if (mounted) {
                 setState(() {});
               }
+            } else {
+              throw Exception('Fallback image is not loaded');
             }
           },
           _fallbackToken,
@@ -453,6 +456,8 @@ class _RetryImageState extends State<RetryImage> {
             } on DioError catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
+                _cancelToken.cancel();
+                _fallbackToken.cancel();
               }
             }
 
