@@ -888,8 +888,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 if (msg.repliesTo.last != e) const SizedBox(height: 6),
               ];
             }),
-            SizedBox(
-                height: _text != null || msg.attachments.isNotEmpty ? 6 : 0),
+            const SizedBox(height: 6),
           ],
           if (media.isNotEmpty) ...[
             ClipRRect(
@@ -965,7 +964,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         if (files.last != e) const SizedBox(height: 6),
                       ],
                     ),
-                    if (_text == null && !timeInBubble)
+                    if (_text == null && widget.timestamp)
                       Opacity(opacity: 0, child: _timestamp(msg)),
                   ],
                 ),
@@ -1084,90 +1083,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _ongoingCallTimer?.cancel();
     }
 
-    bool isMissed = false;
-
-    String title = 'label_chat_call_ended'.l10n;
-    String? time;
-
-    if (isOngoing) {
-      title = 'label_chat_call_ongoing'.l10n;
-      time = message.conversationStartedAt!.val
-          .difference(DateTime.now())
-          .localizedString();
-    } else if (message.finishReason != null) {
-      title = message.finishReason!.localizedString(_fromMe) ?? title;
-      isMissed = (message.finishReason == ChatCallFinishReason.dropped) ||
-          (message.finishReason == ChatCallFinishReason.unanswered);
-
-      if (message.finishedAt != null && message.conversationStartedAt != null) {
-        time = message.finishedAt!.val
-            .difference(message.conversationStartedAt!.val)
-            .localizedString();
-      }
-    } else {
-      title = message.authorId == widget.me
-          ? 'label_outgoing_call'.l10n
-          : 'label_incoming_call'.l10n;
-    }
+    final Widget call = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(width: 4),
+        _call(message),
+      ],
+    );
 
     final Color color = _fromMe
         ? style.colors.primary
         : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
             style.colors.userColors.length];
-
-    final Widget call = Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: style.colors.onBackground.withOpacity(0.03),
-      ),
-      padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: message.withVideo
-                ? SvgImage.asset(
-                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                    height: 13 * 1.4,
-                  )
-                : SvgImage.asset(
-                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                    height: 15 * 1.4,
-                  ),
-          ),
-          Flexible(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: style.boldBody,
-                  ),
-                ),
-                if (time != null) ...[
-                  const SizedBox(width: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 1),
-                    child: Text(
-                      time,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ).fixedDigits(),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-    );
 
     // Returns the contents of the [ChatCall] render along with its timestamp.
     Widget child(bool menu) {
@@ -1177,7 +1104,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+              padding: const EdgeInsets.fromLTRB(8, 7, 8, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1200,7 +1127,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         style: style.boldBody.copyWith(color: color),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                   ],
                   SelectionContainer.disabled(
                     child: Text.rich(
@@ -1359,61 +1286,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         );
       }
     } else if (item is ChatCallQuote) {
-      String title = 'label_chat_call_ended'.l10n;
-      String? time;
-      bool fromMe = widget.me == item.author;
-      bool isMissed = false;
-
-      final ChatCall? call = item.original as ChatCall?;
-
-      if (call?.finishReason == null && call?.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (call?.finishReason != null) {
-        title = call!.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = call.finishReason == ChatCallFinishReason.dropped ||
-            call.finishReason == ChatCallFinishReason.unanswered;
-
-        if (call.finishedAt != null && call.conversationStartedAt != null) {
-          time = call.finishedAt!.val
-              .difference(call.conversationStartedAt!.val)
-              .localizedString();
-        }
-      } else {
-        title = item.author == widget.me
-            ? 'label_outgoing_call'.l10n
-            : 'label_incoming_call'.l10n;
-      }
-
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: call?.withVideo == true
-                ? SvgImage.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgImage.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(child: Text(title, style: style.boldBody)),
-          if (time != null) ...[
-            const SizedBox(width: 9),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.boldBody,
-              ),
-            ),
-          ],
-        ],
-      );
+      content = _call(item.original as ChatCall?);
     } else if (item is ChatInfoQuote) {
       // TODO: Implement `ChatInfo`.
       content = Text(item.action.toString(), style: style.boldBody);
@@ -1475,6 +1348,90 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
         );
       },
+    );
+  }
+
+  /// Returns content of the provided [call].
+  Widget _call(ChatCall? call) {
+    final Style style = Theme.of(context).extension<Style>()!;
+    bool isOngoing =
+        call?.finishReason == null && call?.conversationStartedAt != null;
+    bool isMissed = false;
+
+    String title = 'label_chat_call_ended'.l10n;
+    String? time;
+
+    if (isOngoing) {
+      title = 'label_chat_call_ongoing'.l10n;
+      time = call!.conversationStartedAt!.val
+          .difference(DateTime.now())
+          .localizedString();
+    } else if (call != null && call.finishReason != null) {
+      title = call.finishReason!.localizedString(_fromMe) ?? title;
+      isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
+          (call.finishReason == ChatCallFinishReason.unanswered);
+
+      if (call.finishedAt != null && call.conversationStartedAt != null) {
+        time = call.finishedAt!.val
+            .difference(call.conversationStartedAt!.val)
+            .localizedString();
+      }
+    } else {
+      title = call?.authorId == widget.me
+          ? 'label_outgoing_call'.l10n
+          : 'label_incoming_call'.l10n;
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: call?.withVideo ?? false
+              ? SvgImage.asset(
+            'assets/icons/call_video${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
+            height: 11,
+          )
+              : SvgImage.asset(
+            'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
+            height: 12,
+          ),
+        ),
+        Flexible(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style.boldBody,
+                ),
+              ),
+              if (time != null) ...[
+                const SizedBox(width: 8),
+                Padding(
+                  padding: const EdgeInsets.only(top: 2.5),
+                  child: Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      Text(
+                        time,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ).fixedDigits(),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(width: 2),
+      ],
     );
   }
 
