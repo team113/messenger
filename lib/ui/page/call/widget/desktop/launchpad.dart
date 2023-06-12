@@ -24,7 +24,7 @@ import '../conditional_backdrop.dart';
 import '/themes.dart';
 import '/ui/page/call/component/common.dart';
 
-/// `More` panel containing the dragging and dropping elements.
+/// Panel which containing the dragging and dropping elements.
 class LaunchpadWidget extends StatelessWidget {
   const LaunchpadWidget({
     super.key,

@@ -37,7 +37,7 @@ import '/ui/page/call/controller.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 
-/// [ReorderableFit] of the [CallController.primary] participants.
+/// [ReorderableFit] of the primary participants.
 class PrimaryView extends StatelessWidget {
   const PrimaryView({
     super.key,

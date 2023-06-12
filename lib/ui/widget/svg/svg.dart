@@ -81,7 +81,7 @@ class SvgImage extends StatelessWidget {
         excludeFromSemantics: excludeFromSemantics,
       );
 
-  /// Instantiates a widget rendering an SVG picture from a [File].
+  /// Instantiates a widget rendering an SVG picture from an [Uint8List].
   ///
   /// Either the [width] and [height] arguments should be specified, or the
   /// widget should be placed in a context setting layout constraints tightly.
@@ -91,7 +91,7 @@ class SvgImage extends StatelessWidget {
     Uint8List bytes, {
     Key? key,
     Alignment alignment = Alignment.center,
-    BoxFit fit = BoxFit.contain,
+    BoxFit fit = BoxFit.cover,
     double? width,
     double? height,
     WidgetBuilder? placeholderBuilder,
@@ -120,7 +120,7 @@ class SvgImage extends StatelessWidget {
     File file, {
     Key? key,
     Alignment alignment = Alignment.center,
-    BoxFit fit = BoxFit.contain,
+    BoxFit fit = BoxFit.cover,
     double? width,
     double? height,
     WidgetBuilder? placeholderBuilder,
