@@ -44,7 +44,7 @@ class CallService extends DisposableService {
     this._callsRepo,
   );
 
-  /// Unmodifiable map of the current [OngoingCall]s.
+  /// Unmodifiable map of the currently displayed [OngoingCall]s.
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callsRepo.calls;
 
   /// [AuthService] to get the authenticated [MyUser].
@@ -145,7 +145,7 @@ class CallService extends DisposableService {
     }
   }
 
-  /// Leaves an [OngoingCall] identified by the given [chatId].
+  /// Leaves or declines an [OngoingCall] identified by the given [chatId].
   Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {

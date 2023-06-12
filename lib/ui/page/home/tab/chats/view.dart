@@ -447,7 +447,7 @@ class ChatsTabView extends StatelessWidget {
                                       getUser: c.getUser,
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
-                                      inCall: () => c.inCall(chat.id),
+                                      inCall: () => c.containsCall(chat.id),
                                     );
                                   }),
                                 );
@@ -607,7 +607,7 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: () => c.hideChat(e.id),
-                                inCall: () => c.inCall(e.id),
+                                inCall: () => c.containsCall(e.id),
                                 onMute: e.chat.value.isMonolog ||
                                         e.chat.value.id.isLocal
                                     ? null
