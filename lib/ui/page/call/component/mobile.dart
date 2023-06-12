@@ -588,26 +588,32 @@ Widget mobileCall(CallController c, BuildContext context) {
                     description: AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
-                      child: Text(c.me.isHandRaised.value
-                          ? 'btn_call_hand_down_desc'.l10n
-                          : 'btn_call_hand_up_desc'.l10n),
+                      child: Text(
+                        c.me.isHandRaised.value
+                            ? 'btn_call_hand_down_desc'.l10n
+                            : 'btn_call_hand_up_desc'.l10n,
+                      ),
                     ),
                     child: HandButton(c).build(),
                   ),
                 ),
                 padding(
                   Description(
-                    description: Text(c.isRemoteAudioEnabled.value
-                        ? 'btn_call_remote_audio_off_desc'.l10n
-                        : 'btn_call_remote_audio_on_desc'.l10n),
+                    description: Text(
+                      c.isRemoteAudioEnabled.value
+                          ? 'btn_call_remote_audio_off_desc'.l10n
+                          : 'btn_call_remote_audio_on_desc'.l10n,
+                    ),
                     child: RemoteAudioButton(c).build(),
                   ),
                 ),
                 padding(
                   Description(
-                    description: Text(c.isRemoteVideoEnabled.value
-                        ? 'btn_call_remote_video_off_desc'.l10n
-                        : 'btn_call_remote_video_on_desc'.l10n),
+                    description: Text(
+                      c.isRemoteVideoEnabled.value
+                          ? 'btn_call_remote_video_off_desc'.l10n
+                          : 'btn_call_remote_video_on_desc'.l10n,
+                    ),
                     child: RemoteVideoButton(c).build(),
                   ),
                 ),
