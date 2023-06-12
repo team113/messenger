@@ -172,6 +172,7 @@ flutter:
     - family: Gapopa
       fonts:
         - asset: assets/fonts/Gapopa-Regular.ttf
+        # - asset: assets/fonts/icomoon.ttf
           weight: 400
         - asset: assets/fonts/Gapopa-Light.ttf
           weight: 300

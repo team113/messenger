@@ -258,24 +258,5 @@ class EmbossedText extends StatelessWidget {
       overflow: overflow,
       maxLines: maxLines,
     );
-
-    return Stack(
-      children: [
-        Text(
-          text!,
-          style: shadows,
-          textAlign: textAlign,
-          overflow: overflow,
-          maxLines: maxLines,
-        ),
-        Text(
-          text!,
-          style: textStyle,
-          textAlign: textAlign,
-          overflow: overflow,
-          maxLines: maxLines,
-        ),
-      ],
-    );
   }
 }

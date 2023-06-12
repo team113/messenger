@@ -72,6 +72,7 @@ import '/util/web/web_utils.dart';
 import 'insufficient_funds/view.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
+import 'widget/chat_gallery.dart';
 
 export 'view.dart';
 
@@ -1680,19 +1681,6 @@ class FeeElement extends ListElement {
       : super(ListElementId(PreciseDateTime.now(), ChatItemId('$fromMe')));
 
   final bool fromMe;
-}
-
-/// Wrapper wrapping an [Attachment] to show in a [GalleryPopup] and a
-/// [onForbidden] callback used to re-fetch it in case of forbidden error.
-class GalleryAttachment {
-  const GalleryAttachment(this.attachment, this.onForbidden);
-
-  /// [Attachment] of this [GalleryAttachment].
-  final Attachment attachment;
-
-  /// Callback, called when the [attachment] loading fails with a forbidden
-  /// network error.
-  final FutureOr<void> Function()? onForbidden;
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.

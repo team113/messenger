@@ -1063,6 +1063,7 @@ class ChatRepository extends DisposableInterface
       _userRepo.put(node.user.toHive());
       return EventChatCallMemberJoined(
         e.chatId,
+        node.call.toModel(),
         node.user.toModel(),
         node.at,
       );

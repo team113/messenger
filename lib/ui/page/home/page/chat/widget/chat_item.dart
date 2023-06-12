@@ -29,8 +29,7 @@ import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../controller.dart'
-    show ChatCallFinishReasonL10n, ChatController, GalleryAttachment;
+import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -39,7 +38,6 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
-import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -62,6 +60,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'chat_gallery.dart';
 import 'conditional_intrinsic.dart';
 import 'data_attachment.dart';
 import 'donate.dart';
@@ -276,38 +275,11 @@ class ChatItemWidget extends StatefulWidget {
                     initial = 0;
                   }
 
-                  List<GalleryItem> gallery = [];
-                  for (var o in attachments) {
-                    final StorageFile file = o.attachment.original;
-                    GalleryItem? item;
-
-                    if (o.attachment is FileAttachment) {
-                      item = GalleryItem.video(
-                        file.url,
-                        o.attachment.filename,
-                        size: file.size,
-                        checksum: file.checksum,
-                        onError: o.onForbidden,
-                      );
-                    } else if (o.attachment is ImageAttachment) {
-                      item = GalleryItem.image(
-                        file.url,
-                        o.attachment.filename,
-                        size: file.size,
-                        checksum: file.checksum,
-                        onError: o.onForbidden,
-                      );
-                    }
-
-                    gallery.add(item!);
-                  }
-
                   GalleryPopup.show(
                     context: context,
-                    gallery: GalleryPopup(
-                      children: gallery,
-                      initial: initial,
-                      initialKey: key,
+                    gallery: ChatGallery(
+                      attachments: attachments,
+                      initial: (initial, key),
                     ),
                   );
                 },
@@ -413,8 +385,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [TapGestureRecognizer]s for tapping on the [SelectionText.rich] spans, if
   /// any.
   final List<TapGestureRecognizer> _recognizers = [];
-
-  final bool _expandedReply = false;
 
   /// [TextSpan] of the [ChatItemWidget.item] to display as a text of this
   /// [ChatItemWidget].

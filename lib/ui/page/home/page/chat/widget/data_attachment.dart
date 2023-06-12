@@ -53,12 +53,12 @@ class _DataAttachmentState extends State<DataAttachment> {
       final Style style = Theme.of(context).extension<Style>()!;
 
       Widget leading = Container();
-      RxDouble? value;
+      // RxDouble? value;
 
       if (e is FileAttachment) {
         switch (e.downloadStatus.value) {
           case DownloadStatus.inProgress:
-            value = e.progress;
+            // value = e.progress;
             leading = InkWell(
               key: const Key('CancelDownloading'),
               onTap: e.cancelDownload,

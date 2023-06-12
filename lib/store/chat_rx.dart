@@ -953,8 +953,9 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
+
               if (!chat.value.isDialog) {
-                event.call.conversationStartedAt = PreciseDateTime.now();
+                event.call.conversationStartedAt ??= PreciseDateTime.now();
               }
 
               chatEntity.value.ongoingCall = event.call;
@@ -1032,7 +1033,7 @@ class HiveRxChat extends RxChat {
 
                 if (ids != null && ids.length >= 2) {
                   chatEntity.value.ongoingCall?.conversationStartedAt =
-                      event.at;
+                      event.call.conversationStartedAt ?? event.at;
 
                   if (chatEntity.value.ongoingCall != null) {
                     final call = chatEntity.value.ongoingCall!;
@@ -1051,6 +1052,9 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.lastItemUpdated:
               event as EventChatLastItemUpdated;
               chatEntity.value.lastItem = event.lastItem?.value;
+
+              // TODO [ChatCall.conversationStartedAt] shouldn't be `null` here
+              //      when starting group or monolog [ChatCall].
               if (!chatEntity.value.isDialog &&
                   chatEntity.value.lastItem is ChatCall) {
                 (chatEntity.value.lastItem as ChatCall).conversationStartedAt =

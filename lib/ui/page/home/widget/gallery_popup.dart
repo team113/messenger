@@ -140,7 +140,7 @@ class GalleryPopup extends StatefulWidget {
   /// Displays a dialog with the provided [gallery] above the current contents.
   static Future<T?> show<T extends Object?>({
     required BuildContext context,
-    required GalleryPopup gallery,
+    required Widget gallery,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
 

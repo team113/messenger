@@ -25,7 +25,6 @@ import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
-import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
@@ -313,68 +312,6 @@ Widget mobileCall(CallController c, BuildContext context) {
 
               return AnimatedSwitcher(duration: 200.milliseconds, child: child);
             }),
-
-            // Display call's state info only if minimized.
-            AnimatedSwitcher(
-              duration: 200.milliseconds,
-              child: c.minimized.value
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: style.colors.onBackgroundOpacity50,
-                          ),
-                          height: 40,
-                          child: Obx(() {
-                            bool withDots = c.state.value !=
-                                    OngoingCallState.active &&
-                                (c.state.value == OngoingCallState.joining ||
-                                    isOutgoing);
-                            bool isDialog =
-                                c.chat.value?.chat.value.isDialog == true;
-
-                            String state =
-                                c.state.value == OngoingCallState.active
-                                    ? c.duration.value
-                                        .toString()
-                                        .split('.')
-                                        .first
-                                        .padLeft(8, '0')
-                                    : c.state.value == OngoingCallState.joining
-                                        ? 'label_call_joining'.l10n
-                                        : isOutgoing
-                                            ? isDialog
-                                                ? 'label_call_calling'.l10n
-                                                : 'label_call_connecting'.l10n
-                                            : c.withVideo == true
-                                                ? 'label_video_call'.l10n
-                                                : 'label_audio_call'.l10n;
-
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 4, right: 4),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    state,
-                                    style:
-                                        context.textTheme.bodySmall?.copyWith(
-                                      color: style.colors.onBackgroundOpacity2,
-                                    ),
-                                  ),
-                                  if (withDots) const AnimatedDots(),
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    )
-                  : Container(),
-            ),
 
             if (isOutgoing)
               Padding(

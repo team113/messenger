@@ -87,7 +87,7 @@ class MediaUtils {
     if (_displaysController == null) {
       _displaysController = StreamController.broadcast();
 
-      if (!PlatformUtils.isWeb) {
+      if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
         Future(() async {
           _displaysController?.add(
             (await mediaManager?.enumerateDisplays() ?? [])
@@ -137,7 +137,7 @@ class MediaUtils {
 
   /// Returns the currently available [MediaDisplayDetails].
   static Future<List<MediaDisplayDetails>> enumerateDisplays() async {
-    if (PlatformUtils.isWeb) {
+    if (!PlatformUtils.isDesktop || PlatformUtils.isWeb) {
       return [];
     }
 
