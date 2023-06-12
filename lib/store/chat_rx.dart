@@ -956,6 +956,8 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
+              // TODO: [event.call.conversationStartedAt] should no be null for
+              //       group calls.
               if (!chat.value.isDialog) {
                 event.call.conversationStartedAt = PreciseDateTime.now();
               }
@@ -1034,6 +1036,7 @@ class HiveRxChat extends RxChat {
                     .toSet();
 
                 if (ids != null && ids.length >= 2) {
+                  // TODO: Use [event.call.conversationStartedAt].
                   chatEntity.value.ongoingCall?.conversationStartedAt =
                       event.at;
 
