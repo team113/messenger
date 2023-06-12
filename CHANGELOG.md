@@ -20,11 +20,13 @@ All user visible changes to this project will be documented in this file. This p
         - Clickable links and emails. ([#436], [#388])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
-        - Chat-monolog. ([#333], [#326])    
+        - Chat-monolog. ([#412], [#333], [#326])    
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
 - Web:
     - Unread chats badge on favicon. ([#403])
+- Desktop:
+    - Video support. ([#445], [#438])
 
 ### Changed
 
@@ -82,9 +84,12 @@ All user visible changes to this project will be documented in this file. This p
 [#403]: /../../pull/403
 [#405]: /../../pull/405
 [#408]: /../../pull/408
+[#412]: /../../pull/412
 [#436]: /../../pull/436
 [#437]: /../../pull/437
+[#438]: /../../issues/438
 [#440]: /../../pull/440
+[#445]: /../../pull/445
 
 
 
