@@ -27,7 +27,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../controller.dart';
 import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
-import '../widget/call_title.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
@@ -458,11 +457,7 @@ class MobileCall extends StatelessWidget {
           child: Obx(() {
             bool showUi = (c.state.value != OngoingCallState.active &&
                 !c.minimized.value);
-            final bool isOutgoing =
-                (c.outgoing || c.state.value == OngoingCallState.local) &&
-                    !c.started;
 
-            final bool isDialog = c.chat.value?.chat.value.isDialog == true;
             return AnimatedSlider(
               duration: const Duration(milliseconds: 400),
               isOpen: showUi,
@@ -475,30 +470,7 @@ class MobileCall extends StatelessWidget {
                     right: 10,
                     top: c.size.height * 0.05,
                   ),
-                  child: CallTitle(
-                    c.me.id.userId,
-                    chat: c.chat.value?.chat.value,
-                    title: c.chat.value?.title.value,
-                    avatar: c.chat.value?.avatar.value,
-                    withDots: c.state.value != OngoingCallState.active &&
-                        (c.state.value == OngoingCallState.joining ||
-                            isOutgoing),
-                    state: c.state.value == OngoingCallState.active
-                        ? c.duration.value
-                            .toString()
-                            .split('.')
-                            .first
-                            .padLeft(8, '0')
-                        : c.state.value == OngoingCallState.joining
-                            ? 'label_call_joining'.l10n
-                            : isOutgoing
-                                ? isDialog
-                                    ? null
-                                    : 'label_call_connecting'.l10n
-                                : c.withVideo == true
-                                    ? 'label_video_call'.l10n
-                                    : 'label_audio_call'.l10n,
-                  ),
+                  child: callTitle(c),
                 ),
               ),
             );
