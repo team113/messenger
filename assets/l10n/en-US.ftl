@@ -466,7 +466,10 @@ label_attachments = [{$count} {$count ->
     [1] attachment
     *[other] attachments
     }]
-label_audio_call = Audio call
+label_audio_call = Audio call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_audio_notifications = Audio notifications
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
@@ -512,6 +515,7 @@ label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
 label_chat_monolog = To myself
+label_chat_name_hint = Chat name
 label_chats = Messages
 label_clear_history = Clear history
 label_confirm = Confirm
@@ -787,7 +791,10 @@ label_users_count = Users: {$count}
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number
 label_video = Video
-label_video_call = Video call
+label_video_call = Video call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:

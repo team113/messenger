@@ -68,6 +68,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
+import 'widget/chat_gallery.dart';
 
 export 'view.dart';
 
@@ -1082,25 +1083,43 @@ class ChatController extends GetxController {
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 
-  /// Returns a [List] of [Attachment]s representing a collection of all the
-  /// media files of this [chat].
-  List<Attachment> calculateGallery() {
-    final List<Attachment> attachments = [];
+  /// Returns a [List] of [GalleryAttachment]s representing a collection of all
+  /// the media files of this [chat].
+  List<GalleryAttachment> calculateGallery() {
+    final List<GalleryAttachment> attachments = [];
 
     for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
       if (m.value is ChatMessage) {
         final ChatMessage msg = m.value as ChatMessage;
-        attachments.addAll(msg.attachments.where(
-          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
-        ));
+        attachments.addAll(
+          msg.attachments
+              .where(
+                (e) =>
+                    e is ImageAttachment || (e is FileAttachment && e.isVideo),
+              )
+              .map(
+                (e) => GalleryAttachment(e, () => chat?.updateAttachments(msg)),
+              ),
+        );
       } else if (m.value is ChatForward) {
         final ChatForward msg = m.value as ChatForward;
         final ChatItemQuote item = msg.quote;
 
         if (item is ChatMessageQuote) {
-          attachments.addAll(item.attachments.where(
-            (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
-          ));
+          attachments.addAll(
+            item.attachments
+                .where(
+                  (e) =>
+                      e is ImageAttachment ||
+                      (e is FileAttachment && e.isVideo),
+                )
+                .map(
+                  (e) => GalleryAttachment(
+                    e,
+                    () => chat?.updateAttachments(m.value),
+                  ),
+                ),
+          );
         }
       }
     }

@@ -52,6 +52,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'chat_gallery.dart';
 import 'chat_item.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
@@ -141,7 +142,7 @@ class ChatForwardWidget extends StatefulWidget {
   ///
   /// If not specified, then only media of these [forwards] and [note] will be
   /// in a gallery.
-  final List<Attachment> Function()? onGallery;
+  final List<GalleryAttachment> Function()? onGallery;
 
   /// Callback, called when a drag of these [forwards] starts or ends.
   final void Function(bool)? onDrag;
@@ -397,6 +398,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
             .toList();
 
+        final Iterable<GalleryAttachment> galleries = media.map(
+          (e) => GalleryAttachment(e, widget.onAttachmentError),
+        );
+
         final List<Attachment> files = quote.attachments
             .where((e) =>
                 (e is FileAttachment && !e.isVideo) ||
@@ -448,7 +453,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 ? ChatItemWidget.mediaAttachment(
                     context,
                     media.first,
-                    media,
+                    galleries,
                     key: _galleryKeys[msg.id]?.firstOrNull,
                     onGallery: widget.onGallery,
                     onError: widget.onAttachmentError,
@@ -465,7 +470,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             (i, e) => ChatItemWidget.mediaAttachment(
                               context,
                               e,
-                              media,
+                              galleries,
                               key: _galleryKeys[msg.id]?[i],
                               onGallery: widget.onGallery,
                               onError: widget.onAttachmentError,
@@ -689,6 +694,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
+      final Iterable<GalleryAttachment> galleries = media.map(
+        (e) => GalleryAttachment(e, widget.onAttachmentError),
+      );
+
       final List<Attachment> files = item.attachments.where((e) {
         return ((e is FileAttachment && !e.isVideo) ||
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
@@ -739,7 +748,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   ? ChatItemWidget.mediaAttachment(
                       context,
                       media.first,
-                      media,
+                      galleries,
                       key: _galleryKeys[item.id]?.lastOrNull,
                       onGallery: widget.onGallery,
                       onError: widget.onAttachmentError,
@@ -756,7 +765,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               (i, e) => ChatItemWidget.mediaAttachment(
                                 context,
                                 e,
-                                media,
+                                galleries,
                                 key: _galleryKeys[item.id]?[i],
                                 onGallery: widget.onGallery,
                                 onError: widget.onAttachmentError,

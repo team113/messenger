@@ -35,7 +35,6 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
-import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -59,6 +58,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'chat_gallery.dart';
 import 'data_attachment.dart';
 import 'media_attachment.dart';
 import 'message_info/view.dart';
@@ -149,7 +149,7 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a gallery list is required.
   ///
   /// If not specified, then only media in this [item] will be in a gallery.
-  final List<Attachment> Function()? onGallery;
+  final List<GalleryAttachment> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final void Function(ChatItemQuote)? onRepliedTap;
@@ -176,9 +176,9 @@ class ChatItemWidget extends StatefulWidget {
   static Widget mediaAttachment(
     BuildContext context,
     Attachment e,
-    List<Attachment> media, {
+    Iterable<GalleryAttachment> media, {
     GlobalKey? key,
-    List<Attachment> Function()? onGallery,
+    Iterable<GalleryAttachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
     bool autoLoad = true,
@@ -252,52 +252,21 @@ class ChatItemWidget extends StatefulWidget {
           onTap: isLocal
               ? null
               : () {
-                  final List<Attachment> attachments =
+                  final Iterable<GalleryAttachment> attachments =
                       onGallery?.call() ?? media;
 
-                  int initial = attachments.indexOf(e);
+                  int initial = attachments.indexed
+                      .firstWhere((a) => a.$2.attachment == e)
+                      .$1;
                   if (initial == -1) {
                     initial = 0;
                   }
 
-                  List<GalleryItem> gallery = [];
-                  for (var o in attachments) {
-                    StorageFile file = o.original;
-                    GalleryItem? item;
-
-                    if (o is FileAttachment) {
-                      item = GalleryItem.video(
-                        file.url,
-                        o.filename,
-                        size: file.size,
-                        checksum: file.checksum,
-                        onError: () async {
-                          await onError?.call();
-                          item?.link = o.original.url;
-                        },
-                      );
-                    } else if (o is ImageAttachment) {
-                      item = GalleryItem.image(
-                        file.url,
-                        o.filename,
-                        size: file.size,
-                        checksum: file.checksum,
-                        onError: () async {
-                          await onError?.call();
-                          item?.link = o.original.url;
-                        },
-                      );
-                    }
-
-                    gallery.add(item!);
-                  }
-
                   GalleryPopup.show(
                     context: context,
-                    gallery: GalleryPopup(
-                      children: gallery,
-                      initial: initial,
-                      initialKey: key,
+                    gallery: ChatGallery(
+                      attachments: attachments,
+                      initial: (initial, key),
                     ),
                   );
                 },
@@ -808,6 +777,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
+    final Iterable<GalleryAttachment> galleries =
+        media.map((e) => GalleryAttachment(e, widget.onAttachmentError));
+
     final List<Attachment> files = msg.attachments.where((e) {
       return ((e is FileAttachment && !e.isVideo) ||
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
@@ -917,7 +889,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ? ChatItemWidget.mediaAttachment(
                         context,
                         media.first,
-                        media,
+                        galleries,
                         filled: false,
                         key: _galleryKeys[0],
                         onError: widget.onAttachmentError,
@@ -934,7 +906,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 (i, e) => ChatItemWidget.mediaAttachment(
                                   context,
                                   e,
-                                  media,
+                                  galleries,
                                   key: _galleryKeys[i],
                                   onError: widget.onAttachmentError,
                                   onGallery: widget.onGallery,
