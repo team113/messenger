@@ -63,7 +63,7 @@ class GalleryItem {
     String name, {
     int? size,
     String? checksum,
-    Future<void> Function()? onError,
+    FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
@@ -80,7 +80,7 @@ class GalleryItem {
     String name, {
     int? size,
     String? checksum,
-    Future<void> Function()? onError,
+    FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
@@ -107,7 +107,7 @@ class GalleryItem {
   final int? size;
 
   /// Callback, called on the fetch errors of this [GalleryItem].
-  final Future<void> Function()? onError;
+  final FutureOr<void> Function()? onError;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -140,7 +140,7 @@ class GalleryPopup extends StatefulWidget {
   /// Displays a dialog with the provided [gallery] above the current contents.
   static Future<T?> show<T extends Object?>({
     required BuildContext context,
-    required GalleryPopup gallery,
+    required Widget gallery,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
 
@@ -449,12 +449,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 maxScale: PhotoViewComputedScale.contained * 3,
                 errorBuilder: (_, __, ___) {
                   return InitCallback(
-                    callback: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
+                    callback: e.onError,
                     child: const SizedBox(
                       height: 300,
                       child: Center(child: CustomProgressIndicator()),
@@ -484,12 +479,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                       _videoControllers[index] = c;
                     }
                   },
-                  onError: () async {
-                    await e.onError?.call();
-                    if (mounted) {
-                      setState(() {});
-                    }
-                  },
+                  onError: e.onError,
                 ),
               ),
               minScale: PhotoViewComputedScale.contained,
@@ -565,12 +555,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         _videoControllers[index] = c;
                       }
                     },
-                    onError: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
+                    onError: e.onError,
                   )
                 : GestureDetector(
                     onTap: () {
@@ -583,16 +568,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                       _toggleFullscreen();
                     },
                     child: PlatformUtils.isWeb
-                        ? IgnorePointer(child: WebImage(e.link))
+                        ? WebImage(
+                            e.link,
+                            onForbidden: e.onError,
+                          )
                         : RetryImage(
                             e.link,
                             checksum: e.checksum,
-                            onForbidden: () async {
-                              await e.onError?.call();
-                              if (mounted) {
-                                setState(() {});
-                              }
-                            },
+                            onForbidden: e.onError,
                           ),
                   ),
           ),
