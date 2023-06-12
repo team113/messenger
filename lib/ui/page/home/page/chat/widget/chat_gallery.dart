@@ -15,30 +15,41 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/file.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 
-/// Wrapper around [GalleryPopup] showing a chat gallery.
+/// [Attachment] to show in a [ChatGallery] along with its [onForbidden]
+/// re-fetching it in case of forbidden error.
+class GalleryAttachment {
+  const GalleryAttachment(this.attachment, this.onForbidden);
+
+  /// [Attachment] of this [GalleryAttachment].
+  final Attachment attachment;
+
+  /// Callback, called when the [attachment] loading fails with a forbidden
+  /// network error.
+  final FutureOr<void> Function()? onForbidden;
+}
+
+/// [GalleryPopup] displaying the provided [GalleryAttachment]s.
 class ChatGallery extends StatefulWidget {
   const ChatGallery({
     super.key,
     required this.attachments,
-    this.initial = 0,
-    this.initialKey,
+    this.initial = (0, null),
   });
 
-  /// [List] of [GalleryAttachment]s to display in a gallery.
+  /// [GalleryAttachment]s to display in a [GalleryPopup].
   final Iterable<GalleryAttachment> attachments;
 
-  /// Optional [GlobalKey] of the [Object] to animate gallery from/to.
-  final GlobalKey? initialKey;
-
-  /// Initial gallery index of the [GalleryAttachment]s in [attachments].
-  final int initial;
+  /// Initial index of a [GalleryAttachment] from the [attachments] to display
+  /// along with its optional [GlobalKey] to animate the [GalleryPopup] from/to.
+  final (int, GlobalKey?) initial;
 
   @override
   State<ChatGallery> createState() => _ChatGalleryState();
@@ -52,39 +63,40 @@ class _ChatGalleryState extends State<ChatGallery> {
     List<GalleryItem> gallery = [];
     for (var o in widget.attachments) {
       final StorageFile file = o.attachment.original;
-      GalleryItem? item;
 
       if (o.attachment is FileAttachment) {
-        item = GalleryItem.video(
-          file.url,
-          o.attachment.filename,
-          size: file.size,
-          checksum: file.checksum,
-          onError: () async {
-            await o.onForbidden?.call();
-            setState(() {});
-          },
+        gallery.add(
+          GalleryItem.video(
+            file.url,
+            o.attachment.filename,
+            size: file.size,
+            checksum: file.checksum,
+            onError: () async {
+              await o.onForbidden?.call();
+              setState(() {});
+            },
+          ),
         );
       } else if (o.attachment is ImageAttachment) {
-        item = GalleryItem.image(
-          file.url,
-          o.attachment.filename,
-          size: file.size,
-          checksum: file.checksum,
-          onError: () async {
-            await o.onForbidden?.call();
-            setState(() {});
-          },
+        gallery.add(
+          GalleryItem.image(
+            file.url,
+            o.attachment.filename,
+            size: file.size,
+            checksum: file.checksum,
+            onError: () async {
+              await o.onForbidden?.call();
+              setState(() {});
+            },
+          ),
         );
       }
-
-      gallery.add(item!);
     }
 
     return GalleryPopup(
       children: gallery,
-      initial: widget.initial,
-      initialKey: widget.initialKey,
+      initial: widget.initial.$1,
+      initialKey: widget.initial.$2,
     );
   }
 }

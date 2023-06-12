@@ -27,11 +27,7 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart'
-    show
-        ChatCallFinishReasonL10n,
-        ChatController,
-        FileAttachmentIsVideo,
-        GalleryAttachment;
+    show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -271,8 +267,7 @@ class ChatItemWidget extends StatefulWidget {
                     context: context,
                     gallery: ChatGallery(
                       attachments: attachments,
-                      initial: initial,
-                      initialKey: key,
+                      initial: (initial, key),
                     ),
                   );
                 },

@@ -61,7 +61,6 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
@@ -69,6 +68,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
+import 'widget/chat_gallery.dart';
 
 export 'view.dart';
 
@@ -1472,19 +1472,6 @@ class UnreadMessagesElement extends ListElement {
 class LoaderElement extends ListElement {
   LoaderElement(PreciseDateTime at)
       : super(ListElementId(at, const ChatItemId('2')));
-}
-
-/// Wrapper wrapping an [Attachment] to show in a [GalleryPopup] and a
-/// [onForbidden] callback used to re-fetch it in case of forbidden error.
-class GalleryAttachment {
-  const GalleryAttachment(this.attachment, this.onForbidden);
-
-  /// [Attachment] of this [GalleryAttachment].
-  final Attachment attachment;
-
-  /// Callback, called when the [attachment] loading fails with a forbidden
-  /// network error.
-  final FutureOr<void> Function()? onForbidden;
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
