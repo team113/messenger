@@ -200,133 +200,130 @@ class PrimaryView extends StatelessWidget {
             var participant = data.participant;
 
             return LayoutBuilder(builder: (context, constraints) {
-              return Obx(() {
-                Participant? hoveredRenderer;
+              Participant? hoveredRenderer;
 
-                bool? muted = participant.member.owner == MediaOwnerKind.local
-                    ? !audioState.isEnabled
-                    : null;
+              bool? muted = participant.member.owner == MediaOwnerKind.local
+                  ? !audioState.isEnabled
+                  : null;
 
-                bool isHovered =
-                    hoveredRenderer == participant && !anyDragIsHappening;
+              bool isHovered =
+                  hoveredRenderer == participant && !anyDragIsHappening;
 
-                BoxFit? fit = participant.video.value?.renderer.value == null
-                    ? null
-                    : rendererBoxFit[participant
-                            .video.value?.renderer.value!.track
-                            .id()] ??
-                        RtcVideoView.determineBoxFit(
-                          participant.video.value?.renderer.value
-                              as RtcVideoRenderer,
-                          participant.source,
-                          constraints,
-                          context,
-                        );
+              BoxFit? fit = participant.video.value?.renderer.value == null
+                  ? null
+                  : rendererBoxFit[participant
+                          .video.value?.renderer.value!.track
+                          .id()] ??
+                      RtcVideoView.determineBoxFit(
+                        participant.video.value?.renderer.value
+                            as RtcVideoRenderer,
+                        participant.source,
+                        constraints,
+                        context,
+                      );
 
-                return MouseRegion(
-                  opaque: false,
-                  onEnter: (d) {
-                    if (draggedRenderer == null) {
-                      hoveredRenderer = data.participant;
-                      hoveredRendererTimeout;
-                      isCursorHidden;
-                    }
-                  },
-                  onHover: (d) {
-                    if (draggedRenderer == null) {
-                      hoveredRenderer = data.participant;
-                      hoveredRendererTimeout;
-                      isCursorHidden;
-                    }
-                  },
-                  onExit: onExit,
-                  child: AnimatedOpacity(
-                    duration: 200.milliseconds,
-                    opacity: draggedRenderer == data.participant ? 0 : 1,
-                    child: ContextMenuRegion(
-                      key: ObjectKey(participant),
-                      preventContextMenu: true,
-                      actions: [
-                        if (participant.video.value?.renderer.value !=
-                            null) ...[
-                          if (participant.source == MediaSourceKind.Device)
-                            ContextMenuButton(
-                              label: fit == null || fit == BoxFit.cover
-                                  ? 'btn_call_do_not_cut_video'.l10n
-                                  : 'btn_call_cut_video'.l10n,
-                              onPressed: () {
-                                rendererBoxFit[participant
-                                        .video.value!.renderer.value!.track
-                                        .id()] =
-                                    fit == null || fit == BoxFit.cover
-                                        ? BoxFit.contain
-                                        : BoxFit.cover;
-                                refreshData();
-                              },
-                            ),
-                        ],
-                        primary.length == 1
-                            ? ContextMenuButton(
-                                label: 'btn_call_uncenter'.l10n,
-                                onPressed: uncenter,
-                              )
-                            : ContextMenuButton(
-                                label: 'btn_call_center'.l10n,
-                                onPressed: () => center(participant),
-                              ),
-                        if (participant.member.id != me.id) ...[
-                          if (participant
-                                  .video.value?.direction.value.isEmitting ??
-                              false)
-                            ContextMenuButton(
-                              label: participant.video.value?.renderer.value !=
-                                      null
-                                  ? 'btn_call_disable_video'.l10n
-                                  : 'btn_call_enable_video'.l10n,
-                              onPressed: () => toggleVideoEnabled(participant),
-                            ),
-                          if (participant
-                                  .audio.value?.direction.value.isEmitting ??
-                              false)
-                            ContextMenuButton(
-                              label: (participant.audio.value?.direction.value
-                                          .isEnabled ==
-                                      true)
-                                  ? 'btn_call_disable_audio'.l10n
-                                  : 'btn_call_enable_audio'.l10n,
-                              onPressed: () => toggleAudioEnabled(participant),
-                            ),
-                          if (participant.member.isRedialing.isFalse)
-                            ContextMenuButton(
-                              label: 'btn_call_remove_participant'.l10n,
-                              onPressed: () => removeChatCallMember(
-                                participant.member.id.userId,
-                              ),
-                            ),
-                        ] else ...[
+              return MouseRegion(
+                opaque: false,
+                onEnter: (d) {
+                  if (draggedRenderer == null) {
+                    hoveredRenderer = data.participant;
+                    hoveredRendererTimeout;
+                    isCursorHidden;
+                  }
+                },
+                onHover: (d) {
+                  if (draggedRenderer == null) {
+                    hoveredRenderer = data.participant;
+                    hoveredRendererTimeout;
+                    isCursorHidden;
+                  }
+                },
+                onExit: onExit,
+                child: AnimatedOpacity(
+                  duration: 200.milliseconds,
+                  opacity: draggedRenderer == data.participant ? 0 : 1,
+                  child: ContextMenuRegion(
+                    key: ObjectKey(participant),
+                    preventContextMenu: true,
+                    actions: [
+                      if (participant.video.value?.renderer.value != null) ...[
+                        if (participant.source == MediaSourceKind.Device)
                           ContextMenuButton(
-                            label: videoLabel,
-                            onPressed: toggleVideo,
+                            label: fit == null || fit == BoxFit.cover
+                                ? 'btn_call_do_not_cut_video'.l10n
+                                : 'btn_call_cut_video'.l10n,
+                            onPressed: () {
+                              rendererBoxFit[participant
+                                      .video.value!.renderer.value!.track
+                                      .id()] =
+                                  fit == null || fit == BoxFit.cover
+                                      ? BoxFit.contain
+                                      : BoxFit.cover;
+                              refreshData();
+                            },
                           ),
-                          ContextMenuButton(
-                            label: audioLabel,
-                            onPressed: toggleAudio,
-                          ),
-                        ],
                       ],
-                      child: IgnorePointer(
-                        child: ParticipantOverlayWidget(
-                          participant,
-                          key: ObjectKey(participant),
-                          muted: muted,
-                          hovered: isHovered,
-                          preferBackdrop: preferBackdrop,
+                      primary.length == 1
+                          ? ContextMenuButton(
+                              label: 'btn_call_uncenter'.l10n,
+                              onPressed: uncenter,
+                            )
+                          : ContextMenuButton(
+                              label: 'btn_call_center'.l10n,
+                              onPressed: () => center(participant),
+                            ),
+                      if (participant.member.id != me.id) ...[
+                        if (participant
+                                .video.value?.direction.value.isEmitting ??
+                            false)
+                          ContextMenuButton(
+                            label:
+                                participant.video.value?.renderer.value != null
+                                    ? 'btn_call_disable_video'.l10n
+                                    : 'btn_call_enable_video'.l10n,
+                            onPressed: () => toggleVideoEnabled(participant),
+                          ),
+                        if (participant
+                                .audio.value?.direction.value.isEmitting ??
+                            false)
+                          ContextMenuButton(
+                            label: (participant.audio.value?.direction.value
+                                        .isEnabled ==
+                                    true)
+                                ? 'btn_call_disable_audio'.l10n
+                                : 'btn_call_enable_audio'.l10n,
+                            onPressed: () => toggleAudioEnabled(participant),
+                          ),
+                        if (participant.member.isRedialing.isFalse)
+                          ContextMenuButton(
+                            label: 'btn_call_remove_participant'.l10n,
+                            onPressed: () => removeChatCallMember(
+                              participant.member.id.userId,
+                            ),
+                          ),
+                      ] else ...[
+                        ContextMenuButton(
+                          label: videoLabel,
+                          onPressed: toggleVideo,
                         ),
+                        ContextMenuButton(
+                          label: audioLabel,
+                          onPressed: toggleAudio,
+                        ),
+                      ],
+                    ],
+                    child: IgnorePointer(
+                      child: ParticipantOverlayWidget(
+                        participant,
+                        key: ObjectKey(participant),
+                        muted: muted,
+                        hovered: isHovered,
+                        preferBackdrop: preferBackdrop,
                       ),
                     ),
                   ),
-                );
-              });
+                ),
+              );
             });
           },
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
@@ -338,18 +335,17 @@ class PrimaryView extends StatelessWidget {
           },
           itemBuilder: (DragData data) {
             var participant = data.participant;
-            return Obx(() {
-              return ParticipantWidget(
-                participant,
-                key: ObjectKey(participant),
-                offstageUntilDetermined: true,
-                respectAspectRatio: true,
-                borderRadius: BorderRadius.zero,
-                onSizeDetermined: participant.video.value?.renderer.refresh,
-                fit: rendererBoxFit[
-                    participant.video.value?.renderer.value?.track.id() ?? ''],
-              );
-            });
+
+            return ParticipantWidget(
+              participant,
+              key: ObjectKey(participant),
+              offstageUntilDetermined: true,
+              respectAspectRatio: true,
+              borderRadius: BorderRadius.zero,
+              onSizeDetermined: participant.video.value?.renderer.refresh,
+              fit: rendererBoxFit[
+                  participant.video.value?.renderer.value?.track.id() ?? ''],
+            );
           },
           children: children,
         ),
