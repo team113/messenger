@@ -19,8 +19,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../animated_cliprrect.dart';
+import '../participant/decorator.dart';
+import '../participant/overlay.dart';
+import '../participant/widget.dart';
+import '/themes.dart';
 import '/ui/page/call/controller.dart';
-import 'participant_stack.dart';
 
 /// [Widget] which builds the [Participant] with a [AnimatedClipRRect].
 class AnimatedParticipant extends StatelessWidget {
@@ -47,17 +50,37 @@ class AnimatedParticipant extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return AnimatedClipRRect(
       key: Key(e.member.id.toString()),
       borderRadius: animated ? BorderRadius.circular(10) : BorderRadius.zero,
       child: AnimatedContainer(
         duration: 200.milliseconds,
         decoration: BoxDecoration(
-          color: animated ? const Color(0xFF132131) : const Color(0x00132131),
+          color: animated
+              ? style.colors.backgroundAuxiliaryLight
+              : style.colors.transparent,
         ),
         width: animated ? MediaQuery.of(context).size.width - 20 : null,
         height: animated ? MediaQuery.of(context).size.height / 2 : null,
-        child: ParticipantStack(e, muted, animated, minimized),
+        child: Stack(
+          children: [
+            const ParticipantDecoratorWidget(),
+            IgnorePointer(
+              child: ParticipantWidget(
+                e,
+                offstageUntilDetermined: true,
+              ),
+            ),
+            ParticipantOverlayWidget(
+              e,
+              muted: muted,
+              hovered: animated,
+              preferBackdrop: !minimized,
+            ),
+          ],
+        ),
       ),
     );
   }

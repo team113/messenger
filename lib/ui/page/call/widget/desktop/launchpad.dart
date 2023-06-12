@@ -24,43 +24,41 @@ import '../conditional_backdrop.dart';
 import '/themes.dart';
 import '/ui/page/call/component/common.dart';
 
-/// Builds the more panel containing the [CallController.panel].
+/// `More` panel containing the dragging and dropping elements.
 class LaunchpadWidget extends StatelessWidget {
   const LaunchpadWidget({
     super.key,
-    required this.enabled,
     required this.displayMore,
     required this.test,
-    required this.onEnter,
-    required this.onHover,
-    required this.onExit,
-    required this.onAccept,
-    required this.onWillAccept,
     required this.paneledItems,
+    this.onEnter,
+    this.onHover,
+    this.onExit,
+    this.onAccept,
+    this.onWillAccept,
   });
 
-  /// TODO: docs
-  final bool enabled;
-
   /// Indicator whether additional elements should be displayed
-  /// in [Launchpad].
+  /// in launchpad.
   final bool displayMore;
 
-  /// TODO: docs
+  /// Widgets to put inside a [Wrap].
   final List<Widget> paneledItems;
 
-  /// Indicator whether at least one element from the [panel] list satisfies
-  /// the condition set by the [test] function.
+  /// Callback, called when at least one element from the panel list
+  /// satisfies the condition set by the [test] function.
   final bool Function(CallButton?) test;
 
-  /// Callback, called when the mouse cursor enters the area of this [CallDockWidget].
+  /// Callback, called when the mouse cursor enters the area of this
+  /// [LaunchpadWidget].
   final void Function(PointerEnterEvent)? onEnter;
 
   /// Callback, called when the mouse cursor moves in the area of this
-  /// [CallDockWidget].
+  /// [LaunchpadWidget].
   final void Function(PointerHoverEvent)? onHover;
 
-  /// Callback, called when the mouse cursor leaves the area of this [CallDockWidget].
+  /// Callback, called when the mouse cursor leaves the area of this
+  /// [LaunchpadWidget].
   final void Function(PointerExitEvent)? onExit;
 
   /// Callback, called when accepting a draggable element.

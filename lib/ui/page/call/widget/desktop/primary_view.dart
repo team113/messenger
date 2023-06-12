@@ -20,9 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '../../../../../domain/model/user.dart';
-import '../../component/desktop.dart';
-import '../../controller.dart';
 import '../animated_delayed_scale.dart';
 import '../conditional_backdrop.dart';
 import '../participant/decorator.dart';
@@ -31,9 +28,12 @@ import '../participant/widget.dart';
 import '../reorderable_fit.dart';
 import '../video_view.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/call/component/desktop.dart';
+import '/ui/page/call/controller.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 
@@ -46,7 +46,6 @@ class PrimaryView extends StatelessWidget {
     required this.audioLabel,
     required this.videoLabel,
     required this.itemConstraintsSize,
-    required this.preferBackdrop,
     required this.condition,
     required this.anyDragIsHappening,
     required this.targetOpacity,
@@ -60,7 +59,7 @@ class PrimaryView extends StatelessWidget {
     required this.toggleVideoEnabled,
     required this.toggleAudioEnabled,
     required this.removeChatCallMember,
-    required this.refreshData,
+    required this.refreshParticipants,
     this.color,
     this.uncenter,
     this.toggleVideo,
@@ -78,104 +77,109 @@ class PrimaryView extends StatelessWidget {
     this.isCursorHidden = false,
   });
 
-  ///
+  /// [CallMember] of the currently authorized [MyUser]
   final CallMember me;
 
-  ///
+  /// [Participant]s to display in the fit view.
   final List<Participant> primary;
 
-  ///
+  /// Local audio stream enabled flag.
   final LocalTrackState audioState;
 
-  ///
+  /// [Participant] being dragged currently.
   final Participant? draggedRenderer;
 
-  ///
+  /// Timeout of a hoveredRenderer used to hide it.
   final int hoveredRendererTimeout;
 
-  ///
+  /// Indicator whether the cursor should be hidden or not.
   final bool isCursorHidden;
 
-  ///
+  /// [Map] of [BoxFit]s that [RtcVideoRenderer] should explicitly have.
   final Map<String, BoxFit?> rendererBoxFit;
 
-  ///
+  /// [Participant]s in `focus` mode.
   final List<Participant> focused;
 
-  ///
+  /// Remote [Participant]s in `default` mode.
   final List<Participant> remotes;
 
-  ///
+  /// Local [Participant]s in `default` mode.
   final List<Participant> locals;
 
-  ///
+  /// Label name for audio.
   final String audioLabel;
 
-  ///
+  /// Label name for video.
   final String videoLabel;
 
-  ///
+  /// Maximum width and height that satisfies the constraints.
   final double itemConstraintsSize;
 
-  ///
-  final bool preferBackdrop;
-
-  ///
+  /// Indicator whether [BackdropFilter] should be enabled or not.
   final bool condition;
 
-  ///
+  /// Indicator whether a drag event is happening.
   final bool anyDragIsHappening;
 
-  ///
+  /// Opacity of the [IgnorePointer].
   final double targetOpacity;
 
-  ///
+  /// Color of the [IgnorePointer].
   final Color? color;
 
-  ///
+  /// Callback, called when an participant is uncentered.
   final void Function()? uncenter;
 
+  /// Centers the participant, which means focusing the participant and
+  /// unfocusing every participant in [focused].
   final void Function(Participant participant) center;
 
+  /// Toggles the provided participant's incoming video on and off.
   final Future<void> Function(Participant participant) toggleVideoEnabled;
 
+  /// Toggles the provided participant's incoming audio on and off.
   final Future<void> Function(Participant participant) toggleAudioEnabled;
 
+  /// Removes [User] identified by the provided user id from the
+  /// current call.
   final Future<void> Function(UserId userId) removeChatCallMember;
 
-  ///
+  /// Toggles local audio stream on and off.
   final void Function()? toggleVideo;
 
-  ///
+  /// Toggles local video stream on and off.
   final void Function()? toggleAudio;
 
-  ///
+  /// Callback, called when item dragging is ended.
   final void Function(DragData d)? onDragEnded;
 
-  ///
+  /// Callback, called when a new item is added.
   final dynamic Function(DragData, int)? onAdded;
 
-  ///
+  /// Callback, called when some [DragTarget] may accept the dragged item.
   final bool Function(DragData?)? onWillAccept;
 
-  ///
+  /// Callback, called when a dragged item leaves some [DragTarget].
   final void Function(DragData?)? onLeave;
 
-  ///
+  /// Callback, called when item dragging is started.
   final dynamic Function(DragData)? onDragStarted;
 
-  ///
+  /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
 
-  ///
+  /// Callback, called when an item breaks its dough.
   final void Function(DragData)? onDoughBreak;
 
-  ///
+  /// Triggered when a mouse pointer has exited this widget when the widget
+  /// is still mounted.
   final void Function(PointerExitEvent)? onExit;
 
-  final void Function() refreshData;
+  /// Updates the list of participants.
+  final void Function() refreshParticipants;
 
-  ///
+  /// Children widgets needed to be placed in a [Wrap].
   final List<DragData> children;
 
   @override
@@ -259,7 +263,7 @@ class PrimaryView extends StatelessWidget {
                                   fit == null || fit == BoxFit.cover
                                       ? BoxFit.contain
                                       : BoxFit.cover;
-                              refreshData();
+                              refreshParticipants();
                             },
                           ),
                       ],
@@ -318,7 +322,7 @@ class PrimaryView extends StatelessWidget {
                         key: ObjectKey(participant),
                         muted: muted,
                         hovered: isHovered,
-                        preferBackdrop: preferBackdrop,
+                        preferBackdrop: condition,
                       ),
                     ),
                   ),

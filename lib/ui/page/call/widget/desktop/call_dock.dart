@@ -26,22 +26,23 @@ import '../dock.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 
-/// Builds the [Dock] containing the [CallController.buttons].
+/// [Dock] which is used to handle the incoming and outgoing calls
+/// with buttons.
 class CallDockWidget extends StatelessWidget {
   const CallDockWidget({
     super.key,
     required this.dockKey,
-    required this.isOutgoing,
     required this.showBottomUi,
     required this.answer,
-    required this.dock,
     required this.acceptAudioButton,
     required this.acceptVideoButton,
     required this.declineButton,
-    required this.onEnter,
-    required this.onHover,
-    required this.onExit,
-    required this.listener,
+    this.isOutgoing,
+    this.dock,
+    this.onEnter,
+    this.onHover,
+    this.onExit,
+    this.listener,
   });
 
   /// [Key] for handling [dock] widget states.

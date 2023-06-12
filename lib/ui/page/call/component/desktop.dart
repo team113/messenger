@@ -164,10 +164,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                               toggleAudioEnabled: c.toggleAudioEnabled,
                               toggleVideoEnabled: c.toggleVideoEnabled,
                               removeChatCallMember: c.removeChatCallMember,
+                              toggleAudio: c.toggleAudio,
+                              toggleVideo: c.toggleVideo,
+                              uncenter: c.focusAll,
                               itemConstraintsSize:
                                   (c.size.longestSide * 0.33).clamp(100, 250),
-                              preferBackdrop:
-                                  !c.minimized.value || c.fullscreen.value,
                               condition:
                                   !c.minimized.value || c.fullscreen.value,
                               anyDragIsHappening: c.secondaryDrags.value != 0 ||
@@ -180,9 +181,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                               color: !c.minimized.value || c.fullscreen.value
                                   ? style.colors.onBackgroundOpacity27
                                   : style.colors.onBackgroundOpacity50,
-                              toggleAudio: c.toggleAudio,
-                              toggleVideo: c.toggleVideo,
-                              uncenter: c.focusAll,
                               onAdded: (d, i) => c.focus(d.participant),
                               onWillAccept: (d) {
                                 if (d?.chatId == c.chatId.value) {
@@ -230,7 +228,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 c.hoveredRenderer.value = null;
                                 c.isCursorHidden.value = false;
                               },
-                              refreshData: () {
+                              refreshParticipants: () {
                                 if (c.focused.isNotEmpty) {
                                   c.focused.refresh();
                                 } else {
@@ -454,7 +452,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                           c.primaryDrags.value == 0 &&
                           c.secondaryDrags.value == 0;
                       return LaunchpadWidget(
-                        enabled: enabled,
                         displayMore: c.displayMore.value,
                         test: (e) => e?.c == c,
                         onEnter: enabled ? (d) => c.keepUi(true) : null,

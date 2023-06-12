@@ -29,34 +29,34 @@ import '/ui/widget/svg/svg.dart';
 class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,
-    required this.chat,
     required this.label,
     required this.fullscreen,
-    required this.height,
     required this.constraints,
-    required this.onTap,
-    required this.toggleFullscreen,
+    this.chat,
+    this.height,
+    this.onTap,
+    this.toggleFullscreen,
   });
 
-  ///
+  /// [Chat] that this [OngoingCall] is happening in.
   final RxChat? chat;
 
-  ///
+  /// Label to be placed in this [TitleBar].
   final String label;
 
-  ///
+  /// Indicator whether the view is fullscreen or not.
   final bool fullscreen;
 
-  ///
+  /// Height of the [TitleBar].
   final double? height;
 
-  ///
+  /// Maximum width that satisfies the constraints.
   final BoxConstraints constraints;
 
-  ///
+  /// Callback, called when this [TitleBar] is tapped.
   final void Function()? onTap;
 
-  ///
+  /// Toggles fullscreen on and off.
   final void Function()? toggleFullscreen;
 
   @override

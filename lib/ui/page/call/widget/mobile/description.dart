@@ -17,6 +17,8 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// [Column] consisting of the [child] with the provided [description].
 class Description extends StatelessWidget {
   const Description({
@@ -33,16 +35,15 @@ class Description extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         child,
         const SizedBox(height: 6),
         DefaultTextStyle(
-          style: const TextStyle(
-            fontSize: 11,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontSize: 11, color: style.colors.onPrimary),
           textAlign: TextAlign.center,
           maxLines: 2,
           child: description,

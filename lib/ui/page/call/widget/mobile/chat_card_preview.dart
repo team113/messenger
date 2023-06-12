@@ -27,7 +27,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 
-/// [Widget] which builds a tile representation of the [CallController.chat].
+/// [Widget] which builds a tile representation of the chat.
 class ChatCardPreview extends StatelessWidget {
   const ChatCardPreview({
     super.key,
@@ -47,7 +47,7 @@ class ChatCardPreview extends StatelessWidget {
   /// [CallMember] representing the current user.
   final CallMember me;
 
-  /// [Rx] representing the current duration of the call.
+  /// Current duration of the call.
   final Duration duration;
 
   /// Callback [Function] that opens a screen to add members to the chat.
@@ -63,12 +63,12 @@ class ChatCardPreview extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
-            color: Colors.transparent,
+            color: style.colors.transparent,
           ),
           child: Material(
             type: MaterialType.card,
             borderRadius: style.cardRadius,
-            color: const Color(0x794E5A78),
+            color: style.colors.onSecondaryOpacity50,
             child: InkWell(
               borderRadius: style.cardRadius,
               onTap: onTap,
@@ -92,7 +92,7 @@ class ChatCardPreview extends StatelessWidget {
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineSmall
-                                      ?.copyWith(color: Colors.white),
+                                      ?.copyWith(color: style.colors.onPrimary),
                                 ),
                               ),
                               Text(
@@ -100,7 +100,7 @@ class ChatCardPreview extends StatelessWidget {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
-                                    ?.copyWith(color: Colors.white),
+                                    ?.copyWith(color: style.colors.onPrimary),
                               ),
                             ],
                           ),
@@ -121,7 +121,7 @@ class ChatCardPreview extends StatelessWidget {
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleSmall
-                                      ?.copyWith(color: Colors.white),
+                                      ?.copyWith(color: style.colors.onPrimary),
                                 ),
                                 const Spacer(),
                                 Text(
@@ -132,7 +132,7 @@ class ChatCardPreview extends StatelessWidget {
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleSmall
-                                      ?.copyWith(color: Colors.white),
+                                      ?.copyWith(color: style.colors.onPrimary),
                                 ),
                               ],
                             ),
