@@ -406,9 +406,10 @@ class ChatsTabController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Indicates whether an [OngoingCall] identified by the given [ChatId] is
-  /// displayed.
-  bool callDisplayed(ChatId id) {
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// contains an [OngoingCall] happening in a [Chat] identified by the
+  /// provided [ChatId].
+  bool containsCall(ChatId id) {
     if (WebUtils.containsCall(id)) {
       return true;
     }

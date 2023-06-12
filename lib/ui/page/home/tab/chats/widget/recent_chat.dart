@@ -54,7 +54,7 @@ class RecentChatTile extends StatelessWidget {
     this.selected = false,
     this.trailing,
     this.getUser,
-    this.callDisplayed,
+    this.inCall,
     this.onLeave,
     this.onHide,
     this.onDrop,
@@ -91,7 +91,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Callback, called to check whether this device of the currently
   /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
-  final bool Function()? callDisplayed;
+  final bool Function()? inCall;
 
   /// Callback, called when this [rxChat] leave action is triggered.
   final void Function()? onLeave;
@@ -898,7 +898,7 @@ class RecentChatTile extends StatelessWidget {
         padding: const EdgeInsets.only(left: 5),
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
-          child: button(callDisplayed?.call() == true),
+          child: button(inCall?.call() == true),
         ),
       );
     });

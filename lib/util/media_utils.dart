@@ -129,6 +129,10 @@ class MediaUtils {
   static Future<List<MediaDeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
   ]) async {
+    if (!PlatformUtils.isDesktop || PlatformUtils.isWeb) {
+      return [];
+    }
+
     return (await mediaManager?.enumerateDevices() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .where((e) => kind == null || e.kind() == kind)
