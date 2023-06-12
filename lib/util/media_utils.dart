@@ -129,10 +129,6 @@ class MediaUtils {
   static Future<List<MediaDeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
   ]) async {
-    if (!PlatformUtils.isDesktop || PlatformUtils.isWeb) {
-      return [];
-    }
-
     return (await mediaManager?.enumerateDevices() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .where((e) => kind == null || e.kind() == kind)
@@ -141,6 +137,10 @@ class MediaUtils {
 
   /// Returns the currently available [MediaDisplayDetails].
   static Future<List<MediaDisplayDetails>> enumerateDisplays() async {
+    if (!PlatformUtils.isDesktop || PlatformUtils.isWeb) {
+      return [];
+    }
+
     return (await mediaManager?.enumerateDisplays() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .toList();
