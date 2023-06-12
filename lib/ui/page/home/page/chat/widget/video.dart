@@ -60,7 +60,7 @@ class Video extends StatefulWidget {
   final RxBool? isFullscreen;
 
   /// Callback, called on the [MeeduPlayerController] initialization errors.
-  final Future<void> Function()? onError;
+  final FutureOr<void> Function()? onError;
 
   /// [Duration] to initially show an user interface for.
   final Duration? showInterfaceFor;
