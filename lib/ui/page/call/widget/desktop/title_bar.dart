@@ -24,8 +24,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Title bar of the call containing information about the call and control
-/// buttons.
+/// Title bar containing information about the call.
 class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,

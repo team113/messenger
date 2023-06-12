@@ -44,9 +44,8 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/mobile/animated_participant.dart';
 import '/ui/page/call/widget/mobile/chat_card_preview.dart';
-import '/ui/page/call/widget/mobile/constrained_row.dart';
+
 import '/ui/page/call/widget/mobile/description.dart';
-import '/ui/page/call/widget/mobile/horizontal_padding.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -384,6 +383,19 @@ Widget mobileCall(CallController c, BuildContext context) {
       }),
     );
 
+    Widget padding(Widget child) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Center(child: child),
+        );
+
+    Widget buttons(List<Widget> children) => ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children.map((e) => Expanded(child: e)).toList(),
+          ),
+        );
+
     List<Widget> ui = [
       // Dimmed container if any video is displayed while calling.
       Obx(() {
@@ -481,11 +493,11 @@ Widget mobileCall(CallController c, BuildContext context) {
 
           panelChildren = [
             const SizedBox(height: 12),
-            ConstrainedRow(
-              children: [
+            buttons(
+              [
                 if (PlatformUtils.isMobile)
-                  HorizontalPadding(
-                    child: c.videoState.value.isEnabled
+                  padding(
+                    c.videoState.value.isEnabled
                         ? Description(
                             description: AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
@@ -504,37 +516,39 @@ Widget mobileCall(CallController c, BuildContext context) {
                           ),
                   ),
                 if (PlatformUtils.isDesktop)
-                  HorizontalPadding(
-                      child: Description(
+                  padding(
+                    Description(
+                      description: AnimatedOpacity(
+                        opacity: c.isPanelOpen.value ? 1 : 0,
+                        duration: 200.milliseconds,
+                        child: Text(
+                          c.screenShareState.value == LocalTrackState.enabled ||
+                                  c.screenShareState.value ==
+                                      LocalTrackState.enabling
+                              ? 'btn_call_screen_off_desc'.l10n
+                              : 'btn_call_screen_on_desc'.l10n,
+                        ),
+                      ),
+                      child: ScreenButton(c).build(),
+                    ),
+                  ),
+                padding(
+                  Description(
                     description: AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
                       child: Text(
-                        c.screenShareState.value == LocalTrackState.enabled ||
-                                c.screenShareState.value ==
-                                    LocalTrackState.enabling
-                            ? 'btn_call_screen_off_desc'.l10n
-                            : 'btn_call_screen_on_desc'.l10n,
+                        c.audioState.value == LocalTrackState.enabled ||
+                                c.audioState.value == LocalTrackState.enabling
+                            ? 'btn_call_audio_off_desc'.l10n
+                            : 'btn_call_audio_on_desc'.l10n,
                       ),
                     ),
-                    child: ScreenButton(c).build(),
-                  )),
-                HorizontalPadding(
-                    child: Description(
-                  description: AnimatedOpacity(
-                    opacity: c.isPanelOpen.value ? 1 : 0,
-                    duration: 200.milliseconds,
-                    child: Text(
-                      c.audioState.value == LocalTrackState.enabled ||
-                              c.audioState.value == LocalTrackState.enabling
-                          ? 'btn_call_audio_off_desc'.l10n
-                          : 'btn_call_audio_on_desc'.l10n,
-                    ),
+                    child: AudioButton(c).build(),
                   ),
-                  child: AudioButton(c).build(),
-                )),
-                HorizontalPadding(
-                  child: Description(
+                ),
+                padding(
+                  Description(
                     description: AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -548,50 +562,55 @@ Widget mobileCall(CallController c, BuildContext context) {
                     child: VideoButton(c).build(),
                   ),
                 ),
-                HorizontalPadding(
-                    child: Description(
-                  description: AnimatedOpacity(
-                    opacity: c.isPanelOpen.value ? 1 : 0,
-                    duration: 200.milliseconds,
-                    child: Text('btn_call_end_desc'.l10n),
+                padding(
+                  Description(
+                    description: AnimatedOpacity(
+                      opacity: c.isPanelOpen.value ? 1 : 0,
+                      duration: 200.milliseconds,
+                      child: Text('btn_call_end_desc'.l10n),
+                    ),
+                    child: DropButton(c).build(),
                   ),
-                  child: DropButton(c).build(),
-                )),
+                ),
               ],
             ),
             const SizedBox(height: 32),
-            ConstrainedRow(
-              children: [
-                HorizontalPadding(
-                    child: Description(
-                  description: Text('btn_participants_desc'.l10n),
-                  child: ParticipantsButton(c).build(),
-                )),
-                HorizontalPadding(
-                    child: Description(
-                  description: AnimatedOpacity(
-                    opacity: c.isPanelOpen.value ? 1 : 0,
-                    duration: 200.milliseconds,
-                    child: Text(c.me.isHandRaised.value
-                        ? 'btn_call_hand_down_desc'.l10n
-                        : 'btn_call_hand_up_desc'.l10n),
+            buttons(
+              [
+                padding(
+                  Description(
+                    description: Text('btn_participants_desc'.l10n),
+                    child: ParticipantsButton(c).build(),
                   ),
-                  child: HandButton(c).build(),
-                )),
-                HorizontalPadding(
-                    child: Description(
-                  description: Text(c.isRemoteAudioEnabled.value
-                      ? 'btn_call_remote_audio_off_desc'.l10n
-                      : 'btn_call_remote_audio_on_desc'.l10n),
-                  child: RemoteAudioButton(c).build(),
-                )),
-                HorizontalPadding(
-                    child: Description(
-                  description: Text(c.isRemoteVideoEnabled.value
-                      ? 'btn_call_remote_video_off_desc'.l10n
-                      : 'btn_call_remote_video_on_desc'.l10n),
-                  child: RemoteVideoButton(c).build(),
-                )),
+                ),
+                padding(
+                  Description(
+                    description: AnimatedOpacity(
+                      opacity: c.isPanelOpen.value ? 1 : 0,
+                      duration: 200.milliseconds,
+                      child: Text(c.me.isHandRaised.value
+                          ? 'btn_call_hand_down_desc'.l10n
+                          : 'btn_call_hand_up_desc'.l10n),
+                    ),
+                    child: HandButton(c).build(),
+                  ),
+                ),
+                padding(
+                  Description(
+                    description: Text(c.isRemoteAudioEnabled.value
+                        ? 'btn_call_remote_audio_off_desc'.l10n
+                        : 'btn_call_remote_audio_on_desc'.l10n),
+                    child: RemoteAudioButton(c).build(),
+                  ),
+                ),
+                padding(
+                  Description(
+                    description: Text(c.isRemoteVideoEnabled.value
+                        ? 'btn_call_remote_video_off_desc'.l10n
+                        : 'btn_call_remote_video_on_desc'.l10n),
+                    child: RemoteVideoButton(c).build(),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 32),
@@ -697,40 +716,41 @@ Widget mobileCall(CallController c, BuildContext context) {
                             0,
                             150 + MediaQuery.of(context).padding.bottom,
                           ),
-                          child: ConstrainedRow(
-                            children: isOutgoing
+                          child: buttons(
+                            isOutgoing
                                 ? [
                                     if (PlatformUtils.isMobile)
-                                      HorizontalPadding(
-                                        child: c.videoState.value.isEnabled
+                                      padding(
+                                        c.videoState.value.isEnabled
                                             ? SwitchButton(c).build(blur: true)
                                             : SpeakerButton(c)
                                                 .build(blur: true),
                                       ),
-                                    HorizontalPadding(
-                                      child: AudioButton(c).build(blur: true),
+                                    padding(
+                                      AudioButton(c).build(blur: true),
                                     ),
-                                    HorizontalPadding(
-                                      child: VideoButton(c).build(blur: true),
+                                    padding(
+                                      VideoButton(c).build(blur: true),
                                     ),
-                                    HorizontalPadding(
-                                        child:
-                                            CancelButton(c).build(blur: true)),
+                                    padding(
+                                      CancelButton(c).build(blur: true),
+                                    ),
                                   ]
                                 : [
-                                    HorizontalPadding(
-                                        child: AcceptAudioButton(
-                                      c,
-                                      highlight: !c.withVideo,
-                                    ).build(expanded: true)),
-                                    HorizontalPadding(
-                                        child: AcceptVideoButton(
-                                      c,
-                                      highlight: c.withVideo,
-                                    ).build(expanded: true)),
-                                    HorizontalPadding(
-                                      child: DeclineButton(c)
-                                          .build(expanded: true),
+                                    padding(
+                                      AcceptAudioButton(
+                                        c,
+                                        highlight: !c.withVideo,
+                                      ).build(expanded: true),
+                                    ),
+                                    padding(
+                                      AcceptVideoButton(
+                                        c,
+                                        highlight: c.withVideo,
+                                      ).build(expanded: true),
+                                    ),
+                                    padding(
+                                      DeclineButton(c).build(expanded: true),
                                     ),
                                   ],
                           ),
