@@ -1361,13 +1361,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           padding: const EdgeInsets.only(right: 8),
           child: call?.withVideo ?? false
               ? SvgImage.asset(
-            'assets/icons/call_video${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
-            height: 11,
-          )
+                  'assets/icons/call_video${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
+                  height: 11,
+                )
               : SvgImage.asset(
-            'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
-            height: 12,
-          ),
+                  'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
+                  height: 12,
+                ),
         ),
         Flexible(
           child: Row(

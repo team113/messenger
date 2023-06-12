@@ -189,66 +189,64 @@ class _DataAttachmentState extends State<DataAttachment> {
           padding: const EdgeInsets.fromLTRB(8, 3, 8, 3),
           child: WidgetButton(
             onPressed: widget.onPressed,
-            child: Container(
-              child: Row(
-                children: [
-                  const SizedBox(width: 6),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: AnimatedSwitcher(
-                      key: Key('AttachmentStatus_${e.id}'),
-                      duration: 250.milliseconds,
-                      child: leading,
-                    ),
+            child: Row(
+              children: [
+                const SizedBox(width: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: AnimatedSwitcher(
+                    key: Key('AttachmentStatus_${e.id}'),
+                    duration: 250.milliseconds,
+                    child: leading,
                   ),
-                  const SizedBox(width: 9),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                p.basenameWithoutExtension(e.filename),
-                                style: style.boldBody,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Text(
-                              p.extension(e.filename),
+                ),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              p.basenameWithoutExtension(e.filename),
                               style: style.boldBody,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 3),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'label_kb'.l10nfmt({
-                                'amount': e.original.size == null
-                                    ? 'dot'.l10n * 3
-                                    : e.original.size! ~/ 1024
-                              }),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: style.systemMessageStyle.copyWith(
-                                fontSize: 11,
-                                color: style.colors.secondary,
-                              ),
+                          ),
+                          Text(
+                            p.extension(e.filename),
+                            style: style.boldBody,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'label_kb'.l10nfmt({
+                              'amount': e.original.size == null
+                                  ? 'dot'.l10n * 3
+                                  : e.original.size! ~/ 1024
+                            }),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: style.systemMessageStyle.copyWith(
+                              fontSize: 11,
+                              color: style.colors.secondary,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

@@ -672,16 +672,18 @@ class RecentChatTile extends StatelessWidget {
       } else {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: inverted ? SvgImage.asset(
-            'assets/icons/file_dark.svg',
-            width: 30,
-            height: 30,
-          ) : Center(
-            child: SvgImage.asset(
-              'assets/icons/file.svg',
-              height: 14.3,
-            ),
-          ),
+          child: inverted
+              ? SvgImage.asset(
+                  'assets/icons/file_dark.svg',
+                  width: 30,
+                  height: 30,
+                )
+              : Center(
+                  child: SvgImage.asset(
+                    'assets/icons/file.svg',
+                    height: 14.3,
+                  ),
+                ),
         );
       }
     }
@@ -713,16 +715,18 @@ class RecentChatTile extends StatelessWidget {
       } else {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: inverted ? SvgImage.asset(
-            'assets/icons/file_dark.svg',
-            width: 30,
-            height: 30,
-          ) : Center(
-            child: SvgImage.asset(
-              'assets/icons/file.svg',
-              height: 14.3,
-            ),
-          ),
+          child: inverted
+              ? SvgImage.asset(
+                  'assets/icons/file_dark.svg',
+                  width: 30,
+                  height: 30,
+                )
+              : Center(
+                  child: SvgImage.asset(
+                    'assets/icons/file.svg',
+                    height: 14.3,
+                  ),
+                ),
         );
       }
     }
