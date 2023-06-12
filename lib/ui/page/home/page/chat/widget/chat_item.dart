@@ -1118,20 +1118,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Widget call = Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
+        color: style.colors.onBackground.withOpacity(0.03),
       ),
+      padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: message.withVideo
                 ? SvgImage.asset(
-                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
-                    height: 11,
+                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 13 * 1.4,
                   )
                 : SvgImage.asset(
-                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
-                    height: 12,
+                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                    height: 15 * 1.4,
                   ),
           ),
           Flexible(
@@ -1150,18 +1152,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 if (time != null) ...[
                   const SizedBox(width: 8),
                   Padding(
-                    padding: const EdgeInsets.only(top: 2.5),
-                    child: Stack(
-                      alignment: Alignment.topRight,
-                      children: [
-                        Text(
-                          time,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ).fixedDigits(),
-                      ],
-                    ),
+                    padding: const EdgeInsets.only(bottom: 1),
+                    child: Text(
+                      time,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ).fixedDigits(),
                   ),
                 ],
               ],
@@ -1180,7 +1177,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1394,11 +1391,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: call?.withVideo == true
                 ? SvgImage.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : '_blue'}.svg',
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 13,
                   )
                 : SvgImage.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : '_blue'}.svg',
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
                     height: 15,
                   ),
           ),
