@@ -60,7 +60,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     final double top = MediaQuery.of(context).padding.top;
 

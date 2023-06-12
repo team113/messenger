@@ -42,7 +42,7 @@ class CallWindowSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (_, fonts) = Theme.of(context).styles();
+    final fonts = Theme.of(context).fonts;
 
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),

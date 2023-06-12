@@ -949,14 +949,14 @@ class Palette {
   }
 }
 
-/// Extension adding tuple variables from [ThemeData].
-extension ThemeStyles on ThemeData {
-  /// Font data defined in the [ThemeData].
+/// Extension adding [Style] and [TextTheme] handy getters from the [ThemeData].
+extension ThemeStylesExtension on ThemeData {
+  /// Returns the [TextTheme] of this [ThemeData].
   TextTheme get fonts => textTheme;
 
-  /// Style data defined in the [ThemeData].
+  /// Returns the [Style] of this [ThemeData].
   Style get style => extension<Style>()!;
 
-  /// Returns a tuple containing the [Style] and [TextTheme] variables.
-  (Style, TextTheme) styles() => (style, fonts);
+  /// Returns a record containing the [style] and [fonts].
+  (Style, TextTheme) get styles => (style, fonts);
 }

@@ -41,7 +41,7 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       key: const Key('LoginView'),

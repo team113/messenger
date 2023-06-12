@@ -51,7 +51,7 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
@@ -360,7 +360,7 @@ class UserView extends StatelessWidget {
     UserController c,
     BuildContext context,
   ) async {
-    final (_, fonts) = Theme.of(context).styles();
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
@@ -381,7 +381,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
   Future<void> _hideChat(UserController c, BuildContext context) async {
-    final (_, fonts) = Theme.of(context).styles();
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
@@ -402,7 +402,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
-    final (_, fonts) = Theme.of(context).styles();
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
@@ -423,7 +423,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup blacklisting the [User].
   Future<void> _blacklistUser(UserController c, BuildContext context) async {
-    final (_, fonts) = Theme.of(context).styles();
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,

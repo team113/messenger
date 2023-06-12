@@ -29,7 +29,7 @@ class RaisedHand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 150),

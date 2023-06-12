@@ -50,7 +50,7 @@ class _DataAttachmentState extends State<DataAttachment> {
     final Attachment e = widget.attachment;
 
     return Obx(() {
-      final (style, fonts) = Theme.of(context).styles();
+      final (style, fonts) = Theme.of(context).styles;
 
       Widget leading = Container();
 

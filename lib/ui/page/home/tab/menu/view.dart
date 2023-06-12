@@ -40,7 +40,7 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        final (style, fonts) = Theme.of(context).styles();
+        final (style, fonts) = Theme.of(context).styles;
 
         return Scaffold(
           extendBodyBehindAppBar: true,

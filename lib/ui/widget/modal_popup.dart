@@ -47,7 +47,7 @@ abstract class ModalPopup {
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
   }) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     if (context.isMobile) {
       return showModalBottomSheet(
@@ -145,7 +145,7 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),

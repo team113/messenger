@@ -66,7 +66,7 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       key: const Key('MyProfileView'),
@@ -336,7 +336,7 @@ Widget _name(MyProfileController c) {
 
 /// Returns [MyUser.status] editable field.
 Widget _status(MyProfileController c, BuildContext context) {
-  final (_, fonts) = Theme.of(context).styles();
+  final fonts = Theme.of(context).fonts;
 
   return _padding(
     ReactiveTextField(
@@ -367,7 +367,7 @@ Widget _status(MyProfileController c, BuildContext context) {
 
 /// Returns [WidgetButton] displaying the [MyUser.presence].
 Widget _presence(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
     final Presence? presence = c.myUser.value?.presence;
@@ -403,7 +403,7 @@ Widget _num(MyProfileController c) => _padding(
 
 /// Returns [MyUser.chatDirectLink] editable field.
 Widget _link(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
     return Column(
@@ -474,7 +474,7 @@ Widget _link(BuildContext context, MyProfileController c) {
 
 /// Returns [MyUser.login] editable field.
 Widget _login(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return _padding(
     Column(
@@ -573,7 +573,7 @@ Widget _login(MyProfileController c, BuildContext context) {
 
 /// Returns addable list of [MyUser.emails].
 Widget _emails(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
     final List<Widget> widgets = [];
@@ -725,7 +725,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
 
 /// Returns addable list of [MyUser.emails].
 Widget _phones(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
     final List<Widget> widgets = [];
@@ -878,7 +878,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
 /// Returns the buttons changing or setting the password of the currently
 /// authenticated [MyUser].
 Widget _password(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -906,7 +906,7 @@ Widget _password(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.danger] section.
 Widget _danger(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Column(
     children: [
@@ -931,7 +931,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.background] section.
 Widget _background(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   Widget message({
     bool fromMe = true,
@@ -1065,7 +1065,7 @@ Widget _background(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.calls] section.
 Widget _call(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -1088,7 +1088,7 @@ Widget _call(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.chats] section.
 Widget _chats(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -1124,7 +1124,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.media] section.
 Widget _media(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -1206,7 +1206,7 @@ Widget _media(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.notifications] section.
 Widget _notifications(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
     return _dense(
@@ -1303,7 +1303,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.language] section.
 Widget _language(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return _dense(
     FieldButton(
@@ -1323,7 +1323,7 @@ Widget _language(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.blacklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Column(
     children: [
@@ -1345,7 +1345,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.storage] section.
 Widget _storage(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
     return _dense(
@@ -1394,7 +1394,7 @@ Future<void> _deleteEmail(
   BuildContext context,
   UserEmail email,
 ) async {
-  final (_, fonts) = Theme.of(context).styles();
+  final fonts = Theme.of(context).fonts;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_email'.l10n,
@@ -1417,7 +1417,7 @@ Future<void> _deletePhone(
   BuildContext context,
   UserPhone phone,
 ) async {
-  final (_, fonts) = Theme.of(context).styles();
+  final fonts = Theme.of(context).fonts;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_phone_number'.l10n,
@@ -1435,7 +1435,7 @@ Future<void> _deletePhone(
 
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
-  final (_, fonts) = Theme.of(context).styles();
+  final fonts = Theme.of(context).fonts;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_account'.l10n,

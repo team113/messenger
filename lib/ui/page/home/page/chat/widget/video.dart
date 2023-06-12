@@ -120,7 +120,7 @@ class _VideoState extends State<Video> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),

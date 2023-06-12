@@ -35,7 +35,7 @@ class LinkDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return AnimatedSizeAndFade(
       fadeDuration: const Duration(milliseconds: 250),

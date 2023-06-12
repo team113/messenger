@@ -41,7 +41,7 @@ class ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return Padding(
       padding: Insets.dense.add(const EdgeInsets.only(bottom: 8)),

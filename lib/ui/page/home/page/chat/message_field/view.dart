@@ -90,7 +90,7 @@ class MessageFieldView extends StatelessWidget {
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(25),
@@ -124,7 +124,7 @@ class MessageFieldView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: controller ?? MessageFieldController(Get.find(), Get.find()),
@@ -166,7 +166,7 @@ class MessageFieldView extends StatelessWidget {
   /// Returns a visual representation of the message attachments, replies,
   /// quotes and edited message.
   Widget _buildHeader(MessageFieldController c, BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       return Obx(() {
@@ -426,7 +426,7 @@ class MessageFieldView extends StatelessWidget {
   /// Builds a visual representation of the send field itself along with its
   /// buttons.
   Widget _buildField(MessageFieldController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return Container(
       constraints: const BoxConstraints(minHeight: 56),
@@ -539,7 +539,7 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
-      final (style, fonts) = Theme.of(context).styles();
+      final (style, fonts) = Theme.of(context).styles;
 
       if (isImage || isVideo) {
         // TODO: Backend should support single attachment updating.
@@ -671,7 +671,7 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the [content] along with manipulation buttons and statuses.
     Widget attachment() {
-      final (style, _) = Theme.of(context).styles();
+      final style = Theme.of(context).style;
 
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
@@ -780,7 +780,7 @@ class MessageFieldView extends StatelessWidget {
     MessageFieldController c, {
     void Function()? onClose,
   }) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     final bool fromMe = item.authorId == c.me;
 

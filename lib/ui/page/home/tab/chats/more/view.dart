@@ -44,7 +44,7 @@ class ChatsMoreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (_, fonts) = Theme.of(context).styles();
+    final fonts = Theme.of(context).fonts;
 
     return GetBuilder(
       key: const Key('ChatsMoreView'),
@@ -84,7 +84,7 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a styled as a header [Container] with the provided [text].
   Widget _header(BuildContext context, String text) {
-    final (_, fonts) = Theme.of(context).styles();
+    final fonts = Theme.of(context).fonts;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
@@ -99,7 +99,7 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [Switch] toggling [MyUser.muted].
   Widget _mute(BuildContext context, ChatsMoreController c) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return Obx(() {
       return Stack(
@@ -145,7 +145,7 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       return Column(

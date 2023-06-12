@@ -49,7 +49,7 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     // [AnimatedOpacity] boilerplate.
     Widget tab({required Widget child, bool selected = false}) {

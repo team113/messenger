@@ -209,7 +209,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
@@ -254,7 +254,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return Obx(
       () => GestureDetector(
@@ -277,7 +277,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return RxBuilder((_) {
       final bool isFinished =
@@ -318,7 +318,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the play/pause button.
   Widget _buildPlayPause(MeeduPlayerController controller) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return Transform.translate(
       offset: const Offset(0, 0),
@@ -341,7 +341,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the mute/unmute button with a volume overlay above it.
   Widget _buildMuteButton(MeeduPlayerController controller) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       onEnter: (_) {
@@ -389,7 +389,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return Stack(
       children: [
@@ -456,7 +456,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return RxBuilder((_) {
       final position = widget.controller.position.value;
@@ -471,7 +471,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return Expanded(
       child: ProgressBar(

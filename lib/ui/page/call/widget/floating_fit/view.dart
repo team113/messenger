@@ -355,7 +355,7 @@ class _FloatingPanel<T> extends StatelessWidget {
 
   /// Builds a [Container] with [CustomBoxShadow].
   Widget _buildShadow(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return Positioned(
       left: left,
@@ -381,7 +381,7 @@ class _FloatingPanel<T> extends StatelessWidget {
 
   /// Background of this [_FloatingPanel].
   Widget _buildBackground(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return Positioned(
       left: left,
@@ -445,7 +445,7 @@ class _FloatingPanel<T> extends StatelessWidget {
 
   /// Builds a [GestureDetector] recognizing tap and scale gestures.
   Widget _buildGestures(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return Positioned(
       left: left,

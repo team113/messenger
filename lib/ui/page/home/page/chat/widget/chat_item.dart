@@ -184,7 +184,7 @@ class ChatItemWidget extends StatefulWidget {
     bool filled = true,
     bool autoLoad = true,
   }) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     final bool isLocal = e is LocalAttachment;
 
@@ -433,7 +433,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final (_, fonts) = Theme.of(context).styles();
+    final fonts = Theme.of(context).fonts;
 
     return DefaultTextStyle(
       style: fonts.bodyLarge!,
@@ -456,7 +456,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatInfo].
   Widget _renderAsChatInfo() {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     final ChatInfo message = widget.item.value as ChatInfo;
 
@@ -748,7 +748,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     final ChatMessage msg = widget.item.value as ChatMessage;
 
@@ -1020,7 +1020,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     var message = widget.item.value as ChatCall;
     bool isOngoing =
@@ -1222,7 +1222,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItemQuote item, BoxConstraints constraints) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     bool fromMe = item.author == widget.me;
 
@@ -1439,7 +1439,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     BuildContext context,
     Widget Function(bool menu, BoxConstraints constraints) builder,
   ) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     final ChatItem item = widget.item.value;
 

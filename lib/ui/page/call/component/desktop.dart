@@ -57,7 +57,7 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return LayoutBuilder(
     builder: (context, constraints) {
@@ -1119,7 +1119,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final (style, fonts) = Theme.of(context).styles();
+      final (style, fonts) = Theme.of(context).styles;
 
       return Container(
         key: const ValueKey('TitleBar'),
@@ -1472,7 +1472,7 @@ Widget _primaryView(CallController c) {
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles();
+  final (style, fonts) = Theme.of(context).styles;
 
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),

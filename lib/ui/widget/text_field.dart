@@ -175,7 +175,7 @@ class ReactiveTextField extends StatelessWidget {
 
     // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
-      final (style, fonts) = Theme.of(context).styles();
+      final (style, fonts) = Theme.of(context).styles;
 
       return Obx(() {
         return WidgetButton(
@@ -249,7 +249,7 @@ class ReactiveTextField extends StatelessWidget {
     }
 
     return Obx(() {
-      final (style, fonts) = Theme.of(context).styles();
+      final (style, fonts) = Theme.of(context).styles;
 
       return Theme(
         data: Theme.of(context).copyWith(

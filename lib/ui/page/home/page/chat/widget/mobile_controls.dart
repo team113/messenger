@@ -68,7 +68,7 @@ class _MobileControlsState extends State<MobileControls>
 
   @override
   Widget build(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       onHover: PlatformUtils.isMobile ? null : (_) => _cancelAndRestartTimer(),
@@ -148,7 +148,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the bottom controls bar.
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
 
@@ -199,7 +199,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return RxBuilder((_) {
       final bool isFinished =
@@ -218,7 +218,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the mute/unmute button.
   GestureDetector _buildMuteButton() {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return GestureDetector(
       onTap: () {
@@ -259,7 +259,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [RichText] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return RxBuilder((_) {
       final position = widget.controller.position.value;
@@ -284,7 +284,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final (style, _) = Theme.of(context).styles();
+    final style = Theme.of(context).style;
 
     return Expanded(
       child: ProgressBar(

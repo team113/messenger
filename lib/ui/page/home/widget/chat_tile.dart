@@ -89,7 +89,7 @@ class ChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles();
+    final (style, fonts) = Theme.of(context).styles;
 
     return ContextMenuRegion(
       key: Key('Chat_${chat?.chat.value.id}'),
