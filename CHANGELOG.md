@@ -23,6 +23,8 @@ All user visible changes to this project will be documented in this file. This p
         - Chat-monolog. ([#412], [#333], [#326])    
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
+    - Media panel:
+        - Low signal icon on a participant. ([#454])
 - Web:
     - Unread chats badge on favicon. ([#403])
 - Desktop:
@@ -90,6 +92,7 @@ All user visible changes to this project will be documented in this file. This p
 [#438]: /../../issues/438
 [#440]: /../../pull/440
 [#445]: /../../pull/445
+[#454]: /../../pull/454
 
 
 
