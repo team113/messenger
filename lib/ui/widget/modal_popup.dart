@@ -54,7 +54,7 @@ abstract class ModalPopup {
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
+        backgroundColor: style.colors.onPrimary,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
@@ -77,7 +77,7 @@ abstract class ModalPopup {
                       width: 60,
                       height: 3,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFCCCCCC),
+                        color: style.colors.secondaryHighlightDarkest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
@@ -112,7 +112,7 @@ abstract class ModalPopup {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: desktopPadding,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: style.colors.onPrimary,
                 borderRadius: style.cardRadius,
               ),
               child: ConstrainedBox(
@@ -153,8 +153,9 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.displaySmall?.copyWith(color: Colors.black);
+    final TextStyle? thin = Theme.of(context).textTheme.displaySmall;
+
+    final Style styles = Theme.of(context).extension<Style>()!;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
@@ -168,7 +169,7 @@ class ModalPopupHeader extends StatelessWidget {
                 child: Icon(
                   Icons.arrow_back_ios_new,
                   size: 14,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: styles.colors.primary,
                 ),
               ),
             )
@@ -188,7 +189,7 @@ class ModalPopupHeader extends StatelessWidget {
                 child: Icon(
                   Icons.close,
                   size: 18,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: styles.colors.primary,
                 ),
               ),
             )

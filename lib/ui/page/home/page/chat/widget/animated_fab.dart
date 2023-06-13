@@ -20,6 +20,9 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '/routes.dart';
+import '/themes.dart';
+
 /// Animated button with expandable on toggle [actions].
 class AnimatedFab extends StatefulWidget {
   const AnimatedFab({
@@ -148,6 +151,8 @@ class _AnimatedFabState extends State<AnimatedFab>
     _overlayEntry = OverlayEntry(
       builder: (ctx) => LayoutBuilder(
         builder: (context, constraints) {
+          final Style style = Theme.of(context).extension<Style>()!;
+
           if (!firstLayout) {
             final keyContext = _key.currentContext;
             if (keyContext != null) {
@@ -166,7 +171,8 @@ class _AnimatedFabState extends State<AnimatedFab>
                   animation: _controller,
                   builder: (context, child) {
                     return Container(
-                      color: Colors.black.withOpacity(0.25 * _controller.value),
+                      color: style.colors.onBackground
+                          .withOpacity(0.25 * _controller.value),
                     );
                   },
                 ),
@@ -240,8 +246,8 @@ class _AnimatedFabState extends State<AnimatedFab>
                               const SizedBox(width: 5),
                               Material(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Colors.white,
-                                shadowColor: const Color(0x33000000),
+                                color: style.colors.onPrimary,
+                                shadowColor: style.colors.onBackgroundOpacity20,
                                 elevation: 6,
                                 child: InkWell(
                                   onTap: onTap,
@@ -292,23 +298,26 @@ class _AnimatedFabState extends State<AnimatedFab>
   Widget _button({
     void Function()? onTap,
     required Widget icon,
-  }) =>
-      Material(
-        type: MaterialType.circle,
-        color: Colors.white,
-        shadowColor: const Color(0x55000000),
-        elevation: 6,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: Container(
-            decoration: const BoxDecoration(shape: BoxShape.circle),
-            width: 42,
-            height: 42,
-            child: Center(child: icon),
-          ),
+  }) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
+    return Material(
+      type: MaterialType.circle,
+      color: style.colors.onPrimary,
+      shadowColor: style.colors.onBackgroundOpacity27,
+      elevation: 6,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Container(
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          width: 42,
+          height: 42,
+          child: Center(child: icon),
         ),
-      );
+      ),
+    );
+  }
 
   /// Returns an animated circular button toggling overlay.
   Widget _fab() {

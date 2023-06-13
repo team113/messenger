@@ -116,7 +116,6 @@ class ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return ContextMenuRegion(
       key: contact != null || user != null
@@ -129,7 +128,7 @@ class ContactTile extends StatelessWidget {
       child: Padding(
         padding: margin,
         child: InkWellWithHover(
-          selectedColor: colors.secondary,
+          selectedColor: style.colors.primary,
           unselectedColor: style.cardColor.darken(darken),
           selected: selected,
           hoveredBorder:
@@ -138,7 +137,7 @@ class ContactTile extends StatelessWidget {
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: style.cardColor.darken(darken + 0.03),
-          selectedHoverColor: colors.secondary,
+          selectedHoverColor: style.colors.primary,
           folded: contact?.contact.value.favoritePosition != null,
           child: Padding(
             key: contact?.contact.value.favoritePosition != null
@@ -191,7 +190,9 @@ class ContactTile extends StatelessWidget {
                                   .textTheme
                                   .headlineSmall
                                   ?.copyWith(
-                                    color: selected ? colors.onSecondary : null,
+                                    color: selected
+                                        ? style.colors.onPrimary
+                                        : null,
                                   ),
                             ),
                           ),

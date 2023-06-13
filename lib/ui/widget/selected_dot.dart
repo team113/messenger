@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Animated [CircleAvatar] representing a selection circle.
@@ -44,7 +45,7 @@ class SelectedDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return SizedBox(
       width: 30,
@@ -54,11 +55,12 @@ class SelectedDot extends StatelessWidget {
             ? CircleAvatar(
                 key: const Key('Selected'),
                 backgroundColor:
-                    inverted ? colors.onSecondary : colors.secondary,
+                    inverted ? style.colors.onPrimary : style.colors.primary,
                 radius: size / 2,
                 child: Icon(
                   Icons.check,
-                  color: inverted ? colors.secondary : colors.onSecondary,
+                  color:
+                      inverted ? style.colors.primary : style.colors.onPrimary,
                   size: 14,
                 ),
               )
@@ -67,7 +69,7 @@ class SelectedDot extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFD7D7D7).darken(darken),
+                    color: style.colors.secondaryHighlightDark.darken(darken),
                     width: 1,
                   ),
                 ),

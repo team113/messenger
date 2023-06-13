@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/widget_button.dart';
@@ -39,6 +40,8 @@ class BlacklistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: BlacklistController(
         Get.find(),
@@ -85,7 +88,7 @@ class BlacklistView extends StatelessWidget {
                             Text(
                               '28.12.2022',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: style.colors.secondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -96,8 +99,7 @@ class BlacklistView extends StatelessWidget {
                               child: Text(
                                 'btn_unblock_short'.l10n,
                                 style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                                  color: style.colors.primary,
                                   fontSize: 13,
                                 ),
                               ),

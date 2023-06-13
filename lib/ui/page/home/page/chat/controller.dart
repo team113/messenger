@@ -395,6 +395,7 @@ class ChatController extends GetxController {
     edit.value?.onClose();
 
     _audioPlayer?.dispose();
+    _audioPlayer = null;
     AudioCache.instance.clear('audio/message_sent.mp3');
 
     if (chat?.chat.value.isDialog == true) {

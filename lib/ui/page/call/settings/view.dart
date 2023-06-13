@@ -48,6 +48,8 @@ class CallSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       init: CallSettingsController(
         _call,
@@ -89,9 +91,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
+                            style: TextStyle(color: style.colors.primary),
                           );
                         }),
                       ),
@@ -123,9 +123,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
+                            style: TextStyle(color: style.colors.primary),
                           );
                         }),
                       ),
@@ -157,9 +155,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
+                            style: TextStyle(color: style.colors.primary),
                           );
                         }),
                       ),
@@ -181,9 +177,7 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
+                          style: TextStyle(color: style.colors.primary),
                         ),
                       ),
                     ),

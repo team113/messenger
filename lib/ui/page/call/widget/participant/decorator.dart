@@ -17,34 +17,35 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:get/get.dart';
+import '/themes.dart';
 
-import '/domain/model/user.dart';
-
-/// [ListTile] with an information of an [User].
-class AddUserListTile extends StatelessWidget {
-  const AddUserListTile(this.user, this.onTap, {Key? key}) : super(key: key);
-
-  /// [User] this [AddUserListTile] is about.
-  final User user;
-
-  /// Callback, called when this [ListTile] is tapped.
-  final VoidCallback onTap;
+/// [Participant] background decoration containing a border.
+class ParticipantDecoratorWidget extends StatelessWidget {
+  const ParticipantDecoratorWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    return ListTile(
-      leading: const CircleAvatar(
-        backgroundColor: Colors.green,
-        child: Icon(Icons.check, color: Colors.white),
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        fit: StackFit.passthrough,
+        children: [
+          const SizedBox(width: double.infinity, height: double.infinity),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: style.colors.onBackgroundOpacity20,
+                  width: 0.5,
+                ),
+              ),
+              child: const IgnorePointer(),
+            ),
+          ),
+        ],
       ),
-      selected: true,
-      selectedTileColor: const Color(0x11000000),
-      title: Text(user.name?.val ?? user.num.val, style: font17),
-      onTap: onTap,
     );
   }
 }

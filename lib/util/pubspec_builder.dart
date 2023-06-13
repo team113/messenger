@@ -49,8 +49,8 @@ class PubspecBuilder implements Builder {
     await buildStep.writeAsString(
       outputId,
       'class Pubspec {\n'
-      '\tstatic const name = \'${pubspec['name']}\';\n'
-      '\tstatic const version = \'${pubspec['version']}\';\n'
+      '  static const name = \'${pubspec['name']}\';\n'
+      '  static const version = \'${pubspec['version']}\';\n'
       '}\n',
     );
   }

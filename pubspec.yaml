@@ -11,7 +11,6 @@ dependencies:
   async: ^2.10.0
   audioplayers: ^4.0.1
   back_button_interceptor: ^6.0.2
-  badges: ^3.1.1
   callkeep: ^0.3.3
   carousel_slider: ^4.2.1
   chewie: ^1.5.0
@@ -55,7 +54,7 @@ dependencies:
   js: ^0.6.5
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.8.0-dev+rev.d1fa5bf748084feb988aa858487411164de58b7b
-  medea_jason: 0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2
+  medea_jason: 0.3.0-dev+rev.d675a58f7a3b5c4e0508f0692405d2e1f26e9dd2
   mime: ^1.0.4
   mutex: ^3.0.1
   # TODO: Switch to pub.dev version when the following pull request is merged

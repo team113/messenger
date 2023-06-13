@@ -112,11 +112,13 @@ class Selector<T> extends StatefulWidget {
       );
     }
 
+    final Style style = Theme.of(context).extension<Style>()!;
+
     if (isMobile) {
       return showModalBottomSheet(
         context: context,
         barrierColor: kCupertinoModalBarrierColor,
-        backgroundColor: Colors.white,
+        backgroundColor: style.colors.onPrimary,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(8),
@@ -178,6 +180,8 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   /// Returns mobile design of this [Selector].
   Widget _mobile(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Container(
       height: 12 + 3 + 12 + 14 * 2 + min(widget.items.length * 38, 330) + 12,
       margin: EdgeInsets.only(
@@ -194,7 +198,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                 width: 60,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCCCCCC),
+                  color: style.colors.secondaryHighlightDarkest,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -220,8 +224,9 @@ class _SelectorState<T> extends State<Selector<T>> {
                       selectionOverlay: Container(
                         margin:
                             const EdgeInsetsDirectional.only(start: 8, end: 8),
-                        decoration:
-                            const BoxDecoration(color: Color(0x3363B4FF)),
+                        decoration: BoxDecoration(
+                          color: style.colors.onSecondaryOpacity20,
+                        ),
                       ),
                       onSelectedItemChanged: (int i) {
                         HapticFeedback.selectionClick();
@@ -247,13 +252,13 @@ class _SelectorState<T> extends State<Selector<T>> {
                       child: Container(
                         height: 15,
                         width: double.infinity,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Color(0xFFFFFFFF),
-                              Color(0x00FFFFFF),
+                              style.colors.onPrimary,
+                              style.colors.transparent,
                             ],
                           ),
                         ),
@@ -264,13 +269,13 @@ class _SelectorState<T> extends State<Selector<T>> {
                       child: Container(
                         height: 15,
                         width: double.infinity,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Color(0x00FFFFFF),
-                              Color(0xFFFFFFFF),
+                              style.colors.transparent,
+                              style.colors.onPrimary,
                             ],
                           ),
                         ),
@@ -366,10 +371,10 @@ class _SelectorState<T> extends State<Selector<T>> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: Material(
             borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
+            color: style.colors.onPrimary,
             child: InkWell(
-              hoverColor: const Color(0x3363B4FF),
-              highlightColor: Colors.white.withOpacity(0.1),
+              hoverColor: style.colors.onSecondaryOpacity20,
+              highlightColor: style.colors.onPrimaryOpacity7,
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 _selected.value = item;
@@ -422,13 +427,13 @@ class _SelectorState<T> extends State<Selector<T>> {
                           child: Container(
                             height: 15,
                             margin: const EdgeInsets.only(right: 10),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Color(0xFFFFFFFF),
-                                  Color(0x00FFFFFF),
+                                  style.colors.onPrimary,
+                                  style.colors.transparent,
                                 ],
                               ),
                             ),
@@ -442,13 +447,13 @@ class _SelectorState<T> extends State<Selector<T>> {
                           child: Container(
                             height: 15,
                             margin: const EdgeInsets.only(right: 10),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Color(0x00FFFFFF),
-                                  Color(0xFFFFFFFF),
+                                  style.colors.transparent,
+                                  style.colors.onPrimary,
                                 ],
                               ),
                             ),

@@ -22,6 +22,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -76,7 +77,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceInfo e = c.devices[i];
+                            final MediaDeviceDetails e = c.devices[i];
 
                             final bool selected =
                                 (c.mic.value == null && i == 0) ||

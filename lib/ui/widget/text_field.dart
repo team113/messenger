@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'allow_overflow.dart';
@@ -36,7 +37,7 @@ class ReactiveTextField extends StatelessWidget {
     required this.state,
     this.dense,
     this.enabled = true,
-    this.fillColor = Colors.white,
+    this.fillColor,
     this.filled,
     this.formatters,
     this.hint,
@@ -141,7 +142,7 @@ class ReactiveTextField extends StatelessWidget {
   final TextAlign textAlign;
 
   /// Fill color of the [TextField].
-  final Color fillColor;
+  final Color? fillColor;
 
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
@@ -174,6 +175,8 @@ class ReactiveTextField extends StatelessWidget {
 
     // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return Obx(() {
         return WidgetButton(
           onPressed: state.approvable && state.changed.value
@@ -196,25 +199,25 @@ class ReactiveTextField extends StatelessWidget {
                                 height: 17,
                               )
                             : state.status.value.isSuccess
-                                ? const SizedBox(
-                                    key: ValueKey('Success'),
+                                ? SizedBox(
+                                    key: const ValueKey('Success'),
                                     width: 24,
                                     child: Icon(
                                       Icons.check,
                                       size: 18,
-                                      color: Colors.green,
+                                      color: style.colors.acceptAuxiliaryColor,
                                     ),
                                   )
                                 : (state.error.value != null &&
                                             treatErrorAsStatus) ||
                                         state.status.value.isError
-                                    ? const SizedBox(
-                                        key: ValueKey('Error'),
+                                    ? SizedBox(
+                                        key: const ValueKey('Error'),
                                         width: 24,
                                         child: Icon(
                                           Icons.error,
                                           size: 18,
-                                          color: Colors.red,
+                                          color: style.colors.dangerColor,
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
@@ -224,9 +227,7 @@ class ReactiveTextField extends StatelessWidget {
                                               'btn_save'.l10n,
                                               style: TextStyle(
                                                 fontSize: 11,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
+                                                color: style.colors.primary,
                                                 fontWeight: FontWeight.normal,
                                               ),
                                             ),
@@ -250,6 +251,8 @@ class ReactiveTextField extends StatelessWidget {
     }
 
     return Obx(() {
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return Theme(
         data: Theme.of(context).copyWith(
           inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
@@ -257,8 +260,13 @@ class ReactiveTextField extends StatelessWidget {
                     ? Theme.of(context)
                         .inputDecorationTheme
                         .floatingLabelStyle
-                        ?.copyWith(color: Colors.red)
-                    : null,
+                        ?.copyWith(color: style.colors.dangerColor)
+                    : state.isFocused.value
+                        ? Theme.of(context)
+                            .inputDecorationTheme
+                            .floatingLabelStyle
+                            ?.copyWith(color: style.colors.primary)
+                        : null,
               ),
         ),
         child: Column(
@@ -271,7 +279,7 @@ class ReactiveTextField extends StatelessWidget {
                       ? CupertinoTextSelectionControls()
                       : null,
               controller: state.controller,
-              style: style,
+              style: this.style,
               focusNode: state.focus,
               onChanged: (s) {
                 state.isEmpty.value = s.isEmpty;
@@ -286,7 +294,7 @@ class ReactiveTextField extends StatelessWidget {
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
                 prefix: prefix,
-                fillColor: fillColor,
+                fillColor: fillColor ?? style.colors.onPrimary,
                 filled: filled ?? true,
                 contentPadding: contentPadding,
                 suffixIconConstraints: null,
@@ -327,8 +335,8 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value!,
-                            style: (style ?? const TextStyle()).copyWith(
-                              color: Colors.red,
+                            style: (this.style ?? const TextStyle()).copyWith(
+                              color: style.colors.dangerColor,
                               fontSize: 13,
                             ),
                           ),

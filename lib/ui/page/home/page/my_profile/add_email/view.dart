@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
@@ -43,8 +44,11 @@ class AddEmailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: style.colors.onBackground,
+        );
 
     return GetBuilder(
       init: AddEmailController(
@@ -73,7 +77,7 @@ class AddEmailView extends StatelessWidget {
                               : 'label_add_email_confirmation_sent'.l10n,
                           style: thin?.copyWith(
                             fontSize: 15,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: style.colors.secondary,
                           ),
                         );
                       }),
@@ -101,14 +105,14 @@ class AddEmailView extends StatelessWidget {
                                       ),
                                 style: thin?.copyWith(
                                   color: c.resendEmailTimeout.value == 0
-                                      ? Colors.white
-                                      : Colors.black,
+                                      ? style.colors.onPrimary
+                                      : style.colors.onBackground,
                                 ),
                               ),
                               onPressed: c.resendEmailTimeout.value == 0
                                   ? c.resendEmail
                                   : null,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: style.colors.primary,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -120,14 +124,14 @@ class AddEmailView extends StatelessWidget {
                                 'btn_proceed'.l10n,
                                 style: thin?.copyWith(
                                   color: c.emailCode.isEmpty.value
-                                      ? Colors.black
-                                      : Colors.white,
+                                      ? style.colors.onBackground
+                                      : style.colors.onPrimary,
                                 ),
                               ),
                               onPressed: c.emailCode.isEmpty.value
                                   ? null
                                   : c.emailCode.submit,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: style.colors.primary,
                             ),
                           ),
                         ],
@@ -151,7 +155,7 @@ class AddEmailView extends StatelessWidget {
                         'label_add_email_description'.l10n,
                         style: thin?.copyWith(
                           fontSize: 15,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: style.colors.secondary,
                         ),
                       ),
                     ),
@@ -171,13 +175,13 @@ class AddEmailView extends StatelessWidget {
                           'btn_proceed'.l10n,
                           style: thin?.copyWith(
                             color: c.email.isEmpty.value
-                                ? Colors.black
-                                : Colors.white,
+                                ? style.colors.onBackground
+                                : style.colors.onPrimary,
                           ),
                         ),
                         onPressed:
                             c.email.isEmpty.value ? null : c.email.submit,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: style.colors.primary,
                       );
                     }),
                   ],

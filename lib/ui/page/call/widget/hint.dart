@@ -18,16 +18,17 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Styled popup window with a [text] used to serve as a hint.
 class HintWidget extends StatelessWidget {
   const HintWidget({
-    Key? key,
+    super.key,
     required this.text,
     this.onTap,
     this.isError = false,
-  }) : super(key: key);
+  });
 
   /// Text of a hint.
   final String text;
@@ -40,22 +41,24 @@ class HintWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Card(
       elevation: 8,
-      shadowColor: const Color(0x40000000),
+      shadowColor: style.colors.onBackgroundOpacity27,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      color: const Color(0xFFF4F9FD),
+      color: style.colors.backgroundAuxiliaryLightest,
       margin: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 35,
-            decoration: const BoxDecoration(
-              color: Color(0xFFDFEDF9),
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: style.colors.backgroundAuxiliaryLighter,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
@@ -71,9 +74,9 @@ class HintWidget extends StatelessWidget {
                     isError
                         ? 'label_error'.l10n
                         : 'label_hint_from_gapopa'.l10n,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xBB818181),
+                      color: style.colors.secondaryOpacity87,
                     ),
                   ),
                 ),
@@ -81,10 +84,10 @@ class HintWidget extends StatelessWidget {
                   child: InkResponse(
                     onTap: onTap,
                     radius: 11,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
                       size: 16,
-                      color: Color(0xBB818181),
+                      color: style.colors.secondaryOpacity87,
                     ),
                   ),
                 ),
@@ -97,9 +100,9 @@ class HintWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 text,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: Color(0xBB818181),
+                  color: style.colors.secondaryOpacity87,
                 ),
               ),
             ),

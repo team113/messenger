@@ -75,6 +75,8 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a styled as a header [Container] with the provided [text].
   Widget _header(BuildContext context, String text) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
       child: Center(
@@ -82,10 +84,8 @@ class ChatsMoreView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: Theme.of(context)
-                .extension<Style>()!
-                .systemMessageStyle
-                .copyWith(color: Colors.black, fontSize: 18),
+            style: style.systemMessageStyle
+                .copyWith(color: style.colors.onBackground, fontSize: 18),
           ),
         ),
       ),
@@ -94,6 +94,8 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [Switch] toggling [MyUser.muted].
   Widget _mute(BuildContext context, ChatsMoreController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       return Stack(
         alignment: Alignment.centerRight,
@@ -122,7 +124,7 @@ class ChatsMoreView extends StatelessWidget {
                   ),
                   child: Switch.adaptive(
                     key: const Key('MuteMyUserSwitch'),
-                    activeColor: Theme.of(context).colorScheme.secondary,
+                    activeColor: style.colors.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: c.myUser.value?.muted == null,
                     onChanged: c.isMuting.value ? null : c.toggleMute,
@@ -138,6 +140,8 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,14 +190,12 @@ class ChatsMoreView extends StatelessWidget {
                                       0
                             }) +
                             'dot_space'.l10n,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        style: TextStyle(color: style.colors.secondary),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: style.colors.primary,
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {
