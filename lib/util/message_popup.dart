@@ -52,7 +52,7 @@ class MessagePopup {
     List<TextSpan> description = const [],
     List<Widget> additional = const [],
   }) {
-    final (style, fonts) = Theme.of(router.context!).styles();
+    final (style, fonts) = Theme.of(router.context!).styles;
 
     return ModalPopup.show(
       context: router.context!,

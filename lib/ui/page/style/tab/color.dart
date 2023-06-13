@@ -18,9 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../../routes.dart';
 import '../widget/caption.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
@@ -40,9 +40,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
 
   @override
   Widget build(BuildContext context) {
-    // final (fonts, style) = Theme.of(router.context!).styles();
-    final Style style = Theme.of(context).extension<Style>()!;
-    final TextTheme fonts = Theme.of(context).textTheme;
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget color(Color color, [String? desc]) {
       final HSLColor hsl = HSLColor.fromColor(color);

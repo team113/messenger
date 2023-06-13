@@ -24,37 +24,6 @@ import '/themes.dart';
 class FontStyleTabView extends StatelessWidget {
   const FontStyleTabView({super.key});
 
-  Widget _font(String desc, String sample, TextStyle style) => Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(desc, style: const TextStyle(fontWeight: FontWeight.w500)),
-              const SizedBox(height: 10),
-              ListTile(
-                leading: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 5),
-                    Text(sample, style: style),
-                  ],
-                ),
-                trailing: Text(
-                  'Шрифт: ${style.fontSize} пт, цвет: ${style.color?.toHex()}',
-                  style: const TextStyle(fontSize: 15, color: Colors.grey),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
@@ -142,6 +111,39 @@ class FontStyleTabView extends StatelessWidget {
           ),
           const SizedBox(height: 60),
         ],
+      ),
+    );
+  }
+
+  Widget _font(String sample, String title, TextStyle style) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 10),
+            ListTile(
+              leading: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 5),
+                  Text(sample, style: style),
+                ],
+              ),
+              trailing: Text(
+                'Шрифт: ${style.fontSize} пт, цвет: ${style.color?.toHex()}',
+                style: const TextStyle(fontSize: 15, color: Colors.grey),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

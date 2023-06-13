@@ -481,6 +481,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     switch (message.action.kind) {
       case ChatInfoActionKind.created:
+        final action = message.action as ChatInfoActionCreated;
+
         if (widget.chat.value?.isGroup == true) {
           content = userBuilder(message.authorId, (context, user) {
             if (user != null) {
@@ -498,22 +500,37 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                     TextSpan(
                       text: 'label_group_created_by2'.l10nfmt(args),
-                      style: fonts.bodySmall!.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: style.systemMessageStyle,
                     ),
                   ],
-                  style: fonts.bodySmall!.copyWith(color: style.colors.primary),
+                  style: style.systemMessageStyle
+                      .copyWith(color: style.colors.primary),
                 ),
               );
             }
 
-            return Text('label_group_created'.l10n);
+            return Text(
+              'label_group_created'.l10n,
+              style: style.systemMessageStyle,
+            );
           });
         } else if (widget.chat.value?.isMonolog == true) {
-          content = Text('label_monolog_created'.l10n);
+          content = Text(
+            'label_monolog_created'.l10n,
+            style: style.systemMessageStyle,
+          );
         } else {
-          content = Text('label_dialog_created'.l10n);
+          if (action.directLinkSlug == null) {
+            content = Text(
+              'label_dialog_created'.l10n,
+              style: style.systemMessageStyle,
+            );
+          } else {
+            content = Text(
+              'label_dialog_created_by_link'.l10n,
+              style: style.systemMessageStyle,
+            );
+          }
         }
         break;
 
@@ -540,9 +557,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                   TextSpan(
                     text: 'label_user_added_user2'.l10nfmt(args),
-                    style: fonts.bodySmall!.copyWith(
-                      color: style.colors.secondary,
-                    ),
+                    style: style.systemMessageStyle,
                   ),
                   TextSpan(
                     text: 'label_user_added_user3'.l10nfmt(args),
@@ -550,7 +565,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: fonts.bodySmall!.copyWith(color: style.colors.primary),
+                style: style.systemMessageStyle
+                    .copyWith(color: style.colors.primary),
               ),
             );
           });
@@ -569,12 +585,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
-                  style: fonts.bodySmall!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: style.systemMessageStyle,
                 ),
               ],
-              style: fonts.bodySmall!.copyWith(color: style.colors.primary),
+              style: style.systemMessageStyle
+                  .copyWith(color: style.colors.primary),
             ),
           );
         }
@@ -603,9 +618,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                   TextSpan(
                     text: 'label_user_removed_user2'.l10nfmt(args),
-                    style: fonts.bodySmall!.copyWith(
-                      color: style.colors.secondary,
-                    ),
+                    style: style.systemMessageStyle,
                   ),
                   TextSpan(
                     text: 'label_user_removed_user3'.l10nfmt(args),
@@ -613,7 +626,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: fonts.bodySmall!.copyWith(color: style.colors.primary),
+                style: style.systemMessageStyle
+                    .copyWith(color: style.colors.primary),
               ),
             );
           });
@@ -632,12 +646,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
-                  style: fonts.bodySmall!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: style.systemMessageStyle,
                 ),
               ],
-              style: fonts.bodySmall!.copyWith(color: style.colors.primary),
+              style: style.systemMessageStyle
+                  .copyWith(color: style.colors.primary),
             ),
           );
         }
@@ -670,10 +683,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+                style: style.systemMessageStyle,
               ),
             ],
-            style: fonts.bodySmall!.copyWith(color: style.colors.primary),
+            style:
+                style.systemMessageStyle.copyWith(color: style.colors.primary),
           ),
         );
         break;
@@ -706,10 +720,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+                style: style.systemMessageStyle,
               ),
             ],
-            style: fonts.bodySmall!.copyWith(color: style.colors.primary),
+            style:
+                style.systemMessageStyle.copyWith(color: style.colors.primary),
           ),
         );
         break;
@@ -1772,8 +1787,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,
                                         child: Text(
-                                          'label_delete_for_everyone'.l10n,
                                           key: const Key('DeleteForAll'),
+                                          'label_delete_for_everyone'.l10n,
                                         ),
                                       )
                                   ],

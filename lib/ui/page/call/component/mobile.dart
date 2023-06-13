@@ -56,7 +56,7 @@ import 'common.dart';
 
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
-  final (style, _) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return LayoutBuilder(builder: (context, constraints) {
     bool isOutgoing =

@@ -157,9 +157,7 @@ class ScreenButton extends CallButton {
   String get hint {
     bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
         c.screenShareState.value == LocalTrackState.enabling;
-    return isScreen
-        ? 'btn_call_screen_off_desc'.l10n
-        : 'btn_call_screen_on'.l10n;
+    return isScreen ? 'btn_call_screen_off'.l10n : 'btn_call_screen_on'.l10n;
   }
 
   @override
@@ -460,7 +458,7 @@ class SwitchButton extends CallButton {
 /// Returns a [Column] consisting of the [child] with the provided
 /// [description].
 Widget withDescription(Widget child, Widget description) {
-  final (style, fonts) = Theme.of(router.context!).styles();
+  final (style, fonts) = Theme.of(router.context!).styles;
 
   return Column(
     mainAxisSize: MainAxisSize.min,

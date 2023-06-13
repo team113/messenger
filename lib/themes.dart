@@ -68,7 +68,34 @@ class Themes {
       fontFamilyFallback: const ['.SF UI Display'],
       color: colors.onBackground,
       fontSize: 17,
-      fontWeight: FontWeight.normal,
+      fontWeight: FontWeight.w400,
+    );
+
+    final TextTheme fonts = Typography.blackCupertino.copyWith(
+      displayLarge:
+          textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.bold),
+      displayMedium:
+          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
+      displaySmall:
+          textStyle.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
+      headlineLarge: textStyle.copyWith(fontSize: 18),
+      headlineMedium:
+          textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w300),
+      headlineSmall: textStyle.copyWith(fontSize: 13),
+      titleLarge: textStyle.copyWith(fontWeight: FontWeight.w300),
+      titleMedium: textStyle.copyWith(fontSize: 15),
+      titleSmall: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
+      labelLarge: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+      labelMedium:
+          textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+      labelSmall: textStyle.copyWith(
+        fontSize: 11,
+        fontWeight: FontWeight.w300,
+        letterSpacing: 0.4,
+      ),
+      bodyLarge: textStyle,
+      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
     );
 
     final ThemeData theme = ThemeData.light();
@@ -113,11 +140,8 @@ class Themes {
               width: 0.5,
             ),
             systemMessageColor: colors.secondaryHighlight,
-            systemMessageStyle: textStyle.copyWith(
-              color: colors.secondary,
-              fontSize: 13,
-              fontWeight: FontWeight.w300,
-            ),
+            systemMessageStyle:
+                fonts.bodySmall!.copyWith(color: colors.secondary),
             unreadMessageColor: colors.backgroundAuxiliaryLightest,
           ),
         ],
@@ -137,11 +161,8 @@ class Themes {
           ),
           elevation: 0,
           centerTitle: true,
-          titleTextStyle: textStyle.copyWith(
-            color: colors.onBackground,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
-          ),
+          titleTextStyle:
+              fonts.headlineMedium!.copyWith(color: colors.onBackground),
         ),
         tabBarTheme: theme.tabBarTheme.copyWith(
           labelColor: colors.primary,
@@ -151,98 +172,26 @@ class Themes {
           color: colors.secondary,
         ),
         iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
-        textTheme: Typography.blackCupertino.copyWith(
-          displayLarge: textStyle.copyWith(
-            fontSize: 27,
-            fontWeight: FontWeight.bold,
-          ),
-          displayMedium: textStyle.copyWith(
-            fontWeight: FontWeight.w300,
-            fontSize: 24,
-          ),
-          displaySmall: textStyle.copyWith(
-            fontWeight: FontWeight.w600,
-            fontSize: 11,
-          ),
-          headlineLarge: textStyle.copyWith(fontSize: 18),
-          headlineMedium: textStyle.copyWith(
-            fontSize: 18,
-            fontWeight: FontWeight.w300,
-          ),
-          headlineSmall: textStyle.copyWith(fontSize: 13),
-          titleLarge: textStyle.copyWith(
-            fontSize: 17,
-            fontWeight: FontWeight.w300,
-          ),
-          titleMedium: textStyle.copyWith(fontSize: 15),
-          titleSmall: textStyle.copyWith(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-          ),
-          labelLarge: textStyle.copyWith(
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          labelMedium: textStyle.copyWith(
-            fontSize: 13,
-            fontWeight: FontWeight.w300,
-          ),
-          labelSmall: textStyle.copyWith(
-            fontSize: 11,
-            fontWeight: FontWeight.w300,
-            letterSpacing: 0.4,
-          ),
-          bodyLarge: textStyle.copyWith(fontSize: 17),
-          bodyMedium: textStyle.copyWith(
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          bodySmall: textStyle.copyWith(
-            fontSize: 13,
-            fontWeight: FontWeight.w300,
-          ),
-        ),
+        textTheme: fonts,
         inputDecorationTheme: theme.inputDecorationTheme.copyWith(
           focusColor: colors.primary,
           hoverColor: colors.transparent,
           fillColor: colors.primary,
-          hintStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          labelStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          errorStyle:
-              textStyle.copyWith(color: colors.dangerColor, fontSize: 13),
-          helperStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          prefixStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          suffixStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          counterStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 13,
-            fontWeight: FontWeight.w300,
-          ),
-          floatingLabelStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
+          hintStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          labelStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          errorStyle: fonts.headlineSmall!.copyWith(color: colors.dangerColor),
+          helperStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          prefixStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          suffixStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          counterStyle: fonts.bodySmall!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          floatingLabelStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
           errorMaxLines: 5,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
@@ -286,9 +235,7 @@ class Themes {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: colors.secondary,
-            textStyle: textStyle.copyWith(
-              color: colors.secondary,
-            ),
+            textStyle: fonts.bodyLarge!.copyWith(color: colors.secondary),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -301,9 +248,7 @@ class Themes {
               borderRadius: BorderRadius.circular(30),
             ),
             side: BorderSide(width: 1, color: colors.secondary),
-            textStyle: textStyle.copyWith(
-              color: colors.secondary,
-            ),
+            textStyle: fonts.bodyLarge!.copyWith(color: colors.secondary),
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -313,10 +258,7 @@ class Themes {
               borderRadius: BorderRadius.circular(30),
             ),
             padding: const EdgeInsets.all(12),
-            textStyle: textStyle.copyWith(
-              color: colors.secondary,
-              fontSize: 15,
-            ),
+            textStyle: fonts.titleMedium!.copyWith(color: colors.secondary),
           ),
         ),
         scrollbarTheme: theme.scrollbarTheme.copyWith(

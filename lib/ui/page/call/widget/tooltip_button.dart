@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
 
@@ -59,9 +58,7 @@ class TooltipButton extends StatelessWidget {
         : Tooltip(
             verticalOffset: verticalOffset,
             message: hint!,
-            textStyle: context.theme.outlinedButtonTheme.style!.textStyle!
-                .resolve({MaterialState.disabled})!.copyWith(
-              fontSize: fonts.bodySmall!.fontSize,
+            textStyle: fonts.headlineSmall!.copyWith(
               color: style.colors.onPrimary,
               shadows: [
                 Shadow(blurRadius: 6, color: style.colors.onBackground),
