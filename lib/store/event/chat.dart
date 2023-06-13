@@ -362,7 +362,10 @@ class EventChatCallMemberLeft extends ChatEvent {
 
 /// Event of a [User] joined a [ChatCall].
 class EventChatCallMemberJoined extends ChatEvent {
-  const EventChatCallMemberJoined(super.chatId, this.user, this.at);
+  const EventChatCallMemberJoined(super.chatId, this.call, this.user, this.at);
+
+  /// Joined [ChatCall].
+  final ChatCall call;
 
   /// [User] who joined the [ChatCall].
   final User user;
