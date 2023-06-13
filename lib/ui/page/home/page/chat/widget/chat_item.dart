@@ -1055,11 +1055,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _ongoingCallTimer?.cancel();
     }
 
-    final Widget call = Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: _call(message),
-    );
-
     final Color color = _fromMe
         ? style.colors.primary
         : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
@@ -1102,7 +1097,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: Text.rich(
                       TextSpan(
                         children: [
-                          WidgetSpan(child: call),
+                          WidgetSpan(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: _call(message),
+                            ),
+                          ),
                           if (widget.timestamp)
                             WidgetSpan(
                               child: Opacity(
@@ -1320,13 +1320,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
-  /// Returns content of the provided [call].
+  /// Returns the visual representation of the provided [call].
   Widget _call(ChatCall? call) {
     final Style style = Theme.of(context).extension<Style>()!;
-    bool isOngoing =
-        call?.finishReason == null && call?.conversationStartedAt != null;
-    bool isMissed = false;
 
+    final bool isOngoing =
+        call?.finishReason == null && call?.conversationStartedAt != null;
+
+    bool isMissed = false;
     String title = 'label_chat_call_ended'.l10n;
     String? time;
 
