@@ -36,8 +36,8 @@ class CallMemberTile extends StatelessWidget {
     required this.call,
     required this.user,
     required this.removeChatMember,
-    required this.removeChatCallMember,
-    required this.redialChatCallMember,
+    this.removeChatCallMember,
+    this.redialChatCallMember,
     this.me,
   });
 
@@ -55,10 +55,10 @@ class CallMemberTile extends StatelessWidget {
   final Future<void> Function() removeChatMember;
 
   /// [Function] that removes a member from the [OngoingCall].
-  final void Function() removeChatCallMember;
+  final void Function()? removeChatCallMember;
 
   /// [Function] that redials a member from the [OngoingCall].
-  final void Function() redialChatCallMember;
+  final void Function()? redialChatCallMember;
 
   @override
   Widget build(BuildContext context) {

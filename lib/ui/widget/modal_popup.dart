@@ -132,7 +132,6 @@ class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     super.key,
     required this.text,
-    this.style,
     this.onBack,
     this.hideCloseButton = false,
   });
@@ -140,11 +139,8 @@ class ModalPopupHeader extends StatelessWidget {
   /// [Widget] to put as a title of this [ModalPopupHeader].
   final String text;
 
-  /// Optional [TextStyle] of the [text].
-  final TextStyle? style;
-
   /// Indicator whether the close button is displayed or not.
-  final bool? hideCloseButton;
+  final bool hideCloseButton;
 
   /// Callback, called when a back button is pressed.
   ///
@@ -153,48 +149,46 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin = Theme.of(context).textTheme.displaySmall;
-
     final Style styles = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(context).textTheme.displaySmall;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
       child: Row(
         children: [
-          if (onBack != null)
-            WidgetButton(
-              onPressed: onBack,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 14,
-                  color: styles.colors.primary,
-                ),
-              ),
-            )
-          else
-            const SizedBox(width: 40),
+          onBack != null
+              ? WidgetButton(
+                  onPressed: onBack,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 14,
+                      color: styles.colors.primary,
+                    ),
+                  ),
+                )
+              : const SizedBox(width: 40),
           Expanded(
             child: Center(
-              child: Text(text, style: style ?? thin),
+              child: Text(text, style: thin),
             ),
           ),
-          if (!context.isMobile && hideCloseButton == false)
-            WidgetButton(
-              key: const Key('CloseButton'),
-              onPressed: Navigator.of(context).pop,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.close,
-                  size: 18,
-                  color: styles.colors.primary,
-                ),
-              ),
-            )
-          else
-            const SizedBox(width: 40),
+          !context.isMobile && hideCloseButton == false
+              ? WidgetButton(
+                  key: const Key('CloseButton'),
+                  onPressed: Navigator.of(context).pop,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(
+                      Icons.close,
+                      size: 18,
+                      color: styles.colors.primary,
+                    ),
+                  ),
+                )
+              : const SizedBox(width: 40),
         ],
       ),
     );

@@ -51,6 +51,10 @@ class CallSettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
+    final EdgeInsetsGeometry padding = Insets.dense.add(
+      const EdgeInsets.symmetric(horizontal: 30),
+    );
+
     return GetBuilder(
       init: CallSettingsController(
         _call,
@@ -68,7 +72,7 @@ class CallSettingsView extends StatelessWidget {
                 children: [
                   ModalPopupHeader(text: 'label_media'.l10n),
                   Padding(
-                    padding: Insets.dense,
+                    padding: padding,
                     child: WidgetButton(
                       onPressed: () async {
                         await CameraSwitchView.show(
@@ -101,7 +105,7 @@ class CallSettingsView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Padding(
-                    padding: Insets.dense,
+                    padding: padding,
                     child: WidgetButton(
                       onPressed: () async {
                         await MicrophoneSwitchView.show(
@@ -134,7 +138,7 @@ class CallSettingsView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Padding(
-                    padding: Insets.dense,
+                    padding: padding,
                     child: WidgetButton(
                       onPressed: () async {
                         await OutputSwitchView.show(
@@ -171,7 +175,7 @@ class CallSettingsView extends StatelessWidget {
                     text: 'label_calls'.l10n,
                   ),
                   Padding(
-                    padding: Insets.dense,
+                    padding: padding,
                     child: WidgetButton(
                       onPressed: () => CallWindowSwitchView.show(context),
                       child: IgnorePointer(
