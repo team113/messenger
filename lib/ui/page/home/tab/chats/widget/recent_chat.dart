@@ -676,7 +676,7 @@ class RecentChatTile extends StatelessWidget {
             child: SvgImage.asset(
               inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
               height: 14.3,
-                  ),
+            ),
           ),
         );
       }
