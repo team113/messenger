@@ -238,17 +238,7 @@ class AuthView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ModalPopupHeader(
-            header: Center(
-              child: Text(
-                'btn_download'.l10n,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: Colors.black, fontSize: 18),
-              ),
-            ),
-          ),
+          ModalPopupHeader(text: 'btn_download'.l10n),
           const SizedBox(height: 12),
           Flexible(
             child: ListView(

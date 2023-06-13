@@ -65,9 +65,6 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-
     return GetBuilder(
       init: ParticipantController(
         call,
@@ -116,15 +113,10 @@ class ParticipantView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     ModalPopupHeader(
-                      header: Center(
-                        child: Text(
-                          'label_participants_of'.l10nfmt({
-                            'a': ids.length,
-                            'b': c.chat.value?.members.length ?? 1,
-                          }),
-                          style: thin?.copyWith(fontSize: 18),
-                        ),
-                      ),
+                      text: 'label_participants_of'.l10nfmt({
+                        'a': ids.length,
+                        'b': c.chat.value?.members.length ?? 1,
+                      }),
                     ),
                     const SizedBox(height: 12),
                     Expanded(

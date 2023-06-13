@@ -105,12 +105,7 @@ class SearchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              ModalPopupHeader(
-                onBack: onBack,
-                header: Center(
-                  child: Text(title, style: thin?.copyWith(fontSize: 18)),
-                ),
-              ),
+              ModalPopupHeader(onBack: onBack, text: title),
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),

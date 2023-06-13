@@ -39,9 +39,6 @@ class BlacklistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-
     return GetBuilder(
       init: BlacklistController(
         Get.find(),
@@ -55,13 +52,8 @@ class BlacklistView extends StatelessWidget {
             children: [
               const SizedBox(height: 4),
               ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_blocked_count'
-                        .l10nfmt({'count': c.blacklist.length}),
-                    style: thin?.copyWith(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
+                text: 'label_blocked_count'.l10nfmt(
+                  {'count': c.blacklist.length},
                 ),
               ),
               const SizedBox(height: 4),

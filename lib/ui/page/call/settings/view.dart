@@ -63,8 +63,7 @@ class CallSettingsView extends StatelessWidget {
                 controller: c.scrollController,
                 shrinkWrap: true,
                 children: [
-                  const SizedBox(height: 12),
-                  SettingsHeader(text: 'label_media'.l10n),
+                  ModalPopupHeader(text: 'label_media'.l10n),
                   _Dense(
                     child: WidgetButton(
                       onPressed: () async {
@@ -167,7 +166,10 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SettingsHeader(text: 'label_calls'.l10n),
+                  ModalPopupHeader(
+                    hideCloseButton: true,
+                    text: 'label_calls'.l10n,
+                  ),
                   _Dense(
                     child: WidgetButton(
                       onPressed: () => CallWindowSwitchView.show(context),
@@ -190,7 +192,6 @@ class CallSettingsView extends StatelessWidget {
                 ],
               ),
             ),
-            const ModalPopupHeader(),
           ],
         );
       },

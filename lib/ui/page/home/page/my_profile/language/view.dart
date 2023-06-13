@@ -62,14 +62,7 @@ class LanguageSelectionView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_language'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_language'.l10n),
               const SizedBox(height: 4),
               Flexible(
                 child: Scrollbar(

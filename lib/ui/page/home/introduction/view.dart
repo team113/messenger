@@ -169,12 +169,7 @@ class IntroductionView extends StatelessWidget {
                     onBack: c.stage.value == IntroductionViewStage.password
                         ? () => c.stage.value = null
                         : null,
-                    header: Center(
-                      child: Text(
-                        'label_account_created'.l10n,
-                        style: thin?.copyWith(fontSize: 18),
-                      ),
-                    ),
+                    text: 'label_account_created'.l10n,
                   ),
                   const SizedBox(height: 25),
                   Padding(

@@ -64,14 +64,7 @@ class MessagePopup {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    title,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: title),
               const SizedBox(height: 13),
               Flexible(
                 child: ListView(

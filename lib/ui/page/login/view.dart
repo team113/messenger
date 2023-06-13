@@ -74,12 +74,7 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.recovery:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = null,
-                header: Center(
-                  child: Text(
-                    'label_recover_account'.l10n,
-                    style: theme.displaySmall?.copyWith(fontSize: 18),
-                  ),
-                ),
+                text: 'label_recover_account'.l10n,
               );
 
               children = [
@@ -111,12 +106,7 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.recoveryCode:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = null,
-                header: Center(
-                  child: Text(
-                    'label_recover_account'.l10n,
-                    style: theme.displaySmall?.copyWith(fontSize: 18),
-                  ),
-                ),
+                text: 'label_recover_account'.l10n,
               );
 
               children = [
@@ -149,12 +139,7 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.recoveryPassword:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = null,
-                header: Center(
-                  child: Text(
-                    'label_recover_account'.l10n,
-                    style: theme.displaySmall?.copyWith(fontSize: 18),
-                  ),
-                ),
+                text: 'label_recover_account'.l10n,
               );
 
               children = [
@@ -205,14 +190,7 @@ class LoginView extends StatelessWidget {
               break;
 
             default:
-              header = ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_entrance'.l10n,
-                    style: theme.displaySmall?.copyWith(fontSize: 18),
-                  ),
-                ),
-              );
+              header = ModalPopupHeader(text: 'label_entrance'.l10n);
 
               children = [
                 if (c.recovered.value)

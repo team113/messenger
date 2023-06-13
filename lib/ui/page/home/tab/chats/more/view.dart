@@ -51,17 +51,7 @@ class ChatsMoreView extends StatelessWidget {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ModalPopupHeader(
-              header: Center(
-                child: Text(
-                  'label_audio_notifications'.l10n,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: Colors.black, fontSize: 18),
-                ),
-              ),
-            ),
+            ModalPopupHeader(text: 'label_audio_notifications'.l10n),
             Flexible(
               child: ListView(
                 padding: ModalPopup.padding(context),

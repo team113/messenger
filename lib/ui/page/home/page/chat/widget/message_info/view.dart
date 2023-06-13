@@ -71,14 +71,7 @@ class MessageInfo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 4),
-            ModalPopupHeader(
-              header: Center(
-                child: Text(
-                  'label_message'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
-                ),
-              ),
-            ),
+            ModalPopupHeader(text: 'label_message'.l10n),
             if (id != null)
               Container(
                 margin: const EdgeInsets.only(top: 8, bottom: 16),

@@ -71,14 +71,7 @@ class ScreenShareView extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_screen_sharing'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_screen_sharing'.l10n),
               const SizedBox(height: 12),
               Flexible(
                 child: Scrollbar(
