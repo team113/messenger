@@ -59,7 +59,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       bool isMuted;
 
       if (participant.source == MediaSourceKind.Display ||
-          participant.member.isRedialing.isTrue) {
+          participant.member.isDialing.isTrue) {
         isMuted = false;
       } else {
         isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
@@ -103,13 +103,10 @@ class ParticipantOverlayWidget extends StatelessWidget {
       if (participant.member.quality.value <= 1) {
         additionally.add(
           Padding(
-            padding: const EdgeInsets.only(left: 3, right: 3),
-            child: Transform.translate(
-              offset: const Offset(-1, 0),
-              child: SvgImage.asset(
-                'assets/icons/low_signal_level.svg',
-                height: 15.5,
-              ),
+            padding: const EdgeInsets.only(left: 2, right: 3),
+            child: SvgImage.asset(
+              'assets/icons/low_signal_level.svg',
+              height: 15.5,
             ),
           ),
         );

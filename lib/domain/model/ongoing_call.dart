@@ -553,7 +553,7 @@ class OngoingCall {
                   final CallMember? redialed = members[redialedId];
                   if (redialed != null) {
                     redialed.id = id;
-                    redialed.isRedialing.value = false;
+                    redialed.isDialing.value = false;
                     members.move(redialedId, id);
                   }
 
@@ -1136,7 +1136,7 @@ class OngoingCall {
       final CallMemberId redialedId = CallMemberId(id.userId, null);
 
       final CallMember? redialed = members[redialedId];
-      if (redialed?.isRedialing.value == true) {
+      if (redialed?.isDialing.value == true) {
         members.move(redialedId, id);
       }
 
@@ -1146,7 +1146,7 @@ class OngoingCall {
         member.id = id;
         member._connection = conn;
         member.isConnected.value = true;
-        member.isRedialing.value = false;
+        member.isDialing.value = false;
       } else {
         members[id] = CallMember(
           id,
@@ -1772,7 +1772,7 @@ class CallMember {
     bool isRedialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
-        isRedialing = RxBool(isRedialing),
+        isDialing = RxBool(isRedialing),
         owner = MediaOwnerKind.remote;
 
   CallMember.me(
@@ -1782,7 +1782,7 @@ class CallMember {
     bool isRedialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
-        isRedialing = RxBool(isRedialing),
+        isDialing = RxBool(isRedialing),
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
@@ -1800,8 +1800,8 @@ class CallMember {
   /// Indicator whether this [CallMember] is connected to the media server.
   final RxBool isConnected;
 
-  /// Indicator whether this [CallMember] is redialing.
-  final RxBool isRedialing;
+  /// Indicator whether this [CallMember] is dialing.
+  final RxBool isDialing;
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;

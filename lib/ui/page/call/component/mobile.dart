@@ -211,7 +211,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                               ? const Icon(Icons.volume_up)
                               : const Icon(Icons.volume_off),
                         ),
-                      if (e.member.isRedialing.isFalse)
+                      if (e.member.isDialing.isFalse)
                         ContextMenuButton(
                           label: 'btn_call_remove_participant'.l10n,
                           trailing: const Icon(Icons.remove_circle),
