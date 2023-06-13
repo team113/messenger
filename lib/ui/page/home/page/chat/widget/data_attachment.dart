@@ -150,7 +150,7 @@ class _DataAttachmentState extends State<DataAttachment> {
           case SendingStatus.sending:
             leading = SizedBox.square(
               key: const Key('Sending'),
-              dimension: 18,
+              dimension: 29,
               child: CircularProgressIndicator(
                 value: e.progress.value,
                 backgroundColor: style.colors.onPrimary,
@@ -163,7 +163,7 @@ class _DataAttachmentState extends State<DataAttachment> {
             leading = Icon(
               Icons.check_circle,
               key: const Key('Sent'),
-              size: 18,
+              size: 29,
               color: style.colors.acceptAuxiliaryColor,
             );
             break;
@@ -172,7 +172,7 @@ class _DataAttachmentState extends State<DataAttachment> {
             leading = Icon(
               Icons.error_outline,
               key: const Key('Error'),
-              size: 18,
+              size: 29,
               color: style.colors.dangerColor,
             );
             break;
