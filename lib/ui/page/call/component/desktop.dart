@@ -1948,102 +1948,91 @@ Widget _secondaryTarget(CallController c) {
                   builder: (context, candidate, rejected) {
                     return Obx(() {
                       return IgnorePointer(
-                        child: AnimatedSwitcher(
+                        child: AnimatedOpacity(
                           key: const Key('SecondaryTargetAnimatedSwitcher'),
                           duration: 200.milliseconds,
-                          child: c.primaryDrags.value >= 1
-                              ? Container(
-                                  padding: EdgeInsets.only(
-                                    left: secondaryAxis == Axis.horizontal
-                                        ? 1
-                                        : 0,
-                                    bottom:
-                                        secondaryAxis == Axis.vertical ? 1 : 0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      left: secondaryAxis == Axis.horizontal
-                                          ? BorderSide(
-                                              color: style.colors.secondary,
-                                              width: 1,
-                                            )
-                                          : BorderSide.none,
-                                      bottom: secondaryAxis == Axis.vertical
-                                          ? BorderSide(
-                                              color: style.colors.secondary,
-                                              width: 1,
-                                            )
-                                          : BorderSide.none,
-                                    ),
-                                    boxShadow: [
-                                      CustomBoxShadow(
-                                        color:
-                                            style.colors.onBackgroundOpacity20,
-                                        blurRadius: 8,
-                                        blurStyle: BlurStyle.outer,
+                          opacity: c.primaryDrags.value >= 1 ? 1 : 0,
+                          child: Container(
+                            padding: EdgeInsets.only(
+                              left: secondaryAxis == Axis.horizontal ? 1 : 0,
+                              bottom: secondaryAxis == Axis.vertical ? 1 : 0,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: secondaryAxis == Axis.horizontal
+                                    ? BorderSide(
+                                        color: style.colors.secondary,
+                                        width: 1,
                                       )
-                                    ],
-                                  ),
-                                  child: ConditionalBackdropFilter(
-                                    child: AnimatedContainer(
-                                      duration: 300.milliseconds,
-                                      color: candidate.isNotEmpty
-                                          ? style.colors.onPrimaryOpacity7
-                                          : style.colors.transparent,
-                                      child: Center(
-                                        child: SizedBox(
-                                          width:
-                                              secondaryAxis == Axis.horizontal
-                                                  ? min(panelSize, 150 + 44)
-                                                  : null,
-                                          height:
-                                              secondaryAxis == Axis.horizontal
-                                                  ? null
-                                                  : min(panelSize, 150 + 44),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              AnimatedScale(
-                                                duration: const Duration(
-                                                    milliseconds: 300),
-                                                curve: Curves.ease,
-                                                scale: candidate.isNotEmpty
-                                                    ? 1.06
-                                                    : 1,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: style.colors
-                                                        .onBackgroundOpacity27,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                      10,
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.add_rounded,
-                                                      size: 35,
-                                                      color: style
-                                                          .colors.onPrimary,
-                                                    ),
-                                                  ),
-                                                ),
+                                    : BorderSide.none,
+                                bottom: secondaryAxis == Axis.vertical
+                                    ? BorderSide(
+                                        color: style.colors.secondary,
+                                        width: 1,
+                                      )
+                                    : BorderSide.none,
+                              ),
+                              boxShadow: [
+                                CustomBoxShadow(
+                                  color: style.colors.onBackgroundOpacity20,
+                                  blurRadius: 8,
+                                  blurStyle: BlurStyle.outer,
+                                )
+                              ],
+                            ),
+                            child: ConditionalBackdropFilter(
+                              child: AnimatedContainer(
+                                duration: 300.milliseconds,
+                                color: candidate.isNotEmpty
+                                    ? style.colors.onPrimaryOpacity7
+                                    : style.colors.transparent,
+                                child: Center(
+                                  child: SizedBox(
+                                    width: secondaryAxis == Axis.horizontal
+                                        ? min(panelSize, 150 + 44)
+                                        : null,
+                                    height: secondaryAxis == Axis.horizontal
+                                        ? null
+                                        : min(panelSize, 150 + 44),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        AnimatedScale(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          curve: Curves.ease,
+                                          scale:
+                                              candidate.isNotEmpty ? 1.06 : 1,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: style
+                                                  .colors.onBackgroundOpacity27,
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(
+                                                10,
                                               ),
-                                            ],
+                                              child: Icon(
+                                                Icons.add_rounded,
+                                                size: 35,
+                                                color: style.colors.onPrimary,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              : Container(key: UniqueKey()),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       );
                     });
