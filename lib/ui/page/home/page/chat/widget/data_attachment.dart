@@ -110,7 +110,6 @@ class _DataAttachmentState extends State<DataAttachment> {
                   offset: const Offset(0.3, -0.5),
                   child: SvgImage.asset(
                     'assets/icons/file.svg',
-                    width: 8.8 * 1.15,
                     height: 12.5,
                   ),
                 ),
@@ -126,9 +125,8 @@ class _DataAttachmentState extends State<DataAttachment> {
               width: 29,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _hovered
-                    ? style.colors.backgroundAuxiliaryLighter
-                    : style.colors.secondaryHighlightDark,
+                color:
+                    _hovered ? style.colors.backgroundAuxiliaryLighter : null,
                 border: Border.all(
                   width: 2,
                   color: style.colors.primary,

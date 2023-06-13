@@ -1055,12 +1055,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _ongoingCallTimer?.cancel();
     }
 
-    final Widget call = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const SizedBox(width: 4),
-        _call(message),
-      ],
+    final Widget call = Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: _call(message),
     );
 
     final Color color = _fromMe
