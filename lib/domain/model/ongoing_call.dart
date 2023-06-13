@@ -393,7 +393,7 @@ class OngoingCall {
 
     // Adds a [CallMember] identified by its [userId], if none is in the
     // [members] already.
-    void addRedialing(UserId userId) {
+    void addDialing(UserId userId) {
       final CallMemberId id = CallMemberId(userId, null);
 
       if (members.values.none((e) => e.id.userId == id.userId)) {
@@ -449,7 +449,7 @@ class OngoingCall {
               final ChatMembersDialed? dialed = node.call.dialed;
               if (dialed is ChatMembersDialedConcrete) {
                 for (var m in dialed.members) {
-                  addRedialing(m.user.id);
+                  addDialing(m.user.id);
                 }
               }
 
@@ -467,7 +467,7 @@ class OngoingCall {
                       e.user.id != me.id.userId &&
                       dialed.answeredMembers
                           .none((a) => a.user.id == e.user.id))) {
-                    addRedialing(m.user.id);
+                    addDialing(m.user.id);
                   }
                 }
 
@@ -475,7 +475,7 @@ class OngoingCall {
                 _membersSubscription = v?.members.changes.listen((event) {
                   switch (event.op) {
                     case OperationKind.added:
-                      addRedialing(event.key!);
+                      addDialing(event.key!);
                       break;
 
                     case OperationKind.removed:
@@ -638,7 +638,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.redialed:
                   var node = event as EventChatCallMemberRedialed;
-                  addRedialing(node.user.id);
+                  addDialing(node.user.id);
                   break;
 
                 case ChatCallEventKind.answerTimeoutPassed:

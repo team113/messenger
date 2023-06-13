@@ -130,7 +130,7 @@ class ParticipantWidget extends StatelessWidget {
               child = Container();
             } else if (participant.member.isDialing.isTrue) {
               child = Container(
-                key: Key('ParticipantRedialing_${participant.member.id}'),
+                key: Key('ParticipantDialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
                 color: style.colors.onBackgroundOpacity50,
