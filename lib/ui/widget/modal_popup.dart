@@ -136,7 +136,7 @@ class ModalPopupHeader extends StatelessWidget {
     this.hideCloseButton = false,
   });
 
-  /// [Widget] to put as a title of this [ModalPopupHeader].
+  /// Text to display in this [ModalPopupHeader].
   final String text;
 
   /// Indicator whether the close button is displayed or not.
@@ -149,7 +149,7 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style styles = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     final TextStyle? thin = Theme.of(context).textTheme.displaySmall;
 
@@ -165,7 +165,7 @@ class ModalPopupHeader extends StatelessWidget {
                     child: Icon(
                       Icons.arrow_back_ios_new,
                       size: 14,
-                      color: styles.colors.primary,
+                      color: style.colors.primary,
                     ),
                   ),
                 )
@@ -184,7 +184,7 @@ class ModalPopupHeader extends StatelessWidget {
                     child: Icon(
                       Icons.close,
                       size: 18,
-                      color: styles.colors.primary,
+                      color: style.colors.primary,
                     ),
                   ),
                 )
