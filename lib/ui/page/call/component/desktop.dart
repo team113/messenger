@@ -25,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/ui/page/call/widget/desktop/launchpad.dart';
 import 'package:messenger/ui/page/call/widget/desktop/primary_view.dart';
+import 'package:messenger/ui/page/call/widget/desktop/secondary_target.dart';
 import 'package:messenger/ui/page/call/widget/desktop/title_bar.dart';
 
 import '../controller.dart';
@@ -359,7 +360,40 @@ Widget desktopCall(CallController c, BuildContext context) {
         ),
 
         // Empty drop zone if [secondary] is empty.
-        _secondaryTarget(c),
+        Obx(() {
+          Axis secondaryAxis =
+              c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
+
+          /// Pre-calculate the [ReorderableFit]'s size.
+          double panelSize = max(
+            ReorderableFit.calculateSize(
+              maxSize: c.size.shortestSide / 4,
+              constraints: Size(c.size.width, c.size.height - 45),
+              axis: c.size.width >= c.size.height
+                  ? Axis.horizontal
+                  : Axis.vertical,
+              length: c.secondary.length,
+            ),
+            130,
+          );
+
+          return SecondaryTarget(
+            size: panelSize,
+            axis: secondaryAxis,
+            participant: c.secondary,
+            draggableParticipant: c.doughDraggedRenderer.value,
+            drags: c.primaryDrags.value,
+            onWillAccept: (d) => d?.chatId == c.chatId.value,
+            onAccept: (DragData d) {
+              if (secondaryAxis == Axis.horizontal) {
+                c.secondaryAlignment.value = Alignment.centerRight;
+              } else {
+                c.secondaryAlignment.value = Alignment.topCenter;
+              }
+              c.unfocus(d.participant);
+            },
+          );
+        })
       ]);
 
       // Footer part of the call with buttons.
@@ -1899,150 +1933,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
       );
     }),
   );
-}
-
-/// [DragTarget] of an empty [_secondaryView].
-Widget _secondaryTarget(CallController c) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
-
-  return Obx(() {
-    Axis secondaryAxis =
-        c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
-
-    // Pre-calculate the [ReorderableFit]'s size.
-    double panelSize = max(
-      ReorderableFit.calculateSize(
-        maxSize: c.size.shortestSide / 4,
-        constraints: Size(c.size.width, c.size.height - 45),
-        axis: c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical,
-        length: c.secondary.length,
-      ),
-      130,
-    );
-
-    return AnimatedSwitcher(
-      key: const Key('SecondaryTargetAnimatedSwitcher'),
-      duration: 200.milliseconds,
-      child: c.secondary.isEmpty && c.doughDraggedRenderer.value != null
-          ? Align(
-              alignment: secondaryAxis == Axis.horizontal
-                  ? Alignment.centerRight
-                  : Alignment.topCenter,
-              child: SizedBox(
-                width: secondaryAxis == Axis.horizontal
-                    ? panelSize / 1.6
-                    : double.infinity,
-                height: secondaryAxis == Axis.horizontal
-                    ? double.infinity
-                    : panelSize / 1.6,
-                child: DragTarget<DragData>(
-                  onWillAccept: (d) => d?.chatId == c.chatId.value,
-                  onAccept: (DragData d) {
-                    if (secondaryAxis == Axis.horizontal) {
-                      c.secondaryAlignment.value = Alignment.centerRight;
-                    } else {
-                      c.secondaryAlignment.value = Alignment.topCenter;
-                    }
-                    c.unfocus(d.participant);
-                  },
-                  builder: (context, candidate, rejected) {
-                    return Obx(() {
-                      return IgnorePointer(
-                        child: AnimatedOpacity(
-                          key: const Key('SecondaryTargetAnimatedSwitcher'),
-                          duration: 200.milliseconds,
-                          opacity: c.primaryDrags.value >= 1 ? 1 : 0,
-                          child: Container(
-                            padding: EdgeInsets.only(
-                              left: secondaryAxis == Axis.horizontal ? 1 : 0,
-                              bottom: secondaryAxis == Axis.vertical ? 1 : 0,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                left: secondaryAxis == Axis.horizontal
-                                    ? BorderSide(
-                                        color: style.colors.secondary,
-                                        width: 1,
-                                      )
-                                    : BorderSide.none,
-                                bottom: secondaryAxis == Axis.vertical
-                                    ? BorderSide(
-                                        color: style.colors.secondary,
-                                        width: 1,
-                                      )
-                                    : BorderSide.none,
-                              ),
-                              boxShadow: [
-                                CustomBoxShadow(
-                                  color: style.colors.onBackgroundOpacity20,
-                                  blurRadius: 8,
-                                  blurStyle: BlurStyle.outer,
-                                )
-                              ],
-                            ),
-                            child: ConditionalBackdropFilter(
-                              child: AnimatedContainer(
-                                duration: 300.milliseconds,
-                                color: candidate.isNotEmpty
-                                    ? style.colors.onPrimaryOpacity7
-                                    : style.colors.transparent,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: secondaryAxis == Axis.horizontal
-                                        ? min(panelSize, 150 + 44)
-                                        : null,
-                                    height: secondaryAxis == Axis.horizontal
-                                        ? null
-                                        : min(panelSize, 150 + 44),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        AnimatedScale(
-                                          duration:
-                                              const Duration(milliseconds: 300),
-                                          curve: Curves.ease,
-                                          scale:
-                                              candidate.isNotEmpty ? 1.06 : 1,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: style
-                                                  .colors.onBackgroundOpacity27,
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(
-                                                10,
-                                              ),
-                                              child: Icon(
-                                                Icons.add_rounded,
-                                                size: 35,
-                                                color: style.colors.onPrimary,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    });
-                  },
-                ),
-              ),
-            )
-          : Container(),
-    );
-  });
 }
 
 /// [Draggable] data consisting of a [participant] and its [chatId].
