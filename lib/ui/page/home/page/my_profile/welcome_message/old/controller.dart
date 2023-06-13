@@ -92,6 +92,7 @@ class WelcomeMessageController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      null,
       text: text,
       attachments: attachments,
       onSubmit: () async {
@@ -105,6 +106,8 @@ class WelcomeMessageController extends GetxController {
         );
 
         send.clear();
+
+        return true;
       },
     );
 

@@ -74,36 +74,120 @@ class MessageFieldDonate extends StatelessWidget {
             left: left,
             right: context.isNarrow ? right : null,
             bottom: bottom + 10,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
+            child: Column(
+              children: [
+                // Container(
+                //   decoration: BoxDecoration(
+                //     color: Colors.white,
+                //     borderRadius: BorderRadius.circular(8),
+                //     boxShadow: [
+                //       CustomBoxShadow(
+                //         blurRadius: 8,
+                //         color: style.colors.onBackgroundOpacity13,
+                //       ),
+                //     ],
+                //   ),
+                //   padding: const EdgeInsets.all(8),
+                //   child: Padding(
+                //     padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                //     child: Text.rich(
+                //       TextSpan(
+                //         children: [
+                //           TextSpan(
+                //             text: 'Minimum amount: 400',
+                //             style: TextStyle(
+                //               fontWeight: FontWeight.w300,
+                //               fontSize: 13,
+                //               color: style.colors.secondary,
+                //             ),
+                //           ),
+                //           const TextSpan(
+                //             text: ' ',
+                //             style: TextStyle(fontSize: 9),
+                //           ),
+                //           TextSpan(
+                //             text: '¤',
+                //             style: TextStyle(
+                //               fontFamily: 'Gapopa',
+                //               fontWeight: FontWeight.w300,
+                //               fontSize: 13,
+                //               color: style.colors.secondary,
+                //             ),
+                //           ),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: style.cardRadius,
+                    boxShadow: [
+                      CustomBoxShadow(
+                        blurRadius: 8,
+                        color: style.colors.onBackgroundOpacity13,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              width: 280,
-              // height: 250,
-              // padding: const EdgeInsets.all(8),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ...[10000, 5000, 1000, 500, 300, 100, 0].map((e) {
-                      return _MenuButton(
-                        e,
-                        onPressed: () {
-                          c.donation.value = e;
-                          c.removeEntries<MessageFieldDonate>();
-                        },
-                        onSend: (b) => c.donate(b ?? e),
-                      );
-                    })
-                  ],
+                  width: 280,
+                  // height: 250,
+                  // padding: const EdgeInsets.all(8),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Align(
+                        //   alignment: Alignment.center,
+                        //   child: Padding(
+                        //     padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
+                        //     child: Text.rich(
+                        //       TextSpan(
+                        //         children: [
+                        //           TextSpan(
+                        //             text: 'Minimum amount: 400',
+                        //             style: TextStyle(
+                        //               fontWeight: FontWeight.w300,
+                        //               fontSize: 13,
+                        //               color: style.colors.secondary,
+                        //             ),
+                        //           ),
+                        //           const TextSpan(
+                        //             text: ' ',
+                        //             style: TextStyle(fontSize: 9),
+                        //           ),
+                        //           TextSpan(
+                        //             text: '¤',
+                        //             style: TextStyle(
+                        //               fontFamily: 'Gapopa',
+                        //               fontWeight: FontWeight.w300,
+                        //               fontSize: 13,
+                        //               color: style.colors.secondary,
+                        //             ),
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        ...[10000, 5000, 1000, 500, 300, 100, 0].map((e) {
+                          return _MenuButton(
+                            e,
+                            onPressed: (b) {
+                              c.donation.value = b ?? e;
+                              c.removeEntries<MessageFieldDonate>();
+                            },
+                            onSend: (b) async {
+                              c.donate(b ?? e);
+                              c.removeEntries<MessageFieldDonate>();
+                            },
+                          );
+                        })
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -116,7 +200,7 @@ class _MenuButton extends StatefulWidget {
   const _MenuButton(this.button, {this.onPressed, this.onSend});
 
   final int button;
-  final void Function()? onPressed;
+  final void Function(int?)? onPressed;
   final void Function(int?)? onSend;
 
   @override
@@ -166,14 +250,29 @@ class _MenuButtonState extends State<_MenuButton> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(width: 16),
-            SizedBox(
-              width: 26,
-              child: SvgImage.asset(
-                'assets/icons/donate_mini$prefix.svg',
-                width: 22.84,
-                height: 22,
-              ),
-            ),
+            Obx(() {
+              int? sum = int.tryParse(_state!.text);
+              if ((sum ?? 0) < 400) {
+                sum = null;
+              }
+
+              return WidgetButton(
+                onPressed: _state!.isEmpty.value || sum == null
+                    ? null
+                    : () {
+                        widget.onPressed?.call(int.parse(_state!.text));
+                      },
+                child: SizedBox(
+                  width: 26,
+                  child: SvgImage.asset(
+                    // 'assets/icons/donate_mini$prefix.svg',
+                    'assets/icons/donate_mini${sum == null /*&& !_state!.isEmpty.value*/ ? '_grey' : ''}.svg',
+                    width: 22.84,
+                    height: 22,
+                  ),
+                ),
+              );
+            }),
             const SizedBox(width: 12),
             Expanded(
               child: Theme(
@@ -182,11 +281,13 @@ class _MenuButtonState extends State<_MenuButton> {
                   offset: const Offset(0, 2),
                   child: ReactiveTextField(
                     padding: EdgeInsets.zero,
-                    hint: 'Указать сумму...',
+                    hint: 'Сумма (мин: 400G)',
+                    // maxLines: 3,
                     state: _state!,
+                    onChanged: () => setState(() {}),
                     formatters: [FilteringTextInputFormatter.digitsOnly],
                     // prefixText: 'G',
-                    style: TextStyle(
+                    style: const TextStyle(
                       // color: style.colors.primary,
                       fontSize: 17,
                     ),
@@ -204,17 +305,22 @@ class _MenuButtonState extends State<_MenuButton> {
                 return const SizedBox();
               }
 
+              int? sum = int.tryParse(_state!.text);
+              if ((sum ?? 0) < 400) {
+                sum = null;
+              }
+
               return WidgetButton(
-                onPressed: widget.button == 0
-                    ? () => widget.onSend?.call(int.tryParse(_state!.text))
-                    : () => widget.onSend?.call(null),
-                child: Container(
+                onPressed: sum == null
+                    ? null
+                    : () => widget.onSend?.call(int.tryParse(_state!.text)),
+                child: SizedBox(
                   // color: Colors.red,
                   height: 40,
                   width: 50,
                   child: Center(
                     child: SvgImage.asset(
-                      'assets/icons/send_mini3.svg',
+                      'assets/icons/send_mini3${sum == null ? '_grey' : ''}.svg',
                       width: 19.28,
                       height: 16.6,
                     ),
@@ -235,7 +341,7 @@ class _MenuButtonState extends State<_MenuButton> {
         onDown: (_) => setState(() => _pressed = true),
         onUp: (_) => setState(() => _pressed = false),
         onPressed: () {
-          widget.onPressed?.call();
+          widget.onPressed?.call(null);
         },
         child: Container(
           width: double.infinity,
@@ -249,7 +355,8 @@ class _MenuButtonState extends State<_MenuButton> {
               SizedBox(
                 width: 26,
                 child: SvgImage.asset(
-                  'assets/icons/donate_mini$prefix.svg',
+                  // 'assets/icons/donate_mini$prefix.svg',
+                  'assets/icons/donate_mini.svg',
                   width: 22.84,
                   height: 22,
                 ),
@@ -257,11 +364,31 @@ class _MenuButtonState extends State<_MenuButton> {
               const SizedBox(width: 12),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: Text(
-                  'G${widget.button}',
-                  style: TextStyle(
-                    fontSize: 17,
-                    color: style.colors.primary,
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '${widget.button}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: 17,
+                          color: style.colors.primary,
+                        ),
+                      ),
+                      const TextSpan(
+                        text: ' ',
+                        style: TextStyle(fontSize: 9),
+                      ),
+                      TextSpan(
+                        text: '¤',
+                        style: TextStyle(
+                          fontFamily: 'Gapopa',
+                          fontWeight: FontWeight.w300,
+                          fontSize: 17,
+                          color: style.colors.primary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

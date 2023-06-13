@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 class EmbossedText extends StatelessWidget {
@@ -8,6 +10,7 @@ class EmbossedText extends StatelessWidget {
     this.textAlign,
     this.overflow,
     this.maxLines,
+    this.small = false,
   }) : span = null;
 
   const EmbossedText.rich(
@@ -17,6 +20,7 @@ class EmbossedText extends StatelessWidget {
     this.textAlign,
     this.overflow,
     this.maxLines,
+    this.small = false,
   }) : text = null;
 
   final TextStyle? style;
@@ -24,11 +28,102 @@ class EmbossedText extends StatelessWidget {
   final TextOverflow? overflow;
   final int? maxLines;
 
+  final bool small;
+
   /// Text to be selected.
   final String? text;
 
   /// [InlineSpan] to be selected.
   final InlineSpan? span;
+
+  static const List<Shadow> smallShadows = [
+    // 3
+    // box-shadow: 0.5px 0.5px 1px 0px rgba(153, 130, 0, 0.9);
+    // box-shadow: -0.3px -0.3px 1.5px 0px rgba(255, 255, 0, 0.9);
+    // box-shadow: 1px 1px 2px 0px rgba(128, 108, 0, 0.4);
+    Shadow(
+      offset: Offset(0.5, 0.5),
+      blurRadius: 1,
+      color: Color.fromRGBO(153, 130, 0, 0.6),
+    ),
+    Shadow(
+      offset: Offset(-0.3, -0.3),
+      blurRadius: 1.5,
+      color: Color.fromRGBO(255, 255, 0, 0.9),
+    ),
+    Shadow(
+      offset: Offset(1, 1),
+      blurRadius: 2,
+      color: Color.fromRGBO(128, 108, 0, 0.4),
+    ),
+
+    // 2
+    // box-shadow: 1px 1px 3px 0px rgba(153, 130, 0, 0.9);
+    // box-shadow: -0.5px -0.5px 2px 0px rgba(255, 255, 0, 0.9);
+    // box-shadow: 1px 1px 2px 0px rgba(172, 146, 0, 0.2);
+
+    // 1
+    // box-shadow: 1px 1px 3px 0px rgba(153, 130, 0, 0.9);
+    // box-shadow: -0.5px -0.5px 2px 0px rgba(255, 255, 0, 0.9);
+    // box-shadow: 1px 1px 2px 0px rgba(172, 146, 0, 0.2);
+    Shadow(
+      offset: Offset(0.5, 0.5),
+      blurRadius: 2,
+      color: Color.fromRGBO(153, 130, 0, 0.9),
+    ),
+    Shadow(
+      offset: Offset(-0.5, -0.5),
+      blurRadius: 2,
+      color: Color.fromRGBO(255, 255, 0, 0.9),
+    ),
+    Shadow(
+      offset: Offset(1, 1),
+      blurRadius: 2,
+      color: Color.fromRGBO(172, 146, 0, 0.2),
+    ),
+  ];
+
+  static const List<Shadow> shadows = [
+    // 11
+    // box-shadow: 1px 1px 3px 0px rgba(172, 146, 0, 0.9);
+    // box-shadow: -1px -1px 2px 0px rgba(255, 255, 0, 0.9);
+    // box-shadow: 1px -1px 2px 0px rgba(172, 146, 0, 0.2);
+    // box-shadow: -1px 1px 2px 0px rgba(172, 146, 0, 0.2);
+    Shadow(
+      offset: Offset(1, 1),
+      blurRadius: 3,
+      color: Color.fromRGBO(172, 146, 0, 0.9),
+    ),
+    Shadow(
+      offset: Offset(-1, -1),
+      blurRadius: 2,
+      color: Color.fromRGBO(255, 255, 0, 0.9),
+    ),
+    Shadow(
+      offset: Offset(1, -1),
+      blurRadius: 2,
+      color: Color.fromRGBO(172, 146, 0, 0.2),
+    ),
+    Shadow(
+      offset: Offset(-1, 1),
+      blurRadius: 2,
+      color: Color.fromRGBO(172, 146, 0, 0.2),
+    ),
+
+    // 10
+    // box-shadow: 2px 1px 4px 0px rgba(208, 182, 22, 0.65);
+    // box-shadow: -1px 2px 2px 0px rgba(208, 182, 22, 0.65);
+    // Shadow(
+    //   offset: Offset(2, 1),
+    //   blurRadius: 4,
+    //   color: Color.fromRGBO(208, 182, 22, 0.65),
+    // ),
+    // Shadow(
+    //   offset: Offset(-1, 2),
+    //   blurRadius: 2,
+    //   color: Color.fromRGBO(208, 182, 22, 0.65),
+    // ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -46,33 +141,14 @@ class EmbossedText extends StatelessWidget {
         //     ],
         //     [0, 0.32, 0.68, 1],
         //   ),
-        );
-
-    final shadows = textStyle.copyWith(
-      // color: Colors.transparent,
-      // foreground: null,
-      shadows: const [
-        // 10
-        // box-shadow: 2px 1px 4px 0px rgba(208, 182, 22, 0.65);
-        // box-shadow: -1px 2px 2px 0px rgba(208, 182, 22, 0.65);
-        Shadow(
-          offset: Offset(2, 1),
-          blurRadius: 4,
-          color: Color.fromRGBO(208, 182, 22, 0.65),
-        ),
-        Shadow(
-          offset: Offset(-1, 2),
-          blurRadius: 2,
-          color: Color.fromRGBO(208, 182, 22, 0.65),
-        ),
 
         // 9
         // box-shadow: 1px 1px 5px 0px rgba(208, 182, 22, 0.65);
-        Shadow(
-          offset: Offset(1, 1),
-          blurRadius: 5,
-          color: Color.fromRGBO(208, 182, 22, 0.65),
-        ),
+        // Shadow(
+        //   offset: Offset(1, 1),
+        //   blurRadius: 5,
+        //   color: Color.fromRGBO(208, 182, 22, 0.65),
+        // ),
 
         // 8
         // box-shadow: 1px 1px 5px 0px rgba(234, 209, 56, 0.9);
@@ -227,7 +303,29 @@ class EmbossedText extends StatelessWidget {
         //   blurRadius: 2,
         //   color: Color(0x4DFFF63D),
         // ),
-      ],
+        );
+
+    // print('$text ${small ? EmbossedText.smallShadows : EmbossedText.shadows}');
+
+    final shadows = textStyle.copyWith(
+      // color: Colors.transparent,
+      // foreground: null,
+      color: small
+          ? const Color.fromRGBO(255, 215, 0, 1)
+          : const Color.fromRGBO(243, 205, 1, 1),
+      shadows: small ? EmbossedText.smallShadows : EmbossedText.shadows,
+      // foreground: Paint()
+      //   ..shader = ui.Gradient.linear(
+      //     const Offset(0, 20),
+      //     const Offset(100, 20),
+      //     const [
+      //       Color(0xFFFFDA00),
+      //       Color(0xFFEDC600),
+      //     ],
+      //     [0, 1],
+      //     TileMode.clamp,
+      //     Matrix4.rotationY(2.3).storage,
+      //   ),
     );
 
     if (span != null) {

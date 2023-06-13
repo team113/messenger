@@ -471,6 +471,7 @@ class MyProfileController extends GetxController {
     send = MessageFieldController(
       _chatService,
       null,
+      null,
       onSubmit: () async {
         welcome.value = ChatMessage(
           welcome.value?.id ?? ChatItemId.local(),
@@ -483,6 +484,8 @@ class MyProfileController extends GetxController {
 
         send.editing.value = false;
         send.clear();
+
+        return true;
       },
     );
 

@@ -71,12 +71,7 @@ class InsufficientFundsView extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 shrinkWrap: true,
-                children: [
-                  Text(
-                    description,
-                    style: thin,
-                  ),
-                ],
+                children: [Text(description, style: thin)],
               ),
             ),
             const SizedBox(height: 25),

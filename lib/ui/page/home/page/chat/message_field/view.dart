@@ -142,6 +142,7 @@ class MessageFieldView extends StatelessWidget {
           MessageFieldController(
             Get.find(),
             Get.find(),
+            Get.find(),
             canSend: canSend,
           ),
       global: false,
@@ -404,8 +405,9 @@ class MessageFieldView extends StatelessWidget {
                             onEnter: (d) => c.donationHovered.value = true,
                             onExit: (d) => c.donationHovered.value = false,
                             child: ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 550),
+                              constraints: const BoxConstraints(maxWidth: 550),
                               child: Dismissible(
+                                // К сожалению, подарок не может быть отправлен. Пожалуйс
                                 key: const Key('Donation'),
                                 direction: DismissDirection.horizontal,
                                 onDismissed: (_) => c.donation.value = null,
@@ -413,6 +415,9 @@ class MessageFieldView extends StatelessWidget {
                                   alignment: Alignment.topRight,
                                   children: [
                                     DonateWidget(
+                                      title: c.myUser.value?.name?.val ??
+                                          c.myUser.value?.num.val ??
+                                          'dot'.l10n * 3,
                                       donate: c.donation.value!,
                                     ),
                                     AnimatedOpacity(

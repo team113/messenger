@@ -23,6 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/routes.dart';
 
 import '/domain/model/attachment.dart';
@@ -48,7 +50,8 @@ export 'view.dart';
 class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
-    this._userService, {
+    this._userService,
+    this._myUserService, {
     this.onSubmit,
     this.onChanged,
     String? text,
@@ -135,7 +138,7 @@ class MessageFieldController extends GetxController {
   }
 
   /// Callback, called when this [MessageFieldController] is submitted.
-  final void Function()? onSubmit;
+  final FutureOr<bool> Function()? onSubmit;
 
   /// Callback, called on the [field], [attachments], [replied], [edited]
   /// changes.
@@ -206,6 +209,8 @@ class MessageFieldController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService? _userService;
 
+  final MyUserService? _myUserService;
+
   /// Worker reacting on the [replied] changes.
   Worker? _repliesWorker;
 
@@ -217,6 +222,8 @@ class MessageFieldController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
+
+  Rx<MyUser?> get myUser => _myUserService!.myUser;
 
   @override
   void onClose() {
@@ -305,9 +312,9 @@ class MessageFieldController extends GetxController {
   /// Toggles the [displayMore].
   void toggleMore() => displayMore.toggle();
 
-  void donate(int sum) {
+  Future<bool> donate(int sum) async {
     donation.value = sum;
-    onSubmit?.call();
+    return await onSubmit?.call() ?? true;
   }
 
   /// Opens a file choose popup of the specified [type] and adds the selected

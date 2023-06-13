@@ -261,7 +261,7 @@ class DonateButton extends ChatButton {
   DonateButton(super.c);
 
   @override
-  String get hint => 'Донат';
+  String get hint => 'Подарок';
 
   @override
   void Function(bool)? get onHovered => (bool hovered) {

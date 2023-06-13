@@ -93,13 +93,14 @@ class ChatForwardController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      null,
       text: text,
       quotes: quotes,
       attachments: attachments,
       onSubmit: () async {
         if (searchResults.value?.isEmpty != false) {
           send.field.unsubmit();
-          return;
+          return false;
         }
 
         send.field.status.value = RxStatus.loading();
@@ -177,6 +178,8 @@ class ChatForwardController extends GetxController {
         } finally {
           send.field.unsubmit();
         }
+
+        return true;
       },
     );
 

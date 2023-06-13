@@ -31,6 +31,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
+import 'package:messenger/domain/service/my_user.dart';
 
 import '/api/backend/schema.dart' hide ChatItemQuoteInput;
 import '/domain/model/application_settings.dart';
@@ -90,6 +91,7 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
+    this._myUserService,
     this._settingsRepository,
     this._balanceService, {
     this.itemId,
@@ -300,6 +302,8 @@ class ChatController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  final MyUserService _myUserService;
+
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
@@ -358,6 +362,7 @@ class ChatController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      _myUserService,
       onChanged: updateDraft,
       onSubmit: () async {
         if (paid && !paidDisclaimerDismissed.value) {
@@ -367,19 +372,36 @@ class ChatController extends GetxController {
 
           paidDisclaimer.value = true;
           confirmAction = ConfirmAction.sendMessage;
-          return;
+          return false;
         }
 
         if (paid) {
           if (_balanceService.balance.value < 100) {
-            await InsufficientFundsView.show(
+            InsufficientFundsView.show(
               router.context!,
               description: 'label_message_cant_send_message_funds'.l10n,
             );
-            return;
+            return false;
           } else {
             _balanceService.add(
               OutgoingTransaction(amount: -100, at: DateTime.now()),
+            );
+          }
+        }
+
+        if (send.donation.value != null) {
+          if (_balanceService.balance.value < send.donation.value!) {
+            InsufficientFundsView.show(
+              router.context!,
+              description: 'label_gift_cant_send_message_funds'.l10n,
+            );
+            return false;
+          } else {
+            _balanceService.add(
+              OutgoingTransaction(
+                amount: -send.donation.value!.toDouble(),
+                at: DateTime.now(),
+              ),
             );
           }
         }
@@ -388,7 +410,7 @@ class ChatController extends GetxController {
           if (send.replied.isNotEmpty) {
             if (send.replied.any((e) => e is ChatCall)) {
               MessagePopup.error('err_cant_forward_calls'.l10n);
-              return;
+              return false;
             }
 
             bool? result = await ChatForwardView.show(
@@ -439,6 +461,8 @@ class ChatController extends GetxController {
             }
           }
         }
+
+        return true;
       },
     );
 
@@ -571,6 +595,7 @@ class ChatController extends GetxController {
       edit.value ??= MessageFieldController(
         _chatService,
         _userService,
+        _myUserService,
         text: item.text?.val,
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
@@ -605,6 +630,8 @@ class ChatController extends GetxController {
               rethrow;
             }
           }
+
+          return true;
         },
         onChanged: () {
           if (edit.value?.edited.value == null) {

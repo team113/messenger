@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import 'embossed_text.dart';
 
@@ -10,14 +12,21 @@ class DonateWidget extends StatelessWidget {
     this.header = const [],
     this.footer = const [],
     this.timestamp,
+    this.transaction,
+    this.title = '',
+    this.onTitlePressed,
   });
 
   final int donate;
   final List<Widget> header;
   final List<Widget> footer;
   final Widget? timestamp;
+  final String? transaction;
 
-  static const Color font = Color.fromRGBO(252, 228, 93, 1);
+  final String title;
+  final void Function()? onTitlePressed;
+
+  static const Color font = Color.fromRGBO(243, 205, 1, 1);
 
   @override
   Widget build(BuildContext context) {
@@ -42,132 +51,158 @@ class DonateWidget extends StatelessWidget {
     const LinearGradient innerGradient =
         LinearGradient(colors: colors, stops: stops);
 
-    return Tooltip(
-      message: 'Transaction #5031855728915',
-      child: Container(
-        // width: 300,
-        // constraints: const BoxConstraints(maxWidth: 300),
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          gradient: outerGradient,
+    final bar = Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        // gradient: outerGradient,
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          // transform: GradientRotation(3.6),
+          colors: [
+            Color(0xFFF9C924),
+            Color(0xFFE4AF18),
+            Color(0xFFFFF98C),
+            Color(0xFFFFD440),
+            // background: linear-gradient(180deg, #F9C924 0%, #E4AF18 32%, #FFF98C 68%, #FFD440 100%);
+            // Color(0xFFECC440),
+            // Color(0xFFFFFA8A),
+            // Color(0xFFDDAC17),
+            // Color(0xFFFFFF95),
+            // background: linear-gradient(69.74deg, #ECC440 0%, #FFFA8A 32%, #DDAC17 68%, #FFFF95 100%);
+          ],
+          stops: [0, 0.32, 0.68, 1],
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            gradient: innerGradient,
+      ),
+      child: Stack(
+        children: [
+//             Positioned.fill(
+//               child: Container(
+//                 decoration: BoxDecoration(
+//                   borderRadius: BorderRadius.circular(8),
+//                   gradient: const LinearGradient(
+//                     transform: GradientRotation(-0.2),
+//                     begin: Alignment(-1, 0),
+//                     end: Alignment(1, 0),
+// // background: linear-gradient(79.22deg, #ECB800 4.81%, #FFDD64 19.3%, #C89C00 45.69%, #C99D01 54.15%, #E8B500 66.65%, #DFAE00 77.89%, #F2BD00 85.19%, #FFDD66 94.58%);
+//                     colors: [
+//                       Color(0xFFECB800),
+//                       Color(0xFFFFDD64),
+//                       Color(0xFFC89C00),
+//                       Color(0xFFC99D01),
+//                       Color(0xFFE8B500),
+//                       Color(0xFFDFAE00),
+//                       Color(0xFFF2BD00),
+//                       Color(0xFFFFDD66),
+//                     ],
+//                     stops: [
+//                       0.0481,
+//                       0.193,
+//                       0.4569,
+//                       0.5415,
+//                       0.6665,
+//                       0.7789,
+//                       0.8519,
+//                       0.9458,
+//                     ],
+//                   ),
+//                 ),
+//                 width: double.infinity,
+//                 height: double.infinity,
+//               ),
+//             ),
+          // Основной градиент:
+// radial-gradient(73.88% 112.28% at 6.65% -23.76%, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%);
+          // Positioned.fill(
+          //   child: Container(
+          //     decoration: BoxDecoration(
+          //       borderRadius: BorderRadius.circular(8),
+          //       gradient: const RadialGradient(
+          //         radius: 3,
+          //         center: Alignment(-1, -1),
+          //         colors: [
+          //           Color.fromARGB(255, 250, 231, 162),
+          //           Color(0x00FFDD66),
+          //         ],
+          //         stops: [0, 1],
+          //       ),
+          //     ),
+          //     width: double.infinity,
+          //     height: double.infinity,
+          //   ),
+          // ),
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SvgImage.asset(
+                'assets/images/bar2.svg',
+                fit: BoxFit.cover,
+                height: double.infinity,
+                width: double.infinity,
+              ),
+            ),
           ),
-          child: Stack(
+          Stack(
             alignment: Alignment.bottomRight,
             children: [
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(height: 6),
-                  if (header.isEmpty) const SizedBox(height: 16 + 2),
-                  ...header,
+                  // if (header.isEmpty) const SizedBox(height: 16 + 2),
+                  // ...header,
                   Row(
                     children: [
-                      // if (_text == null) ...[
-                      //   const SizedBox(width: 16),
-                      //   Opacity(
-                      //     opacity: 0,
-                      //     child: Transform.translate(
-                      //       offset: const Offset(0, 8),
-                      //       child: _timestamp(msg, false, !_fromMe),
-                      //     ),
-                      //   ),
-                      // ],
-                      // const SizedBox(width: 6),
-
-                      Expanded(
-                        child: Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ...'$donate'.embossedDigits(
+                      Flexible(
+                        child: WidgetButton(
+                          onPressed: onTitlePressed,
+                          child: SelectionContainer.disabled(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                              child: EmbossedText(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                small: true,
                                 style: style.boldBody.copyWith(
-                                  fontSize: 32,
-                                  color: font,
+                                  color: DonateWidget.font,
+                                  // color: color,
                                 ),
                               ),
-                              // EmbossedText(
-                              //   '$donate',
-                              //   style: style.boldBody.copyWith(
-                              //     fontSize: 32,
-                              //     color: const Color(0xFFFFFE8A),
-                              //   ),
-                              // ),
-                              const SizedBox(width: 0),
-                              Transform.translate(
-                                offset: const Offset(0, -1),
-                                child: EmbossedText(
-                                  '¤',
-                                  style: style.boldBody.copyWith(
-                                    fontSize: 32,
-                                    fontFamily: 'Gapopa',
-                                    color: font,
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
-
-                      // Expanded(
-                      //   child: SelectionText.rich(
-                      //     TextSpan(
-                      //       children: [
-                      //         TextSpan(
-                      //           text: '$donate',
-                      //           style: style.boldBody.copyWith(
-                      //             // color: const Color(0xFFFFF63D),
-                      //             color: const Color(0xFFFFFE8A),
-                      //             shadows: const [
-                      //               // box-shadow: -8px -8px 16px 0px #FFF63DE5 inset;
-                      //               // box-shadow: 8px -8px 16px 0px #C6A82933 inset;
-                      //               // box-shadow: -1px -1px 2px 0px #C6A82980;
-                      //               // box-shadow: 1px 1px 2px 0px #FFF63D4D;
-                      //               Shadow(
-                      //                 offset: Offset(-8, -8),
-                      //                 blurRadius: 16,
-                      //                 color: Color(0xE5FFF63D),
-                      //               ),
-                      //               Shadow(
-                      //                 offset: Offset(8, -8),
-                      //                 blurRadius: 16,
-                      //                 color: Color(0x33C6A829),
-                      //               ),
-                      //               Shadow(
-                      //                 offset: Offset(-1, -1),
-                      //                 blurRadius: 2,
-                      //                 color: Color(0x80C6A829),
-                      //               ),
-                      //               Shadow(
-                      //                 offset: Offset(1, 1),
-                      //                 blurRadius: 2,
-                      //                 color: Color(0x4DFFF63D),
-                      //               ),
-                      //             ],
-                      //           ),
-                      //         ),
-                      //         TextSpan(
-                      //           text: '¤',
-                      //           style: style.boldBody.copyWith(
-                      //             fontFamily: 'Gapopa',
-                      //             color: const Color(0xFFA98010),
-                      //           ),
-                      //         ),
-                      //       ],
-                      //     ),
-                      //     textAlign: TextAlign.center,
-                      //   ),
-                      // ),
                     ],
                   ),
-                  ...footer,
-                  if (footer.isEmpty) const SizedBox(height: 16 + 2),
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ...'$donate'.embossedDigits(
+                          style: style.boldBody.copyWith(
+                            fontSize: 32,
+                            color: font,
+                          ),
+                        ),
+                        const SizedBox(width: 0),
+                        Transform.translate(
+                          offset: const Offset(0, -3),
+                          child: EmbossedText(
+                            '¤',
+                            style: style.boldBody.copyWith(
+                              fontSize: 32,
+                              fontFamily: 'Gapopa',
+                              color: font,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // ...footer,
+                  const SizedBox(height: 16 + 2),
                   const SizedBox(height: 2),
                   const SizedBox(height: 6),
                 ],
@@ -176,18 +211,50 @@ class DonateWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4, bottom: 4),
                 child: timestamp ??
                     EmbossedText(
-                      'Gift',
+                      'GIFT',
+                      small: true,
                       style: style.systemMessageStyle.copyWith(
                         // color: const Color(0xFFA98010),
-                        color: const Color(0xFFFFFE8A),
+                        // color: const Color(0xFFFFFE8A),
+                        color: DonateWidget.font,
                         fontSize: 11,
                       ),
                     ),
               ),
             ],
           ),
-        ),
+        ],
       ),
+    );
+
+    if (transaction == null) {
+      return bar;
+    }
+
+    return Tooltip(
+      message: 'Transaction #$transaction',
+      decoration: BoxDecoration(
+        color: style.contextMenuBackgroundColor,
+        borderRadius: style.contextMenuRadius,
+        border: Border.all(
+          color: style.colors.secondaryHighlightDarkest,
+          width: 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 12,
+            color: style.colors.onBackgroundOpacity20,
+            blurStyle: BlurStyle.outer,
+          )
+        ],
+      ),
+      padding: const EdgeInsets.all(8),
+      textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: style.colors.onBackground,
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+          ),
+      child: bar,
     );
   }
 }

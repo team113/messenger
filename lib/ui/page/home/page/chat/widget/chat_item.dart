@@ -864,40 +864,43 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ] else ...[
             DonateWidget(
               donate: msg.donate!,
+              transaction: _fromMe ? null : '5031855728915',
               timestamp: _text == null
                   ? _timestamp(widget.item.value, false, true)
                   : null,
-              header: !_fromMe && widget.chat.value?.isGroup == true && avatar
-                  ? [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: WidgetButton(
-                              onPressed: () => router.user(_author, push: true),
-                              child: SelectionContainer.disabled(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                                  child: EmbossedText(
-                                    widget.user?.user.value.name?.val ??
-                                        widget.user?.user.value.num.val ??
-                                        'dot'.l10n * 3,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: style.boldBody.copyWith(
-                                      color: DonateWidget.font,
-                                      // color: color,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      // const SizedBox(height: 4),
-                    ]
-                  : [],
+              title: widget.user?.user.value.name?.val ??
+                  widget.user?.user.value.num.val ??
+                  'dot'.l10n * 3,
+              onTitlePressed: () => router.user(_author, push: true),
+              header: [
+                // Row(
+                //   children: [
+                //     Flexible(
+                //       child: WidgetButton(
+                //         onPressed: () => router.user(_author, push: true),
+                //         child: SelectionContainer.disabled(
+                //           child: Padding(
+                //             padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                //             child: EmbossedText(
+                //               widget.user?.user.value.name?.val ??
+                //                   widget.user?.user.value.num.val ??
+                //                   'dot'.l10n * 3,
+                //               maxLines: 1,
+                //               overflow: TextOverflow.ellipsis,
+                //               small: true,
+                //               style: style.boldBody.copyWith(
+                //                 color: DonateWidget.font,
+                //                 // color: color,
+                //               ),
+                //             ),
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 4),
+              ],
               footer: !_fromMe && widget.chat.value?.isGroup == true && avatar
                   ? [
                       const SizedBox(height: 16),

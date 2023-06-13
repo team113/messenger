@@ -2145,7 +2145,7 @@ Widget _donates(BuildContext context, MyProfileController c) {
         //   c.verified.value,
         // ),
         field(
-          label: 'Минимальная сумма доната'.l10n,
+          label: 'Минимальная сумма подарка'.l10n,
           state: c.contactMessageCost,
           enabled: c.verified.value,
           contacts: true,
