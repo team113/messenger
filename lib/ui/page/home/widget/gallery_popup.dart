@@ -22,10 +22,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:video_player/video_player.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -63,7 +63,7 @@ class GalleryItem {
     String name, {
     int? size,
     String? checksum,
-    Future<void> Function()? onError,
+    FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
@@ -80,7 +80,7 @@ class GalleryItem {
     String name, {
     int? size,
     String? checksum,
-    Future<void> Function()? onError,
+    FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
@@ -107,7 +107,7 @@ class GalleryItem {
   final int? size;
 
   /// Callback, called on the fetch errors of this [GalleryItem].
-  final Future<void> Function()? onError;
+  final FutureOr<void> Function()? onError;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -140,7 +140,7 @@ class GalleryPopup extends StatefulWidget {
   /// Displays a dialog with the provided [gallery] above the current contents.
   static Future<T?> show<T extends Object?>({
     required BuildContext context,
-    required GalleryPopup gallery,
+    required Widget gallery,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
 
@@ -160,7 +160,7 @@ class GalleryPopup extends StatefulWidget {
       barrierDismissible: false,
       barrierColor: style.colors.transparent,
       transitionDuration: Duration.zero,
-      useRootNavigator: PlatformUtils.isMobile ? false : true,
+      useRootNavigator: context.isMobile ? false : true,
     );
   }
 
@@ -185,9 +185,9 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [PageController] controlling the [PageView].
   late final PageController _pageController;
 
-  /// [Map] of [VideoPlayerController] controlling the video playback used to
+  /// [Map] of [MeeduPlayerController] controlling the video playback used to
   /// play/pause the active videos on keyboard presses.
-  final Map<int, VideoPlayerController> _videoControllers = {};
+  final Map<int, MeeduPlayerController> _videoControllers = {};
 
   /// [CurvedAnimation] of the [_sliding] animation.
   late CurvedAnimation _curve;
@@ -449,12 +449,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 maxScale: PhotoViewComputedScale.contained * 3,
                 errorBuilder: (_, __, ___) {
                   return InitCallback(
-                    callback: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
+                    callback: e.onError,
                     child: const SizedBox(
                       height: 300,
                       child: Center(child: CustomProgressIndicator()),
@@ -468,40 +463,24 @@ class _GalleryPopupState extends State<GalleryPopup>
               disableGestures: e.isVideo,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: e.isVideo
-                    ? Video(
-                        e.link,
-                        showInterfaceFor: _isInitialPage ? 3.seconds : null,
-                        onClose: _dismiss,
-                        isFullscreen: _isFullscreen,
-                        toggleFullscreen: () {
-                          node.requestFocus();
-                          _toggleFullscreen();
-                        },
-                        onController: (c) {
-                          if (c == null) {
-                            _videoControllers.remove(index);
-                          } else {
-                            _videoControllers[index] = c;
-                          }
-                        },
-                        onError: () async {
-                          await e.onError?.call();
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        },
-                      )
-                    : RetryImage(
-                        e.link,
-                        checksum: e.checksum,
-                        onForbidden: () async {
-                          await e.onError?.call();
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        },
-                      ),
+                child: Video(
+                  e.link,
+                  showInterfaceFor: _isInitialPage ? 3.seconds : null,
+                  onClose: _dismiss,
+                  isFullscreen: _isFullscreen,
+                  toggleFullscreen: () {
+                    node.requestFocus();
+                    _toggleFullscreen();
+                  },
+                  onController: (c) {
+                    if (c == null) {
+                      _videoControllers.remove(index);
+                    } else {
+                      _videoControllers[index] = c;
+                    }
+                  },
+                  onError: e.onError,
+                ),
               ),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
@@ -576,12 +555,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         _videoControllers[index] = c;
                       }
                     },
-                    onError: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
+                    onError: e.onError,
                   )
                 : GestureDetector(
                     onTap: () {
@@ -594,16 +568,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                       _toggleFullscreen();
                     },
                     child: PlatformUtils.isWeb
-                        ? IgnorePointer(child: WebImage(e.link))
+                        ? WebImage(
+                            e.link,
+                            onForbidden: e.onError,
+                          )
                         : RetryImage(
                             e.link,
                             checksum: e.checksum,
-                            onForbidden: () async {
-                              await e.onError?.call();
-                              if (mounted) {
-                                setState(() {});
-                              }
-                            },
+                            onForbidden: e.onError,
                           ),
                   ),
           ),
@@ -943,7 +915,7 @@ class _GalleryPopupState extends State<GalleryPopup>
         _dismiss();
       } else if (k.physicalKey == PhysicalKeyboardKey.space) {
         _videoControllers.forEach((_, v) {
-          if (v.value.isPlaying == true) {
+          if (v.playerStatus.playing) {
             v.pause();
           } else {
             v.play();

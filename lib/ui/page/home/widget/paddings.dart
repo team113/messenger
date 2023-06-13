@@ -15,18 +15,24 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:typed_data';
+import 'package:flutter/material.dart';
 
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+/// Constant unified [EdgeInsets] to use in the application.
+abstract class Insets {
+  /// Basic [EdgeInsets] to wrap a [Widget] with.
+  static const basic = EdgeInsets.all(8);
 
-/// Extension adding [DataSource] constructor from [Uint8List].
-extension DataSourceExt on DataSource {
-  /// Creates a [DataSource] from the provided [bytes].
-  static DataSource bytes(Uint8List bytes) {
-    final blob = html.Blob([bytes], 'video');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    return DataSource(type: DataSourceType.network, source: url);
-  }
+  /// Dense [EdgeInsets] to wrap a [Widget] with.
+  static const dense = EdgeInsets.fromLTRB(8, 4, 8, 4);
+}
+
+/// Constant unified [Padding]s to use in the application.
+abstract class Paddings {
+  /// Returns the [Padding] with the [Insets.basic] insets.
+  static Widget basic(Widget child) =>
+      Padding(padding: Insets.basic, child: child);
+
+  /// Returns the [Padding] with the [Insets.dense] insets.
+  static Widget dense(Widget child) =>
+      Padding(padding: Insets.dense, child: child);
 }

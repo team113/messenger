@@ -15,18 +15,30 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:typed_data';
+import 'package:flutter/material.dart';
 
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import '/domain/model/user.dart';
+import '/l10n/l10n.dart';
+import '/ui/page/home/page/my_profile/widget/copyable.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/text_field.dart';
 
-/// Extension adding [DataSource] constructor from [Uint8List].
-extension DataSourceExt on DataSource {
-  /// Creates a [DataSource] from the provided [bytes].
-  static DataSource bytes(Uint8List bytes) {
-    final blob = html.Blob([bytes], 'video');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    return DataSource(type: DataSourceType.network, source: url);
+/// [CopyableTextField] representation of the provided [UserTextStatus].
+class UserStatusCopyable extends StatelessWidget {
+  const UserStatusCopyable(this.status, {super.key});
+
+  /// [UserTextStatus] to display.
+  final UserTextStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    return Paddings.basic(
+      CopyableTextField(
+        key: const Key('StatusField'),
+        state: TextFieldState(text: status.val),
+        label: 'label_status'.l10n,
+        copy: status.val,
+      ),
+    );
   }
 }
