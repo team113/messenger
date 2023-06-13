@@ -32,7 +32,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class ScreenShareView extends StatelessWidget {
-  const ScreenShareView(this.call, {Key? key}) : super(key: key);
+  const ScreenShareView(this.call, {super.key});
 
   /// [OngoingCall] this [ScreenShareView] is bound to.
   final Rx<OngoingCall> call;
