@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/paddings.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
@@ -66,7 +67,8 @@ class CallSettingsView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   ModalPopupHeader(text: 'label_media'.l10n),
-                  _Dense(
+                  Padding(
+                    padding: Insets.dense,
                     child: WidgetButton(
                       onPressed: () async {
                         await CameraSwitchView.show(
@@ -98,7 +100,8 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _Dense(
+                  Padding(
+                    padding: Insets.dense,
                     child: WidgetButton(
                       onPressed: () async {
                         await MicrophoneSwitchView.show(
@@ -130,7 +133,8 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _Dense(
+                  Padding(
+                    padding: Insets.dense,
                     child: WidgetButton(
                       onPressed: () async {
                         await OutputSwitchView.show(
@@ -166,7 +170,8 @@ class CallSettingsView extends StatelessWidget {
                     hideCloseButton: true,
                     text: 'label_calls'.l10n,
                   ),
-                  _Dense(
+                  Padding(
+                    padding: Insets.dense,
                     child: WidgetButton(
                       onPressed: () => CallWindowSwitchView.show(context),
                       child: IgnorePointer(
@@ -189,57 +194,6 @@ class CallSettingsView extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-/// [Widget] for displaying a header with a [text] in the settings screen.
-class SettingsHeader extends StatelessWidget {
-  const SettingsHeader({
-    super.key,
-    required this.text,
-    this.padding = const EdgeInsets.fromLTRB(0, 0, 0, 12),
-  });
-
-  /// [Text] to be displayed in this [SettingsHeader].
-  final String text;
-
-  /// Padding around this [SettingsHeader].
-  final EdgeInsetsGeometry padding;
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Padding(
-      padding: padding,
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Text(
-            text,
-            style: style.systemMessageStyle
-                .copyWith(color: Colors.black, fontSize: 18),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Dense [Padding] wrapper.
-class _Dense extends StatelessWidget {
-  const _Dense({this.child});
-
-  /// [Widget] to be displayed inside this [_Dense].
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: ModalPopup.padding(context)
-          .add(const EdgeInsets.fromLTRB(8, 4, 8, 4)),
-      child: child,
     );
   }
 }
