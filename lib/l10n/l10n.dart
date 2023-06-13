@@ -125,7 +125,7 @@ extension L10nDateExtension on DateTime {
   /// Returns this [DateTime] formatted in `yMd` format.
   String get yMd => DateFormat.yMd().format(this);
 
-  /// TODO: Built-in formatting of the year as 'yy' is not available.
+  // TODO: Shouldn't do replacements here.
   /// Returns this [DateTime] formatted in `yyMd` format.
   String get yyMd => DateFormat.yMd().format(this).replaceFirst(
         DateTime.now().year.toString(),

@@ -32,18 +32,17 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
-/// [Widget] which returns a header subtitle of the [Chat].
+/// [Row] containing details about the provided [chat].
 class ChatSubtitle extends StatelessWidget {
   const ChatSubtitle({
     super.key,
-    required this.duration,
+    this.duration,
     required this.getUser,
     this.chat,
     this.me,
   });
 
-  /// [RxChat] object that contains information on the chat being displayed,
-  /// including ongoing call information and typing users.
+  /// [RxChat] to .
   final RxChat? chat;
 
   /// ID of the person currently signed in to the chat.
@@ -84,7 +83,7 @@ class ChatSubtitle extends StatelessWidget {
       return Text(subtitle.toString(), style: textStyle);
     }
 
-    bool isTyping = chat?.typingUsers.any((e) => e.id != me) == true;
+    final bool isTyping = chat?.typingUsers.any((e) => e.id != me) == true;
     if (isTyping) {
       if (chat?.chat.value.isGroup == false) {
         return Row(
@@ -104,7 +103,7 @@ class ChatSubtitle extends StatelessWidget {
         );
       }
 
-      Iterable<String> typings = chat!.typingUsers
+      final Iterable<String> typings = chat!.typingUsers
           .where((e) => e.id != me)
           .map((e) => e.name?.val ?? e.num.val);
 

@@ -16,28 +16,28 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/l10n/l10n.dart';
 
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import 'swipeable_status.dart';
 
-/// [Widget] which returns a centered [time] label.
+/// Centered [time] wrapped in a [SwipeableStatus] animating its [opacity]
+/// changes.
 class TimeLabelWidget extends StatelessWidget {
   const TimeLabelWidget({
     super.key,
     required this.time,
-    required this.opacity,
+    this.opacity = 1,
     this.animation,
   });
 
   /// Opacity of this [TimeLabelWidget].
   final double opacity;
 
-  /// [DateTime] which holds the time that this [TimeLabelWidget] is
-  /// displaying.
+  /// [DateTime] to display.
   final DateTime time;
 
-  /// [AnimationController] controlling this [TimeLabelWidget].
+  /// [AnimationController] controlling the [SwipeableStatus].
   final AnimationController? animation;
 
   @override
@@ -60,10 +60,7 @@ class TimeLabelWidget extends StatelessWidget {
           duration: const Duration(milliseconds: 250),
           child: Center(
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 border: style.systemMessageBorder,

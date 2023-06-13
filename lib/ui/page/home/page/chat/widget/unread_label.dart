@@ -20,13 +20,13 @@ import 'package:flutter/material.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 
-/// [Widget] which builds a visual representation of an
-/// [UnreadMessagesElement].
+/// Expanded [Container] displaying the provided [count] as an unread messages
+/// label.
 class UnreadLabel extends StatelessWidget {
-  const UnreadLabel(this.unreadMessages, {super.key});
+  const UnreadLabel(this.count, {super.key});
 
-  /// Count of unread messages.
-  final int unreadMessages;
+  /// Count to display in this [UnreadLabel].
+  final int count;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class UnreadLabel extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          'label_unread_messages'.l10nfmt({'quantity': unreadMessages}),
+          'label_unread_messages'.l10nfmt({'quantity': count}),
           style: style.systemMessageStyle,
         ),
       ),
