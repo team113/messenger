@@ -405,7 +405,7 @@ class OngoingCall {
                   ?.handRaised ??
               false,
           isConnected: false,
-          isRedialing: true,
+          isDialing: true,
         );
       }
     }
@@ -1769,20 +1769,20 @@ class CallMember {
     this._connection, {
     bool isHandRaised = false,
     bool isConnected = false,
-    bool isRedialing = false,
+    bool isDialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
-        isDialing = RxBool(isRedialing),
+        isDialing = RxBool(isDialing),
         owner = MediaOwnerKind.remote;
 
   CallMember.me(
     this.id, {
     bool isHandRaised = false,
     bool isConnected = false,
-    bool isRedialing = false,
+    bool isDialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
-        isDialing = RxBool(isRedialing),
+        isDialing = RxBool(isDialing),
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
