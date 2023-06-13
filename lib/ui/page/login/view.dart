@@ -131,7 +131,7 @@ class LoginView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_recover_account'.l10n,
-                    style: fonts.headlineLarge!,
+                    style: fonts.headlineMedium!,
                   ),
                 ),
               );

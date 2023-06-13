@@ -325,9 +325,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               selectable: PlatformUtils.isDesktop || menu,
                               onChanged: (a) => _selection = a,
                               onSelecting: widget.onSelecting,
-                              style: fonts.headlineLarge!.copyWith(
-                                color: color,
-                              ),
+                              style: fonts.bodyLarge!.copyWith(color: color),
                             ),
                           ),
                         ],
