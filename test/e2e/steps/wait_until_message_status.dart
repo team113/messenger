@@ -40,40 +40,45 @@ final StepDefinitionGeneric waitUntilMessageStatus =
   (text, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
-        await context.world.appDriver.waitForAppToSettle();
+        try {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat chat = Get.find<ChatService>().chats.values.firstWhere(
-              (e) => e.chat.value.isRoute(router.route, context.world.me),
-            );
-        final ChatMessage message = chat.messages
-            .map((e) => e.value)
-            .whereType<ChatMessage>()
-            .firstWhere((e) => e.text?.val == text);
+          final RxChat chat = Get.find<ChatService>().chats.values.firstWhere(
+                (e) => e.chat.value.isRoute(router.route, context.world.me),
+              );
+          final ChatMessage message = chat.messages
+              .map((e) => e.value)
+              .whereType<ChatMessage>()
+              .firstWhere((e) => e.text?.val == text);
 
-        final Finder finder = context.world.appDriver
-            .findByKeySkipOffstage('MessageStatus_${message.id}');
+          final Finder finder = context.world.appDriver
+              .findByKeySkipOffstage('MessageStatus_${message.id}');
 
-        if (await context.world.appDriver.isPresent(finder)) {
-          return status == SendingStatus.sending
-              ? context.world.appDriver.isPresent(
-                  context.world.appDriver.findByDescendant(
-                    finder,
-                    context.world.appDriver.findByKeySkipOffstage('Sending'),
-                  ),
-                )
-              : status == SendingStatus.error
-                  ? context.world.appDriver.isPresent(
-                      context.world.appDriver.findByDescendant(
-                        finder,
-                        context.world.appDriver.findByKeySkipOffstage('Error'),
-                      ),
-                    )
-                  : context.world.appDriver.isPresent(
-                      context.world.appDriver.findByDescendant(
-                        finder,
-                        context.world.appDriver.findByKeySkipOffstage('Sent'),
-                      ),
-                    );
+          if (await context.world.appDriver.isPresent(finder)) {
+            return status == SendingStatus.sending
+                ? context.world.appDriver.isPresent(
+                    context.world.appDriver.findByDescendant(
+                      finder,
+                      context.world.appDriver.findByKeySkipOffstage('Sending'),
+                    ),
+                  )
+                : status == SendingStatus.error
+                    ? context.world.appDriver.isPresent(
+                        context.world.appDriver.findByDescendant(
+                          finder,
+                          context.world.appDriver
+                              .findByKeySkipOffstage('Error'),
+                        ),
+                      )
+                    : context.world.appDriver.isPresent(
+                        context.world.appDriver.findByDescendant(
+                          finder,
+                          context.world.appDriver.findByKeySkipOffstage('Sent'),
+                        ),
+                      );
+          }
+        } catch (_) {
+          // Retry on exception.
         }
 
         return false;
