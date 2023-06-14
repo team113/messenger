@@ -17,31 +17,22 @@
 
 import 'package:flutter/material.dart';
 
-import '../tooltip_button.dart';
-import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/call/widget/tooltip_button.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Title bar containing information about the call.
 class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,
-    required this.label,
     required this.fullscreen,
     required this.constraints,
-    this.chat,
+    this.children = const <Widget>[],
     this.height,
     this.onTap,
     this.toggleFullscreen,
   });
-
-  /// [Chat] that this [OngoingCall] is happening in.
-  final RxChat? chat;
-
-  /// Label to be placed in this [TitleBar].
-  final String label;
 
   /// Indicator whether the view is fullscreen or not.
   final bool fullscreen;
@@ -51,6 +42,9 @@ class TitleBar extends StatelessWidget {
 
   /// Maximum width that satisfies the constraints.
   final BoxConstraints constraints;
+
+  /// [Widget]s to display.
+  final List<Widget> children;
 
   /// Callback, called when this [TitleBar] is tapped.
   final void Function()? onTap;
@@ -85,21 +79,7 @@ class TitleBar extends StatelessWidget {
                 onTap: onTap,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(width: 10),
-                    AvatarWidget.fromRxChat(chat, radius: 8),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        label,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontSize: 13,
-                              color: style.colors.onPrimary,
-                            ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+                  children: children,
                 ),
               ),
             ),

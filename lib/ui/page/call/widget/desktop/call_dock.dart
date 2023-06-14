@@ -21,9 +21,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../conditional_backdrop.dart';
-import '../dock.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/call/widget/dock.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 
 /// [Dock] which is used to handle the incoming and outgoing calls
@@ -31,14 +31,12 @@ import '/ui/page/home/widget/animated_slider.dart';
 class CallDockWidget extends StatelessWidget {
   const CallDockWidget({
     super.key,
-    required this.dockKey,
-    required this.showBottomUi,
-    required this.answer,
-    required this.acceptAudioButton,
-    required this.acceptVideoButton,
-    required this.declineButton,
+    required this.isIncoming,
+    this.dockKey,
+    this.showBottomUi = true,
+    this.children = const <Widget>[],
     this.isOutgoing,
-    this.dock,
+    this.child,
     this.onEnter,
     this.onHover,
     this.onExit,
@@ -46,28 +44,22 @@ class CallDockWidget extends StatelessWidget {
   });
 
   /// [Key] for handling [dock] widget states.
-  final GlobalKey<State<StatefulWidget>> dockKey;
+  final GlobalKey<State<StatefulWidget>>? dockKey;
 
   /// Indicator whether the call is outgoing.
   final bool? isOutgoing;
 
-  /// Indicator whether to show the [dock].
-  final bool showBottomUi;
+  /// Indicator whether to show the [child].
+  final bool? showBottomUi;
 
   /// Indicator whether the call is incoming.
-  final bool answer;
+  final bool isIncoming;
 
   /// [Widget] that will be shown at the bottom of the screen.
-  final Widget? dock;
+  final Widget? child;
 
-  /// [Widget] of the call button with audio.
-  final Widget acceptAudioButton;
-
-  /// [Widget] of the call button with video.
-  final Widget acceptVideoButton;
-
-  /// [Widget] of the reject call button.
-  final Widget declineButton;
+  /// [Widget]s to display.
+  final List<Widget> children;
 
   /// Callback, called when the mouse cursor enters the area of this [CallDockWidget].
   final void Function(PointerEnterEvent)? onEnter;
@@ -96,7 +88,7 @@ class CallDockWidget extends StatelessWidget {
         duration: 200.milliseconds,
         child: AnimatedSlider(
           key: const Key('DockedPanelPadding'),
-          isOpen: showBottomUi,
+          isOpen: showBottomUi!,
           duration: 400.milliseconds,
           translate: false,
           listener: listener,
@@ -130,20 +122,9 @@ class CallDockWidget extends StatelessWidget {
                     vertical: 13,
                     horizontal: 5,
                   ),
-                  child: answer
-                      ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(width: 11),
-                            acceptAudioButton,
-                            const SizedBox(width: 24),
-                            acceptVideoButton,
-                            const SizedBox(width: 24),
-                            declineButton,
-                            const SizedBox(width: 11),
-                          ],
-                        )
-                      : dock,
+                  child: isIncoming
+                      ? Row(mainAxisSize: MainAxisSize.min, children: children)
+                      : child,
                 ),
               ),
             ),

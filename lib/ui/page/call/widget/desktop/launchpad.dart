@@ -20,17 +20,17 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../conditional_backdrop.dart';
 import '/themes.dart';
 import '/ui/page/call/component/common.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Panel which containing the dragging and dropping elements.
 class LaunchpadWidget extends StatelessWidget {
   const LaunchpadWidget({
     super.key,
     required this.displayMore,
-    required this.test,
-    required this.paneledItems,
+    this.paneledItems = const <Widget>[],
+    this.test,
     this.onEnter,
     this.onHover,
     this.onExit,
@@ -47,7 +47,7 @@ class LaunchpadWidget extends StatelessWidget {
 
   /// Callback, called when at least one element from the panel list
   /// satisfies the condition set by the [test] function.
-  final bool Function(CallButton?) test;
+  final bool Function(CallButton?)? test;
 
   /// Callback, called when the mouse cursor enters the area of this
   /// [LaunchpadWidget].
@@ -61,11 +61,12 @@ class LaunchpadWidget extends StatelessWidget {
   /// [LaunchpadWidget].
   final void Function(PointerExitEvent)? onExit;
 
-  /// Callback, called when accepting a draggable element.
+  /// Callback, called when an acceptable piece of data was dropped over this
+  /// drag target.
   final void Function(CallButton)? onAccept;
 
-  /// Callback, called when the dragged element is above
-  /// the widget, but has not yet been released.
+  /// Callback, called to determine whether this widget is interested in
+  /// receiving a given piece of data being dragged over this drag target.
   final bool Function(CallButton?)? onWillAccept;
 
   @override
@@ -104,9 +105,11 @@ class LaunchpadWidget extends StatelessWidget {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               decoration: BoxDecoration(
-                color: candidate.any(test)
-                    ? style.colors.onSecondaryOpacity88
-                    : style.colors.onSecondaryOpacity60,
+                color: test != null
+                    ? candidate.any(test!)
+                        ? style.colors.onSecondaryOpacity88
+                        : style.colors.onSecondaryOpacity60
+                    : style.colors.onSecondaryOpacity88,
                 borderRadius: BorderRadius.circular(30),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 20),

@@ -28,6 +28,7 @@ import 'package:messenger/ui/page/call/widget/desktop/primary_view.dart';
 import 'package:messenger/ui/page/call/widget/desktop/secondary_target.dart';
 import 'package:messenger/ui/page/call/widget/desktop/title_bar.dart';
 
+import '../../home/widget/avatar.dart';
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
@@ -380,8 +381,8 @@ Widget desktopCall(CallController c, BuildContext context) {
           return SecondaryTarget(
             size: panelSize,
             axis: secondaryAxis,
-            participant: c.secondary,
-            draggableParticipant: c.doughDraggedRenderer.value,
+            showTarget:
+                c.secondary.isEmpty && c.doughDraggedRenderer.value != null,
             drags: c.primaryDrags.value,
             onWillAccept: (d) => d?.chatId == c.chatId.value,
             onAccept: (DragData d) {
@@ -434,7 +435,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         dockKey: c.dockKey,
                         isOutgoing: isOutgoing,
                         showBottomUi: showBottomUi,
-                        answer: answer,
+                        isIncoming: answer,
                         listener: () =>
                             Future.delayed(Duration.zero, c.relocateSecondary),
                         onEnter: (d) => c.keepUi(true),
@@ -442,25 +443,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         onExit: c.showUi.value && !c.displayMore.value
                             ? (d) => c.keepUi(false)
                             : (d) => c.keepUi(),
-                        acceptAudioButton: SizedBox.square(
-                          dimension: CallController.buttonSize,
-                          child: AcceptAudioButton(
-                            c,
-                            highlight: !c.withVideo,
-                          ).build(),
-                        ),
-                        acceptVideoButton: SizedBox.square(
-                          dimension: CallController.buttonSize,
-                          child: AcceptVideoButton(
-                            c,
-                            highlight: c.withVideo,
-                          ).build(),
-                        ),
-                        declineButton: SizedBox.square(
-                          dimension: CallController.buttonSize,
-                          child: DeclineButton(c).build(),
-                        ),
-                        dock: Dock<CallButton>(
+                        child: Dock<CallButton>(
                           items: c.buttons,
                           itemWidth: CallController.buttonSize,
                           itemBuilder: (e) => e.build(
@@ -479,6 +462,30 @@ Widget desktopCall(CallController c, BuildContext context) {
                           onLeave: (_) => c.displayMore.value = true,
                           onWillAccept: (d) => d?.c == c,
                         ),
+                        children: [
+                          const SizedBox(width: 11),
+                          SizedBox.square(
+                            dimension: CallController.buttonSize,
+                            child: AcceptAudioButton(
+                              c,
+                              highlight: !c.withVideo,
+                            ).build(),
+                          ),
+                          const SizedBox(width: 24),
+                          SizedBox.square(
+                            dimension: CallController.buttonSize,
+                            child: AcceptVideoButton(
+                              c,
+                              highlight: c.withVideo,
+                            ).build(),
+                          ),
+                          const SizedBox(width: 24),
+                          SizedBox.square(
+                            dimension: CallController.buttonSize,
+                            child: DeclineButton(c).build(),
+                          ),
+                          const SizedBox(width: 11),
+                        ],
                       );
                     }),
                     Obx(() {
@@ -887,8 +894,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                   ),
                   child: Obx(
                     () => TitleBar(
-                      chat: c.chat.value,
-                      label: 'label_call_title'.l10nfmt(c.titleArguments),
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
                       constraints: BoxConstraints(maxWidth: c.size.width - 60),
@@ -901,6 +906,22 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 c.toggleFullscreen();
                               }
                             },
+                      children: [
+                        const SizedBox(width: 10),
+                        AvatarWidget.fromRxChat(c.chat.value, radius: 8),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'label_call_title'.l10nfmt(c.titleArguments),
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontSize: 13,
+                                      color: style.colors.onPrimary,
+                                    ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

@@ -20,38 +20,33 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../conditional_backdrop.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/component/desktop.dart';
-import '/ui/page/call/controller.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 
 class SecondaryTarget extends StatelessWidget {
   const SecondaryTarget({
     super.key,
-    required this.axis,
     required this.size,
-    required this.participant,
     required this.drags,
-    this.draggableParticipant,
+    this.showTarget = true,
+    this.axis,
     this.onWillAccept,
     this.onAccept,
   });
 
+  /// Count of a currently happening drags.
+  final int drags;
+
   /// [Axis] along which the [SecondaryTarget] is aligned.
-  final Axis axis;
+  final Axis? axis;
 
   /// Size of this [SecondaryTarget] widget.
   final double size;
 
-  /// [Participant]s to display.
-  final List<Participant> participant;
-
-  /// [Participant] being dragged currently with its dough broken.
-  final Participant? draggableParticipant;
-
-  /// Count of a currently happening drags of the videos.
-  final int drags;
+  /// Indicator whether this [SecondaryTarget] is displayed.
+  final bool showTarget;
 
   /// Called to determine whether this widget is interested in receiving a
   /// given piece of data being dragged over this drag target.
@@ -65,24 +60,10 @@ class SecondaryTarget extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(router.context!).extension<Style>()!;
 
-    // Axis secondaryAxis =
-    //     c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
-
-    // // Pre-calculate the [ReorderableFit]'s size.
-    // double panelSize = max(
-    //   ReorderableFit.calculateSize(
-    //     maxSize: c.size.shortestSide / 4,
-    //     constraints: Size(c.size.width, c.size.height - 45),
-    //     axis: c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical,
-    //     length: c.secondary.length,
-    //   ),
-    //   130,
-    // );
-
     return AnimatedSwitcher(
       key: const Key('SecondaryTargetAnimatedSwitcher'),
       duration: 200.milliseconds,
-      child: participant.isEmpty && draggableParticipant != null
+      child: showTarget
           ? Align(
               alignment: axis == Axis.horizontal
                   ? Alignment.centerRight
@@ -184,7 +165,7 @@ class SecondaryTarget extends StatelessWidget {
                 ),
               ),
             )
-          : Container(),
+          : const SizedBox(),
     );
   }
 }

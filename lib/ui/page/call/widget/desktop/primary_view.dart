@@ -128,8 +128,20 @@ class PrimaryView extends StatelessWidget {
   /// Color of the [IgnorePointer].
   final Color? color;
 
+  /// Children widgets needed to be placed in a [Wrap].
+  final List<DragData> children;
+
   /// Callback, called when an participant is uncentered.
   final void Function()? uncenter;
+
+  /// Toggles local audio stream on and off.
+  final void Function()? toggleVideo;
+
+  /// Toggles local video stream on and off.
+  final void Function()? toggleAudio;
+
+  /// Updates the list of participants.
+  final void Function() refreshParticipants;
 
   /// Centers the participant, which means focusing the participant and
   /// unfocusing every participant in [focused].
@@ -144,12 +156,6 @@ class PrimaryView extends StatelessWidget {
   /// Removes [User] identified by the provided user id from the
   /// current call.
   final Future<void> Function(UserId userId) removeChatCallMember;
-
-  /// Toggles local audio stream on and off.
-  final void Function()? toggleVideo;
-
-  /// Toggles local video stream on and off.
-  final void Function()? toggleAudio;
 
   /// Callback, called when item dragging is ended.
   final void Function(DragData d)? onDragEnded;
@@ -175,12 +181,6 @@ class PrimaryView extends StatelessWidget {
   /// Triggered when a mouse pointer has exited this widget when the widget
   /// is still mounted.
   final void Function(PointerExitEvent)? onExit;
-
-  /// Updates the list of participants.
-  final void Function() refreshParticipants;
-
-  /// Children widgets needed to be placed in a [Wrap].
-  final List<DragData> children;
 
   @override
   Widget build(BuildContext context) {
