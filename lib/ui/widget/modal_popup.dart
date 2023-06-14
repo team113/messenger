@@ -127,8 +127,7 @@ abstract class ModalPopup {
   }
 }
 
-/// [Row] with [text] and optional [WidgetButton] stylized to be a [ModalPopup]
-/// header.
+/// [Row] with [text] and [WidgetButton] stylized to be a [ModalPopup] header.
 class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     super.key,
@@ -186,11 +185,7 @@ class ModalPopupHeader extends StatelessWidget {
               onPressed: Navigator.of(context).pop,
               child: Padding(
                 padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.close,
-                  size: 18,
-                  color: style.colors.primary,
-                ),
+                child: Icon(Icons.close, size: 18, color: style.colors.primary),
               ),
             )
           else
