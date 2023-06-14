@@ -153,9 +153,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                               draggedRenderer: c.draggedRenderer.value,
                               isCursorHidden: c.isCursorHidden.value,
                               rendererBoxFit: c.rendererBoxFit,
-                              focused: c.focused,
-                              remotes: c.remotes,
-                              locals: c.locals,
                               audioLabel: c.audioState.value.isEnabled
                                   ? 'btn_call_audio_off'.l10n
                                   : 'btn_call_audio_on'.l10n,

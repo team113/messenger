@@ -51,9 +51,6 @@ class PrimaryView extends StatelessWidget {
     required this.children,
     required this.audioState,
     required this.rendererBoxFit,
-    required this.focused,
-    required this.remotes,
-    required this.locals,
     required this.center,
     required this.toggleVideoEnabled,
     required this.toggleAudioEnabled,
@@ -103,15 +100,6 @@ class PrimaryView extends StatelessWidget {
 
   /// [Map] of [BoxFit]s that [RtcVideoRenderer] should explicitly have.
   final Map<String, BoxFit?> rendererBoxFit;
-
-  /// [Participant]s in `focus` mode.
-  final List<Participant> focused;
-
-  /// Remote [Participant]s in `default` mode.
-  final List<Participant> remotes;
-
-  /// Local [Participant]s in `default` mode.
-  final List<Participant> locals;
 
   /// Children widgets needed to be placed in a [Wrap].
   final List<DragData> children;
