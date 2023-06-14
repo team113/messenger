@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -123,19 +124,42 @@ class ParticipantView extends StatelessWidget {
                         child: ListView(
                           controller: c.scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
-                          children: c.chat.value!.members.values
-                              .map((e) => CallMemberTile(
-                                    user: e,
-                                    me: c.me,
-                                    call: call.value,
-                                    redialChatCallMember: () =>
-                                        c.redialChatCallMember(e.id),
-                                    removeChatMember: () =>
-                                        c.removeChatMember(e.id),
-                                    removeChatCallMember: () =>
-                                        c.removeChatCallMember(e.id),
-                                  ))
-                              .toList(),
+                          children: c.chat.value!.members.values.map((user) {
+                            bool inCall = false;
+                            bool isRedialed = false;
+
+                            CallMember? member = call.value.members.values
+                                .firstWhereOrNull(
+                                    (e) => e.id.userId == user.id);
+
+                            if (member != null) {
+                              inCall = true;
+                              isRedialed = member.isRedialing.isTrue;
+                            }
+
+                            return CallMemberTile(
+                              user: user,
+                              me: c.me,
+                              isCallAndMe: user.id != c.me,
+                              inCall: inCall,
+                              width: 30,
+                              height: 30,
+                              onTapContactTile: () {
+                                // TODO: Open the [Routes.user] page.
+                              },
+                              color: inCall
+                                  ? isRedialed
+                                      ? style.colors.secondaryBackgroundLightest
+                                      : style.colors.dangerColor
+                                  : style.colors.primary,
+                              onTap: inCall
+                                  ? isRedialed
+                                      ? null
+                                      : () => c.removeChatCallMember(user.id)
+                                  : () => c.redialChatCallMember(user.id),
+                              onPressed: () => c.removeChatMember(user.id),
+                            );
+                          }).toList(),
                         ),
                       ),
                     ),

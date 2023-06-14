@@ -18,6 +18,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/call/participant/widget/call_member_tile.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -32,7 +33,6 @@ import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -538,75 +538,20 @@ class ChatInfoView extends StatelessWidget {
                     .any((u) => u.user.id == e.id) ==
                 true;
 
-            return ContactTile(
+            return CallMemberTile(
               user: e,
-              darken: 0.05,
-              dense: true,
-              onTap: () => router.user(e.id, push: true),
-              trailing: [
-                if (e.id != c.me && c.chat?.chat.value.ongoingCall != null) ...[
-                  if (inCall)
-                    WidgetButton(
-                      key: const Key('Drop'),
-                      onPressed: () => c.removeChatCallMember(e.id),
-                      child: Container(
-                        height: 22,
-                        width: 22,
-                        decoration: BoxDecoration(
-                          color: style.colors.dangerColor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: SvgImage.asset(
-                            'assets/icons/call_end.svg',
-                            width: 22,
-                            height: 22,
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    Material(
-                      color: style.colors.primary,
-                      type: MaterialType.circle,
-                      child: InkWell(
-                        onTap: () => c.redialChatCallMember(e.id),
-                        borderRadius: BorderRadius.circular(60),
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: Center(
-                            child: SvgImage.asset(
-                              'assets/icons/audio_call_start.svg',
-                              width: 10,
-                              height: 10,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(width: 12),
-                ],
-                if (e.id == c.me)
-                  WidgetButton(
-                    onPressed: () => _removeChatMember(c, context, e),
-                    child: Text(
-                      'btn_leave'.l10n,
-                      style:
-                          TextStyle(color: style.colors.primary, fontSize: 15),
-                    ),
-                  )
-                else
-                  WidgetButton(
-                    key: const Key('DeleteMemberButton'),
-                    onPressed: () => _removeChatMember(c, context, e),
-                    child: SvgImage.asset(
-                      'assets/icons/delete.svg',
-                      height: 14 * 1.5,
-                    ),
-                  ),
-                const SizedBox(width: 6),
-              ],
+              me: c.me,
+              inCall: inCall,
+              width: 22,
+              height: 22,
+              onTapContactTile: () => router.user(e.id, push: true),
+              color: inCall ? style.colors.dangerColor : style.colors.primary,
+              isCallAndMe:
+                  e.id != c.me && c.chat?.chat.value.ongoingCall != null,
+              onTap: () => inCall
+                  ? c.removeChatCallMember(e.id)
+                  : c.redialChatCallMember(e.id),
+              onPressed: () => c.removeChatMember(e.id),
             );
           }),
         ],
