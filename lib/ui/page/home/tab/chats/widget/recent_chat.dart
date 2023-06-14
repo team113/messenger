@@ -149,13 +149,14 @@ class RecentChatTile extends StatelessWidget {
         chat: rxChat,
         status: [
           _status(context, inverted),
-          Text(
-            chat.updatedAt.val.toLocal().short,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: inverted ? style.colors.onPrimary : null),
-          ),
+          if (!chat.id.isLocalWith(me))
+            Text(
+              chat.updatedAt.val.toLocal().short,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.copyWith(color: inverted ? style.colors.onPrimary : null),
+            ),
         ],
         subtitle: [
           const SizedBox(height: 5),
@@ -671,10 +672,11 @@ class RecentChatTile extends StatelessWidget {
       } else {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: SvgImage.asset(
-            inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-            width: 30,
-            height: 30,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
           ),
         );
       }
@@ -707,10 +709,11 @@ class RecentChatTile extends StatelessWidget {
       } else {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: SvgImage.asset(
-            inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-            width: 30,
-            height: 30,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
           ),
         );
       }
@@ -841,9 +844,9 @@ class RecentChatTile extends StatelessWidget {
 
       // Returns a rounded rectangular button representing an [OngoingCall]
       // associated action.
-      Widget button(bool active) {
+      Widget button(bool displayed) {
         return DecoratedBox(
-          key: active
+          key: displayed
               ? const Key('JoinCallButton')
               : const Key('DropCallButton'),
           position: DecorationPosition.foreground,
@@ -855,16 +858,16 @@ class RecentChatTile extends StatelessWidget {
             elevation: 0,
             type: MaterialType.button,
             borderRadius: BorderRadius.circular(20),
-            color: active ? style.colors.dangerColor : style.colors.primary,
+            color: displayed ? style.colors.dangerColor : style.colors.primary,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: active ? onDrop : onJoin,
+              onTap: displayed ? onDrop : onJoin,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
                 child: Row(
                   children: [
                     Icon(
-                      active ? Icons.call_end : Icons.call,
+                      displayed ? Icons.call_end : Icons.call,
                       size: 16,
                       color: style.colors.onPrimary,
                     ),
