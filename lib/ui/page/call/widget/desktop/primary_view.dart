@@ -132,7 +132,7 @@ class PrimaryView extends StatelessWidget {
   final void Function() refreshParticipants;
 
   /// Centers the participant, which means focusing the participant and
-  /// unfocusing every participant in [focused].
+  /// unfocusing every participant in focused.
   final void Function(Participant participant) center;
 
   /// Toggles the provided participant's incoming video on and off.
