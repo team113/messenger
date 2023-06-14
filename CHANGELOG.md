@@ -34,8 +34,8 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Redesigned info and call messages. ([#357])
-        - Redesigned file attachments. ([#362])
+        - Redesigned info and call messages. ([#453], [#357])
+        - Redesigned file attachments. ([#453], [#362])
         - Message timestamps. ([#399])
         - Redesigned chat messages and forwards. ([#416])
     - Media panel:
@@ -92,6 +92,7 @@ All user visible changes to this project will be documented in this file. This p
 [#438]: /../../issues/438
 [#440]: /../../pull/440
 [#445]: /../../pull/445
+[#453]: /../../pull/453
 [#454]: /../../pull/454
 
 
