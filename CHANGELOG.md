@@ -24,7 +24,7 @@ All user visible changes to this project will be documented in this file. This p
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
     - Media panel:
-        - Low signal icon on a participant. ([#454])
+        - Low signal icons. ([#454])
 - Web:
     - Unread chats badge on favicon. ([#403])
 - Desktop:

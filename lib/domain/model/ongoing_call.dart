@@ -1228,7 +1228,7 @@ class OngoingCall {
         }
       });
 
-      conn.onQualityScoreUpdate((p0) => member?.quality.value = p0);
+      conn.onQualityScoreUpdate((p) => member?.quality.value = p);
     });
   }
 
@@ -1806,7 +1806,7 @@ class CallMember {
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
 
-  /// Signal quality from 1 to 4 of this [CallMember].
+  /// Signal quality of this [CallMember] ranging from 1 to 4.
   final RxInt quality = RxInt(4);
 
   /// Disposes the [tracks] of this [CallMember].
