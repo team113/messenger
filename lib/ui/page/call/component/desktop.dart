@@ -173,7 +173,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                               anyDragIsHappening: c.secondaryDrags.value != 0 ||
                                   c.primaryDrags.value != 0 ||
                                   c.secondaryDragged.value,
-                              targetOpacity: c.secondaryDrags.value != 0 &&
+                              opacity: c.secondaryDrags.value != 0 &&
                                       c.primaryTargets.value != 0
                                   ? 1
                                   : 0,

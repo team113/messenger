@@ -47,7 +47,7 @@ class PrimaryView extends StatelessWidget {
     required this.itemConstraintsSize,
     required this.condition,
     required this.anyDragIsHappening,
-    required this.targetOpacity,
+    required this.opacity,
     required this.children,
     required this.audioState,
     required this.rendererBoxFit,
@@ -114,7 +114,7 @@ class PrimaryView extends StatelessWidget {
   final double itemConstraintsSize;
 
   /// Opacity of the [IgnorePointer].
-  final double targetOpacity;
+  final double opacity;
 
   /// Color of the [IgnorePointer].
   final Color? color;
@@ -136,14 +136,14 @@ class PrimaryView extends StatelessWidget {
   final void Function(Participant participant) center;
 
   /// Toggles the provided participant's incoming video on and off.
-  final Future<void> Function(Participant participant) toggleVideoEnabled;
+  final void Function(Participant participant) toggleVideoEnabled;
 
   /// Toggles the provided participant's incoming audio on and off.
-  final Future<void> Function(Participant participant) toggleAudioEnabled;
+  final void Function(Participant participant) toggleAudioEnabled;
 
   /// Removes [User] identified by the provided user id from the
   /// current call.
-  final Future<void> Function(UserId userId) removeChatCallMember;
+  final void Function(UserId userId) removeChatCallMember;
 
   /// Callback, called when item dragging is started.
   final dynamic Function(DragData)? onDragStarted;
@@ -160,11 +160,11 @@ class PrimaryView extends StatelessWidget {
   /// Callback, called when a dragged item leaves some [DragTarget].
   final void Function(DragData?)? onLeave;
 
-  /// Callback, specifying an [Offset] of this view.
-  final Offset Function()? onOffset;
-
   /// Callback, called when an item breaks its dough.
   final void Function(DragData)? onDoughBreak;
+
+  /// Callback, specifying an [Offset] of this view.
+  final Offset Function()? onOffset;
 
   /// Triggered when a mouse pointer has exited this widget when the widget
   /// is still mounted.
@@ -344,7 +344,7 @@ class PrimaryView extends StatelessWidget {
         IgnorePointer(
           child: AnimatedOpacity(
             duration: 200.milliseconds,
-            opacity: targetOpacity,
+            opacity: opacity,
             child: Container(
               color: style.colors.onBackgroundOpacity27,
               child: Center(
