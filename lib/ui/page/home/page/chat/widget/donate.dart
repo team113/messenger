@@ -15,6 +15,7 @@ class DonateWidget extends StatelessWidget {
     this.transaction,
     this.title = '',
     this.onTitlePressed,
+    this.height = 100,
   });
 
   final int donate;
@@ -22,6 +23,8 @@ class DonateWidget extends StatelessWidget {
   final List<Widget> footer;
   final Widget? timestamp;
   final String? transaction;
+
+  final double height;
 
   final String title;
   final void Function()? onTitlePressed;
@@ -52,6 +55,7 @@ class DonateWidget extends StatelessWidget {
         LinearGradient(colors: colors, stops: stops);
 
     final bar = Container(
+      height: height,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -77,43 +81,43 @@ class DonateWidget extends StatelessWidget {
       ),
       child: Stack(
         children: [
-//             Positioned.fill(
-//               child: Container(
-//                 decoration: BoxDecoration(
-//                   borderRadius: BorderRadius.circular(8),
-//                   gradient: const LinearGradient(
-//                     transform: GradientRotation(-0.2),
-//                     begin: Alignment(-1, 0),
-//                     end: Alignment(1, 0),
-// // background: linear-gradient(79.22deg, #ECB800 4.81%, #FFDD64 19.3%, #C89C00 45.69%, #C99D01 54.15%, #E8B500 66.65%, #DFAE00 77.89%, #F2BD00 85.19%, #FFDD66 94.58%);
-//                     colors: [
-//                       Color(0xFFECB800),
-//                       Color(0xFFFFDD64),
-//                       Color(0xFFC89C00),
-//                       Color(0xFFC99D01),
-//                       Color(0xFFE8B500),
-//                       Color(0xFFDFAE00),
-//                       Color(0xFFF2BD00),
-//                       Color(0xFFFFDD66),
-//                     ],
-//                     stops: [
-//                       0.0481,
-//                       0.193,
-//                       0.4569,
-//                       0.5415,
-//                       0.6665,
-//                       0.7789,
-//                       0.8519,
-//                       0.9458,
-//                     ],
-//                   ),
-//                 ),
-//                 width: double.infinity,
-//                 height: double.infinity,
-//               ),
-//             ),
+          //             Positioned.fill(
+          //               child: Container(
+          //                 decoration: BoxDecoration(
+          //                   borderRadius: BorderRadius.circular(8),
+          //                   gradient: const LinearGradient(
+          //                     transform: GradientRotation(-0.2),
+          //                     begin: Alignment(-1, 0),
+          //                     end: Alignment(1, 0),
+          // // background: linear-gradient(79.22deg, #ECB800 4.81%, #FFDD64 19.3%, #C89C00 45.69%, #C99D01 54.15%, #E8B500 66.65%, #DFAE00 77.89%, #F2BD00 85.19%, #FFDD66 94.58%);
+          //                     colors: [
+          //                       Color(0xFFECB800),
+          //                       Color(0xFFFFDD64),
+          //                       Color(0xFFC89C00),
+          //                       Color(0xFFC99D01),
+          //                       Color(0xFFE8B500),
+          //                       Color(0xFFDFAE00),
+          //                       Color(0xFFF2BD00),
+          //                       Color(0xFFFFDD66),
+          //                     ],
+          //                     stops: [
+          //                       0.0481,
+          //                       0.193,
+          //                       0.4569,
+          //                       0.5415,
+          //                       0.6665,
+          //                       0.7789,
+          //                       0.8519,
+          //                       0.9458,
+          //                     ],
+          //                   ),
+          //                 ),
+          //                 width: double.infinity,
+          //                 height: double.infinity,
+          //               ),
+          //             ),
           // Основной градиент:
-// radial-gradient(73.88% 112.28% at 6.65% -23.76%, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%);
+          // radial-gradient(73.88% 112.28% at 6.65% -23.76%, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%);
           // Positioned.fill(
           //   child: Container(
           //     decoration: BoxDecoration(
@@ -149,7 +153,7 @@ class DonateWidget extends StatelessWidget {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6 * (height / 100)),
                   // if (header.isEmpty) const SizedBox(height: 16 + 2),
                   // ...header,
                   Row(
@@ -167,6 +171,8 @@ class DonateWidget extends StatelessWidget {
                                 small: true,
                                 style: style.boldBody.copyWith(
                                   color: DonateWidget.font,
+                                  fontSize:
+                                      style.boldBody.fontSize! * (height / 100),
                                   // color: color,
                                 ),
                               ),
@@ -182,7 +188,7 @@ class DonateWidget extends StatelessWidget {
                       children: [
                         ...'$donate'.embossedDigits(
                           style: style.boldBody.copyWith(
-                            fontSize: 32,
+                            fontSize: 32 * (height / 100),
                             color: font,
                           ),
                         ),
@@ -192,7 +198,7 @@ class DonateWidget extends StatelessWidget {
                           child: EmbossedText(
                             '¤',
                             style: style.boldBody.copyWith(
-                              fontSize: 32,
+                              fontSize: 32 * (height / 100),
                               fontFamily: 'Gapopa',
                               color: font,
                             ),
@@ -202,9 +208,7 @@ class DonateWidget extends StatelessWidget {
                     ),
                   ),
                   // ...footer,
-                  const SizedBox(height: 16 + 2),
-                  const SizedBox(height: 2),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 26 * (height / 100)),
                 ],
               ),
               Padding(
@@ -217,7 +221,7 @@ class DonateWidget extends StatelessWidget {
                         // color: const Color(0xFFA98010),
                         // color: const Color(0xFFFFFE8A),
                         color: DonateWidget.font,
-                        fontSize: 11,
+                        fontSize: 11 * (height / 100),
                       ),
                     ),
               ),

@@ -95,7 +95,7 @@ class WelcomeMessageController extends GetxController {
       null,
       text: text,
       attachments: attachments,
-      onSubmit: () async {
+      onSubmit: ({bool onlyDonation = false}) async {
         message.value = ChatMessage(
           ChatItemId.local(),
           const ChatId('123'),
@@ -106,8 +106,6 @@ class WelcomeMessageController extends GetxController {
         );
 
         send.clear();
-
-        return true;
       },
     );
 

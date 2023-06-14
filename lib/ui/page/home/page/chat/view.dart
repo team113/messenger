@@ -785,15 +785,20 @@ class _ChatViewState extends State<ChatView>
                           SchedulerBinding.instance.addPostFrameCallback((_) {
                             c.bottomBarRect.value =
                                 c.bottomBarKey.globalPaintBounds;
-                            if (c.bottomBarRect.value != null &&
-                                c.listController.position.maxScrollExtent > 0 &&
-                                c.listController.position.pixels <
-                                    c.listController.position.maxScrollExtent) {
-                              Rect current = c.bottomBarRect.value!;
-                              c.listController.jumpTo(
-                                c.listController.position.pixels +
-                                    (current.height - previous.height),
-                              );
+
+                            if (!c.ignorePositionChanges) {
+                              if (c.bottomBarRect.value != null &&
+                                  c.listController.position.maxScrollExtent >
+                                      0 &&
+                                  c.listController.position.pixels <
+                                      c.listController.position
+                                          .maxScrollExtent) {
+                                Rect current = c.bottomBarRect.value!;
+                                c.listController.jumpTo(
+                                  c.listController.position.pixels +
+                                      (current.height - previous.height),
+                                );
+                              }
                             }
                           });
 

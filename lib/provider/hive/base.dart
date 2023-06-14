@@ -18,6 +18,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/util/log.dart';
 import 'package:mutex/mutex.dart';
 import 'package:universal_io/io.dart';
 
@@ -75,6 +76,9 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
       try {
         _box = await Hive.openBox<T>(name);
       } catch (e) {
+        Log.print(
+          '[Hive] Cleaning the box due to exception while opening $boxName: $e',
+        );
         await Future.delayed(Duration.zero);
         // TODO: This will throw if database scheme has changed.
         //       We should perform explicit migrations here.

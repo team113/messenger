@@ -138,7 +138,7 @@ class MessageFieldController extends GetxController {
   }
 
   /// Callback, called when this [MessageFieldController] is submitted.
-  final FutureOr<bool> Function()? onSubmit;
+  final void Function({bool onlyDonation})? onSubmit;
 
   /// Callback, called on the [field], [attachments], [replied], [edited]
   /// changes.
@@ -312,9 +312,9 @@ class MessageFieldController extends GetxController {
   /// Toggles the [displayMore].
   void toggleMore() => displayMore.toggle();
 
-  Future<bool> donate(int sum) async {
+  void donate(int sum) {
     donation.value = sum;
-    return await onSubmit?.call() ?? true;
+    onSubmit?.call(onlyDonation: true);
   }
 
   /// Opens a file choose popup of the specified [type] and adds the selected

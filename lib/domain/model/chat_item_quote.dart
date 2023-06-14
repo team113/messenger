@@ -101,6 +101,15 @@ class ChatMessageQuote extends ChatItemQuote {
   /// made.
   @HiveField(4)
   final List<Attachment> attachments;
+
+  int? get donate {
+    final index = text?.val.lastIndexOf('?donate=');
+    if (index != null && index != -1) {
+      return int.tryParse(text!.val.substring(index + 8, text!.val.length));
+    }
+
+    return null;
+  }
 }
 
 /// [ChatItemQuote] of a [ChatCall].

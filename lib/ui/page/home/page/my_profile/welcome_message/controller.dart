@@ -87,7 +87,7 @@ class WelcomeMessageController extends GetxController {
       null,
       text: message.value?.text?.val,
       attachments: message.value?.attachments ?? [],
-      onSubmit: () async {
+      onSubmit: ({bool onlyDonation = false}) async {
         pop?.call(
           ChatMessage(
             message.value?.id ?? ChatItemId.local(),
@@ -100,8 +100,6 @@ class WelcomeMessageController extends GetxController {
         );
 
         send.clear();
-
-        return true;
       },
     );
 

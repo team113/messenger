@@ -69,6 +69,7 @@ class ReactiveTextField extends StatelessWidget {
     this.trailingWidth = 24,
     this.treatErrorAsStatus = true,
     this.type,
+    this.withTrailing = false,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -104,6 +105,7 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional trailing [Widget].
   final Widget? trailing;
   final double? trailingWidth;
+  final bool withTrailing;
 
   /// Optional label of this [ReactiveTextField].
   final String? label;
@@ -334,7 +336,8 @@ class ReactiveTextField extends StatelessWidget {
                 // suffixIconConstraints: suffix == null && trailing == null
                 //     ? const BoxConstraints(maxWidth: 44)
                 //     : null,
-                suffixIcon: dense == true ? null : buildSuffix(),
+                suffixIcon:
+                    dense == true || !withTrailing ? null : buildSuffix(),
                 icon: icon == null
                     ? null
                     : Padding(

@@ -872,40 +872,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   widget.user?.user.value.num.val ??
                   'dot'.l10n * 3,
               onTitlePressed: () => router.user(_author, push: true),
-              header: [
-                // Row(
-                //   children: [
-                //     Flexible(
-                //       child: WidgetButton(
-                //         onPressed: () => router.user(_author, push: true),
-                //         child: SelectionContainer.disabled(
-                //           child: Padding(
-                //             padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                //             child: EmbossedText(
-                //               widget.user?.user.value.name?.val ??
-                //                   widget.user?.user.value.num.val ??
-                //                   'dot'.l10n * 3,
-                //               maxLines: 1,
-                //               overflow: TextOverflow.ellipsis,
-                //               small: true,
-                //               style: style.boldBody.copyWith(
-                //                 color: DonateWidget.font,
-                //                 // color: color,
-                //               ),
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                // const SizedBox(height: 4),
-              ],
-              footer: !_fromMe && widget.chat.value?.isGroup == true && avatar
-                  ? [
-                      const SizedBox(height: 16),
-                    ]
-                  : [],
             ),
             if ((msg.repliesTo.isNotEmpty || msg.attachments.isNotEmpty))
               const SizedBox(height: 1),
@@ -1089,7 +1055,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final message = Stack(
           children: [
             ConditionalIntrinsicWidth(
-              condition: msg.donate == null,
+              condition: msg.donate == null &&
+                  !msg.repliesTo.any(
+                    (e) => (e is ChatMessageQuote &&
+                        e.text?.val.contains('?donate=') == true),
+                  ),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
                 decoration: BoxDecoration(
@@ -1461,9 +1431,43 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
 
       if (item.text != null && item.text!.val.isNotEmpty) {
-        content = SelectionContainer.disabled(
-          child: Text(item.text!.val, maxLines: 1, style: style.boldBody),
-        );
+        String? text = item.text!.val;
+        int? donate = item.donate;
+
+        final index = text.lastIndexOf('?donate=');
+        if (index != -1) {
+          donate = int.tryParse(text.substring(index + 8, text.length));
+          if (donate != null) {
+            text = text.substring(0, index);
+          }
+        }
+
+        if (text.isEmpty) {
+          text = null;
+        }
+
+        if (donate != null) {
+          additional.insert(
+            0,
+            DonateWidget(
+              height: 90,
+              donate: donate,
+              timestamp: text == null
+                  ? _timestamp(widget.item.value, false, true)
+                  : null,
+              title: widget.user?.user.value.name?.val ??
+                  widget.user?.user.value.num.val ??
+                  'dot'.l10n * 3,
+              onTitlePressed: () => router.user(_author, push: true),
+            ),
+          );
+        }
+
+        if (text != null) {
+          content = SelectionContainer.disabled(
+            child: Text(text, maxLines: 1, style: style.boldBody),
+          );
+        }
       }
     } else if (item is ChatCallQuote) {
       String title = 'label_chat_call_ended'.l10n;

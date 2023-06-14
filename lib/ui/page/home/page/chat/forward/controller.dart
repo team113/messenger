@@ -97,10 +97,9 @@ class ChatForwardController extends GetxController {
       text: text,
       quotes: quotes,
       attachments: attachments,
-      onSubmit: () async {
+      onSubmit: ({bool onlyDonation = false}) async {
         if (searchResults.value?.isEmpty != false) {
           send.field.unsubmit();
-          return false;
         }
 
         send.field.status.value = RxStatus.loading();
@@ -178,8 +177,6 @@ class ChatForwardController extends GetxController {
         } finally {
           send.field.unsubmit();
         }
-
-        return true;
       },
     );
 

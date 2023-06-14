@@ -472,7 +472,7 @@ class MyProfileController extends GetxController {
       _chatService,
       null,
       null,
-      onSubmit: () async {
+      onSubmit: ({bool onlyDonation = false}) async {
         welcome.value = ChatMessage(
           welcome.value?.id ?? ChatItemId.local(),
           welcome.value?.chatId ?? const ChatId('123'),
@@ -484,8 +484,6 @@ class MyProfileController extends GetxController {
 
         send.editing.value = false;
         send.clear();
-
-        return true;
       },
     );
 

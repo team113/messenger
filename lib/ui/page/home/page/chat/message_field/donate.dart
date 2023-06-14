@@ -171,17 +171,22 @@ class MessageFieldDonate extends StatelessWidget {
                         //   ),
                         // ),
                         ...[10000, 5000, 1000, 500, 300, 100, 0].map((e) {
-                          return _MenuButton(
-                            e,
-                            onPressed: (b) {
-                              c.donation.value = b ?? e;
-                              c.removeEntries<MessageFieldDonate>();
-                            },
-                            onSend: (b) async {
-                              c.donate(b ?? e);
-                              c.removeEntries<MessageFieldDonate>();
-                            },
-                          );
+                          return Obx(() {
+                            return _MenuButton(
+                              e,
+                              onPressed: (b) {
+                                c.donation.value = b ?? e;
+                                c.removeEntries<MessageFieldDonate>();
+                              },
+                              canSend: c.field.isEmpty.value &&
+                                  c.attachments.isEmpty &&
+                                  c.replied.isEmpty,
+                              onSend: (b) async {
+                                c.donate(b ?? e);
+                                c.removeEntries<MessageFieldDonate>();
+                              },
+                            );
+                          });
                         })
                       ],
                     ),
@@ -197,9 +202,15 @@ class MessageFieldDonate extends StatelessWidget {
 }
 
 class _MenuButton extends StatefulWidget {
-  const _MenuButton(this.button, {this.onPressed, this.onSend});
+  const _MenuButton(
+    this.button, {
+    this.onPressed,
+    this.canSend = true,
+    this.onSend,
+  });
 
   final int button;
+  final bool canSend;
   final void Function(int?)? onPressed;
   final void Function(int?)? onSend;
 
@@ -291,6 +302,7 @@ class _MenuButtonState extends State<_MenuButton> {
                       // color: style.colors.primary,
                       fontSize: 17,
                     ),
+                    withTrailing: false,
                     prefixStyle: TextStyle(
                       color: style.colors.primary,
                       fontSize: 17,
@@ -300,10 +312,10 @@ class _MenuButtonState extends State<_MenuButton> {
               ),
             ),
             const SizedBox(width: 16),
-            Obx(() {
-              if (_state!.isEmpty.value) {
-                return const SizedBox();
-              }
+            Builder(builder: (_) {
+              // if (_state!.isEmpty.value) {
+              //   return const SizedBox();
+              // }
 
               int? sum = int.tryParse(_state!.text);
               if ((sum ?? 0) < 400) {
@@ -311,18 +323,17 @@ class _MenuButtonState extends State<_MenuButton> {
               }
 
               return WidgetButton(
-                onPressed: sum == null
+                onPressed: sum == null || !widget.canSend
                     ? null
                     : () => widget.onSend?.call(int.tryParse(_state!.text)),
                 child: SizedBox(
-                  // color: Colors.red,
                   height: 40,
                   width: 50,
                   child: Center(
                     child: SvgImage.asset(
-                      'assets/icons/send_mini3${sum == null ? '_grey' : ''}.svg',
-                      width: 19.28,
-                      height: 16.6,
+                      'assets/icons/${widget.canSend ? 'send_mini3' : 'attachment_mini'}${sum == null ? '_grey' : ''}.svg',
+                      width: widget.canSend ? 19.28 : 18.88 * 0.9,
+                      height: widget.canSend ? 16.6 : 21 * 0.9,
                     ),
                   ),
                 ),
@@ -382,6 +393,7 @@ class _MenuButtonState extends State<_MenuButton> {
                       TextSpan(
                         text: '¤',
                         style: TextStyle(
+                          height: 1.0,
                           fontFamily: 'Gapopa',
                           fontWeight: FontWeight.w300,
                           fontSize: 17,
@@ -394,21 +406,34 @@ class _MenuButtonState extends State<_MenuButton> {
               ),
               const Spacer(),
               const SizedBox(width: 16),
-              WidgetButton(
-                onPressed: () => widget.onSend?.call(null),
-                child: Container(
-                  // color: Colors.red,
+              if (!widget.canSend)
+                SizedBox(
                   height: 40,
                   width: 50,
                   child: Center(
                     child: SvgImage.asset(
-                      'assets/icons/send_mini3.svg',
-                      width: 19.28,
-                      height: 16.6,
+                      'assets/icons/attachment_mini.svg',
+                      width: 18.88 * 0.9,
+                      height: 21 * 0.9,
+                    ),
+                  ),
+                )
+              else
+                WidgetButton(
+                  onPressed: () => widget.onSend?.call(null),
+                  child: Container(
+                    // color: Colors.red,
+                    height: 40,
+                    width: 50,
+                    child: Center(
+                      child: SvgImage.asset(
+                        'assets/icons/send_mini3.svg',
+                        width: 19.28,
+                        height: 16.6,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

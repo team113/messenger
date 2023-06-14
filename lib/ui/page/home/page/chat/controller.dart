@@ -275,6 +275,8 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
+  bool get ignorePositionChanges => _ignorePositionChanges;
+
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
@@ -364,7 +366,7 @@ class ChatController extends GetxController {
       _userService,
       _myUserService,
       onChanged: updateDraft,
-      onSubmit: () async {
+      onSubmit: ({bool onlyDonation = false}) async {
         if (paid && !paidDisclaimerDismissed.value) {
           if (paidDisclaimer.value) {
             paidBorder.value = true;
@@ -372,7 +374,6 @@ class ChatController extends GetxController {
 
           paidDisclaimer.value = true;
           confirmAction = ConfirmAction.sendMessage;
-          return false;
         }
 
         if (paid) {
@@ -381,7 +382,7 @@ class ChatController extends GetxController {
               router.context!,
               description: 'label_message_cant_send_message_funds'.l10n,
             );
-            return false;
+            return;
           } else {
             _balanceService.add(
               OutgoingTransaction(amount: -100, at: DateTime.now()),
@@ -395,7 +396,7 @@ class ChatController extends GetxController {
               router.context!,
               description: 'label_gift_cant_send_message_funds'.l10n,
             );
-            return false;
+            return;
           } else {
             _balanceService.add(
               OutgoingTransaction(
@@ -410,7 +411,6 @@ class ChatController extends GetxController {
           if (send.replied.isNotEmpty) {
             if (send.replied.any((e) => e is ChatCall)) {
               MessagePopup.error('err_cant_forward_calls'.l10n);
-              return false;
             }
 
             bool? result = await ChatForwardView.show(
@@ -426,7 +426,7 @@ class ChatController extends GetxController {
             }
           }
         } else {
-          String text = send.field.text.trim();
+          String text = onlyDonation ? '' : send.field.text.trim();
           if (send.donation.value != null) {
             text += '?donate=${send.donation.value}';
           }
@@ -438,8 +438,10 @@ class ChatController extends GetxController {
                 .sendChatMessage(
                   chat!.chat.value.id,
                   text: text.isEmpty ? null : ChatMessageText(text),
-                  repliesTo: send.replied.reversed.toList(),
-                  attachments: send.attachments.map((e) => e.value).toList(),
+                  repliesTo: onlyDonation ? [] : send.replied.reversed.toList(),
+                  attachments: onlyDonation
+                      ? []
+                      : send.attachments.map((e) => e.value).toList(),
                 )
                 .then((_) => _playMessageSent())
                 .onError<PostChatMessageException>(
@@ -448,7 +450,11 @@ class ChatController extends GetxController {
                     (e, _) => MessagePopup.error(e))
                 .onError<ConnectionException>((e, _) {});
 
-            send.clear();
+            if (onlyDonation) {
+              send.donation.value = null;
+            } else {
+              send.clear();
+            }
 
             chat?.setDraft();
 
@@ -461,8 +467,6 @@ class ChatController extends GetxController {
             }
           }
         }
-
-        return true;
       },
     );
 
@@ -597,7 +601,7 @@ class ChatController extends GetxController {
         _userService,
         _myUserService,
         text: item.text?.val,
-        onSubmit: () async {
+        onSubmit: ({bool onlyDonation = false}) async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
           if (edit.value?.field.text == item.text?.val) {
@@ -630,8 +634,6 @@ class ChatController extends GetxController {
               rethrow;
             }
           }
-
-          return true;
         },
         onChanged: () {
           if (edit.value?.edited.value == null) {
@@ -825,6 +827,30 @@ class ChatController extends GetxController {
       _messagesSubscription = chat!.messages.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
+            if (atBottom &&
+                status.value.isSuccess &&
+                !status.value.isLoadingMore) {
+              Future.delayed(
+                Duration.zero,
+                () => SchedulerBinding.instance.addPostFrameCallback(
+                  (_) async {
+                    if (listController.hasClients) {
+                      try {
+                        _ignorePositionChanges = true;
+                        await listController.animateTo(
+                          listController.position.maxScrollExtent,
+                          duration: 100.milliseconds,
+                          curve: Curves.ease,
+                        );
+                      } finally {
+                        _ignorePositionChanges = false;
+                      }
+                    }
+                  },
+                ),
+              );
+            }
+
             add(e.element);
             break;
 
@@ -954,29 +980,29 @@ class ChatController extends GetxController {
       _messagesWorker ??= ever(
         chat!.messages,
         (_) {
-          if (atBottom &&
-              status.value.isSuccess &&
-              !status.value.isLoadingMore) {
-            Future.delayed(
-              Duration.zero,
-              () => SchedulerBinding.instance.addPostFrameCallback(
-                (_) async {
-                  if (listController.hasClients) {
-                    try {
-                      _ignorePositionChanges = true;
-                      await listController.animateTo(
-                        listController.position.maxScrollExtent,
-                        duration: 100.milliseconds,
-                        curve: Curves.ease,
-                      );
-                    } finally {
-                      _ignorePositionChanges = false;
-                    }
-                  }
-                },
-              ),
-            );
-          }
+          // if (atBottom &&
+          //     status.value.isSuccess &&
+          //     !status.value.isLoadingMore) {
+          //   Future.delayed(
+          //     Duration.zero,
+          //     () => SchedulerBinding.instance.addPostFrameCallback(
+          //       (_) async {
+          //         if (listController.hasClients) {
+          //           try {
+          //             _ignorePositionChanges = true;
+          //             await listController.animateTo(
+          //               listController.position.maxScrollExtent,
+          //               duration: 100.milliseconds,
+          //               curve: Curves.ease,
+          //             );
+          //           } finally {
+          //             _ignorePositionChanges = false;
+          //           }
+          //         }
+          //       },
+          //     ),
+          //   );
+          // }
         },
       );
 
