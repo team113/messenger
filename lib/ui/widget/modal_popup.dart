@@ -127,7 +127,8 @@ abstract class ModalPopup {
   }
 }
 
-/// [Row] with [text] stylized to be a [ModalPopup] header.
+/// [Row] with [text] and optional [WidgetButton] stylized to be a [ModalPopup]
+/// header.
 class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     super.key,
