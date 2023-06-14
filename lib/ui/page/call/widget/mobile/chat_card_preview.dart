@@ -27,28 +27,28 @@ class ChatCardPreview extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.trailing,
-    required this.onTap,
     required this.duration,
     required this.child,
+    this.onTap,
   });
 
-  ///
+  /// Title of this [ChatCardPreview].
   final String title;
 
-  ///
+  /// Subtitle of this [ChatCardPreview].
   final String subtitle;
 
-  ///
+  /// Trailing of this [ChatCardPreview].
   final String trailing;
 
   /// Current duration of the call.
   final Duration duration;
 
-  ///
+  /// [Widget] wrapped by this [ChatCardPreview].
   final Widget child;
 
   /// Callback [Function] that opens a screen to add members to the chat.
-  final void Function() onTap;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {

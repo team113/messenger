@@ -298,7 +298,7 @@ class PrimaryView extends StatelessWidget {
                                 : 'btn_call_enable_audio'.l10n,
                             onPressed: () => toggleAudioEnabled(participant),
                           ),
-                        if (participant.member.isRedialing.isFalse)
+                        if (participant.member.isDialing.isFalse)
                           ContextMenuButton(
                             label: 'btn_call_remove_participant'.l10n,
                             onPressed: () => removeChatCallMember(
