@@ -863,11 +863,11 @@ class MessageFieldView extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
             child: item.withVideo
                 ? SvgImage.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : '_blue'}.svg',
                     height: 13,
                   )
                 : SvgImage.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : '_blue'}.svg',
                     height: 15,
                   ),
           ),
