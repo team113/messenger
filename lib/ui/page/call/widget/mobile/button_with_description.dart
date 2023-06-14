@@ -26,14 +26,14 @@ class WidgetWithDescription extends StatelessWidget {
     required this.child,
     this.opacity = 1,
     this.duration = const Duration(milliseconds: 200),
-    required this.description,
+    this.description,
   });
 
   /// [Widget] displayed along with the description.
   final Widget child;
 
   /// [Widget] displays a description for the child widget.
-  final String description;
+  final String? description;
 
   /// Opacity of the [description].
   final double opacity;
@@ -57,7 +57,7 @@ class WidgetWithDescription extends StatelessWidget {
           child: AnimatedOpacity(
             opacity: opacity,
             duration: duration,
-            child: Text(description),
+            child: description != null ? Text(description!) : const SizedBox(),
           ),
         ),
       ],

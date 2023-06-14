@@ -24,6 +24,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '../../home/widget/avatar.dart';
 import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
@@ -537,11 +538,21 @@ Widget mobileCall(CallController c, BuildContext context) {
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 366),
               child: ChatCardPreview(
-                me: c.me,
-                chat: c.chat.value,
                 duration: c.duration.value,
-                actualMembers: c.members.keys.map((k) => k.userId).toSet(),
+                title: c.chat.value?.title.value ?? 'dot'.l10n * 3,
+                subtitle: c.chat.value?.members.values
+                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
+                        ?.user
+                        .value
+                        .status
+                        ?.val ??
+                    'label_online'.l10n,
+                trailing: 'label_a_of_b'.l10nfmt({
+                  'a': '${c.members.keys.map((k) => k.userId).toSet().length}',
+                  'b': '${c.chat.value?.members.length}',
+                }),
                 onTap: () => c.openAddMember(context),
+                child: AvatarWidget.fromRxChat(c.chat.value, radius: 30),
               ),
             ),
             const SizedBox(height: 15),

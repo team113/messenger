@@ -42,7 +42,6 @@ class PrimaryView extends StatelessWidget {
   const PrimaryView({
     super.key,
     required this.me,
-    required this.primary,
     required this.audioLabel,
     required this.videoLabel,
     required this.itemConstraintsSize,
@@ -72,16 +71,14 @@ class PrimaryView extends StatelessWidget {
     this.onOffset,
     this.onDoughBreak,
     this.onExit,
-    this.hoveredRendererTimeout = 5,
     this.draggedRenderer,
+    this.isCenter = true,
+    this.hoveredRendererTimeout = 5,
     this.isCursorHidden = false,
   });
 
   /// [CallMember] of the currently authorized [MyUser]
   final CallMember me;
-
-  /// [Participant]s to display in the fit view.
-  final List<Participant> primary;
 
   /// Local audio stream enabled flag.
   final LocalTrackState audioState;
@@ -92,8 +89,17 @@ class PrimaryView extends StatelessWidget {
   /// Timeout of a hoveredRenderer used to hide it.
   final int hoveredRendererTimeout;
 
+  /// [Participant]s to display in the fit view.
+  final bool isCenter;
+
   /// Indicator whether the cursor should be hidden or not.
   final bool isCursorHidden;
+
+  /// Indicator whether [BackdropFilter] should be enabled or not.
+  final bool condition;
+
+  /// Indicator whether a drag event is happening.
+  final bool anyDragIsHappening;
 
   /// [Map] of [BoxFit]s that [RtcVideoRenderer] should explicitly have.
   final Map<String, BoxFit?> rendererBoxFit;
@@ -107,6 +113,9 @@ class PrimaryView extends StatelessWidget {
   /// Local [Participant]s in `default` mode.
   final List<Participant> locals;
 
+  /// Children widgets needed to be placed in a [Wrap].
+  final List<DragData> children;
+
   /// Label name for audio.
   final String audioLabel;
 
@@ -116,20 +125,11 @@ class PrimaryView extends StatelessWidget {
   /// Maximum width and height that satisfies the constraints.
   final double itemConstraintsSize;
 
-  /// Indicator whether [BackdropFilter] should be enabled or not.
-  final bool condition;
-
-  /// Indicator whether a drag event is happening.
-  final bool anyDragIsHappening;
-
   /// Opacity of the [IgnorePointer].
   final double targetOpacity;
 
   /// Color of the [IgnorePointer].
   final Color? color;
-
-  /// Children widgets needed to be placed in a [Wrap].
-  final List<DragData> children;
 
   /// Callback, called when an participant is uncentered.
   final void Function()? uncenter;
@@ -157,6 +157,9 @@ class PrimaryView extends StatelessWidget {
   /// current call.
   final Future<void> Function(UserId userId) removeChatCallMember;
 
+  /// Callback, called when item dragging is started.
+  final dynamic Function(DragData)? onDragStarted;
+
   /// Callback, called when item dragging is ended.
   final void Function(DragData d)? onDragEnded;
 
@@ -168,9 +171,6 @@ class PrimaryView extends StatelessWidget {
 
   /// Callback, called when a dragged item leaves some [DragTarget].
   final void Function(DragData?)? onLeave;
-
-  /// Callback, called when item dragging is started.
-  final dynamic Function(DragData)? onDragStarted;
 
   /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
@@ -267,7 +267,7 @@ class PrimaryView extends StatelessWidget {
                             },
                           ),
                       ],
-                      primary.length == 1
+                      isCenter
                           ? ContextMenuButton(
                               label: 'btn_call_uncenter'.l10n,
                               onPressed: uncenter,

@@ -15,88 +15,105 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:messenger/l10n/l10n.dart';
 
-import '/domain/model/ongoing_call.dart';
-import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/widget/avatar.dart';
 
 /// [Widget] which builds a tile representation of the chat.
 class ChatCardPreview extends StatelessWidget {
   const ChatCardPreview({
     super.key,
-    required this.actualMembers,
+    required this.title,
+    required this.subtitle,
+    required this.trailing,
     required this.onTap,
     required this.duration,
-    required this.me,
-    this.chat,
+    required this.child,
   });
 
-  /// [Set] of user IDs who are currently active in the chat.
-  final Set<UserId> actualMembers;
+  ///
+  final String title;
 
-  /// [RxChat] object representing the chat, or null if there is no chat.
-  final RxChat? chat;
+  ///
+  final String subtitle;
 
-  /// [CallMember] representing the current user.
-  final CallMember me;
+  ///
+  final String trailing;
 
   /// Current duration of the call.
   final Duration duration;
+
+  ///
+  final Widget child;
 
   /// Callback [Function] that opens a screen to add members to the chat.
   final void Function() onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-        child: Container(
-          decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          color: style.colors.transparent,
+        ),
+        child: Material(
+          type: MaterialType.card,
+          borderRadius: style.cardRadius,
+          color: style.colors.onSecondaryOpacity50,
+          child: InkWell(
             borderRadius: style.cardRadius,
-            color: style.colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: style.colors.onSecondaryOpacity50,
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                child: Row(
-                  children: [
-                    AvatarWidget.fromRxChat(chat, radius: 30),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  chat?.title.value ?? 'dot'.l10n * 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(color: style.colors.onPrimary),
-                                ),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+              child: Row(
+                children: [
+                  child,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                title,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall
+                                    ?.copyWith(color: style.colors.onPrimary),
                               ),
+                            ),
+                            Text(
+                              duration.hhMmSs(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(color: style.colors.onPrimary),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Row(
+                            children: [
                               Text(
-                                duration.hhMmSs(),
+                                subtitle,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(color: style.colors.onPrimary),
+                              ),
+                              const Spacer(),
+                              Text(
+                                trailing,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
@@ -104,49 +121,16 @@ class ChatCardPreview extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 5),
-                            child: Row(
-                              children: [
-                                Text(
-                                  chat?.members.values
-                                          .firstWhereOrNull(
-                                            (e) => e.id != me.id.userId,
-                                          )
-                                          ?.user
-                                          .value
-                                          .status
-                                          ?.val ??
-                                      'label_online'.l10n,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(color: style.colors.onPrimary),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  'label_a_of_b'.l10nfmt({
-                                    'a': '${actualMembers.length}',
-                                    'b': '${chat?.members.length}',
-                                  }),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(color: style.colors.onPrimary),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-      );
-    });
+      ),
+    );
   }
 }

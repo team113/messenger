@@ -148,7 +148,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           if (!isIncoming) {
                             child = PrimaryView(
                               me: c.me,
-                              primary: c.primary,
+                              isCenter: c.primary.length == 1,
                               audioState: c.audioState.value,
                               draggedRenderer: c.draggedRenderer.value,
                               isCursorHidden: c.isCursorHidden.value,
