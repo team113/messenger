@@ -680,35 +680,6 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
-  /// Opens a confirmation popup removing the provided [user].
-  Future<void> _removeChatMember(
-    ChatInfoController c,
-    BuildContext context,
-    RxUser user,
-  ) async {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    if (c.me == user.id) {
-      await _leaveGroup(c, context);
-    } else {
-      final bool? result = await MessagePopup.alert(
-        'label_remove_member'.l10n,
-        description: [
-          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-          TextSpan(
-            text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: TextStyle(color: style.colors.onBackground),
-          ),
-          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-        ],
-      );
-
-      if (result == true) {
-        await c.removeChatMember(user.id);
-      }
-    }
-  }
-
   /// Opens a confirmation popup leaving this [Chat].
   Future<void> _leaveGroup(ChatInfoController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(

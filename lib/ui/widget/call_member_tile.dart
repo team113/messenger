@@ -32,8 +32,8 @@ class CallMemberTile extends StatelessWidget {
     super.key,
     required this.user,
     required this.isMe,
-    required this.inCall,
     required this.isCall,
+    required this.inCall,
     this.color,
     this.onTap,
     this.onTrailingPressed,
@@ -46,11 +46,11 @@ class CallMemberTile extends StatelessWidget {
   /// Indicator whether the contact is the current user.
   final bool isMe;
 
-  /// Indicator whether the contact is in the call.
-  final bool inCall;
-
   /// Indicator whether the call is happening.
   final bool isCall;
+
+  /// Indicator whether the contact is in the call.
+  final bool inCall;
 
   /// [Color] of the circle button.
   final Color? color;
