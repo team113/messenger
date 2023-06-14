@@ -18,7 +18,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/call/participant/widget/call_member_tile.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -34,6 +33,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/call_member_tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -540,18 +540,15 @@ class ChatInfoView extends StatelessWidget {
 
             return CallMemberTile(
               user: e,
-              me: c.me,
+              isMe: e.id == c.me,
               inCall: inCall,
-              width: 22,
-              height: 22,
-              onTapContactTile: () => router.user(e.id, push: true),
+              onTap: () => router.user(e.id, push: true),
               color: inCall ? style.colors.dangerColor : style.colors.primary,
-              isCallAndMe:
-                  e.id != c.me && c.chat?.chat.value.ongoingCall != null,
-              onTap: () => inCall
+              isCall: e.id != c.me && c.chat?.chat.value.ongoingCall != null,
+              onCirclePressed: () => inCall
                   ? c.removeChatCallMember(e.id)
                   : c.redialChatCallMember(e.id),
-              onPressed: () => c.removeChatMember(e.id),
+              onTrailingPressed: () => c.removeChatMember(e.id),
             );
           }),
         ],

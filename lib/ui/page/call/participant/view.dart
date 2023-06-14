@@ -25,11 +25,11 @@ import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
+import '/ui/widget/call_member_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import 'controller.dart';
-import 'widget/call_member_tile.dart';
 
 /// [OngoingCall.members] enumeration and administration view.
 ///
@@ -139,12 +139,10 @@ class ParticipantView extends StatelessWidget {
 
                             return CallMemberTile(
                               user: user,
-                              me: c.me,
-                              isCallAndMe: user.id != c.me,
+                              isMe: user.id == c.me,
+                              isCall: user.id != c.me,
                               inCall: inCall,
-                              width: 30,
-                              height: 30,
-                              onTapContactTile: () {
+                              onTap: () {
                                 // TODO: Open the [Routes.user] page.
                               },
                               color: inCall
@@ -152,12 +150,13 @@ class ParticipantView extends StatelessWidget {
                                       ? style.colors.secondaryBackgroundLightest
                                       : style.colors.dangerColor
                                   : style.colors.primary,
-                              onTap: inCall
+                              onCirclePressed: inCall
                                   ? isRedialed
                                       ? null
                                       : () => c.removeChatCallMember(user.id)
                                   : () => c.redialChatCallMember(user.id),
-                              onPressed: () => c.removeChatMember(user.id),
+                              onTrailingPressed: () =>
+                                  c.removeChatMember(user.id),
                             );
                           }).toList(),
                         ),

@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -26,49 +25,44 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
+/// Styled [ContactTile] which is a visual representation of the [RxUser] with
+/// interaction buttons.
 class CallMemberTile extends StatelessWidget {
   const CallMemberTile({
     super.key,
     required this.user,
-    required this.me,
+    required this.isMe,
     required this.inCall,
-    required this.color,
-    required this.onTap,
-    required this.onPressed,
-    required this.onTapContactTile,
-    required this.isCallAndMe,
-    required this.width,
-    required this.height,
+    required this.isCall,
+    this.color,
+    this.onTap,
+    this.onTrailingPressed,
+    this.onCirclePressed,
   });
 
-  ///
-  final double? width;
-
-  ///
-  final double? height;
-
-  ///
+  /// [RxUser] to display.
   final RxUser user;
 
-  ///
-  final UserId? me;
+  /// Indicator whether the contact is the current user.
+  final bool isMe;
 
-  ///
+  /// Indicator whether the contact is in the call.
   final bool inCall;
 
-  ///
-  final bool isCallAndMe;
+  /// Indicator whether the call is happening.
+  final bool isCall;
 
-  ///
-  final Color color;
+  /// [Color] of the circle button.
+  final Color? color;
 
-  final void Function()? onTapContactTile;
-
-  ///
+  /// Callback, called when the [ContactTile] is tapped.
   final void Function()? onTap;
 
-  ///
-  final Future<void> Function()? onPressed;
+  /// Callback, called when the circle button is tapped.
+  final void Function()? onCirclePressed;
+
+  /// Callback, called when the trailing button is tapped.
+  final Future<void> Function()? onTrailingPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +71,10 @@ class CallMemberTile extends StatelessWidget {
     return ContactTile(
       user: user,
       dense: true,
-      onTap: onTapContactTile,
+      onTap: onTap,
       darken: 0.05,
       trailing: [
-        if (isCallAndMe)
+        if (isCall)
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
             child: AnimatedSwitcher(
@@ -90,11 +84,11 @@ class CallMemberTile extends StatelessWidget {
                 color: color,
                 type: MaterialType.circle,
                 child: InkWell(
-                  onTap: onTap,
+                  onTap: onCirclePressed,
                   borderRadius: BorderRadius.circular(60),
                   child: SizedBox(
-                    width: 30,
-                    height: 30,
+                    width: 22,
+                    height: 22,
                     child: Center(
                       child: inCall
                           ? SvgImage.asset('assets/icons/call_end.svg')
@@ -112,11 +106,9 @@ class CallMemberTile extends StatelessWidget {
         WidgetButton(
           onPressed: () async {
             final bool? result = await MessagePopup.alert(
-              user.id == me
-                  ? 'label_leave_group'.l10n
-                  : 'label_remove_member'.l10n,
+              isMe ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
               description: [
-                if (me == user.id)
+                if (isMe)
                   TextSpan(text: 'alert_you_will_leave_group'.l10n)
                 else ...[
                   TextSpan(text: 'alert_user_will_be_removed1'.l10n),
@@ -130,10 +122,10 @@ class CallMemberTile extends StatelessWidget {
             );
 
             if (result == true) {
-              await onPressed?.call();
+              await onTrailingPressed?.call();
             }
           },
-          child: user.id == me
+          child: isMe
               ? Text(
                   'btn_leave'.l10n,
                   style: TextStyle(color: style.colors.primary, fontSize: 15),
