@@ -20,10 +20,12 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 
 /// [Column] consisting of the [child] with the provided [description].
-class Description extends StatelessWidget {
-  const Description({
+class WidgetWithDescription extends StatelessWidget {
+  const WidgetWithDescription({
     super.key,
     required this.child,
+    this.opacity = 1,
+    this.duration = const Duration(milliseconds: 200),
     required this.description,
   });
 
@@ -31,7 +33,13 @@ class Description extends StatelessWidget {
   final Widget child;
 
   /// [Widget] displays a description for the child widget.
-  final Widget description;
+  final String description;
+
+  /// Opacity of the [description].
+  final double opacity;
+
+  /// [Duration] of the transition.
+  final Duration duration;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +54,11 @@ class Description extends StatelessWidget {
           style: TextStyle(fontSize: 11, color: style.colors.onPrimary),
           textAlign: TextAlign.center,
           maxLines: 2,
-          child: description,
+          child: AnimatedOpacity(
+            opacity: opacity,
+            duration: duration,
+            child: Text(description),
+          ),
         ),
       ],
     );

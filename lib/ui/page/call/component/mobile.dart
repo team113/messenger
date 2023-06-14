@@ -45,7 +45,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/mobile/animated_participant.dart';
 import '/ui/page/call/widget/mobile/chat_card_preview.dart';
 
-import '/ui/page/call/widget/mobile/description.dart';
+import '../widget/mobile/button_with_description.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -498,77 +498,62 @@ Widget mobileCall(CallController c, BuildContext context) {
                 if (PlatformUtils.isMobile)
                   padding(
                     c.videoState.value.isEnabled
-                        ? Description(
-                            description: AnimatedOpacity(
-                              opacity: c.isPanelOpen.value ? 1 : 0,
-                              duration: 200.milliseconds,
-                              child: Text('btn_call_switch_camera_desc'.l10n),
-                            ),
+                        ? WidgetWithDescription(
+                            opacity: c.isPanelOpen.value ? 1 : 0,
+                            duration: 200.milliseconds,
+                            description: 'btn_call_switch_camera_desc'.l10n,
                             child: SwitchButton(c).build(),
                           )
-                        : Description(
-                            description: AnimatedOpacity(
-                              opacity: c.isPanelOpen.value ? 1 : 0,
-                              duration: 200.milliseconds,
-                              child: Text('btn_call_toggle_speaker_desc'.l10n),
-                            ),
+                        : WidgetWithDescription(
+                            opacity: c.isPanelOpen.value ? 1 : 0,
+                            duration: 200.milliseconds,
+                            description: 'btn_call_toggle_speaker_desc'.l10n,
                             child: SpeakerButton(c).build(),
                           ),
                   ),
                 if (PlatformUtils.isDesktop)
                   padding(
-                    Description(
-                      description: AnimatedOpacity(
-                        opacity: c.isPanelOpen.value ? 1 : 0,
-                        duration: 200.milliseconds,
-                        child: Text(
+                    WidgetWithDescription(
+                      opacity: c.isPanelOpen.value ? 1 : 0,
+                      duration: 200.milliseconds,
+                      description:
                           c.screenShareState.value == LocalTrackState.enabled ||
                                   c.screenShareState.value ==
                                       LocalTrackState.enabling
                               ? 'btn_call_screen_off_desc'.l10n
                               : 'btn_call_screen_on_desc'.l10n,
-                        ),
-                      ),
                       child: ScreenButton(c).build(),
                     ),
                   ),
                 padding(
-                  Description(
-                    description: AnimatedOpacity(
-                      opacity: c.isPanelOpen.value ? 1 : 0,
-                      duration: 200.milliseconds,
-                      child: Text(
+                  WidgetWithDescription(
+                    opacity: c.isPanelOpen.value ? 1 : 0,
+                    duration: 200.milliseconds,
+                    description:
                         c.audioState.value == LocalTrackState.enabled ||
                                 c.audioState.value == LocalTrackState.enabling
                             ? 'btn_call_audio_off_desc'.l10n
                             : 'btn_call_audio_on_desc'.l10n,
-                      ),
-                    ),
                     child: AudioButton(c).build(),
                   ),
                 ),
                 padding(
-                  Description(
-                    description: AnimatedOpacity(
-                      opacity: c.isPanelOpen.value ? 1 : 0,
-                      duration: 200.milliseconds,
-                      child: Text(
+                  WidgetWithDescription(
+                    opacity: c.isPanelOpen.value ? 1 : 0,
+                    duration: 200.milliseconds,
+                    description:
                         c.videoState.value == LocalTrackState.enabled ||
                                 c.videoState.value == LocalTrackState.enabling
                             ? 'btn_call_video_off_desc'.l10n
                             : 'btn_call_video_on_desc'.l10n,
-                      ),
-                    ),
                     child: VideoButton(c).build(),
                   ),
                 ),
                 padding(
-                  Description(
-                    description: AnimatedOpacity(
-                      opacity: c.isPanelOpen.value ? 1 : 0,
-                      duration: 200.milliseconds,
-                      child: Text('btn_call_end_desc'.l10n),
-                    ),
+                  WidgetWithDescription(
+                    opacity: c.isPanelOpen.value ? 1 : 0,
+                    duration: 200.milliseconds,
+                    description: 'btn_call_end_desc'.l10n,
                     child: DropButton(c).build(),
                   ),
                 ),
@@ -578,42 +563,34 @@ Widget mobileCall(CallController c, BuildContext context) {
             buttons(
               [
                 padding(
-                  Description(
-                    description: Text('btn_participants_desc'.l10n),
+                  WidgetWithDescription(
+                    description: 'btn_participants_desc'.l10n,
                     child: ParticipantsButton(c).build(),
                   ),
                 ),
                 padding(
-                  Description(
-                    description: AnimatedOpacity(
-                      opacity: c.isPanelOpen.value ? 1 : 0,
-                      duration: 200.milliseconds,
-                      child: Text(
-                        c.me.isHandRaised.value
-                            ? 'btn_call_hand_down_desc'.l10n
-                            : 'btn_call_hand_up_desc'.l10n,
-                      ),
-                    ),
+                  WidgetWithDescription(
+                    opacity: c.isPanelOpen.value ? 1 : 0,
+                    duration: 200.milliseconds,
+                    description: c.me.isHandRaised.value
+                        ? 'btn_call_hand_down_desc'.l10n
+                        : 'btn_call_hand_up_desc'.l10n,
                     child: HandButton(c).build(),
                   ),
                 ),
                 padding(
-                  Description(
-                    description: Text(
-                      c.isRemoteAudioEnabled.value
-                          ? 'btn_call_remote_audio_off_desc'.l10n
-                          : 'btn_call_remote_audio_on_desc'.l10n,
-                    ),
+                  WidgetWithDescription(
+                    description: c.isRemoteAudioEnabled.value
+                        ? 'btn_call_remote_audio_off_desc'.l10n
+                        : 'btn_call_remote_audio_on_desc'.l10n,
                     child: RemoteAudioButton(c).build(),
                   ),
                 ),
                 padding(
-                  Description(
-                    description: Text(
-                      c.isRemoteVideoEnabled.value
-                          ? 'btn_call_remote_video_off_desc'.l10n
-                          : 'btn_call_remote_video_on_desc'.l10n,
-                    ),
+                  WidgetWithDescription(
+                    description: c.isRemoteVideoEnabled.value
+                        ? 'btn_call_remote_video_off_desc'.l10n
+                        : 'btn_call_remote_video_on_desc'.l10n,
                     child: RemoteVideoButton(c).build(),
                   ),
                 ),
