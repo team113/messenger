@@ -82,7 +82,7 @@ Future<void> main() async {
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
-      await windowManager.setMinimumSize(const Size(100, 100));
+      await windowManager.setMinimumSize(const Size(400, 400));
 
       final WindowPreferencesHiveProvider preferences = Get.find();
       final WindowPreferences? prefs = preferences.get();

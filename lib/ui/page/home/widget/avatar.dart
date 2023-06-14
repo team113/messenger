@@ -33,6 +33,7 @@ import '/domain/repository/user.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Widget to build an [Avatar].
 ///
@@ -50,6 +51,7 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
+    this.label,
   });
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -198,6 +200,35 @@ class AvatarWidget extends StatelessWidget {
     );
   }
 
+  /// Creates an [AvatarWidget] from the specified [chat]-monolog.
+  factory AvatarWidget.fromMonolog(
+    Chat? chat,
+    UserId? me, {
+    Key? key,
+    double? radius,
+    double? maxRadius,
+    double? minRadius,
+    double opacity = 1,
+    Color? badgeColor,
+  }) =>
+      AvatarWidget(
+        key: key,
+        label: LayoutBuilder(
+          builder: (context, constraints) {
+            return SvgImage.asset(
+              'assets/icons/notes.svg',
+              height: constraints.maxWidth / 2,
+            );
+          },
+        ),
+        avatar: chat?.avatar,
+        color: chat?.colorDiscriminant(me).sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
+
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
   factory AvatarWidget.fromChat(
     Chat? chat,
@@ -241,6 +272,16 @@ class AvatarWidget extends StatelessWidget {
     }
 
     return Obx(() {
+      if (chat.chat.value.isMonolog) {
+        return AvatarWidget.fromMonolog(
+          chat.chat.value,
+          chat.me,
+          radius: radius,
+          maxRadius: maxRadius,
+          minRadius: minRadius,
+          opacity: opacity,
+        );
+      }
       RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
@@ -305,6 +346,9 @@ class AvatarWidget extends StatelessWidget {
   ///
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
+
+  /// Optional label to show inside this [AvatarWidget].
+  final Widget? label;
 
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
@@ -394,19 +438,23 @@ class AvatarWidget extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: SelectionContainer.disabled(
-                  child: Text(
-                    (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontSize: 15 * (maxWidth / 40.0),
-                          color: style.colors.onPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
+                child: label ??
+                    SelectionContainer.disabled(
+                      child: Text(
+                        (title ?? '??').initials(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              fontSize: 15 * (maxWidth / 40.0),
+                              color: style.colors.onPrimary,
+                              fontWeight: FontWeight.w700,
+                            ),
 
-                    // Disable the accessibility size settings for this [Text].
-                    textScaleFactor: 1,
-                  ),
-                ),
+                        // Disable the accessibility size settings for this [Text].
+                        textScaleFactor: 1,
+                      ),
+                    ),
               ),
             ),
             if (avatar != null)
