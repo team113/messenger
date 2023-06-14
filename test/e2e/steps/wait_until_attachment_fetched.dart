@@ -38,14 +38,12 @@ final StepDefinitionGeneric untilAttachmentFetched =
     then2<String, ImageFetchStatus, FlutterWorld>(
   'I wait until {string} attachment is {fetch_status}',
   (filename, status, context) async {
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-
     await context.world.appDriver.waitUntil(
       () async {
-        final Attachment? attachment;
+        final RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
 
-        attachment = chat!.messages
+        final Attachment? attachment = chat?.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
             .expand((e) => e.attachments)
