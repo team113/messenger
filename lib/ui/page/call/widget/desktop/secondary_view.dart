@@ -27,6 +27,7 @@ import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
+///
 class SecondaryView extends StatelessWidget {
   const SecondaryView({
     super.key,
