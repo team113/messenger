@@ -428,10 +428,28 @@ class _ChatViewState extends State<ChatView>
                                       c.chat!.status.value.isEmpty) &&
                                   c.chat!.messages.isEmpty) {
                                 return Center(
-                                  child: Text(
-                                    key: const Key('NoMessages'),
-                                    'label_no_messages'.l10n,
-                                    style: fonts.labelMedium,
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: style.systemMessageBorder,
+                                      color: style.systemMessageColor,
+                                    ),
+                                    child: Text(
+                                      key: const Key('NoMessages'),
+                                      isMonolog
+                                          ? 'label_chat_monolog_description'
+                                              .l10n
+                                          : 'label_no_messages'.l10n,
+                                      textAlign: TextAlign.center,
+                                      style: fonts.labelMedium,
+                                    ),
                                   ),
                                 );
                               }

@@ -58,7 +58,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
     return Obx(() {
       bool isMuted;
 
-      if (participant.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.Display ||
+          participant.member.isDialing.isTrue) {
         isMuted = false;
       } else {
         isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
@@ -94,6 +95,18 @@ class ParticipantOverlayWidget extends StatelessWidget {
             child: SvgImage.asset(
               'assets/icons/microphone_off_small.svg',
               height: 16.5,
+            ),
+          ),
+        );
+      }
+
+      if (participant.member.quality.value <= 1) {
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 3),
+            child: SvgImage.asset(
+              'assets/icons/low_signal_level.svg',
+              height: 15.5,
             ),
           ),
         );

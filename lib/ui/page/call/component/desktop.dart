@@ -1366,7 +1366,7 @@ Widget _primaryView(CallController c) {
                               onPressed: () =>
                                   c.toggleAudioEnabled(participant),
                             ),
-                          if (participant.member.isRedialing.isFalse)
+                          if (participant.member.isDialing.isFalse)
                             ContextMenuButton(
                               label: 'btn_call_remove_participant'.l10n,
                               onPressed: () => c.removeChatCallMember(
@@ -1914,7 +1914,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     onPressed: () =>
                                         c.toggleAudioEnabled(participant),
                                   ),
-                                if (participant.member.isRedialing.isFalse)
+                                if (participant.member.isDialing.isFalse)
                                   ContextMenuButton(
                                     label: 'btn_call_remove_participant'.l10n,
                                     onPressed: () => c.removeChatCallMember(
