@@ -124,9 +124,9 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   /// Optional trailing widget.
   final Widget? trailing;
 
-  /// Indicator whether the [trailing] should be showed.
+  /// Indicator whether the [trailing] should always be displayed.
   ///
-  /// On mobile [trailing] is always showed.
+  /// On mobile platforms the provided [trailing] is always displayed.
   final bool showTrailing;
 
   /// Callback, called when button is pressed.

@@ -50,12 +50,11 @@ class MenuTabView extends StatelessWidget {
               selector: c.profileKey,
               alignment: Alignment.topLeft,
               margin: const EdgeInsets.only(top: 7, right: 32),
+              enablePrimaryTap: true,
               actions: [
                 ContextMenuButton(
                   label: 'label_presence_present'.l10n,
-                  onPressed: () {
-                    c.setPresence(Presence.present);
-                  },
+                  onPressed: () => c.setPresence(Presence.present),
                   showTrailing: true,
                   trailing: Container(
                     width: 10,
@@ -68,9 +67,7 @@ class MenuTabView extends StatelessWidget {
                 ),
                 ContextMenuButton(
                   label: 'label_presence_away'.l10n,
-                  onPressed: () {
-                    c.setPresence(Presence.away);
-                  },
+                  onPressed: () => c.setPresence(Presence.away),
                   showTrailing: true,
                   trailing: Container(
                     width: 10,

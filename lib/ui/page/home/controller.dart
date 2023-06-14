@@ -167,9 +167,7 @@ class HomeController extends GetxController {
   /// Toggles the [MyUser.muted] status.
   Future<void> toggleMute(bool enabled) async {
     try {
-      await _myUserService.toggleMute(
-        enabled ? null : MuteDuration.forever(),
-      );
+      await _myUserService.toggleMute(enabled ? null : MuteDuration.forever());
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

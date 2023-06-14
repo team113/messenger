@@ -20,7 +20,6 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -42,6 +41,7 @@ import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
 import 'widget/animated_slider.dart';
+import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 
@@ -200,26 +200,19 @@ class _HomeViewState extends State<HomeView> {
                                 child: ContextMenuRegion(
                                   selector: c.chatsKey,
                                   alignment: Alignment.bottomCenter,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 0,
-                                  ),
+                                  margin: const EdgeInsets.only(bottom: 4),
                                   actions: [
                                     if (c.myUser.value?.muted != null)
                                       ContextMenuButton(
                                         key: const Key('UnmuteChatsButton'),
                                         label: 'btn_unmute_chats'.l10n,
-                                        onPressed: () {
-                                          c.toggleMute(true);
-                                        },
+                                        onPressed: () => c.toggleMute(true),
                                       )
                                     else
                                       ContextMenuButton(
                                         key: const Key('MuteChatsButton'),
                                         label: 'btn_mute_chats'.l10n,
-                                        onPressed: () {
-                                          c.toggleMute(false);
-                                        },
+                                        onPressed: () => c.toggleMute(false),
                                       ),
                                   ],
                                   child: Obx(() {
@@ -254,16 +247,12 @@ class _HomeViewState extends State<HomeView> {
                                 child: ContextMenuRegion(
                                   selector: c.profileKey,
                                   alignment: Alignment.bottomRight,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 0,
-                                  ),
+                                  margin: const EdgeInsets.only(bottom: 4),
                                   actions: [
                                     ContextMenuButton(
                                       label: 'label_presence_present'.l10n,
-                                      onPressed: () {
-                                        c.setPresence(Presence.present);
-                                      },
+                                      onPressed: () =>
+                                          c.setPresence(Presence.present),
                                       showTrailing: true,
                                       trailing: Container(
                                         width: 10,
@@ -276,9 +265,8 @@ class _HomeViewState extends State<HomeView> {
                                     ),
                                     ContextMenuButton(
                                       label: 'label_presence_away'.l10n,
-                                      onPressed: () {
-                                        c.setPresence(Presence.away);
-                                      },
+                                      onPressed: () =>
+                                          c.setPresence(Presence.away),
                                       showTrailing: true,
                                       trailing: Container(
                                         width: 10,
@@ -290,6 +278,14 @@ class _HomeViewState extends State<HomeView> {
                                       ),
                                     ),
                                   ],
+                                  child: Padding(
+                                    key: c.profileKey,
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: AvatarWidget.fromMyUser(
+                                      c.myUser.value,
+                                      radius: 15,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],

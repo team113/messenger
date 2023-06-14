@@ -147,13 +147,11 @@ class _SelectorState<T> extends State<Selector<T>> {
       );
     }
 
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) {
-        if (mounted) {
-          setState(() {});
-        }
-      },
-    );
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
     super.initState();
   }

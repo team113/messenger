@@ -42,6 +42,8 @@ class ContextMenuRegion extends StatefulWidget {
     this.moveDownwards = true,
     this.preventContextMenu = true,
     this.enableLongTap = true,
+    this.enablePrimaryTap = false,
+    this.enableSecondaryTap = true,
     this.alignment = Alignment.bottomCenter,
     this.actions = const [],
     this.selector,
@@ -82,6 +84,12 @@ class ContextMenuRegion extends StatefulWidget {
 
   /// Indicator whether context menu should be displayed on a long tap.
   final bool enableLongTap;
+
+  /// Indicator whether context menu should be displayed on a primary tap.
+  final bool enablePrimaryTap;
+
+  /// Indicator whether context menu should be displayed on a secondary tap.
+  final bool enableSecondaryTap;
 
   /// [GlobalKey] of a [Selector.buttonKey].
   ///
@@ -156,7 +164,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         child: Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (d) {
-            if (d.buttons & kSecondaryButton != 0) {
+            if ((widget.enableSecondaryTap &&
+                    d.buttons & kSecondaryButton != 0) ||
+                (widget.enablePrimaryTap && d.buttons & kPrimaryButton != 0)) {
               _show(context, d.position);
             }
           },
@@ -173,14 +183,20 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                       ? child
                       : widget.builder!(_displayed),
                 )
-              : GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onLongPressStart: widget.enableLongTap
-                      ? (d) => _show(context, d.globalPosition)
-                      : null,
-                  child: widget.builder == null
-                      ? child
-                      : widget.builder!(_displayed),
+              : MouseRegion(
+                  opaque: false,
+                  cursor: widget.enablePrimaryTap
+                      ? SystemMouseCursors.click
+                      : MouseCursor.defer,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onLongPressStart: widget.enableLongTap
+                        ? (d) => _show(context, d.globalPosition)
+                        : null,
+                    child: widget.builder == null
+                        ? child
+                        : widget.builder!(_displayed),
+                  ),
                 ),
         ),
       );

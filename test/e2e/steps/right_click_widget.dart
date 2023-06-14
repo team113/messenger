@@ -34,27 +34,31 @@ import '../world/custom_world.dart';
 /// - When I right click `WidgetKey` widget
 final StepDefinitionGeneric rightClickWidget = when1<WidgetKey, CustomWorld>(
   RegExp(
-      r'I right click {key} (?:button|element|label|icon|field|text|widget)$'),
+    r'I right click {key} (?:button|element|label|icon|field|text|widget)$',
+  ),
   (key, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-
-      try {
-        final finder =
-            context.world.appDriver.findByKeySkipOffstage(key.name).first;
-
+    await context.world.appDriver.waitUntil(
+      () async {
         await context.world.appDriver.waitForAppToSettle();
-        await context.world.appDriver.nativeDriver.tap(
-          finder,
-          buttons: kSecondaryMouseButton,
-        );
-        await context.world.appDriver.waitForAppToSettle();
-        return true;
-      } catch (_) {
-        // No-op.
-      }
 
-      return false;
-    }, timeout: const Duration(seconds: 20));
+        try {
+          final finder =
+              context.world.appDriver.findByKeySkipOffstage(key.name).first;
+
+          await context.world.appDriver.waitForAppToSettle();
+          await context.world.appDriver.nativeDriver.tap(
+            finder,
+            buttons: kSecondaryMouseButton,
+          );
+          await context.world.appDriver.waitForAppToSettle();
+          return true;
+        } catch (_) {
+          // No-op.
+        }
+
+        return false;
+      },
+      timeout: const Duration(seconds: 20),
+    );
   },
 );
