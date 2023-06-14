@@ -209,7 +209,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    Color? badgeColor,
   }) =>
       AvatarWidget(
         key: key,
@@ -282,6 +281,7 @@ class AvatarWidget extends StatelessWidget {
           opacity: opacity,
         );
       }
+
       RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
