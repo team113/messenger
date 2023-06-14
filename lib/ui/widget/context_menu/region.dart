@@ -159,6 +159,37 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     }
 
     if (widget.enabled && widget.actions.isNotEmpty) {
+      Widget menu;
+
+      if (PlatformUtils.isMobile && widget.selector == null) {
+        menu = FloatingContextMenu(
+          alignment: widget.alignment,
+          moveDownwards: widget.moveDownwards,
+          actions: widget.actions,
+          margin: widget.margin,
+          unconstrained: widget.unconstrained,
+          onOpened: () => _displayed = true,
+          onClosed: () => _displayed = false,
+          child: widget.builder == null ? child : widget.builder!(_displayed),
+        );
+      } else {
+        menu = GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onLongPressStart: widget.enableLongTap
+              ? (d) => _show(context, d.globalPosition)
+              : null,
+          child: widget.builder == null ? child : widget.builder!(_displayed),
+        );
+
+        if (widget.enablePrimaryTap) {
+          menu = MouseRegion(
+            opaque: false,
+            cursor: SystemMouseCursors.click,
+            child: menu,
+          );
+        }
+      }
+
       return ContextMenuInterceptor(
         enabled: widget.preventContextMenu,
         child: Listener(
@@ -170,34 +201,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               _show(context, d.position);
             }
           },
-          child: PlatformUtils.isMobile && widget.selector == null
-              ? FloatingContextMenu(
-                  alignment: widget.alignment,
-                  moveDownwards: widget.moveDownwards,
-                  actions: widget.actions,
-                  margin: widget.margin,
-                  unconstrained: widget.unconstrained,
-                  onOpened: () => _displayed = true,
-                  onClosed: () => _displayed = false,
-                  child: widget.builder == null
-                      ? child
-                      : widget.builder!(_displayed),
-                )
-              : MouseRegion(
-                  opaque: false,
-                  cursor: widget.enablePrimaryTap
-                      ? SystemMouseCursors.click
-                      : MouseCursor.defer,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onLongPressStart: widget.enableLongTap
-                        ? (d) => _show(context, d.globalPosition)
-                        : null,
-                    child: widget.builder == null
-                        ? child
-                        : widget.builder!(_displayed),
-                  ),
-                ),
+          child: menu,
         ),
       );
     }
