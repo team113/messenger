@@ -326,7 +326,7 @@ class CallRepository extends DisposableInterface
     if (ongoing != null) {
       if (ongoing.value.members.keys.none((e) => e.userId == memberId)) {
         ongoing.value.members[id] =
-            CallMember(id, null, isConnected: false, isRedialing: true);
+            CallMember(id, null, isConnected: false, isDialing: true);
       }
     }
 

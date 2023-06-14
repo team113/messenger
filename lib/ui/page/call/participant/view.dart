@@ -194,7 +194,7 @@ class ParticipantView extends StatelessWidget {
 
       if (member != null) {
         inCall = true;
-        isRedialed = member.isRedialing.isTrue;
+        isRedialed = member.isDialing.isTrue;
       }
 
       return ContactTile(
