@@ -18,7 +18,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/paddings.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
@@ -27,6 +26,7 @@ import '/ui/page/home/page/my_profile/call_window_switch/view.dart';
 import '/ui/page/home/page/my_profile/camera_switch/view.dart';
 import '/ui/page/home/page/my_profile/microphone_switch/view.dart';
 import '/ui/page/home/page/my_profile/output_switch/view.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
