@@ -69,7 +69,7 @@ class ReactiveTextField extends StatelessWidget {
     this.trailingWidth = 24,
     this.treatErrorAsStatus = true,
     this.type,
-    this.withTrailing = false,
+    this.withTrailing = true,
   });
 
   /// Reactive state of this [ReactiveTextField].

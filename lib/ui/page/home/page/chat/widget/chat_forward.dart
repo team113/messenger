@@ -54,6 +54,8 @@ import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'chat_item.dart';
+import 'conditional_intrinsic.dart';
+import 'donate.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
 import 'selection_text.dart';
@@ -206,6 +208,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [ChatForwardWidget.note] to display as a text of this [ChatForwardWidget].
   final Map<ChatItemId, TextSpan> _text = {};
 
+  final Map<ChatItemId, int?> _donates = {};
+
   /// [Worker]s updating the [_text] on the [ChatForwardWidget.forwards] and
   /// [ChatForwardWidget.note] changes.
   final List<Worker> _workers = [];
@@ -287,7 +291,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             child: ClipRRect(
               clipBehavior: _fromMe ? Clip.antiAlias : Clip.none,
               borderRadius: BorderRadius.circular(15),
-              child: IntrinsicWidth(
+              child: ConditionalIntrinsicWidth(
+                condition: !_donates.values.any((e) => e != null),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   decoration: BoxDecoration(
@@ -387,6 +392,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     return Obx(() {
       final ChatForward msg = forward.value as ChatForward;
       final ChatItemQuote quote = msg.quote;
+      final int? donate = _donates[msg.id];
 
       List<Widget> content = [];
 
@@ -416,41 +422,61 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
         content = [
           FutureBuilder<RxUser?>(
-              future: widget.getUser?.call(quote.author),
-              builder: (context, snapshot) {
-                final Color color = snapshot.data?.user.value.id == widget.me
-                    ? style.colors.primary
-                    : style.colors.userColors[
-                        (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                            style.colors.userColors.length];
+            future: widget.getUser?.call(quote.author),
+            builder: (context, snapshot) {
+              final Color color = snapshot.data?.user.value.id == widget.me
+                  ? style.colors.primary
+                  : style.colors.userColors[
+                      (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                          style.colors.userColors.length];
 
-                return Row(
-                  children: [
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 12,
-                          right: 9,
-                        ),
-                        child: SelectionText.rich(
-                          TextSpan(
-                            text: snapshot.data?.user.value.name?.val ??
-                                snapshot.data?.user.value.num.val ??
-                                'dot'.l10n * 3,
-                            recognizer: TapGestureRecognizer()
-                              ..onTap =
-                                  () => router.user(quote.author, push: true),
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 12,
+                            right: 9,
                           ),
-                          selectable: PlatformUtils.isDesktop || menu,
-                          onChanged: (a) => _selection = a,
-                          onSelecting: widget.onSelecting,
-                          style: fonts.bodyLarge!.copyWith(color: color),
+                          child: SelectionText.rich(
+                            TextSpan(
+                              text: snapshot.data?.user.value.name?.val ??
+                                  snapshot.data?.user.value.num.val ??
+                                  'dot'.l10n * 3,
+                              recognizer: TapGestureRecognizer()
+                                ..onTap =
+                                    () => router.user(quote.author, push: true),
+                            ),
+                            selectable: PlatformUtils.isDesktop || menu,
+                            onChanged: (a) => _selection = a,
+                            onSelecting: widget.onSelecting,
+                            style: fonts.bodyLarge!.copyWith(color: color),
+                          ),
                         ),
+                      ),
+                    ],
+                  ),
+                  if (donate != null) ...[
+                    const SizedBox(height: 6),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                      child: DonateWidget(
+                        height: 90,
+                        donate: donate,
+                        title: snapshot.data?.user.value.name?.val ??
+                            snapshot.data?.user.value.num.val ??
+                            'dot'.l10n * 3,
+                        onTitlePressed: () =>
+                            router.user(msg.authorId, push: true),
                       ),
                     ),
                   ],
-                );
-              }),
+                ],
+              );
+            },
+          ),
           SizedBox(height: quote.attachments.isNotEmpty ? 6 : 3),
           if (media.isNotEmpty) ...[
             media.length == 1
@@ -637,7 +663,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       Flexible(
                         child: Container(
                           margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                          child: IntrinsicWidth(
+                          child: ConditionalIntrinsicWidth(
+                            condition: donate == null,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -688,6 +715,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     final (style, fonts) = Theme.of(context).styles;
 
     final ChatItem item = widget.note.value!.value;
+    final int? donate = _donates[item.id];
 
     if (item is ChatMessage) {
       final TextSpan? text = _text[item.id];
@@ -716,7 +744,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (!_fromMe && widget.chat.value?.isGroup == true) ...[
+          if (donate != null) ...[
+            DonateWidget(
+              donate: donate,
+              height: 90,
+              title: widget.user?.user.value.name?.val ??
+                  widget.user?.user.value.num.val ??
+                  'dot'.l10n * 3,
+              onTitlePressed: () => router.user(item.authorId, push: true),
+            ),
+            const SizedBox(height: 6),
+          ] else if (!_fromMe && widget.chat.value?.isGroup == true) ...[
             const SizedBox(height: 6),
             Row(
               children: [
@@ -1265,7 +1303,16 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     for (Rx<ChatItem> forward in widget.forwards) {
       final ChatItemQuote item = (forward.value as ChatForward).quote;
       if (item is ChatMessageQuote) {
-        final String? string = item.text?.val.trim();
+        String? string = item.text?.val.trim();
+
+        _donates[forward.value.id] = item.donate;
+        if (item.donate != null) {
+          final index = item.text?.val.lastIndexOf('?donate=');
+          if (index != null && index != -1) {
+            string = item.text!.val.substring(0, index);
+          }
+        }
+
         if (string?.isNotEmpty == true) {
           _text[forward.value.id] =
               string!.parseLinks(_recognizers, router.context);
@@ -1275,7 +1322,16 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     if (widget.note.value != null) {
       final ChatMessage item = widget.note.value!.value as ChatMessage;
-      final String? string = item.text?.val.trim();
+      String? string = item.text?.val.trim();
+
+      _donates[item.id] = item.donate;
+      if (item.donate != null) {
+        final index = item.text?.val.lastIndexOf('?donate=');
+        if (index != null && index != -1) {
+          string = item.text!.val.substring(0, index);
+        }
+      }
+
       if (string?.isNotEmpty == true) {
         _text[item.id] = string!.parseLinks(_recognizers, router.context);
       }

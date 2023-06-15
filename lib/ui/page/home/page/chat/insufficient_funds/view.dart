@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -46,14 +47,11 @@ class InsufficientFundsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     return GetBuilder(
       init: InsufficientFundsController(Get.find()),
       builder: (InsufficientFundsController c) {
-        final TextStyle? thin = Theme.of(context)
-            .textTheme
-            .bodyLarge
-            ?.copyWith(color: Colors.black);
-
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -62,7 +60,7 @@ class InsufficientFundsView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_insufficient_funds'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
+                  style: fonts.headlineMedium,
                 ),
               ),
             ),
@@ -71,7 +69,7 @@ class InsufficientFundsView extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 shrinkWrap: true,
-                children: [Text(description, style: thin)],
+                children: [Text(description, style: fonts.bodyMedium)],
               ),
             ),
             const SizedBox(height: 25),
@@ -97,13 +95,13 @@ class InsufficientFundsView extends StatelessWidget {
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_add_funds'.l10n,
-                        style: thin?.copyWith(color: Colors.white),
+                        style: fonts.bodyMedium?.copyWith(color: Colors.white),
                       ),
                       onPressed: () {
                         Navigator.of(context).pop();
                         c.topUp();
                       },
-                      color: Theme.of(context).colorScheme.primary,
+                      color: style.colors.primary,
                     ),
                   ),
                 ],

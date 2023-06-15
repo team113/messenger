@@ -1192,9 +1192,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final style = Theme.of(context).style;
-
-    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -1220,7 +1218,10 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(subtitle.toString(), style: textStyle);
+        return Text(
+          subtitle.toString(),
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        );
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -1232,7 +1233,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: textStyle?.copyWith(color: style.colors.primary),
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -1256,7 +1257,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: textStyle?.copyWith(color: style.colors.primary),
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -1281,7 +1282,13 @@ class _ChatViewState extends State<ChatView>
                 ),
                 const SizedBox(width: 5),
               ],
-              Flexible(child: Text(subtitle, style: textStyle)),
+              Flexible(
+                child: Text(
+                  subtitle,
+                  style:
+                      fonts.bodySmall!.copyWith(color: style.colors.secondary),
+                ),
+              ),
             ],
           );
         }
@@ -1321,7 +1328,12 @@ class _ChatViewState extends State<ChatView>
 
                           buffer.write(subtitle ?? '');
 
-                          return Text(buffer.toString(), style: textStyle);
+                          return Text(
+                            buffer.toString(),
+                            style: fonts.bodySmall!.copyWith(
+                              color: style.colors.secondary,
+                            ),
+                          );
                         }
 
                         return const SizedBox();

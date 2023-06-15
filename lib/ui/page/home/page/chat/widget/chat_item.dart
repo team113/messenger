@@ -910,6 +910,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ],
           if (media.isNotEmpty) ...[
             ClipRRect(
+              clipBehavior: Clip.none,
               borderRadius: BorderRadius.only(
                 topLeft: msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
@@ -1031,6 +1032,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final message = Stack(
           children: [
             ConditionalIntrinsicWidth(
+              // condition: false,
               condition: msg.donate == null &&
                   !msg.repliesTo.any(
                     (e) => (e is ChatMessageQuote &&
@@ -1224,6 +1226,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             borderRadius: BorderRadius.circular(15),
           ),
           child: ClipRRect(
+            clipBehavior: Clip.none,
             borderRadius: BorderRadius.circular(15),
             child: child(menu),
           ),
@@ -1238,8 +1241,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     Widget? content;
     List<Widget> additional = [];
+    int? donate;
 
     if (item is ChatMessageQuote) {
+      donate = item.donate;
+
       if (item.attachments.isNotEmpty) {
         int take = (constraints.maxWidth - 35) ~/ 52;
         if (take <= item.attachments.length - 1) {
@@ -1335,23 +1341,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           text = null;
         }
 
-        if (donate != null) {
-          additional.insert(
-            0,
-            DonateWidget(
-              height: 90,
-              donate: donate,
-              timestamp: text == null
-                  ? _timestamp(widget.item.value, false, true)
-                  : null,
-              title: widget.user?.user.value.name?.val ??
-                  widget.user?.user.value.num.val ??
-                  'dot'.l10n * 3,
-              onTitlePressed: () => router.user(_author, push: true),
-            ),
-          );
-        }
-
         if (text != null) {
           content = SelectionContainer.disabled(
             child: Text(text, maxLines: 1, style: fonts.bodyLarge),
@@ -1377,6 +1366,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     style.colors.userColors.length];
 
         return ClipRRect(
+          clipBehavior: Clip.none,
           borderRadius: style.cardRadius,
           child: Container(
             decoration: BoxDecoration(
@@ -1402,6 +1392,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ),
                       ],
                     ),
+                    if (donate != null)
+                      DonateWidget(
+                        height: 90,
+                        donate: donate,
+                        timestamp: _text == null
+                            ? _timestamp(widget.item.value, false, true)
+                            : null,
+                        title: snapshot.data?.user.value.name?.val ??
+                            snapshot.data?.user.value.num.val ??
+                            'dot'.l10n * 3,
+                        onTitlePressed: () => router.user(_author, push: true),
+                      ),
                     if (additional.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       ...additional,

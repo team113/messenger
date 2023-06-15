@@ -98,6 +98,10 @@ class ChatForwardController extends GetxController {
       quotes: quotes,
       attachments: attachments,
       onSubmit: ({bool onlyDonation = false}) async {
+        if (searchResults.value?.chats.isEmpty != false) {
+          return;
+        }
+
         if (searchResults.value?.isEmpty != false) {
           send.field.unsubmit();
         }
