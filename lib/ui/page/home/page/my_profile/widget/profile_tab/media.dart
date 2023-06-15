@@ -18,12 +18,12 @@
 import 'package:flutter/material.dart';
 import 'package:medea_jason/medea_jason.dart';
 
+import '../../../../widget/field_button.dart';
 import '../dense.dart';
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.media] section.
 class ProfileMedia extends StatelessWidget {
@@ -65,7 +65,7 @@ class ProfileMedia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -75,7 +75,7 @@ class ProfileMedia extends StatelessWidget {
             text: videoText,
             hint: 'label_media_camera'.l10n,
             onPressed: videoSwitch,
-            style: TextStyle(color: style.colors.primary),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 16),
@@ -84,7 +84,7 @@ class ProfileMedia extends StatelessWidget {
             text: audioText,
             hint: 'label_media_microphone'.l10n,
             onPressed: microphoneSwitch,
-            style: TextStyle(color: style.colors.primary),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
           ),
         ),
         const SizedBox(height: 16),
@@ -93,7 +93,7 @@ class ProfileMedia extends StatelessWidget {
             text: outputText,
             hint: 'label_media_output'.l10n,
             onPressed: outputSwitch,
-            style: TextStyle(color: style.colors.primary),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
           ),
         ),
       ],

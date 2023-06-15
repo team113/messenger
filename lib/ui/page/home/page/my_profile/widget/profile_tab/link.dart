@@ -41,7 +41,7 @@ class ProfileLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,13 +87,13 @@ class ProfileLink extends StatelessWidget {
                             'count': myUser?.chatDirectLink?.usageCount ?? 0
                           }) +
                           'dot_space'.l10n,
-                      style: TextStyle(
+                      style: fonts.labelSmall!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: TextStyle(
+                      style: fonts.labelSmall!.copyWith(
                         color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()

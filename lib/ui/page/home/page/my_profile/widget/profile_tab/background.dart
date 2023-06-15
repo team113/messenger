@@ -45,7 +45,7 @@ class ProfileBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget message({
       bool fromMe = true,
@@ -78,7 +78,7 @@ class ProfileBackground extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                  child: Text(text, style: style.boldBody),
+                  child: Text(text, style: fonts.bodyLarge),
                 ),
               ],
             ),
@@ -158,8 +158,9 @@ class ProfileBackground extends StatelessWidget {
                       background == null
                           ? 'btn_upload'.l10n
                           : 'btn_delete'.l10n,
-                      style:
-                          TextStyle(color: style.colors.primary, fontSize: 11),
+                      style: fonts.labelSmall!.copyWith(
+                        color: style.colors.primary,
+                      ),
                     ),
                   ),
                 ],

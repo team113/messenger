@@ -18,8 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/l10n/l10n.dart';
 
+import '../../../../widget/field_button.dart';
+import '/themes.dart';
 import '../dense.dart';
-import '../field_button.dart';
 import '/domain/model/application_settings.dart';
 import '/ui/page/home/page/my_profile/call_window_switch/controller.dart';
 
@@ -32,6 +33,8 @@ class ProfileCall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -42,7 +45,7 @@ class ProfileCall extends StatelessWidget {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
           ),
         ),
       ],

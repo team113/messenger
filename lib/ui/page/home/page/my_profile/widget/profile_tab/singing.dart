@@ -18,6 +18,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../widget/field_button.dart';
 import '../copyable.dart';
 import '../dense.dart';
 import '../padding.dart';
@@ -28,7 +29,6 @@ import '/themes.dart';
 import '/ui/page/home/page/my_profile/add_email/controller.dart';
 import '/ui/page/home/page/my_profile/add_phone/controller.dart';
 import '/ui/page/home/page/my_profile/password/controller.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -76,7 +76,7 @@ class ProfileLogin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return BasicPadding(
       Column(
@@ -111,16 +111,16 @@ class ProfileLogin extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
             child: RichText(
               text: TextSpan(
-                style: const TextStyle(
-                    fontSize: 11, fontWeight: FontWeight.normal),
                 children: [
                   TextSpan(
                     text: 'label_login_visible'.l10n,
-                    style: TextStyle(color: style.colors.secondary),
+                    style: fonts.labelSmall!.copyWith(
+                      color: style.colors.secondary,
+                    ),
                   ),
                   TextSpan(
                     text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                    style: TextStyle(
+                    style: fonts.labelSmall!.copyWith(
                       color: style.colors.primary,
                     ),
                     recognizer: TapGestureRecognizer()
@@ -132,8 +132,7 @@ class ProfileLogin extends StatelessWidget {
                             Center(
                               child: Text(
                                 'label_login_visibility_hint'.l10n,
-                                style: TextStyle(
-                                  fontSize: 15,
+                                style: fonts.labelLarge!.copyWith(
                                   color: style.colors.secondary,
                                 ),
                               ),
@@ -143,10 +142,7 @@ class ProfileLogin extends StatelessWidget {
                               alignment: Alignment.centerLeft,
                               child: Text(
                                 'label_visible_to'.l10n,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: style.colors.onBackground,
-                                ),
+                                style: fonts.headlineMedium,
                               ),
                             ),
                           ],
@@ -191,7 +187,7 @@ class ProfileEmails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     final List<Widget> widgets = [];
 
@@ -230,13 +226,15 @@ class ProfileEmails extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: TextStyle(
+                      style: fonts.bodySmall!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: TextStyle(color: style.colors.primary),
+                      style: fonts.bodySmall!.copyWith(
+                        color: style.colors.primary,
+                      ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -247,10 +245,7 @@ class ProfileEmails extends StatelessWidget {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: style.colors.onBackground,
-                                  ),
+                                  style: fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -287,11 +282,12 @@ class ProfileEmails extends StatelessWidget {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
-            inputDecorationTheme: Theme.of(context)
-                .inputDecorationTheme
-                .copyWith(
-                  floatingLabelStyle: TextStyle(color: style.colors.primary),
-                ),
+            inputDecorationTheme:
+                Theme.of(context).inputDecorationTheme.copyWith(
+                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
+                        color: style.colors.primary,
+                      ),
+                    ),
           ),
           child: FieldButton(
             key: const Key('UnconfirmedEmail'),
@@ -309,7 +305,7 @@ class ProfileEmails extends StatelessWidget {
               email: myUser!.emails.unconfirmed!,
             ),
             onTrailingPressed: onTrailingPressed,
-            style: TextStyle(color: style.colors.secondary),
+            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
           ),
         ),
       ]);
@@ -326,7 +322,7 @@ class ProfileEmails extends StatelessWidget {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: TextStyle(color: style.colors.primary),
+          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -352,7 +348,7 @@ class ProfilePhones extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     final List<Widget> widgets = [];
 
@@ -391,13 +387,13 @@ class ProfilePhones extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: TextStyle(
+                      style: fonts.bodySmall!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: TextStyle(
+                      style: fonts.bodySmall!.copyWith(
                         color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -410,10 +406,7 @@ class ProfilePhones extends StatelessWidget {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: style.colors.onBackground,
-                                  ),
+                                  style: fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -450,11 +443,12 @@ class ProfilePhones extends StatelessWidget {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
-            inputDecorationTheme: Theme.of(context)
-                .inputDecorationTheme
-                .copyWith(
-                  floatingLabelStyle: TextStyle(color: style.colors.primary),
-                ),
+            inputDecorationTheme:
+                Theme.of(context).inputDecorationTheme.copyWith(
+                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
+                        color: style.colors.primary,
+                      ),
+                    ),
           ),
           child: FieldButton(
             key: const Key('UnconfirmedPhone'),
@@ -472,7 +466,7 @@ class ProfilePhones extends StatelessWidget {
               phone: myUser!.phones.unconfirmed!,
             ),
             onTrailingPressed: onTrailingPressed,
-            style: TextStyle(color: style.colors.secondary),
+            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
           ),
         ),
       ]);
@@ -489,7 +483,7 @@ class ProfilePhones extends StatelessWidget {
           text: myUser?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: TextStyle(color: style.colors.primary),
+          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -513,7 +507,7 @@ class ProfilePassword extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -527,7 +521,7 @@ class ProfilePassword extends StatelessWidget {
                 ? 'btn_change_password'.l10n
                 : 'btn_set_password'.l10n,
             onPressed: () => ChangePasswordView.show(context),
-            style: TextStyle(
+            style: fonts.titleMedium!.copyWith(
               color: myUser?.hasPassword != true
                   ? style.colors.dangerColor
                   : style.colors.primary,

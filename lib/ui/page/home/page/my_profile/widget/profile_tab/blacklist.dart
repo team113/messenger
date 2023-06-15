@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../widget/field_button.dart';
 import '../dense.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -25,7 +26,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/blacklist/view.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.blacklist] section.
 class ProfileBlockedUsers extends StatelessWidget {
@@ -36,7 +36,7 @@ class ProfileBlockedUsers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Column(
       children: [
@@ -45,7 +45,7 @@ class ProfileBlockedUsers extends StatelessWidget {
             text: 'label_users_count'.l10nfmt({'count': blacklist.length}),
             onPressed:
                 blacklist.isEmpty ? null : () => BlacklistView.show(context),
-            style: TextStyle(
+            style: fonts.titleMedium!.copyWith(
               color: blacklist.isEmpty
                   ? style.colors.onBackground
                   : style.colors.primary,

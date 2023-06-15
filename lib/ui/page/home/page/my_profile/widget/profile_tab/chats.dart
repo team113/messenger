@@ -17,13 +17,13 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../widget/field_button.dart';
 import '../dense.dart';
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/timeline_switch/controller.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.chats] section.
 class ProfileChats extends StatelessWidget {
@@ -34,7 +34,7 @@ class ProfileChats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -46,10 +46,8 @@ class ProfileChats extends StatelessWidget {
               padding: const EdgeInsets.only(left: 21.0),
               child: Text(
                 'label_display_timestamps'.l10n,
-                style: style.systemMessageStyle.copyWith(
+                style: fonts.titleMedium!.copyWith(
                   color: style.colors.secondary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -63,7 +61,7 @@ class ProfileChats extends StatelessWidget {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
-            style: TextStyle(color: style.colors.primary),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
           ),
         ),
       ],

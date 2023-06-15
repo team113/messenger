@@ -18,13 +18,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../widget/field_button.dart';
 import '../dense.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/language/view.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.language] section.
 class ProfileLanguage extends StatelessWidget {
@@ -32,7 +32,7 @@ class ProfileLanguage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Dense(
       FieldButton(
@@ -45,7 +45,7 @@ class ProfileLanguage extends StatelessWidget {
           'code': L10n.chosen.value!.locale.countryCode,
           'name': L10n.chosen.value!.name,
         }),
-        style: TextStyle(color: style.colors.primary),
+        style: fonts.titleMedium!.copyWith(color: style.colors.primary),
       ),
     );
   }

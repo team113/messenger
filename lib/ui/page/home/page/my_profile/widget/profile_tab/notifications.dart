@@ -45,7 +45,7 @@ class ProfileNotifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Dense(
       Stack(
@@ -59,6 +59,7 @@ class ProfileNotifications extends StatelessWidget {
                         .l10n,
                 editable: false,
               ),
+              style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
             ),
           ),
           Align(

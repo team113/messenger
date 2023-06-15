@@ -18,12 +18,13 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/ui/page/home/page/my_profile/controller.dart';
 
+import '../../../../widget/field_button.dart';
 import '../padding.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
+
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -79,7 +80,7 @@ class ProfilePresence extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     final Presence? presence = myUser?.presence;
 
@@ -90,7 +91,7 @@ class ProfilePresence extends StatelessWidget {
         text: presence?.localizedString(),
         trailing:
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: TextStyle(color: style.colors.primary),
+        style: fonts.titleMedium!.copyWith(color: style.colors.primary),
       ),
     );
   }
@@ -105,6 +106,8 @@ class ProfileStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fonts = Theme.of(context).fonts;
+
     return BasicPadding(
       ReactiveTextField(
         key: const Key('StatusField'),
@@ -127,6 +130,7 @@ class ProfileStatus extends StatelessWidget {
                   child: SvgImage.asset('assets/icons/copy.svg', height: 15),
                 ),
               ),
+        style: fonts.titleMedium,
       ),
     );
   }

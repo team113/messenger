@@ -18,8 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/l10n/l10n.dart';
 
+import '../../../../widget/field_button.dart';
 import '../dense.dart';
-import '../field_button.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 
@@ -32,7 +32,7 @@ class ProfileDanger extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Column(
       children: [
@@ -48,7 +48,7 @@ class ProfileDanger extends StatelessWidget {
               ),
             ),
             onPressed: onPressed,
-            style: TextStyle(color: style.colors.primary),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
           ),
         ),
       ],
