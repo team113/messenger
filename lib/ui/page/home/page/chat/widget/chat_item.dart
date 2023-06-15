@@ -732,20 +732,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         break;
     }
 
-    final bool isSent = widget.item.value.status.value == SendingStatus.sent;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SwipeableStatus(
         animation: widget.animation,
         translate: false,
-        isSent: isSent && _fromMe,
-        isDelivered: isSent &&
-            _fromMe &&
-            widget.chat.value?.lastDelivery.isBefore(message.at) == false,
-        isRead: isSent && (!_fromMe || _isRead),
-        isError: message.status.value == SendingStatus.error,
-        isSending: message.status.value == SendingStatus.sending,
+        status: false,
         swipeable: Text(message.at.val.toLocal().hm),
         padding: const EdgeInsets.only(bottom: 6.5),
         child: Center(
