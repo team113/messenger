@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+// ignore_for_file: must_be_immutable
+
 import 'dart:math';
 import 'dart:ui';
 
@@ -211,6 +213,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// [Offset] of a [PointerDownEvent] used to [_dismiss] this [_AnimatedMenu]
   /// when it's low enough.
+  // ignore: unused_field
   Offset? _pointerDown;
 
   @override
