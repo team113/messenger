@@ -18,15 +18,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
-import '/ui/widget/widget_button.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -45,8 +46,39 @@ class MenuTabView extends StatelessWidget {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: WidgetButton(
-              onPressed: () => StatusView.show(context),
+            title: ContextMenuRegion(
+              selector: c.profileKey,
+              alignment: Alignment.topLeft,
+              margin: const EdgeInsets.only(top: 7, right: 32),
+              enablePrimaryTap: true,
+              actions: [
+                ContextMenuButton(
+                  label: 'label_presence_present'.l10n,
+                  onPressed: () => c.setPresence(Presence.present),
+                  showTrailing: true,
+                  trailing: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.colors.acceptAuxiliaryColor,
+                    ),
+                  ),
+                ),
+                ContextMenuButton(
+                  label: 'label_presence_away'.l10n,
+                  onPressed: () => c.setPresence(Presence.away),
+                  showTrailing: true,
+                  trailing: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.colors.warningColor,
+                    ),
+                  ),
+                ),
+              ],
               child: Row(
                 children: [
                   Material(
@@ -58,6 +90,7 @@ class MenuTabView extends StatelessWidget {
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(
                           c.myUser.value,
+                          key: c.profileKey,
                           radius: 17,
                         );
                       }),
