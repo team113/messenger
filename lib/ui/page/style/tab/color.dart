@@ -17,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 
 import '../widget/caption.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
@@ -40,7 +40,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget color(Color color, [String? desc]) {
       final HSLColor hsl = HSLColor.fromColor(color);
@@ -63,7 +63,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               child: Center(
                 child: Text(
                   color.toHex(),
-                  style: TextStyle(
+                  style: fonts.bodySmall!.copyWith(
                     color: hsl.lightness > 0.7 ? Colors.black : Colors.white,
                   ),
                 ),
@@ -77,8 +77,9 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               child: Text(
                 desc,
                 textAlign: TextAlign.center,
-                style:
-                    TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+                style: fonts.bodySmall!.copyWith(
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
               ),
             ),
           ],
@@ -250,8 +251,10 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             const SizedBox(height: 50),
             Text(
               'Цвета аватаров:',
-              style: context.textTheme.displayLarge!.copyWith(
-                color: isDarkMode ? Colors.white : Colors.black,
+              style: fonts.displayLarge!.copyWith(
+                color: isDarkMode
+                    ? style.colors.onPrimary
+                    : style.colors.onBackground,
               ),
             ),
             const SizedBox(height: 16),

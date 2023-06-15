@@ -84,7 +84,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return GestureDetector(
       onTap: widget.items?.isNotEmpty == true

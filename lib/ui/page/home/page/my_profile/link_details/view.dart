@@ -35,11 +35,7 @@ class LinkDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     return AnimatedSizeAndFade(
       fadeDuration: const Duration(milliseconds: 250),
@@ -57,8 +53,9 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style:
-                    thin?.copyWith(fontSize: 15, color: style.colors.secondary),
+                style: fonts.bodyMedium!.copyWith(
+                  color: style.colors.secondary,
+                ),
               ),
             ),
           ),

@@ -119,11 +119,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
@@ -147,12 +143,11 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: _variant == variant
-                                ? style.colors.onPrimary
-                                : style.colors.onBackground,
-                            fontSize: 18,
-                          ),
+                      style: fonts.headlineMedium!.copyWith(
+                        color: _variant == variant
+                            ? style.colors.onPrimary
+                            : style.colors.onBackground,
+                      ),
                       child: variant.child,
                     ),
                   ),
@@ -188,8 +183,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             child: Center(
               child: Text(
                 widget.description!,
-                style: thin?.copyWith(
-                  fontSize: 15,
+                style: fonts.labelLarge!.copyWith(
                   color: style.colors.secondary,
                 ),
               ),
@@ -220,7 +214,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: thin?.copyWith(color: style.colors.onPrimary),
+              style: fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());
