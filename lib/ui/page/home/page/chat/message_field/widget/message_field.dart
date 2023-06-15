@@ -82,7 +82,7 @@ class MessageField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Container(
       constraints: const BoxConstraints(minHeight: 56),
@@ -136,7 +136,7 @@ class MessageField extends StatelessWidget {
                   filled: false,
                   dense: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: style.boldBody.copyWith(fontSize: 17),
+                  style: fonts.bodyLarge,
                   type: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
