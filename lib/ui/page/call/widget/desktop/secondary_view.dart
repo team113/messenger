@@ -185,7 +185,7 @@ class SecondaryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     // [BorderRadius] to decorate the secondary panel with.
     final BorderRadius borderRadius = BorderRadius.circular(10);
@@ -368,7 +368,7 @@ class SecondaryView extends StatelessWidget {
                                         Expanded(
                                           child: Text(
                                             'Draggable',
-                                            style: TextStyle(
+                                            style: fonts.labelMedium!.copyWith(
                                               color: style.colors.onPrimary,
                                             ),
                                             maxLines: 1,

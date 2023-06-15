@@ -52,7 +52,7 @@ class ChatCardPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -85,18 +85,16 @@ class ChatCardPreview extends StatelessWidget {
                                 title,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall
-                                    ?.copyWith(color: style.colors.onPrimary),
+                                style: fonts.headlineLarge!.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
                               ),
                             ),
                             Text(
                               duration.hhMmSs(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(color: style.colors.onPrimary),
+                              style: fonts.labelLarge!.copyWith(
+                                color: style.colors.onPrimary,
+                              ),
                             ),
                           ],
                         ),
@@ -106,18 +104,16 @@ class ChatCardPreview extends StatelessWidget {
                             children: [
                               Text(
                                 subtitle,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(color: style.colors.onPrimary),
+                                style: fonts.labelLarge!.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
                               ),
                               const Spacer(),
                               Text(
                                 trailing,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(color: style.colors.onPrimary),
+                                style: fonts.labelLarge!.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
                               ),
                             ],
                           ),
