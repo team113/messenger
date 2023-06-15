@@ -28,9 +28,7 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/sending_status.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -91,14 +89,16 @@ class MessageFieldView extends StatelessWidget {
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
+    final style = Theme.of(context).style;
+
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(25),
       borderSide: BorderSide.none,
     );
 
     return Theme.of(context).copyWith(
-      shadowColor: const Color(0x55000000),
-      iconTheme: const IconThemeData(color: Colors.blue),
+      shadowColor: style.colors.onBackgroundOpacity27,
+      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
       inputDecorationTheme: InputDecorationTheme(
         border: border,
         errorBorder: border,
@@ -106,9 +106,9 @@ class MessageFieldView extends StatelessWidget {
         focusedBorder: border,
         disabledBorder: border,
         focusedErrorBorder: border,
-        focusColor: Colors.white,
-        fillColor: Colors.white,
-        hoverColor: Colors.transparent,
+        focusColor: style.colors.onPrimary,
+        fillColor: style.colors.onPrimary,
+        hoverColor: style.colors.transparent,
         filled: true,
         isDense: true,
         contentPadding: EdgeInsets.fromLTRB(
@@ -123,7 +123,7 @@ class MessageFieldView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: controller ?? MessageFieldController(Get.find(), Get.find()),
@@ -136,8 +136,11 @@ class MessageFieldView extends StatelessWidget {
               key: const Key('SendField'),
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                boxShadow: const [
-                  CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+                boxShadow: [
+                  CustomBoxShadow(
+                    blurRadius: 8,
+                    color: style.colors.onBackgroundOpacity13,
+                  ),
                 ],
               ),
               child: ConditionalBackdropFilter(
@@ -149,35 +152,7 @@ class MessageFieldView extends StatelessWidget {
                 borderRadius: style.cardRadius,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    MessageHeader(
-                      attachments: c.attachments,
-                      hoveredAttachment: c.hoveredAttachment,
-                      field: c.field,
-                      edited: c.edited,
-                      scrollController: c.scrollController,
-                      quotes: c.quotes,
-                      replied: c.replied,
-                      boxConstraints: constraints,
-                      me: c.me,
-                      hoveredReply: c.hoveredReply,
-                      getUser: c.getUser,
-                      onItemPressed: onItemPressed,
-                    ),
-                    MessageField(
-                      canAttach: canAttach,
-                      canForward: canForward,
-                      forwarding: c.forwarding,
-                      field: c.field,
-                      fieldKey: fieldKey,
-                      sendKey: sendKey,
-                      pickFile: c.pickFile,
-                      pickImageFromCamera: c.pickImageFromCamera,
-                      pickMedia: c.pickMedia,
-                      pickVideoFromCamera: c.pickVideoFromCamera,
-                      onChanged: onChanged,
-                    )
-                  ],
+                  children: [_buildHeader(c, context), _buildField(c, context)],
                 ),
               ),
             ),
@@ -186,370 +161,47 @@ class MessageFieldView extends StatelessWidget {
       },
     );
   }
-}
 
-/// [Widget] which returns a visual representation of the message attachments,
-/// replies, quotes and edited message.
-class MessageHeader extends StatelessWidget {
-  const MessageHeader({
-    super.key,
-    required this.attachments,
-    required this.hoveredAttachment,
-    required this.field,
-    required this.edited,
-    required this.scrollController,
-    required this.quotes,
-    required this.replied,
-    required this.boxConstraints,
-    required this.me,
-    required this.hoveredReply,
-    required this.getUser,
-    required this.onItemPressed,
-  });
-
-  /// [Attachment]s of this [ChatMessage].
-  final RxList<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
-      attachments;
-
-  /// [Attachment] being hovered.
-  final Rx<Attachment?> hoveredAttachment;
-
-  /// [TextFieldState] for a [ChatMessageText].
-  final TextFieldState field;
-
-  /// [ChatItem] being edited.
-  final Rx<ChatItem?> edited;
-
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController;
-
-  /// [ChatItemQuoteInput]s to be forwarded.
-  final RxList<ChatItemQuoteInput> quotes;
-
-  /// [ChatItem] being quoted to reply onto.
-  final RxList<ChatItem> replied;
-
-  /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
-  final BoxConstraints? boxConstraints;
-
-  /// Unique ID of an [User].
-  final UserId? me;
-
-  /// Replied [ChatItem] being hovered.
-  final Rx<ChatItem?> hoveredReply;
-
-  /// Returns an [User] from [UserService] by the provided [id].
-  final Future<RxUser?> Function(UserId id) getUser;
-
-  /// Callback, called when a [ChatItem] being a reply or edited is pressed.
-  final Future<void> Function(ChatItemId)? onItemPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    /// Returns a visual representation of the provided [item] as a preview.
-    Widget buildPreview(
-      BuildContext context,
-      ChatItem item, {
-      void Function()? onClose,
-    }) {
-      final Style style = Theme.of(context).extension<Style>()!;
-      final bool fromMe = item.authorId == me;
-
-      Widget? content;
-      final List<Widget> additional = [];
-
-      if (item is ChatMessage) {
-        if (item.attachments.isNotEmpty) {
-          additional.addAll(
-            item.attachments.map((a) {
-              final ImageAttachment? image = a is ImageAttachment ? a : null;
-
-              return Container(
-                margin: const EdgeInsets.only(right: 2),
-                decoration: BoxDecoration(
-                  color: fromMe
-                      ? Colors.white.withOpacity(0.2)
-                      : Colors.black.withOpacity(0.03),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                width: 30,
-                height: 30,
-                child: image == null
-                    ? Icon(
-                        Icons.file_copy,
-                        color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                        size: 16,
-                      )
-                    : RetryImage(
-                        image.small.url,
-                        checksum: image.small.checksum,
-                        fit: BoxFit.cover,
-                        height: double.infinity,
-                        width: double.infinity,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-              );
-            }).toList(),
-          );
-        }
-
-        if (item.text != null && item.text!.val.isNotEmpty) {
-          content = Text(
-            item.text!.val,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: style.boldBody,
-          );
-        }
-      } else if (item is ChatCall) {
-        String title = 'label_chat_call_ended'.l10n;
-        String? time;
-        bool isMissed = false;
-
-        if (item.finishReason == null && item.conversationStartedAt != null) {
-          title = 'label_chat_call_ongoing'.l10n;
-        } else if (item.finishReason != null) {
-          title = item.finishReason!.localizedString(fromMe) ?? title;
-          isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-              item.finishReason == ChatCallFinishReason.unanswered;
-
-          if (item.finishedAt != null && item.conversationStartedAt != null) {
-            time = item.conversationStartedAt!.val
-                .difference(item.finishedAt!.val)
-                .localizedString();
-          }
-        } else {
-          title = item.authorId == me
-              ? 'label_outgoing_call'.l10n
-              : 'label_incoming_call'.l10n;
-        }
-
-        content = Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-              child: item.withVideo
-                  ? SvgImage.asset(
-                      'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 13,
-                    )
-                  : SvgImage.asset(
-                      'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 15,
-                    ),
-            ),
-            Flexible(child: Text(title, style: style.boldBody)),
-            if (time != null) ...[
-              const SizedBox(width: 9),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 1),
-                child: Text(
-                  time,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: style.boldBody.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        );
-      } else if (item is ChatForward) {
-        // TODO: Implement `ChatForward`.
-        content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-      } else if (item is ChatInfo) {
-        // TODO: Implement `ChatInfo`.
-        content = Text(item.action.toString(), style: style.boldBody);
-      } else {
-        content = Text('err_unknown'.l10n, style: style.boldBody);
-      }
-
-      final Widget expanded;
-
-      if (edited.value != null) {
-        expanded = Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(width: 12),
-            SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(
-                      width: 2,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                ),
-                margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'label_edit'.l10n,
-                      style: style.boldBody.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                    if (content != null) ...[
-                      const SizedBox(height: 2),
-                      DefaultTextStyle.merge(maxLines: 1, child: content),
-                    ],
-                    if (additional.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(children: additional),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      } else {
-        expanded = FutureBuilder<RxUser?>(
-          future: getUser(item.authorId),
-          builder: (context, snapshot) {
-            final Color color = snapshot.data?.user.value.id == me
-                ? Theme.of(context).colorScheme.secondary
-                : AvatarWidget.colors[
-                    (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                        AvatarWidget.colors.length];
-
-            return Container(
-              key: Key('Reply_${replied.indexOf(item)}'),
-              decoration: BoxDecoration(
-                border: Border(left: BorderSide(width: 2, color: color)),
-              ),
-              margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-              padding: const EdgeInsets.only(left: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  snapshot.data != null
-                      ? Obx(() {
-                          return Text(
-                            snapshot.data!.user.value.name?.val ??
-                                snapshot.data!.user.value.num.val,
-                            style: style.boldBody.copyWith(color: color),
-                          );
-                        })
-                      : Text(
-                          'dot'.l10n * 3,
-                          style: style.boldBody.copyWith(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                  if (content != null) ...[
-                    const SizedBox(height: 2),
-                    DefaultTextStyle.merge(maxLines: 1, child: content),
-                  ],
-                  if (additional.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Row(children: additional),
-                  ],
-                ],
-              ),
-            );
-          },
-        );
-      }
-
-      return MouseRegion(
-        opaque: false,
-        onEnter: (d) => hoveredReply.value = item,
-        onExit: (d) => hoveredReply.value = null,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: expanded),
-              Obx(() {
-                final Widget child;
-
-                if (hoveredReply.value == item || PlatformUtils.isMobile) {
-                  child = WidgetButton(
-                    key: const Key('CancelReplyButton'),
-                    onPressed: onClose,
-                    child: Container(
-                      width: 15,
-                      height: 15,
-                      margin: const EdgeInsets.only(right: 4, top: 4),
-                      child: Container(
-                        key: const Key('Close'),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: style.cardColor,
-                        ),
-                        alignment: Alignment.center,
-                        child: SvgImage.asset(
-                          'assets/icons/close_primary.svg',
-                          width: 7,
-                          height: 7,
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  child = const SizedBox();
-                }
-
-                return AnimatedSwitcher(
-                    duration: 200.milliseconds, child: child);
-              }),
-            ],
-          ),
-        ),
-      );
-    }
+  /// Returns a visual representation of the message attachments, replies,
+  /// quotes and edited message.
+  Widget _buildHeader(MessageFieldController c, BuildContext context) {
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       return Obx(() {
-        final bool grab = attachments.isNotEmpty
-            ? (125 + 2) * attachments.length > constraints.maxWidth - 16
+        final bool grab = c.attachments.isNotEmpty
+            ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
             : false;
 
         Widget? previews;
 
-        if (edited.value != null) {
+        if (c.edited.value != null) {
           previews = SingleChildScrollView(
-            controller: scrollController,
+            controller: c.scrollController,
             child: Container(
               padding: const EdgeInsets.all(4),
               child: Dismissible(
-                key: Key('${edited.value?.id}'),
+                key: Key('${c.edited.value?.id}'),
                 direction: DismissDirection.horizontal,
-                onDismissed: (_) => edited.value = null,
+                onDismissed: (_) => c.edited.value = null,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: WidgetButton(
-                    onPressed: () => onItemPressed?.call(edited.value!.id),
-                    child: buildPreview(
+                    onPressed: () => onItemPressed?.call(c.edited.value!.id),
+                    child: _buildPreview(
                       context,
-                      edited.value!,
-                      onClose: () => edited.value = null,
+                      c.edited.value!,
+                      c,
+                      onClose: () => c.edited.value = null,
                     ),
                   ),
                 ),
               ),
             ),
           );
-        } else if (quotes.isNotEmpty) {
+        } else if (c.quotes.isNotEmpty) {
           previews = ReorderableListView(
-            scrollController: scrollController,
+            scrollController: c.scrollController,
             shrinkWrap: true,
             buildDefaultDragHandles: PlatformUtils.isMobile,
             onReorder: (int old, int to) {
@@ -557,7 +209,7 @@ class MessageHeader extends StatelessWidget {
                 --to;
               }
 
-              quotes.insert(to, quotes.removeAt(old));
+              c.quotes.insert(to, c.quotes.removeAt(old));
 
               HapticFeedback.lightImpact();
             },
@@ -568,8 +220,8 @@ class MessageHeader extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    const Color(0x00000000),
-                    const Color(0x33000000),
+                    style.colors.transparent,
+                    style.colors.onBackgroundOpacity20,
                     t,
                   )!;
 
@@ -578,7 +230,10 @@ class MessageHeader extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         boxShadow: [
-                          CustomBoxShadow(color: color, blurRadius: elevation),
+                          CustomBoxShadow(
+                            color: color,
+                            blurRadius: elevation,
+                          ),
                         ],
                       ),
                       child: child,
@@ -590,17 +245,17 @@ class MessageHeader extends StatelessWidget {
             },
             reverse: true,
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            children: quotes.map((e) {
+            children: c.quotes.map((e) {
               return ReorderableDragStartListener(
                 key: Key('Handle_${e.item.id}'),
                 enabled: !PlatformUtils.isMobile,
-                index: quotes.indexOf(e),
+                index: c.quotes.indexOf(e),
                 child: Dismissible(
                   key: Key('${e.item.id}'),
                   direction: DismissDirection.horizontal,
                   onDismissed: (_) {
-                    quotes.remove(e);
-                    if (quotes.isEmpty) {
+                    c.quotes.remove(e);
+                    if (c.quotes.isEmpty) {
                       Navigator.of(context).pop();
                     }
                   },
@@ -608,12 +263,13 @@ class MessageHeader extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                       vertical: 2,
                     ),
-                    child: buildPreview(
+                    child: _buildPreview(
                       context,
                       e.item,
+                      c,
                       onClose: () {
-                        quotes.remove(e);
-                        if (quotes.isEmpty) {
+                        c.quotes.remove(e);
+                        if (c.quotes.isEmpty) {
                           Navigator.of(context).pop();
                         }
                       },
@@ -623,9 +279,9 @@ class MessageHeader extends StatelessWidget {
               );
             }).toList(),
           );
-        } else if (replied.isNotEmpty) {
+        } else if (c.replied.isNotEmpty) {
           previews = ReorderableListView(
-            scrollController: scrollController,
+            scrollController: c.scrollController,
             shrinkWrap: true,
             buildDefaultDragHandles: PlatformUtils.isMobile,
             onReorder: (int old, int to) {
@@ -633,7 +289,7 @@ class MessageHeader extends StatelessWidget {
                 --to;
               }
 
-              replied.insert(to, replied.removeAt(old));
+              c.replied.insert(to, c.replied.removeAt(old));
 
               HapticFeedback.lightImpact();
             },
@@ -644,8 +300,8 @@ class MessageHeader extends StatelessWidget {
                   final double t = Curves.easeInOut.transform(animation.value);
                   final double elevation = lerpDouble(0, 6, t)!;
                   final Color color = Color.lerp(
-                    const Color(0x00000000),
-                    const Color(0x33000000),
+                    style.colors.transparent,
+                    style.colors.onBackgroundOpacity20,
                     t,
                   )!;
 
@@ -666,23 +322,24 @@ class MessageHeader extends StatelessWidget {
             },
             reverse: true,
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            children: replied.map((e) {
+            children: c.replied.map((e) {
               return ReorderableDragStartListener(
                 key: Key('Handle_${e.id}'),
                 enabled: !PlatformUtils.isMobile,
-                index: replied.indexOf(e),
+                index: c.replied.indexOf(e),
                 child: Dismissible(
                   key: Key('${e.id}'),
                   direction: DismissDirection.horizontal,
-                  onDismissed: (_) => replied.remove(e),
+                  onDismissed: (_) => c.replied.remove(e),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: WidgetButton(
                       onPressed: () => onItemPressed?.call(e.id),
-                      child: buildPreview(
+                      child: _buildPreview(
                         context,
                         e,
-                        onClose: () => replied.remove(e),
+                        c,
+                        onClose: () => c.replied.remove(e),
                       ),
                     ),
                   ),
@@ -700,13 +357,13 @@ class MessageHeader extends StatelessWidget {
             topRight: style.cardRadius.topRight,
           ),
           child: Container(
-            color: Colors.white.withOpacity(0.4),
+            color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(
               duration: 400.milliseconds,
               curve: Curves.ease,
               child: Container(
                 width: double.infinity,
-                padding: replied.isNotEmpty || attachments.isNotEmpty
+                padding: c.replied.isNotEmpty || c.attachments.isNotEmpty
                     ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
                     : EdgeInsets.zero,
                 child: Column(
@@ -714,7 +371,7 @@ class MessageHeader extends StatelessWidget {
                   children: [
                     if (previews != null)
                       ConstrainedBox(
-                        constraints: boxConstraints ??
+                        constraints: this.constraints ??
                             BoxConstraints(
                               maxHeight: max(
                                 100,
@@ -722,11 +379,11 @@ class MessageHeader extends StatelessWidget {
                               ),
                             ),
                         child: Scrollbar(
-                          controller: scrollController,
+                          controller: c.scrollController,
                           child: previews,
                         ),
                       ),
-                    if (attachments.isNotEmpty) ...[
+                    if (c.attachments.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Align(
                         alignment: Alignment.centerLeft,
@@ -746,13 +403,8 @@ class MessageHeader extends StatelessWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.max,
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                children: attachments
-                                    .map((e) => MessageAttachment(
-                                          entry: e,
-                                          field: field,
-                                          rxAttachments: attachments,
-                                          hoveredAttachment: hoveredAttachment,
-                                        ))
+                                children: c.attachments
+                                    .map((e) => _buildAttachment(context, e, c))
                                     .toList(),
                               ),
                             ),
@@ -769,62 +421,11 @@ class MessageHeader extends StatelessWidget {
       });
     });
   }
-}
 
-class MessageField extends StatelessWidget {
-  const MessageField({
-    super.key,
-    required this.canAttach,
-    required this.canForward,
-    required this.forwarding,
-    required this.field,
-    required this.fieldKey,
-    required this.sendKey,
-    required this.pickFile,
-    required this.pickImageFromCamera,
-    required this.pickMedia,
-    required this.pickVideoFromCamera,
-    required this.onChanged,
-  });
-
-  /// Indicator whether [Attachment]s can be attached to this
-  /// [MessageFieldView].
-  final bool canAttach;
-
-  /// Indicator whether forwarding is possible within this [MessageFieldView].
-  final bool canForward;
-
-  /// Indicator whether forwarding mode is enabled.
-  final RxBool forwarding;
-
-  /// [TextFieldState] for a [ChatMessageText].
-  final TextFieldState field;
-
-  /// [Key] of a [ReactiveTextField] this [MessageFieldView] has.
-  final Key? fieldKey;
-
-  /// [Key] of a send button this [MessageFieldView] has.
-  final Key? sendKey;
-
-  /// Opens a file choose popup and adds the selected files to the attachments.
-  final Future<void> Function() pickFile;
-
-  /// Opens the camera app and adds the captured image to the attachments.
-  final Future<void> Function() pickImageFromCamera;
-
-  /// Opens a media choose popup and adds the selected files to the
-  /// attachments.
-  final Future<void> Function() pickMedia;
-
-  /// Opens the camera app and adds the captured video to the attachments.
-  final Future<void> Function() pickVideoFromCamera;
-
-  /// Callback, called on the [ReactiveTextField] changes.
-  final void Function()? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+  /// Builds a visual representation of the send field itself along with its
+  /// buttons.
+  Widget _buildField(MessageFieldController c, BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
 
     return Container(
       constraints: const BoxConstraints(minHeight: 56),
@@ -836,15 +437,15 @@ class MessageField extends StatelessWidget {
           WidgetButton(
             onPressed: canAttach
                 ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-                    ? pickFile
+                    ? c.pickFile
                     : () async {
-                        field.focus.unfocus();
+                        c.field.focus.unfocus();
                         await AttachmentSourceSelector.show(
                           context,
-                          onPickFile: pickFile,
-                          onTakePhoto: pickImageFromCamera,
-                          onPickMedia: pickMedia,
-                          onTakeVideo: pickVideoFromCamera,
+                          onPickFile: c.pickFile,
+                          onTakePhoto: c.pickImageFromCamera,
+                          onPickMedia: c.pickMedia,
+                          onTakeVideo: c.pickVideoFromCamera,
                         );
                       }
                 : null,
@@ -871,14 +472,14 @@ class MessageField extends StatelessWidget {
                 child: ReactiveTextField(
                   onChanged: onChanged,
                   key: fieldKey ?? const Key('MessageField'),
-                  state: field,
+                  state: c.field,
                   hint: 'label_send_message_hint'.l10n,
                   minLines: 1,
                   maxLines: 7,
                   filled: false,
                   dense: true,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: style.boldBody.copyWith(fontSize: 17),
+                  style: fonts.bodyLarge,
                   type: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                 ),
@@ -887,16 +488,16 @@ class MessageField extends StatelessWidget {
           ),
           Obx(() {
             return GestureDetector(
-              onLongPress: canForward ? forwarding.toggle : null,
+              onLongPress: canForward ? c.forwarding.toggle : null,
               child: WidgetButton(
-                onPressed: field.submit,
+                onPressed: c.field.submit,
                 child: SizedBox(
                   width: 56,
                   height: 56,
                   child: Center(
                     child: AnimatedSwitcher(
                       duration: 300.milliseconds,
-                      child: forwarding.value
+                      child: c.forwarding.value
                           ? SvgImage.asset(
                               'assets/icons/forward.svg',
                               width: 26,
@@ -918,28 +519,13 @@ class MessageField extends StatelessWidget {
       ),
     );
   }
-}
 
-class MessageAttachment extends StatelessWidget {
-  const MessageAttachment({
-    super.key,
-    required this.entry,
-    required this.field,
-    required this.rxAttachments,
-    required this.hoveredAttachment,
-  });
-
-  final MapEntry<GlobalKey, Attachment> entry;
-
-  final TextFieldState field;
-
-  final RxList<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
-      rxAttachments;
-
-  final Rx<Attachment?> hoveredAttachment;
-
-  @override
-  Widget build(BuildContext context) {
+  /// Returns a visual representation of the provided [Attachment].
+  Widget _buildAttachment(
+    BuildContext context,
+    MapEntry<GlobalKey, Attachment> entry,
+    MessageFieldController c,
+  ) {
     final Attachment e = entry.value;
     final GlobalKey key = entry.key;
 
@@ -952,7 +538,10 @@ class MessageAttachment extends StatelessWidget {
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
+      final (style, fonts) = Theme.of(context).styles;
+
       if (isImage || isVideo) {
+        // TODO: Backend should support single attachment updating.
         final Widget child = MediaAttachment(
           attachment: e,
           width: size,
@@ -960,7 +549,7 @@ class MessageAttachment extends StatelessWidget {
           fit: BoxFit.cover,
         );
 
-        final List<Attachment> attachments = rxAttachments
+        final List<Attachment> attachments = c.attachments
             .where((e) {
               final Attachment a = e.value;
               return a is ImageAttachment ||
@@ -976,7 +565,7 @@ class MessageAttachment extends StatelessWidget {
               ? null
               : () {
                   final int index =
-                      rxAttachments.indexWhere((m) => m.value == e);
+                      c.attachments.indexWhere((m) => m.value == e);
                   if (index != -1) {
                     GalleryPopup.show(
                       context: context,
@@ -984,7 +573,7 @@ class MessageAttachment extends StatelessWidget {
                         initial: index,
                         initialKey: key,
                         onTrashPressed: (int i) {
-                          rxAttachments
+                          c.attachments
                               .removeWhere((o) => o.value == attachments[i]);
                         },
                         children: attachments.map((o) {
@@ -1017,13 +606,13 @@ class MessageAttachment extends StatelessWidget {
                       Container(
                         width: 60,
                         height: 60,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0x80000000),
+                          color: style.colors.onBackgroundOpacity50,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.play_arrow,
-                          color: Colors.white,
+                          color: style.colors.onPrimary,
                           size: 48,
                         ),
                       ),
@@ -1050,15 +639,12 @@ class MessageAttachment extends StatelessWidget {
                   Flexible(
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
-                      style: const TextStyle(fontSize: 13),
+                      style: fonts.bodySmall,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(
-                    p.extension(e.filename),
-                    style: const TextStyle(fontSize: 13),
-                  )
+                  Text(p.extension(e.filename), style: fonts.bodySmall!)
                 ],
               ),
             ),
@@ -1071,10 +657,7 @@ class MessageAttachment extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1087,19 +670,19 @@ class MessageAttachment extends StatelessWidget {
 
     // Builds the [content] along with manipulation buttons and statuses.
     Widget attachment() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final style = Theme.of(context).style;
 
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
         opaque: false,
-        onEnter: (_) => hoveredAttachment.value = e,
-        onExit: (_) => hoveredAttachment.value = null,
+        onEnter: (_) => c.hoveredAttachment.value = e,
+        onExit: (_) => c.hoveredAttachment.value = null,
         child: Container(
           width: size,
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: const Color(0xFFF5F5F5),
+            color: style.colors.secondaryHighlight,
           ),
           margin: const EdgeInsets.symmetric(horizontal: 2),
           child: Stack(
@@ -1115,12 +698,15 @@ class MessageAttachment extends StatelessWidget {
                     child: e is LocalAttachment
                         ? e.status.value == SendingStatus.error
                             ? Container(
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white,
+                                  color: style.colors.onPrimary,
                                 ),
-                                child: const Center(
-                                  child: Icon(Icons.error, color: Colors.red),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.error,
+                                    color: style.colors.dangerColor,
+                                  ),
                                 ),
                               )
                             : const SizedBox()
@@ -1128,7 +714,7 @@ class MessageAttachment extends StatelessWidget {
                   ),
                 ),
               ),
-              if (!field.status.value.isLoading)
+              if (!c.field.status.value.isLoading)
                 Align(
                   alignment: Alignment.topRight,
                   child: Padding(
@@ -1136,12 +722,12 @@ class MessageAttachment extends StatelessWidget {
                     child: Obx(() {
                       final Widget child;
 
-                      if (hoveredAttachment.value == e ||
+                      if (c.hoveredAttachment.value == e ||
                           PlatformUtils.isMobile) {
                         child = InkWell(
                           key: const Key('RemovePickedFile'),
                           onTap: () =>
-                              rxAttachments.removeWhere((a) => a.value == e),
+                              c.attachments.removeWhere((a) => a.value == e),
                           child: Container(
                             width: 15,
                             height: 15,
@@ -1181,8 +767,275 @@ class MessageAttachment extends StatelessWidget {
     return Dismissible(
       key: Key(e.id.val),
       direction: DismissDirection.up,
-      onDismissed: (_) => rxAttachments.removeWhere((a) => a.value == e),
+      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
       child: attachment(),
+    );
+  }
+
+  /// Returns a visual representation of the provided [item] as a preview.
+  Widget _buildPreview(
+    BuildContext context,
+    ChatItem item,
+    MessageFieldController c, {
+    void Function()? onClose,
+  }) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    final bool fromMe = item.authorId == c.me;
+
+    Widget? content;
+    final List<Widget> additional = [];
+
+    if (item is ChatMessage) {
+      if (item.attachments.isNotEmpty) {
+        additional.addAll(
+          item.attachments.map((a) {
+            final ImageAttachment? image = a is ImageAttachment ? a : null;
+
+            return Container(
+              margin: const EdgeInsets.only(right: 2),
+              decoration: BoxDecoration(
+                color: fromMe
+                    ? style.colors.onPrimaryOpacity25
+                    : style.colors.onBackgroundOpacity2,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              width: 30,
+              height: 30,
+              child: image == null
+                  ? Icon(
+                      Icons.file_copy,
+                      color: fromMe
+                          ? style.colors.onPrimary
+                          : style.colors.secondaryHighlightDarkest,
+                      size: 16,
+                    )
+                  : RetryImage(
+                      image.small.url,
+                      checksum: image.small.checksum,
+                      fit: BoxFit.cover,
+                      height: double.infinity,
+                      width: double.infinity,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+            );
+          }).toList(),
+        );
+      }
+
+      if (item.text != null && item.text!.val.isNotEmpty) {
+        content = Text(
+          item.text!.val,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: fonts.bodyLarge,
+        );
+      }
+    } else if (item is ChatCall) {
+      String title = 'label_chat_call_ended'.l10n;
+      String? time;
+      bool isMissed = false;
+
+      if (item.finishReason == null && item.conversationStartedAt != null) {
+        title = 'label_chat_call_ongoing'.l10n;
+      } else if (item.finishReason != null) {
+        title = item.finishReason!.localizedString(fromMe) ?? title;
+        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
+            item.finishReason == ChatCallFinishReason.unanswered;
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
+        }
+      } else {
+        title = item.authorId == c.me
+            ? 'label_outgoing_call'.l10n
+            : 'label_incoming_call'.l10n;
+      }
+
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: item.withVideo
+                ? SvgImage.asset(
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : '_blue'}.svg',
+                    height: 13,
+                  )
+                : SvgImage.asset(
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : '_blue'}.svg',
+                    height: 15,
+                  ),
+          ),
+          Flexible(child: Text(title, style: fonts.bodyLarge)),
+          if (time != null) ...[
+            const SizedBox(width: 9),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 1),
+              child: Text(
+                time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: fonts.headlineSmall!.copyWith(
+                  color: style.colors.secondary,
+                ),
+              ),
+            ),
+          ],
+        ],
+      );
+    } else if (item is ChatForward) {
+      // TODO: Implement `ChatForward`.
+      content = Text('label_forwarded_message'.l10n, style: fonts.bodyLarge);
+    } else if (item is ChatInfo) {
+      // TODO: Implement `ChatInfo`.
+      content = Text(item.action.toString(), style: fonts.bodyLarge);
+    } else {
+      content = Text('err_unknown'.l10n, style: fonts.bodyLarge);
+    }
+
+    final Widget expanded;
+
+    if (c.edited.value != null) {
+      expanded = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(width: 12),
+          SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(width: 2, color: style.colors.primary),
+                ),
+              ),
+              margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+              padding: const EdgeInsets.only(left: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'label_edit'.l10n,
+                    style: fonts.bodyLarge!.copyWith(
+                      color: style.colors.primary,
+                    ),
+                  ),
+                  if (content != null) ...[
+                    const SizedBox(height: 2),
+                    DefaultTextStyle.merge(maxLines: 1, child: content),
+                  ],
+                  if (additional.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(children: additional),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      expanded = FutureBuilder<RxUser?>(
+        future: c.getUser(item.authorId),
+        builder: (context, snapshot) {
+          final Color color = snapshot.data?.user.value.id == c.me
+              ? style.colors.primary
+              : style.colors.userColors[
+                  (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                      style.colors.userColors.length];
+
+          return Container(
+            key: Key('Reply_${c.replied.indexOf(item)}'),
+            decoration: BoxDecoration(
+              border: Border(left: BorderSide(width: 2, color: color)),
+            ),
+            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            padding: const EdgeInsets.only(left: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                snapshot.data != null
+                    ? Obx(() {
+                        return Text(
+                          snapshot.data!.user.value.name?.val ??
+                              snapshot.data!.user.value.num.val,
+                          style: fonts.bodyLarge!.copyWith(color: color),
+                        );
+                      })
+                    : Text(
+                        'dot'.l10n * 3,
+                        style: fonts.bodyLarge!.copyWith(
+                          color: style.colors.primary,
+                        ),
+                      ),
+                if (content != null) ...[
+                  const SizedBox(height: 2),
+                  DefaultTextStyle.merge(maxLines: 1, child: content),
+                ],
+                if (additional.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(children: additional),
+                ],
+              ],
+            ),
+          );
+        },
+      );
+    }
+
+    return MouseRegion(
+      opaque: false,
+      onEnter: (d) => c.hoveredReply.value = item,
+      onExit: (d) => c.hoveredReply.value = null,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+        decoration: BoxDecoration(
+          color: style.colors.secondaryHighlight,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: expanded),
+            Obx(() {
+              final Widget child;
+
+              if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
+                child = WidgetButton(
+                  key: const Key('CancelReplyButton'),
+                  onPressed: onClose,
+                  child: Container(
+                    width: 15,
+                    height: 15,
+                    margin: const EdgeInsets.only(right: 4, top: 4),
+                    child: Container(
+                      key: const Key('Close'),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: style.cardColor,
+                      ),
+                      alignment: Alignment.center,
+                      child: SvgImage.asset(
+                        'assets/icons/close_primary.svg',
+                        width: 7,
+                        height: 7,
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                child = const SizedBox();
+              }
+
+              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+            }),
+          ],
+        ),
+      ),
     );
   }
 }

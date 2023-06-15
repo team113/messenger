@@ -17,22 +17,27 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - History clearing. ([#361])
         - Text selection in messages. ([#118], [#17])
-        - Clickable links and emails. ([#388])
+        - Clickable links and emails. ([#436], [#388])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
-        - Chat-monolog. ([#333], [#326])    
+        - Chat-monolog. ([#456], [#412], [#333], [#326])    
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
+    - Media panel:
+        - Low signal icons. ([#454])
 - Web:
     - Unread chats badge on favicon. ([#403])
+- Desktop:
+    - Video support. ([#445], [#438])
 
 ### Changed
 
 - UI:
     - Chat page:
-        - Redesigned info and call messages. ([#357])
-        - Redesigned file attachments. ([#362])
+        - Redesigned info and call messages. ([#453], [#357])
+        - Redesigned file attachments. ([#453], [#362])
         - Message timestamps. ([#399])
+        - Redesigned chat messages and forwards. ([#416])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#393], [#356], [#258])
@@ -41,12 +46,19 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Inverted selected chat colors. ([#405])
         - Chats with ongoing calls sorting above favorites. ([#392], [#371])
+    - Home page:
+        - Redesigned navigation buttons animation. ([#440])
+        - Redesigned quick mute and status changing menus. ([#443])
 
 ### Fixed
 
 - UI:
     - Profile page:
         - Change password modal flickering. ([#380], [#377])
+    - Media panel:
+        - Media buttons controlling ringtone. ([#437], [#401])
+- Web:
+    - Images sometimes not loading. ([#408], [#344])
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
@@ -58,6 +70,7 @@ All user visible changes to this project will be documented in this file. This p
 [#286]: /../../pull/286
 [#326]: /../../issues/326
 [#333]: /../../pull/333
+[#344]: /../../issues/344
 [#348]: /../../issues/348
 [#357]: /../../pull/357
 [#361]: /../../pull/361
@@ -71,8 +84,20 @@ All user visible changes to this project will be documented in this file. This p
 [#392]: /../../pull/392
 [#393]: /../../pull/393
 [#399]: /../../pull/399
+[#401]: /../../issues/401
 [#403]: /../../pull/403
 [#405]: /../../pull/405
+[#408]: /../../pull/408
+[#412]: /../../pull/412
+[#436]: /../../pull/436
+[#437]: /../../pull/437
+[#438]: /../../issues/438
+[#440]: /../../pull/440
+[#443]: /../../pull/443
+[#445]: /../../pull/445
+[#453]: /../../pull/453
+[#454]: /../../pull/454
+[#456]: /../../pull/456
 
 
 

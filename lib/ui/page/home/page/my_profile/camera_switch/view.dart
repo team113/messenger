@@ -24,6 +24,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
@@ -55,8 +56,7 @@ class CameraSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       init: CameraSwitchController(Get.find(), camera: camera),
@@ -70,10 +70,7 @@ class CameraSwitchView extends StatelessWidget {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text(
-                    'label_camera'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
+                  child: Text('label_camera'.l10n, style: fonts.headlineMedium),
                 ),
               ),
               Flexible(
@@ -92,7 +89,7 @@ class CameraSwitchView extends StatelessWidget {
                               height: 250,
                               width: 370,
                               decoration: BoxDecoration(
-                                color: Colors.grey,
+                                color: style.colors.secondary,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: local == null
@@ -123,7 +120,7 @@ class CameraSwitchView extends StatelessWidget {
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceInfo e = c.devices[i];
+                            final MediaDeviceDetails e = c.devices[i];
 
                             final bool selected =
                                 (c.camera.value == null && i == 0) ||

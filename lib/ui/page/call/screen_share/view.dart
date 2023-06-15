@@ -21,6 +21,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/video_view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -40,11 +41,11 @@ class ScreenShareView extends StatelessWidget {
   static const double videoHeight = 200;
 
   /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
-  static Future<MediaDisplayInfo?> show<T>(
+  static Future<MediaDisplayDetails?> show<T>(
     BuildContext context,
     Rx<OngoingCall> call,
   ) {
-    return ModalPopup.show<MediaDisplayInfo?>(
+    return ModalPopup.show<MediaDisplayDetails?>(
       context: context,
       child: ScreenShareView(call),
     );
@@ -52,8 +53,7 @@ class ScreenShareView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget framelessBuilder = const SizedBox(
       height: videoHeight,
@@ -75,7 +75,7 @@ class ScreenShareView extends StatelessWidget {
                 header: Center(
                   child: Text(
                     'label_screen_sharing'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                    style: fonts.headlineMedium,
                   ),
                 ),
               ),
@@ -90,7 +90,7 @@ class ScreenShareView extends StatelessWidget {
                     shrinkWrap: true,
                     itemBuilder: (_, i) {
                       return Obx(() {
-                        final MediaDisplayInfo e = c.call.value.displays[i];
+                        final MediaDisplayDetails e = c.call.value.displays[i];
                         return GestureDetector(
                           onTap: () => c.selected.value = e,
                           child: SizedBox(
@@ -101,9 +101,7 @@ class ScreenShareView extends StatelessWidget {
                                       c.renderers[e]!,
                                       border: c.selected.value == e
                                           ? Border.all(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
+                                              color: style.colors.primary,
                                               width: 4,
                                             )
                                           : null,
@@ -134,13 +132,15 @@ class ScreenShareView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_share'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: fonts.bodyMedium!.copyWith(
+                      color: style.colors.onPrimary,
+                    ),
                   ),
                   onPressed: () {
                     c.freeTracks();
                     Navigator.of(context).pop(c.selected.value);
                   },
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 12),

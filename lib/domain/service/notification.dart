@@ -91,6 +91,7 @@ class NotificationService extends DisposableService {
   void onClose() {
     _onFocusChanged?.cancel();
     _audioPlayer?.dispose();
+    _audioPlayer = null;
     AudioCache.instance.clear('audio/notification.mp3');
   }
 
