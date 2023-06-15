@@ -23,7 +23,7 @@ import '/themes.dart';
 /// primary and subtitle text, and a leading icon as well.
 class OutlinedRoundedButton extends StatelessWidget {
   const OutlinedRoundedButton({
-    Key? key,
+    super.key,
     this.title,
     this.subtitle,
     this.leading,
@@ -35,7 +35,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.maxWidth = 250 * 0.7,
     this.height = 60 * 0.7,
     this.shadows,
-  }) : super(key: key);
+  });
 
   /// Primary content of this button.
   ///
