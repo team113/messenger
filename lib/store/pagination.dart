@@ -19,188 +19,158 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/store/chat_rx.dart';
-import '/util/obs/rxlist.dart';
+import '/util/obs/obs.dart';
 import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
-/// cursor identifying those items.
-class Pagination<T, K> {
+/// key identifying those items and their [C] cursor.
+class Pagination<T, K, C> {
   Pagination({
     this.perPage = 10,
     required this.provider,
-    required this.compare,
-    required this.sameItems,
+    required this.onKey,
   });
 
   /// Size of a page to fetch.
   final int perPage;
 
   /// List of the elements fetched from the [provider].
-  final RxObsList<T> elements = RxObsList();
+  final RxSplayTreeMap<K, T> items = RxSplayTreeMap();
 
   /// [PageProvider] providing the [elements].
-  final PageProvider<T, K> provider;
+  final PageProvider<T, C> provider;
 
-  /// Indicator whether [elements] has next page.
+  /// Reactive [RxStatus] of the [items].
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning no [items] are loaded.
+  /// - `status.isLoading`, meaning the [items] are being fetched.
+  /// - `status.isLoadingMore`, meaning some [items] were fetched, however
+  ///   previous or next items are being fetched additionally.
+  /// - `status.isSuccess`, meaning the [items] were successfully fetched.
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  /// Indicator whether the [items] have next page.
   final RxBool hasNext = RxBool(true);
 
-  /// Indicator whether [elements] has previous page.
+  /// Indicator whether the [items] have previous page.
   final RxBool hasPrevious = RxBool(true);
 
-  /// Indicator whether [around] elements was fetched.
-  final RxBool aroundFetched = RxBool(false);
+  /// Callback, called when a key of type [K] identifying the provided [T] item
+  /// is required.
+  final K Function(T) onKey;
 
-  /// Callback, called to compare items.
-  final int Function(T a, T b) compare;
+  C? _startCursor;
+  C? _endCursor;
 
-  /// Callback, called to compare items.
-  final bool Function(T a, T b) sameItems;
-
-  /// Cursor pointing the first item in the [elements].
-  K? _startCursor;
-
-  /// Cursor pointing the last item in the [elements].
-  K? _endCursor;
-
-  /// [StreamSubscription] for the [Page] fetched in the [around].
-  StreamSubscription? _aroundSubscription;
-
-  /// Disposes this [Pagination].
-  void dispose() {
-    _aroundSubscription?.cancel();
-  }
+  /// Returns stream of record of changes of the [elements].
+  Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
   /// Resets this [Pagination] to its initial state.
   void clear() {
-    elements.clear();
+    status.value = RxStatus.empty();
+    items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
     _startCursor = null;
     _endCursor = null;
-    _aroundSubscription?.cancel();
-    aroundFetched.value = false;
   }
 
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  Future<void> around({T? item, K? cursor}) async {
+  Future<void> around({T? item, C? cursor}) async {
     clear();
 
-    final Rx<Page<T, K>> page = await provider.around(item, cursor, perPage);
+    status.value = RxStatus.loading();
 
-    if (!page.value.finalResult) {
-      PageInfo<K>? storedInfo = page.value.info;
-      _aroundSubscription?.cancel();
-      _aroundSubscription = page.listen((p) {
-        for (var e in p.edges) {
-          _add(e);
-        }
+    final Page<T, C>? page = await provider.around(item, cursor, perPage);
 
-        if (_startCursor == storedInfo?.startCursor) {
-          _startCursor = p.info?.startCursor;
-        }
-        if (_endCursor == storedInfo?.endCursor) {
-          _endCursor = p.info?.endCursor;
-        }
-
-        hasNext.value = p.info!.hasNext;
-        hasPrevious.value = p.info!.hasPrevious;
-
-        _aroundSubscription?.cancel();
-        aroundFetched.value = true;
-      });
-    } else {
-      aroundFetched.value = true;
+    for (var e in page?.edges ?? []) {
+      items[onKey(e)] = e;
     }
 
-    if (page.value.info != null) {
-      for (var e in page.value.edges) {
-        _add(e);
-      }
-      hasNext.value = page.value.info!.hasNext;
-      hasPrevious.value = page.value.info!.hasPrevious;
-      _startCursor = page.value.info!.startCursor;
-      _endCursor = page.value.info!.endCursor;
-    }
+    _startCursor = page?.info.startCursor;
+    _endCursor = page?.info.endCursor;
+    hasNext.value = page?.info.hasNext ?? true;
+    hasPrevious.value = page?.info.hasPrevious ?? true;
+    status.value = RxStatus.success();
   }
 
-  /// Fetches a next page of the [elements].
+  /// Fetches a next page of the [items].
   FutureOr<void> next() async {
-    if (elements.isEmpty) {
+    if (items.isEmpty) {
       return around();
     }
 
-    if (hasNext.isTrue) {
-      final Page<T, K>? page =
-          await provider.after(elements.last, _endCursor, perPage);
-      if (page != null) {
-        for (var e in page.edges) {
-          _add(e);
+    status.value = RxStatus.loadingMore();
+
+    if (hasNext.value) {
+      final Page<T, C>? page =
+          await provider.after(items[items.lastKey()], _endCursor, perPage);
+
+      if (page?.info.startCursor != null) {
+        for (var e in page?.edges ?? []) {
+          items[onKey(e)] = e;
         }
-        hasNext.value = page.info!.hasNext;
-        _endCursor = page.info!.endCursor ?? _endCursor;
       }
+
+      _endCursor = page?.info.endCursor ?? _endCursor;
+      hasNext.value = page?.info.hasNext ?? hasNext.value;
+      status.value = RxStatus.success();
     }
   }
 
-  /// Fetches a previous page of the [elements].
+  /// Fetches a previous page of the [items].
   FutureOr<void> previous() async {
-    if (elements.isEmpty) {
+    if (items.isEmpty) {
       return around();
     }
 
-    if (hasPrevious.isTrue) {
-      final Page<T, K>? page =
-          await provider.before(elements.first, _startCursor, perPage);
-      if (page != null) {
-        for (var e in page.edges) {
-          _add(e);
+    status.value = RxStatus.loadingMore();
+
+    if (hasPrevious.value) {
+      final Page<T, C>? page =
+          await provider.before(items[items.firstKey()], _startCursor, perPage);
+
+      if (page?.info.endCursor != null) {
+        for (var e in page?.edges ?? []) {
+          items[onKey(e)] = e;
         }
-        hasPrevious.value = page.info!.hasPrevious;
-        _startCursor = page.info!.startCursor ?? _startCursor;
       }
+
+      _startCursor = page?.info.startCursor ?? _startCursor;
+      hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+      status.value = RxStatus.success();
     }
   }
 
-  /// Adds the provided [item] to the [elements].
-  ///
-  /// [item] will be added if it is within the bounds of the stored [elements].
-  void add(T item) {
-    if (elements.isNotEmpty) {
-      if ((compare(item, elements.first) == 1 || hasPrevious.isFalse) &&
-          (compare(item, elements.last) == -1 || hasNext.isFalse)) {
-        _add(item);
-      }
-    } else if (hasNext.isFalse && hasPrevious.isFalse) {
-      _add(item);
-    }
-  }
-
-  /// Adds the provided [item] to the [elements].
-  void _add(T item) {
-    int i = elements.indexWhere((e) => sameItems(e, item));
-    if (i == -1) {
-      elements.insertAfter(item, (e) => compare(item, e) == 1);
-    } else {
-      elements[i] = item;
-    }
+  /// Adds the provided [item] to the [items].
+  Future<void> put(T item) async {
+    items[onKey(item)] = item;
+    await provider.add(item);
   }
 }
 
-/// Result of a paginated page fetching.
-class Page<T, K> {
-  Page(this.edges, {this.info, this.finalResult = true});
+/// List of [T] items along with their [PageInfo] containing the [C] cursor.
+class Page<T, C> {
+  Page(this.edges, this.info);
+
+  /// Reactive [RxStatus] of the [Page] being fetched.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning the page is not fetched.
+  /// - `status.isLoading`, meaning the [edges] are being fetched.
+  /// - `status.isLoadingMore`, meaning some [edges] were fetched from local
+  ///   storage.
+  /// - `status.isSuccess`, meaning the [edges] were successfully fetched.
+  final Rx<RxStatus> status = Rx(RxStatus.success());
 
   /// List of the fetched items.
-  List<T> edges;
+  final RxList<T> edges;
 
   /// [PageInfo] of this [Page].
-  PageInfo<K>? info;
-
-  /// Indicator whether this [Page] will not be updated.
-  bool finalResult;
+  PageInfo<C> info;
 }
 
 /// Base class for fetching items with pagination.
@@ -208,11 +178,14 @@ abstract class PageProvider<T, K> {
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  FutureOr<Rx<Page<T, K>>> around(T? item, K? cursor, int count);
+  FutureOr<Page<T, K>?> around(T? item, K? cursor, int count);
 
   /// Fetches the [Page] after the provided [item] or [cursor].
   FutureOr<Page<T, K>?> after(T? item, K? cursor, int count);
 
   /// Fetches the [Page] before the provided [item] or [cursor].
   FutureOr<Page<T, K>?> before(T? item, K? cursor, int count);
+
+  /// Adds the provided [item] to the [Page] it belongs to.
+  Future<void> add(T item);
 }

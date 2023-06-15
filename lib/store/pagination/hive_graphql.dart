@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model/chat_item.dart';
@@ -54,24 +53,26 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
   bool _beforeFetching = false;
 
   @override
-  FutureOr<Rx<Page<U, T>>> around(U? item, T? cursor, int count) async {
+  FutureOr<Page<U, T>?> around(U? item, T? cursor, int count) async {
     print('\n[AROUND] Request begun');
     final cached = await _hiveProvider.around(item, cursor, count);
     print(
-      '[AROUND] Cached page: [${consoleList(cached.value.edges)}], ${cached.value.info?.startCursor} to ${cached.value.info?.endCursor}, hasPrevious: ${cached.value.info?.hasPrevious}, hasNext: ${cached.value.info?.hasNext}',
+      '[AROUND] Cached page: [${consoleList(cached?.edges)}], ${cached?.info.startCursor} to ${cached?.info.endCursor}, hasPrevious: ${cached?.info.hasPrevious}, hasNext: ${cached?.info.hasNext}',
     );
-    if (cached.value.info != null) {
-      if (cached.value.edges.length < count) {
+
+    if (cached != null && cached.edges.length >= count) {
+      if (cached.edges.length < count) {
         print('[AROUND] Request ongoing with CACHED response');
 
         Future(() async {
           final remote = await _graphQlProvider.around(item, cursor, count);
-          cached.value.edges = remote.value.edges;
-          cached.value.info = remote.value.info;
-          cached.refresh();
+          cached.edges.value = remote.edges;
+          cached.info = remote.info;
           print(
-            '[AROUND] OFFLOADED Remote page: [${consoleList(remote.value.edges)}], ${remote.value.info?.startCursor} to ${remote.value.info?.endCursor}, hasPrevious: ${remote.value.info?.hasPrevious}, hasNext: ${remote.value.info?.hasNext}',
+            '[AROUND] OFFLOADED Remote page: [${consoleList(remote.edges)}], ${remote.info.startCursor} to ${remote.info.endCursor}, hasPrevious: ${remote.info.hasPrevious}, hasNext: ${remote.info.hasNext}',
           );
+
+          await _hiveProvider.put(remote);
         });
 
         return cached;
@@ -83,8 +84,9 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
 
     print('[AROUND] Requesting REMOTE...');
     final remote = await _graphQlProvider.around(item, cursor, count);
+    await _hiveProvider.put(remote);
     print(
-      '[AROUND] Remote page: [${consoleList(remote.value.edges)}], ${remote.value.info?.startCursor} to ${remote.value.info?.endCursor}, hasPrevious: ${remote.value.info?.hasPrevious}, hasNext: ${remote.value.info?.hasNext}',
+      '[AROUND] Remote page: [${consoleList(remote.edges)}], ${remote.info.startCursor} to ${remote.info.endCursor}, hasPrevious: ${remote.info.hasPrevious}, hasNext: ${remote.info.hasNext}',
     );
 
     print('[AROUND] Request done with REMOTE response');
@@ -96,13 +98,15 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
     if (_afterFetching) {
       return null;
     }
+
     print('\n[AFTER] Request begun');
     _afterFetching = true;
     final cached = await _hiveProvider.after(item, cursor, count);
     print(
-      '[AFTER] Cached page: [${consoleList(cached?.edges)}], ${cached?.info?.startCursor} to ${cached?.info?.endCursor}, hasPrevious: ${cached?.info?.hasPrevious}, hasNext: ${cached?.info?.hasNext}',
+      '[AFTER] Cached page: [${consoleList(cached?.edges)}], ${cached?.info.startCursor} to ${cached?.info.endCursor}, hasPrevious: ${cached?.info.hasPrevious}, hasNext: ${cached?.info.hasNext}',
     );
-    if (cached?.info != null) {
+
+    if (cached != null && cached.edges.length >= count) {
       print('[AFTER] Request done with CACHED response');
       _afterFetching = false;
       return cached;
@@ -110,8 +114,11 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
 
     print('[AFTER] Requesting REMOTE...');
     final remote = await _graphQlProvider.after(item, cursor, count);
+    if (remote != null) {
+      await _hiveProvider.put(remote);
+    }
     print(
-      '[AFTER] Remote page: [${consoleList(remote?.edges)}], ${remote?.info?.startCursor} to ${remote?.info?.endCursor}, hasPrevious: ${remote?.info?.hasPrevious}, hasNext: ${remote?.info?.hasNext}',
+      '[AFTER] Remote page: [${consoleList(remote?.edges)}], ${remote?.info.startCursor} to ${remote?.info.endCursor}, hasPrevious: ${remote?.info.hasPrevious}, hasNext: ${remote?.info.hasNext}',
     );
 
     print('[AFTER] Request done with REMOTE response');
@@ -124,13 +131,15 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
     if (_beforeFetching) {
       return null;
     }
+
     print('\n[BEFORE] Request begun');
     _beforeFetching = true;
     final cached = await _hiveProvider.before(item, cursor, count);
     print(
-      '[BEFORE] Cached page: [${consoleList(cached?.edges)}], ${cached?.info?.startCursor} to ${cached?.info?.endCursor}, hasPrevious: ${cached?.info?.hasPrevious}, hasNext: ${cached?.info?.hasNext}',
+      '[BEFORE] Cached page: [${consoleList(cached?.edges)}], ${cached?.info.startCursor} to ${cached?.info.endCursor}, hasPrevious: ${cached?.info.hasPrevious}, hasNext: ${cached?.info.hasNext}',
     );
-    if (cached?.info != null) {
+
+    if (cached != null && cached.edges.length >= count) {
       print('[BEFORE] Request done with CACHED response');
       _beforeFetching = false;
       return cached;
@@ -138,8 +147,11 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
 
     print('[BEFORE] Requesting REMOTE...');
     final remote = await _graphQlProvider.before(item, cursor, count);
+    if (remote != null) {
+      await _hiveProvider.put(remote);
+    }
     print(
-      '[BEFORE] Remote page: [${consoleList(remote?.edges)}], ${remote?.info?.startCursor} to ${remote?.info?.endCursor}, hasPrevious: ${remote?.info?.hasPrevious}, hasNext: ${remote?.info?.hasNext}',
+      '[BEFORE] Remote page: [${consoleList(remote?.edges)}], ${remote?.info.startCursor} to ${remote?.info.endCursor}, hasPrevious: ${remote?.info.hasPrevious}, hasNext: ${remote?.info.hasNext}',
     );
 
     print('[BEFORE] Request done with REMOTE response');
@@ -147,6 +159,12 @@ class HiveGraphQlPageProvider<U, T> implements PageProvider<U, T> {
     return remote;
   }
 
+  @override
+  Future<void> add(U item) async {
+    await _hiveProvider.add(item);
+  }
+
+  // TODO(review): maybe it's better to recreate whole [Pagination]?
   /// Updates the provider in the [_hiveProvider] with the provided [provider].
   void updateHiveProvider(HiveLazyProvider provider) {
     _hiveProvider.updateProvider(provider);

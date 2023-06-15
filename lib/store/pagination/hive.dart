@@ -31,7 +31,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
     this._hiveProvider, {
     required this.getCursor,
     required this.getKey,
-    this.startFromEnd = false,
+    this.reversed = false,
   });
 
   /// Callback returning key of an item.
@@ -42,15 +42,15 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
 
   /// Indicator whether fetching should be started from the end if no item
   /// provided.
-  bool startFromEnd;
+  bool reversed;
 
   /// [HiveLazyProvider] items fetching from.
   HiveLazyProvider _hiveProvider;
 
   @override
-  FutureOr<Rx<Page<U, T>>> around(U? item, T? cursor, int count) async {
+  FutureOr<Page<U, T>?> around(U? item, T? cursor, int count) async {
     if (_hiveProvider.keys.isEmpty || (item == null && cursor != null)) {
-      return Page<U, T>(RxList()).obs;
+      return null;
     }
 
     Iterable<dynamic>? keys;
@@ -68,7 +68,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       }
     }
 
-    if (startFromEnd) {
+    if (reversed) {
       keys ??= _hiveProvider.keys.toList().reversed.take(count);
     } else {
       keys ??= _hiveProvider.keys.take(count);
@@ -86,7 +86,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
     // stored values, thus `hasPrevious` and `hasNext` is always `true`.
     return Page(
       RxList(items.toList()),
-      info: PageInfo(
+      PageInfo(
         startCursor:
             getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
         endCursor:
@@ -94,8 +94,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
         hasPrevious: true,
         hasNext: true,
       ),
-      finalResult: items.length == count,
-    ).obs;
+    );
   }
 
   @override
@@ -119,7 +118,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       // stored values, thus `hasPrevious` and `hasNext` is always `true`.
       return Page(
         RxList(items.toList()),
-        info: PageInfo(
+        PageInfo(
           startCursor:
               getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
           endCursor:
@@ -130,7 +129,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       );
     }
 
-    return Page(RxList());
+    return null;
   }
 
   @override
@@ -158,7 +157,7 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       // stored values, thus `hasPrevious` and `hasNext` is always `true`.
       return Page(
         RxList(items.toList()),
-        info: PageInfo(
+        PageInfo(
           startCursor:
               getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
           endCursor:
@@ -169,7 +168,18 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
       );
     }
 
-    return Page(RxList());
+    return null;
+  }
+
+  Future<void> put(Page<U, T> page) async {
+    for (var item in page.edges) {
+      await add(item);
+    }
+  }
+
+  @override
+  Future<void> add(U item) async {
+    await _hiveProvider.putSafe(getKey(item), item!);
   }
 
   /// Updates the [_hiveProvider] with the provided [provider].

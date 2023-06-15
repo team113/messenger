@@ -30,7 +30,7 @@ import 'package:messenger/store/model/page_info.dart';
 import 'package:messenger/store/pagination/graphql.dart';
 import 'package:messenger/store/pagination/hive.dart';
 import 'package:messenger/store/pagination/hive_graphql.dart';
-import 'package:messenger/store/pagination2.dart';
+import 'package:messenger/store/pagination.dart';
 import 'package:messenger/config.dart';
 
 String consoleList<U>(RxList<U> items) {
@@ -46,7 +46,7 @@ void main() async {
   test('Parsing UserPhone successfully', () async {
     Hive.init('./test/.temp_hive/pagination3_unit');
     await Config.init();
-    const ChatId chatId = ChatId('c466c174-0013-4ddc-ad6a-e56374d3c2d7');
+    const ChatId chatId = ChatId('8bbf02de-2b43-4a97-94b2-dcb57883d922');
 
     final ChatItemHiveProvider chatItemProvider = ChatItemHiveProvider(chatId);
     await chatItemProvider.init();
@@ -56,8 +56,8 @@ void main() async {
 
     final GraphQlProvider graphQlProvider = GraphQlProvider();
     final response = await graphQlProvider.signIn(
-      UserPassword('password'),
-      UserLogin('login'),
+      UserPassword('123'),
+      UserLogin('nikita'),
       null,
       null,
       null,
@@ -66,36 +66,32 @@ void main() async {
     graphQlProvider.token = response.session.token;
 
     final Pagination<HiveChatItem, ChatItemsCursor> pagination = Pagination(
-      perPage: 5,
+      perPage: 4,
       provider: HiveGraphQlPageProvider(
         HivePageProvider<HiveChatItem, ChatItemsCursor>(
           chatItemProvider,
-          getKey: (i) => i.value.timestamp,
+          getKey: (i) => i.value.key,
           getCursor: (i) => i?.cursor,
         ),
-        GraphQlPageProvider<HiveChatItem, ChatItemsCursor, GetMessages$Query>(
+        GraphQlPageProvider<HiveChatItem, ChatItemsCursor>(
           fetch: ({after, before, first, last}) async {
-            return await graphQlProvider.chatItems(
+            final q = await graphQlProvider.chatItems(
               chatId,
               first: first,
               after: after,
               last: last,
               before: before,
             );
-          },
-          transform: (q) {
-            final PageInfo<String> info = q.chat!.items.pageInfo.toModel();
+
+            final PageInfo<ChatItemsCursor> info =
+                q.chat!.items.pageInfo.toModel((e) => ChatItemsCursor(e));
             return Page(
               RxList(q.chat!.items.edges.map((e) => e.toHive()).toList()),
               PageInfo<ChatItemsCursor>(
                 hasNext: info.hasNext,
                 hasPrevious: info.hasPrevious,
-                startCursor: info.startCursor == null
-                    ? null
-                    : ChatItemsCursor(info.startCursor!),
-                endCursor: info.endCursor == null
-                    ? null
-                    : ChatItemsCursor(info.endCursor!),
+                startCursor: info.startCursor,
+                endCursor: info.endCursor,
               ),
             );
           },
@@ -106,9 +102,9 @@ void main() async {
     void console() {
       print('\n');
       print(
-        pagination.element.map(
+        pagination.pages.map(
           (e) =>
-              '[${consoleList(e.edges)}] (${e.info?.startCursor} to ${e.info?.endCursor})',
+              '[${consoleList(e.edges)}] (${e.info.startCursor} to ${e.info.endCursor})',
         ),
       );
       print('\n');
@@ -117,14 +113,27 @@ void main() async {
     await pagination.around();
     console();
 
-    await Future.delayed(const Duration(seconds: 2));
+    // await Future.delayed(const Duration(seconds: 2));
+    // console();
+
+    await pagination.previous();
     console();
 
-    // await pagination.previous();
-    // console();
+    await pagination.next();
+    console();
 
-    // await pagination.next();
-    // console();
+    pagination.add(HiveChatMessage.sending(
+      chatId: chatId,
+      me: const UserId('me'),
+      text: ChatMessageText('sending'),
+    ));
+    pagination.add(HiveChatMessage.sending(
+      chatId: chatId,
+      me: const UserId('me'),
+      text: ChatMessageText('sending'),
+    ));
+
+    console();
 
     print(
       'hasPrevious: ${pagination.hasPrevious}, hasNext: ${pagination.hasNext}',

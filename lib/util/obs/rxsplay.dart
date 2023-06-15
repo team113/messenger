@@ -15,10 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+
+import 'obs.dart';
 
 /// `GetX`-reactive [SplayTreeMap].
 ///
@@ -62,6 +65,12 @@ class RxSplayTreeMap<K, V> extends SplayTreeMap<K, V>
   /// Internal actual value of the [SplayTreeMap] this [RxSplayTreeMap] holds.
   late SplayTreeMap<K, V> _value;
 
+  /// [StreamController] of record of changes of this [ObsMap].
+  final _changes = StreamController<MapChangeNotification<K, V>>.broadcast();
+
+  /// Returns stream of record of changes of this [ObsMap].
+  Stream<MapChangeNotification<K, V>> get changes => _changes.stream;
+
   @override
   bool get isEmpty => _value.isEmpty;
 
@@ -80,19 +89,33 @@ class RxSplayTreeMap<K, V> extends SplayTreeMap<K, V>
   @override
   Iterable<MapEntry<K, V>> get entries => _value.entries;
 
+  /// Emits a new [event].
+  ///
+  /// May be used to explicitly notify the listeners of the [changes].
+  void emit(MapChangeNotification<K, V> event) => _changes.add(event);
+
   @override
   V? operator [](Object? key) => _value[key];
 
   @override
   V? remove(Object? key) {
-    V? result = _value.remove(key);
+    V? result = super.remove(key);
+    if (result != null) {
+      _changes.add(MapChangeNotification<K, V>.removed(key as K?, result));
+    }
     refresh();
     return result;
   }
 
   @override
   void operator []=(K key, V value) {
-    _value[key] = value;
+    if (super.containsKey(key)) {
+      _value[key] = value;
+      _changes.add(MapChangeNotification<K, V>.updated(key, key, value));
+    } else {
+      _value[key] = value;
+      _changes.add(MapChangeNotification<K, V>.added(key, value));
+    }
     refresh();
   }
 
@@ -131,6 +154,9 @@ class RxSplayTreeMap<K, V> extends SplayTreeMap<K, V>
 
   @override
   void clear() {
+    for (var entry in entries) {
+      _changes.add(MapChangeNotification<K, V>.removed(entry.key, entry.value));
+    }
     _value.clear();
     refresh();
   }

@@ -17,8 +17,6 @@
 
 import 'dart:async';
 
-import 'package:get/get.dart';
-
 import '/store/pagination.dart';
 
 /// [PageProvider] fetching items from the remote.
@@ -41,10 +39,10 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   bool startFromEnd;
 
   @override
-  FutureOr<Rx<Page<U, T>>> around(U? item, T? cursor, int count) async {
+  FutureOr<Page<U, T>> around(U? item, T? cursor, int count) async {
     final int half = count ~/ 2;
 
-    return (await fetch(
+    return await fetch(
       after: cursor,
       first: cursor == null
           ? startFromEnd
@@ -57,8 +55,7 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
               ? count
               : null
           : half,
-    ))
-        .obs;
+    );
   }
 
   @override
@@ -77,5 +74,10 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
     }
 
     return await fetch(before: cursor, last: count);
+  }
+
+  @override
+  Future<void> add(U item) async {
+    // No-op.
   }
 }

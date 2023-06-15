@@ -33,12 +33,12 @@ import 'package:messenger/config.dart';
 void main() async {
   test('Parsing UserPhone successfully', () async {
     await Config.init();
-    const ChatId chatId = ChatId('8bbf02de-2b43-4a97-94b2-dcb57883d922');
+    const ChatId chatId = ChatId('c466c174-0013-4ddc-ad6a-e56374d3c2d7');
 
     final GraphQlProvider graphQlProvider = GraphQlProvider();
     final response = await graphQlProvider.signIn(
-      UserPassword('123'),
-      UserLogin('nikita'),
+      UserPassword('password'),
+      UserLogin('login'),
       null,
       null,
       null,
@@ -46,10 +46,10 @@ void main() async {
     );
     graphQlProvider.token = response.session.token;
 
-    final Pagination<HiveChatItem, String, ChatItemsCursor> pagination =
+    final Pagination<HiveChatItem, ChatItemsCursor, String> pagination =
         Pagination(
       perPage: 4,
-      onKey: (i) => i.value.key,
+      onKey: (e) => e.value.key,
       provider: GraphQlPageProvider<HiveChatItem, ChatItemsCursor>(
         fetch: ({after, before, first, last}) async {
           final q = await graphQlProvider.chatItems(
@@ -61,10 +61,10 @@ void main() async {
           );
 
           final PageInfo<ChatItemsCursor> info =
-              q.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c));
+              q.chat!.items.pageInfo.toModel((e) => ChatItemsCursor(e));
           return Page(
             RxList(q.chat!.items.edges.map((e) => e.toHive()).toList()),
-            PageInfo<ChatItemsCursor>(
+            info: PageInfo<ChatItemsCursor>(
               hasNext: info.hasNext,
               hasPrevious: info.hasPrevious,
               startCursor: info.startCursor,
@@ -76,22 +76,14 @@ void main() async {
     );
 
     void console() {
-      print('${pagination.items.values.map((m) {
-        if (m is HiveChatMessage) {
-          return '${(m.value as ChatMessage).text}';
-        }
-        return '$m';
-      })} (${pagination.info.value.startCursor} to ${pagination.info.value.endCursor})');
-      // print(
-      //   pagination.pages.map(
-      //     (e) => '[${e.edges.map((m) {
-      //       if (m is HiveChatMessage) {
-      //         return '${(m.value as ChatMessage).text}';
-      //       }
-      //       return '$m';
-      //     })}] (${e.info.startCursor} to ${e.info.endCursor})',
-      //   ),
-      // );
+      print(
+        '[${pagination.elements.values.map((m) {
+          if (m is HiveChatMessage) {
+            return '${(m.value as ChatMessage).text}';
+          }
+          return '$m';
+        })}] (${pagination.hasPrevious} to ${pagination.hasNext})',
+      );
     }
 
     await pagination.around();
@@ -104,7 +96,7 @@ void main() async {
     console();
 
     print(
-      'hasPrevious: ${pagination.info.value.hasPrevious}, hasNext: ${pagination.info.value.hasNext}',
+      'hasPrevious: ${pagination.hasPrevious}, hasNext: ${pagination.hasNext}',
     );
   });
 }

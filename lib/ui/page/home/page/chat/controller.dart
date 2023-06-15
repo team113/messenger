@@ -925,7 +925,8 @@ class ChatController extends GetxController {
         readChat(_lastSeenItem.value);
       }
 
-      ensureScrollable() {
+      // TODO(review): docs
+      void ensureScrollable() {
         SchedulerBinding.instance.addPostFrameCallback((_) async {
           for (int i = 0; i < 10 && !listController.hasClients; i++) {
             await Future.delayed(10.milliseconds);

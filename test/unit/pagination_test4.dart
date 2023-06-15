@@ -32,7 +32,7 @@ void main() async {
 
     void console() {
       print(
-        '[${pagination.items.values}] (${pagination.info.value.startCursor} to ${pagination.info.value.endCursor})',
+        '${pagination.hasPrevious} [${pagination.elements.values}] ${pagination.hasNext}',
       );
     }
 
@@ -45,9 +45,20 @@ void main() async {
     await pagination.previous();
     console();
 
-    print(
-      'hasPrevious: ${pagination.info.value.hasPrevious}, hasNext: ${pagination.info.value.hasNext}',
-    );
+    await pagination.previous();
+    console();
+
+    await pagination.previous();
+    console();
+
+    await pagination.previous();
+    console();
+
+    await pagination.previous();
+    console();
+
+    await pagination.previous();
+    console();
   });
 }
 
@@ -55,7 +66,7 @@ class _ListPageProvider implements PageProvider<int, int> {
   final List<int> _items = List.generate(50, (i) => i);
 
   @override
-  FutureOr<Page<int, int>> around(int? item, int? cursor, int count) {
+  FutureOr<Rx<Page<int, int>>> around(int? item, int? cursor, int count) {
     final int half = count ~/ 2;
 
     cursor ??= half;
@@ -70,38 +81,38 @@ class _ListPageProvider implements PageProvider<int, int> {
       after = _items.length - cursor;
     }
 
-    return Page(
+    return Rx(Page(
       RxList(_items.skip(cursor - before).take(before + after).toList()),
-      PageInfo<int>(
+      info: PageInfo<int>(
         hasPrevious: cursor - before > 0,
         hasNext: cursor + after < _items.length,
         startCursor: cursor - before,
         endCursor: cursor + after - 1,
       ),
-    );
+    ));
   }
 
   @override
-  FutureOr<Page<int, int>> after(int? value, int? cursor, int count) {
+  FutureOr<Page<int, int>> after(int? element, int? cursor, int count) {
     cursor ??= 0;
 
-    if (cursor + 1 + count > _items.length) {
-      count = _items.length - cursor - 1;
+    if (cursor + count > _items.length) {
+      count = _items.length - cursor;
     }
 
     return Page(
-      RxList(_items.skip(cursor + 1).take(count).toList()),
-      PageInfo<int>(
-        hasPrevious: cursor + 1 > 0,
-        hasNext: cursor + 1 + count < _items.length,
-        startCursor: cursor + 1,
-        endCursor: cursor + count,
+      RxList(_items.skip(cursor).take(count).toList()),
+      info: PageInfo<int>(
+        hasPrevious: cursor > 0,
+        hasNext: cursor + count < _items.length,
+        startCursor: cursor,
+        endCursor: cursor + count - 1,
       ),
     );
   }
 
   @override
-  FutureOr<Page<int, int>> before(int? item, int? cursor, int count) {
+  FutureOr<Page<int, int>> before(int? element, int? cursor, int count) {
     cursor ??= 0;
 
     if (cursor - count < 0) {
@@ -110,7 +121,7 @@ class _ListPageProvider implements PageProvider<int, int> {
 
     return Page(
       RxList(_items.skip(cursor - count).take(count).toList()),
-      PageInfo<int>(
+      info: PageInfo<int>(
         hasPrevious: cursor - count > 0,
         hasNext: cursor < _items.length,
         startCursor: cursor - count,
@@ -118,7 +129,4 @@ class _ListPageProvider implements PageProvider<int, int> {
       ),
     );
   }
-
-  @override
-  Future<void> add(int item) async {}
 }
