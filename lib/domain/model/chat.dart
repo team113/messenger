@@ -273,7 +273,8 @@ class LastChatRead {
 class ChatId extends NewType<String> {
   const ChatId(super.val);
 
-  /// Constructs a dummy [ChatId].
+  /// Constructs a local [ChatId] from the [id] of the [User] with whom the
+  /// local [Chat] is created.
   factory ChatId.local(UserId id) => ChatId('local_${id.val}');
 
   /// Indicates whether this [ChatId] is a dummy ID.
@@ -283,6 +284,10 @@ class ChatId extends NewType<String> {
   UserId get userId => isLocal
       ? UserId(val.replaceFirst('local_', ''))
       : throw Exception('ChatId is not local');
+
+  /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
+  /// equals the provided [id].
+  bool isLocalWith(UserId? id) => isLocal && userId == id;
 }
 
 /// Name of a [Chat].

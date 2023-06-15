@@ -22,6 +22,7 @@ Feature: Chats selection
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
     And I have "Alice and Charlie" group with Charlie
+    And I wait until text "Alice and Charlie" is present
 
     When I long press "Alice and Bob" chat
     And I tap `SelectChatButton` button

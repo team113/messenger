@@ -89,8 +89,7 @@ class ChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final (style, fonts) = Theme.of(context).styles;
 
     return ContextMenuRegion(
       key: Key('Chat_${chat?.chat.value.id}'),
@@ -103,7 +102,7 @@ class ChatTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
-            selectedColor: colors.secondary,
+            selectedColor: style.colors.primary,
             unselectedColor: style.cardColor.darken(darken),
             selected: selected,
             hoveredBorder:
@@ -112,7 +111,7 @@ class ChatTile extends StatelessWidget {
             borderRadius: style.cardRadius,
             onTap: onTap,
             unselectedHoverColor: style.cardColor.darken(darken + 0.03),
-            selectedHoverColor: colors.secondary,
+            selectedHoverColor: style.colors.primary,
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null
@@ -140,14 +139,11 @@ class ChatTile extends StatelessWidget {
                                         chat?.title.value ?? ('dot'.l10n * 3),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
-                                              color: selected
-                                                  ? colors.onSecondary
-                                                  : null,
-                                            ),
+                                        style: fonts.headlineLarge!.copyWith(
+                                          color: selected
+                                              ? style.colors.onPrimary
+                                              : style.colors.onBackground,
+                                        ),
                                       );
                                     }),
                                   ),

@@ -27,6 +27,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
+// ignore: implementation_imports
+import 'package:flutter_meedu_videoplayer/src/video_player_used.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -57,6 +60,20 @@ import 'util/web/web_utils.dart';
 Future<void> main() async {
   await Config.init();
 
+  // TODO: iOS should use `video_player`:
+  //       https://github.com/flutter/flutter/issues/56665
+  if (PlatformUtils.isDesktop || PlatformUtils.isIOS) {
+    VideoPlayerUsed.mediaKit = true;
+  } else {
+    VideoPlayerUsed.videoPlayer = true;
+  }
+
+  // TODO: Invoke `initMeeduPlayer` when `windowManager` is not invoked.
+  initVideoPlayerMediaKitIfNeeded(
+    iosUseMediaKit: true,
+    logLevel: MPVLogLevel.error,
+  );
+
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
@@ -65,7 +82,7 @@ Future<void> main() async {
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
-      await windowManager.setMinimumSize(const Size(100, 100));
+      await windowManager.setMinimumSize(const Size(400, 400));
 
       final WindowPreferencesHiveProvider preferences = Get.find();
       final WindowPreferences? prefs = preferences.get();

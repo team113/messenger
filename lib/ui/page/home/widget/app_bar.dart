@@ -60,7 +60,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
+
     final double top = MediaQuery.of(context).padding.top;
 
     return Column(
@@ -70,7 +71,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           Container(
             height: top,
             width: double.infinity,
-            color: Colors.transparent,
+            color: style.colors.transparent,
           ),
         Expanded(
           child: Padding(
@@ -79,10 +80,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: height,
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                boxShadow: const [
+                boxShadow: [
                   CustomBoxShadow(
                     blurRadius: 8,
-                    color: Color(0x22000000),
+                    color: style.colors.onBackgroundOpacity13,
                     blurStyle: BlurStyle.outer,
                   ),
                 ],
@@ -107,7 +108,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ...leading,
                       Expanded(
                         child: DefaultTextStyle.merge(
-                          style: Theme.of(context).appBarTheme.titleTextStyle,
+                          style: fonts.headlineMedium,
                           child:
                               Center(child: title ?? const SizedBox.shrink()),
                         ),

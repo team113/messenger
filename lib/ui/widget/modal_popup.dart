@@ -47,14 +47,14 @@ abstract class ModalPopup {
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
   }) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     if (context.isMobile) {
       return showModalBottomSheet(
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
+        backgroundColor: style.colors.onPrimary,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
@@ -77,7 +77,7 @@ abstract class ModalPopup {
                       width: 60,
                       height: 3,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFCCCCCC),
+                        color: style.colors.secondaryHighlightDarkest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
@@ -112,7 +112,7 @@ abstract class ModalPopup {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: desktopPadding,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: style.colors.onPrimary,
                 borderRadius: style.cardRadius,
               ),
               child: ConstrainedBox(
@@ -145,6 +145,8 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
       child: Row(
@@ -157,7 +159,7 @@ class ModalPopupHeader extends StatelessWidget {
                 child: Icon(
                   Icons.arrow_back_ios_new,
                   size: 14,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
             )
@@ -173,7 +175,7 @@ class ModalPopupHeader extends StatelessWidget {
                 child: Icon(
                   Icons.close,
                   size: 18,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
             )

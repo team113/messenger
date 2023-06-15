@@ -28,7 +28,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -51,6 +51,8 @@ class ChatInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder<ChatInfoController>(
       key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
@@ -76,8 +78,8 @@ class ChatInfoView extends StatelessWidget {
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: const Color(0x55000000),
-                    color: Colors.white,
+                    shadowColor: style.colors.onBackgroundOpacity27,
+                    color: style.colors.onPrimary,
                     child: Center(
                       child: AvatarWidget.fromRxChat(c.chat, radius: 17),
                     ),
@@ -163,8 +165,8 @@ class ChatInfoView extends StatelessWidget {
                             child: Container(
                               height: 22,
                               width: 22,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
+                              decoration: BoxDecoration(
+                                color: style.colors.dangerColor,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -183,7 +185,7 @@ class ChatInfoView extends StatelessWidget {
                               height: 22,
                               width: 22,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: style.colors.primary,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -240,7 +242,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a subtitle to display under the [Chat]'s title.
   Widget _chatSubtitle(ChatInfoController c, BuildContext context) {
-    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       final Rx<Chat> chat = c.chat!.chat;
@@ -248,7 +250,10 @@ class ChatInfoView extends StatelessWidget {
       if (chat.value.isGroup) {
         final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
-          return Text(subtitle, style: style);
+          return Text(
+            subtitle,
+            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+          );
         }
       }
 
@@ -263,6 +268,8 @@ class ChatInfoView extends StatelessWidget {
   /// Returns a [Chat.avatar] visual representation along with its manipulation
   /// buttons.
   Widget _avatar(ChatInfoController c, BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     return Column(
       children: [
         Stack(
@@ -300,9 +307,9 @@ class ChatInfoView extends StatelessWidget {
                       ? Container(
                           width: 200,
                           height: 200,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Color(0x22000000),
+                            color: style.colors.onBackgroundOpacity13,
                           ),
                           child: const Center(child: CustomProgressIndicator()),
                         )
@@ -321,26 +328,22 @@ class ChatInfoView extends StatelessWidget {
               onPressed: c.pickAvatar,
               child: Text(
                 'btn_upload'.l10n,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 11,
-                ),
+                style: fonts.bodySmall!.copyWith(color: style.colors.primary),
               ),
             ),
             if (c.chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
-                style: const TextStyle(color: Colors.black, fontSize: 11),
+                style: fonts.bodySmall!.copyWith(
+                  color: style.colors.onBackground,
+                ),
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
                 onPressed: c.deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 11,
-                  ),
+                  style: fonts.bodySmall!.copyWith(color: style.colors.primary),
                 ),
               ),
             ],
@@ -360,7 +363,7 @@ class ChatInfoView extends StatelessWidget {
           label: c.chat?.chat.value.name == null
               ? c.chat?.title.value
               : 'label_name'.l10n,
-          hint: 'label_name_hint'.l10n,
+          hint: 'label_chat_name_hint'.l10n,
           onSuffixPressed: c.name.text.isEmpty
               ? null
               : () {
@@ -383,6 +386,8 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a [Chat.directLink] editable field.
   Widget _link(ChatInfoController c, BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,10 +424,6 @@ class ChatInfoView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.normal,
-                    ),
                     children: [
                       TextSpan(
                         text: 'label_transition_count'.l10nfmt({
@@ -430,13 +431,15 @@ class ChatInfoView extends StatelessWidget {
                                   c.chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                        style: fonts.labelSmall!.copyWith(
+                          color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: const TextStyle(color: Color(0xFF00A3FF)),
+                        style: fonts.labelSmall!.copyWith(
+                          color: style.colors.primary,
+                        ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                     ],
@@ -466,7 +469,7 @@ class ChatInfoView extends StatelessWidget {
         members.insert(0, me);
       }
 
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       Widget bigButton({
         Key? key,
@@ -481,7 +484,7 @@ class ChatInfoView extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: style.cardRadius,
               border: style.cardBorder,
-              color: Colors.transparent,
+              color: style.colors.transparent,
             ),
             child: Material(
               type: MaterialType.card,
@@ -500,10 +503,8 @@ class ChatInfoView extends StatelessWidget {
                         child: DefaultTextStyle(
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.secondary,
-                            fontWeight: FontWeight.w300,
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.primary,
                           ),
                           child: title,
                         ),
@@ -527,10 +528,7 @@ class ChatInfoView extends StatelessWidget {
         children: [
           bigButton(
             key: const Key('AddMemberButton'),
-            leading: Icon(
-              Icons.people,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+            leading: Icon(Icons.people, color: style.colors.primary),
             title: Text('btn_add_member'.l10n),
             onTap: () => AddChatMemberView.show(context, chatId: id),
           ),
@@ -554,8 +552,8 @@ class ChatInfoView extends StatelessWidget {
                       child: Container(
                         height: 22,
                         width: 22,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
+                        decoration: BoxDecoration(
+                          color: style.colors.dangerColor,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -569,7 +567,7 @@ class ChatInfoView extends StatelessWidget {
                     )
                   else
                     Material(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: style.colors.primary,
                       type: MaterialType.circle,
                       child: InkWell(
                         onTap: () => c.redialChatCallMember(e.id),
@@ -594,9 +592,8 @@ class ChatInfoView extends StatelessWidget {
                     onPressed: () => _removeChatMember(c, context, e),
                     child: Text(
                       'btn_leave'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 15,
+                      style: fonts.labelLarge!.copyWith(
+                        color: style.colors.primary,
                       ),
                     ),
                   )
@@ -618,98 +615,15 @@ class ChatInfoView extends StatelessWidget {
     });
   }
 
-  /// Dense [Padding] wrapper.
-  Widget _dense(Widget child) =>
-      Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
-
   /// Returns the action buttons to do with this [Chat].
   Widget _actions(ChatInfoController c, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!c.isMonolog) ...[
-          _dense(
-            FieldButton(
-              onPressed: () {},
-              text: 'btn_add_to_contacts'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-                ),
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
-          const SizedBox(height: 10),
-        ],
-        if (!c.isLocal) ...[
-          _dense(
-            Obx(() {
-              final bool favorited =
-                  c.chat?.chat.value.favoritePosition != null;
-
-              return FieldButton(
-                key: Key(
-                  favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
-                ),
-                onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
-                text: favorited
-                    ? 'btn_delete_from_favorites'.l10n
-                    : 'btn_add_to_favorites'.l10n,
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child:
-                        SvgImage.asset('assets/icons/delete.svg', height: 14),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
-              );
-            }),
-          ),
-          const SizedBox(height: 10),
-        ],
-        if (!c.isMonolog) ...[
-          _dense(
-            Obx(() {
-              final bool muted = c.chat?.chat.value.muted != null;
-
-              return FieldButton(
-                onPressed: muted ? c.unmuteChat : c.muteChat,
-                text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: muted
-                        ? SvgImage.asset(
-                            'assets/icons/btn_mute.svg',
-                            width: 18.68,
-                            height: 15,
-                          )
-                        : SvgImage.asset(
-                            'assets/icons/btn_unmute.svg',
-                            width: 17.86,
-                            height: 15,
-                          ),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
-              );
-            }),
-          ),
-          const SizedBox(height: 10),
-        ],
-        _dense(
-          FieldButton(
-            key: const Key('HideChatButton'),
-            onPressed: () => _hideChat(c, context),
-            text: 'btn_hide_chat'.l10n,
+        if (!c.isMonolog)
+          ActionButton(
+            onPressed: () {},
+            text: 'btn_add_to_contacts'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(
@@ -717,15 +631,17 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          FieldButton(
-            key: const Key('ClearHistoryButton'),
-            onPressed: () => _clearChat(c, context),
-            text: 'btn_clear_history'.l10n,
+        Obx(() {
+          final bool favorited = c.chat?.chat.value.favoritePosition != null;
+          return ActionButton(
+            key: Key(
+              favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
+            ),
+            onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
+            text: favorited
+                ? 'btn_delete_from_favorites'.l10n
+                : 'btn_add_to_favorites'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(
@@ -733,53 +649,89 @@ class ChatInfoView extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          );
+        }),
+        if (!c.isMonolog)
+          Obx(() {
+            final bool muted = c.chat?.chat.value.muted != null;
+            return ActionButton(
+              onPressed: muted ? c.unmuteChat : c.muteChat,
+              text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: muted
+                      ? SvgImage.asset(
+                          'assets/icons/btn_mute.svg',
+                          width: 18.68,
+                          height: 15,
+                        )
+                      : SvgImage.asset(
+                          'assets/icons/btn_unmute.svg',
+                          width: 17.86,
+                          height: 15,
+                        ),
+                ),
+              ),
+            );
+          }),
+        ActionButton(
+          key: const Key('HideChatButton'),
+          onPressed: () => _hideChat(c, context),
+          text: 'btn_hide_chat'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+        ),
+        ActionButton(
+          key: const Key('ClearHistoryButton'),
+          onPressed: () => _clearChat(c, context),
+          text: 'btn_clear_history'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
           ),
         ),
         if (!c.isMonolog) ...[
-          const SizedBox(height: 10),
-          _dense(
-            FieldButton(
-              onPressed: () => _leaveGroup(c, context),
-              text: 'btn_leave_group'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-                ),
+          ActionButton(
+            onPressed: () => _leaveGroup(c, context),
+            text: 'btn_leave_group'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
-          const SizedBox(height: 10),
-          _dense(
-            FieldButton(
-              onPressed: () => _blacklistChat(c, context),
-              text: 'btn_block'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-                ),
+          ActionButton(
+            onPressed: () => _blacklistChat(c, context),
+            text: 'btn_block'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
-          const SizedBox(height: 10),
-          _dense(
-            FieldButton(
-              onPressed: () {},
-              text: 'btn_report'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-                ),
+          ActionButton(
+            onPressed: () {},
+            text: 'btn_report'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
         ],
@@ -793,6 +745,8 @@ class ChatInfoView extends StatelessWidget {
     BuildContext context,
     RxUser user,
   ) async {
+    final fonts = Theme.of(context).fonts;
+
     if (c.me == user.id) {
       await _leaveGroup(c, context);
     } else {
@@ -802,7 +756,7 @@ class ChatInfoView extends StatelessWidget {
           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
           TextSpan(
             text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: const TextStyle(color: Colors.black),
+            style: fonts.labelLarge,
           ),
           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
         ],
@@ -828,14 +782,13 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
+    final fonts = Theme.of(context).fonts;
+
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
+        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
@@ -847,14 +800,13 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
+    final fonts = Theme.of(context).fonts;
+
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
+        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
     );
@@ -869,14 +821,13 @@ class ChatInfoView extends StatelessWidget {
     ChatInfoController c,
     BuildContext context,
   ) async {
+    final fonts = Theme.of(context).fonts;
+
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
+        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],
     );

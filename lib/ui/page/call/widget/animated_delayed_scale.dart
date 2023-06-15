@@ -22,13 +22,13 @@ import 'package:flutter/material.dart';
 /// [AnimatedScale] with an optional delay.
 class AnimatedDelayedScale extends StatefulWidget {
   const AnimatedDelayedScale({
-    Key? key,
+    super.key,
     this.delay = Duration.zero,
     this.beginScale = 0,
     this.endScale = 1,
     this.duration = const Duration(milliseconds: 300),
     required this.child,
-  }) : super(key: key);
+  });
 
   /// [Duration] of the delay.
   final Duration delay;

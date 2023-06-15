@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -41,8 +42,7 @@ class CallWindowSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final fonts = Theme.of(context).fonts;
 
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
@@ -56,10 +56,7 @@ class CallWindowSwitchView extends StatelessWidget {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text(
-                    'label_calls'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
+                  child: Text('label_calls'.l10n, style: fonts.headlineMedium),
                 ),
               ),
               const SizedBox(height: 13),

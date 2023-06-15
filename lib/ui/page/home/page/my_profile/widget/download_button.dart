@@ -19,11 +19,12 @@ import 'package:flutter/material.dart';
 
 import '/config.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'field_button.dart';
 
 /// [FieldButton] stylized with the provided [asset] and [title] downloading a
 /// file by the specified [link] when pressed.
@@ -54,6 +55,8 @@ class DownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     return FieldButton(
       text: 'space'.l10n * 4 + title,
       textAlign: TextAlign.center,
@@ -86,7 +89,7 @@ class DownloadButton extends StatelessWidget {
           child: SvgImage.asset('assets/icons/copy.svg', height: 15),
         ),
       ),
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      style: fonts.titleMedium!.copyWith(color: style.colors.primary),
     );
   }
 }
