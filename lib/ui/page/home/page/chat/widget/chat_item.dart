@@ -863,6 +863,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             const SizedBox(height: 6),
           ],
           if (media.isNotEmpty) ...[
+            // TODO: Show images in the next way: https://stackoverflow.com/a/56556873
+            // Needs to know size of images.
             ClipRRect(
               borderRadius: BorderRadius.only(
                 topLeft: msg.repliesTo.isNotEmpty ||
@@ -1269,6 +1271,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
                     style.colors.userColors.length];
 
+        // No way to apply borderRadius for [BorderSide].
         return ClipRRect(
           borderRadius: style.cardRadius,
           child: Container(
