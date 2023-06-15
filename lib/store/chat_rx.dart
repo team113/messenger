@@ -392,7 +392,10 @@ class HiveRxChat extends RxChat {
     }
 
     _readTimer?.cancel();
-    _readTimer = AwaitableTimer(const Duration(seconds: 1), () async {
+    _readTimer = AwaitableTimer(
+        chat.value.lastItem?.id == untilId
+            ? Duration.zero
+            : const Duration(seconds: 1), () async {
       try {
         await _chatRepository.readUntil(id, untilId);
       } catch (_) {
@@ -657,7 +660,10 @@ class HiveRxChat extends RxChat {
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
-      saved.forEach(_local.put);
+      for (var e in saved) {
+        e.value.chatId = newChat.id;
+        _local.put(e);
+      }
 
       _initLocalSubscription();
     }
@@ -950,14 +956,22 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
-              chatEntity.value.ongoingCall = event.call;
 
-              if (chat.value.isGroup) {
-                chatEntity.value.ongoingCall!.conversationStartedAt =
-                    PreciseDateTime.now();
+              if (!chat.value.isDialog) {
+                event.call.conversationStartedAt ??= PreciseDateTime.now();
               }
 
+              chatEntity.value.ongoingCall = event.call;
               _chatRepository.addCall(event.call);
+
+              var message =
+                  await get(event.call.id, timestamp: event.call.timestamp);
+
+              if (message != null) {
+                event.call.at = message.value.at;
+                message.value = event.call;
+                message.save();
+              }
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -1022,7 +1036,18 @@ class HiveRxChat extends RxChat {
 
                 if (ids != null && ids.length >= 2) {
                   chatEntity.value.ongoingCall?.conversationStartedAt =
-                      PreciseDateTime.now();
+                      event.call.conversationStartedAt ?? event.at;
+
+                  if (chatEntity.value.ongoingCall != null) {
+                    final call = chatEntity.value.ongoingCall!;
+                    var message = await get(call.id, timestamp: call.timestamp);
+
+                    if (message != null) {
+                      call.at = message.value.at;
+                      message.value = call;
+                      message.save();
+                    }
+                  }
                 }
               }
               break;
@@ -1030,6 +1055,15 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.lastItemUpdated:
               event as EventChatLastItemUpdated;
               chatEntity.value.lastItem = event.lastItem?.value;
+
+              // TODO [ChatCall.conversationStartedAt] shouldn't be `null` here
+              //      when starting group or monolog [ChatCall].
+              if (!chatEntity.value.isDialog &&
+                  chatEntity.value.lastItem is ChatCall) {
+                (chatEntity.value.lastItem as ChatCall).conversationStartedAt =
+                    PreciseDateTime.now();
+              }
+
               chatEntity.value.updatedAt =
                   event.lastItem?.value.at ?? chatEntity.value.updatedAt;
               if (event.lastItem != null) {
@@ -1128,6 +1162,7 @@ class HiveRxChat extends RxChat {
                         .removeWhere((e) => e.user.id == action.user.id);
                     chatEntity.value.lastReads
                         .removeWhere((e) => e.memberId == action.user.id);
+                    reads.removeWhere((e) => e.memberId == action.user.id);
                     await _chatRepository.onMemberRemoved(id, action.user.id);
                     break;
 
@@ -1192,6 +1227,42 @@ class HiveRxChat extends RxChat {
         }
         break;
     }
+  }
+
+  @override
+  int compareTo(RxChat other) {
+    if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall == null) {
+      return -1;
+    } else if (chat.value.ongoingCall == null &&
+        other.chat.value.ongoingCall != null) {
+      return 1;
+    } else if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall != null) {
+      return chat.value.ongoingCall!.at
+          .compareTo(other.chat.value.ongoingCall!.at);
+    }
+
+    if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition == null) {
+      return -1;
+    } else if (chat.value.favoritePosition == null &&
+        other.chat.value.favoritePosition != null) {
+      return 1;
+    } else if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition != null) {
+      return chat.value.favoritePosition!
+          .compareTo(other.chat.value.favoritePosition!);
+    }
+
+    if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
+      return 1;
+    } else if (!chat.value.id.isLocalWith(me) &&
+        other.chat.value.id.isLocalWith(me)) {
+      return -1;
+    }
+
+    return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
   }
 }
 

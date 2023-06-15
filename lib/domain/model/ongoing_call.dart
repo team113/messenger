@@ -393,7 +393,7 @@ class OngoingCall {
 
     // Adds a [CallMember] identified by its [userId], if none is in the
     // [members] already.
-    void addRedialing(UserId userId) {
+    void addDialing(UserId userId) {
       final CallMemberId id = CallMemberId(userId, null);
 
       if (members.values.none((e) => e.id.userId == id.userId)) {
@@ -405,7 +405,7 @@ class OngoingCall {
                   ?.handRaised ??
               false,
           isConnected: false,
-          isRedialing: true,
+          isDialing: true,
         );
       }
     }
@@ -449,7 +449,7 @@ class OngoingCall {
               final ChatMembersDialed? dialed = node.call.dialed;
               if (dialed is ChatMembersDialedConcrete) {
                 for (var m in dialed.members) {
-                  addRedialing(m.user.id);
+                  addDialing(m.user.id);
                 }
               }
 
@@ -467,7 +467,7 @@ class OngoingCall {
                       e.user.id != me.id.userId &&
                       dialed.answeredMembers
                           .none((a) => a.user.id == e.user.id))) {
-                    addRedialing(m.user.id);
+                    addDialing(m.user.id);
                   }
                 }
 
@@ -475,7 +475,7 @@ class OngoingCall {
                 _membersSubscription = v?.members.changes.listen((event) {
                   switch (event.op) {
                     case OperationKind.added:
-                      addRedialing(event.key!);
+                      addDialing(event.key!);
                       break;
 
                     case OperationKind.removed:
@@ -553,7 +553,7 @@ class OngoingCall {
                   final CallMember? redialed = members[redialedId];
                   if (redialed != null) {
                     redialed.id = id;
-                    redialed.isRedialing.value = false;
+                    redialed.isDialing.value = false;
                     members.move(redialedId, id);
                   }
 
@@ -638,7 +638,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.redialed:
                   var node = event as EventChatCallMemberRedialed;
-                  addRedialing(node.user.id);
+                  addDialing(node.user.id);
                   break;
 
                 case ChatCallEventKind.answerTimeoutPassed:
@@ -1136,7 +1136,7 @@ class OngoingCall {
       final CallMemberId redialedId = CallMemberId(id.userId, null);
 
       final CallMember? redialed = members[redialedId];
-      if (redialed?.isRedialing.value == true) {
+      if (redialed?.isDialing.value == true) {
         members.move(redialedId, id);
       }
 
@@ -1146,7 +1146,7 @@ class OngoingCall {
         member.id = id;
         member._connection = conn;
         member.isConnected.value = true;
-        member.isRedialing.value = false;
+        member.isDialing.value = false;
       } else {
         members[id] = CallMember(
           id,
@@ -1227,6 +1227,8 @@ class OngoingCall {
             break;
         }
       });
+
+      conn.onQualityScoreUpdate((p) => member?.quality.value = p);
     });
   }
 
@@ -1767,20 +1769,20 @@ class CallMember {
     this._connection, {
     bool isHandRaised = false,
     bool isConnected = false,
-    bool isRedialing = false,
+    bool isDialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
-        isRedialing = RxBool(isRedialing),
+        isDialing = RxBool(isDialing),
         owner = MediaOwnerKind.remote;
 
   CallMember.me(
     this.id, {
     bool isHandRaised = false,
     bool isConnected = false,
-    bool isRedialing = false,
+    bool isDialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
-        isRedialing = RxBool(isRedialing),
+        isDialing = RxBool(isDialing),
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
@@ -1798,11 +1800,14 @@ class CallMember {
   /// Indicator whether this [CallMember] is connected to the media server.
   final RxBool isConnected;
 
-  /// Indicator whether this [CallMember] is redialing.
-  final RxBool isRedialing;
+  /// Indicator whether this [CallMember] is dialing.
+  final RxBool isDialing;
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
+
+  /// Signal quality of this [CallMember] ranging from 1 to 4.
+  final RxInt quality = RxInt(4);
 
   /// Disposes the [tracks] of this [CallMember].
   void dispose() {

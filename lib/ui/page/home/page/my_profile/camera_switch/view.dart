@@ -56,11 +56,7 @@ class CameraSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       init: CameraSwitchController(Get.find(), camera: camera),
@@ -74,10 +70,7 @@ class CameraSwitchView extends StatelessWidget {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
-                  child: Text(
-                    'label_camera'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
+                  child: Text('label_camera'.l10n, style: fonts.headlineMedium),
                 ),
               ),
               Flexible(

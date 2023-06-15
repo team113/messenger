@@ -33,6 +33,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isRead = false,
     this.isSending = false,
     this.isError = false,
+    this.status = true,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
   });
@@ -67,6 +68,9 @@ class SwipeableStatus extends StatelessWidget {
   /// Indicator whether status is error.
   final bool isError;
 
+  /// Indicator whether status should be displayed.
+  final bool status;
+
   /// Position of a [swipeable] relatively to the [child].
   final CrossAxisAlignment crossAxisAlignment;
 
@@ -89,18 +93,59 @@ class SwipeableStatus extends StatelessWidget {
           Padding(
             padding: padding,
             child: SizedBox(
-                width: width,
-                child: _Status(
-                  isSent: isSent,
-                  isDelivered: isDelivered,
-                  isRead: isRead,
-                  isSending: isSending,
-                  isError: isError,
-                  swipeable: swipeable,
-                )),
+              width: status ? width : width - 15,
+              child: _swipeableWithStatus(context),
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  /// Returns a [Row] of [swipeable] and a optional status.
+  Widget _swipeableWithStatus(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return DefaultTextStyle.merge(
+      textAlign: TextAlign.end,
+      maxLines: 1,
+      overflow: TextOverflow.visible,
+      style: fonts.labelSmall!.copyWith(color: style.colors.secondary),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        margin: const EdgeInsets.only(right: 2, left: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: style.systemMessageBorder,
+          color: style.systemMessageColor,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (status) ...[
+              if (isSent || isDelivered || isRead || isSending || isError)
+                Icon(
+                  (isRead || isDelivered)
+                      ? Icons.done_all
+                      : isSending
+                          ? Icons.access_alarm
+                          : isError
+                              ? Icons.error_outline
+                              : Icons.done,
+                  color: isRead
+                      ? style.colors.primary
+                      : isError
+                          ? style.colors.dangerColor
+                          : style.colors.secondary,
+                  size: 12,
+                ),
+              const SizedBox(width: 3),
+            ],
+            SelectionContainer.disabled(child: swipeable),
+          ],
+        ),
+      ),
     );
   }
 
@@ -119,79 +164,4 @@ class SwipeableStatus extends StatelessWidget {
         },
         child: child,
       );
-}
-
-/// [Widget] which returns a [Row] of [swipeable] and a status.
-class _Status extends StatelessWidget {
-  const _Status({
-    required this.isSent,
-    required this.isDelivered,
-    required this.isRead,
-    required this.isSending,
-    required this.isError,
-    required this.swipeable,
-  });
-
-  /// Indicator whether status is sent.
-  final bool isSent;
-
-  /// Indicator whether status is delivered.
-  final bool isDelivered;
-
-  /// Indicator whether status is read.
-  final bool isRead;
-
-  /// Indicator whether status is sending.
-  final bool isSending;
-
-  /// Indicator whether status is error.
-  final bool isError;
-
-  /// [Widget] to display upon swipe.
-  final Widget swipeable;
-
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return DefaultTextStyle.merge(
-      textAlign: TextAlign.end,
-      maxLines: 1,
-      overflow: TextOverflow.visible,
-      style: style.systemMessageStyle.copyWith(fontSize: 11),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        margin: const EdgeInsets.only(right: 2, left: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: style.systemMessageBorder,
-          color: style.systemMessageColor,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isSent || isDelivered || isRead || isSending || isError)
-              Icon(
-                (isRead || isDelivered)
-                    ? Icons.done_all
-                    : isSending
-                        ? Icons.access_alarm
-                        : isError
-                            ? Icons.error_outline
-                            : Icons.done,
-                color: isRead
-                    ? style.colors.primary
-                    : isError
-                        ? style.colors.dangerColor
-                        : style.colors.secondary,
-                size: 12,
-              ),
-            const SizedBox(width: 3),
-            SelectionContainer.disabled(child: swipeable),
-          ],
-        ),
-      ),
-    );
-  }
 }

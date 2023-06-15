@@ -39,6 +39,8 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -47,9 +49,8 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'message_field/view.dart';
 import 'widget/back_button.dart';
-import 'widget/blocked_field.dart';
 import 'widget/chat_forward.dart';
-import 'widget/chat_item/chat_item.dart';
+import 'widget/chat_item/chat_item.dart' as prefix;
 import 'widget/chat_subtitle.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
@@ -111,7 +112,7 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
@@ -450,9 +451,28 @@ class _ChatViewState extends State<ChatView>
                                       c.chat!.status.value.isEmpty) &&
                                   c.chat!.messages.isEmpty) {
                                 return Center(
-                                  child: Text(
-                                    key: const Key('NoMessages'),
-                                    'label_no_messages'.l10n,
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: style.systemMessageBorder,
+                                      color: style.systemMessageColor,
+                                    ),
+                                    child: Text(
+                                      key: const Key('NoMessages'),
+                                      isMonolog
+                                          ? 'label_chat_monolog_description'
+                                              .l10n
+                                          : 'label_no_messages'.l10n,
+                                      textAlign: TextAlign.center,
+                                      style: fonts.labelMedium,
+                                    ),
                                   ),
                                 );
                               }
@@ -489,7 +509,7 @@ class _ChatViewState extends State<ChatView>
                       );
                     }),
                     bottomNavigationBar: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                      padding: Insets.dense.copyWith(top: 0),
                       child:
                           NotificationListener<SizeChangedLayoutNotification>(
                         onNotification: (l) {
@@ -569,7 +589,7 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
@@ -700,7 +720,7 @@ class _ChatViewState extends State<ChatView>
                   });
                 }
 
-                return ChatItemWidget(
+                return prefix.ChatItemWidget(
                   populateWorker: () => populateWorker(),
                   populateGlobalKeys: (msg) =>
                       populateGlobalKeys(msg, _galleryKeys),
@@ -921,7 +941,7 @@ class _ChatViewState extends State<ChatView>
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
     if (c.chat?.blacklisted == true) {
-      return BlockedField(unblacklist: () => c.unblacklist());
+      return SafeArea(child: UnblockButton(c.unblacklist));
     }
 
     return Obx(() {

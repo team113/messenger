@@ -25,13 +25,14 @@ import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
-import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
-import '../widget/participant.dart';
+import '../widget/participant/decorator.dart';
+import '../widget/participant/overlay.dart';
+import '../widget/participant/widget.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
 import '/domain/model/avatar.dart';
@@ -55,7 +56,7 @@ import 'common.dart';
 
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final style = Theme.of(context).style;
 
   return LayoutBuilder(builder: (context, constraints) {
     bool isOutgoing =
@@ -210,7 +211,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                               ? const Icon(Icons.volume_up)
                               : const Icon(Icons.volume_off),
                         ),
-                      if (e.member.isRedialing.isFalse)
+                      if (e.member.isDialing.isFalse)
                         ContextMenuButton(
                           label: 'btn_call_remove_participant'.l10n,
                           trailing: const Icon(Icons.remove_circle),
@@ -309,68 +310,6 @@ Widget mobileCall(CallController c, BuildContext context) {
 
               return AnimatedSwitcher(duration: 200.milliseconds, child: child);
             }),
-
-            // Display call's state info only if minimized.
-            AnimatedSwitcher(
-              duration: 200.milliseconds,
-              child: c.minimized.value
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: style.colors.onBackgroundOpacity50,
-                          ),
-                          height: 40,
-                          child: Obx(() {
-                            bool withDots = c.state.value !=
-                                    OngoingCallState.active &&
-                                (c.state.value == OngoingCallState.joining ||
-                                    isOutgoing);
-                            bool isDialog =
-                                c.chat.value?.chat.value.isDialog == true;
-
-                            String state =
-                                c.state.value == OngoingCallState.active
-                                    ? c.duration.value
-                                        .toString()
-                                        .split('.')
-                                        .first
-                                        .padLeft(8, '0')
-                                    : c.state.value == OngoingCallState.joining
-                                        ? 'label_call_joining'.l10n
-                                        : isOutgoing
-                                            ? isDialog
-                                                ? 'label_call_calling'.l10n
-                                                : 'label_call_connecting'.l10n
-                                            : c.withVideo == true
-                                                ? 'label_video_call'.l10n
-                                                : 'label_audio_call'.l10n;
-
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 4, right: 4),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    state,
-                                    style:
-                                        context.textTheme.bodySmall?.copyWith(
-                                      color: style.colors.onBackgroundOpacity2,
-                                    ),
-                                  ),
-                                  if (withDots) const AnimatedDots(),
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    )
-                  : Container(),
-            ),
 
             if (isOutgoing)
               Padding(
@@ -521,7 +460,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         // Populate the sliding panel height and its content.
         if (c.state.value == OngoingCallState.active ||
             c.state.value == OngoingCallState.joining) {
-          panelHeight = 360 + 36;
+          panelHeight = 360 + 37;
           panelHeight = min(c.size.height - 45, panelHeight);
 
           panelChildren = [
@@ -630,12 +569,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                 )),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 366),
               child: _chat(context, c),
             ),
-            const SizedBox(height: 15),
           ];
         }
 
@@ -828,7 +766,8 @@ Widget mobileCall(CallController c, BuildContext context) {
 /// Builds a tile representation of the [CallController.chat].
 Widget _chat(BuildContext context, CallController c) {
   return Obx(() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
+
     final RxChat? chat = c.chat.value;
 
     final Set<UserId> actualMembers =
@@ -865,18 +804,16 @@ Widget _chat(BuildContext context, CallController c) {
                                 chat?.title.value ?? 'dot'.l10n * 3,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall
-                                    ?.copyWith(color: style.colors.onPrimary),
+                                style: fonts.headlineLarge!.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
                               ),
                             ),
                             Text(
                               c.duration.value.hhMmSs(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(color: style.colors.onPrimary),
+                              style: fonts.labelLarge!.copyWith(
+                                color: style.colors.onPrimary,
+                              ),
                             ),
                           ],
                         ),
@@ -894,10 +831,9 @@ Widget _chat(BuildContext context, CallController c) {
                                         .status
                                         ?.val ??
                                     'label_online'.l10n,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(color: style.colors.onPrimary),
+                                style: fonts.labelLarge!.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
                               ),
                               const Spacer(),
                               Text(
@@ -905,10 +841,9 @@ Widget _chat(BuildContext context, CallController c) {
                                   'a': '${actualMembers.length}',
                                   'b': '${c.chat.value?.members.length}',
                                 }),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(color: style.colors.onPrimary),
+                                style: fonts.labelLarge!.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
                               ),
                             ],
                           ),

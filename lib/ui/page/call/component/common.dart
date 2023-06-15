@@ -458,7 +458,7 @@ class SwitchButton extends CallButton {
 /// Returns a [Column] consisting of the [child] with the provided
 /// [description].
 Widget withDescription(Widget child, Widget description) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
+  final (style, fonts) = Theme.of(router.context!).styles;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -466,7 +466,7 @@ Widget withDescription(Widget child, Widget description) {
       child,
       const SizedBox(height: 6),
       DefaultTextStyle(
-        style: TextStyle(fontSize: 11, color: style.colors.onPrimary),
+        style: fonts.bodySmall!.copyWith(color: style.colors.onPrimary),
         textAlign: TextAlign.center,
         maxLines: 2,
         child: description,
@@ -483,6 +483,12 @@ Widget callTitle(CallController c) {
     final bool isDialog = c.chat.value?.chat.value.isDialog == true;
     final bool withDots = c.state.value != OngoingCallState.active &&
         (c.state.value == OngoingCallState.joining || isOutgoing);
+
+    final Map<String, dynamic> args = {'by': 'x'};
+    if (!isOutgoing && !isDialog) {
+      args['by'] = c.callerName;
+    }
+
     final String? state = c.state.value == OngoingCallState.active
         ? c.duration.value.toString().split('.').first.padLeft(8, '0')
         : c.state.value == OngoingCallState.joining
@@ -492,8 +498,8 @@ Widget callTitle(CallController c) {
                     ? null
                     : 'label_call_connecting'.l10n
                 : c.withVideo == true
-                    ? 'label_video_call'.l10n
-                    : 'label_audio_call'.l10n;
+                    ? 'label_video_call'.l10nfmt(args)
+                    : 'label_audio_call'.l10nfmt(args);
 
     return CallTitle(
       c.me.id.userId,

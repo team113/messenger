@@ -24,15 +24,19 @@ import 'package:chewie/src/center_play_button.dart';
 import 'package:chewie/src/helpers/utils.dart';
 import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
+import 'video_progress_bar.dart';
 
 /// Mobile video controls for a [Chewie] player.
 class MobileControls extends StatefulWidget {
-  const MobileControls({super.key});
+  const MobileControls({Key? key, required this.controller}) : super(key: key);
+
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
+  final MeeduPlayerController controller;
 
   @override
   State<StatefulWidget> createState() => _MobileControlsState();
@@ -44,20 +48,8 @@ class _MobileControlsState extends State<MobileControls>
   /// Height of the bottom controls bar.
   final _barHeight = 48.0 * 1.5;
 
-  /// [VideoPlayerController] controlling the video playback.
-  late VideoPlayerController _controller;
-
-  /// [ChewieController] controlling the [Chewie] functionality.
-  late ChewieController _chewieController;
-
-  /// [ChewieController], previously assigned to the [_chewieController].
-  ChewieController? _oldController;
-
   /// Indicator whether user interface should be visible or not.
   bool _hideStuff = true;
-
-  /// Latest [VideoPlayerValue] value.
-  late VideoPlayerValue _latestValue;
 
   /// Latest volume value.
   double? _latestVolume;
@@ -65,48 +57,18 @@ class _MobileControlsState extends State<MobileControls>
   /// [Timer], used to hide user interface after a timeout.
   Timer? _hideTimer;
 
-  /// [Timer], used to hide user interface on [_initialize].
-  Timer? _initTimer;
-
-  /// [Timer], used to show user interface for a while after fullscreen toggle.
-  Timer? _showAfterExpandCollapseTimer;
-
   /// Indicator whether the video progress bar is being dragged.
   bool _dragging = false;
 
   @override
   void dispose() {
-    _dispose();
+    _hideTimer?.cancel();
     super.dispose();
   }
 
   @override
-  void didChangeDependencies() {
-    _chewieController = ChewieController.of(context);
-    _controller = _chewieController.videoPlayerController;
-
-    if (_oldController != _chewieController) {
-      _oldController = _chewieController;
-      _dispose();
-      _initialize();
-    }
-
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    if (_latestValue.hasError) {
-      return _chewieController.errorBuilder?.call(
-            context,
-            _chewieController.videoPlayerController.value.errorDescription!,
-          ) ??
-          Center(
-            child: Icon(Icons.error, color: style.colors.onPrimary, size: 42),
-          );
-    }
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       onHover: PlatformUtils.isMobile ? null : (_) => _cancelAndRestartTimer(),
@@ -120,55 +82,19 @@ class _MobileControlsState extends State<MobileControls>
         },
         child: Stack(
           children: [
-            _latestValue.isBuffering
-                ? const Center(child: CustomProgressIndicator())
-                : _buildHitArea(),
-
-            // Bottom controls bar.
-            IgnorePointer(
-              ignoring: _hideStuff,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _BottomControlBar(
-                    hideStuff: _hideStuff,
-                    controller: _controller,
-                    chewieController: _chewieController,
-                    barHeight: _barHeight,
-                    latestValue: _latestValue,
-                    hideTimer: _hideTimer,
-                    startHideTimer: _startHideTimer,
-                    cancelAndRestartTimer: _cancelAndRestartTimer,
-                    onDragStart: () {
-                      setState(() => _dragging = true);
-                      _hideTimer?.cancel();
-                    },
-                    onDragEnd: () {
-                      setState(() => _dragging = false);
-                      _startHideTimer();
-                    },
-                    onTap: () {
-                      _cancelAndRestartTimer();
-
-                      if (_latestValue.volume == 0) {
-                        _controller.setVolume(_latestVolume ?? 0.5);
-                      } else {
-                        _latestVolume = _controller.value.volume;
-                        _controller.setVolume(0.0);
-                      }
-                    },
-                  )
-                ],
-              ),
-            ),
+            RxBuilder((_) {
+              return widget.controller.isBuffering.value
+                  ? const Center(child: CustomProgressIndicator())
+                  : _buildHitArea();
+            }),
 
             // Double tap to seek 10 seconds earlier.
             Align(
               alignment: Alignment.topLeft,
               child: GestureDetector(
                 onDoubleTap: () {
-                  _chewieController.seekTo(
-                    _chewieController.videoPlayerController.value.position -
+                  widget.controller.seekTo(
+                    widget.controller.position.value -
                         const Duration(seconds: 10),
                   );
 
@@ -189,8 +115,8 @@ class _MobileControlsState extends State<MobileControls>
               alignment: Alignment.topRight,
               child: GestureDetector(
                 onDoubleTap: () {
-                  _chewieController.seekTo(
-                    _chewieController.videoPlayerController.value.position +
+                  widget.controller.seekTo(
+                    widget.controller.position.value +
                         const Duration(seconds: 10),
                   );
 
@@ -205,73 +131,200 @@ class _MobileControlsState extends State<MobileControls>
                 ),
               ),
             ),
+
+            // Bottom controls bar.
+            IgnorePointer(
+              ignoring: _hideStuff,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [_buildBottomBar(context)],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  /// Initializes these [MobileControls].
-  Future<void> _initialize() async {
-    _controller.addListener(_updateState);
-    _updateState();
+  /// Returns the bottom controls bar.
+  AnimatedOpacity _buildBottomBar(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
 
-    if (_controller.value.isPlaying || _chewieController.autoPlay) {
-      _startHideTimer();
-    }
-
-    if (_chewieController.showControlsOnInitialize) {
-      _initTimer = Timer(const Duration(milliseconds: 200), () {
-        setState(() => _hideStuff = false);
-      });
-    }
-  }
-
-  /// Disposes these [MobileControls].
-  void _dispose() {
-    _controller.removeListener(_updateState);
-    _hideTimer?.cancel();
-    _initTimer?.cancel();
-    _showAfterExpandCollapseTimer?.cancel();
+    return AnimatedOpacity(
+      opacity: _hideStuff ? 0.0 : 1.0,
+      duration: const Duration(milliseconds: 300),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              style.colors.transparent,
+              style.colors.onBackgroundOpacity40
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Container(
+            height: _barHeight,
+            padding: const EdgeInsets.only(left: 20, bottom: 10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      _buildPosition(fonts.labelLarge!.color),
+                      _buildMuteButton(),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Row(children: [_buildProgressBar()]),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
-    final bool isFinished = _latestValue.position >= _latestValue.duration;
-    return CenterPlayButton(
-      backgroundColor: style.colors.onBackgroundOpacity13,
-      iconColor: style.colors.onPrimary,
-      isFinished: isFinished,
-      isPlaying: _controller.value.isPlaying,
-      show: !_dragging && !_hideStuff,
-      onPressed: _playPause,
+    return RxBuilder((_) {
+      final bool isFinished =
+          widget.controller.position.value >= widget.controller.duration.value;
+
+      return CenterPlayButton(
+        backgroundColor: style.colors.onBackgroundOpacity13,
+        iconColor: style.colors.onPrimary,
+        isFinished: isFinished,
+        isPlaying: widget.controller.playerStatus.playing,
+        show: !_dragging && !_hideStuff,
+        onPressed: _playPause,
+      );
+    });
+  }
+
+  /// Returns the mute/unmute button.
+  GestureDetector _buildMuteButton() {
+    final style = Theme.of(context).style;
+
+    return GestureDetector(
+      onTap: () {
+        _cancelAndRestartTimer();
+
+        if (widget.controller.volume.value == 0) {
+          widget.controller.setVolume(_latestVolume ?? 0.5);
+        } else {
+          _latestVolume = widget.controller.volume.value;
+          widget.controller.setVolume(0.0);
+        }
+      },
+      child: AnimatedOpacity(
+        opacity: _hideStuff ? 0.0 : 1.0,
+        duration: const Duration(milliseconds: 300),
+        child: Container(
+          height: _barHeight,
+          margin: const EdgeInsets.only(right: 12.0),
+          padding: const EdgeInsets.only(
+            left: 8.0,
+            right: 8.0,
+          ),
+          child: Center(
+            child: RxBuilder((_) {
+              return Icon(
+                widget.controller.volume.value > 0
+                    ? Icons.volume_up
+                    : Icons.volume_off,
+                color: style.colors.onPrimary,
+                size: 18,
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Returns the [RichText] of the current video position.
+  Widget _buildPosition(Color? iconColor) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return RxBuilder((_) {
+      final position = widget.controller.position.value;
+      final duration = widget.controller.duration.value;
+
+      return RichText(
+        text: TextSpan(
+          text: '${formatDuration(position)} ',
+          children: <InlineSpan>[
+            TextSpan(
+              text: '/ ${formatDuration(duration)}',
+              style: fonts.labelMedium!.copyWith(
+                color: style.colors.onPrimaryOpacity50,
+              ),
+            )
+          ],
+          style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
+        ),
+      );
+    });
+  }
+
+  /// Returns the [VideoProgressBar] of the current video progression.
+  Widget _buildProgressBar() {
+    final style = Theme.of(context).style;
+
+    return Expanded(
+      child: ProgressBar(
+        widget.controller,
+        barHeight: 2,
+        handleHeight: 6,
+        drawShadow: true,
+        onDragStart: () {
+          setState(() => _dragging = true);
+          _hideTimer?.cancel();
+        },
+        onDragEnd: () {
+          setState(() => _dragging = false);
+          _startHideTimer();
+        },
+        colors: ChewieProgressColors(
+          playedColor: style.colors.primary,
+          handleColor: style.colors.primary,
+          bufferedColor: style.colors.background.withOpacity(0.5),
+          backgroundColor: style.colors.secondary.withOpacity(0.5),
+        ),
+      ),
     );
   }
 
   /// Toggles play and pause of the [_controller]. Starts video from the start
   /// if the playback is done.
   void _playPause() {
-    final isFinished = _latestValue.position >= _latestValue.duration;
+    final isFinished =
+        widget.controller.position.value >= widget.controller.duration.value;
 
-    if (_controller.value.isPlaying) {
+    if (widget.controller.playerStatus.playing) {
       _hideStuff = false;
       _hideTimer?.cancel();
-      _controller.pause();
+      widget.controller.pause();
     } else {
       _cancelAndRestartTimer();
 
-      if (!_controller.value.isInitialized) {
-        _controller.initialize().then((_) {
-          _controller.play();
-        });
-      } else {
-        if (isFinished) {
-          _controller.seekTo(const Duration());
-        }
-        _controller.play();
+      if (isFinished) {
+        widget.controller.seekTo(const Duration());
       }
+      widget.controller.play();
     }
 
     setState(() {});
@@ -289,202 +342,5 @@ class _MobileControlsState extends State<MobileControls>
     _hideTimer = Timer(const Duration(seconds: 3), () {
       setState(() => _hideStuff = true);
     });
-  }
-
-  /// Invokes [setState] with a new [_latestValue] if [mounted].
-  void _updateState() {
-    if (!mounted) return;
-    setState(() => _latestValue = _controller.value);
-  }
-}
-
-/// [Widget] which returns the bottom controls bar.
-class _BottomControlBar extends StatefulWidget {
-  const _BottomControlBar({
-    required this.hideStuff,
-    required this.controller,
-    required this.chewieController,
-    required this.barHeight,
-    required this.latestValue,
-    required this.startHideTimer,
-    required this.cancelAndRestartTimer,
-    this.hideTimer,
-    this.onTap,
-    this.onDragStart,
-    this.onDragEnd,
-  });
-
-  /// Indicator whether user interface should be visible or not.
-  final bool hideStuff;
-
-  /// [VideoPlayerController] controlling the video playback.
-  final VideoPlayerController controller;
-
-  /// [ChewieController] controlling the [Chewie] functionality.
-  final ChewieController chewieController;
-
-  /// Height of the bottom controls bar.
-  final double barHeight;
-
-  /// Latest [VideoPlayerValue] value.
-  final VideoPlayerValue latestValue;
-
-  /// [Timer], used to hide user interface after a timeout.
-  final Timer? hideTimer;
-
-  /// Starts the [hideTimer].
-  final void Function() startHideTimer;
-
-  /// Cancels the [hideTimer] and starts it again.
-  final void Function() cancelAndRestartTimer;
-
-  /// Callback, called when a `mute` button is tapped.
-  final void Function()? onTap;
-
-  /// Callback, called when volume drag started.
-  final dynamic Function()? onDragStart;
-
-  /// Callback, called when volume drag ended.
-  final dynamic Function()? onDragEnd;
-
-  @override
-  State<_BottomControlBar> createState() => _BottomControlBarState();
-}
-
-class _BottomControlBarState extends State<_BottomControlBar> {
-  @override
-  Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
-
-    return AnimatedOpacity(
-      opacity: widget.hideStuff ? 0.0 : 1.0,
-      duration: const Duration(milliseconds: 300),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              style.colors.transparent,
-              style.colors.onBackgroundOpacity40,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Container(
-            height: widget.barHeight,
-            padding: const EdgeInsets.only(left: 20, bottom: 10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      widget.chewieController.isLive
-                          ? const Expanded(child: Text('LIVE'))
-                          : _buildPosition(iconColor),
-                      _buildMuteButton(),
-                    ],
-                  ),
-                ),
-                if (!widget.chewieController.isLive)
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.only(right: 20),
-                      child: Row(children: [_buildProgressBar()]),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [RichText] of the current video position.
-  Widget _buildPosition(Color? iconColor) {
-    final position = widget.latestValue.position;
-    final duration = widget.latestValue.duration;
-
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return RichText(
-      text: TextSpan(
-        text: '${formatDuration(position)} ',
-        children: <InlineSpan>[
-          TextSpan(
-            text: '/ ${formatDuration(duration)}',
-            style: TextStyle(
-              fontSize: 14.0,
-              color: style.colors.onPrimaryOpacity50,
-              fontWeight: FontWeight.normal,
-            ),
-          )
-        ],
-        style: TextStyle(
-          fontSize: 14.0,
-          color: style.colors.onPrimary,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  /// Returns the mute/unmute button.
-  GestureDetector _buildMuteButton() {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: AnimatedOpacity(
-        opacity: widget.hideStuff ? 0.0 : 1.0,
-        duration: const Duration(milliseconds: 300),
-        child: Container(
-          height: widget.barHeight,
-          margin: const EdgeInsets.only(right: 12.0),
-          padding: const EdgeInsets.only(
-            left: 8.0,
-            right: 8.0,
-          ),
-          child: Center(
-            child: Icon(
-              widget.latestValue.volume > 0
-                  ? Icons.volume_up
-                  : Icons.volume_off,
-              color: style.colors.onPrimary,
-              size: 18,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [VideoProgressBar] of the current video progression.
-  Widget _buildProgressBar() {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Expanded(
-      child: VideoProgressBar(
-        widget.controller,
-        barHeight: 2,
-        handleHeight: 6,
-        drawShadow: true,
-        onDragStart: widget.onDragStart,
-        onDragEnd: widget.onDragEnd,
-        colors: widget.chewieController.materialProgressColors ??
-            ChewieProgressColors(
-              playedColor: style.colors.primary,
-              handleColor: style.colors.primary,
-              bufferedColor: style.colors.background.withOpacity(0.5),
-              backgroundColor: style.colors.secondary.withOpacity(0.5),
-            ),
-      ),
-    );
   }
 }

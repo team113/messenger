@@ -139,7 +139,7 @@ class RecentChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
@@ -149,13 +149,14 @@ class RecentChatTile extends StatelessWidget {
         chat: rxChat,
         status: [
           _status(context, inverted),
-          Text(
-            chat.updatedAt.val.toLocal().toShort(),
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: inverted ? style.colors.onPrimary : null),
-          ),
+          if (!chat.id.isLocalWith(me))
+            Text(
+              chat.updatedAt.val.toLocal().short,
+              style: fonts.labelLarge!.copyWith(
+                color:
+                    inverted ? style.colors.onPrimary : style.colors.secondary,
+              ),
+            ),
         ],
         subtitle: [
           const SizedBox(height: 5),
@@ -262,7 +263,7 @@ class RecentChatTile extends StatelessWidget {
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context, bool selected, bool inverted) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -299,6 +300,7 @@ class RecentChatTile extends StatelessWidget {
 
         if (draft.attachments.isNotEmpty) {
           if (draft.text == null) {
+            // TODO: Backend should support single attachment updating.
             images.addAll(
               draft.attachments.map((e) {
                 return Padding(
@@ -308,6 +310,7 @@ class RecentChatTile extends StatelessWidget {
               }),
             );
           } else {
+            // TODO: Backend should support single attachment updating.
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
@@ -347,7 +350,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: TextStyle(
+                  style: fonts.labelMedium!.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.primary,
@@ -372,7 +375,7 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: fonts.labelMedium!.copyWith(
                         color: inverted
                             ? style.colors.onPrimary
                             : style.colors.primary,
@@ -623,10 +626,9 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: Theme.of(context)
-            .textTheme
-            .titleSmall!
-            .copyWith(color: inverted ? style.colors.onPrimary : null),
+        style: fonts.bodyMedium!.copyWith(
+          color: inverted ? style.colors.onPrimary : style.colors.secondary,
+        ),
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );
@@ -647,9 +649,7 @@ class RecentChatTile extends StatelessWidget {
       if (e.file.isImage && e.file.bytes.value != null) {
         content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
       } else if (e.file.isVideo) {
-        // TODO: `video_player` being used doesn't support desktop platforms.
-        if ((PlatformUtils.isMobile || PlatformUtils.isWeb) &&
-            e.file.bytes.value != null) {
+        if (e.file.bytes.value != null) {
           content = FittedBox(
             fit: BoxFit.cover,
             child: VideoThumbnail.bytes(
@@ -671,10 +671,11 @@ class RecentChatTile extends StatelessWidget {
       } else {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: SvgImage.asset(
-            inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-            width: 30,
-            height: 30,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
           ),
         );
       }
@@ -694,34 +695,24 @@ class RecentChatTile extends StatelessWidget {
 
     if (e is FileAttachment) {
       if (e.isVideo) {
-        if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
-          content = FittedBox(
-            fit: BoxFit.cover,
-            child: VideoThumbnail.url(
-              url: e.original.url,
-              checksum: e.original.checksum,
-              key: key,
-              height: 300,
-              onError: onError,
-            ),
-          );
-        } else {
-          content = Container(
-            color: inverted ? style.colors.primary : style.colors.secondary,
-            child: Icon(
-              Icons.video_file,
-              size: 18,
-              color: inverted ? style.colors.secondary : style.colors.primary,
-            ),
-          );
-        }
+        content = FittedBox(
+          fit: BoxFit.cover,
+          child: VideoThumbnail.url(
+            url: e.original.url,
+            checksum: e.original.checksum,
+            key: key,
+            height: 300,
+            onError: onError,
+          ),
+        );
       } else {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: SvgImage.asset(
-            inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-            width: 30,
-            height: 30,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
           ),
         );
       }
@@ -743,7 +734,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a [ChatItem.status] visual representation.
   Widget _status(BuildContext context, bool inverted) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -794,7 +785,7 @@ class RecentChatTile extends StatelessWidget {
   /// Returns a visual representation of the [Chat.unreadCount] counter.
   Widget _counter(BuildContext context, bool inverted) {
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       final Chat chat = rxChat.chat.value;
       final bool muted = chat.muted != null;
@@ -819,14 +810,12 @@ class RecentChatTile extends StatelessWidget {
             rxChat.unreadCount.value > 99
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
-            style: TextStyle(
+            style: fonts.displaySmall!.copyWith(
               color: muted
                   ? inverted
                       ? style.colors.secondary
                       : style.colors.onPrimary
                   : style.colors.onPrimary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
             ),
             maxLines: 1,
             overflow: TextOverflow.clip,
@@ -841,7 +830,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -852,9 +841,9 @@ class RecentChatTile extends StatelessWidget {
 
       // Returns a rounded rectangular button representing an [OngoingCall]
       // associated action.
-      Widget button(bool active) {
+      Widget button(bool displayed) {
         return DecoratedBox(
-          key: active
+          key: displayed
               ? const Key('JoinCallButton')
               : const Key('DropCallButton'),
           position: DecorationPosition.foreground,
@@ -866,16 +855,16 @@ class RecentChatTile extends StatelessWidget {
             elevation: 0,
             type: MaterialType.button,
             borderRadius: BorderRadius.circular(20),
-            color: active ? style.colors.dangerColor : style.colors.primary,
+            color: displayed ? style.colors.dangerColor : style.colors.primary,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: active ? onDrop : onJoin,
+              onTap: displayed ? onDrop : onJoin,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
                 child: Row(
                   children: [
                     Icon(
-                      active ? Icons.call_end : Icons.call,
+                      displayed ? Icons.call_end : Icons.call,
                       size: 16,
                       color: style.colors.onPrimary,
                     ),
@@ -889,10 +878,9 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(color: style.colors.onPrimary),
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.onPrimary,
+                          ),
                         ).fixedDigits();
                       },
                     )
@@ -916,16 +904,13 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: rxChat.title.value,
-          style: TextStyle(color: style.colors.onBackground),
-        ),
+        TextSpan(text: rxChat.title.value, style: fonts.bodyMedium),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
@@ -943,36 +928,4 @@ class RecentChatTile extends StatelessWidget {
         onLongPress: () {},
         child: child,
       );
-}
-
-/// Extension adding conversion from [DateTime] to its short text relative to
-/// the [DateTime.now].
-extension DateTimeToShort on DateTime {
-  /// Returns short text representing this [DateTime].
-  ///
-  /// Returns string in format `HH:MM`, if [DateTime] is within today. Returns a
-  /// short weekday name, if [difference] between this [DateTime] and
-  /// [DateTime.now] is less than 7 days. Otherwise returns a string in format
-  /// of `YYYY-MM-DD`.
-  String toShort() {
-    final DateTime now = DateTime.now();
-    final DateTime from = DateTime(now.year, now.month, now.day);
-    final DateTime to = DateTime(year, month, day);
-
-    final int differenceInDays = from.difference(to).inDays;
-
-    if (differenceInDays > 6) {
-      final String day = this.day.toString().padLeft(2, '0');
-      final String month = this.month.toString().padLeft(2, '0');
-
-      return '$year-$month-$day';
-    } else if (differenceInDays < 1) {
-      final String hour = this.hour.toString().padLeft(2, '0');
-      final String minute = this.minute.toString().padLeft(2, '0');
-
-      return '$hour:$minute';
-    } else {
-      return 'label_short_weekday'.l10nfmt({'weekday': weekday});
-    }
-  }
 }
