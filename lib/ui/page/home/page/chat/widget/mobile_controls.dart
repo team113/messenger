@@ -68,7 +68,7 @@ class _MobileControlsState extends State<MobileControls>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       onHover: PlatformUtils.isMobile ? null : (_) => _cancelAndRestartTimer(),
@@ -148,9 +148,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the bottom controls bar.
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
+    final (style, fonts) = Theme.of(context).styles;
 
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 1.0,
@@ -178,7 +176,7 @@ class _MobileControlsState extends State<MobileControls>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      _buildPosition(iconColor),
+                      _buildPosition(fonts.labelLarge!.color),
                       _buildMuteButton(),
                     ],
                   ),
@@ -199,7 +197,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return RxBuilder((_) {
       final bool isFinished =
@@ -218,7 +216,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the mute/unmute button.
   GestureDetector _buildMuteButton() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return GestureDetector(
       onTap: () {
@@ -259,7 +257,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [RichText] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return RxBuilder((_) {
       final position = widget.controller.position.value;
@@ -271,18 +269,12 @@ class _MobileControlsState extends State<MobileControls>
           children: <InlineSpan>[
             TextSpan(
               text: '/ ${formatDuration(duration)}',
-              style: TextStyle(
-                fontSize: 14.0,
+              style: fonts.labelMedium!.copyWith(
                 color: style.colors.onPrimaryOpacity50,
-                fontWeight: FontWeight.normal,
               ),
             )
           ],
-          style: TextStyle(
-            fontSize: 14.0,
-            color: style.colors.onPrimary,
-            fontWeight: FontWeight.bold,
-          ),
+          style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
         ),
       );
     });
@@ -290,7 +282,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Expanded(
       child: ProgressBar(

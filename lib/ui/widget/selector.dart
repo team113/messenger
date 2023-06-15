@@ -110,7 +110,7 @@ class Selector<T> extends StatefulWidget {
       );
     }
 
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return showDialog(
       context: context,
@@ -164,7 +164,7 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       double? left, right;
