@@ -149,9 +149,7 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    final TextStyle? thin = Theme.of(context).textTheme.displaySmall;
+    final (style, fonts) = Theme.of(context).styles;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
@@ -174,7 +172,7 @@ class ModalPopupHeader extends StatelessWidget {
           if (text != null)
             Expanded(
               child: Center(
-                child: Text(text!, style: thin),
+                child: Text(text!, style: fonts.headlineMedium),
               ),
             )
           else
