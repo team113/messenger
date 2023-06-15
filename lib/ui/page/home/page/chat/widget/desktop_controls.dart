@@ -209,9 +209,8 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
-    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
       isOpen: _showBottomBar || _showInterface,
@@ -235,7 +234,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   const SizedBox(width: 7),
                   _buildPlayPause(widget.controller),
                   const SizedBox(width: 12),
-                  _buildPosition(iconColor),
+                  _buildPosition(fonts.labelLarge!.color),
                   const SizedBox(width: 12),
                   _buildProgressBar(),
                   const SizedBox(width: 12),

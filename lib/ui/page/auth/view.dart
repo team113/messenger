@@ -231,7 +231,7 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final TextTheme fonts = Theme.of(context).textTheme;
+    final fonts = Theme.of(context).fonts;
 
     await ModalPopup.show(
       context: context,

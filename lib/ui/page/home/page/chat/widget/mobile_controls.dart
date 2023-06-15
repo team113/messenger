@@ -148,9 +148,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the bottom controls bar.
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
+    final (style, fonts) = Theme.of(context).styles;
 
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 1.0,
@@ -178,7 +176,7 @@ class _MobileControlsState extends State<MobileControls>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      _buildPosition(iconColor),
+                      _buildPosition(fonts.labelLarge!.color),
                       _buildMuteButton(),
                     ],
                   ),
