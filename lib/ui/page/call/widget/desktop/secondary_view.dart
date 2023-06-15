@@ -66,28 +66,28 @@ class SecondaryView extends StatelessWidget {
   ///
   final MediaQueryData data;
 
-  ///
+  /// Indicator whether
   final bool test1;
 
-  ///
+  /// Indicator whether
   final bool test2;
 
-  ///
+  /// Indicator whether
   final bool test3;
 
-  ///
+  /// Indicator whether
   final bool test4;
 
-  ///
+  /// Indicator whether
   final bool test5;
 
   ///
   final Alignment? alignment;
 
-  ///
+  /// Indicator whether
   final bool isAnyDrag;
 
-  ///
+  /// Indicator whether
   final bool condition;
 
   ///
