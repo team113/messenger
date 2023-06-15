@@ -20,9 +20,10 @@ Feature: Application muting and unmuting
   Scenario: User mutes and unmutes application
     Given I am Alice
 
-    When I long press `ChatsButton` button
-    And I tap `MuteMyUserSwitch` button
+    When I right click `ChatsButton` button
+    And I tap `MuteChatsButton` button
     Then I wait until `Muted` is present
 
-    When I tap `MuteMyUserSwitch` button
+    And I right click `ChatsButton` button
+    And I tap `UnmuteChatsButton` button
     Then I wait until `Unmuted` is present
