@@ -60,7 +60,7 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       key: const Key('MyProfileView'),
@@ -156,28 +156,23 @@ class MyProfileView extends StatelessWidget {
                                     onPressed: () => c.uploadAvatar(),
                                     child: Text(
                                       'btn_upload'.l10n,
-                                      style: TextStyle(
+                                      style: fonts.labelSmall!.copyWith(
                                         color: style.colors.primary,
-                                        fontSize: 11,
                                       ),
                                     ),
                                   ),
                                   if (c.myUser.value?.avatar != null) ...[
                                     Text(
                                       'space_or_space'.l10n,
-                                      style: TextStyle(
-                                        color: style.colors.onBackground,
-                                        fontSize: 11,
-                                      ),
+                                      style: fonts.bodySmall,
                                     ),
                                     WidgetButton(
                                       key: const Key('DeleteAvatar'),
                                       onPressed: () => c.deleteAvatar(),
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
-                                        style: TextStyle(
+                                        style: fonts.bodySmall!.copyWith(
                                           color: style.colors.primary,
-                                          fontSize: 11,
                                         ),
                                       ),
                                     ),
@@ -402,16 +397,13 @@ Future<void> _deleteEmail(
   BuildContext context,
   UserEmail email,
 ) async {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final fonts = Theme.of(context).fonts;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_email'.l10n,
     description: [
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
-      TextSpan(
-        text: email.val,
-        style: TextStyle(color: style.colors.onBackground),
-      ),
+      TextSpan(text: email.val, style: fonts.labelLarge),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
   );
@@ -428,16 +420,13 @@ Future<void> _deletePhone(
   BuildContext context,
   UserPhone phone,
 ) async {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final fonts = Theme.of(context).fonts;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_phone_number'.l10n,
     description: [
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
-      TextSpan(
-        text: phone.val,
-        style: TextStyle(color: style.colors.onBackground),
-      ),
+      TextSpan(text: phone.val, style: fonts.labelLarge),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
   );
@@ -449,7 +438,7 @@ Future<void> _deletePhone(
 
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final fonts = Theme.of(context).fonts;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_account'.l10n,
@@ -460,7 +449,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
             c.myUser.value?.login?.val ??
             c.myUser.value?.num.val ??
             'dot'.l10n * 3,
-        style: TextStyle(color: style.colors.onBackground),
+        style: fonts.labelLarge,
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

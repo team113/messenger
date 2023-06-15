@@ -433,7 +433,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// Builds the [_AnimatedMenu.actions].
   Widget _actions() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final List<Widget> widgets = [];
 
