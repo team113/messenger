@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -48,7 +47,7 @@ import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {super.key});
+  const HomeView(this._depsFactory, {Key? key}) : super(key: key);
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -358,7 +357,7 @@ class _HomeViewState extends State<HomeView> {
                   width: double.infinity,
                   height: double.infinity,
                 ),
-                HomeBackground(c.background, c.sideBarWidth),
+                _background(c),
                 if (c.authStatus.value.isSuccess) ...[
                   Container(child: context.isNarrow ? null : navigation),
                   sideBar,
@@ -374,35 +373,19 @@ class _HomeViewState extends State<HomeView> {
       },
     );
   }
-}
 
-/// [Widget] which builds the [HomeController.background] visual
-/// representation.
-class HomeBackground extends StatelessWidget {
-  const HomeBackground(
-    this.background,
-    this.sideBarWidth, {
-    super.key,
-  });
-
-  /// Reactive background as a [Uint8List].
-  final Rx<Uint8List?> background;
-
-  /// Width of the side bar.
-  final RxDouble sideBarWidth;
-
-  @override
-  Widget build(BuildContext context) {
+  /// Builds the [HomeController.background] visual representation.
+  Widget _background(HomeController c) {
     final style = Theme.of(context).style;
 
     return Positioned.fill(
       child: IgnorePointer(
         child: Obx(() {
           final Widget image;
-          if (background.value != null) {
+          if (c.background.value != null) {
             image = Image.memory(
-              background.value!,
-              key: Key('Background_${background.value?.lengthInBytes}'),
+              c.background.value!,
+              key: Key('Background_${c.background.value?.lengthInBytes}'),
               fit: BoxFit.cover,
             );
           } else {
@@ -443,7 +426,7 @@ class HomeBackground extends StatelessWidget {
                     ConditionalBackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
                       child: Obx(() {
-                        double width = sideBarWidth.value;
+                        double width = c.sideBarWidth.value;
                         return ConstrainedBox(
                           constraints: BoxConstraints(
                             maxWidth: context.isNarrow ? 0 : width,
