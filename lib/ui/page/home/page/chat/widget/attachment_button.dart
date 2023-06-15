@@ -44,7 +44,7 @@ class AttachmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return FittedBox(
       fit: BoxFit.scaleDown,
@@ -55,8 +55,8 @@ class AttachmentButton extends StatelessWidget {
           onPressed?.call();
           Navigator.of(context).pop();
         },
-        style: TextStyle(fontSize: 15, color: style.colors.onBackground),
-        color: Theme.of(context).colorScheme.secondary,
+        style: fonts.titleMedium!,
+        color: style.colors.primary,
         child: SizedBox(
           width: 60,
           height: 60,

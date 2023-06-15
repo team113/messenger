@@ -26,16 +26,18 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
-import '../../../../../domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -50,12 +52,9 @@ import 'controller.dart';
 import 'message_field/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
-import 'widget/chat_item/chat_item.dart' as prefix;
-import 'widget/chat_subtitle.dart';
+import 'widget/chat_item.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
-import 'widget/time_label.dart';
-import 'widget/unread_label.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
@@ -76,22 +75,6 @@ class _ChatViewState extends State<ChatView>
     with SingleTickerProviderStateMixin {
   /// [AnimationController] of [SwipeableStatus]es.
   late final AnimationController _animation;
-
-  /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
-  /// corresponding [Widget].
-  final List<GlobalKey> _galleryKeys = [];
-
-  /// [TextSpan] of the [ChatItemWidget.item] to display as a text of this
-  /// [ChatItemWidget].
-  TextSpan? _text;
-
-  /// [Worker] reacting on the [ChatItemWidget.item] changes updating the
-  /// [_text] and [_galleryKeys].
-  Worker? _worker;
-
-  /// [TapGestureRecognizer]s for tapping on the [SelectionText.rich] spans, if
-  /// any.
-  final List<TapGestureRecognizer> _recognizers = [];
 
   @override
   void initState() {
@@ -213,13 +196,7 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    if (!isMonolog)
-                                      ChatSubtitle(
-                                        chat: c.chat,
-                                        me: c.me,
-                                        duration: c.duration,
-                                        getUser: (id) => c.getUser(id),
-                                      ),
+                                    if (!isMonolog) _chatSubtitle(c),
                                   ],
                                 ),
                               ),
@@ -644,139 +621,63 @@ class _ChatViewState extends State<ChatView>
       }
 
       return Padding(
-          padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
-          child: FutureBuilder<RxUser?>(
-              future: c.getUser(e.value.authorId),
-              builder: (_, u) {
-                /// Populates the [_text] with the [ChatMessage.text] of the provided [item]
-                /// parsed through a [LinkParsingExtension.parseLinks] method.
-                void populateSpans(ChatItem msg, TextSpan? text) {
-                  if (msg is ChatMessage) {
-                    for (var r in _recognizers) {
-                      r.dispose();
-                    }
-                    _recognizers.clear();
-
-                    final String? string = msg.text?.val.trim();
-                    if (string?.isEmpty == true) {
-                      text = null;
-                    } else {
-                      text = string?.parseLinks(_recognizers, router.context);
-                    }
-                  } else if (msg is ChatForward) {
-                    throw Exception(
-                      'Use `ChatForward` widget for rendering `ChatForward`s instead',
-                    );
-                  }
-                }
-
-                /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].
-                void populateGlobalKeys(
-                    ChatItem msg, List<GlobalKey> galleryKeys) {
-                  if (msg is ChatMessage) {
-                    galleryKeys = msg.attachments
-                        .where((e) =>
-                            e is ImageAttachment ||
-                            (e is FileAttachment && e.isVideo) ||
-                            (e is LocalAttachment &&
-                                (e.file.isImage || e.file.isVideo)))
-                        .map((e) => GlobalKey())
-                        .toList();
-                  } else if (msg is ChatForward) {
-                    throw Exception(
-                      'Use `ChatForward` widget for rendering `ChatForward`s instead',
-                    );
-                  }
-                }
-
-                /// Populates the [_worker] invoking the [_populateSpans] and
-                /// [_populateGlobalKeys] on the [ChatItemWidget.item] changes.
-                void populateWorker() {
-                  _worker?.dispose();
-                  populateGlobalKeys(e.value, _galleryKeys);
-                  populateSpans(e.value, _text);
-
-                  ChatMessageText? text;
-                  int attachments = 0;
-
-                  if (e.value is ChatMessage) {
-                    final msg = e.value as ChatMessage;
-                    attachments = msg.attachments.length;
-                    text = msg.text;
-                  }
-
-                  _worker = ever(e, (ChatItem item) {
-                    if (item is ChatMessage) {
-                      if (item.attachments.length != attachments) {
-                        populateGlobalKeys(item, _galleryKeys);
-                        attachments = item.attachments.length;
-                      }
-
-                      if (text != item.text) {
-                        populateSpans(item, _text);
-                        text = item.text;
-                      }
-                    }
-                  });
-                }
-
-                return prefix.ChatItemWidget(
-                  populateWorker: () => populateWorker(),
-                  populateGlobalKeys: (msg) =>
-                      populateGlobalKeys(msg, _galleryKeys),
-                  populateSpans: (msg) => populateSpans(msg, _text),
-                  chat: c.chat!.chat.value,
-                  item: e.value,
-                  me: c.me!,
-                  avatar: !previousSame,
-                  margin: EdgeInsets.only(
-                    top: previousSame ? 1.5 : 6,
-                    bottom: nextSame ? 1.5 : 6,
-                  ),
-                  loadImages: c.settings.value?.loadImages != false,
-                  reads: c.chat!.members.length > 10
-                      ? []
-                      : c.chat!.reads.where((m) =>
-                          m.at == e.value.at &&
-                          m.memberId != c.me &&
-                          m.memberId != e.value.authorId),
-                  user: u.data,
-                  getUser: c.getUser,
-                  animation: _animation,
-                  timestamp: c.settings.value?.timelineEnabled != true,
-                  onHide: () => c.hideChatItem(e.value),
-                  onDelete: () => c.deleteMessage(e.value),
-                  onReply: () {
-                    if (c.send.replied.any((i) => i.id == e.value.id)) {
-                      c.send.replied.removeWhere((i) => i.id == e.value.id);
-                    } else {
-                      c.send.replied.insert(0, e.value);
-                    }
-                  },
-                  onCopy: (text) {
-                    if (c.selection.value?.plainText.isNotEmpty == true) {
-                      c.copyText(c.selection.value!.plainText);
-                    } else {
-                      c.copyText(text);
-                    }
-                  },
-                  onRepliedTap: (q) async {
-                    if (q.original != null) {
-                      await c.animateTo(q.original!.id);
-                    }
-                  },
-                  onGallery: c.calculateGallery,
-                  onResend: () => c.resendItem(e.value),
-                  onEdit: () => c.editMessage(e.value),
-                  onDrag: (d) => c.isItemDragged.value = d,
-                  onFileTap: (a) => c.download(e.value, a),
-                  onAttachmentError: () async {
-                    await c.chat?.updateAttachments(e.value);
-                    await Future.delayed(Duration.zero);
-                  },
-                  onSelecting: (s) => c.isSelecting.value = s,
-                );
-              }));
+        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+        child: FutureBuilder<RxUser?>(
+          future: c.getUser(e.value.authorId),
+          builder: (_, u) => ChatItemWidget(
+            chat: c.chat!.chat,
+            item: e,
+            me: c.me!,
+            avatar: !previousSame,
+            margin: EdgeInsets.only(
+              top: previousSame ? 1.5 : 6,
+              bottom: nextSame ? 1.5 : 6,
+            ),
+            loadImages: c.settings.value?.loadImages != false,
+            reads: c.chat!.members.length > 10
+                ? []
+                : c.chat!.reads.where((m) =>
+                    m.at == e.value.at &&
+                    m.memberId != c.me &&
+                    m.memberId != e.value.authorId),
+            user: u.data,
+            getUser: c.getUser,
+            animation: _animation,
+            timestamp: c.settings.value?.timelineEnabled != true,
+            onHide: () => c.hideChatItem(e.value),
+            onDelete: () => c.deleteMessage(e.value),
+            onReply: () {
+              if (c.send.replied.any((i) => i.id == e.value.id)) {
+                c.send.replied.removeWhere((i) => i.id == e.value.id);
+              } else {
+                c.send.replied.insert(0, e.value);
+              }
+            },
+            onCopy: (text) {
+              if (c.selection.value?.plainText.isNotEmpty == true) {
+                c.copyText(c.selection.value!.plainText);
+              } else {
+                c.copyText(text);
+              }
+            },
+            onRepliedTap: (q) async {
+              if (q.original != null) {
+                await c.animateTo(q.original!.id);
+              }
+            },
+            onGallery: c.calculateGallery,
+            onResend: () => c.resendItem(e.value),
+            onEdit: () => c.editMessage(e.value),
+            onDrag: (d) => c.isItemDragged.value = d,
+            onFileTap: (a) => c.download(e.value, a),
+            onAttachmentError: () async {
+              await c.chat?.updateAttachments(e.value);
+              await Future.delayed(Duration.zero);
+            },
+            onSelecting: (s) => c.isSelecting.value = s,
+          ),
+        ),
+      );
     } else if (element is ChatForwardElement) {
       return Padding(
         padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
@@ -889,16 +790,10 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
-        child: TimeLabel(
-          i,
-          time: element.id.at.val,
-          stickyIndex: c.stickyIndex,
-          showSticky: c.showSticky,
-          animation: _animation,
-        ),
+        child: _timeLabel(element.id.at.val, c, i),
       );
     } else if (element is UnreadMessagesElement) {
-      return SelectionContainer.disabled(child: UnreadLabel(c.unreadMessages));
+      return SelectionContainer.disabled(child: _unreadLabel(context, c));
     } else if (element is LoaderElement) {
       return Obx(() {
         final Widget child;
@@ -935,6 +830,202 @@ class _ChatViewState extends State<ChatView>
     }
 
     return const SizedBox();
+  }
+
+  /// Returns a header subtitle of the [Chat].
+  Widget _chatSubtitle(ChatController c) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Obx(() {
+      Rx<Chat> chat = c.chat!.chat;
+
+      if (chat.value.ongoingCall != null) {
+        final subtitle = StringBuffer();
+        if (!context.isMobile) {
+          subtitle.write(
+              '${'label_call_active'.l10n}${'space_vertical_space'.l10n}');
+        }
+
+        final Set<UserId> actualMembers =
+            chat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
+        subtitle.write(
+          'label_a_of_b'.l10nfmt(
+            {'a': actualMembers.length, 'b': c.chat!.members.length},
+          ),
+        );
+
+        if (c.duration.value != null) {
+          subtitle.write(
+            '${'space_vertical_space'.l10n}${c.duration.value?.hhMmSs()}',
+          );
+        }
+
+        return Text(
+          subtitle.toString(),
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        );
+      }
+
+      bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
+      if (isTyping) {
+        if (c.chat?.chat.value.isGroup == false) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'label_typing'.l10n,
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+              ),
+              const SizedBox(width: 3),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 3),
+                child: AnimatedTyping(),
+              ),
+            ],
+          );
+        }
+
+        Iterable<String> typings = c.chat!.typingUsers
+            .where((e) => e.id != c.me)
+            .map((e) => e.name?.val ?? e.num.val);
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Flexible(
+              child: Text(
+                typings.join('comma_space'.l10n),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+              ),
+            ),
+            const SizedBox(width: 3),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 3),
+              child: AnimatedTyping(),
+            ),
+          ],
+        );
+      }
+
+      if (chat.value.isGroup) {
+        final String? subtitle = chat.value.getSubtitle();
+        if (subtitle != null) {
+          return Text(
+            subtitle,
+            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+          );
+        }
+      } else if (chat.value.isDialog) {
+        final ChatMember? partner =
+            chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
+        if (partner != null) {
+          return Row(
+            children: [
+              if (c.chat?.chat.value.muted != null) ...[
+                SvgImage.asset(
+                  'assets/icons/muted_dark.svg',
+                  width: 19.99 * 0.6,
+                  height: 15 * 0.6,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Flexible(
+                child: FutureBuilder<RxUser?>(
+                  future: c.getUser(partner.user.id),
+                  builder: (_, snapshot) {
+                    if (snapshot.data != null) {
+                      return Obx(() {
+                        final String? subtitle = c.chat!.chat.value
+                            .getSubtitle(partner: snapshot.data!.user.value);
+
+                        final UserTextStatus? status =
+                            snapshot.data!.user.value.status;
+
+                        if (status != null || subtitle != null) {
+                          final StringBuffer buffer =
+                              StringBuffer(status ?? '');
+
+                          if (status != null && subtitle != null) {
+                            buffer.write('space_vertical_space'.l10n);
+                          }
+
+                          buffer.write(subtitle ?? '');
+
+                          return Text(
+                            buffer.toString(),
+                            style: fonts.bodySmall!.copyWith(
+                              color: style.colors.secondary,
+                            ),
+                          );
+                        }
+
+                        return const SizedBox();
+                      });
+                    }
+
+                    return const SizedBox();
+                  },
+                ),
+              ),
+            ],
+          );
+        }
+      }
+
+      return const SizedBox();
+    });
+  }
+
+  /// Returns a centered [time] label.
+  Widget _timeLabel(DateTime time, ChatController c, int i) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: SwipeableStatus(
+        animation: _animation,
+        padding: const EdgeInsets.only(right: 8),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        swipeable: Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: Text(DateFormat('dd.MM.yy').format(time)),
+        ),
+        child: Obx(() {
+          return AnimatedOpacity(
+            key: Key('$i$time'),
+            opacity: c.stickyIndex.value == i
+                ? c.showSticky.isTrue
+                    ? 1
+                    : 0
+                : 1,
+            duration: const Duration(milliseconds: 250),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.systemMessageBorder,
+                  color: style.systemMessageColor,
+                ),
+                child: Text(
+                  time.toRelative(),
+                  style: fonts.bodySmall!.copyWith(
+                    color: style.colors.secondary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
   }
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
@@ -980,6 +1071,28 @@ class _ChatViewState extends State<ChatView>
       c.isHorizontalScroll.value = false;
       c.horizontalScrollTimer.value = null;
     });
+  }
+
+  /// Builds a visual representation of an [UnreadMessagesElement].
+  Widget _unreadLabel(BuildContext context, ChatController c) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: style.systemMessageBorder,
+        color: style.systemMessageColor,
+      ),
+      child: Center(
+        child: Text(
+          'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        ),
+      ),
+    );
   }
 }
 

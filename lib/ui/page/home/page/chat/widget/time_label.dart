@@ -51,7 +51,7 @@ class TimeLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -85,7 +85,9 @@ class TimeLabel extends StatelessWidget {
                 ),
                 child: Text(
                   time.toRelative(),
-                  style: style.systemMessageStyle,
+                  style: fonts.bodySmall!.copyWith(
+                    color: style.colors.secondary,
+                  ),
                 ),
               ),
             ),

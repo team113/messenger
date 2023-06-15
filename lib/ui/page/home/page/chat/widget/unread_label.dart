@@ -30,7 +30,7 @@ class UnreadLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Container(
       width: double.infinity,
@@ -44,7 +44,7 @@ class UnreadLabel extends StatelessWidget {
       child: Center(
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': unreadMessages}),
-          style: style.systemMessageStyle,
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
         ),
       ),
     );
