@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.7"
+  FLUTTER_VER: "3.10"
 
 jobs:
 
@@ -148,6 +148,8 @@ jobs:
                           libgstreamer1.0-dev
                           libgstreamer-plugins-base1.0-dev
                           libpulse-dev
+                          libmpv-dev
+                          mpv
         if: ${{ matrix.platform == 'linux' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop

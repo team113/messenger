@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 
 /// View showing details about a [MyUser.chatDirectLink].
@@ -34,8 +35,7 @@ class LinkDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final (style, fonts) = Theme.of(context).styles;
 
     return AnimatedSizeAndFade(
       fadeDuration: const Duration(milliseconds: 250),
@@ -48,7 +48,7 @@ class LinkDetailsView extends StatelessWidget {
             header: Center(
               child: Text(
                 'label_your_direct_link'.l10n,
-                style: thin?.copyWith(fontSize: 18),
+                style: fonts.headlineMedium,
               ),
             ),
           ),
@@ -60,9 +60,8 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style: thin?.copyWith(
-                  fontSize: 15,
-                  color: Theme.of(context).colorScheme.primary,
+                style: fonts.bodyMedium!.copyWith(
+                  color: style.colors.secondary,
                 ),
               ),
             ),

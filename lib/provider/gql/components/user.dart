@@ -33,7 +33,7 @@ import '/store/model/my_user.dart';
 import '/store/model/user.dart';
 
 /// [MyUser] related functionality.
-abstract class UserGraphQlMixin {
+mixin UserGraphQlMixin {
   GraphQlClient get client;
 
   /// Returns the current authenticated [MyUser].

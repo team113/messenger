@@ -16,17 +16,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
+import '/themes.dart';
 
 /// [InkWell] button with a [Tooltip] of a [hint].
 class TooltipButton extends StatelessWidget {
   const TooltipButton({
-    Key? key,
+    super.key,
     this.child,
     this.onTap,
     this.hint,
     this.verticalOffset,
-  }) : super(key: key);
+  });
 
   /// Widget of this button.
   final Widget? child;
@@ -42,10 +43,12 @@ class TooltipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     Widget button = InkWell(
-      hoverColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
+      hoverColor: style.colors.transparent,
+      highlightColor: style.colors.transparent,
+      splashColor: style.colors.transparent,
       onTap: onTap,
       child: child,
     );
@@ -55,13 +58,11 @@ class TooltipButton extends StatelessWidget {
         : Tooltip(
             verticalOffset: verticalOffset,
             message: hint!,
-            textStyle: context.theme.outlinedButtonTheme.style!.textStyle!
-                .resolve({MaterialState.disabled})!.copyWith(
-              fontSize: 13,
-              color: Colors.white,
-              shadows: const [
-                Shadow(blurRadius: 6, color: Color(0xFF000000)),
-                Shadow(blurRadius: 6, color: Color(0xFF000000)),
+            textStyle: fonts.headlineSmall!.copyWith(
+              color: style.colors.onPrimary,
+              shadows: [
+                Shadow(blurRadius: 6, color: style.colors.onBackground),
+                Shadow(blurRadius: 6, color: style.colors.onBackground),
               ],
             ),
             decoration: const BoxDecoration(),

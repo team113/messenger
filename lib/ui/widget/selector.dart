@@ -15,12 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
@@ -112,26 +110,14 @@ class Selector<T> extends StatefulWidget {
       );
     }
 
-    if (isMobile) {
-      return showModalBottomSheet(
-        context: context,
-        barrierColor: kCupertinoModalBarrierColor,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(8),
-            topRight: Radius.circular(8),
-          ),
-        ),
-        builder: builder,
-      );
-    } else {
-      return showDialog(
-        context: context,
-        barrierColor: kCupertinoModalBarrierColor,
-        builder: builder,
-      );
-    }
+    final style = Theme.of(context).style;
+
+    return showDialog(
+      context: context,
+      barrierColor: style.colors.transparent,
+      useSafeArea: false,
+      builder: builder,
+    );
   }
 
   @override
@@ -146,6 +132,9 @@ class _SelectorState<T> extends State<Selector<T>> {
   /// [Worker] debouncing the [_selected] value, if any debounce is specified.
   Worker? _debounce;
 
+  /// [GlobalKey] of the [Selector.items].
+  final GlobalKey _itemsKey = GlobalKey();
+
   @override
   void initState() {
     _selected = Rx(widget.initial ?? widget.items.first);
@@ -158,6 +147,12 @@ class _SelectorState<T> extends State<Selector<T>> {
       );
     }
 
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+
     super.initState();
   }
 
@@ -169,126 +164,7 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isMobile) {
-      return _mobile(context);
-    } else {
-      return _desktop(context);
-    }
-  }
-
-  /// Returns mobile design of this [Selector].
-  Widget _mobile(BuildContext context) {
-    return Container(
-      height: 12 + 3 + 12 + 14 * 2 + min(widget.items.length * 38, 330) + 12,
-      margin: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Center(
-              child: Container(
-                width: 60,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFCCCCCC),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                child: Stack(
-                  children: [
-                    CupertinoPicker(
-                      scrollController: FixedExtentScrollController(
-                        initialItem: widget.initial == null
-                            ? 0
-                            : widget.items.indexOf(_selected.value),
-                      ),
-                      magnification: 1,
-                      squeeze: 1,
-                      looping: true,
-                      diameterRatio: 100,
-                      useMagnifier: false,
-                      itemExtent: 38,
-                      selectionOverlay: Container(
-                        margin:
-                            const EdgeInsetsDirectional.only(start: 8, end: 8),
-                        decoration:
-                            const BoxDecoration(color: Color(0x3363B4FF)),
-                      ),
-                      onSelectedItemChanged: (int i) {
-                        HapticFeedback.selectionClick();
-                        _selected.value = widget.items[i];
-                        if (_debounce == null) {
-                          widget.onSelected?.call(_selected.value);
-                        }
-                      },
-                      children: widget.items
-                          .map(
-                            (e) => Center(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(46, 0, 29, 0),
-                                child: widget.itemBuilder(e),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Container(
-                        height: 15,
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0xFFFFFFFF),
-                              Color(0x00FFFFFF),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        height: 15,
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0x00FFFFFF),
-                              Color(0xFFFFFFFF),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Returns desktop design of this [Selector].
-  Widget _desktop(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       double? left, right;
@@ -298,48 +174,73 @@ class _SelectorState<T> extends State<Selector<T>> {
           Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
       final keyContext = widget.buttonKey?.currentContext;
       if (keyContext != null) {
-        final box = keyContext.findRenderObject() as RenderBox?;
-        offset = box?.localToGlobal(Offset.zero) ?? offset;
+        final buttonBox = keyContext.findRenderObject() as RenderBox?;
+        offset = buttonBox?.localToGlobal(Offset.zero) ?? offset;
+
+        RenderBox? contextBox;
+
+        final BuildContext? itemsContext = _itemsKey.currentContext;
+        if (itemsContext != null) {
+          contextBox = itemsContext.findRenderObject() as RenderBox?;
+        }
 
         if (widget.alignment == Alignment.topCenter) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0) / 2,
+            offset.dx + (buttonBox?.size.width ?? 0) / 2,
             offset.dy,
           );
 
-          left = offset.dx - widget.width / 2;
+          left = offset.dx -
+              (contextBox?.size.width ?? widget.width) / 2 -
+              widget.margin.right;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.topLeft) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0),
-            offset.dy,
+            offset.dx + (buttonBox?.size.width ?? 0),
+            offset.dy - widget.margin.bottom,
           );
 
-          left = offset.dx - widget.width;
+          right = constraints.maxWidth - offset.dx;
+          bottom = MediaQuery.of(context).size.height - offset.dy;
+        } else if (widget.alignment == Alignment.topRight) {
+          offset = Offset(
+            offset.dx + (buttonBox?.size.width ?? 0),
+            offset.dy - widget.margin.bottom,
+          );
+
+          left = offset.dx - widget.margin.right;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.bottomCenter) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0) / 2,
-            offset.dy + (box?.size.height ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0) / 2,
+            offset.dy + (buttonBox?.size.height ?? 0),
           );
 
           left = offset.dx - widget.width / 2;
           top = offset.dy;
         } else if (widget.alignment == Alignment.bottomRight) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0),
-            offset.dy + (box?.size.height ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0),
+            offset.dy + (buttonBox?.size.height ?? 0),
           );
 
-          left = offset.dx - widget.width / 2;
-          top = offset.dy;
+          left = offset.dx - widget.margin.right;
+          top = offset.dy - widget.margin.bottom;
+        } else if (widget.alignment == Alignment.bottomLeft) {
+          offset = Offset(
+            offset.dx - (buttonBox?.size.width ?? 0),
+            offset.dy + (buttonBox?.size.height ?? 0),
+          );
+
+          right = constraints.maxWidth - 100 - offset.dx;
+          top = offset.dy - widget.margin.bottom;
         } else {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0) / 2,
-            offset.dy + (box?.size.height ?? 0) / 2,
+            offset.dx + (buttonBox?.size.width ?? 0) / 2,
+            offset.dy + (buttonBox?.size.height ?? 0) / 2,
           );
 
-          left = offset.dx - widget.width / 2;
+          left = offset.dx - (contextBox?.size.width ?? widget.width) / 2;
           top = offset.dy;
         }
       }
@@ -366,10 +267,10 @@ class _SelectorState<T> extends State<Selector<T>> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: Material(
             borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
+            color: style.colors.onPrimary,
             child: InkWell(
-              hoverColor: const Color(0x3363B4FF),
-              highlightColor: Colors.white.withOpacity(0.1),
+              hoverColor: style.colors.onSecondaryOpacity20,
+              highlightColor: style.colors.onPrimaryOpacity7,
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 _selected.value = item;
@@ -390,6 +291,7 @@ class _SelectorState<T> extends State<Selector<T>> {
       }
 
       return Stack(
+        fit: StackFit.expand,
         children: [
           Positioned(
             left: left,
@@ -399,63 +301,25 @@ class _SelectorState<T> extends State<Selector<T>> {
             child: Listener(
               onPointerUp: (d) => Navigator.of(context).pop(),
               child: Container(
-                width: widget.width,
                 margin: widget.margin,
-                constraints: const BoxConstraints(maxHeight: 280),
                 decoration: BoxDecoration(
                   color: style.contextMenuBackgroundColor,
                   borderRadius: style.contextMenuRadius,
-                ),
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: style.contextMenuRadius,
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: widget.items.mapIndexed(button).toList(),
-                      ),
-                    ),
-                    if (widget.items.length >= 8)
-                      Positioned.fill(
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: Container(
-                            height: 15,
-                            margin: const EdgeInsets.only(right: 10),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Color(0xFFFFFFFF),
-                                  Color(0x00FFFFFF),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (widget.items.length >= 8)
-                      Positioned.fill(
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            height: 15,
-                            margin: const EdgeInsets.only(right: 10),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Color(0x00FFFFFF),
-                                  Color(0xFFFFFFFF),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                  border: Border.all(color: style.colors.secondary, width: 0.5),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 12,
+                      color: style.colors.onBackgroundOpacity27,
+                      blurStyle: BlurStyle.outer,
+                    )
                   ],
+                ),
+                child: IntrinsicWidth(
+                  key: _itemsKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: widget.items.mapIndexed(button).toList(),
+                  ),
                 ),
               ),
             ),

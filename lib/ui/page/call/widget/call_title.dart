@@ -16,13 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
 
@@ -31,13 +31,13 @@ import '/ui/page/home/widget/avatar.dart';
 class CallTitle extends StatelessWidget {
   const CallTitle(
     this.me, {
-    Key? key,
+    super.key,
     this.chat,
     this.title,
     this.avatar,
     this.state,
     this.withDots = false,
-  }) : super(key: key);
+  });
 
   /// [Chat] that contains the current [OngoingCall].
   final Chat? chat;
@@ -62,6 +62,8 @@ class CallTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     return DefaultTextStyle.merge(
       maxLines: 1,
       softWrap: true,
@@ -82,11 +84,7 @@ class CallTitle extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title ?? ('dot'.l10n * 3),
-            style: context.textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
-              fontSize: 27,
-              fontWeight: FontWeight.bold,
-            ),
+            style: fonts.displayLarge!.copyWith(color: style.colors.onPrimary),
           ),
           if (state != null) const SizedBox(height: 10),
           if (state != null)
@@ -97,8 +95,9 @@ class CallTitle extends StatelessWidget {
                 if (withDots) const SizedBox(width: 13),
                 Text(
                   state!,
-                  style: context.textTheme.headlineMedium
-                      ?.copyWith(color: Colors.white),
+                  style: fonts.headlineMedium!.copyWith(
+                    color: style.colors.onPrimary,
+                  ),
                 ),
                 if (withDots) const AnimatedDots(),
               ],

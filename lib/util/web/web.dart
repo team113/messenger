@@ -568,6 +568,11 @@ class WebUtils {
       e.href = e.href.replaceFirst('icons/alert/', 'icons/');
     }
   }
+
+  /// Sets callback to be fired whenever Rust code panics.
+  static void onPanic(void Function(String)? cb) {
+    // No-op.
+  }
 }
 
 /// Extension adding JSON manipulation methods to a [Rect].

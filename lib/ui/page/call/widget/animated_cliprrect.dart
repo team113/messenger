@@ -57,7 +57,7 @@ class _AnimatedClipRRectState
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: _borderRadius?.evaluate(animation),
+      borderRadius: _borderRadius?.evaluate(animation) ?? BorderRadius.zero,
       child: widget.child,
     );
   }

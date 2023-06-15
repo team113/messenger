@@ -506,7 +506,9 @@ class ContextMenuActions extends StatelessWidget {
 
   /// Builds the [_AnimatedMenu.actions].
   Widget _actions() {
-    List<Widget> widgets = [];
+    final style = Theme.of(router.context!).style;
+
+    final List<Widget> widgets = [];
 
     for (int i = 0; i < actions.length; ++i) {
       if (actions[i] is! ContextMenuDivider) {
@@ -516,7 +518,7 @@ class ContextMenuActions extends StatelessWidget {
         if (i < actions.length - 1) {
           widgets.add(
             Container(
-              color: const Color(0x11000000),
+              color: style.colors.onBackgroundOpacity7,
               height: 1,
               width: double.infinity,
             ),
@@ -524,8 +526,6 @@ class ContextMenuActions extends StatelessWidget {
         }
       }
     }
-
-    final Style style = Theme.of(router.context!).extension<Style>()!;
 
     return Listener(
       onPointerUp: (d) {

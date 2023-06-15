@@ -17,6 +17,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
@@ -41,6 +42,8 @@ class ContextMenuRegion extends StatefulWidget {
     this.moveDownwards = true,
     this.preventContextMenu = true,
     this.enableLongTap = true,
+    this.enablePrimaryTap = false,
+    this.enableSecondaryTap = true,
     this.alignment = Alignment.bottomCenter,
     this.actions = const [],
     this.selector,
@@ -81,6 +84,12 @@ class ContextMenuRegion extends StatefulWidget {
 
   /// Indicator whether context menu should be displayed on a long tap.
   final bool enableLongTap;
+
+  /// Indicator whether context menu should be displayed on a primary tap.
+  final bool enablePrimaryTap;
+
+  /// Indicator whether context menu should be displayed on a secondary tap.
+  final bool enableSecondaryTap;
 
   /// [GlobalKey] of a [Selector.buttonKey].
   ///
@@ -127,13 +136,14 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         return widget.child!;
       }
 
-      return Builder(builder: (_) => widget.builder!(_displayed));
+      return widget.builder!(_displayed);
     }
 
     final Widget child;
 
     if (_darkened && PlatformUtils.isDesktop) {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final style = Theme.of(context).style;
+
       child = Stack(
         children: [
           builder(),
@@ -149,37 +159,49 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     }
 
     if (widget.enabled && widget.actions.isNotEmpty) {
+      Widget menu;
+
+      if (PlatformUtils.isMobile && widget.selector == null) {
+        menu = FloatingContextMenu(
+          alignment: widget.alignment,
+          moveDownwards: widget.moveDownwards,
+          actions: widget.actions,
+          margin: widget.margin,
+          unconstrained: widget.unconstrained,
+          onOpened: () => _displayed = true,
+          onClosed: () => _displayed = false,
+          child: widget.builder == null ? child : widget.builder!(_displayed),
+        );
+      } else {
+        menu = GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onLongPressStart: widget.enableLongTap
+              ? (d) => _show(context, d.globalPosition)
+              : null,
+          child: widget.builder == null ? child : widget.builder!(_displayed),
+        );
+
+        if (widget.enablePrimaryTap) {
+          menu = MouseRegion(
+            opaque: false,
+            cursor: SystemMouseCursors.click,
+            child: menu,
+          );
+        }
+      }
+
       return ContextMenuInterceptor(
         enabled: widget.preventContextMenu,
         child: Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (d) {
-            if (d.buttons & kSecondaryButton != 0) {
+            if ((widget.enableSecondaryTap &&
+                    d.buttons & kSecondaryButton != 0) ||
+                (widget.enablePrimaryTap && d.buttons & kPrimaryButton != 0)) {
               _show(context, d.position);
             }
           },
-          child: PlatformUtils.isMobile
-              ? FloatingContextMenu(
-                  alignment: widget.alignment,
-                  moveDownwards: widget.moveDownwards,
-                  actions: widget.actions,
-                  margin: widget.margin,
-                  unconstrained: widget.unconstrained,
-                  onOpened: () => _displayed = true,
-                  onClosed: () => _displayed = false,
-                  child: widget.builder == null
-                      ? child
-                      : Builder(builder: (_) => widget.builder!(_displayed)),
-                )
-              : GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onLongPressStart: widget.enableLongTap
-                      ? (d) => _show(context, d.globalPosition)
-                      : null,
-                  child: widget.builder == null
-                      ? child
-                      : Builder(builder: (_) => widget.builder!(_displayed)),
-                ),
+          child: menu,
         ),
       );
     }
@@ -189,9 +211,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
+    final (style, fonts) = Theme.of(context).styles;
+
     if (widget.actions.isEmpty) {
       return;
     }
+
+    HapticFeedback.lightImpact();
 
     if (widget.selector != null) {
       await Selector.show<ContextMenuItem>(
@@ -209,19 +235,14 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           );
         },
         itemBuilder: (b) {
-          final TextStyle? thin = Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: Colors.black);
-
           if (b is ContextMenuButton) {
             return Row(
               children: [
                 if (b.leading != null) ...[
                   b.leading!,
-                  const SizedBox(width: 12)
+                  const SizedBox(width: 12),
                 ],
-                Text(b.label, style: thin?.copyWith(fontSize: 15)),
+                Text(b.label, style: fonts.labelLarge),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,
@@ -267,13 +288,14 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               }
             },
             child: Container(
-              color: Colors.transparent,
+              color: style.colors.transparent,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   Positioned(
-                    left: position.dx,
-                    top: position.dy,
+                    left:
+                        position.dx + widget.margin.left - widget.margin.right,
+                    top: position.dy + widget.margin.top - widget.margin.bottom,
                     child: FractionalTranslation(
                       translation: Offset(
                         alignment.x > 0 ? 0 : -1,
