@@ -57,7 +57,7 @@ import 'common.dart';
 
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final style = Theme.of(context).style;
 
   return LayoutBuilder(builder: (context, constraints) {
     bool isOutgoing =
@@ -534,7 +534,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 ),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 366),
               child: ChatCardPreview(
@@ -555,7 +555,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                 child: AvatarWidget.fromRxChat(c.chat.value, radius: 30),
               ),
             ),
-            const SizedBox(height: 15),
           ];
         }
 

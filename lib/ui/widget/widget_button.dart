@@ -39,7 +39,7 @@ class WidgetButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,

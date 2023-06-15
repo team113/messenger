@@ -190,6 +190,7 @@ btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
 btn_mute = Отключить звук
 btn_mute_chat = Отключить звук
+btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
 btn_participants = Участники
@@ -218,6 +219,7 @@ btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
+btn_unmute_chats = Включить звук
 btn_upload = Загрузить
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
@@ -477,6 +479,7 @@ label_delete_phone_number = Удалить номер телефона
 label_delivered = Доставлено
 label_details = Подробнее.
 label_dialog_created = Диалог создан
+label_dialog_created_by_link = Диалог создан по прямой ссылке
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой
@@ -551,7 +554,7 @@ label_image_saved_to_gallery = Изображение сохранено в га
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_introduction_description =
-    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
+    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
 
         • Вы не удалите пользовательские данные из приложения (браузера);
 

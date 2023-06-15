@@ -40,7 +40,7 @@ class Caption extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(10, 60, 0, 10),
         child: SelectableText(
           caption,
-          style: context.theme.textTheme.bodyLarge?.copyWith(
+          style: context.theme.textTheme.bodyLarge!.copyWith(
             color: color,
             decoration: TextDecoration.underline,
           ),
