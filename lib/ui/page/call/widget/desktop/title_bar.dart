@@ -22,7 +22,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/tooltip_button.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Title bar containing information about the call.
+/// Title bar which containing information about the call.
 class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,

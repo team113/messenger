@@ -157,7 +157,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             }
 
                             child = PrimaryView(
-                              test: c.secondaryDrags.value != 0 &&
+                              isVisible: c.secondaryDrags.value != 0 &&
                                   c.primaryTargets.value != 0,
                               condition:
                                   !c.minimized.value || c.fullscreen.value,
@@ -1048,19 +1048,18 @@ Widget desktopCall(CallController c, BuildContext context) {
                 bottom: bottom,
                 condition: !c.minimized.value || c.fullscreen.value,
                 secondaryKey: c.secondaryKey,
-                data: MediaQuery.of(context).copyWith(size: c.size),
-                test1: c.secondary.isEmpty,
-                test2: c.draggedRenderer.value == null,
-                test3: c.secondaryAlignment.value == null,
-                test4:
+                size: c.size,
+                isVisible: c.secondary.isNotEmpty,
+                showCursor: c.draggedRenderer.value == null,
+                isDragDropVisible: c.secondaryAlignment.value == null,
+                showDragTarget:
                     c.primaryDrags.value != 0 && c.secondaryTargets.value != 0,
-                test5: c.secondaryHovered.value || c.primaryDrags.value != 0,
+                isShape: c.secondaryHovered.value || c.primaryDrags.value != 0,
                 alignment: c.secondaryAlignment.value,
                 isAnyDrag:
                     c.secondaryDrags.value != 0 || c.primaryDrags.value != 0,
                 opacity: c.secondaryHovered.value ? 1 : 0,
-                resizeSecondary: c.resizeSecondary,
-                focusAll: c.focusAll,
+                onTap: c.focusAll,
                 onDragEnd: (_) {
                   c.updateSecondaryAttach();
                 },
@@ -1106,6 +1105,55 @@ Widget desktopCall(CallController c, BuildContext context) {
                 onEnter: (p) => c.secondaryHovered.value = true,
                 onHover: (p) => c.secondaryHovered.value = true,
                 onExit: (p) => c.secondaryHovered.value = false,
+                onDragCenterLeft: (dx, dy) => c.resizeSecondary(
+                  context,
+                  x: ScaleModeX.left,
+                  dx: dx,
+                ),
+                onDragCenterRight: (dx, dy) => c.resizeSecondary(
+                  context,
+                  x: ScaleModeX.right,
+                  dx: -dx,
+                ),
+                onDragBottomCenter: (dx, dy) => c.resizeSecondary(
+                  context,
+                  y: ScaleModeY.bottom,
+                  dy: -dy,
+                ),
+                onDragTopCenter: (dx, dy) => c.resizeSecondary(
+                  context,
+                  y: ScaleModeY.top,
+                  dy: dy,
+                ),
+                onDragTopLeft: (dx, dy) => c.resizeSecondary(
+                  context,
+                  y: ScaleModeY.top,
+                  x: ScaleModeX.left,
+                  dx: dx,
+                  dy: dy,
+                ),
+                onDragTopRight: (dx, dy) => c.resizeSecondary(
+                  context,
+                  y: ScaleModeY.top,
+                  x: ScaleModeX.right,
+                  dx: -dx,
+                  dy: dy,
+                ),
+                onDragBottomLeft: (dx, dy) => c.resizeSecondary(
+                  context,
+                  y: ScaleModeY.bottom,
+                  x: ScaleModeX.left,
+                  dx: dx,
+                  dy: -dy,
+                ),
+                onDragBottomRight: (dx, dy) => c.resizeSecondary(
+                  context,
+                  y: ScaleModeY.bottom,
+                  x: ScaleModeX.right,
+                  dx: -dx,
+                  dy: -dy,
+                ),
+                // Secondary panel itself.
                 child: ReorderableFit<DragData>(
                   key: const Key('SecondaryFitView'),
                   onAdded: (d, i) => c.unfocus(d.participant),

@@ -20,31 +20,29 @@ import 'package:get/get.dart';
 
 import '../animated_delayed_scale.dart';
 import '../conditional_backdrop.dart';
-import '../reorderable_fit.dart';
-import '/routes.dart';
 import '/themes.dart';
 
-/// [ReorderableFit] of the primary participants.
+/// View of an primary overlay.
 class PrimaryView extends StatelessWidget {
   const PrimaryView({
     super.key,
     required this.child,
-    required this.test,
+    this.isVisible = true,
     this.condition = true,
   });
 
-  ///
+  /// [Widget] wrapped by this [PrimaryView].
   final Widget child;
 
-  ///
-  final bool test;
+  /// Indicator whether this [PrimaryView] is visible.
+  final bool isVisible;
 
-  ///
-  final bool? condition;
+  /// Indicator whether [BackdropFilter] should be enabled or not.
+  final bool condition;
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Stack(
       children: [
@@ -52,7 +50,7 @@ class PrimaryView extends StatelessWidget {
         IgnorePointer(
           child: AnimatedSwitcher(
             duration: 200.milliseconds,
-            child: test
+            child: isVisible
                 ? Container(
                     color: style.colors.onBackgroundOpacity27,
                     child: Center(
@@ -61,12 +59,12 @@ class PrimaryView extends StatelessWidget {
                         beginScale: 1,
                         endScale: 1.06,
                         child: ConditionalBackdropFilter(
-                          condition: condition!,
+                          condition: condition,
                           borderRadius: BorderRadius.circular(16),
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
-                              color: condition!
+                              color: condition
                                   ? style.colors.onBackgroundOpacity27
                                   : style.colors.onBackgroundOpacity50,
                             ),
