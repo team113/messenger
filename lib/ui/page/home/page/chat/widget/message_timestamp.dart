@@ -21,7 +21,6 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import 'donate.dart';
 import 'embossed_text.dart';
 
 /// [Row] displaying the provided [status] and [at] stylized to be a status of
@@ -114,19 +113,7 @@ class MessageTimestamp extends StatelessWidget {
           if (price != null) ...[
             SelectionContainer.disabled(
               child: Text(
-                '¤',
-                style: style.systemMessageStyle.copyWith(
-                  fontFamily: 'Gapopa',
-                  fontWeight: FontWeight.w300,
-                  color: paidColor,
-                  height: 1.0,
-                  fontSize: fontSize ?? 11,
-                ),
-              ),
-            ),
-            SelectionContainer.disabled(
-              child: Text(
-                price!.toStringAsFixed(0),
+                '${price!.toStringAsFixed(0)}¤',
                 style: style.systemMessageStyle.copyWith(
                   fontSize: fontSize ?? 11,
                   color: paidColor,

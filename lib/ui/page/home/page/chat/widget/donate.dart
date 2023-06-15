@@ -35,25 +35,6 @@ class DonateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    const List<Color> colors = [
-      Color(0xFFFEE661),
-      Color(0xFFE7C31E),
-      Color(0xFFFFE864),
-      Color(0xFFF5C635),
-    ];
-
-    const List<double> stops = [0, 0.32, 0.68, 1];
-
-    const LinearGradient outerGradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: colors,
-      stops: stops,
-    );
-
-    const LinearGradient innerGradient =
-        LinearGradient(colors: colors, stops: stops);
-
     final bar = Container(
       height: height,
       padding: const EdgeInsets.all(4),
@@ -194,12 +175,13 @@ class DonateWidget extends StatelessWidget {
                         ),
                         const SizedBox(width: 0),
                         Transform.translate(
-                          offset: const Offset(0, -3),
+                          // offset: const Offset(0, -3),
+                          offset: const Offset(0, 0),
                           child: EmbossedText(
                             '¤',
                             style: style.boldBody.copyWith(
                               fontSize: 32 * (height / 100),
-                              fontFamily: 'Gapopa',
+                              // fontFamily: 'Gapopa',
                               color: font,
                             ),
                           ),

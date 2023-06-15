@@ -64,7 +64,6 @@ import 'chat_gallery.dart';
 import 'conditional_intrinsic.dart';
 import 'data_attachment.dart';
 import 'donate.dart';
-import 'embossed_text.dart';
 import 'media_attachment.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
@@ -2222,10 +2221,6 @@ class FoldedWidget extends StatelessWidget {
               width: radius,
               height: radius,
               decoration: BoxDecoration(
-                // color: Color(0xFF72B060)
-                // color: Color(0xFF8383ff),
-                // color: Color(0xFFfff7ea),
-                // color: Color(0xFF8383ff),
                 color: Theme.of(context)
                     .extension<Style>()!
                     .cardHoveredBorder
@@ -2242,22 +2237,6 @@ class FoldedWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              // child: Align(
-              //   alignment: Alignment.bottomLeft,
-              //   child: Padding(
-              //     padding: const EdgeInsets.only(bottom: 1, left: 1),
-              //     child: Text(
-              //       '¤',
-              //       style:
-              //           Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
-              //                 height: 0.8,
-              //                 fontFamily: 'Gapopa',
-              //                 fontWeight: FontWeight.w300,
-              //                 fontSize: 9,
-              //               ),
-              //     ),
-              //   ),
-              // ),
             ),
         ],
       ),

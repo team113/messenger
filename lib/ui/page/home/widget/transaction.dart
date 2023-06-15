@@ -121,7 +121,6 @@ class TransactionWidget extends StatelessWidget {
                                             .textTheme
                                             .headlineSmall
                                             ?.copyWith(
-                                              fontFamily: 'Gapopa',
                                               fontWeight: FontWeight.w300,
                                               color: selected
                                                   ? Colors.white

@@ -55,8 +55,6 @@ class MessageFieldDonate extends StatelessWidget {
         right = global == null ? 0 : (constraints.maxWidth - global.right);
       }
 
-      print('$left $right');
-
       return Stack(
         fit: StackFit.expand,
         children: [
@@ -76,50 +74,6 @@ class MessageFieldDonate extends StatelessWidget {
             bottom: bottom + 10,
             child: Column(
               children: [
-                // Container(
-                //   decoration: BoxDecoration(
-                //     color: Colors.white,
-                //     borderRadius: BorderRadius.circular(8),
-                //     boxShadow: [
-                //       CustomBoxShadow(
-                //         blurRadius: 8,
-                //         color: style.colors.onBackgroundOpacity13,
-                //       ),
-                //     ],
-                //   ),
-                //   padding: const EdgeInsets.all(8),
-                //   child: Padding(
-                //     padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                //     child: Text.rich(
-                //       TextSpan(
-                //         children: [
-                //           TextSpan(
-                //             text: 'Minimum amount: 400',
-                //             style: TextStyle(
-                //               fontWeight: FontWeight.w300,
-                //               fontSize: 13,
-                //               color: style.colors.secondary,
-                //             ),
-                //           ),
-                //           const TextSpan(
-                //             text: ' ',
-                //             style: TextStyle(fontSize: 9),
-                //           ),
-                //           TextSpan(
-                //             text: '¤',
-                //             style: TextStyle(
-                //               fontFamily: 'Gapopa',
-                //               fontWeight: FontWeight.w300,
-                //               fontSize: 13,
-                //               color: style.colors.secondary,
-                //             ),
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -132,44 +86,9 @@ class MessageFieldDonate extends StatelessWidget {
                     ],
                   ),
                   width: 280,
-                  // height: 250,
-                  // padding: const EdgeInsets.all(8),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        // Align(
-                        //   alignment: Alignment.center,
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
-                        //     child: Text.rich(
-                        //       TextSpan(
-                        //         children: [
-                        //           TextSpan(
-                        //             text: 'Minimum amount: 400',
-                        //             style: TextStyle(
-                        //               fontWeight: FontWeight.w300,
-                        //               fontSize: 13,
-                        //               color: style.colors.secondary,
-                        //             ),
-                        //           ),
-                        //           const TextSpan(
-                        //             text: ' ',
-                        //             style: TextStyle(fontSize: 9),
-                        //           ),
-                        //           TextSpan(
-                        //             text: '¤',
-                        //             style: TextStyle(
-                        //               fontFamily: 'Gapopa',
-                        //               fontWeight: FontWeight.w300,
-                        //               fontSize: 13,
-                        //               color: style.colors.secondary,
-                        //             ),
-                        //           ),
-                        //         ],
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                         ...[10000, 5000, 1000, 500, 300, 100, 0].map((e) {
                           return Obx(() {
                             return _MenuButton(
@@ -235,22 +154,6 @@ class _MenuButtonState extends State<_MenuButton> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-
-    final String prefix;
-
-    if (widget.button >= 10000) {
-      prefix = '_purple';
-    } else if (widget.button >= 5000) {
-      prefix = '_red';
-    } else if (widget.button >= 1000) {
-      prefix = '_green';
-    } else if (widget.button >= 500) {
-      prefix = '_orange';
-    } else if (widget.button >= 300) {
-      prefix = '_teal';
-    } else {
-      prefix = '';
-    }
 
     if (widget.button == 0) {
       return Container(
@@ -375,32 +278,12 @@ class _MenuButtonState extends State<_MenuButton> {
               const SizedBox(width: 12),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '${widget.button}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 17,
-                          color: style.colors.primary,
-                        ),
-                      ),
-                      const TextSpan(
-                        text: ' ',
-                        style: TextStyle(fontSize: 9),
-                      ),
-                      TextSpan(
-                        text: '¤',
-                        style: TextStyle(
-                          height: 1.0,
-                          fontFamily: 'Gapopa',
-                          fontWeight: FontWeight.w300,
-                          fontSize: 17,
-                          color: style.colors.primary,
-                        ),
-                      ),
-                    ],
+                child: Text(
+                  '${widget.button}¤',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w300,
+                    fontSize: 17,
+                    color: style.colors.primary,
                   ),
                 ),
               ),

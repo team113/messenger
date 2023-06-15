@@ -599,26 +599,17 @@ class _ChatViewState extends State<ChatView>
                                                       ],
                                                     ),
                                                     child: Center(
-                                                      child:
-                                                          Transform.translate(
-                                                        offset: const Offset(
-                                                          -1,
-                                                          -4,
-                                                        ),
-                                                        child: Text(
-                                                          '¤',
-                                                          style: style
-                                                              .systemMessageStyle
-                                                              .copyWith(
-                                                            fontFamily:
-                                                                'Gapopa',
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                            color: const Color(
-                                                              0xFFffcf78,
-                                                            ),
-                                                            fontSize: 21,
+                                                      child: Text(
+                                                        '¤',
+                                                        style: style
+                                                            .systemMessageStyle
+                                                            .copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                          color: const Color(
+                                                            0xFFffcf78,
                                                           ),
+                                                          fontSize: 21,
                                                         ),
                                                       ),
                                                     ),

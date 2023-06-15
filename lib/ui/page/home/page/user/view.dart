@@ -552,8 +552,6 @@ class UserView extends StatelessWidget {
                   child: Text(
                     '¤',
                     style: TextStyle(
-                      fontFamily: 'Gapopa',
-                      fontWeight: FontWeight.w400,
                       color: Theme.of(context).colorScheme.primary,
                       fontSize: 15,
                     ),

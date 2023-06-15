@@ -1981,11 +1981,10 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 21, bottom: 4),
+            padding: const EdgeInsets.only(left: 21, bottom: 3),
             child: Text(
               '¤',
               style: TextStyle(
-                fontFamily: 'Gapopa',
                 fontWeight: FontWeight.w400,
                 color: enabled
                     ? Theme.of(context).colorScheme.primary
@@ -2119,15 +2118,13 @@ Widget _donates(BuildContext context, MyProfileController c) {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 21, bottom: 4),
+            padding: const EdgeInsets.only(left: 21, bottom: 3),
             child: Text(
               '¤',
               style: TextStyle(
-                fontFamily: 'Gapopa',
                 fontWeight: FontWeight.w400,
-                color: enabled
-                    ? style.colors.onBackground
-                    : style.colors.secondary,
+                color:
+                    enabled ? style.colors.onBackground : style.colors.primary,
                 fontSize: 15,
               ),
             ),

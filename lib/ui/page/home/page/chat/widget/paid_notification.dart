@@ -46,40 +46,10 @@ class PaidNotification extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        const TextSpan(text: 'Kirey установил '),
-                        TextSpan(
-                          text: '¤',
-                          style: style.systemMessageStyle.copyWith(
-                            fontFamily: 'Gapopa',
-                            fontWeight: FontWeight.w300,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const WidgetSpan(child: SizedBox(width: 1)),
-                        const TextSpan(text: '50'),
-                        const TextSpan(text: ' за отправку сообщения и '),
-                        TextSpan(
-                          text: '¤',
-                          style: style.systemMessageStyle.copyWith(
-                            fontFamily: 'Gapopa',
-                            fontWeight: FontWeight.w300,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const WidgetSpan(child: SizedBox(width: 1)),
-                        const TextSpan(text: '150'),
-                        const TextSpan(text: '/мин за за совершение звонка.'),
-                      ],
-                    ),
+                  Text(
+                    'Kirey установил 50¤ за отправку сообщения и 150¤/мин за за совершение звонка.',
                     style: style.systemMessageStyle,
                   ),
-                  // Text(
-                  //   'Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
-                  //   style: style.systemMessageStyle,
-                  // ),
                   const SizedBox(height: 8),
                   Text(
                     'Принять и продолжить',

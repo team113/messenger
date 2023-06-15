@@ -169,7 +169,6 @@ class GetPaidView extends StatelessWidget {
                                 child: Text(
                                   '¤',
                                   style: TextStyle(
-                                    fontFamily: 'Gapopa',
                                     fontWeight: FontWeight.w400,
                                     color:
                                         Theme.of(context).colorScheme.secondary,
@@ -207,7 +206,6 @@ class GetPaidView extends StatelessWidget {
                                 child: Text(
                                   '¤',
                                   style: TextStyle(
-                                    fontFamily: 'Gapopa',
                                     fontWeight: FontWeight.w400,
                                     color:
                                         Theme.of(context).colorScheme.secondary,

@@ -18,16 +18,15 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/app_bar.dart';
-import 'package:messenger/ui/page/home/widget/balance_provider.dart';
-import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
-import 'package:messenger/ui/page/home/widget/transaction.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
+import '/routes.dart';
+import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/balance_provider.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/page/home/widget/transaction.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 class BalanceTabView extends StatelessWidget {
@@ -35,32 +34,15 @@ class BalanceTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       init: BalanceTabController(Get.find()),
       builder: (BalanceTabController c) {
         return Scaffold(
           // extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: RichText(
-              text: TextSpan(
-                children: [
-                  const TextSpan(text: 'Balance: '),
-                  TextSpan(
-                    text: '¤',
-                    style:
-                        Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
-                              fontFamily: 'Gapopa',
-                              fontWeight: FontWeight.w300,
-                              fontSize: 18,
-                            ),
-                  ),
-                  const WidgetSpan(child: SizedBox(width: 1)),
-                  TextSpan(text: '${c.balance.value.toInt()}'),
-                ],
-                style: Theme.of(context).appBarTheme.titleTextStyle,
-              ),
+            title: Text(
+              'Balance: ¤${c.balance.value.toInt()}',
+              style: Theme.of(context).appBarTheme.titleTextStyle,
             ),
             leading: [
               Obx(() {
@@ -154,25 +136,10 @@ class BalanceTabView extends StatelessWidget {
                                     alwaysClose: true,
                                     onClose: c.hintDismissed.toggle,
                                     header: Center(
-                                      child: RichText(
-                                        text: TextSpan(
-                                          children: [
-                                            const TextSpan(text: 'What is '),
-                                            TextSpan(
-                                              text: '¤',
-                                              style: textStyle?.copyWith(
-                                                fontFamily: 'Gapopa',
-                                                fontWeight: FontWeight.w300,
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                            const TextSpan(
-                                              text: ' (Gapopa coin)?',
-                                            ),
-                                          ],
-                                          style:
-                                              textStyle?.copyWith(fontSize: 18),
-                                        ),
+                                      child: Text(
+                                        'What is ¤ (Gapopa coin)?',
+                                        style:
+                                            textStyle?.copyWith(fontSize: 18),
                                       ),
                                     ),
                                   ),
@@ -184,37 +151,10 @@ class BalanceTabView extends StatelessWidget {
                                       18,
                                     ),
                                     child: Center(
-                                      child: RichText(
-                                        text: TextSpan(
-                                          children: [
-                                            TextSpan(
-                                              text: '¤',
-                                              style: textStyle?.copyWith(
-                                                fontFamily: 'Gapopa',
-                                                fontWeight: FontWeight.w300,
-                                                fontSize: 15,
-                                              ),
-                                            ),
-                                            const TextSpan(
-                                              text:
-                                                  ' (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.\n\n',
-                                            ),
-                                            TextSpan(
-                                              text: '¤',
-                                              style: textStyle?.copyWith(
-                                                fontFamily: 'Gapopa',
-                                                fontWeight: FontWeight.w300,
-                                                fontSize: 15,
-                                              ),
-                                            ),
-                                            const WidgetSpan(
-                                              child: SizedBox(width: 1),
-                                            ),
-                                            const TextSpan(text: '100 = €1.00'),
-                                          ],
-                                          style:
-                                              textStyle?.copyWith(fontSize: 15),
-                                        ),
+                                      child: Text(
+                                        '¤ (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.\n\n¤100 = €1.00',
+                                        style:
+                                            textStyle?.copyWith(fontSize: 15),
                                       ),
                                     ),
                                   ),

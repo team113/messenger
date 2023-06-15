@@ -95,92 +95,18 @@ class PaidListView extends StatelessWidget {
                           },
                           darken: 0.03,
                           subtitle: [
-                            // const SizedBox(height: 5),
                             if (true) ...[
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '¤',
-                                      style: textStyle?.copyWith(
-                                        fontFamily: 'Gapopa',
-                                        fontWeight: FontWeight.w300,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    const WidgetSpan(child: SizedBox(width: 1)),
-                                    const TextSpan(text: '50 per message'),
-                                  ],
-                                  style: textStyle?.copyWith(fontSize: 13),
-                                ),
+                              Text(
+                                '¤50 per message',
+                                style: textStyle?.copyWith(fontSize: 13),
                               ),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '¤',
-                                      style: textStyle?.copyWith(
-                                        fontFamily: 'Gapopa',
-                                        fontWeight: FontWeight.w300,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    const WidgetSpan(child: SizedBox(width: 1)),
-                                    const TextSpan(text: '120 per call minute'),
-                                  ],
-                                  style: textStyle?.copyWith(fontSize: 13),
-                                ),
+                              Text(
+                                '¤120 per call minute',
+                                style: textStyle?.copyWith(fontSize: 13),
                               )
                             ],
-                            // RichText(
-                            //   text: TextSpan(
-                            //     children: [
-                            //       TextSpan(
-                            //         text: '¤',
-                            //         style: textStyle?.copyWith(
-                            //           height: 0.8,
-                            //           fontFamily: 'Gapopa',
-                            //           fontWeight: FontWeight.w300,
-                            //           fontSize: 13,
-                            //         ),
-                            //       ),
-                            //       const TextSpan(text: '50 per message and '),
-                            //       TextSpan(
-                            //         text: '¤',
-                            //         style: textStyle?.copyWith(
-                            //           height: 0.8,
-                            //           fontFamily: 'Gapopa',
-                            //           fontWeight: FontWeight.w300,
-                            //           fontSize: 13,
-                            //         ),
-                            //       ),
-                            //       const TextSpan(text: '120 per call minute'),
-                            //     ],
-                            //     style: textStyle?.copyWith(fontSize: 13),
-                            //   ),
-                            // ),
-                            // Text(
-                            //   '28.12.2022',
-                            //   style: TextStyle(
-                            //     color: Theme.of(context).colorScheme.secondary,
-                            //     fontSize: 13,
-                            //   ),
-                            // ),
                           ],
-                          trailing: const [
-                            // WidgetButton(
-                            //   onPressed: () => c.unblacklist(user),
-                            //   child: Text(
-                            //     'btn_unblock_short'.l10n,
-                            //     style: TextStyle(
-                            //       color:
-                            //           Theme.of(context).colorScheme.primary,
-                            //       fontSize: 13,
-                            //     ),
-                            //   ),
-                            // ),
-                            // const SizedBox(width: 4),
-                          ],
+                          trailing: const [],
                         );
                       },
                       itemCount: c.blacklist.length,
