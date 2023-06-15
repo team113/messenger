@@ -27,12 +27,11 @@ class ProgressBar extends StatefulWidget {
     this.onDragEnd,
     this.onDragStart,
     this.onDragUpdate,
-    Key? key,
+    super.key,
     required this.barHeight,
     required this.handleHeight,
     required this.drawShadow,
-  })  : colors = colors ?? ChewieProgressColors(),
-        super(key: key);
+  }) : colors = colors ?? ChewieProgressColors();
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;

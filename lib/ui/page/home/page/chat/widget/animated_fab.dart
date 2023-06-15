@@ -21,7 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import 'circular_button.dart';
+import 'circular_inkwell.dart';
 
 /// Animated button with expandable on toggle [actions].
 class AnimatedFab extends StatefulWidget {
@@ -132,18 +132,26 @@ class _AnimatedFabState extends State<AnimatedFab>
         child: _overlayEntry == null
             ? Container(
                 key: _fabKey,
-                child: _Fab(
-                  controller: _controller,
-                  closedIcon: widget.closedIcon,
-                  openedIcon: widget.openedIcon,
-                  onTap: () => _toggleOverlay(),
+                child: _StyledInkWell(
+                  animation: _controller,
+                  onTap: _toggleOverlay,
+                  child: _controller.value < 0.4
+                      ? widget.closedIcon
+                      : Transform.rotate(
+                          angle: -pi / 2,
+                          child: Center(child: widget.openedIcon),
+                        ),
                 ),
               )
-            : _Fab(
-                controller: _controller,
-                closedIcon: widget.closedIcon,
-                openedIcon: widget.openedIcon,
-                onTap: () => _toggleOverlay(),
+            : _StyledInkWell(
+                animation: _controller,
+                onTap: _toggleOverlay,
+                child: _controller.value < 0.4
+                    ? widget.closedIcon
+                    : Transform.rotate(
+                        angle: -pi / 2,
+                        child: Center(child: widget.openedIcon),
+                      ),
               ),
       );
 
@@ -195,11 +203,15 @@ class _AnimatedFabState extends State<AnimatedFab>
                 top: offset.dy,
                 child: Container(
                   key: _fabKey,
-                  child: _Fab(
-                    controller: _controller,
-                    closedIcon: widget.closedIcon,
-                    openedIcon: widget.openedIcon,
-                    onTap: () => _toggleOverlay(),
+                  child: _StyledInkWell(
+                    animation: _controller,
+                    onTap: _toggleOverlay,
+                    child: _controller.value < 0.4
+                        ? widget.closedIcon
+                        : Transform.rotate(
+                            angle: -pi / 2,
+                            child: Center(child: widget.openedIcon),
+                          ),
                   ),
                 ),
               ),
@@ -262,7 +274,7 @@ class _AnimatedFabState extends State<AnimatedFab>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CircularButton(icon: e.icon, onTap: onTap),
+                            CircularInkWell(onTap: onTap, child: e.icon),
                             if (e.label != null) ...[
                               const SizedBox(width: 5),
                               Material(
@@ -316,47 +328,37 @@ class _AnimatedFabState extends State<AnimatedFab>
   }
 }
 
-/// [Widget] which returns an animated circular button toggling overlay.
-class _Fab extends StatelessWidget {
-  const _Fab({
-    required this.controller,
-    this.closedIcon,
-    this.openedIcon,
+/// [Widget] which returns an styled [CircularInkWell].
+class _StyledInkWell extends StatelessWidget {
+  const _StyledInkWell({
+    required this.animation,
+    this.child,
     this.onTap,
   });
 
-  /// [AnimationController] of expandable actions.
-  final AnimationController controller;
+  /// Creates an animated builder.
+  final AnimationController animation;
 
-  /// [Widget] to be displayed as the button icon when it is in a closed state.
-  final Widget? closedIcon;
+  /// [Widget] to display.
+  final Widget? child;
 
-  /// [Widget] to be displayed as the button icon when it is in an opened
-  /// state.
-  final Widget? openedIcon;
-
-  /// Callback, called when the button is tapped.
+  /// Callback, called when this [_StyledInkWell] is tapped.
   final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return CircularButton(
-      icon: AnimatedBuilder(
-        animation: controller,
+    return CircularInkWell(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: animation,
         builder: (BuildContext context, Widget? _) => Transform.rotate(
-          angle: controller.value * pi / 2,
+          angle: animation.value * pi / 2,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
-            child: controller.value < 0.4
-                ? closedIcon
-                : Transform.rotate(
-                    angle: -pi / 2,
-                    child: Center(child: openedIcon),
-                  ),
+            child: child,
           ),
         ),
       ),
-      onTap: onTap,
     );
   }
 }

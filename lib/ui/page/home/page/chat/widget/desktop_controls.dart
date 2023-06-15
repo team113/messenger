@@ -38,13 +38,13 @@ import 'volume_bar.dart';
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
   const DesktopControls({
-    Key? key,
+    super.key,
     required this.controller,
     this.onClose,
     this.toggleFullscreen,
     this.isFullscreen,
     this.showInterfaceFor,
-  }) : super(key: key);
+  });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;

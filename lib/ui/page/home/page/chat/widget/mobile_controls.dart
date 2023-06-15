@@ -33,7 +33,7 @@ import 'video_progress_bar.dart';
 
 /// Mobile video controls for a [Chewie] player.
 class MobileControls extends StatefulWidget {
-  const MobileControls({Key? key, required this.controller}) : super(key: key);
+  const MobileControls({super.key, required this.controller});
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
