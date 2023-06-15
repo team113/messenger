@@ -44,7 +44,7 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        final Style style = Theme.of(context).extension<Style>()!;
+        final (style, fonts) = Theme.of(context).styles;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -52,15 +52,13 @@ class MenuTabView extends StatelessWidget {
             title: ContextMenuRegion(
               selector: c.profileKey,
               alignment: Alignment.topLeft,
-              allowPrimaryButton: true,
               margin: const EdgeInsets.only(top: 7, right: 32),
+              enablePrimaryTap: true,
               actions: [
                 ContextMenuButton(
                   label: 'label_presence_present'.l10n,
-                  withTrailing: true,
-                  onPressed: () {
-                    c.setPresence(Presence.present);
-                  },
+                  onPressed: () => c.setPresence(Presence.present),
+                  showTrailing: true,
                   trailing: Container(
                     width: 10,
                     height: 10,
@@ -69,14 +67,11 @@ class MenuTabView extends StatelessWidget {
                       color: style.colors.acceptAuxiliaryColor,
                     ),
                   ),
-                  // trailing: const Icon(Icons.group_outlined),
                 ),
                 ContextMenuButton(
                   label: 'label_presence_away'.l10n,
-                  withTrailing: true,
-                  onPressed: () {
-                    c.setPresence(Presence.away);
-                  },
+                  onPressed: () => c.setPresence(Presence.away),
+                  showTrailing: true,
                   trailing: Container(
                     width: 10,
                     height: 10,
@@ -85,11 +80,8 @@ class MenuTabView extends StatelessWidget {
                       color: style.colors.warningColor,
                     ),
                   ),
-                  // trailing: const Icon(Icons.select_all),
                 ),
               ],
-              // title: WidgetButton(
-              // onPressed: () => StatusView.show(context),
               child: Row(
                 children: [
                   Material(
@@ -121,17 +113,15 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style:
-                                  TextStyle(color: style.colors.onBackground),
+                              style: fonts.headlineMedium,
                             ),
                             Obx(() {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(color: style.colors.secondary),
+                                style: fonts.labelMedium!.copyWith(
+                                  color: style.colors.secondary,
+                                ),
                               );
                             }),
                           ],
@@ -274,24 +264,22 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle(
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall!
-                                                .copyWith(
-                                                  color: inverted
-                                                      ? style.colors.onPrimary
-                                                      : null,
-                                                ),
+                                            style:
+                                                fonts.headlineLarge!.copyWith(
+                                              color: inverted
+                                                  ? style.colors.onPrimary
+                                                  : style.colors.onBackground,
+                                            ),
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),
                                           DefaultTextStyle.merge(
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
+                                            style: fonts.labelMedium!.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
-                                                  : null,
+                                                  : style.colors.onBackground,
                                             ),
                                             child: Text(subtitle),
                                           ),

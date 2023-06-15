@@ -149,7 +149,7 @@ class RecentChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
@@ -163,22 +163,17 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
-        // avatarBuilder: chat.isMonolog
-        //     ? (color, w) => chat.avatar == null
-        //         ? avatarBuilder(AvatarWidget.fromMonolog(chat, me, radius: 30))
-        //         : avatarBuilder(w)
-        //     : (_, w) => avatarBuilder(w),
-        avatarBuilder: (_, w) => avatarBuilder(w),
+        avatarBuilder: avatarBuilder,
         status: [
           const SizedBox(width: 4),
           _status(context, inverted),
           if (!chat.id.isLocalWith(me))
             Text(
               chat.updatedAt.val.toLocal().short,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(color: inverted ? style.colors.onPrimary : null),
+              style: fonts.labelLarge!.copyWith(
+                color:
+                    inverted ? style.colors.onPrimary : style.colors.secondary,
+              ),
             ),
         ],
         subtitle: [
@@ -302,7 +297,7 @@ class RecentChatTile extends StatelessWidget {
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context, bool selected, bool inverted) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -389,7 +384,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: TextStyle(
+                  style: fonts.labelMedium!.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.primary,
@@ -414,7 +409,7 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: fonts.labelMedium!.copyWith(
                         color: inverted
                             ? style.colors.onPrimary
                             : style.colors.primary,
@@ -665,10 +660,9 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: Theme.of(context)
-            .textTheme
-            .titleSmall!
-            .copyWith(color: inverted ? style.colors.onPrimary : null),
+        style: fonts.bodyMedium!.copyWith(
+          color: inverted ? style.colors.onPrimary : style.colors.secondary,
+        ),
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );
@@ -775,7 +769,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a [ChatItem.status] visual representation.
   Widget _status(BuildContext context, bool inverted) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -826,7 +820,7 @@ class RecentChatTile extends StatelessWidget {
   /// Returns a visual representation of the [Chat.unreadCount] counter.
   Widget _counter(BuildContext context, bool inverted) {
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       final Chat chat = rxChat.chat.value;
       final bool muted = chat.muted != null;
@@ -851,14 +845,12 @@ class RecentChatTile extends StatelessWidget {
             rxChat.unreadCount.value > 99
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
-            style: TextStyle(
+            style: fonts.displaySmall!.copyWith(
               color: muted
                   ? inverted
                       ? style.colors.secondary
                       : style.colors.onPrimary
                   : style.colors.onPrimary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
             ),
             maxLines: 1,
             overflow: TextOverflow.clip,
@@ -873,7 +865,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context, {bool paid = false}) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -927,10 +919,9 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(color: style.colors.onPrimary),
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.onPrimary,
+                          ),
                         ).fixedDigits();
                       },
                     )
@@ -954,7 +945,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     bool clear = false;
 

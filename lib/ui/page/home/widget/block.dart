@@ -39,10 +39,11 @@ class Block extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Center(
       child: Container(
+        width: double.infinity,
         margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
         decoration: BoxDecoration(
           border: style.primaryBorder,
@@ -65,10 +66,7 @@ class Block extends StatelessWidget {
                     child: Text(
                       title!,
                       textAlign: TextAlign.center,
-                      style: style.systemMessageStyle.copyWith(
-                        color: style.colors.onBackground,
-                        fontSize: 18,
-                      ),
+                      style: fonts.headlineMedium,
                     ),
                   ),
                 ),

@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 /// Underlined caption text with padding.
 class Caption extends StatelessWidget {
@@ -34,13 +35,15 @@ class Caption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fonts = Theme.of(context).fonts;
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 60, 0, 10),
         child: SelectableText(
           caption,
-          style: context.theme.textTheme.bodyLarge?.copyWith(
+          style: fonts.bodyLarge!.copyWith(
             color: color,
             decoration: TextDecoration.underline,
           ),

@@ -19,7 +19,7 @@ class WrapButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final int total = ((constraints.maxWidth - 220) / 50).floor() + 1;
     int count = ((constraints.maxWidth - 220) / 36).floor() + 1;

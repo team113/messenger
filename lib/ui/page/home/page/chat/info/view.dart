@@ -51,7 +51,7 @@ class ChatInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return GetBuilder<ChatInfoController>(
       key: const Key('ChatInfoView'),
@@ -265,7 +265,7 @@ class ChatInfoView extends StatelessWidget {
   /// Returns a [Chat.avatar] visual representation along with its manipulation
   /// buttons.
   Widget _avatar(ChatInfoController c, BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Column(
       children: [
@@ -382,7 +382,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a [Chat.directLink] editable field.
   Widget _link(ChatInfoController c, BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       return Column(
@@ -467,7 +467,7 @@ class ChatInfoView extends StatelessWidget {
         members.insert(0, me);
       }
 
-      final Style style = Theme.of(context).extension<Style>()!;
+      final style = Theme.of(context).style;
 
       Widget bigButton({
         Key? key,
@@ -744,7 +744,7 @@ class ChatInfoView extends StatelessWidget {
     BuildContext context,
     RxUser user,
   ) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     if (c.me == user.id) {
       await _leaveGroup(c, context);
@@ -781,7 +781,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
@@ -802,7 +802,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
@@ -826,7 +826,7 @@ class ChatInfoView extends StatelessWidget {
     ChatInfoController c,
     BuildContext context,
   ) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,

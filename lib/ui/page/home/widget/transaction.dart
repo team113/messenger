@@ -39,8 +39,7 @@ class TransactionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       final bool selected =
@@ -73,7 +72,7 @@ class TransactionWidget extends StatelessWidget {
           ),
           child: InkWellWithHover(
             borderRadius: style.cardRadius,
-            selectedColor: colors.secondary,
+            selectedColor: style.colors.primary,
             unselectedColor: style.cardColor,
             onTap: () => router.transaction(transaction.id),
             selected: selected,
@@ -81,7 +80,7 @@ class TransactionWidget extends StatelessWidget {
                 selected ? style.primaryBorder : style.cardHoveredBorder,
             border: selected ? style.primaryBorder : style.cardBorder,
             unselectedHoverColor: style.cardColor.darken(0.03),
-            selectedHoverColor: colors.secondary,
+            selectedHoverColor: style.colors.primary,
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
@@ -89,12 +88,6 @@ class TransactionWidget extends StatelessWidget {
                   const SizedBox(width: 6),
                   status,
                   const SizedBox(width: 12),
-                  // const SizedBox(width: 12),
-                  // Icon(
-                  //   Icons.add,
-                  //   color: Theme.of(context).colorScheme.primary,
-                  // ),
-                  // const SizedBox(width: 18),
                   Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -103,10 +96,6 @@ class TransactionWidget extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            // SvgImage.asset(
-                            //   'assets/icons/inter.svg',
-                            //   height: 13,
-                            // ),
                             Expanded(
                               child: RichText(
                                 text: TextSpan(
@@ -117,39 +106,28 @@ class TransactionWidget extends StatelessWidget {
                                         TransactionCurrency.inter)
                                       TextSpan(
                                         text: '¤',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w300,
-                                              color: selected
-                                                  ? Colors.white
-                                                  : null,
-                                            ),
+                                        style: fonts.bodyLarge!.copyWith(
+                                          color: selected ? Colors.white : null,
+                                        ),
                                       ),
                                     const WidgetSpan(child: SizedBox(width: 1)),
                                     TextSpan(
                                       text: '${transaction.amount.abs()}',
                                     ),
                                   ],
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(
-                                        color: selected ? Colors.white : null,
-                                        fontWeight: FontWeight.w300,
-                                      ),
+                                  style: fonts.bodyLarge!.copyWith(
+                                    color: selected ? Colors.white : null,
+                                  ),
                                 ),
                               ),
                             ),
                             Text(
                               transaction.at.short,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    color: selected ? Colors.white : null,
-                                  ),
+                              style: fonts.labelLarge?.copyWith(
+                                color: selected
+                                    ? Colors.white
+                                    : style.colors.secondary,
+                              ),
                             ),
                           ],
                         ),
@@ -159,25 +137,22 @@ class TransactionWidget extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 'SWIFT transfer',
-                                style: TextStyle(
+                                style: fonts.labelLarge?.copyWith(
                                   color: selected ? Colors.white : null,
                                 ),
                               ),
                             ),
                             Text(
                               '${transaction.status.name.capitalizeFirst}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    color: selected
-                                        ? Colors.white
-                                        : transaction.status ==
-                                                TransactionStatus.failed
-                                            ? Colors.red
-                                            : null,
-                                    fontSize: 13,
-                                  ),
+                              style: fonts.labelLarge!.copyWith(
+                                color: selected
+                                    ? Colors.white
+                                    : transaction.status ==
+                                            TransactionStatus.failed
+                                        ? Colors.red
+                                        : style.colors.secondary,
+                                fontSize: 13,
+                              ),
                             ),
                           ],
                         ),

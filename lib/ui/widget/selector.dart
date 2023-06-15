@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -111,30 +110,14 @@ class Selector<T> extends StatefulWidget {
       );
     }
 
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
-    // if (isMobile) {
-    //   return showModalBottomSheet(
-    //     context: context,
-    //     barrierColor: kCupertinoModalBarrierColor,
-    //     backgroundColor: Colors.white,
-    //     shape: const RoundedRectangleBorder(
-    //       borderRadius: BorderRadius.only(
-    //         topLeft: Radius.circular(8),
-    //         topRight: Radius.circular(8),
-    //       ),
-    //     ),
-    //     builder: builder,
-    //   );
-    // } else {
     return showDialog(
       context: context,
-      // barrierColor: kCupertinoModalBarrierColor,
-      barrierColor: Colors.transparent,
+      barrierColor: style.colors.transparent,
       useSafeArea: false,
       builder: builder,
     );
-    // }
   }
 
   @override
@@ -149,6 +132,7 @@ class _SelectorState<T> extends State<Selector<T>> {
   /// [Worker] debouncing the [_selected] value, if any debounce is specified.
   Worker? _debounce;
 
+  /// [GlobalKey] of the [Selector.items].
   final GlobalKey _itemsKey = GlobalKey();
 
   @override
@@ -163,13 +147,11 @@ class _SelectorState<T> extends State<Selector<T>> {
       );
     }
 
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) {
-        if (mounted) {
-          setState(() {});
-        }
-      },
-    );
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
     super.initState();
   }
@@ -182,16 +164,7 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   @override
   Widget build(BuildContext context) {
-    // if (widget.isMobile) {
-    //   return _mobile(context);
-    // } else {
-    return _desktop(context);
-    // }
-  }
-
-  /// Returns desktop design of this [Selector].
-  Widget _desktop(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       double? left, right;
@@ -201,75 +174,73 @@ class _SelectorState<T> extends State<Selector<T>> {
           Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
       final keyContext = widget.buttonKey?.currentContext;
       if (keyContext != null) {
-        final box = keyContext.findRenderObject() as RenderBox?;
-        offset = box?.localToGlobal(Offset.zero) ?? offset;
+        final buttonBox = keyContext.findRenderObject() as RenderBox?;
+        offset = buttonBox?.localToGlobal(Offset.zero) ?? offset;
 
-        Offset? size;
+        RenderBox? contextBox;
 
-        final itemsContext = _itemsKey.currentContext;
+        final BuildContext? itemsContext = _itemsKey.currentContext;
         if (itemsContext != null) {
-          final box = itemsContext.findRenderObject() as RenderBox?;
-          size = box?.localToGlobal(Offset.zero) ?? offset;
+          contextBox = itemsContext.findRenderObject() as RenderBox?;
         }
 
         if (widget.alignment == Alignment.topCenter) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0) / 2,
+            offset.dx + (buttonBox?.size.width ?? 0) / 2,
             offset.dy,
           );
 
-          left =
-              offset.dx - (size?.dx ?? widget.width) / 2 - widget.margin.right;
+          left = offset.dx -
+              (contextBox?.size.width ?? widget.width) / 2 -
+              widget.margin.right;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.topLeft) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0),
             offset.dy - widget.margin.bottom,
           );
 
-          // left = offset.dx - widget.width;
           right = constraints.maxWidth - offset.dx;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.topRight) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0),
             offset.dy - widget.margin.bottom,
           );
 
           left = offset.dx - widget.margin.right;
-          // right = constraints.maxWidth - offset.dx;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.bottomCenter) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0) / 2,
-            offset.dy + (box?.size.height ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0) / 2,
+            offset.dy + (buttonBox?.size.height ?? 0),
           );
 
           left = offset.dx - widget.width / 2;
           top = offset.dy;
         } else if (widget.alignment == Alignment.bottomRight) {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0),
-            offset.dy + (box?.size.height ?? 0),
+            offset.dx + (buttonBox?.size.width ?? 0),
+            offset.dy + (buttonBox?.size.height ?? 0),
           );
 
           left = offset.dx - widget.margin.right;
           top = offset.dy - widget.margin.bottom;
         } else if (widget.alignment == Alignment.bottomLeft) {
           offset = Offset(
-            offset.dx - (box?.size.width ?? 0),
-            offset.dy + (box?.size.height ?? 0),
+            offset.dx - (buttonBox?.size.width ?? 0),
+            offset.dy + (buttonBox?.size.height ?? 0),
           );
 
           right = constraints.maxWidth - 100 - offset.dx;
           top = offset.dy - widget.margin.bottom;
         } else {
           offset = Offset(
-            offset.dx + (box?.size.width ?? 0) / 2,
-            offset.dy + (box?.size.height ?? 0) / 2,
+            offset.dx + (buttonBox?.size.width ?? 0) / 2,
+            offset.dy + (buttonBox?.size.height ?? 0) / 2,
           );
 
-          left = offset.dx - widget.width / 2;
+          left = offset.dx - (contextBox?.size.width ?? widget.width) / 2;
           top = offset.dy;
         }
       }
@@ -296,10 +267,10 @@ class _SelectorState<T> extends State<Selector<T>> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: Material(
             borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
+            color: style.colors.onPrimary,
             child: InkWell(
-              hoverColor: const Color(0x3363B4FF),
-              highlightColor: Colors.white.withOpacity(0.1),
+              hoverColor: style.colors.onSecondaryOpacity20,
+              highlightColor: style.colors.onPrimaryOpacity7,
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 _selected.value = item;
@@ -330,18 +301,15 @@ class _SelectorState<T> extends State<Selector<T>> {
             child: Listener(
               onPointerUp: (d) => Navigator.of(context).pop(),
               child: Container(
-                // width: widget.width,
                 margin: widget.margin,
-                // constraints: const BoxConstraints(maxHeight: 280),
                 decoration: BoxDecoration(
                   color: style.contextMenuBackgroundColor,
                   borderRadius: style.contextMenuRadius,
-                  border:
-                      Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
-                  boxShadow: const [
+                  border: Border.all(color: style.colors.secondary, width: 0.5),
+                  boxShadow: [
                     BoxShadow(
                       blurRadius: 12,
-                      color: Color(0x33000000),
+                      color: style.colors.onBackgroundOpacity27,
                       blurStyle: BlurStyle.outer,
                     )
                   ],
@@ -353,57 +321,6 @@ class _SelectorState<T> extends State<Selector<T>> {
                     children: widget.items.mapIndexed(button).toList(),
                   ),
                 ),
-                // child: Stack(
-                //   children: [
-                //     // ClipRRect(
-                //     //   borderRadius: style.contextMenuRadius,
-                //     //   child: ListView(
-                //     //     shrinkWrap: true,
-                //     //     children: widget.items.mapIndexed(button).toList(),
-                //     //   ),
-                //     // ),
-                //     // if (widget.items.length >= 8)
-                //     //   Positioned.fill(
-                //     //     child: Align(
-                //     //       alignment: Alignment.topCenter,
-                //     //       child: Container(
-                //     //         height: 15,
-                //     //         margin: const EdgeInsets.only(right: 10),
-                //     //         decoration: const BoxDecoration(
-                //     //           gradient: LinearGradient(
-                //     //             begin: Alignment.topCenter,
-                //     //             end: Alignment.bottomCenter,
-                //     //             colors: [
-                //     //               Color(0xFFFFFFFF),
-                //     //               Color(0x00FFFFFF),
-                //     //             ],
-                //     //           ),
-                //     //         ),
-                //     //       ),
-                //     //     ),
-                //     //   ),
-                //     // if (widget.items.length >= 8)
-                //     //   Positioned.fill(
-                //     //     child: Align(
-                //     //       alignment: Alignment.bottomCenter,
-                //     //       child: Container(
-                //     //         height: 15,
-                //     //         margin: const EdgeInsets.only(right: 10),
-                //     //         decoration: const BoxDecoration(
-                //     //           gradient: LinearGradient(
-                //     //             begin: Alignment.topCenter,
-                //     //             end: Alignment.bottomCenter,
-                //     //             colors: [
-                //     //               Color(0x00FFFFFF),
-                //     //               Color(0xFFFFFFFF),
-                //     //             ],
-                //     //           ),
-                //     //         ),
-                //     //       ),
-                //     //     ),
-                //     //   ),
-                //   ],
-                // ),
               ),
             ),
           ),

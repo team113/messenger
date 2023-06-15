@@ -145,7 +145,7 @@ class ContactsTabView extends StatelessWidget {
                       filled: false,
                       dense: true,
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      style: style.boldBody.copyWith(fontSize: 17),
+                      // style: fonts.bodyLarge.copyWith(fontSize: 17),
                       onChanged: () => c.query.value = c.search.text,
                     ),
                   ),
@@ -622,8 +622,8 @@ class MyVerticalMultiDragGestureRecognizer extends MultiDragGestureRecognizer {
       'Migrate to supportedDevices. '
       'This feature was deprecated after v2.3.0-1.0.pre.',
     )
-        // super.kind,
-        super.supportedDevices,
+    // super.kind,
+    super.supportedDevices,
   });
 
   @override

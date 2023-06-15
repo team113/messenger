@@ -195,7 +195,7 @@ class ChatItemWidget extends StatefulWidget {
     bool filled = true,
     bool autoLoad = true,
   }) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final bool isLocal = e is LocalAttachment;
 
@@ -444,10 +444,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final fonts = Theme.of(context).fonts;
 
     return DefaultTextStyle(
-      style: style.boldBody,
+      style: fonts.bodyLarge!,
       child: Obx(() {
         if (widget.item.value is ChatMessage) {
           return _renderAsChatMessage(context);
@@ -467,7 +467,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatInfo].
   Widget _renderAsChatInfo() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     final ChatInfo message = widget.item.value as ChatInfo;
 
@@ -511,27 +511,36 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                     TextSpan(
                       text: 'label_group_created_by2'.l10nfmt(args),
-                      style: style.systemMessageStyle.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: style.systemMessageStyle,
                     ),
                   ],
-                  style: style.systemMessageStyle.copyWith(
-                    color: style.colors.primary,
-                  ),
+                  style: style.systemMessageStyle
+                      .copyWith(color: style.colors.primary),
                 ),
               );
             }
 
-            return Text('label_group_created'.l10n);
+            return Text(
+              'label_group_created'.l10n,
+              style: style.systemMessageStyle,
+            );
           });
         } else if (widget.chat.value?.isMonolog == true) {
-          content = Text('label_monolog_created'.l10n);
+          content = Text(
+            'label_monolog_created'.l10n,
+            style: style.systemMessageStyle,
+          );
         } else {
           if (action.directLinkSlug == null) {
-            content = Text('label_dialog_created'.l10n);
+            content = Text(
+              'label_dialog_created'.l10n,
+              style: style.systemMessageStyle,
+            );
           } else {
-            content = Text('label_dialog_created_by_link'.l10n);
+            content = Text(
+              'label_dialog_created_by_link'.l10n,
+              style: style.systemMessageStyle,
+            );
           }
         }
         break;
@@ -559,9 +568,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                   TextSpan(
                     text: 'label_user_added_user2'.l10nfmt(args),
-                    style: style.systemMessageStyle.copyWith(
-                      color: style.colors.secondary,
-                    ),
+                    style: style.systemMessageStyle,
                   ),
                   TextSpan(
                     text: 'label_user_added_user3'.l10nfmt(args),
@@ -569,9 +576,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.systemMessageStyle.copyWith(
-                  color: style.colors.primary,
-                ),
+                style: style.systemMessageStyle
+                    .copyWith(color: style.colors.primary),
               ),
             );
           });
@@ -590,14 +596,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
-                  style: style.systemMessageStyle.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: style.systemMessageStyle,
                 ),
               ],
-              style: style.systemMessageStyle.copyWith(
-                color: style.colors.primary,
-              ),
+              style: style.systemMessageStyle
+                  .copyWith(color: style.colors.primary),
             ),
           );
         }
@@ -626,9 +629,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                   TextSpan(
                     text: 'label_user_removed_user2'.l10nfmt(args),
-                    style: style.systemMessageStyle.copyWith(
-                      color: style.colors.secondary,
-                    ),
+                    style: style.systemMessageStyle,
                   ),
                   TextSpan(
                     text: 'label_user_removed_user3'.l10nfmt(args),
@@ -636,9 +637,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.systemMessageStyle.copyWith(
-                  color: style.colors.primary,
-                ),
+                style: style.systemMessageStyle
+                    .copyWith(color: style.colors.primary),
               ),
             );
           });
@@ -657,14 +657,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
-                  style: style.systemMessageStyle.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: style.systemMessageStyle,
                 ),
               ],
-              style: style.systemMessageStyle.copyWith(
-                color: style.colors.primary,
-              ),
+              style: style.systemMessageStyle
+                  .copyWith(color: style.colors.primary),
             ),
           );
         }
@@ -697,9 +694,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: style.systemMessageStyle.copyWith(
-                  color: style.colors.secondary,
-                ),
+                style: style.systemMessageStyle,
               ),
             ],
             style:
@@ -736,33 +731,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
-                style: style.systemMessageStyle.copyWith(
-                  color: style.colors.secondary,
-                ),
+                style: style.systemMessageStyle,
               ),
             ],
-            style: style.systemMessageStyle.copyWith(
-              color: style.colors.primary,
-            ),
+            style:
+                style.systemMessageStyle.copyWith(color: style.colors.primary),
           ),
         );
         break;
     }
-
-    final bool isSent = widget.item.value.status.value == SendingStatus.sent;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SwipeableStatus(
         animation: widget.animation,
         translate: false,
-        isSent: isSent && _fromMe,
-        isDelivered: isSent &&
-            _fromMe &&
-            widget.chat.value?.lastDelivery.isBefore(message.at) == false,
-        isRead: isSent && (!_fromMe || _isRead),
-        isError: message.status.value == SendingStatus.error,
-        isSending: message.status.value == SendingStatus.sending,
+        status: false,
         swipeable: Text(message.at.val.toLocal().hm),
         padding: const EdgeInsets.only(bottom: 6.5),
         child: Center(
@@ -785,7 +769,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     final ChatMessage msg = widget.item.value as ChatMessage;
 
@@ -847,7 +831,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             selectable: PlatformUtils.isDesktop || menu,
                             onSelecting: widget.onSelecting,
                             onChanged: (a) => _selection = a,
-                            style: style.boldBody.copyWith(color: color),
+                            style: fonts.bodyLarge!.copyWith(color: color),
                           ),
                         ),
                       ],
@@ -998,7 +982,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         if (files.last != e) const SizedBox(height: 6),
                       ],
                     ),
-                    if (_text == null && !timeInBubble)
+                    if (_text == null && widget.timestamp)
                       Opacity(opacity: 0, child: _timestamp(msg)),
                   ],
                 ),
@@ -1019,13 +1003,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         TextSpan(
                           children: [
                             if (_text != null) _text!,
-                            // else
-                            //   TextSpan(
-                            //     text: 'Sent a gift',
-                            //     style: style.boldBody.copyWith(
-                            //       color: style.colors.secondary,
-                            //     ),
-                            //   ),
                             if (timestamp && !timeInBubble) ...[
                               const WidgetSpan(child: SizedBox(width: 4)),
                               WidgetSpan(
@@ -1040,7 +1017,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             (PlatformUtils.isDesktop || menu) && _text != null,
                         onSelecting: widget.onSelecting,
                         onChanged: (a) => _selection = a,
-                        style: style.boldBody,
+                        style: fonts.bodyLarge,
                       ),
                     ),
                   ),
@@ -1106,15 +1083,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ],
         );
 
-        // Widget? donate;
-
-        // if (msg.donate != null) {
-        //   donate = Align(
-        //     alignment: _fromMe ? Alignment.centerRight : Alignment.centerLeft,
-        //     child: donate(msg.donate),
-        //   );
-        // }
-
         return Container(
           padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
           child: Stack(
@@ -1141,7 +1109,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     var message = widget.item.value as ChatCall;
     bool isOngoing =
@@ -1157,93 +1125,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _ongoingCallTimer?.cancel();
     }
 
-    bool isMissed = false;
-
-    String title = 'label_chat_call_ended'.l10n;
-    String? time;
-
-    if (isOngoing) {
-      title = 'label_chat_call_ongoing'.l10n;
-      time = message.conversationStartedAt!.val
-          .difference(DateTime.now())
-          .localizedString();
-    } else if (message.finishReason != null) {
-      title = message.finishReason!.localizedString(_fromMe) ?? title;
-      isMissed = (message.finishReason == ChatCallFinishReason.dropped) ||
-          (message.finishReason == ChatCallFinishReason.unanswered);
-
-      if (message.finishedAt != null && message.conversationStartedAt != null) {
-        time = message.finishedAt!.val
-            .difference(message.conversationStartedAt!.val)
-            .localizedString();
-      }
-    } else {
-      title = message.authorId == widget.me
-          ? 'label_outgoing_call'.l10n
-          : 'label_incoming_call'.l10n;
-    }
-
     final Color color = _fromMe
         ? style.colors.primary
         : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
             style.colors.userColors.length];
-
-    final Widget call = Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: message.withVideo
-                ? SvgImage.asset(
-                    'assets/icons/call_video3${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
-                    height: 11,
-                  )
-                : SvgImage.asset(
-                    'assets/icons/call_audio4${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
-                    height: 12,
-                  ),
-          ),
-          Flexible(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: style.boldBody,
-                  ),
-                ),
-                if (time != null) ...[
-                  const SizedBox(width: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2.5),
-                    child: Stack(
-                      alignment: Alignment.topRight,
-                      children: [
-                        Text(
-                          time,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ).fixedDigits(),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-    );
 
     // Returns the contents of the [ChatCall] render along with its timestamp.
     Widget child(bool menu) {
@@ -1253,7 +1138,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+              padding: const EdgeInsets.fromLTRB(8, 7, 8, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1273,16 +1158,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onSelecting: widget.onSelecting,
                         onChanged: (a) => _selection = a,
-                        style: style.boldBody.copyWith(color: color),
+                        style: fonts.bodyLarge!.copyWith(color: color),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                   ],
                   SelectionContainer.disabled(
                     child: Text.rich(
                       TextSpan(
                         children: [
-                          WidgetSpan(child: call),
+                          WidgetSpan(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: _call(message),
+                            ),
+                          ),
                           if (widget.timestamp)
                             WidgetSpan(
                               child: Opacity(
@@ -1344,8 +1234,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItemQuote item, BoxConstraints constraints) {
-    Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.author == widget.me;
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1369,7 +1258,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           return Container(
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
-              color: fromMe
+              color: _fromMe
                   ? style.colors.onPrimaryOpacity25
                   : style.colors.onBackgroundOpacity2,
               borderRadius: BorderRadius.circular(10),
@@ -1379,7 +1268,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             child: image == null
                 ? Icon(
                     Icons.file_copy,
-                    color: fromMe
+                    color: _fromMe
                         ? style.colors.onPrimary
                         : style.colors.secondaryHighlightDarkest,
                     size: 28,
@@ -1405,7 +1294,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Container(
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
-                color: fromMe
+                color: _fromMe
                     ? style.colors.onPrimaryOpacity25
                     : style.colors.onBackgroundOpacity2,
                 borderRadius: BorderRadius.circular(10),
@@ -1417,8 +1306,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style:
-                        TextStyle(fontSize: 15, color: style.colors.secondary),
+                    style: fonts.titleMedium!.copyWith(
+                      color: style.colors.secondary,
+                    ),
                   ),
                 ),
               ),
@@ -1464,71 +1354,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         if (text != null) {
           content = SelectionContainer.disabled(
-            child: Text(text, maxLines: 1, style: style.boldBody),
+            child: Text(text, maxLines: 1, style: fonts.bodyLarge),
           );
         }
       }
     } else if (item is ChatCallQuote) {
-      String title = 'label_chat_call_ended'.l10n;
-      String? time;
-      bool fromMe = widget.me == item.author;
-      bool isMissed = false;
-
-      final ChatCall? call = item.original as ChatCall?;
-
-      if (call?.finishReason == null && call?.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (call?.finishReason != null) {
-        title = call!.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = call.finishReason == ChatCallFinishReason.dropped ||
-            call.finishReason == ChatCallFinishReason.unanswered;
-
-        if (call.finishedAt != null && call.conversationStartedAt != null) {
-          time = call.finishedAt!.val
-              .difference(call.conversationStartedAt!.val)
-              .localizedString();
-        }
-      } else {
-        title = item.author == widget.me
-            ? 'label_outgoing_call'.l10n
-            : 'label_incoming_call'.l10n;
-      }
-
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: call?.withVideo == true
-                ? SvgImage.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgImage.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(child: Text(title, style: style.boldBody)),
-          if (time != null) ...[
-            const SizedBox(width: 9),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.boldBody,
-              ),
-            ),
-          ],
-        ],
-      );
+      content = _call(item.original as ChatCall?);
     } else if (item is ChatInfoQuote) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: style.boldBody);
+      content = Text(item.action.toString(), style: fonts.headlineMedium);
     } else {
-      content = Text('err_unknown'.l10n, style: style.boldBody);
+      content = Text('err_unknown'.l10n, style: fonts.headlineMedium);
     }
 
     return FutureBuilder<RxUser?>(
@@ -1561,7 +1397,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             snapshot.data?.user.value.name?.val ??
                                 snapshot.data?.user.value.num.val ??
                                 'dot'.l10n * 3,
-                            style: style.boldBody.copyWith(color: color),
+                            style: fonts.bodyLarge!.copyWith(color: color),
                           ),
                         ),
                       ],
@@ -1588,13 +1424,100 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
+  /// Returns the visual representation of the provided [call].
+  Widget _call(ChatCall? call) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    final bool isOngoing =
+        call?.finishReason == null && call?.conversationStartedAt != null;
+
+    bool isMissed = false;
+    String title = 'label_chat_call_ended'.l10n;
+    String? time;
+
+    if (isOngoing) {
+      title = 'label_chat_call_ongoing'.l10n;
+      time = call!.conversationStartedAt!.val
+          .difference(DateTime.now())
+          .localizedString();
+    } else if (call != null && call.finishReason != null) {
+      title = call.finishReason!.localizedString(_fromMe) ?? title;
+      isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
+          (call.finishReason == ChatCallFinishReason.unanswered);
+
+      if (call.finishedAt != null && call.conversationStartedAt != null) {
+        time = call.finishedAt!.val
+            .difference(call.conversationStartedAt!.val)
+            .localizedString();
+      }
+    } else {
+      title = call?.authorId == widget.me
+          ? 'label_outgoing_call'.l10n
+          : 'label_incoming_call'.l10n;
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: call?.withVideo ?? false
+              ? SvgImage.asset(
+                  'assets/icons/call_video${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
+                  height: 11,
+                )
+              : SvgImage.asset(
+                  'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
+                  height: 12,
+                ),
+        ),
+        Flexible(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: fonts.bodyLarge,
+                ),
+              ),
+              if (time != null) ...[
+                const SizedBox(width: 8),
+                Padding(
+                  padding: const EdgeInsets.only(top: 2.5),
+                  child: Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      Text(
+                        time,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: fonts.labelLarge!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      ).fixedDigits(),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(width: 2),
+      ],
+    );
+  }
+
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
     Widget Function(bool menu, BoxConstraints constraints) builder, {
     bool constrained = true,
   }) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final ChatItem item = widget.item.value;
 
@@ -1953,8 +1876,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,
                                         child: Text(
-                                          'label_delete_for_everyone'.l10n,
                                           key: const Key('DeleteForAll'),
+                                          'label_delete_for_everyone'.l10n,
                                         ),
                                       )
                                   ],
@@ -2026,8 +1949,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Builds a [MessageTimestamp] of the provided [item].
-  Widget _timestamp(ChatItem item,
-      [bool inverted = false, bool donation = false]) {
+  Widget _timestamp(
+    ChatItem item, [
+    bool inverted = false,
+    bool donation = false,
+  ]) {
     return Obx(() {
       final bool isMonolog = widget.chat.value?.isMonolog == true;
 

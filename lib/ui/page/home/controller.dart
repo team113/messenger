@@ -77,7 +77,9 @@ class HomeController extends GetxController {
   /// Used to position a status changing [Selector] properly.
   final GlobalKey profileKey = GlobalKey();
 
+  /// [GlobalKey] of a [Chat]s button in the navigation bar.
   final GlobalKey chatsKey = GlobalKey();
+
   final GlobalKey publicsKey = GlobalKey();
   final GlobalKey partnerKey = GlobalKey();
   final GlobalKey balanceKey = GlobalKey();
@@ -98,7 +100,7 @@ class HomeController extends GetxController {
   final PartnerService _partnerService;
 
   /// Subscription to the [MyUser] changes.
-  late final StreamSubscription _myUserServiceSubscription;
+  late final StreamSubscription _myUserSubscription;
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
@@ -129,7 +131,7 @@ class HomeController extends GetxController {
     pages = PageController(initialPage: page.value.index, keepPage: true);
 
     unreadChatsCount.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
-    _myUserServiceSubscription = _myUserService.myUser.listen((u) =>
+    _myUserSubscription = _myUserService.myUser.listen((u) =>
         unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
 
     sideBarWidth =
@@ -167,7 +169,7 @@ class HomeController extends GetxController {
   void onClose() {
     super.onClose();
     router.removeListener(_onRouterChanged);
-    _myUserServiceSubscription.cancel();
+    _myUserSubscription.cancel();
   }
 
   /// Returns corrected according to the side bar constraints [width] value.
@@ -194,7 +196,7 @@ class HomeController extends GetxController {
   /// Used to discard repeated toggling.
   final RxBool isMuting = RxBool(false);
 
-  /// Toggles [MyUser.muted] status.
+  /// Toggles the [MyUser.muted] status.
   Future<void> toggleMute(bool enabled) async {
     if (!isMuting.value) {
       isMuting.value = true;

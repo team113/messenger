@@ -270,7 +270,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     final Color color = widget.user?.user.value.id == widget.me
         ? style.colors.primary
@@ -278,7 +278,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             style.colors.userColors.length];
 
     return DefaultTextStyle(
-      style: style.boldBody,
+      style: fonts.bodyLarge!,
       child: Obx(() {
         return _rounded(
           context,
@@ -330,7 +330,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               selectable: PlatformUtils.isDesktop || menu,
                               onChanged: (a) => _selection = a,
                               onSelecting: widget.onSelecting,
-                              style: style.boldBody.copyWith(color: color),
+                              style: fonts.bodyLarge!.copyWith(color: color),
                             ),
                           ),
                         ],
@@ -340,9 +340,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           child: Text(
                             'label_forwarded_messages'
                                 .l10nfmt({'count': widget.forwards.length}),
-                            style: style.boldBody.copyWith(
+                            style: fonts.headlineSmall!.copyWith(
                               color: style.colors.secondary,
-                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -383,11 +382,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   /// Returns a visual representation of the provided [forward].
   Widget _forwardedMessage(Rx<ChatItem> forward, bool menu) {
+    final (style, fonts) = Theme.of(context).styles;
+
     return Obx(() {
       final ChatForward msg = forward.value as ChatForward;
       final ChatItemQuote quote = msg.quote;
-
-      final Style style = Theme.of(context).extension<Style>()!;
 
       List<Widget> content = [];
 
@@ -445,7 +444,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           selectable: PlatformUtils.isDesktop || menu,
                           onChanged: (a) => _selection = a,
                           onSelecting: widget.onSelecting,
-                          style: style.boldBody.copyWith(color: color),
+                          style: fonts.bodyLarge!.copyWith(color: color),
                         ),
                       ),
                     ),
@@ -540,7 +539,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: style.boldBody,
+                      style: fonts.bodyLarge,
                     ),
                   ),
                 ),
@@ -600,7 +599,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     time,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: style.boldBody,
+                    style: fonts.bodyLarge,
                   ),
                 ),
               ],
@@ -608,9 +607,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           )
         ];
       } else if (quote is ChatInfoQuote) {
-        content = [Text(quote.action.toString(), style: style.boldBody)];
+        content = [Text(quote.action.toString(), style: fonts.bodyLarge)];
       } else {
-        content = [Text('err_unknown'.l10n, style: style.boldBody)];
+        content = [Text('err_unknown'.l10n, style: fonts.bodyLarge)];
       }
 
       return AnimatedContainer(
@@ -686,11 +685,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   /// Builds a visual representation of the [ChatForwardWidget.note].
   Widget _note(bool menu) {
+    final (style, fonts) = Theme.of(context).styles;
+
     final ChatItem item = widget.note.value!.value;
 
     if (item is ChatMessage) {
-      final Style style = Theme.of(context).extension<Style>()!;
-
       final TextSpan? text = _text[item.id];
 
       final List<Attachment> media = item.attachments.where((e) {
@@ -736,7 +735,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: style.boldBody.copyWith(color: color),
+                      style: fonts.bodyLarge!.copyWith(color: color),
                     ),
                   ),
                 ),
@@ -817,7 +816,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onChanged: (a) => _selection = a,
                         onSelecting: widget.onSelecting,
-                        style: style.boldBody,
+                        style: fonts.bodyLarge,
                       ),
                     ),
                   ),

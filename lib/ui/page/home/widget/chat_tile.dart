@@ -43,7 +43,7 @@ class ChatTile extends StatefulWidget {
     this.onTap,
     this.height = 94,
     this.darken = 0,
-    Widget Function(Color, Widget)? avatarBuilder,
+    Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
     this.folded = false,
     this.special = false,
@@ -88,7 +88,7 @@ class ChatTile extends StatefulWidget {
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
   /// [AvatarWidget].
-  final Widget Function(Color badgeColor, Widget child) avatarBuilder;
+  final Widget Function(Widget child) avatarBuilder;
 
   /// Indicator whether context menu should be enabled over this [ChatTile].
   final bool enableContextMenu;
@@ -101,35 +101,26 @@ class ChatTile extends StatefulWidget {
   State<ChatTile> createState() => _ChatTileState();
 
   /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Color badgeColor, Widget child) => child;
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }
 
 class _ChatTileState extends State<ChatTile> {
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final (style, fonts) = Theme.of(context).styles;
 
     const Color normal = Colors.white;
     const Color paid = Color.fromRGBO(213, 232, 253, 1);
     const Color chosen = Color(0xFF63B4FF);
 
-    final Border normalBorder = Border.all(
-      color: const Color(0xFFEBEBEB),
-      width: 0.5,
-    );
-    final Border hoverBorder = Border.all(
-      color: const Color(0xFFCAE6FE),
-      width: 0.5,
-    );
-    final Border paidBorder = Border.all(
-      color: const Color(0xFFDCEBFA),
-      width: 0.5,
-    );
-    final Border chosenBorder = Border.all(
-      color: const Color(0xFF58A6EF),
-      width: 0.5,
-    );
+    final Border normalBorder =
+        Border.all(color: const Color(0xFFEBEBEB), width: 0.5);
+    final Border hoverBorder =
+        Border.all(color: const Color(0xFFCAE6FE), width: 0.5);
+    final Border paidBorder =
+        Border.all(color: const Color(0xFFDCEBFA), width: 0.5);
+    final Border chosenBorder =
+        Border.all(color: const Color(0xFF58A6EF), width: 0.5);
 
     return ContextMenuRegion(
       key: Key('Chat_${widget.chat?.chat.value.id}'),
@@ -168,7 +159,6 @@ class _ChatTileState extends State<ChatTile> {
                 child: Row(
                   children: [
                     widget.avatarBuilder(
-                      Colors.white,
                       AvatarWidget.fromRxChat(widget.chat, radius: 30),
                     ),
                     const SizedBox(width: 12),
@@ -190,14 +180,11 @@ class _ChatTileState extends State<ChatTile> {
                                               ('dot'.l10n * 3),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineSmall
-                                              ?.copyWith(
-                                                color: widget.selected
-                                                    ? colors.onSecondary
-                                                    : null,
-                                              ),
+                                          style: fonts.headlineLarge!.copyWith(
+                                            color: widget.selected
+                                                ? style.colors.onPrimary
+                                                : style.colors.onBackground,
+                                          ),
                                         );
                                       }),
                                     ),
@@ -222,7 +209,4 @@ class _ChatTileState extends State<ChatTile> {
       ),
     );
   }
-
-  /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
 }

@@ -21,15 +21,16 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/api/backend/schema.dart' show Presence;
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
+import '/api/backend/schema.dart' show Presence;
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -37,6 +38,8 @@ import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
+import 'tab/chats/controller.dart';
+import 'tab/contacts/controller.dart';
 import 'tab/chats_contacts/controller.dart';
 import 'tab/chats_contacts/view.dart';
 import 'tab/partner/view.dart';
@@ -98,7 +101,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     if (_deps == null) {
       return Scaffold(
@@ -172,7 +175,6 @@ class _HomeViewState extends State<HomeView> {
                             router.tab = HomeTab.values[i];
                             c.page.value = router.tab;
                           },
-
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: const [
                             KeepAlivePage(child: BalanceTabView()),
@@ -329,37 +331,22 @@ class _HomeViewState extends State<HomeView> {
                                         .value = false;
                                   }
                                 },
-                                child:
-                                    // RmbDetector(
-                                    //   onPressed: context.isMobile
-                                    //       ? () {
-                                    //           HapticFeedback.lightImpact();
-                                    //           ChatsMoreView.show(context);
-                                    //         }
-                                    //       : null,
-                                    ContextMenuRegion(
+                                child: ContextMenuRegion(
                                   selector: c.chatsKey,
                                   alignment: Alignment.bottomCenter,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 0,
-                                  ),
+                                  margin: const EdgeInsets.only(bottom: 4),
                                   actions: [
                                     if (c.myUser.value?.muted != null)
                                       ContextMenuButton(
+                                        key: const Key('UnmuteChatsButton'),
                                         label: 'btn_unmute_chats'.l10n,
-                                        onPressed: () {
-                                          c.toggleMute(true);
-                                        },
-                                        // trailing: const Icon(Icons.group_outlined),
+                                        onPressed: () => c.toggleMute(true),
                                       )
                                     else
                                       ContextMenuButton(
+                                        key: const Key('MuteChatsButton'),
                                         label: 'btn_mute_chats'.l10n,
-                                        onPressed: () {
-                                          c.toggleMute(false);
-                                        },
-                                        // trailing: const Icon(Icons.select_all),
+                                        onPressed: () => c.toggleMute(false),
                                       ),
                                   ],
                                   child: Obx(() {
@@ -400,31 +387,19 @@ class _HomeViewState extends State<HomeView> {
                                     );
                                   }),
                                 ),
-                                // ),
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('MenuButton'),
-                                // child: RmbDetector(
-                                //   onPressed: context.isMobile
-                                //       ? () {
-                                //           HapticFeedback.lightImpact();
-                                //           StatusView.show(context);
-                                //         }
-                                //       : null,
                                 child: ContextMenuRegion(
                                   selector: c.profileKey,
                                   alignment: Alignment.bottomRight,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 0,
-                                  ),
+                                  margin: const EdgeInsets.only(bottom: 4),
                                   actions: [
                                     ContextMenuButton(
                                       label: 'label_presence_present'.l10n,
-                                      withTrailing: true,
-                                      onPressed: () {
-                                        c.setPresence(Presence.present);
-                                      },
+                                      onPressed: () =>
+                                          c.setPresence(Presence.present),
+                                      showTrailing: true,
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
@@ -433,14 +408,12 @@ class _HomeViewState extends State<HomeView> {
                                           color: Colors.green,
                                         ),
                                       ),
-                                      // trailing: const Icon(Icons.group_outlined),
                                     ),
                                     ContextMenuButton(
                                       label: 'label_presence_away'.l10n,
-                                      withTrailing: true,
-                                      onPressed: () {
-                                        c.setPresence(Presence.away);
-                                      },
+                                      onPressed: () =>
+                                          c.setPresence(Presence.away),
+                                      showTrailing: true,
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
@@ -449,7 +422,6 @@ class _HomeViewState extends State<HomeView> {
                                           color: Colors.orange,
                                         ),
                                       ),
-                                      // trailing: const Icon(Icons.select_all),
                                     ),
                                   ],
                                   child: AvatarWidget.fromMyUser(
@@ -458,7 +430,6 @@ class _HomeViewState extends State<HomeView> {
                                     radius: 16,
                                   ),
                                 ),
-                                // ),
                               ),
                             ],
                             currentIndex: router.tab.index,
@@ -548,7 +519,7 @@ class _HomeViewState extends State<HomeView> {
 
   /// Builds the [HomeController.background] visual representation.
   Widget _background(HomeController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Positioned.fill(
       child: IgnorePointer(

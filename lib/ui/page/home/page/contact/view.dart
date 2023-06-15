@@ -44,7 +44,7 @@ class ContactView extends StatelessWidget {
       init: ContactController(id, Get.find()),
       tag: id.val,
       builder: (ContactController c) {
-        final Style style = Theme.of(context).extension<Style>()!;
+        final style = Theme.of(context).style;
 
         return Obx(() {
           if (c.status.value.isLoading) {
@@ -91,8 +91,6 @@ class ContactView extends StatelessWidget {
                                   .bodySmall
                                   ?.copyWith(color: const Color(0xFF888888)),
                             );
-
-                            return Container();
                           }),
                         ],
                       ),
@@ -206,7 +204,7 @@ class ContactView extends StatelessWidget {
   }
 
   Widget _label(BuildContext context, String text) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),

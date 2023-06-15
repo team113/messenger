@@ -33,90 +33,27 @@ class DonateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     final bar = Container(
       height: height,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        // gradient: outerGradient,
         gradient: const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          // transform: GradientRotation(3.6),
           colors: [
             Color(0xFFF9C924),
             Color(0xFFE4AF18),
             Color(0xFFFFF98C),
             Color(0xFFFFD440),
-            // background: linear-gradient(180deg, #F9C924 0%, #E4AF18 32%, #FFF98C 68%, #FFD440 100%);
-            // Color(0xFFECC440),
-            // Color(0xFFFFFA8A),
-            // Color(0xFFDDAC17),
-            // Color(0xFFFFFF95),
-            // background: linear-gradient(69.74deg, #ECC440 0%, #FFFA8A 32%, #DDAC17 68%, #FFFF95 100%);
           ],
           stops: [0, 0.32, 0.68, 1],
         ),
       ),
       child: Stack(
         children: [
-          //             Positioned.fill(
-          //               child: Container(
-          //                 decoration: BoxDecoration(
-          //                   borderRadius: BorderRadius.circular(8),
-          //                   gradient: const LinearGradient(
-          //                     transform: GradientRotation(-0.2),
-          //                     begin: Alignment(-1, 0),
-          //                     end: Alignment(1, 0),
-          // // background: linear-gradient(79.22deg, #ECB800 4.81%, #FFDD64 19.3%, #C89C00 45.69%, #C99D01 54.15%, #E8B500 66.65%, #DFAE00 77.89%, #F2BD00 85.19%, #FFDD66 94.58%);
-          //                     colors: [
-          //                       Color(0xFFECB800),
-          //                       Color(0xFFFFDD64),
-          //                       Color(0xFFC89C00),
-          //                       Color(0xFFC99D01),
-          //                       Color(0xFFE8B500),
-          //                       Color(0xFFDFAE00),
-          //                       Color(0xFFF2BD00),
-          //                       Color(0xFFFFDD66),
-          //                     ],
-          //                     stops: [
-          //                       0.0481,
-          //                       0.193,
-          //                       0.4569,
-          //                       0.5415,
-          //                       0.6665,
-          //                       0.7789,
-          //                       0.8519,
-          //                       0.9458,
-          //                     ],
-          //                   ),
-          //                 ),
-          //                 width: double.infinity,
-          //                 height: double.infinity,
-          //               ),
-          //             ),
-          // Основной градиент:
-          // radial-gradient(73.88% 112.28% at 6.65% -23.76%, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%);
-          // Positioned.fill(
-          //   child: Container(
-          //     decoration: BoxDecoration(
-          //       borderRadius: BorderRadius.circular(8),
-          //       gradient: const RadialGradient(
-          //         radius: 3,
-          //         center: Alignment(-1, -1),
-          //         colors: [
-          //           Color.fromARGB(255, 250, 231, 162),
-          //           Color(0x00FFDD66),
-          //         ],
-          //         stops: [0, 1],
-          //       ),
-          //     ),
-          //     width: double.infinity,
-          //     height: double.infinity,
-          //   ),
-          // ),
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
@@ -150,10 +87,10 @@ class DonateWidget extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 small: true,
-                                style: style.boldBody.copyWith(
+                                style: fonts.bodyLarge!.copyWith(
                                   color: DonateWidget.font,
-                                  fontSize:
-                                      style.boldBody.fontSize! * (height / 100),
+                                  fontSize: fonts.bodyLarge!.fontSize! *
+                                      (height / 100),
                                   // color: color,
                                 ),
                               ),
@@ -168,7 +105,7 @@ class DonateWidget extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ...'$donate'.embossedDigits(
-                          style: style.boldBody.copyWith(
+                          style: fonts.bodyLarge!.copyWith(
                             fontSize: 32 * (height / 100),
                             color: font,
                           ),
@@ -179,7 +116,7 @@ class DonateWidget extends StatelessWidget {
                           offset: const Offset(0, 0),
                           child: EmbossedText(
                             '¤',
-                            style: style.boldBody.copyWith(
+                            style: fonts.bodyLarge!.copyWith(
                               fontSize: 32 * (height / 100),
                               // fontFamily: 'Gapopa',
                               color: font,

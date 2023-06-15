@@ -90,7 +90,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
-    // final Style style = Theme.of(context).extension<Style>()!;
+    // final style = Theme.of(context).style;
 
     // final border = OutlineInputBorder(
     //   borderRadius: widget.borderRadius ?? BorderRadius.zero,

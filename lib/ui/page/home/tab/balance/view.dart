@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/routes.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -34,16 +35,15 @@ class BalanceTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fonts = Theme.of(context).fonts;
+
     return GetBuilder(
       init: BalanceTabController(Get.find()),
       builder: (BalanceTabController c) {
         return Scaffold(
           // extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Text(
-              'Balance: ¤${c.balance.value.toInt()}',
-              style: Theme.of(context).appBarTheme.titleTextStyle,
-            ),
+            title: Text('Balance: ¤${c.balance.value.toInt()}'),
             leading: [
               Obx(() {
                 final Widget child;
@@ -114,11 +114,6 @@ class BalanceTabView extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     children: [
                       Obx(() {
-                        final textStyle = Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(color: Colors.black);
-
                         return AnimatedSizeAndFade.showHide(
                           show: !c.hintDismissed.value,
                           child: Center(
@@ -138,8 +133,7 @@ class BalanceTabView extends StatelessWidget {
                                     header: Center(
                                       child: Text(
                                         'What is ¤ (Gapopa coin)?',
-                                        style:
-                                            textStyle?.copyWith(fontSize: 18),
+                                        style: fonts.headlineMedium,
                                       ),
                                     ),
                                   ),
@@ -153,8 +147,7 @@ class BalanceTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         '¤ (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.\n\n¤100 = €1.00',
-                                        style:
-                                            textStyle?.copyWith(fontSize: 15),
+                                        style: fonts.labelLarge,
                                       ),
                                     ),
                                   ),

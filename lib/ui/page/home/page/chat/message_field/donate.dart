@@ -17,7 +17,7 @@ class MessageFieldDonate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       Rect? rect;
@@ -153,7 +153,7 @@ class _MenuButtonState extends State<_MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     if (widget.button == 0) {
       return Container(
@@ -195,21 +195,16 @@ class _MenuButtonState extends State<_MenuButton> {
                   offset: const Offset(0, 2),
                   child: ReactiveTextField(
                     padding: EdgeInsets.zero,
-                    hint: 'Сумма (мин: 400G)',
+                    hint: '0.0¤ (мин: 400)',
                     // maxLines: 3,
                     state: _state!,
                     onChanged: () => setState(() {}),
                     formatters: [FilteringTextInputFormatter.digitsOnly],
                     // prefixText: 'G',
-                    style: const TextStyle(
-                      // color: style.colors.primary,
-                      fontSize: 17,
-                    ),
+                    style: fonts.bodyLarge,
                     withTrailing: false,
-                    prefixStyle: TextStyle(
-                      color: style.colors.primary,
-                      fontSize: 17,
-                    ),
+                    prefixStyle:
+                        fonts.bodyLarge!.copyWith(color: style.colors.primary),
                   ),
                 ),
               ),
@@ -280,9 +275,7 @@ class _MenuButtonState extends State<_MenuButton> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Text(
                   '${widget.button}¤',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 17,
+                  style: fonts.titleLarge!.copyWith(
                     color: style.colors.primary,
                   ),
                 ),

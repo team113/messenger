@@ -41,14 +41,16 @@ class ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Padding(
       padding: Insets.dense.add(const EdgeInsets.only(bottom: 8)),
       child: FieldButton(
         onPressed: onPressed,
         text: text,
-        style: TextStyle(color: style.colors.primary),
+        style: fonts.titleMedium!.copyWith(
+          color: style.colors.primary,
+        ),
         trailing: trailing != null
             ? Transform.translate(
                 offset: const Offset(0, -1),

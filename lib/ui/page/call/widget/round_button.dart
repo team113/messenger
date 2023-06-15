@@ -108,7 +108,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     Widget button = ConditionalBackdropFilter(
       condition: !WebUtils.isSafari && widget.withBlur,
@@ -209,7 +209,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
         firstLayout = false;
       }
 
-      final Style style = Theme.of(context).extension<Style>()!;
+      final style = Theme.of(context).style;
 
       return IgnorePointer(
         child: Stack(

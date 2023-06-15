@@ -120,9 +120,10 @@ class _PostWidgetState extends State<PostWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final (_, fonts) = Theme.of(context).styles;
+
     return DefaultTextStyle(
-      style: style.boldBody,
+      style: fonts.bodyLarge!,
       child: Obx(() {
         if (widget.item.value is ChatMessage) {
           return _renderAsChatMessage(context);
@@ -137,6 +138,8 @@ class _PostWidgetState extends State<PostWidget> {
 
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     var msg = widget.item.value as ChatMessage;
 
     String? text = msg.text?.val.replaceAll(' ', '');
@@ -145,8 +148,6 @@ class _PostWidgetState extends State<PostWidget> {
     } else {
       text = msg.text?.val;
     }
-
-    Style style = Theme.of(context).extension<Style>()!;
 
     List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
@@ -243,7 +244,7 @@ class _PostWidgetState extends State<PostWidget> {
                         ),
                         child: SelectableText(
                           text,
-                          style: style.boldBody,
+                          style: fonts.bodyLarge,
                         ),
                       ),
                     if (files.isNotEmpty)
@@ -967,7 +968,7 @@ class _PostWidgetState extends State<PostWidget> {
     // Style style = Theme.of(context).extension<Style>()!;
 
     // return DefaultTextStyle(
-    //   style: style.boldBody,
+    //   style: fonts.bodyLarge,
     //   child: Row(
     //     crossAxisAlignment: CrossAxisAlignment.start,
     //     mainAxisAlignment: MainAxisAlignment.start,
@@ -1043,7 +1044,7 @@ class _PostWidgetState extends State<PostWidget> {
   }
 
   Widget _forwardedMessage(ChatItem item) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1106,7 +1107,7 @@ class _PostWidgetState extends State<PostWidget> {
       if (desc.isNotEmpty) {
         content = Text(
           desc.toString(),
-          style: style.boldBody,
+          style: fonts.bodyLarge,
         );
       }
     }
@@ -1152,7 +1153,8 @@ class _PostWidgetState extends State<PostWidget> {
                             // const SizedBox(width: 6),
                             Transform.scale(
                               scaleX: -1,
-                              child: const Icon(Icons.reply, size: 17, color: color),
+                              child: const Icon(Icons.reply,
+                                  size: 17, color: color),
                             ),
                             const SizedBox(width: 6),
                             Flexible(
@@ -1160,7 +1162,7 @@ class _PostWidgetState extends State<PostWidget> {
                                 snapshot.data?.user.value.name?.val ??
                                     snapshot.data?.user.value.num.val ??
                                     '...',
-                                style: style.boldBody.copyWith(color: color),
+                                style: fonts.bodyLarge!.copyWith(color: color),
                               ),
                             ),
                           ],

@@ -203,7 +203,7 @@ class ReactiveTextField extends StatelessWidget {
 
     // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       return Obx(() {
         return WidgetButton(
@@ -253,10 +253,8 @@ class ReactiveTextField extends StatelessWidget {
                                             key: const ValueKey('Approve'),
                                             child: Text(
                                               'btn_save'.l10n,
-                                              style: TextStyle(
-                                                fontSize: 11,
+                                              style: fonts.bodySmall!.copyWith(
                                                 color: style.colors.primary,
-                                                fontWeight: FontWeight.normal,
                                               ),
                                             ),
                                           )
@@ -279,7 +277,7 @@ class ReactiveTextField extends StatelessWidget {
     }
 
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       return Theme(
         data: Theme.of(context).copyWith(
@@ -360,7 +358,7 @@ class ReactiveTextField extends StatelessWidget {
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: const TextStyle(fontSize: 0),
+                errorStyle: fonts.bodyLarge!.copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -384,9 +382,8 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value!,
-                            style: (this.style ?? const TextStyle()).copyWith(
+                            style: (this.style ?? fonts.labelMedium)!.copyWith(
                               color: style.colors.dangerColor,
-                              fontSize: 13,
                             ),
                           ),
                         ),

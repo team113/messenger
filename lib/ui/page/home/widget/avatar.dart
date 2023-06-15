@@ -20,7 +20,6 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
@@ -34,6 +33,7 @@ import '/domain/repository/user.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Widget to build an [Avatar].
 ///
@@ -41,7 +41,7 @@ import '/ui/page/home/widget/retry_image.dart';
 /// [avatar] is not specified.
 class AvatarWidget extends StatelessWidget {
   const AvatarWidget({
-    Key? key,
+    super.key,
     this.avatar,
     this.radius,
     this.maxRadius,
@@ -51,9 +51,8 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-    this.badgeColor,
     this.label,
-  }) : super(key: key);
+  });
 
   /// Creates an [AvatarWidget] from the specified [contact].
   factory AvatarWidget.fromContact(
@@ -130,7 +129,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool badge = true,
-    Color? badgeColor,
   }) =>
       AvatarWidget(
         key: key,
@@ -143,7 +141,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        badgeColor: badgeColor,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -187,7 +184,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        badge: badge,
       );
     }
 
@@ -207,6 +203,7 @@ class AvatarWidget extends StatelessWidget {
     );
   }
 
+  /// Creates an [AvatarWidget] from the specified [chat]-monolog.
   factory AvatarWidget.fromMonolog(
     Chat? chat,
     UserId? me, {
@@ -215,22 +212,23 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    Color? badgeColor,
   }) =>
       AvatarWidget(
         key: key,
-        label: LayoutBuilder(builder: (context, constraints) {
-          return SvgImage.asset(
-            'assets/icons/notes3.svg',
-            height: 28.96 * constraints.maxWidth / 60,
-          );
-        }),
+        label: LayoutBuilder(
+          builder: (context, constraints) {
+            return SvgImage.asset(
+              'assets/icons/notes.svg',
+              height: constraints.maxWidth / 2,
+            );
+          },
+        ),
+        avatar: chat?.avatar,
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        badgeColor: badgeColor,
       );
 
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
@@ -244,7 +242,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    Color? badgeColor,
   }) =>
       AvatarWidget(
         key: key,
@@ -255,7 +252,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        badgeColor: badgeColor,
       );
 
   /// Creates an [AvatarWidget] from the specified [RxChat].
@@ -266,7 +262,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    Color? badgeColor,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -275,23 +270,19 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        badgeColor: badgeColor,
       );
     }
 
     return Obx(() {
       if (chat.chat.value.isMonolog) {
-        if (chat.chat.value.avatar == null) {
-          return AvatarWidget.fromMonolog(
-            chat.chat.value,
-            chat.me,
-            radius: radius,
-            maxRadius: maxRadius,
-            minRadius: minRadius,
-            opacity: opacity,
-            badgeColor: badgeColor,
-          );
-        }
+        return AvatarWidget.fromMonolog(
+          chat.chat.value,
+          chat.me,
+          radius: radius,
+          maxRadius: maxRadius,
+          minRadius: minRadius,
+          opacity: opacity,
+        );
       }
 
       RxUser? user =
@@ -307,7 +298,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        badgeColor: badgeColor,
       );
     });
   }
@@ -360,8 +350,7 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
-  final Color? badgeColor;
-
+  /// Optional label to show inside this [AvatarWidget].
   final Widget? label;
 
   /// Returns minimum diameter of the avatar.
@@ -392,7 +381,7 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return LayoutBuilder(builder: (context, constraints) {
       final Color gradient;
@@ -456,14 +445,11 @@ class AvatarWidget extends StatelessWidget {
                     SelectionContainer.disabled(
                       child: Text(
                         (title ?? '??').initials(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(
-                              fontSize: 15 * (maxWidth / 40.0),
-                              color: style.colors.onPrimary,
-                              fontWeight: FontWeight.w700,
-                            ),
+                        style: fonts.titleSmall!.copyWith(
+                          fontSize:
+                              fonts.bodyMedium!.fontSize! * (maxWidth / 40.0),
+                          color: style.colors.onPrimary,
+                        ),
 
                         // Disable the accessibility size settings for this [Text].
                         textScaleFactor: 1,

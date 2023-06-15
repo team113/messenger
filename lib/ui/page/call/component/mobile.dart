@@ -54,7 +54,7 @@ import 'common.dart';
 
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final style = Theme.of(context).style;
 
   return LayoutBuilder(builder: (context, constraints) {
     bool isOutgoing =
@@ -771,7 +771,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 /// Builds a tile representation of the [CallController.chat].
 Widget _chat(BuildContext context, CallController c) {
   return Obx(() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
     final RxChat? chat = c.chat.value;
 
     final Set<UserId> actualMembers =

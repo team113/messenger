@@ -44,6 +44,8 @@ class ContextMenuRegion extends StatefulWidget {
     this.moveDownwards = true,
     this.preventContextMenu = true,
     this.enableLongTap = true,
+    this.enablePrimaryTap = false,
+    this.enableSecondaryTap = true,
     this.alignment,
     this.actions = const [],
     this.selector,
@@ -51,7 +53,6 @@ class ContextMenuRegion extends StatefulWidget {
     this.margin = EdgeInsets.zero,
     this.indicateOpenedMenu = false,
     this.unconstrained = false,
-    this.allowPrimaryButton = false,
     this.floatingOnMobile = false,
     String? id,
   }) : id = id ?? const Uuid().v4();
@@ -88,6 +89,12 @@ class ContextMenuRegion extends StatefulWidget {
   /// Indicator whether context menu should be displayed on a long tap.
   final bool enableLongTap;
 
+  /// Indicator whether context menu should be displayed on a primary tap.
+  final bool enablePrimaryTap;
+
+  /// Indicator whether context menu should be displayed on a secondary tap.
+  final bool enableSecondaryTap;
+
   /// [GlobalKey] of a [Selector.buttonKey].
   ///
   /// If specified, then this [ContextMenuRegion] will display a [Selector]
@@ -111,8 +118,6 @@ class ContextMenuRegion extends StatefulWidget {
 
   /// Indicator whether the [child] should be unconstrained.
   final bool unconstrained;
-
-  final bool allowPrimaryButton;
 
   final bool floatingOnMobile;
 
@@ -141,13 +146,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         return widget.child!;
       }
 
-      return Builder(builder: (_) => widget.builder!(_displayed));
+      return widget.builder!(_displayed);
     }
 
     final Widget child;
 
     if (_darkened && PlatformUtils.isDesktop) {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final style = Theme.of(context).style;
 
       child = Stack(
         children: [
@@ -164,57 +169,49 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     }
 
     if (widget.enabled && widget.actions.isNotEmpty) {
+      Widget menu;
+
+      if (PlatformUtils.isMobile && widget.selector == null) {
+        menu = FloatingContextMenu(
+          alignment: widget.alignment ?? Alignment.bottomCenter,
+          moveDownwards: widget.moveDownwards,
+          actions: widget.actions,
+          margin: widget.margin,
+          unconstrained: widget.unconstrained,
+          onOpened: () => _displayed = true,
+          onClosed: () => _displayed = false,
+          child: widget.builder == null ? child : widget.builder!(_displayed),
+        );
+      } else {
+        menu = GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onLongPressStart: widget.enableLongTap
+              ? (d) => _show(context, d.globalPosition)
+              : null,
+          child: widget.builder == null ? child : widget.builder!(_displayed),
+        );
+
+        if (widget.enablePrimaryTap) {
+          menu = MouseRegion(
+            opaque: false,
+            cursor: SystemMouseCursors.click,
+            child: menu,
+          );
+        }
+      }
+
       return ContextMenuInterceptor(
         enabled: widget.preventContextMenu,
-        child: MouseRegion(
-          cursor: widget.allowPrimaryButton
-              ? SystemMouseCursors.click
-              : MouseCursor.defer,
-          child: Listener(
-            behavior: HitTestBehavior.translucent,
-            onPointerDown: (d) {
-              if (d.buttons & kSecondaryButton != 0 ||
-                  widget.allowPrimaryButton) {
-                _show(context, d.position);
-              }
-            },
-            child: PlatformUtils.isMobile && widget.selector == null
-                ? FloatingContextMenu(
-                    alignment: widget.alignment ?? Alignment.bottomCenter,
-                    moveDownwards: widget.moveDownwards,
-                    actions: widget.actions,
-                    margin: widget.margin,
-                    unconstrained: widget.unconstrained,
-                    onOpened: () {
-                      _displayed = true;
-                      print('onOpened');
-                      ContextMenuRegion.displayed.value = widget.id;
-                      if (widget.indicateOpenedMenu) {
-                        setState(() => _darkened = true);
-                      }
-                    },
-                    onClosed: () {
-                      _displayed = false;
-                      print('onClosed');
-                      ContextMenuRegion.displayed.value = null;
-                      if (widget.indicateOpenedMenu) {
-                        setState(() => _darkened = false);
-                      }
-                    },
-                    child: widget.builder == null
-                        ? child
-                        : Builder(builder: (_) => widget.builder!(_displayed)),
-                  )
-                : GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onLongPressStart: widget.enableLongTap
-                        ? (d) => _show(context, d.globalPosition)
-                        : null,
-                    child: widget.builder == null
-                        ? child
-                        : Builder(builder: (_) => widget.builder!(_displayed)),
-                  ),
-          ),
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (d) {
+            if ((widget.enableSecondaryTap &&
+                    d.buttons & kSecondaryButton != 0) ||
+                (widget.enablePrimaryTap && d.buttons & kPrimaryButton != 0)) {
+              _show(context, d.position);
+            }
+          },
+          child: menu,
         ),
       );
     }
@@ -224,11 +221,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     if (widget.actions.isEmpty) {
       return;
@@ -243,25 +236,23 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         width: widget.width,
         margin: widget.margin,
         buttonBuilder: (i, b) {
-          // return Container(color: Colors.red, height: 50, width: 100);
           return Padding(
             padding: EdgeInsets.only(
               top: i == 0 ? 6 : 0,
               bottom: i == widget.actions.length - 1 ? 6 : 0,
             ),
-            child: SizedBox(width: null, child: b),
+            child: b,
           );
         },
         itemBuilder: (b) {
           if (b is ContextMenuButton) {
             return Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 if (b.leading != null) ...[
                   b.leading!,
-                  const SizedBox(width: 12)
+                  const SizedBox(width: 12),
                 ],
-                Text(b.label, style: thin?.copyWith(fontSize: 15)),
+                Text(b.label, style: fonts.labelLarge),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,
@@ -280,8 +271,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         ),
       );
     } else {
-      ContextMenuRegion.displayed.value = widget.id;
-
       _displayed = true;
       if (widget.indicateOpenedMenu) {
         _darkened = true;
@@ -307,14 +296,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                 _darkened = false;
               }
 
-              ContextMenuRegion.displayed.value = null;
-
               if (mounted) {
                 setState(() {});
               }
             },
             child: Container(
-              color: Colors.transparent,
+              color: style.colors.transparent,
               child: Stack(
                 fit: StackFit.expand,
                 children: [

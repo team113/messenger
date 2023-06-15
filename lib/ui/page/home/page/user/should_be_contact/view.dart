@@ -48,7 +48,7 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
@@ -356,7 +356,7 @@ class UserView extends StatelessWidget {
   }
 
   Widget _label(BuildContext context, String text) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),

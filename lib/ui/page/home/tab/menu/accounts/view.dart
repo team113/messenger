@@ -213,7 +213,7 @@ class AccountsView extends StatelessWidget {
               break;
 
             default:
-              final Style style = Theme.of(context).extension<Style>()!;
+              final style = Theme.of(context).style;
               children = [
                 ModalPopupHeader(
                   header: Center(

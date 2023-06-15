@@ -16,7 +16,7 @@ class MessageFieldMore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       final Rect? rect = c.globalKey.globalPaintBounds;
@@ -132,7 +132,7 @@ class _MenuButtonState extends State<_MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),

@@ -102,7 +102,7 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
@@ -163,39 +163,6 @@ class _ChatViewState extends State<ChatView>
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               child: Stack(
                 children: [
-                  // Obx(() {
-                  //   final Widget child;
-
-                  //   if (c.paidDisclaimer.value) {
-                  //     child = Column(
-                  //       key: const Key('Column'),
-                  //       children: [
-                  //         Container(
-                  //           width: double.infinity,
-                  //           height: CustomAppBar.height,
-                  //           color: Theme.of(context)
-                  //               .extension<Style>()!
-                  //               .barrierColor,
-                  //         ),
-                  //         const Spacer(),
-                  //         Container(
-                  //           width: double.infinity,
-                  //           height: CustomNavigationBar.height + 4,
-                  //           color: Theme.of(context)
-                  //               .extension<Style>()!
-                  //               .barrierColor,
-                  //         ),
-                  //       ],
-                  //     );
-                  //   } else {
-                  //     child = const SizedBox();
-                  //   }
-
-                  //   return AnimatedSwitcher(
-                  //     duration: 150.milliseconds,
-                  //     child: child,
-                  //   );
-                  // }),
                   Scaffold(
                     resizeToAvoidBottomInset: true,
                     appBar: CustomAppBar(
@@ -430,15 +397,10 @@ class _ChatViewState extends State<ChatView>
                             child: Column(
                               children: [
                                 Obx(() {
-                                  final Style style =
-                                      Theme.of(context).extension<Style>()!;
-
                                   void onPressed() {
                                     c.paidDisclaimerDismissed.value = false;
                                     c.paidDisclaimer.value = true;
                                   }
-
-                                  bool dummy = c.paidDisclaimerDismissed.value;
 
                                   return AnimatedSizeAndFade.showHide(
                                     fadeDuration: 250.milliseconds,
@@ -620,38 +582,6 @@ class _ChatViewState extends State<ChatView>
                                       ],
                                     ),
                                   );
-
-                                  return AnimatedSizeAndFade.showHide(
-                                    show: c.paidDisclaimerDismissed.value &&
-                                        c.paid,
-                                    child: WidgetButton(
-                                      onPressed: onPressed,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        margin: const EdgeInsets.only(
-                                          left: 6,
-                                          right: 6,
-                                          top: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: style.cardRadius,
-                                          border: style.systemMessageBorder,
-                                          color: style.systemMessageColor,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            'Платный чат',
-                                            style: style.systemMessageStyle
-                                                .copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
                                 }),
                                 Expanded(
                                   child: Stack(
@@ -663,9 +593,6 @@ class _ChatViewState extends State<ChatView>
                                             child: Container()),
                                       ),
                                       Obx(() {
-                                        final Style style = Theme.of(context)
-                                            .extension<Style>()!;
-
                                         final Widget child = Scrollbar(
                                           controller: c.listController,
                                           child: FlutterListView(
@@ -852,7 +779,7 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
@@ -1158,14 +1085,12 @@ class _ChatViewState extends State<ChatView>
       }
 
       final bool fromMe = element.fromMe;
-      final Style style = Theme.of(context).extension<Style>()!;
+      final style = Theme.of(context).style;
 
       const String text = 'dqwdqw';
       final String fee =
           fromMe ? 'Вы установили плату за:' : 'kirey установил плату за:';
 
-      final BoxBorder border =
-          fromMe ? style.secondaryBorder : style.primaryBorder;
       final Color background =
           fromMe ? style.readMessageColor : style.messageColor;
 
@@ -1238,16 +1163,15 @@ class _ChatViewState extends State<ChatView>
                                   ),
                                 ),
                               ),
-                              if (text != null)
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    12,
-                                    10,
-                                    12,
-                                    10,
-                                  ),
-                                  child: Text(text, style: style.boldBody),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  10,
+                                  12,
+                                  10,
                                 ),
+                                child: Text(text, style: fonts.bodyLarge),
+                              ),
                             ],
                           ),
                         ),
@@ -1268,7 +1192,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
 
@@ -1419,7 +1343,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1469,7 +1393,7 @@ class _ChatViewState extends State<ChatView>
     double callCost, {
     User? user,
   }) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Center(
       child: Container(
@@ -1555,7 +1479,7 @@ class _ChatViewState extends State<ChatView>
   }
 
 //   Widget _paidElement(ChatController c, double messageCost, double callCost) {
-//     final Style style = Theme.of(context).extension<Style>()!;
+//     final style = Theme.of(context).style;
 //     final User? user = c.chat!.members.values
 //         .firstWhereOrNull((e) => e.id != c.me)
 //         ?.user
@@ -1608,7 +1532,7 @@ class _ChatViewState extends State<ChatView>
 //   }
 
   Widget _pinned(ChatController c, BoxConstraints constraints) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget preview(Attachment attachment) {
       if (attachment is ImageAttachment) {
@@ -1668,7 +1592,7 @@ class _ChatViewState extends State<ChatView>
                     // WidgetSpan(child: Opacity(opacity: 1, child: pin)),
                   ],
                 ),
-                style: style.boldBody,
+                style: fonts.bodyLarge,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1681,7 +1605,7 @@ class _ChatViewState extends State<ChatView>
           Expanded(
             child: Text(
               'Call',
-              style: style.boldBody,
+              style: fonts.bodyLarge,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1712,7 +1636,7 @@ class _ChatViewState extends State<ChatView>
                   children: [
                     TextSpan(
                       text: 'label_forwarded_message'.l10n,
-                      style: style.boldBody.copyWith(
+                      style: fonts.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
@@ -1721,7 +1645,7 @@ class _ChatViewState extends State<ChatView>
                     if (quote.text != null) TextSpan(text: quote.text!.val),
                   ],
                 ),
-                style: style.boldBody,
+                style: fonts.bodyLarge,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1732,7 +1656,7 @@ class _ChatViewState extends State<ChatView>
             Expanded(
               child: Text(
                 'Forwarded message',
-                style: style.boldBody,
+                style: fonts.bodyLarge,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1831,20 +1755,8 @@ class _ChatViewState extends State<ChatView>
               ),
             ],
           ),
-          // Align(alignment: Alignment.bottomRight, child: pin),
           const SizedBox(width: 4),
         ],
-      );
-      // Positioned(right: 0, bottom: 0, child: pin),
-
-      return Center(
-        child: Text(
-          'Закреплено сообщений: 1/3',
-          style: style.systemMessageStyle.copyWith(
-            fontSize: 15,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
       );
     });
   }
@@ -1868,7 +1780,7 @@ class _ChatViewState extends State<ChatView>
         );
       }
 
-      final Style style = Theme.of(context).extension<Style>()!;
+      final style = Theme.of(context).style;
 
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -1893,253 +1805,6 @@ class _ChatViewState extends State<ChatView>
                 },
               ),
             );
-
-            return AnimatedSizeAndFade.showHide(
-              show: c.paidDisclaimer.value,
-              child: Container(
-                margin:
-                    const EdgeInsets.only(top: 0, bottom: 8, left: 8, right: 8),
-                decoration: BoxDecoration(
-                  borderRadius: style.cardRadius,
-                  boxShadow: const [
-                    CustomBoxShadow(
-                      blurRadius: 8,
-                      color: Color(0x22000000),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Container(
-                    //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                    //   padding:
-                    //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                    //   decoration: BoxDecoration(
-                    //     borderRadius: BorderRadius.only(
-                    //       topLeft: style.cardRadius.topLeft,
-                    //       topRight: style.cardRadius.topRight,
-                    //     ),
-                    //     color: style.readMessageColor,
-                    //   ),
-                    //   child: Text(
-                    //     'Платный чат. Вы установили \$5 за входящие сообщения и \$5/мин за входящие звонки.',
-                    //     // style: style.boldBody,
-                    //     style: style.systemMessageStyle,
-                    //   ),
-                    // ),
-                    // Container(
-                    //   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                    //   padding:
-                    //       const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                    //   decoration: BoxDecoration(
-                    //     borderRadius: BorderRadius.only(
-                    //       topLeft: style.cardRadius.topLeft,
-                    //       topRight: style.cardRadius.topRight,
-                    //     ),
-                    //     color: Colors.white,
-                    //   ),
-                    //   child: Text(
-                    //     'Askldjskldjsqkdjqw',
-                    //     style: style.boldBody,
-                    //   ),
-                    // ),
-                    WidgetButton(
-                      onPressed: () {
-                        c.paidDisclaimer.value = false;
-                        c.paidDisclaimerDismissed.value = true;
-                        c.paidBorder.value = false;
-
-                        // final theirFee = FeeElement(false);
-                        // c.elements[theirFee.id] = theirFee;
-
-                        // SchedulerBinding.instance
-                        //     .addPostFrameCallback((_) {
-                        //   c.listController.animateTo(
-                        //     c.listController.offset + 150,
-                        //     duration: 200.milliseconds,
-                        //     curve: Curves.ease,
-                        //   );
-                        // });
-
-                        // if (c.feeElement != null) {
-                        //   c.elements.remove(c.feeElement!.id);
-                        //   c.feeElement = null;
-                        // }
-
-                        // switch (c.confirmAction) {
-                        //   case ConfirmAction.audioCall:
-                        //     c.call(false);
-                        //     break;
-
-                        //   case ConfirmAction.videoCall:
-                        //     c.call(true);
-                        //     break;
-
-                        //   case ConfirmAction.sendMessage:
-                        //     c.send.onSubmit?.call();
-                        //     break;
-
-                        //   case null:
-                        //     // No-op.
-                        //     break;
-                        // }
-
-                        c.confirmAction = null;
-                      },
-                      child: AnimatedContainer(
-                        duration: 250.milliseconds,
-                        padding: const EdgeInsets.fromLTRB(
-                          18,
-                          18,
-                          18,
-                          18,
-                        ),
-                        decoration: BoxDecoration(
-                          border: c.paidBorder.value
-                              ? Border.all(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 2,
-                                )
-                              : Border.all(
-                                  color: Colors.transparent,
-                                  width: 2,
-                                ),
-                          borderRadius: style.cardRadius,
-                          // borderRadius: BorderRadius.only(
-                          //   bottomLeft: style.cardRadius.bottomLeft,
-                          //   bottomRight:
-                          //       style.cardRadius.bottomRight,
-                          // ),
-                          // border: style.systemMessageBorder,
-                          color: style.systemMessageColor,
-                        ),
-                        child: Column(
-                          children: [
-                            // Text(
-                            //   'Платный чат',
-                            //   style: style.systemMessageStyle,
-                            // ),
-                            // const SizedBox(height: 8),
-                            Text(
-                              'Kirey установил \$5 за отправку сообщения и \$5/мин за совершение звонка.',
-                              style: style.systemMessageStyle,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Принять и продолжить',
-                              style: style.systemMessageStyle.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-
-            return AnimatedSizeAndFade.showHide(
-              show: c.paidDisclaimer.value,
-              child: Container(
-                margin: const EdgeInsets.only(
-                  top: 8,
-                  bottom: 8,
-                  left: 8,
-                  right: 8,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: style.cardRadius,
-                  boxShadow: const [
-                    CustomBoxShadow(
-                      blurRadius: 8,
-                      color: Color(0x22000000),
-                    ),
-                  ],
-                ),
-                child: IntrinsicWidth(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            topLeft: style.cardRadius.topLeft,
-                            topRight: style.cardRadius.topRight,
-                          ),
-                          color: Colors.white,
-                        ),
-                        child: Text(
-                          'Askldjskldjsqkdjqw',
-                          style: style.boldBody,
-                        ),
-                      ),
-                      WidgetButton(
-                        onPressed: () {
-                          c.paidDisclaimer.value = false;
-                          c.paidDisclaimerDismissed.value = true;
-
-                          // if (c.feeElement != null) {
-                          //   c.elements.remove(c.feeElement!.id);
-                          //   c.feeElement = null;
-                          // }
-
-                          switch (c.confirmAction) {
-                            case ConfirmAction.audioCall:
-                              c.call(false);
-                              break;
-
-                            case ConfirmAction.videoCall:
-                              c.call(true);
-                              break;
-
-                            case ConfirmAction.sendMessage:
-                              c.send.onSubmit?.call();
-                              break;
-
-                            case null:
-                              // No-op.
-                              break;
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: style.cardRadius.bottomLeft,
-                              bottomRight: style.cardRadius.bottomRight,
-                            ),
-                            border: style.systemMessageBorder,
-                            color: style.systemMessageColor,
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                'kirey установил плату за сообщения (\$5) и звонки (\$5/min)',
-                                style: style.systemMessageStyle,
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                'Принять и продолжить',
-                                style: style.systemMessageStyle.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
           }),
           Padding(
             padding: const EdgeInsets.only(left: 8, right: 8),
@@ -2149,157 +1814,8 @@ class _ChatViewState extends State<ChatView>
               onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
               onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
               canForward: true,
-              // background:
-              //     c.paid ? const Color.fromARGB(255, 241, 250, 244) : null,
-              // background: const Color(0xFFfff7ea),
-              // canSend: !disabled,
-              // canAttach: !disabled,
-              // disabled: disabled,
             ),
           ),
-          // LayoutBuilder(
-          //   builder: (context, constraints) {
-          //     return Obx(() {
-          //       return AnimatedSizeAndFade.showHide(
-          //         show: c.paidDisclaimer.value,
-          //         child: Container(
-          //           margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-          //           padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-          //           decoration: BoxDecoration(
-          //             borderRadius: style.cardRadius,
-          //             boxShadow: const [
-          //               CustomBoxShadow(
-          //                 blurRadius: 8,
-          //                 color: Color(0x22000000),
-          //               ),
-          //             ],
-          //             color: Colors.white,
-          //           ),
-          //           child: Row(
-          //             children: [
-          //               Expanded(
-          //                 child: RichText(
-          //                   text: TextSpan(
-          //                     children: [
-          //                       TextSpan(
-          //                         text:
-          //                             'kirey взимает плату в размере \$5 за сообщение. ',
-          //                       ),
-          //                       // TextSpan(
-          //                       //   text: 'Принять.',
-          //                       //   style: thin?.copyWith(
-          //                       //     fontSize: 18,
-          //                       //     color:
-          //                       //         Theme.of(context).colorScheme.primary,
-          //                       //   ),
-          //                       // ),
-          //                     ],
-          //                     style: thin?.copyWith(fontSize: 18),
-          //                   ),
-          //                 ),
-          //                 // child: Text(
-          //                 //   'kirey взимает плату в размере \$5 за сообщение.',
-          //                 //   style: thin?.copyWith(fontSize: 18),
-          //                 // ),
-          //               ),
-          //               const SizedBox(width: 12),
-          //               WidgetButton(
-          //                 onPressed: () {
-          //                   c.paidDisclaimer.value = false;
-          //                   c.paidDisclaimerDismissed = true;
-
-          //                   switch (c.confirmAction) {
-          //                     case ConfirmAction.audioCall:
-          //                       c.call(false);
-          //                       break;
-
-          //                     case ConfirmAction.videoCall:
-          //                       c.call(true);
-          //                       break;
-
-          //                     case ConfirmAction.sendMessage:
-          //                       c.send.onSubmit?.call();
-          //                       break;
-
-          //                     case null:
-          //                       // No-op.
-          //                       break;
-          //                   }
-          //                 },
-          //                 child: Text(
-          //                   'Принять',
-          //                   style: thin?.copyWith(
-          //                     fontSize: 18,
-          //                     color: Theme.of(context).colorScheme.primary,
-          //                   ),
-          //                 ),
-          //               ),
-          //               Center(
-          //                 child: ConstrainedBox(
-          //                   constraints: BoxConstraints(maxWidth: 150),
-          //                   child: Row(
-          //                     mainAxisSize: MainAxisSize.min,
-          //                     children: [
-          //                       // Expanded(
-          //                       //   child: OutlinedRoundedButton(
-          //                       //     maxWidth: double.infinity,
-          //                       //     onPressed: () {
-          //                       //       c.paidDisclaimer.value = false;
-          //                       //     },
-          //                       //     title: Text(
-          //                       //       'Закрыть',
-          //                       //       style:
-          //                       //           thin?.copyWith(color: Colors.black),
-          //                       //     ),
-          //                       //     color: const Color(0xFFEEEEEE),
-          //                       //   ),
-          //                       // ),
-          //                       // const SizedBox(width: 12),
-          //                       // Expanded(
-          //                       //   child: OutlinedRoundedButton(
-          //                       //     maxWidth: double.infinity,
-          //                       //     onPressed: () {
-          //                       //       c.paidDisclaimer.value = false;
-          //                       //       c.paidDisclaimerDismissed = true;
-
-          //                       //       switch (c.confirmAction) {
-          //                       //         case ConfirmAction.audioCall:
-          //                       //           c.call(false);
-          //                       //           break;
-
-          //                       //         case ConfirmAction.videoCall:
-          //                       //           c.call(true);
-          //                       //           break;
-
-          //                       //         case ConfirmAction.sendMessage:
-          //                       //           c.send.onSubmit?.call();
-          //                       //           break;
-
-          //                       //         case null:
-          //                       //           // No-op.
-          //                       //           break;
-          //                       //       }
-          //                       //     },
-          //                       //     title: Text(
-          //                       //       'Принять',
-          //                       //       style:
-          //                       //           thin?.copyWith(color: Colors.white),
-          //                       //     ),
-          //                       //     color:
-          //                       //         Theme.of(context).colorScheme.primary,
-          //                       //   ),
-          //                       // ),
-          //                     ],
-          //                   ),
-          //                 ),
-          //               ),
-          //             ],
-          //           ),
-          //         ),
-          //       );
-          //     });
-          //   },
-          // ),
         ],
       );
     });
@@ -2325,7 +1841,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Builds a visual representation of an [UnreadMessagesElement].
   Widget _unreadLabel(BuildContext context, ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Container(
       width: double.infinity,
@@ -2347,7 +1863,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
   Widget _blockedField(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Theme(
       data: MessageFieldView.theme(context),
@@ -2395,7 +1911,7 @@ class _ChatViewState extends State<ChatView>
                               dense: true,
                               textAlign: TextAlign.center,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(
+                              style: fonts.bodyLarge!.copyWith(
                                 fontSize: 17,
                                 color: style.colors.primary,
                               ),

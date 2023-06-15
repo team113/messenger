@@ -30,12 +30,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading = const [],
     this.actions = const [],
     this.padding,
-    this.background,
     this.border,
-    this.onBottom,
-    this.safeArea = true,
     this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
-    this.shadow = true,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -56,13 +52,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// [Border] to apply to this [CustomAppBar].
   final Border? border;
 
-  final Color? background;
-
-  final void Function()? onBottom;
-
-  final bool safeArea;
-  final bool shadow;
-
   /// Height of the [CustomAppBar].
   static const double height = 60;
 
@@ -71,35 +60,33 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
+
     final double top = MediaQuery.of(context).padding.top;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (safeArea && top != 0)
+        if (top != 0)
           Container(
             height: top,
             width: double.infinity,
-            color: Colors.transparent,
+            color: style.colors.transparent,
           ),
-        Flexible(
+        Expanded(
           child: Padding(
             padding: margin,
             child: Container(
-              // height: CustomAppBar.height,
-              constraints: const BoxConstraints(minHeight: height),
+              height: height,
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                boxShadow: shadow
-                    ? [
-                        CustomBoxShadow(
-                          blurRadius: 8,
-                          color: style.colors.onBackgroundOpacity13,
-                          blurStyle: BlurStyle.outer,
-                        ),
-                      ]
-                    : null,
+                boxShadow: [
+                  CustomBoxShadow(
+                    blurRadius: 8,
+                    color: style.colors.onBackgroundOpacity13,
+                    blurStyle: BlurStyle.outer,
+                  ),
+                ],
               ),
               child: ConditionalBackdropFilter(
                 condition: style.cardBlur > 0,
@@ -113,7 +100,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   decoration: BoxDecoration(
                     borderRadius: style.cardRadius,
                     border: border ?? style.cardBorder,
-                    color: background ?? style.cardColor,
+                    color: style.cardColor,
                   ),
                   padding: padding,
                   child: Row(
@@ -121,7 +108,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ...leading,
                       Expanded(
                         child: DefaultTextStyle.merge(
-                          style: Theme.of(context).appBarTheme.titleTextStyle,
+                          style: fonts.headlineMedium,
                           child:
                               Center(child: title ?? const SizedBox.shrink()),
                         ),
