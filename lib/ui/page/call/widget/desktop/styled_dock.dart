@@ -28,14 +28,11 @@ import '/ui/page/home/widget/animated_slider.dart';
 
 /// [Dock] which is used to handle the incoming and outgoing calls
 /// with buttons.
-class CallDockWidget extends StatelessWidget {
-  const CallDockWidget({
+class StyledDock extends StatelessWidget {
+  const StyledDock({
     super.key,
-    required this.isIncoming,
     this.dockKey,
     this.showBottomUi = true,
-    this.children = const <Widget>[],
-    this.isOutgoing,
     this.child,
     this.onEnter,
     this.onHover,
@@ -46,29 +43,22 @@ class CallDockWidget extends StatelessWidget {
   /// [Key] for handling [dock] widget states.
   final GlobalKey<State<StatefulWidget>>? dockKey;
 
-  /// Indicator whether the call is outgoing.
-  final bool? isOutgoing;
-
   /// Indicator whether to show the [child].
   final bool? showBottomUi;
 
-  /// Indicator whether the call is incoming.
-  final bool isIncoming;
-
-  /// [Widget] that will be shown at the bottom of the screen.
+  /// [Widget] to display at the bottom of this [StyledDock].
   final Widget? child;
 
-  /// [Widget]s to display.
-  final List<Widget> children;
-
-  /// Callback, called when the mouse cursor enters the area of this [CallDockWidget].
+  /// Callback, called when the mouse cursor enters the area of this
+  /// [StyledDock].
   final void Function(PointerEnterEvent)? onEnter;
 
   /// Callback, called when the mouse cursor moves in the area of this
-  /// [CallDockWidget].
+  /// [StyledDock].
   final void Function(PointerHoverEvent)? onHover;
 
-  /// Callback, called when the mouse cursor leaves the area of this [CallDockWidget].
+  /// Callback, called when the mouse cursor leaves the area of this
+  /// [StyledDock].
   final void Function(PointerExitEvent)? onExit;
 
   /// Callback, called every time the value of the animation changes.
@@ -122,9 +112,7 @@ class CallDockWidget extends StatelessWidget {
                     vertical: 13,
                     horizontal: 5,
                   ),
-                  child: isIncoming
-                      ? Row(mainAxisSize: MainAxisSize.min, children: children)
-                      : child,
+                  child: child,
                 ),
               ),
             ),

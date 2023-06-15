@@ -27,7 +27,7 @@ import 'package:medea_jason/medea_jason.dart';
 import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/desktop/call_dock.dart';
+import '../widget/desktop/styled_dock.dart';
 import '../widget/desktop/launchpad.dart';
 import '../widget/desktop/primary_view.dart';
 import '../widget/desktop/secondary_target.dart';
@@ -640,11 +640,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                               c.state.value != OngoingCallState.active &&
                               !isOutgoing);
 
-                      return CallDockWidget(
+                      return StyledDock(
                         dockKey: c.dockKey,
-                        isOutgoing: isOutgoing,
                         showBottomUi: showBottomUi,
-                        isIncoming: answer,
                         listener: () =>
                             Future.delayed(Duration.zero, c.relocateSecondary),
                         onEnter: (d) => c.keepUi(true),
@@ -652,49 +650,54 @@ Widget desktopCall(CallController c, BuildContext context) {
                         onExit: c.showUi.value && !c.displayMore.value
                             ? (d) => c.keepUi(false)
                             : (d) => c.keepUi(),
-                        child: Dock<CallButton>(
-                          items: c.buttons,
-                          itemWidth: CallController.buttonSize,
-                          itemBuilder: (e) => e.build(
-                            hinted: c.draggedButton.value == null,
-                          ),
-                          onReorder: (buttons) {
-                            c.buttons.clear();
-                            c.buttons.addAll(buttons);
-                            c.relocateSecondary();
-                          },
-                          onDragStarted: (b) {
-                            c.showDragAndDropButtonsHint = false;
-                            c.draggedButton.value = b;
-                          },
-                          onDragEnded: (_) => c.draggedButton.value = null,
-                          onLeave: (_) => c.displayMore.value = true,
-                          onWillAccept: (d) => d?.c == c,
-                        ),
-                        children: [
-                          const SizedBox(width: 11),
-                          SizedBox.square(
-                            dimension: CallController.buttonSize,
-                            child: AcceptAudioButton(
-                              c,
-                              highlight: !c.withVideo,
-                            ).build(),
-                          ),
-                          const SizedBox(width: 24),
-                          SizedBox.square(
-                            dimension: CallController.buttonSize,
-                            child: AcceptVideoButton(
-                              c,
-                              highlight: c.withVideo,
-                            ).build(),
-                          ),
-                          const SizedBox(width: 24),
-                          SizedBox.square(
-                            dimension: CallController.buttonSize,
-                            child: DeclineButton(c).build(),
-                          ),
-                          const SizedBox(width: 11),
-                        ],
+                        child: answer
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(width: 11),
+                                  SizedBox.square(
+                                    dimension: CallController.buttonSize,
+                                    child: AcceptAudioButton(
+                                      c,
+                                      highlight: !c.withVideo,
+                                    ).build(),
+                                  ),
+                                  const SizedBox(width: 24),
+                                  SizedBox.square(
+                                    dimension: CallController.buttonSize,
+                                    child: AcceptVideoButton(
+                                      c,
+                                      highlight: c.withVideo,
+                                    ).build(),
+                                  ),
+                                  const SizedBox(width: 24),
+                                  SizedBox.square(
+                                    dimension: CallController.buttonSize,
+                                    child: DeclineButton(c).build(),
+                                  ),
+                                  const SizedBox(width: 11),
+                                ],
+                              )
+                            : Dock<CallButton>(
+                                items: c.buttons,
+                                itemWidth: CallController.buttonSize,
+                                itemBuilder: (e) => e.build(
+                                  hinted: c.draggedButton.value == null,
+                                ),
+                                onReorder: (buttons) {
+                                  c.buttons.clear();
+                                  c.buttons.addAll(buttons);
+                                  c.relocateSecondary();
+                                },
+                                onDragStarted: (b) {
+                                  c.showDragAndDropButtonsHint = false;
+                                  c.draggedButton.value = b;
+                                },
+                                onDragEnded: (_) =>
+                                    c.draggedButton.value = null,
+                                onLeave: (_) => c.displayMore.value = true,
+                                onWillAccept: (d) => d?.c == c,
+                              ),
                       );
                     }),
                     Obx(() {

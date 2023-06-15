@@ -54,7 +54,7 @@ abstract class CallButton {
 
 /// [CallButton] toggling a more panel.
 class MoreButton extends CallButton {
-  MoreButton(super.c);
+  const MoreButton(super.c);
 
   @override
   bool get isRemovable => false;

@@ -24,7 +24,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import '../../home/widget/avatar.dart';
 import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
@@ -44,8 +43,8 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/mobile/animated_participant.dart';
 import '/ui/page/call/widget/mobile/chat_card_preview.dart';
-
-import '../widget/mobile/button_with_description.dart';
+import '/ui/page/call/widget/mobile/button_with_description.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -656,15 +655,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                                             : SpeakerButton(c)
                                                 .build(blur: true),
                                       ),
-                                    padding(
-                                      AudioButton(c).build(blur: true),
-                                    ),
-                                    padding(
-                                      VideoButton(c).build(blur: true),
-                                    ),
-                                    padding(
-                                      CancelButton(c).build(blur: true),
-                                    ),
+                                    padding(AudioButton(c).build(blur: true)),
+                                    padding(VideoButton(c).build(blur: true)),
+                                    padding(CancelButton(c).build(blur: true)),
                                   ]
                                 : [
                                     padding(
