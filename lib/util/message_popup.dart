@@ -30,6 +30,7 @@ class MessagePopup {
   /// Shows an error popup with the provided argument.
   static Future<void> error(dynamic e) async {
     var message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
+
     await showDialog(
       context: router.context!,
       builder: (context) => AlertDialog(
