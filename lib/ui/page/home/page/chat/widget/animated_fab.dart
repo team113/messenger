@@ -24,6 +24,7 @@ import '/themes.dart';
 import 'circular_inkwell.dart';
 
 /// Animated button with expandable on toggle [actions].
+@Deprecated('This widget is not used.')
 class AnimatedFab extends StatefulWidget {
   const AnimatedFab({
     super.key,

@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_subtitle.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -37,7 +38,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -145,6 +145,11 @@ class _ChatViewState extends State<ChatView>
 
           final bool isMonolog = c.chat!.chat.value.isMonolog;
 
+          // final Set<UserId> actualMembers = c
+          //     .chat!.chat.value.ongoingCall!.members
+          //     .map((k) => k.user.id)
+          //     .toSet();
+
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
@@ -196,7 +201,101 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    if (!isMonolog) _chatSubtitle(c),
+                                    if (!isMonolog)
+                                      Obx(() {
+                                        final Iterable<String> typings = c
+                                            .chat!.typingUsers
+                                            .where((e) => e.id != c.me)
+                                            .map((e) =>
+                                                e.name?.val ?? e.num.val);
+                                        final ChatMember? partner = c
+                                            .chat!.chat.value.members
+                                            .firstWhereOrNull(
+                                                (u) => u.user.id != c.me);
+
+                                        final bool ongoingCall =
+                                            c.chat!.chat.value.ongoingCall !=
+                                                null;
+
+                                        final Set<UserId>? actualMembers = c
+                                            .chat!
+                                            .chat
+                                            .value
+                                            .ongoingCall
+                                            ?.members
+                                            .map((k) => k.user.id)
+                                            .toSet();
+
+                                        return ChatSubtitle(
+                                          text:
+                                              typings.join('comma_space'.l10n),
+                                          groupSubtitle:
+                                              c.chat!.chat.value.getSubtitle(),
+                                          ongoingCall: ongoingCall,
+                                          label: ongoingCall
+                                              ? 'label_a_of_b'.l10nfmt(
+                                                  {
+                                                    'a': actualMembers?.length,
+                                                    'b': c.chat!.members.length
+                                                  },
+                                                )
+                                              : null,
+                                          isGroup: c.chat!.chat.value.isGroup,
+                                          isDialog: c.chat!.chat.value.isDialog,
+                                          isTyping: c.chat?.typingUsers
+                                                  .any((e) => e.id != c.me) ==
+                                              true,
+                                          muted:
+                                              c.chat?.chat.value.muted != null,
+                                          partner: partner != null,
+                                          duration: c.duration.value?.hhMmSs(),
+                                          child: FutureBuilder<RxUser?>(
+                                            future: c.getUser(partner!.user.id),
+                                            builder: (_, snapshot) {
+                                              if (snapshot.data != null) {
+                                                final String? subtitle = c
+                                                    .chat!.chat.value
+                                                    .getSubtitle(
+                                                        partner: snapshot
+                                                            .data!.user.value);
+
+                                                final UserTextStatus? status =
+                                                    snapshot.data!.user.value
+                                                        .status;
+
+                                                if (status != null ||
+                                                    subtitle != null) {
+                                                  final StringBuffer buffer =
+                                                      StringBuffer(
+                                                          status ?? '');
+
+                                                  if (status != null &&
+                                                      subtitle != null) {
+                                                    buffer.write(
+                                                        'space_vertical_space'
+                                                            .l10n);
+                                                  }
+
+                                                  buffer.write(subtitle ?? '');
+
+                                                  return Text(
+                                                    buffer.toString(),
+                                                    style: fonts.bodySmall!
+                                                        .copyWith(
+                                                      color: style
+                                                          .colors.secondary,
+                                                    ),
+                                                  );
+                                                }
+
+                                                return const SizedBox();
+                                              }
+
+                                              return const SizedBox();
+                                            },
+                                          ),
+                                        );
+                                      }),
                                   ],
                                 ),
                               ),
@@ -830,154 +929,6 @@ class _ChatViewState extends State<ChatView>
     }
 
     return const SizedBox();
-  }
-
-  /// Returns a header subtitle of the [Chat].
-  Widget _chatSubtitle(ChatController c) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Obx(() {
-      Rx<Chat> chat = c.chat!.chat;
-
-      if (chat.value.ongoingCall != null) {
-        final subtitle = StringBuffer();
-        if (!context.isMobile) {
-          subtitle.write(
-              '${'label_call_active'.l10n}${'space_vertical_space'.l10n}');
-        }
-
-        final Set<UserId> actualMembers =
-            chat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
-        subtitle.write(
-          'label_a_of_b'.l10nfmt(
-            {'a': actualMembers.length, 'b': c.chat!.members.length},
-          ),
-        );
-
-        if (c.duration.value != null) {
-          subtitle.write(
-            '${'space_vertical_space'.l10n}${c.duration.value?.hhMmSs()}',
-          );
-        }
-
-        return Text(
-          subtitle.toString(),
-          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-        );
-      }
-
-      bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
-      if (isTyping) {
-        if (c.chat?.chat.value.isGroup == false) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'label_typing'.l10n,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
-              ),
-              const SizedBox(width: 3),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 3),
-                child: AnimatedTyping(),
-              ),
-            ],
-          );
-        }
-
-        Iterable<String> typings = c.chat!.typingUsers
-            .where((e) => e.id != c.me)
-            .map((e) => e.name?.val ?? e.num.val);
-
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Flexible(
-              child: Text(
-                typings.join('comma_space'.l10n),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
-              ),
-            ),
-            const SizedBox(width: 3),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 3),
-              child: AnimatedTyping(),
-            ),
-          ],
-        );
-      }
-
-      if (chat.value.isGroup) {
-        final String? subtitle = chat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(
-            subtitle,
-            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-          );
-        }
-      } else if (chat.value.isDialog) {
-        final ChatMember? partner =
-            chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
-        if (partner != null) {
-          return Row(
-            children: [
-              if (c.chat?.chat.value.muted != null) ...[
-                SvgImage.asset(
-                  'assets/icons/muted_dark.svg',
-                  width: 19.99 * 0.6,
-                  height: 15 * 0.6,
-                ),
-                const SizedBox(width: 5),
-              ],
-              Flexible(
-                child: FutureBuilder<RxUser?>(
-                  future: c.getUser(partner.user.id),
-                  builder: (_, snapshot) {
-                    if (snapshot.data != null) {
-                      return Obx(() {
-                        final String? subtitle = c.chat!.chat.value
-                            .getSubtitle(partner: snapshot.data!.user.value);
-
-                        final UserTextStatus? status =
-                            snapshot.data!.user.value.status;
-
-                        if (status != null || subtitle != null) {
-                          final StringBuffer buffer =
-                              StringBuffer(status ?? '');
-
-                          if (status != null && subtitle != null) {
-                            buffer.write('space_vertical_space'.l10n);
-                          }
-
-                          buffer.write(subtitle ?? '');
-
-                          return Text(
-                            buffer.toString(),
-                            style: fonts.bodySmall!.copyWith(
-                              color: style.colors.secondary,
-                            ),
-                          );
-                        }
-
-                        return const SizedBox();
-                      });
-                    }
-
-                    return const SizedBox();
-                  },
-                ),
-              ),
-            ],
-          );
-        }
-      }
-
-      return const SizedBox();
-    });
   }
 
   /// Returns a centered [time] label.

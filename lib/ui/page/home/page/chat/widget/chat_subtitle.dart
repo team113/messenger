@@ -16,17 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
 
@@ -34,93 +27,86 @@ import '/ui/widget/svg/svg.dart';
 class ChatSubtitle extends StatelessWidget {
   const ChatSubtitle({
     super.key,
-    required this.duration,
-    required this.getUser,
-    this.chat,
-    this.me,
+    required this.text,
+    required this.child,
+    this.groupSubtitle,
+    this.label,
+    this.duration,
+    this.ongoingCall = true,
+    this.isGroup = true,
+    this.isDialog = false,
+    this.isTyping = false,
+    this.muted = false,
+    this.partner = true,
   });
 
-  /// [RxChat] of this page.
-  final RxChat? chat;
+  ///
+  final String text;
 
-  /// [UserId] which represents the current user's ID.
-  final UserId? me;
+  ///
+  final String? groupSubtitle;
 
-  /// Duration of a [Chat.ongoingCall].
-  final Rx<Duration?> duration;
+  ///
+  final String? label;
 
-  /// Returns an [User] by the provided id.
-  final Future<RxUser?> Function(UserId id) getUser;
+  ///
+  final bool ongoingCall;
+
+  ///
+  final bool isGroup;
+
+  ///
+  final bool isDialog;
+
+  ///
+  final bool isTyping;
+
+  ///
+  final bool muted;
+
+  ///
+  final bool partner;
+
+  ///
+  final String? duration;
+
+  ///
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    return Obx(() {
-      Rx<Chat> rxChat = chat!.chat;
+    if (ongoingCall) {
+      final subtitle = StringBuffer();
+      if (!context.isMobile) {
+        subtitle
+            .write('${'label_call_active'.l10n}${'space_vertical_space'.l10n}');
+      }
 
-      if (rxChat.value.ongoingCall != null) {
-        final subtitle = StringBuffer();
-        if (!context.isMobile) {
-          subtitle.write(
-              '${'label_call_active'.l10n}${'space_vertical_space'.l10n}');
-        }
+      subtitle.write(label);
 
-        final Set<UserId> actualMembers =
-            rxChat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
+      if (duration != null) {
         subtitle.write(
-          'label_a_of_b'.l10nfmt(
-            {'a': actualMembers.length, 'b': chat!.members.length},
-          ),
-        );
-
-        if (duration.value != null) {
-          subtitle.write(
-            '${'space_vertical_space'.l10n}${duration.value?.hhMmSs()}',
-          );
-        }
-
-        return Text(
-          subtitle.toString(),
-          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+          '${'space_vertical_space'.l10n}$duration',
         );
       }
 
-      bool isTyping = chat?.typingUsers.any((e) => e.id != me) == true;
-      if (isTyping) {
-        if (chat?.chat.value.isGroup == false) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'label_typing'.l10n,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
-              ),
-              const SizedBox(width: 3),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 3),
-                child: AnimatedTyping(),
-              ),
-            ],
-          );
-        }
+      return Text(
+        subtitle.toString(),
+        style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+      );
+    }
 
-        Iterable<String> typings = chat!.typingUsers
-            .where((e) => e.id != me)
-            .map((e) => e.name?.val ?? e.num.val);
-
+    if (isTyping) {
+      if (!isGroup) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Flexible(
-              child: Text(
-                typings.join('comma_space'.l10n),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
-              ),
+            Text(
+              'label_typing'.l10n,
+              style: fonts.labelMedium!.copyWith(color: style.colors.primary),
             ),
             const SizedBox(width: 3),
             const Padding(
@@ -131,72 +117,52 @@ class ChatSubtitle extends StatelessWidget {
         );
       }
 
-      if (rxChat.value.isGroup) {
-        final String? subtitle = rxChat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(
-            subtitle,
-            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-          );
-        }
-      } else if (rxChat.value.isDialog) {
-        final ChatMember? partner =
-            rxChat.value.members.firstWhereOrNull((u) => u.user.id != me);
-        if (partner != null) {
-          return Row(
-            children: [
-              if (chat?.chat.value.muted != null) ...[
-                SvgImage.asset(
-                  'assets/icons/muted_dark.svg',
-                  width: 19.99 * 0.6,
-                  height: 15 * 0.6,
-                ),
-                const SizedBox(width: 5),
-              ],
-              Flexible(
-                child: FutureBuilder<RxUser?>(
-                  future: getUser(partner.user.id),
-                  builder: (_, snapshot) {
-                    if (snapshot.data != null) {
-                      return Obx(() {
-                        final String? subtitle = chat!.chat.value
-                            .getSubtitle(partner: snapshot.data!.user.value);
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+            ),
+          ),
+          const SizedBox(width: 3),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 3),
+            child: AnimatedTyping(),
+          ),
+        ],
+      );
+    }
 
-                        final UserTextStatus? status =
-                            snapshot.data!.user.value.status;
-
-                        if (status != null || subtitle != null) {
-                          final StringBuffer buffer =
-                              StringBuffer(status ?? '');
-
-                          if (status != null && subtitle != null) {
-                            buffer.write('space_vertical_space'.l10n);
-                          }
-
-                          buffer.write(subtitle ?? '');
-
-                          return Text(
-                            buffer.toString(),
-                            style: fonts.bodySmall!.copyWith(
-                              color: style.colors.secondary,
-                            ),
-                          );
-                        }
-
-                        return const SizedBox();
-                      });
-                    }
-
-                    return const SizedBox();
-                  },
-                ),
-              ),
-            ],
-          );
-        }
+    if (isGroup) {
+      if (groupSubtitle != null) {
+        return Text(
+          groupSubtitle!,
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        );
       }
+    } else if (isDialog) {
+      if (partner) {
+        return Row(
+          children: [
+            if (muted) ...[
+              SvgImage.asset(
+                'assets/icons/muted_dark.svg',
+                width: 19.99 * 0.6,
+                height: 15 * 0.6,
+              ),
+              const SizedBox(width: 5),
+            ],
+            Flexible(child: child),
+          ],
+        );
+      }
+    }
 
-      return const SizedBox();
-    });
+    return const SizedBox();
   }
 }

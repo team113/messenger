@@ -22,17 +22,14 @@ import 'dart:ui';
 
 import 'package:chewie/chewie.dart';
 import 'package:chewie/src/animated_play_pause.dart';
-import 'package:chewie/src/helpers/utils.dart';
-import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/bottom_control_bar.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
-import 'video_progress_bar.dart';
 import 'volume_bar.dart';
 
 /// Desktop video controls for a [Chewie] player.
@@ -177,7 +174,50 @@ class _DesktopControlsState extends State<DesktopControls>
             }),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: [_buildBottomBar(context)],
+              children: [
+                BottomControlBar(
+                  controller: widget.controller,
+                  volumeKey: _volumeKey,
+                  barHeight: _barHeight,
+                  isOpen: _showBottomBar || _showInterface,
+                  isFullscreen: widget.isFullscreen?.value == true,
+                  playPause: _playPause,
+                  onTap2: _onExpandCollapse,
+                  onTap: () {
+                    _cancelAndRestartTimer();
+                    if (widget.controller.volume.value == 0) {
+                      widget.controller.setVolume(_latestVolume ?? 0.5);
+                    } else {
+                      _latestVolume = widget.controller.volume.value;
+                      widget.controller.setVolume(0.0);
+                    }
+                  },
+                  onDragStart: () {
+                    setState(() => _dragging = true);
+                    _hideTimer?.cancel();
+                  },
+                  onDragEnd: () {
+                    setState(() => _dragging = false);
+                    _startHideTimer();
+                  },
+                  onEnter: (_) {
+                    if (mounted && _volumeEntry == null) {
+                      Offset offset = Offset.zero;
+                      final keyContext = _volumeKey.currentContext;
+                      if (keyContext != null) {
+                        final box = keyContext.findRenderObject() as RenderBox;
+                        offset = box.localToGlobal(Offset.zero);
+                      }
+
+                      _volumeEntry =
+                          OverlayEntry(builder: (_) => _volumeOverlay(offset));
+                      Overlay.of(context, rootOverlay: true)
+                          .insert(_volumeEntry!);
+                      setState(() {});
+                    }
+                  },
+                )
+              ],
             ),
             Align(
               alignment: Alignment.bottomCenter,
@@ -202,73 +242,6 @@ class _DesktopControlsState extends State<DesktopControls>
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  /// Returns the bottom controls bar.
-  Widget _buildBottomBar(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return AnimatedSlider(
-      duration: const Duration(milliseconds: 300),
-      isOpen: _showBottomBar || _showInterface,
-      translate: false,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8, left: 32, right: 32),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
-              height: 32,
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: style.colors.onBackgroundOpacity40,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(width: 7),
-                  _buildPlayPause(widget.controller),
-                  const SizedBox(width: 12),
-                  _buildPosition(fonts.labelLarge!.color),
-                  const SizedBox(width: 12),
-                  _buildProgressBar(),
-                  const SizedBox(width: 12),
-                  _buildMuteButton(widget.controller),
-                  const SizedBox(width: 12),
-                  _buildExpandButton(),
-                  const SizedBox(width: 12),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the fullscreen toggling button.
-  Widget _buildExpandButton() {
-    final style = Theme.of(context).style;
-
-    return Obx(
-      () => GestureDetector(
-        onTap: _onExpandCollapse,
-        child: SizedBox(
-          height: _barHeight,
-          child: Center(
-            child: Icon(
-              widget.isFullscreen?.value == true
-                  ? Icons.fullscreen_exit
-                  : Icons.fullscreen,
-              color: style.colors.onPrimary,
-              size: 21,
-            ),
-          ),
         ),
       ),
     );
@@ -313,77 +286,6 @@ class _DesktopControlsState extends State<DesktopControls>
         ),
       );
     });
-  }
-
-  /// Returns the play/pause button.
-  Widget _buildPlayPause(MeeduPlayerController controller) {
-    final style = Theme.of(context).style;
-
-    return Transform.translate(
-      offset: const Offset(0, 0),
-      child: GestureDetector(
-        onTap: _playPause,
-        child: Container(
-          height: _barHeight,
-          color: style.colors.transparent,
-          child: RxBuilder((_) {
-            return AnimatedPlayPause(
-              size: 21,
-              playing: controller.playerStatus.playing,
-              color: style.colors.onPrimary,
-            );
-          }),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the mute/unmute button with a volume overlay above it.
-  Widget _buildMuteButton(MeeduPlayerController controller) {
-    final style = Theme.of(context).style;
-
-    return MouseRegion(
-      onEnter: (_) {
-        if (mounted && _volumeEntry == null) {
-          Offset offset = Offset.zero;
-          final keyContext = _volumeKey.currentContext;
-          if (keyContext != null) {
-            final box = keyContext.findRenderObject() as RenderBox;
-            offset = box.localToGlobal(Offset.zero);
-          }
-
-          _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
-          Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
-          setState(() {});
-        }
-      },
-      child: GestureDetector(
-        onTap: () {
-          _cancelAndRestartTimer();
-          if (widget.controller.volume.value == 0) {
-            controller.setVolume(_latestVolume ?? 0.5);
-          } else {
-            _latestVolume = controller.volume.value;
-            controller.setVolume(0.0);
-          }
-        },
-        child: ClipRect(
-          child: SizedBox(
-            key: _volumeKey,
-            height: _barHeight,
-            child: RxBuilder((_) {
-              return Icon(
-                widget.controller.volume.value > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                color: style.colors.onPrimary,
-                size: 18,
-              );
-            }),
-          ),
-        ),
-      ),
-    );
   }
 
   /// Returns the [_volumeEntry] overlay.
@@ -450,49 +352,6 @@ class _DesktopControlsState extends State<DesktopControls>
           ),
         ),
       ],
-    );
-  }
-
-  /// Returns the [Text] of the current video position.
-  Widget _buildPosition(Color? iconColor) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return RxBuilder((_) {
-      final position = widget.controller.position.value;
-      final duration = widget.controller.duration.value;
-
-      return Text(
-        '${formatDuration(position)} / ${formatDuration(duration)}',
-        style: fonts.headlineSmall!.copyWith(color: style.colors.onPrimary),
-      );
-    });
-  }
-
-  /// Returns the [VideoProgressBar] of the current video progression.
-  Widget _buildProgressBar() {
-    final style = Theme.of(context).style;
-
-    return Expanded(
-      child: ProgressBar(
-        widget.controller,
-        barHeight: 2,
-        handleHeight: 6,
-        drawShadow: false,
-        onDragStart: () {
-          setState(() => _dragging = true);
-          _hideTimer?.cancel();
-        },
-        onDragEnd: () {
-          setState(() => _dragging = false);
-          _startHideTimer();
-        },
-        colors: ChewieProgressColors(
-          playedColor: style.colors.primary,
-          handleColor: style.colors.primary,
-          bufferedColor: style.colors.background.withOpacity(0.5),
-          backgroundColor: style.colors.secondary.withOpacity(0.5),
-        ),
-      ),
     );
   }
 
