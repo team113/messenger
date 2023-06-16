@@ -850,20 +850,22 @@ class _ChatViewState extends State<ChatView>
     }
 
     return Obx(() {
-      return c.edit.value != null
-          ? MessageFieldView(
-              key: const Key('EditField'),
-              controller: c.edit.value,
-              onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-              canAttach: false,
-            )
-          : MessageFieldView(
-              key: const Key('SendField'),
-              controller: c.send,
-              onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
-              onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-              canForward: true,
-            );
+      if (c.edit.value != null) {
+        return MessageFieldView(
+          key: const Key('EditField'),
+          controller: c.edit.value,
+          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+          canAttach: false,
+        );
+      }
+
+      return MessageFieldView(
+        key: const Key('SendField'),
+        controller: c.send,
+        onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
+        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+        canForward: true,
+      );
     });
   }
 

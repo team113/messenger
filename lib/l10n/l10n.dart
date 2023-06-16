@@ -166,7 +166,7 @@ extension L10nDateExtension on DateTime {
   String toRelative([DateTime? now]) {
     DateTime local = isUtc ? toLocal() : this;
     DateTime relative = now ?? DateTime.now();
-    int days = relative.julianDayNumber() - local.julianDayNumber();
+    int days = relative._julianDayNumber() - local._julianDayNumber();
 
     int months = 0;
     if (days >= 28) {
@@ -186,7 +186,7 @@ extension L10nDateExtension on DateTime {
   }
 
   /// Returns a Julian day number of this [DateTime].
-  int julianDayNumber() {
+  int _julianDayNumber() {
     final int c0 = ((month - 3) / 12).floor();
     final int x4 = year + c0;
     final int x3 = (x4 / 100).floor();

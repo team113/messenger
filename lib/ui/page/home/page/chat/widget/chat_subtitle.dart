@@ -32,7 +32,8 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
-/// [Row] containing details about the provided [chat].
+/// [Row] containing details about the provided [chat], such as the
+/// [RxChat.typingUsers], its [OngoingCall], if any, or a [RxUser]'s status.
 class ChatSubtitle extends StatelessWidget {
   const ChatSubtitle({
     super.key,
@@ -42,7 +43,7 @@ class ChatSubtitle extends StatelessWidget {
     this.me,
   });
 
-  /// [RxChat] to .
+  /// [RxChat] to display the information about.
   final RxChat? chat;
 
   /// ID of the person currently signed in to the chat.
