@@ -1260,7 +1260,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
                     style.colors.userColors.length];
 
-        // No way to apply borderRadius for [BorderSide].
         return ClipRRect(
           borderRadius: style.cardRadius,
           child: Container(

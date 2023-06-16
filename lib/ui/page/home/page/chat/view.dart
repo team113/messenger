@@ -410,10 +410,14 @@ class _ChatViewState extends State<ChatView>
                               );
 
                               if (PlatformUtils.isMobile) {
-                                return Scrollbar(
-                                  controller: c.listController,
-                                  child: child,
-                                );
+                                if (!PlatformUtils.isWeb) {
+                                  return Scrollbar(
+                                    controller: c.listController,
+                                    child: child,
+                                  );
+                                } else {
+                                  return child;
+                                }
                               }
 
                               return SelectionArea(
