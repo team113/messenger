@@ -549,7 +549,7 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: SizeChangedLayoutNotifier(
                           key: c.bottomBarKey,
-                          child: BottomBar(
+                          child: _BottomBar(
                             sendController: c.send,
                             editController: c.edit.value,
                             blacklisted: c.chat?.blacklisted == true,
@@ -993,8 +993,8 @@ class AllowMultipleHorizontalDragGestureRecognizer
 
 /// [Widget] which returns a bottom bar of this [ChatView] to display under
 /// the messages list containing a send/edit field or [UnblockButton].
-class BottomBar extends StatelessWidget {
-  const BottomBar({
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({
     this.editController,
     this.sendController,
     this.onTap,
