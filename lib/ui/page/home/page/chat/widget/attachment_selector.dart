@@ -137,7 +137,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         child: Center(
           child: SvgImage.asset(
             'assets/icons/file.svg',
-            height: 28,
+            height: 29,
           ),
         ),
       ),
