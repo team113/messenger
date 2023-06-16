@@ -29,6 +29,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -145,6 +146,19 @@ class _ChatViewState extends State<ChatView>
 
           final bool isMonolog = c.chat!.chat.value.isMonolog;
 
+          final Iterable<String> typings = c.chat!.typingUsers
+              .where((e) => e.id != c.me)
+              .map((e) => e.name?.val ?? e.num.val);
+          final ChatMember? partner = c.chat!.chat.value.members
+              .firstWhereOrNull((u) => u.user.id != c.me);
+
+          final bool ongoingCall = c.chat!.chat.value.ongoingCall != null;
+
+          final Set<UserId>? actualMembers = c
+              .chat!.chat.value.ongoingCall?.members
+              .map((k) => k.user.id)
+              .toSet();
+
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
@@ -198,10 +212,28 @@ class _ChatViewState extends State<ChatView>
                                     }),
                                     if (!isMonolog)
                                       ChatSubtitle(
-                                        chat: c.chat,
-                                        me: c.me,
-                                        duration: c.duration.value,
-                                        getUser: c.getUser,
+                                        text: typings.join('comma_space'.l10n),
+                                        groupSubtitle:
+                                            c.chat!.chat.value.getSubtitle(),
+                                        ongoingCall: ongoingCall,
+                                        isGroup: c.chat!.chat.value.isGroup,
+                                        isDialog: c.chat!.chat.value.isDialog,
+                                        isTyping: c.chat?.typingUsers
+                                                .any((e) => e.id != c.me) ==
+                                            true,
+                                        muted: c.chat?.chat.value.muted != null,
+                                        partner: partner != null,
+                                        subtitle: _buildSubtitle(
+                                          context,
+                                          ongoingCall
+                                              ? 'label_a_of_b'.l10nfmt({
+                                                  'a': actualMembers?.length,
+                                                  'b': c.chat!.members.length
+                                                })
+                                              : null,
+                                          c.duration.value?.hhMmSs(),
+                                        ),
+                                        child: _userBuilder(context, c),
                                       ),
                                   ],
                                 ),
@@ -565,6 +597,73 @@ class _ChatViewState extends State<ChatView>
             ),
           );
         });
+      },
+    );
+  }
+
+  /// Builds a visual representation of a subtitle of the [ChatSubtitle].
+  Text _buildSubtitle(BuildContext context, String? label, String? duration) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    final List<TextSpan> spans = [];
+    if (!context.isMobile) {
+      spans.add(TextSpan(text: 'label_call_active'.l10n));
+      spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+    }
+
+    spans.add(TextSpan(text: label));
+
+    if (duration != null) {
+      spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+      spans.add(TextSpan(text: duration));
+    }
+
+    return Text.rich(
+      TextSpan(
+        children: spans,
+        style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+      ),
+    );
+  }
+
+  /// Builds a [FutureBuilder] returning a [RxUser] fetched by the
+  /// provided [id].
+  Widget _userBuilder(BuildContext context, ChatController c) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    final ChatMember? partner =
+        c.chat!.chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
+
+    return FutureBuilder<RxUser?>(
+      future: c.getUser(partner!.user.id),
+      builder: (_, snapshot) {
+        if (snapshot.data != null) {
+          final String? subtitle = c.chat!.chat.value
+              .getSubtitle(partner: snapshot.data!.user.value);
+
+          final UserTextStatus? status = snapshot.data!.user.value.status;
+
+          if (status != null || subtitle != null) {
+            final StringBuffer buffer = StringBuffer(status ?? '');
+
+            if (status != null && subtitle != null) {
+              buffer.write('space_vertical_space'.l10n);
+            }
+
+            buffer.write(subtitle ?? '');
+
+            return Text(
+              buffer.toString(),
+              style: fonts.bodySmall!.copyWith(
+                color: style.colors.secondary,
+              ),
+            );
+          }
+
+          return const SizedBox();
+        }
+
+        return const SizedBox();
       },
     );
   }
