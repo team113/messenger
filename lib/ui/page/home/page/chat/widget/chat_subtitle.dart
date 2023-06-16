@@ -27,7 +27,7 @@ class ChatSubtitle extends StatelessWidget {
   const ChatSubtitle({
     super.key,
     required this.text,
-    required this.child,
+    this.child,
     this.subtitle,
     this.groupSubtitle,
     this.ongoingCall = true,
@@ -63,7 +63,7 @@ class ChatSubtitle extends StatelessWidget {
   final bool partner;
 
   /// [Widget] to display
-  final Widget child;
+  final Widget? child;
 
   /// Subtitle [Widget] of this [ChatSubtitle].
   final Widget? subtitle;
@@ -72,7 +72,7 @@ class ChatSubtitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    if (ongoingCall || subtitle != null) {
+    if (ongoingCall && subtitle != null) {
       return subtitle!;
     }
 
@@ -135,7 +135,7 @@ class ChatSubtitle extends StatelessWidget {
               ),
               const SizedBox(width: 5),
             ],
-            Flexible(child: child),
+            if (child != null) child!,
           ],
         );
       }

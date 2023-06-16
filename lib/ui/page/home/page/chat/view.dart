@@ -549,7 +549,7 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: SizeChangedLayoutNotifier(
                           key: c.bottomBarKey,
-                          child: _BottomBar(
+                          child: BottomBar(
                             sendController: c.send,
                             editController: c.edit.value,
                             blacklisted: c.chat?.blacklisted == true,
@@ -642,41 +642,48 @@ class _ChatViewState extends State<ChatView>
   Widget _userBuilder(BuildContext context, ChatController c) {
     final (style, fonts) = Theme.of(context).styles;
 
+    final Rx<Chat> chat = c.chat!.chat;
+
     final ChatMember? partner =
-        c.chat!.chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
+        chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
 
-    return FutureBuilder<RxUser?>(
-      future: c.getUser(partner!.user.id),
-      builder: (_, snapshot) {
-        if (snapshot.data != null) {
-          final String? subtitle = c.chat!.chat.value
-              .getSubtitle(partner: snapshot.data!.user.value);
+    if (partner != null) {
+      return Flexible(
+        child: FutureBuilder<RxUser?>(
+          future: c.getUser(partner.user.id),
+          builder: (_, snapshot) {
+            if (snapshot.data != null) {
+              final String? subtitle =
+                  chat.value.getSubtitle(partner: snapshot.data!.user.value);
 
-          final UserTextStatus? status = snapshot.data!.user.value.status;
+              final UserTextStatus? status = snapshot.data!.user.value.status;
 
-          if (status != null || subtitle != null) {
-            final StringBuffer buffer = StringBuffer(status ?? '');
+              if (status != null || subtitle != null) {
+                final StringBuffer buffer = StringBuffer(status ?? '');
 
-            if (status != null && subtitle != null) {
-              buffer.write('space_vertical_space'.l10n);
+                if (status != null && subtitle != null) {
+                  buffer.write('space_vertical_space'.l10n);
+                }
+
+                buffer.write(subtitle ?? '');
+
+                return Text(
+                  buffer.toString(),
+                  style: fonts.bodySmall!.copyWith(
+                    color: style.colors.secondary,
+                  ),
+                );
+              }
+
+              return const SizedBox();
             }
 
-            buffer.write(subtitle ?? '');
-
-            return Text(
-              buffer.toString(),
-              style: fonts.bodySmall!.copyWith(
-                color: style.colors.secondary,
-              ),
-            );
-          }
-
-          return const SizedBox();
-        }
-
-        return const SizedBox();
-      },
-    );
+            return const SizedBox();
+          },
+        ),
+      );
+    }
+    return const SizedBox();
   }
 
   /// Builds a visual representation of a [ListElement] identified by the
@@ -986,8 +993,8 @@ class AllowMultipleHorizontalDragGestureRecognizer
 
 /// [Widget] which returns a bottom bar of this [ChatView] to display under
 /// the messages list containing a send/edit field or [UnblockButton].
-class _BottomBar extends StatelessWidget {
-  const _BottomBar({
+class BottomBar extends StatelessWidget {
+  const BottomBar({
     this.editController,
     this.sendController,
     this.onTap,
