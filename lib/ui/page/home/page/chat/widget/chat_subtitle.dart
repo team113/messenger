@@ -16,8 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/l10n/l10n.dart';
 
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
@@ -38,10 +38,10 @@ class ChatSubtitle extends StatelessWidget {
     this.partner = true,
   });
 
-  /// [Text] to display in this [ChatSubtitle] when chat [isGroup] was `false`.
+  /// [Text] to display in this [ChatSubtitle] when [isGroup] was `false`.
   final String text;
 
-  /// [Text] to display in this [ChatSubtitle] when chat [isGroup] was `true`.
+  /// [Text] to display in this [ChatSubtitle] when [isGroup] was `true`.
   final String? groupSubtitle;
 
   /// Indicator whether a chat call is in progress.
