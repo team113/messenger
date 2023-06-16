@@ -209,9 +209,8 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
-    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
       isOpen: _showBottomBar || _showInterface,
@@ -235,7 +234,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   const SizedBox(width: 7),
                   _buildPlayPause(widget.controller),
                   const SizedBox(width: 12),
-                  _buildPosition(iconColor),
+                  _buildPosition(fonts.labelLarge!.color),
                   const SizedBox(width: 12),
                   _buildProgressBar(),
                   const SizedBox(width: 12),
@@ -254,7 +253,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Obx(
       () => GestureDetector(
@@ -277,7 +276,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return RxBuilder((_) {
       final bool isFinished =
@@ -318,7 +317,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the play/pause button.
   Widget _buildPlayPause(MeeduPlayerController controller) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Transform.translate(
       offset: const Offset(0, 0),
@@ -341,7 +340,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the mute/unmute button with a volume overlay above it.
   Widget _buildMuteButton(MeeduPlayerController controller) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       onEnter: (_) {
@@ -389,7 +388,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Stack(
       children: [
@@ -456,7 +455,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return RxBuilder((_) {
       final position = widget.controller.position.value;
@@ -464,14 +463,14 @@ class _DesktopControlsState extends State<DesktopControls>
 
       return Text(
         '${formatDuration(position)} / ${formatDuration(duration)}',
-        style: TextStyle(fontSize: 14.0, color: style.colors.onPrimary),
+        style: fonts.headlineSmall!.copyWith(color: style.colors.onPrimary),
       );
     });
   }
 
   /// Returns the [VideoProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Expanded(
       child: ProgressBar(

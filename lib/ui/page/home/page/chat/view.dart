@@ -96,7 +96,7 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
@@ -449,6 +449,7 @@ class _ChatViewState extends State<ChatView>
                                               .l10n
                                           : 'label_no_messages'.l10n,
                                       textAlign: TextAlign.center,
+                                      style: fonts.labelMedium,
                                     ),
                                   ),
                                 );
@@ -566,7 +567,7 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
@@ -834,9 +835,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -862,7 +861,10 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(subtitle.toString(), style: textStyle);
+        return Text(
+          subtitle.toString(),
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        );
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -874,7 +876,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: textStyle?.copyWith(color: style.colors.primary),
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -898,7 +900,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: textStyle?.copyWith(color: style.colors.primary),
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -913,7 +915,10 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.isGroup) {
         final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
-          return Text(subtitle, style: textStyle);
+          return Text(
+            subtitle,
+            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+          );
         }
       } else if (chat.value.isDialog) {
         final ChatMember? partner =
@@ -951,7 +956,12 @@ class _ChatViewState extends State<ChatView>
 
                           buffer.write(subtitle ?? '');
 
-                          return Text(buffer.toString(), style: textStyle);
+                          return Text(
+                            buffer.toString(),
+                            style: fonts.bodySmall!.copyWith(
+                              color: style.colors.secondary,
+                            ),
+                          );
                         }
 
                         return const SizedBox();
@@ -973,7 +983,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1007,7 +1017,9 @@ class _ChatViewState extends State<ChatView>
                 ),
                 child: Text(
                   time.toRelative(),
-                  style: style.systemMessageStyle,
+                  style: fonts.bodySmall!.copyWith(
+                    color: style.colors.secondary,
+                  ),
                 ),
               ),
             ),
@@ -1064,7 +1076,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Builds a visual representation of an [UnreadMessagesElement].
   Widget _unreadLabel(BuildContext context, ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Container(
       width: double.infinity,
@@ -1078,7 +1090,7 @@ class _ChatViewState extends State<ChatView>
       child: Center(
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
-          style: style.systemMessageStyle,
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
         ),
       ),
     );

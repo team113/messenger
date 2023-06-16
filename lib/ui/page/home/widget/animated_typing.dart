@@ -63,7 +63,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return AnimatedBuilder(
       animation: _controller,
