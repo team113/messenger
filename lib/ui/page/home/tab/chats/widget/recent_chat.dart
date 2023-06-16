@@ -453,7 +453,11 @@ class RecentChatTile extends StatelessWidget {
         } else if (item is ChatMessage) {
           final desc = StringBuffer();
 
-          if (item.text != null) {
+          final int? donate = item.donate;
+
+          if (donate != null) {
+            desc.write('label_donate_count'.l10nfmt({'donate': donate}));
+          } else if (item.text != null) {
             desc.write(item.text!.val);
           }
 

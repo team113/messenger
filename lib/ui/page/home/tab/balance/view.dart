@@ -43,7 +43,7 @@ class BalanceTabView extends StatelessWidget {
         return Scaffold(
           // extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Text('Balance: ¤${c.balance.value.toInt()}'),
+            title: Text('Balance:  ¤${c.balance.value.toInt()}'),
             leading: [
               Obx(() {
                 final Widget child;
@@ -132,7 +132,7 @@ class BalanceTabView extends StatelessWidget {
                                     onClose: c.hintDismissed.toggle,
                                     header: Center(
                                       child: Text(
-                                        'What is ¤ (Gapopa coin)?',
+                                        'What is  ¤ (Gapopa coin)?',
                                         style: fonts.headlineMedium,
                                       ),
                                     ),
@@ -146,7 +146,7 @@ class BalanceTabView extends StatelessWidget {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        '¤ (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.\n\n¤100 = €1.00',
+                                        ' ¤ (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.\n\n ¤100 = €1.00',
                                         style: fonts.labelLarge,
                                       ),
                                     ),

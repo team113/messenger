@@ -195,7 +195,7 @@ class _MenuButtonState extends State<_MenuButton> {
                   offset: const Offset(0, 2),
                   child: ReactiveTextField(
                     padding: EdgeInsets.zero,
-                    hint: '0.00¤ (мин: 400)',
+                    hint: '0.00 ¤ (мин: 400)',
                     // maxLines: 3,
                     state: _state!,
                     onChanged: () => setState(() {}),
@@ -274,7 +274,7 @@ class _MenuButtonState extends State<_MenuButton> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Text(
-                  '${widget.button}¤',
+                  '${widget.button} ¤',
                   style: fonts.titleLarge!.copyWith(
                     color: style.colors.primary,
                   ),

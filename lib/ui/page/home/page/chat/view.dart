@@ -562,7 +562,7 @@ class _ChatViewState extends State<ChatView>
                                                     ),
                                                     child: Center(
                                                       child: Text(
-                                                        '¤',
+                                                        ' ¤',
                                                         style: style
                                                             .systemMessageStyle
                                                             .copyWith(

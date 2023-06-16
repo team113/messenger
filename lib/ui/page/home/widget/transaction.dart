@@ -105,7 +105,7 @@ class TransactionWidget extends StatelessWidget {
                                     else if (currency ==
                                         TransactionCurrency.inter)
                                       TextSpan(
-                                        text: '¤',
+                                        text: ' ¤',
                                         style: fonts.bodyLarge!.copyWith(
                                           color: selected ? Colors.white : null,
                                         ),

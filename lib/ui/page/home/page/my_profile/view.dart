@@ -1977,7 +1977,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           Padding(
             padding: const EdgeInsets.only(left: 21, bottom: 3),
             child: Text(
-              '¤',
+              ' ¤',
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 color: enabled
@@ -2114,7 +2114,7 @@ Widget _donates(BuildContext context, MyProfileController c) {
           Padding(
             padding: const EdgeInsets.only(left: 21, bottom: 3),
             child: Text(
-              '¤',
+              ' ¤',
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 color:

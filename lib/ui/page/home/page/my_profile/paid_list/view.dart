@@ -97,11 +97,11 @@ class PaidListView extends StatelessWidget {
                           subtitle: [
                             if (true) ...[
                               Text(
-                                '¤50 per message',
+                                ' ¤50 per message',
                                 style: textStyle?.copyWith(fontSize: 13),
                               ),
                               Text(
-                                '¤120 per call minute',
+                                ' ¤120 per call minute',
                                 style: textStyle?.copyWith(fontSize: 13),
                               )
                             ],

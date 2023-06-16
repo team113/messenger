@@ -326,6 +326,24 @@ class _ChatWatchData {
     final String name = author?.user.value.name?.val ?? 'x';
     final String num = author?.user.value.num.val ?? 'err_unknown_user'.l10n;
 
+    int? donate;
+    final index = text?.val.lastIndexOf('?donate=');
+    if (index != null && index != -1) {
+      donate = int.tryParse(text!.val.substring(index + 8, text.val.length));
+    }
+
+    if (donate != null) {
+      if (isGroup) {
+        return 'fcm_group_donate'.l10nfmt({
+          'donate': donate,
+          'userName': name,
+          'userNum': num,
+        });
+      } else {
+        return 'fcm_dialog_donate'.l10nfmt({'donate': donate});
+      }
+    }
+
     if (text != null) {
       if (isGroup) {
         return 'fcm_group_message'.l10nfmt({

@@ -550,7 +550,7 @@ class UserView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 21, bottom: 4),
                   child: Text(
-                    '¤',
+                    ' ¤',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                       fontSize: 15,
@@ -586,7 +586,7 @@ class UserView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 21, bottom: 4),
                   child: Text(
-                    '¤',
+                    ' ¤',
                     style: TextStyle(
                       fontFamily: 'Gapopa',
                       fontWeight: FontWeight.w400,

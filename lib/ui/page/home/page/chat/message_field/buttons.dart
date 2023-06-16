@@ -113,19 +113,19 @@ class AttachmentButton extends ChatButton {
   String get hint => 'Файл';
 
   @override
-  String get asset => 'attachment';
+  String get asset => 'file_outlined';
 
   @override
-  double get assetWidth => 20.66;
+  double get assetWidth => 18.8;
 
   @override
   double get assetHeight => 23;
 
   @override
-  String get assetMini => 'attachment_mini';
+  String get assetMini => 'file_outlined_mini';
 
   @override
-  double get assetMiniWidth => 18.88;
+  double get assetMiniWidth => 17.2;
 
   @override
   double get assetMiniHeight => 21;

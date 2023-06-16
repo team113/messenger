@@ -100,30 +100,34 @@ class DonateWidget extends StatelessWidget {
                       ),
                     ],
                   ),
+
                   Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ...'$donate'.embossedDigits(
-                          style: fonts.bodyLarge!.copyWith(
-                            fontSize: 32 * (height / 100),
-                            color: font,
-                          ),
-                        ),
-                        const SizedBox(width: 0),
-                        Transform.translate(
-                          // offset: const Offset(0, -3),
-                          offset: const Offset(0, 0),
-                          child: EmbossedText(
-                            '¤',
+                    child: _tooltiped(
+                      context,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ...'$donate'.embossedDigits(
                             style: fonts.bodyLarge!.copyWith(
                               fontSize: 32 * (height / 100),
-                              // fontFamily: 'Gapopa',
                               color: font,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 0),
+                          Transform.translate(
+                            // offset: const Offset(0, -3),
+                            offset: const Offset(0, 0),
+                            child: EmbossedText(
+                              ' ¤',
+                              style: fonts.bodyLarge!.copyWith(
+                                fontSize: 32 * (height / 100),
+                                // fontFamily: 'Gapopa',
+                                color: font,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   // ...footer,
@@ -150,9 +154,19 @@ class DonateWidget extends StatelessWidget {
       ),
     );
 
-    if (transaction == null) {
-      return bar;
-    }
+    // if (transaction == null) {
+    //   return bar;
+    // }
+
+    return bar;
+  }
+
+  Widget _tooltiped(BuildContext context, Widget child) {
+    // if (transaction == null) {
+    //   return child;
+    // }
+
+    final (style, fonts) = Theme.of(context).styles;
 
     return Tooltip(
       message: 'Transaction #$transaction',
@@ -172,20 +186,17 @@ class DonateWidget extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.all(8),
-      textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: style.colors.onBackground,
-            fontSize: 15,
-            fontWeight: FontWeight.w400,
-          ),
-      child: bar,
+      textStyle: fonts.titleMedium!.copyWith(
+        color: style.colors.onBackground,
+        fontSize: fonts.bodySmall!.fontSize,
+      ),
+      child: child,
     );
   }
 }
 
 extension EmbossedDigits on String {
-  List<Widget> embossedDigits({
-    TextStyle? style,
-  }) {
+  List<Widget> embossedDigits({TextStyle? style}) {
     final List<Widget> list = [];
     for (int i = length - 1; i >= 0; --i) {
       int j = length - 1 - i;

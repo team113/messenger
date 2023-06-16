@@ -35,6 +35,21 @@ class FontStyleTabView extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         children: [
           _font(
+            ' ¤1000 ¤    ¤ABC ¤    ¤abc ¤',
+            'displayLarge',
+            fonts.displayLarge!.copyWith(fontWeight: FontWeight.w700),
+          ),
+          _font(
+            ' ¤1000 ¤    ¤ABC ¤    ¤abc ¤',
+            'displayLarge',
+            fonts.displayLarge!.copyWith(fontWeight: FontWeight.w400),
+          ),
+          _font(
+            ' ¤1000 ¤    ¤ABC ¤    ¤abc ¤',
+            'displayLarge',
+            fonts.displayLarge!.copyWith(fontWeight: FontWeight.w300),
+          ),
+          _font(
             'Largest of the display styles.',
             'displayLarge',
             fonts.displayLarge!,

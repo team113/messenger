@@ -973,3 +973,10 @@ label_donates = Донаты
 label_donates_preferences = Настройки донатов
 label_take_photo = Сделать фото
 label_take_video = Сделать видео
+fcm_dialog_donate = {$donate} G подарок
+fcm_group_donate =
+    {$userName ->
+        [x] {$userNum}
+        *[other] {$userName}
+    }: {$donate}G подарок
+label_donate_count = {$donate} ¤ подарок

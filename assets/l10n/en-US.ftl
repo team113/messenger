@@ -954,3 +954,10 @@ label_donates = Donates
 label_donates_preferences = Donates preferences
 label_take_photo = Take photo
 label_take_video = Take video
+fcm_dialog_donate = {$donate} G gift
+fcm_group_donate =
+    {$userName ->
+        [x] {$userNum}
+        *[other] {$userName}
+    }: {$donate}G gift
+label_donate_count = {$donate} ¤ gift

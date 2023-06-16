@@ -1226,7 +1226,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             borderRadius: BorderRadius.circular(15),
           ),
           child: ClipRRect(
-            clipBehavior: Clip.none,
             borderRadius: BorderRadius.circular(15),
             child: child(menu),
           ),
@@ -1366,7 +1365,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     style.colors.userColors.length];
 
         return ClipRRect(
-          clipBehavior: Clip.none,
           borderRadius: style.cardRadius,
           child: Container(
             decoration: BoxDecoration(

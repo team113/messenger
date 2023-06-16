@@ -167,7 +167,7 @@ class GetPaidView extends StatelessWidget {
                                 padding:
                                     const EdgeInsets.only(left: 21, bottom: 4),
                                 child: Text(
-                                  '¤',
+                                  ' ¤',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w400,
                                     color:
@@ -204,7 +204,7 @@ class GetPaidView extends StatelessWidget {
                                 padding:
                                     const EdgeInsets.only(left: 21, bottom: 4),
                                 child: Text(
-                                  '¤',
+                                  ' ¤',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w400,
                                     color:

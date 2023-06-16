@@ -18,6 +18,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -634,12 +635,18 @@ class MessageFieldView extends StatelessWidget {
               //   coef = 1 / (80 * c.buttons.length / constraints.maxWidth);
               // }
 
+              final bool sendable = !c.field.isEmpty.value ||
+                  c.attachments.isNotEmpty ||
+                  c.replied.isNotEmpty ||
+                  c.donation.value != null;
+
               return Wrap(
                 children: c.buttons
-                    .take(c.field.isEmpty.value ? take : 1)
+                    .take(!sendable ? take : 1)
+                    .skip(sendable || c.buttons.length == 1 ? 0 : 1)
                     .toList()
                     .reversed
-                    .map((e) {
+                    .mapIndexed((i, e) {
                   if (e is SendButton) {
                     return Obx(() {
                       return GestureDetector(
