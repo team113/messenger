@@ -190,6 +190,7 @@ btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
 btn_mute = Отключить звук
 btn_mute_chat = Отключить звук
+btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
 btn_participants = Участники
@@ -218,6 +219,7 @@ btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
+btn_unmute_chats = Включить звук
 btn_upload = Загрузить
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
@@ -398,7 +400,10 @@ label_attachments = [{$count} { $count ->
     [few] прикрепления
     *[other] прикреплений
     }]
-label_audio_call = Аудиозвонок
+label_audio_call = Аудиозвонок{$by ->
+        [x]{""}
+        *[other] {" "}от {$by}
+    }
 label_audio_notifications = Звуковые уведомления
 label_avatar_removed = {$author} удалил аватар
 label_avatar_removed1 = {$author}
@@ -443,7 +448,9 @@ label_chat_call_moved = Перемещённый звонок
 label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
 label_chat_members = Участники
-label_chat_monolog = Себе
+label_chat_monolog = Заметки
+label_chat_monolog_description = Пишите заметки, идеи или пересылайте другие сообщения, чтобы сохранить их здесь. Только Вы видите этот чат.
+label_chat_name_hint = Название чата
 label_chats = Чаты
 label_clear_history = Очистить историю
 label_confirm = Подтвердить
@@ -472,6 +479,7 @@ label_delete_phone_number = Удалить номер телефона
 label_delivered = Доставлено
 label_details = Подробнее.
 label_dialog_created = Диалог создан
+label_dialog_created_by_link = Диалог создан по прямой ссылке
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой
@@ -546,7 +554,7 @@ label_image_saved_to_gallery = Изображение сохранено в га
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_introduction_description =
-    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
+    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
 
         • Вы не удалите пользовательские данные из приложения (браузера);
 
@@ -724,7 +732,10 @@ label_users_count = Пользователей: {$count}
 label_verify_email = Верифицировать E-mail
 label_verify_number = Верифицировать номер телефона
 label_video = Видео
-label_video_call = Видеозвонок
+label_video_call = Видеозвонок{$by ->
+        [x]{""}
+        *[other] {" "}от {$by}
+    }
 label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:

@@ -41,10 +41,11 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -94,7 +95,7 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
@@ -427,9 +428,28 @@ class _ChatViewState extends State<ChatView>
                                       c.chat!.status.value.isEmpty) &&
                                   c.chat!.messages.isEmpty) {
                                 return Center(
-                                  child: Text(
-                                    key: const Key('NoMessages'),
-                                    'label_no_messages'.l10n,
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: style.systemMessageBorder,
+                                      color: style.systemMessageColor,
+                                    ),
+                                    child: Text(
+                                      key: const Key('NoMessages'),
+                                      isMonolog
+                                          ? 'label_chat_monolog_description'
+                                              .l10n
+                                          : 'label_no_messages'.l10n,
+                                      textAlign: TextAlign.center,
+                                      style: fonts.labelMedium,
+                                    ),
                                   ),
                                 );
                               }
@@ -466,7 +486,7 @@ class _ChatViewState extends State<ChatView>
                       );
                     }),
                     bottomNavigationBar: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                      padding: Insets.dense.copyWith(top: 0),
                       child:
                           NotificationListener<SizeChangedLayoutNotification>(
                         onNotification: (l) {
@@ -546,7 +566,7 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
@@ -814,9 +834,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -842,7 +860,10 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(subtitle.toString(), style: textStyle);
+        return Text(
+          subtitle.toString(),
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        );
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -854,7 +875,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: textStyle?.copyWith(color: style.colors.primary),
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -878,7 +899,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: textStyle?.copyWith(color: style.colors.primary),
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -893,7 +914,10 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.isGroup) {
         final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
-          return Text(subtitle, style: textStyle);
+          return Text(
+            subtitle,
+            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+          );
         }
       } else if (chat.value.isDialog) {
         final ChatMember? partner =
@@ -931,7 +955,12 @@ class _ChatViewState extends State<ChatView>
 
                           buffer.write(subtitle ?? '');
 
-                          return Text(buffer.toString(), style: textStyle);
+                          return Text(
+                            buffer.toString(),
+                            style: fonts.bodySmall!.copyWith(
+                              color: style.colors.secondary,
+                            ),
+                          );
                         }
 
                         return const SizedBox();
@@ -953,7 +982,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -987,7 +1016,9 @@ class _ChatViewState extends State<ChatView>
                 ),
                 child: Text(
                   time.toRelative(),
-                  style: style.systemMessageStyle,
+                  style: fonts.bodySmall!.copyWith(
+                    color: style.colors.secondary,
+                  ),
                 ),
               ),
             ),
@@ -1001,7 +1032,7 @@ class _ChatViewState extends State<ChatView>
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
     if (c.chat?.blacklisted == true) {
-      return _blockedField(c);
+      return SafeArea(child: UnblockButton(c.unblacklist));
     }
 
     return Obx(() {
@@ -1044,7 +1075,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Builds a visual representation of an [UnreadMessagesElement].
   Widget _unreadLabel(BuildContext context, ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Container(
       width: double.infinity,
@@ -1058,76 +1089,7 @@ class _ChatViewState extends State<ChatView>
       child: Center(
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
-          style: style.systemMessageStyle,
-        ),
-      ),
-    );
-  }
-
-  /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
-  Widget _blockedField(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Theme(
-      data: MessageFieldView.theme(context),
-      child: SafeArea(
-        child: Container(
-          key: const Key('BlockedField'),
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            boxShadow: [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: style.colors.onBackgroundOpacity13,
-              ),
-            ],
-          ),
-          child: ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
-            ),
-            borderRadius: style.cardRadius,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 56),
-              decoration: BoxDecoration(color: style.cardColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                        bottom: 13,
-                      ),
-                      child: Transform.translate(
-                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                        child: WidgetButton(
-                          onPressed: c.unblacklist,
-                          child: IgnorePointer(
-                            child: ReactiveTextField(
-                              enabled: false,
-                              state: TextFieldState(text: 'btn_unblock'.l10n),
-                              filled: false,
-                              dense: true,
-                              textAlign: TextAlign.center,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(
-                                fontSize: 17,
-                                color: style.colors.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
         ),
       ),
     );

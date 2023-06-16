@@ -109,7 +109,7 @@ class RetryImage extends StatefulWidget {
 
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
-  final Future<void> Function()? onForbidden;
+  final FutureOr<void> Function()? onForbidden;
 
   /// [BoxFit] to apply to this [RetryImage].
   final BoxFit? fit;
@@ -204,7 +204,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final Widget child;
 
@@ -351,10 +351,7 @@ class _RetryImageState extends State<RetryImage> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
-      child: KeyedSubtree(
-        key: Key('Image_${widget.url}'),
-        child: child,
-      ),
+      child: KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
     );
   }
 

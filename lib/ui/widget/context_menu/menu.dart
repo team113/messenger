@@ -29,7 +29,7 @@ class ContextMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final List<Widget> widgets = [];
 
@@ -93,7 +93,7 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
@@ -111,6 +111,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     required this.label,
     this.leading,
     this.trailing,
+    this.showTrailing = false,
     this.onPressed,
   }) : super(key: key);
 
@@ -122,6 +123,11 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
 
   /// Optional trailing widget.
   final Widget? trailing;
+
+  /// Indicator whether the [trailing] should always be displayed.
+  ///
+  /// On mobile platforms the provided [trailing] is always displayed.
+  final bool showTrailing;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
@@ -137,7 +143,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
@@ -179,15 +185,17 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: style.boldBody.copyWith(
+                style: fonts.titleMedium!.copyWith(
                   color: (isMouseOver && !context.isMobile)
                       ? style.colors.onPrimary
                       : style.colors.onBackground,
-                  fontSize: context.isMobile ? 17 : 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: context.isMobile
+                      ? fonts.bodyLarge!.fontSize
+                      : fonts.bodySmall!.fontSize,
                 ),
               ),
-              if (PlatformUtils.isMobile && widget.trailing != null) ...[
+              if ((PlatformUtils.isMobile || widget.showTrailing) &&
+                  widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),
                 Theme(

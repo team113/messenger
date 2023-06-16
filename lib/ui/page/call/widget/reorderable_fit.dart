@@ -39,7 +39,7 @@ import 'animated_transition.dart';
 /// Otherwise, the whole available space will be occupied.
 class ReorderableFit<T extends Object> extends StatelessWidget {
   const ReorderableFit({
-    Key? key,
+    super.key,
     required this.children,
     required this.itemBuilder,
     this.decoratorBuilder,
@@ -69,7 +69,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.allowDraggingLast = true,
     this.itemConstraints,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
@@ -594,7 +594,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
     Widget cell(int index, [bool withOverlay = true]) {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final style = Theme.of(context).style;
 
       var item = _items[index];
       return Stack(
@@ -1091,7 +1091,7 @@ class _ReorderableDraggableState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return DoughRecipe(
       data: DoughRecipeData(
