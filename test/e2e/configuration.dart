@@ -68,6 +68,7 @@ import 'steps/long_press_widget.dart';
 import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
+import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
 import 'steps/see_chat_avatar.dart';
@@ -152,6 +153,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         pasteToField,
         restartApp,
         returnToPreviousPage,
+        rightClickWidget,
         scrollAndSee,
         scrollUntilPresent,
         seeChatAsFavorite,

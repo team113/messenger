@@ -70,7 +70,7 @@ class ParticipantWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
@@ -128,9 +128,9 @@ class ParticipantWidget extends StatelessWidget {
 
             if (participant.member.isConnected.value) {
               child = Container();
-            } else if (participant.member.isRedialing.isTrue) {
+            } else if (participant.member.isDialing.isTrue) {
               child = Container(
-                key: Key('ParticipantRedialing_${participant.member.id}'),
+                key: Key('ParticipantDialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
                 color: style.colors.onBackgroundOpacity50,

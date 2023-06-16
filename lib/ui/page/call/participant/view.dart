@@ -66,11 +66,7 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       init: ParticipantController(
@@ -126,7 +122,7 @@ class ParticipantView extends StatelessWidget {
                             'a': ids.length,
                             'b': c.chat.value?.members.length ?? 1,
                           }),
-                          style: thin?.copyWith(fontSize: 18),
+                          style: fonts.headlineMedium,
                         ),
                       ),
                     ),
@@ -152,7 +148,9 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: TextStyle(color: style.colors.onPrimary),
+                          style: fonts.titleLarge!.copyWith(
+                            color: style.colors.onPrimary,
+                          ),
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
@@ -183,7 +181,7 @@ class ParticipantView extends StatelessWidget {
 
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       bool inCall = false;
@@ -194,7 +192,7 @@ class ParticipantView extends StatelessWidget {
 
       if (member != null) {
         inCall = true;
-        isRedialed = member.isRedialing.isTrue;
+        isRedialed = member.isDialing.isTrue;
       }
 
       return ContactTile(
@@ -256,7 +254,7 @@ class ParticipantView extends StatelessWidget {
                     TextSpan(
                       text:
                           user.user.value.name?.val ?? user.user.value.num.val,
-                      style: TextStyle(color: style.colors.onBackground),
+                      style: fonts.labelLarge,
                     ),
                     TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                   ],
@@ -270,7 +268,9 @@ class ParticipantView extends StatelessWidget {
             child: user.id == c.me
                 ? Text(
                     'btn_leave'.l10n,
-                    style: TextStyle(color: style.colors.primary, fontSize: 15),
+                    style: fonts.labelLarge!.copyWith(
+                      color: style.colors.primary,
+                    ),
                   )
                 : SvgImage.asset('assets/icons/delete.svg', height: 14 * 1.5),
           ),

@@ -139,7 +139,7 @@ class RecentChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
@@ -152,10 +152,10 @@ class RecentChatTile extends StatelessWidget {
           if (!chat.id.isLocalWith(me))
             Text(
               chat.updatedAt.val.toLocal().short,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(color: inverted ? style.colors.onPrimary : null),
+              style: fonts.labelLarge!.copyWith(
+                color:
+                    inverted ? style.colors.onPrimary : style.colors.secondary,
+              ),
             ),
         ],
         subtitle: [
@@ -263,7 +263,7 @@ class RecentChatTile extends StatelessWidget {
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context, bool selected, bool inverted) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -350,7 +350,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: TextStyle(
+                  style: fonts.labelMedium!.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.primary,
@@ -375,7 +375,7 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: fonts.labelMedium!.copyWith(
                         color: inverted
                             ? style.colors.onPrimary
                             : style.colors.primary,
@@ -626,10 +626,9 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: Theme.of(context)
-            .textTheme
-            .titleSmall!
-            .copyWith(color: inverted ? style.colors.onPrimary : null),
+        style: fonts.bodyMedium!.copyWith(
+          color: inverted ? style.colors.onPrimary : style.colors.secondary,
+        ),
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );
@@ -672,10 +671,11 @@ class RecentChatTile extends StatelessWidget {
       } else {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: SvgImage.asset(
-            inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-            width: 30,
-            height: 30,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
           ),
         );
       }
@@ -708,10 +708,11 @@ class RecentChatTile extends StatelessWidget {
       } else {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: SvgImage.asset(
-            inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-            width: 30,
-            height: 30,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
           ),
         );
       }
@@ -733,7 +734,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a [ChatItem.status] visual representation.
   Widget _status(BuildContext context, bool inverted) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -784,7 +785,7 @@ class RecentChatTile extends StatelessWidget {
   /// Returns a visual representation of the [Chat.unreadCount] counter.
   Widget _counter(BuildContext context, bool inverted) {
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       final Chat chat = rxChat.chat.value;
       final bool muted = chat.muted != null;
@@ -809,14 +810,12 @@ class RecentChatTile extends StatelessWidget {
             rxChat.unreadCount.value > 99
                 ? '99${'plus'.l10n}'
                 : '${rxChat.unreadCount.value}',
-            style: TextStyle(
+            style: fonts.displaySmall!.copyWith(
               color: muted
                   ? inverted
                       ? style.colors.secondary
                       : style.colors.onPrimary
                   : style.colors.onPrimary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
             ),
             maxLines: 1,
             overflow: TextOverflow.clip,
@@ -831,7 +830,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -879,10 +878,9 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(color: style.colors.onPrimary),
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.onPrimary,
+                          ),
                         ).fixedDigits();
                       },
                     )
@@ -906,16 +904,13 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: rxChat.title.value,
-          style: TextStyle(color: style.colors.onBackground),
-        ),
+        TextSpan(text: rxChat.title.value, style: fonts.bodyMedium),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
