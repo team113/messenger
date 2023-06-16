@@ -56,8 +56,7 @@ class ChatSubtitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     if (chat!.chat.value.ongoingCall != null) {
       final subtitle = StringBuffer();
@@ -80,7 +79,10 @@ class ChatSubtitle extends StatelessWidget {
         );
       }
 
-      return Text(subtitle.toString(), style: textStyle);
+      return Text(
+        subtitle.toString(),
+        style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+      );
     }
 
     final bool isTyping = chat?.typingUsers.any((e) => e.id != me) == true;
@@ -92,7 +94,7 @@ class ChatSubtitle extends StatelessWidget {
           children: [
             Text(
               'label_typing'.l10n,
-              style: textStyle?.copyWith(color: style.colors.primary),
+              style: fonts.labelMedium!.copyWith(color: style.colors.primary),
             ),
             const SizedBox(width: 3),
             const Padding(
@@ -116,7 +118,7 @@ class ChatSubtitle extends StatelessWidget {
               typings.join('comma_space'.l10n),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: textStyle?.copyWith(color: style.colors.primary),
+              style: fonts.labelMedium!.copyWith(color: style.colors.primary),
             ),
           ),
           const SizedBox(width: 3),
@@ -131,7 +133,10 @@ class ChatSubtitle extends StatelessWidget {
     if (chat!.chat.value.isGroup) {
       final String? subtitle = chat!.chat.value.getSubtitle();
       if (subtitle != null) {
-        return Text(subtitle, style: textStyle);
+        return Text(
+          subtitle,
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        );
       }
     } else if (chat!.chat.value.isDialog) {
       final ChatMember? partner =
@@ -167,7 +172,12 @@ class ChatSubtitle extends StatelessWidget {
 
                       buffer.write(subtitle ?? '');
 
-                      return Text(buffer.toString(), style: textStyle);
+                      return Text(
+                        buffer.toString(),
+                        style: fonts.bodySmall!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      );
                     }
 
                     return const SizedBox();
