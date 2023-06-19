@@ -26,7 +26,7 @@ import '/ui/widget/svg/svg.dart';
 class ChatSubtitle extends StatelessWidget {
   const ChatSubtitle({
     super.key,
-    required this.text,
+    this.text,
     this.child,
     this.subtitle,
     this.groupSubtitle,
@@ -39,7 +39,7 @@ class ChatSubtitle extends StatelessWidget {
   });
 
   /// [Text] to display in this [ChatSubtitle] when [isGroup] was `false`.
-  final String text;
+  final String? text;
 
   /// [Text] to display in this [ChatSubtitle] when [isGroup] was `true`.
   final String? groupSubtitle;
@@ -99,14 +99,15 @@ class ChatSubtitle extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+          if (text != null)
+            Flexible(
+              child: Text(
+                text!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+              ),
             ),
-          ),
           const SizedBox(width: 3),
           const Padding(
             padding: EdgeInsets.only(bottom: 3),
