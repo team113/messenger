@@ -136,7 +136,7 @@ class ModalPopupHeader extends StatelessWidget {
     this.close = true,
   });
 
-  /// Text to display in this [ModalPopupHeader].
+  /// Text to display as a title of this [ModalPopupHeader].
   final String? text;
 
   /// Callback, called when a back button is pressed.
@@ -144,7 +144,7 @@ class ModalPopupHeader extends StatelessWidget {
   /// If `null`, then no back button is displayed at all.
   final void Function()? onBack;
 
-  /// Indicator whether a close buttons should be displayed.
+  /// Indicator whether a close button should be displayed.
   final bool close;
 
   @override

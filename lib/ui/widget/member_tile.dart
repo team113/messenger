@@ -25,44 +25,38 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
-/// Styled [ContactTile] which is a visual representation of the [RxUser] with
-/// interaction buttons.
-class CallMemberTile extends StatelessWidget {
-  const CallMemberTile({
+/// Styled [ContactTile] representing the provided [RxUser] as a member of some
+/// [Chat] or [OngoingCall].
+class MemberTile extends StatelessWidget {
+  const MemberTile({
     super.key,
     required this.user,
-    required this.isMe,
-    required this.isCall,
-    required this.inCall,
-    this.color,
+    this.inCall,
     this.onTap,
-    this.onTrailingPressed,
-    this.onCirclePressed,
+    this.canLeave = false,
+    this.onKick,
+    this.onCall,
   });
 
-  /// [RxUser] to display.
+  /// [RxUser] this [MemberTile] is about.
   final RxUser user;
 
-  /// Indicator whether the contact is the current user.
-  final bool isMe;
-
-  /// Indicator whether the call is happening.
-  final bool isCall;
-
-  /// Indicator whether the contact is in the call.
-  final bool inCall;
-
-  /// [Color] of the circle button.
-  final Color? color;
+  /// Indicator whether a call button should be active or not.
+  ///
+  /// No call button is displayed, if `null` is specified.
+  final bool? inCall;
 
   /// Callback, called when the [ContactTile] is tapped.
   final void Function()? onTap;
 
-  /// Callback, called when the circle button is tapped.
-  final void Function()? onCirclePressed;
+  /// Callback, called when the call button is pressed.
+  final void Function()? onCall;
 
-  /// Callback, called when the trailing button is tapped.
-  final Future<void> Function()? onTrailingPressed;
+  /// Indicator whether the kick button should be a leave button.
+  final bool canLeave;
+
+  /// Callback, called when the kick or leave button is pressed.
+  final Future<void> Function()? onKick;
 
   @override
   Widget build(BuildContext context) {
@@ -74,41 +68,45 @@ class CallMemberTile extends StatelessWidget {
       onTap: onTap,
       darken: 0.05,
       trailing: [
-        if (isCall)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: Material(
-                key: Key(inCall ? 'inCall' : 'NotInCall'),
-                color: color,
-                type: MaterialType.circle,
-                child: InkWell(
-                  onTap: onCirclePressed,
-                  borderRadius: BorderRadius.circular(60),
-                  child: SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: Center(
-                      child: inCall
-                          ? SvgImage.asset('assets/icons/call_end.svg')
-                          : SvgImage.asset(
-                              'assets/icons/audio_call_start.svg',
-                              width: 13,
-                              height: 13,
-                            ),
-                    ),
+        if (inCall != null) ...[
+          const SizedBox(width: 8),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: Material(
+              key: Key(inCall == true ? 'InCall' : 'NotInCall'),
+              color: inCall == true
+                  ? onCall == null
+                      ? style.colors.primaryHighlightLightest
+                      : style.colors.dangerColor
+                  : style.colors.primary,
+              type: MaterialType.circle,
+              child: InkWell(
+                onTap: onCall,
+                borderRadius: BorderRadius.circular(60),
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: Center(
+                    child: inCall == true
+                        ? SvgImage.asset('assets/icons/call_end.svg')
+                        : SvgImage.asset(
+                            'assets/icons/audio_call_start.svg',
+                            width: 11,
+                            height: 11,
+                          ),
                   ),
                 ),
               ),
             ),
           ),
+          const SizedBox(width: 16),
+        ],
         WidgetButton(
           onPressed: () async {
             final bool? result = await MessagePopup.alert(
-              isMe ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
+              canLeave ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
               description: [
-                if (isMe)
+                if (canLeave)
                   TextSpan(text: 'alert_you_will_leave_group'.l10n)
                 else ...[
                   TextSpan(text: 'alert_user_will_be_removed1'.l10n),
@@ -122,10 +120,10 @@ class CallMemberTile extends StatelessWidget {
             );
 
             if (result == true) {
-              await onTrailingPressed?.call();
+              await onKick?.call();
             }
           },
-          child: isMe
+          child: canLeave
               ? Text(
                   'btn_leave'.l10n,
                   style: fonts.labelLarge!.copyWith(

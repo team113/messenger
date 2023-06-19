@@ -25,7 +25,7 @@ import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/widget/call_member_tile.dart';
+import '/ui/widget/member_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -128,35 +128,31 @@ class ParticipantView extends StatelessWidget {
                             bool inCall = false;
                             bool isRedialed = false;
 
-                            CallMember? member = call.value.members.values
-                                .firstWhereOrNull(
-                                    (e) => e.id.userId == user.id);
+                            CallMember? member =
+                                call.value.members.values.firstWhereOrNull(
+                              (e) => e.id.userId == user.id,
+                            );
 
                             if (member != null) {
                               inCall = true;
                               isRedialed = member.isDialing.isTrue;
                             }
 
-                            return CallMemberTile(
+                            return MemberTile(
                               user: user,
-                              isMe: user.id == c.me,
-                              isCall: user.id != c.me,
-                              inCall: inCall,
+                              canLeave: user.id == c.me,
+                              inCall: user.id == c.me ? null : inCall,
                               onTap: () {
                                 // TODO: Open the [Routes.user] page.
                               },
-                              color: inCall
-                                  ? isRedialed
-                                      ? style.colors.secondaryBackgroundLightest
-                                      : style.colors.dangerColor
-                                  : style.colors.primary,
-                              onCirclePressed: inCall
+                              // TODO: Wait for backend to support removing
+                              //       active call notification.
+                              onCall: inCall
                                   ? isRedialed
                                       ? null
                                       : () => c.removeChatCallMember(user.id)
                                   : () => c.redialChatCallMember(user.id),
-                              onTrailingPressed: () =>
-                                  c.removeChatMember(user.id),
+                              onKick: () => c.removeChatMember(user.id),
                             );
                           }).toList(),
                         ),

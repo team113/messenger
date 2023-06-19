@@ -33,7 +33,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/widget/call_member_tile.dart';
+import '/ui/widget/member_tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -538,17 +538,17 @@ class ChatInfoView extends StatelessWidget {
                     .any((u) => u.user.id == e.id) ==
                 true;
 
-            return CallMemberTile(
+            return MemberTile(
               user: e,
-              isMe: e.id == c.me,
-              inCall: inCall,
+              canLeave: e.id == c.me,
+              inCall: e.id == c.me || c.chat?.chat.value.ongoingCall == null
+                  ? null
+                  : inCall,
               onTap: () => router.user(e.id, push: true),
-              color: inCall ? style.colors.dangerColor : style.colors.primary,
-              isCall: e.id != c.me && c.chat?.chat.value.ongoingCall != null,
-              onCirclePressed: () => inCall
-                  ? c.removeChatCallMember(e.id)
-                  : c.redialChatCallMember(e.id),
-              onTrailingPressed: () => c.removeChatMember(e.id),
+              onCall: inCall
+                  ? () => c.removeChatCallMember(e.id)
+                  : () => c.redialChatCallMember(e.id),
+              onKick: () => c.removeChatMember(e.id),
             );
           }),
         ],
