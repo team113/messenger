@@ -23,9 +23,9 @@ import '/themes.dart';
 class ExpandButton extends StatelessWidget {
   const ExpandButton({
     super.key,
-    this.isFullscreen = false,
     this.height,
     this.onTap,
+    this.isFullscreen = false,
   });
 
   /// Indicator whether this video is in fullscreen mode.
