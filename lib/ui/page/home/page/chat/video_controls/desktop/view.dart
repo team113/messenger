@@ -15,26 +15,22 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports
-
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:chewie/chewie.dart';
-import 'package:chewie/src/animated_play_pause.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/bottom_control_bar.dart';
 
-import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
-import 'volume_bar.dart';
+import 'widget/bottom_control_bar.dart';
+import 'widget/hit_area.dart';
+import 'widget/volume_overlay.dart';
 
 /// Desktop video controls for a [Chewie] player.
-class DesktopControls extends StatefulWidget {
-  const DesktopControls({
+class DesktopControlsView extends StatefulWidget {
+  const DesktopControlsView({
     super.key,
     required this.controller,
     this.onClose,
@@ -62,8 +58,8 @@ class DesktopControls extends StatefulWidget {
   State<StatefulWidget> createState() => _DesktopControlsState();
 }
 
-/// State of [DesktopControls], used to control a video.
-class _DesktopControlsState extends State<DesktopControls>
+/// State of [DesktopControlsView], used to control a video.
+class _DesktopControlsState extends State<DesktopControlsView>
     with SingleTickerProviderStateMixin {
   /// Height of the bottom controls bar.
   final _barHeight = 48.0 * 1.5;
@@ -170,7 +166,13 @@ class _DesktopControlsState extends State<DesktopControls>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : _buildHitArea();
+                  : HitArea(
+                      controller: widget.controller,
+                      opacity: !_dragging && !_hideStuff || _showInterface
+                          ? 1.0
+                          : 0.0,
+                      onPressed: _playPause,
+                    );
             }),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -209,8 +211,19 @@ class _DesktopControlsState extends State<DesktopControls>
                         offset = box.localToGlobal(Offset.zero);
                       }
 
-                      _volumeEntry =
-                          OverlayEntry(builder: (_) => _volumeOverlay(offset));
+                      _volumeEntry = OverlayEntry(
+                        builder: (_) => VolumeOverlay(
+                          controller: widget.controller,
+                          offset: offset,
+                          onExit: (d) {
+                            if (mounted) {
+                              _volumeEntry?.remove();
+                              _volumeEntry = null;
+                              setState(() {});
+                            }
+                          },
+                        ),
+                      );
                       Overlay.of(context, rootOverlay: true)
                           .insert(_volumeEntry!);
                       setState(() {});
@@ -244,114 +257,6 @@ class _DesktopControlsState extends State<DesktopControls>
           ],
         ),
       ),
-    );
-  }
-
-  /// Returns the [Center]ed play/pause circular button.
-  Widget _buildHitArea() {
-    final style = Theme.of(context).style;
-
-    return RxBuilder((_) {
-      final bool isFinished =
-          widget.controller.position.value >= widget.controller.duration.value;
-
-      return Center(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: widget.controller.playerStatus.playing
-              ? Container()
-              : AnimatedOpacity(
-                  opacity:
-                      !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: style.colors.onBackgroundOpacity13,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      iconSize: 32,
-                      icon: isFinished
-                          ? Icon(Icons.replay, color: style.colors.onPrimary)
-                          : AnimatedPlayPause(
-                              color: style.colors.onPrimary,
-                              playing: widget.controller.playerStatus.playing,
-                            ),
-                      onPressed: _playPause,
-                    ),
-                  ),
-                ),
-        ),
-      );
-    });
-  }
-
-  /// Returns the [_volumeEntry] overlay.
-  Widget _volumeOverlay(Offset offset) {
-    final style = Theme.of(context).style;
-
-    return Stack(
-      children: [
-        Positioned(
-          left: offset.dx - 6,
-          bottom: 10,
-          child: MouseRegion(
-            opaque: false,
-            onExit: (d) {
-              if (mounted) {
-                _volumeEntry?.remove();
-                _volumeEntry = null;
-                setState(() {});
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                      child: Container(
-                        width: 15,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: style.colors.onBackgroundOpacity40,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: RotatedBox(
-                          quarterTurns: 3,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                            child: VideoVolumeBar(
-                              widget.controller,
-                              colors: ChewieProgressColors(
-                                playedColor: style.colors.primary,
-                                handleColor: style.colors.primary,
-                                bufferedColor:
-                                    style.colors.background.withOpacity(0.5),
-                                backgroundColor:
-                                    style.colors.secondary.withOpacity(0.5),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 27),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 

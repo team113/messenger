@@ -23,13 +23,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
+import '../video_controls/desktop/view.dart';
+import '../video_controls/mobile/view.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
-import 'desktop_controls.dart';
-import 'mobile_controls.dart';
 
 /// Video player with controls.
 class Video extends StatefulWidget {
@@ -133,8 +133,8 @@ class _VideoState extends State<Video> {
                     customControls: (_, __, ___) => const SizedBox(),
                   ),
                   PlatformUtils.isMobile
-                      ? MobileControls(controller: _controller)
-                      : DesktopControls(
+                      ? MobileControlsView(controller: _controller)
+                      : DesktopControlsView(
                           controller: _controller,
                           onClose: widget.onClose,
                           toggleFullscreen: widget.toggleFullscreen,

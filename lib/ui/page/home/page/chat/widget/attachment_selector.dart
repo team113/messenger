@@ -19,11 +19,11 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/round_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
-import 'attachment_button.dart';
 
 /// Modal for choosing a source to pick an [Attachment] from.
 ///
@@ -76,8 +76,7 @@ class AttachmentSourceSelector extends StatelessWidget {
     final style = Theme.of(context).style;
 
     List<Widget> children = [
-      AttachmentButton(
-        icon: null,
+      _AttachmentButton(
         text:
             PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
         onPressed: onTakePhoto,
@@ -88,8 +87,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         ),
       ),
       if (PlatformUtils.isAndroid)
-        AttachmentButton(
-          icon: null,
+        _AttachmentButton(
           text: 'label_video'.l10n,
           onPressed: onTakeVideo,
           child: SvgImage.asset(
@@ -98,8 +96,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             height: 60,
           ),
         ),
-      AttachmentButton(
-        icon: null,
+      _AttachmentButton(
         text: 'label_gallery'.l10n,
         onPressed: onPickMedia,
         child: SvgImage.asset(
@@ -108,8 +105,7 @@ class AttachmentSourceSelector extends StatelessWidget {
           height: 60,
         ),
       ),
-      AttachmentButton(
-        icon: null,
+      _AttachmentButton(
         text: 'label_file'.l10n,
         onPressed: onPickFile,
         child: SvgImage.asset(
@@ -137,6 +133,40 @@ class AttachmentSourceSelector extends StatelessWidget {
         ),
         const SizedBox(height: 10),
       ],
+    );
+  }
+}
+
+/// Custom styled [RoundFloatingButton] with an attachment.
+class _AttachmentButton extends StatelessWidget {
+  const _AttachmentButton({this.text, this.child, this.onPressed});
+
+  /// Text displayed on this [_AttachmentButton].
+  final String? text;
+
+  /// [Widget] displayed on this [_AttachmentButton].
+  final Widget? child;
+
+  /// Callback, called when this [_AttachmentButton] is pressed.
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: RoundFloatingButton(
+        text: text,
+        withBlur: false,
+        onPressed: () {
+          onPressed?.call();
+          Navigator.of(context).pop();
+        },
+        style: fonts.titleMedium!,
+        color: style.colors.primary,
+        child: SizedBox(width: 60, height: 60, child: child),
+      ),
     );
   }
 }

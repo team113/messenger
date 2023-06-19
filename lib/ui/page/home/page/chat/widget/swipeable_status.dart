@@ -79,6 +79,8 @@ class SwipeableStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     if (animation == null) {
       return child;
     }
@@ -94,7 +96,30 @@ class SwipeableStatus extends StatelessWidget {
             padding: padding,
             child: SizedBox(
               width: status ? width : width - 15,
-              child: _swipeableWithStatus(context),
+              child: _SwipeableWithStatus(
+                children: [
+                  if (status) ...[
+                    if (isSent || isDelivered || isRead || isSending || isError)
+                      Icon(
+                        (isRead || isDelivered)
+                            ? Icons.done_all
+                            : isSending
+                                ? Icons.access_alarm
+                                : isError
+                                    ? Icons.error_outline
+                                    : Icons.done,
+                        color: isRead
+                            ? style.colors.primary
+                            : isError
+                                ? style.colors.dangerColor
+                                : style.colors.secondary,
+                        size: 12,
+                      ),
+                    const SizedBox(width: 3),
+                  ],
+                  SelectionContainer.disabled(child: swipeable),
+                ],
+              ),
             ),
           ),
         ),
@@ -102,8 +127,31 @@ class SwipeableStatus extends StatelessWidget {
     );
   }
 
-  /// Returns a [Row] of [swipeable] and a optional status.
-  Widget _swipeableWithStatus(BuildContext context) {
+  // Returns an [AnimatedBuilder] with a [Transform.translate] transition.
+  Widget _animatedBuilder(Widget child, {bool translated = true}) =>
+      AnimatedBuilder(
+        animation: animation!,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Tween(
+              begin: translated ? const Offset(width, 0) : Offset.zero,
+              end: translated ? Offset.zero : const Offset(-width, 0),
+            ).evaluate(animation!),
+            child: child,
+          );
+        },
+        child: child,
+      );
+}
+
+/// Returns a [Row] of [swipeable] and a optional status.
+class _SwipeableWithStatus extends StatelessWidget {
+  const _SwipeableWithStatus({this.children = const <Widget>[]});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
     return DefaultTextStyle.merge(
@@ -122,46 +170,9 @@ class SwipeableStatus extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
-          children: [
-            if (status) ...[
-              if (isSent || isDelivered || isRead || isSending || isError)
-                Icon(
-                  (isRead || isDelivered)
-                      ? Icons.done_all
-                      : isSending
-                          ? Icons.access_alarm
-                          : isError
-                              ? Icons.error_outline
-                              : Icons.done,
-                  color: isRead
-                      ? style.colors.primary
-                      : isError
-                          ? style.colors.dangerColor
-                          : style.colors.secondary,
-                  size: 12,
-                ),
-              const SizedBox(width: 3),
-            ],
-            SelectionContainer.disabled(child: swipeable),
-          ],
+          children: children,
         ),
       ),
     );
   }
-
-  /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
-  Widget _animatedBuilder(Widget child, {bool translated = true}) =>
-      AnimatedBuilder(
-        animation: animation!,
-        builder: (context, child) {
-          return Transform.translate(
-            offset: Tween(
-              begin: translated ? const Offset(width, 0) : Offset.zero,
-              end: translated ? Offset.zero : const Offset(-width, 0),
-            ).evaluate(animation!),
-            child: child,
-          );
-        },
-        child: child,
-      );
 }
