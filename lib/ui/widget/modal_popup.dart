@@ -133,19 +133,19 @@ class ModalPopupHeader extends StatelessWidget {
     super.key,
     this.text,
     this.onBack,
-    this.hideCloseButton = false,
+    this.close = true,
   });
 
   /// Text to display in this [ModalPopupHeader].
   final String? text;
 
-  /// Indicator whether the close button is displayed or not.
-  final bool hideCloseButton;
-
   /// Callback, called when a back button is pressed.
   ///
   /// If `null`, then no back button is displayed at all.
   final void Function()? onBack;
+
+  /// Indicator whether a close buttons should be displayed.
+  final bool close;
 
   @override
   Widget build(BuildContext context) {
@@ -171,13 +171,11 @@ class ModalPopupHeader extends StatelessWidget {
             const SizedBox(width: 40),
           if (text != null)
             Expanded(
-              child: Center(
-                child: Text(text!, style: fonts.headlineMedium),
-              ),
+              child: Center(child: Text(text!, style: fonts.headlineMedium)),
             )
           else
             const Spacer(),
-          if (!context.isMobile && hideCloseButton == false)
+          if (!context.isMobile && close)
             WidgetButton(
               key: const Key('CloseButton'),
               onPressed: Navigator.of(context).pop,

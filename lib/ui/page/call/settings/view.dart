@@ -176,10 +176,7 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ModalPopupHeader(
-                    hideCloseButton: true,
-                    text: 'label_calls'.l10n,
-                  ),
+                  ModalPopupHeader(text: 'label_calls'.l10n, close: false),
                   Padding(
                     padding: padding,
                     child: WidgetButton(
