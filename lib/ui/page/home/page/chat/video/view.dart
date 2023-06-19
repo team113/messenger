@@ -23,17 +23,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
-import '../video_controls/desktop/view.dart';
-import '../video_controls/mobile/view.dart';
+import '../video/desktop_controls/view.dart';
+import '../video/mobile_controls/view.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
-/// Video player with controls.
-class Video extends StatefulWidget {
-  const Video(
+/// VideoView player with controls.
+class VideoView extends StatefulWidget {
+  const VideoView(
     this.url, {
     super.key,
     this.onClose,
@@ -66,15 +66,15 @@ class Video extends StatefulWidget {
   final Duration? showInterfaceFor;
 
   @override
-  State<Video> createState() => _VideoState();
+  State<VideoView> createState() => _VideoState();
 }
 
-/// State of a [Video] used to initialize and dispose video controller.
-class _VideoState extends State<Video> {
+/// State of a [VideoView] used to initialize and dispose video controller.
+class _VideoState extends State<VideoView> {
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
-  /// [CancelToken] for cancelling the [Video.url] header fetching.
+  /// [CancelToken] for cancelling the [VideoView.url] header fetching.
   CancelToken? _cancelToken;
 
   final MeeduPlayerController _controller = MeeduPlayerController(
@@ -108,7 +108,7 @@ class _VideoState extends State<Video> {
   }
 
   @override
-  void didUpdateWidget(Video oldWidget) {
+  void didUpdateWidget(VideoView oldWidget) {
     if (oldWidget.url != widget.url) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _initVideo();

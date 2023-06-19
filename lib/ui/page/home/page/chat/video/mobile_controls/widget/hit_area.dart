@@ -15,57 +15,48 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+// ignore_for_file: implementation_imports
+
+import 'package:chewie/src/center_play_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-class MuteButton extends StatelessWidget {
-  const MuteButton({
+/// Returns the [Center]ed play/pause circular button.
+class HitArea extends StatelessWidget {
+  const HitArea({
     super.key,
     required this.controller,
-    required this.opacity,
-    this.barHeight,
-    this.onTap,
+     this.show = false,
+    this.onPressed,
   });
 
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  final double opacity;
+  ///
+  final bool show;
 
-  final double? barHeight;
-
-  final void Function()? onTap;
+  ///
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedOpacity(
-        opacity: opacity,
-        duration: const Duration(milliseconds: 300),
-        child: Container(
-          height: barHeight,
-          margin: const EdgeInsets.only(right: 12.0),
-          padding: const EdgeInsets.only(
-            left: 8.0,
-            right: 8.0,
-          ),
-          child: Center(
-            child: RxBuilder((_) {
-              return Icon(
-                controller.volume.value > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                color: style.colors.onPrimary,
-                size: 18,
-              );
-            }),
-          ),
-        ),
-      ),
-    );
+    return RxBuilder((_) {
+      final bool isFinished =
+          controller.position.value >= controller.duration.value;
+
+      return CenterPlayButton(
+        backgroundColor: style.colors.onBackgroundOpacity13,
+        iconColor: style.colors.onPrimary,
+        isFinished: isFinished,
+        isPlaying: controller.playerStatus.playing,
+        show: show,
+        onPressed: onPressed,
+      );
+    });
   }
 }

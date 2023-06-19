@@ -17,48 +17,49 @@
 
 // ignore_for_file: implementation_imports
 
-import 'package:chewie/src/animated_play_pause.dart';
+import 'package:chewie/chewie.dart';
+import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
+import '/ui/page/home/page/chat/widget/video_progress_bar.dart';
 
-/// Returns the play/pause button.
-class StyledPlayPauseButton extends StatelessWidget {
-  const StyledPlayPauseButton({
+/// Returns the [VideoProgressBar] of the current video progression.
+class CustomProgressBar extends StatelessWidget {
+  const CustomProgressBar({
     super.key,
     required this.controller,
-    required this.barHeight,
-    this.onTap,
+    this.onDragStart,
+    this.onDragEnd,
   });
 
-  ///
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  ///
-  final double? barHeight;
+  /// Callback, called when progress drag started.
+  final dynamic Function()? onDragStart;
 
-  ///
-  final void Function()? onTap;
+  /// Callback, called when progress drag ended.
+  final dynamic Function()? onDragEnd;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Transform.translate(
-      offset: const Offset(0, 0),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: barHeight,
-          color: style.colors.transparent,
-          child: RxBuilder((_) {
-            return AnimatedPlayPause(
-              size: 21,
-              playing: controller.playerStatus.playing,
-              color: style.colors.onPrimary,
-            );
-          }),
+    return Expanded(
+      child: ProgressBar(
+        controller,
+        barHeight: 2,
+        handleHeight: 6,
+        drawShadow: false,
+        onDragStart: onDragStart,
+        onDragEnd: onDragEnd,
+        colors: ChewieProgressColors(
+          playedColor: style.colors.primary,
+          handleColor: style.colors.primary,
+          bufferedColor: style.colors.background.withOpacity(0.5),
+          backgroundColor: style.colors.secondary.withOpacity(0.5),
         ),
       ),
     );

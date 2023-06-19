@@ -32,19 +32,19 @@ class MuteButton extends StatelessWidget {
     this.onTap,
   });
 
-  ///
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  ///
+  /// [GlobalKey] of the volume entry.
   final GlobalKey? volumeKey;
 
-  ///
+  /// Height of the bottom controls bar.
   final double? barHeight;
 
-  ///
+  /// Triggered when a mouse pointer has entered this widget.
   final void Function(PointerEnterEvent)? onEnter;
 
-  ///
+  /// Callback, called when this [MuteButton] is tapped.
   final void Function()? onTap;
 
   @override

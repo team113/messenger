@@ -22,25 +22,26 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
-import '../../../widget/volume_bar.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/widget/volume_bar.dart';
 
 /// Returns the volume overlay.
 class VolumeOverlay extends StatelessWidget {
   const VolumeOverlay({
     super.key,
     required this.controller,
-    required this.offset,
+    this.offset = Offset.zero,
     this.onExit,
   });
 
-  ///
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  ///
+  /// [Offset] to apply to this [VolumeOverlay].
   final Offset offset;
 
-  ///
+  /// Triggered when a mouse pointer has exited this widget when the widget
+  /// is still mounted.
   final void Function(PointerExitEvent)? onExit;
 
   @override

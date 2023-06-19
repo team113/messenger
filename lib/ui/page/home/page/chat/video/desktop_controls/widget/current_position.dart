@@ -17,45 +17,30 @@
 
 // ignore_for_file: implementation_imports
 
-import 'package:chewie/src/center_play_button.dart';
+import 'package:chewie/src/helpers/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// Returns the [Center]ed play/pause circular button.
-class HitArea extends StatelessWidget {
-  const HitArea({
-    super.key,
-    required this.controller,
-    required this.show,
-    this.onPressed,
-  });
+/// [Text] which returns current position and duration of the video.
+class CurrentPosition extends StatelessWidget {
+  const CurrentPosition({super.key, required this.controller});
 
-  ///
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
-
-  ///
-  final bool show;
-
-  ///
-  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return RxBuilder((_) {
-      final bool isFinished =
-          controller.position.value >= controller.duration.value;
+      final position = controller.position.value;
+      final duration = controller.duration.value;
 
-      return CenterPlayButton(
-        backgroundColor: style.colors.onBackgroundOpacity13,
-        iconColor: style.colors.onPrimary,
-        isFinished: isFinished,
-        isPlaying: controller.playerStatus.playing,
-        show: show,
-        onPressed: onPressed,
+      return Text(
+        '${formatDuration(position)} / ${formatDuration(duration)}',
+        style: fonts.headlineSmall!.copyWith(color: style.colors.onPrimary),
       );
     });
   }

@@ -16,20 +16,24 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// Returns the fullscreen toggling button.
-class ExpandButton extends StatelessWidget {
-  const ExpandButton({
+class MuteButton extends StatelessWidget {
+  const MuteButton({
     super.key,
-    this.isFullscreen = false,
+    required this.controller,
+    this.opacity = 1,
     this.barHeight,
     this.onTap,
   });
 
-  ///
-  final bool? isFullscreen;
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
+  final MeeduPlayerController controller;
+
+  /// Opacity
+  final double opacity;
 
   ///
   final double? barHeight;
@@ -43,13 +47,26 @@ class ExpandButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        height: barHeight,
-        child: Center(
-          child: Icon(
-            isFullscreen! ? Icons.fullscreen_exit : Icons.fullscreen,
-            color: style.colors.onPrimary,
-            size: 21,
+      child: AnimatedOpacity(
+        opacity: opacity,
+        duration: const Duration(milliseconds: 300),
+        child: Container(
+          height: barHeight,
+          margin: const EdgeInsets.only(right: 12.0),
+          padding: const EdgeInsets.only(
+            left: 8.0,
+            right: 8.0,
+          ),
+          child: Center(
+            child: RxBuilder((_) {
+              return Icon(
+                controller.volume.value > 0
+                    ? Icons.volume_up
+                    : Icons.volume_off,
+                color: style.colors.onPrimary,
+                size: 18,
+              );
+            }),
           ),
         ),
       ),

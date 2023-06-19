@@ -15,33 +15,44 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports
-
-import 'package:chewie/src/helpers/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// Returns the [Text] of the current video position.
-class CurrentPosition extends StatelessWidget {
-  const CurrentPosition({super.key, required this.controller});
+/// Returns the fullscreen toggling button.
+class ExpandButton extends StatelessWidget {
+  const ExpandButton({
+    super.key,
+    this.isFullscreen = false,
+    this.barHeight,
+    this.onTap,
+  });
 
-  ///
-  final MeeduPlayerController controller;
+  /// Indicator whether this video is in fullscreen mode.
+  final bool? isFullscreen;
+
+  /// Height of the bottom controls bar.
+  final double? barHeight;
+
+  /// Callback, called when this [ExpandButton] is tapped.
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
-    return RxBuilder((_) {
-      final position = controller.position.value;
-      final duration = controller.duration.value;
-
-      return Text(
-        '${formatDuration(position)} / ${formatDuration(duration)}',
-        style: fonts.headlineSmall!.copyWith(color: style.colors.onPrimary),
-      );
-    });
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        height: barHeight,
+        child: Center(
+          child: Icon(
+            isFullscreen! ? Icons.fullscreen_exit : Icons.fullscreen,
+            color: style.colors.onPrimary,
+            size: 21,
+          ),
+        ),
+      ),
+    );
   }
 }

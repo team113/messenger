@@ -29,16 +29,16 @@ import 'mute_button.dart';
 import 'play_pause_button.dart';
 import 'progress_bar.dart';
 
-/// Returns the bottom controls bar.
+/// [AnimatedSlider] which returns desktop design of a bottom controls bar.
 class BottomControlBar extends StatelessWidget {
   const BottomControlBar({
     super.key,
     required this.controller,
     this.volumeKey,
     this.barHeight,
-    this.playPause,
-    this.onTap,
-    this.onTap2,
+    this.onPlayPause,
+    this.onMute,
+    this.onFullscreen,
     this.onDragStart,
     this.onDragEnd,
     this.onEnter,
@@ -46,34 +46,34 @@ class BottomControlBar extends StatelessWidget {
     this.isOpen = true,
   });
 
-  ///
+  /// [GlobalKey] of the volume entry.
   final GlobalKey? volumeKey;
 
-  ///
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  ///
+  /// Height of the bottom controls bar.
   final double? barHeight;
 
-  ///
+  /// Indicator whether the [AnimatedSlider] should be visible or not.
   final bool? isOpen;
 
-  ///
+  /// Indicator whether this video is in fullscreen mode.
   final bool? isFullscreen;
 
-  ///
-  final void Function()? playPause;
+  /// Callback, called when [StyledPlayPauseButton] is tapped.
+  final void Function()? onPlayPause;
 
-  ///
-  final void Function()? onTap;
+  /// Callback, called when [MuteButton] is tapped.
+  final void Function()? onMute;
 
-  ///
-  final void Function()? onTap2;
+  /// Callback, called when [ExpandButton] is tapped.
+  final void Function()? onFullscreen;
 
-  ///
+  /// Callback, called when progress drag started.
   final dynamic Function()? onDragStart;
 
-  ///
+  /// Callback, called when progress drag ended.
   final dynamic Function()? onDragEnd;
 
   ///
@@ -107,7 +107,7 @@ class BottomControlBar extends StatelessWidget {
                   StyledPlayPauseButton(
                     controller: controller,
                     barHeight: barHeight,
-                    onTap: playPause,
+                    onTap: onPlayPause,
                   ),
                   const SizedBox(width: 12),
                   CurrentPosition(controller: controller),
@@ -123,13 +123,13 @@ class BottomControlBar extends StatelessWidget {
                     volumeKey: volumeKey,
                     barHeight: barHeight,
                     onEnter: onEnter,
-                    onTap: onTap,
+                    onTap: onMute,
                   ),
                   const SizedBox(width: 12),
                   ExpandButton(
                     isFullscreen: isFullscreen,
                     barHeight: barHeight,
-                    onTap: onTap2,
+                    onTap: onFullscreen,
                   ),
                   const SizedBox(width: 12),
                 ],

@@ -15,49 +15,42 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:chewie/chewie.dart';
+// ignore_for_file: implementation_imports
+
+import 'package:chewie/src/helpers/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
-import '/ui/page/home/page/chat/widget/video_progress_bar.dart';
 import '/themes.dart';
 
-class CustomProgressBar extends StatelessWidget {
-  const CustomProgressBar({
-    super.key,
-    required this.controller,
-    this.onDragStart,
-    this.onDragEnd,
-  });
+class CurrentPosition extends StatelessWidget {
+  const CurrentPosition({super.key, required this.controller});
 
-  ///
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
-
-  ///
-  final dynamic Function()? onDragStart;
-
-  ///
-  final dynamic Function()? onDragEnd;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
-    return Expanded(
-      child: ProgressBar(
-        controller,
-        barHeight: 2,
-        handleHeight: 6,
-        drawShadow: true,
-        onDragStart: onDragStart,
-        onDragEnd: onDragEnd,
-        colors: ChewieProgressColors(
-          playedColor: style.colors.primary,
-          handleColor: style.colors.primary,
-          bufferedColor: style.colors.background.withOpacity(0.5),
-          backgroundColor: style.colors.secondary.withOpacity(0.5),
+    return RxBuilder((_) {
+      final position = controller.position.value;
+      final duration = controller.duration.value;
+
+      return RichText(
+        text: TextSpan(
+          text: '${formatDuration(position)} ',
+          children: <InlineSpan>[
+            TextSpan(
+              text: '/ ${formatDuration(duration)}',
+              style: fonts.labelMedium!.copyWith(
+                color: style.colors.onPrimaryOpacity50,
+              ),
+            )
+          ],
+          style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
         ),
-      ),
-    );
+      );
+    });
   }
 }

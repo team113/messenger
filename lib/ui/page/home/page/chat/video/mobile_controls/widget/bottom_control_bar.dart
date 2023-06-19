@@ -19,32 +19,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
-import '/ui/page/home/page/chat/video_controls/mobile/widget/current_position.dart';
-import '/ui/page/home/page/chat/video_controls/mobile/widget/mute_button.dart';
-import '/ui/page/home/page/chat/video_controls/mobile/widget/progress_bar.dart';
+import 'current_position.dart';
+import 'mute_button.dart';
+import 'progress_bar.dart';
 
-/// Returns the bottom controls bar.
+/// [AnimatedOpacity] which returns mobile design of a bottom controls bar.
 class BottomControlBar extends StatelessWidget {
   const BottomControlBar({
     super.key,
     required this.controller,
-    required this.barHeight,
-    required this.hideStuff,
+    this.barHeight,
+    this.hideStuff = true,
     this.onTap,
     this.onDragStart,
     this.onDragEnd,
   });
 
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  final double barHeight;
+  /// Height of the bottom controls bar.
+  final double? barHeight;
 
+  /// Indicator whether user interface should be visible or not.
   final bool hideStuff;
 
+  /// Callback, called when [MuteButton] is tapped.
   final void Function()? onTap;
 
+  ///
   final dynamic Function()? onDragStart;
 
+  ///
   final dynamic Function()? onDragEnd;
 
   @override

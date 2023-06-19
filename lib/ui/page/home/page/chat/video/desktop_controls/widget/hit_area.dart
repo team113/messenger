@@ -28,17 +28,17 @@ class HitArea extends StatelessWidget {
   const HitArea({
     super.key,
     required this.controller,
-    required this.opacity,
+    this.opacity = 1,
     this.onPressed,
   });
 
-  ///
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  ///
+  /// Opacity of this [HitArea].
   final double opacity;
 
-  ///
+  /// Callback, called when this [HitArea] is pressed.
   final void Function()? onPressed;
 
   @override

@@ -15,17 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports
-
 import 'package:chewie/chewie.dart';
-import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
+import '/ui/page/home/page/chat/widget/video_progress_bar.dart';
 import '/themes.dart';
-import '../../../widget/video_progress_bar.dart';
 
-/// Returns the [VideoProgressBar] of the current video progression.
 class CustomProgressBar extends StatelessWidget {
   const CustomProgressBar({
     super.key,
@@ -34,13 +30,13 @@ class CustomProgressBar extends StatelessWidget {
     this.onDragEnd,
   });
 
-  ///
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  ///
+  /// Callback, called when progress drag started.
   final dynamic Function()? onDragStart;
 
-  ///
+  /// Callback, called when progress drag ended.
   final dynamic Function()? onDragEnd;
 
   @override
@@ -52,7 +48,7 @@ class CustomProgressBar extends StatelessWidget {
         controller,
         barHeight: 2,
         handleHeight: 6,
-        drawShadow: false,
+        drawShadow: true,
         onDragStart: onDragStart,
         onDragEnd: onDragEnd,
         colors: ChewieProgressColors(

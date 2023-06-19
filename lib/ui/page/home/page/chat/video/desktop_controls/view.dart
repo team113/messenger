@@ -183,9 +183,9 @@ class _DesktopControlsState extends State<DesktopControlsView>
                   barHeight: _barHeight,
                   isOpen: _showBottomBar || _showInterface,
                   isFullscreen: widget.isFullscreen?.value == true,
-                  playPause: _playPause,
-                  onTap2: _onExpandCollapse,
-                  onTap: () {
+                  onPlayPause: _playPause,
+                  onFullscreen: _onExpandCollapse,
+                  onMute: () {
                     _cancelAndRestartTimer();
                     if (widget.controller.volume.value == 0) {
                       widget.controller.setVolume(_latestVolume ?? 0.5);
