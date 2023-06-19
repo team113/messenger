@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -29,6 +30,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../pubspec.g.dart';
 import '/config.dart';
 import '/routes.dart';
 import 'backoff.dart';
@@ -45,10 +47,22 @@ class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
+  /// `User-Agent` header to put in the network requests.
+  String? _userAgent;
+
   /// [Dio] client to use in queries.
   ///
   /// May be overridden to be mocked in tests.
-  Dio dio = Dio();
+  Dio? client;
+
+  /// Returns a [Dio] client to use in queries.
+  Future<Dio> get dio async {
+    client ??= Dio(
+      BaseOptions(headers: {if (!isWeb) 'User-Agent': await userAgent}),
+    );
+
+    return client!;
+  }
 
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
@@ -76,6 +90,44 @@ class PlatformUtilsImpl {
   /// Indicates whether device is running on a desktop OS.
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
+
+  /// Returns a `User-Agent` header to put in the network requests.
+  Future<String> get userAgent async {
+    if (_userAgent == null) {
+      final DeviceInfoPlugin device = DeviceInfoPlugin();
+
+      String? system;
+
+      if (isWeb) {
+        final info = await device.webBrowserInfo;
+        _userAgent = info.userAgent ?? 'Gapopa/${Pubspec.version}';
+        return _userAgent!;
+      } else if (isMacOS) {
+        final info = await device.macOsInfo;
+        system = 'macOS ${info.osRelease}; ${info.arch}; ${info.model}';
+      } else if (isWindows) {
+        final info = await device.windowsInfo;
+        system = '${info.productName}; ${info.buildLab}';
+      } else if (isLinux) {
+        final info = await device.linuxInfo;
+        system = info.prettyName;
+      } else if (isAndroid) {
+        final info = await device.androidInfo;
+        system =
+            'Android ${info.version}; ${info.hardware}; ${info.product}; ${info.manufacturer}';
+      } else if (isIOS) {
+        final info = await device.iosInfo;
+        system = '${info.systemName} ${info.systemVersion}; ${info.model}';
+      }
+
+      _userAgent = 'Gapopa/${Pubspec.version}';
+      if (system != null) {
+        _userAgent = '$_userAgent ($system)';
+      }
+    }
+
+    return _userAgent!;
+  }
 
   /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
@@ -242,7 +294,7 @@ class PlatformUtilsImpl {
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
       size = size ??
-          int.parse(((await dio.head(url!)).headers['content-length']
+          int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
       String downloads = await PlatformUtils.downloadsDirectory;
@@ -328,7 +380,7 @@ class PlatformUtilsImpl {
             await Backoff.run(
               () async {
                 try {
-                  await dio.download(
+                  await (await dio).download(
                     url,
                     file!.path,
                     onReceiveProgress: onReceiveProgress,
@@ -364,7 +416,7 @@ class PlatformUtilsImpl {
     if (isMobile && !isWeb) {
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
-      await dio.download(url, path);
+      await (await dio).download(url, path);
       await ImageGallerySaver.saveFile(path, name: name);
       File(path).delete();
     }
@@ -374,7 +426,7 @@ class PlatformUtilsImpl {
   Future<void> share(String url, String name) async {
     final Directory temp = await getTemporaryDirectory();
     final String path = '${temp.path}/$name';
-    await dio.download(url, path);
+    await (await dio).download(url, path);
     await Share.shareXFiles([XFile(path)]);
     File(path).delete();
   }

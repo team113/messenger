@@ -33,17 +33,21 @@ import '../world/custom_world.dart';
 /// - I have Internet with delay of 2 seconds
 final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
   'I have Internet with delay of {int} second(s)?',
-  (int delay, context) => Future.sync(() {
+  (int delay, context) async {
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.interceptors.removeWhere((e) => e is DelayedInterceptor);
-    PlatformUtils.dio.interceptors.add(
-      DelayedInterceptor(Duration(seconds: delay)),
-    );
-  }),
+
+    (await PlatformUtils.dio)
+        .interceptors
+        .removeWhere((e) => e is DelayedInterceptor);
+
+    (await PlatformUtils.dio)
+        .interceptors
+        .add(DelayedInterceptor(Duration(seconds: delay)));
+  },
 );
 
 /// Removes delay from the [GraphQlProvider] requests.
@@ -52,14 +56,17 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
 /// - I have Internet without delay
 final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
   'I have Internet without delay',
-  (context) => Future.sync(() {
+  (context) async {
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = null;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.interceptors.removeWhere((e) => e is DelayedInterceptor);
-  }),
+
+    (await PlatformUtils.dio)
+        .interceptors
+        .removeWhere((e) => e is DelayedInterceptor);
+  },
 );
 
 /// Makes all [GraphQlProvider] requests throw a [ConnectionException].

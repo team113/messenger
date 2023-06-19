@@ -140,7 +140,7 @@ class Config {
     // configuration.
     if (confRemote) {
       try {
-        final response = await PlatformUtils.dio
+        final response = await (await PlatformUtils.dio)
             .fetch(RequestOptions(path: '$url:$port/conf.toml'));
         if (response.statusCode == 200) {
           Map<String, dynamic> remote =
