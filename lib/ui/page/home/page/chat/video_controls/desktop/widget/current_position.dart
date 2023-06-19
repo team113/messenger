@@ -25,7 +25,7 @@ import '/themes.dart';
 
 /// Returns the [Text] of the current video position.
 class CurrentPosition extends StatelessWidget {
-  const CurrentPosition({required this.controller});
+  const CurrentPosition({super.key, required this.controller});
 
   ///
   final MeeduPlayerController controller;
