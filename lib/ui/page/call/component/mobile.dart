@@ -22,7 +22,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -44,6 +44,7 @@ import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_cliprrect.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';

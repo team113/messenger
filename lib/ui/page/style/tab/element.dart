@@ -26,7 +26,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/call_title.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/call/widget/tooltip_button.dart';
-import '/ui/page/home/page/chat/widget/animated_fab.dart';
+
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -650,77 +650,7 @@ class ElementStyleTabView extends StatelessWidget {
                   ),
                 ),
               ),
-              element(
-                background: true,
-                title: 'Выпадающее меню с кнопками в чате.',
-                child: AnimatedFab(
-                  labelStyle: fonts.labelLarge,
-                  closedIcon: Icon(
-                    Icons.more_horiz,
-                    color: style.colors.primaryHighlight,
-                    size: 30,
-                  ),
-                  openedIcon: Icon(
-                    Icons.close,
-                    color: style.colors.primaryHighlight,
-                    size: 30,
-                  ),
-                  actions: [
-                    AnimatedFabAction(
-                      icon: Icon(
-                        Icons.call,
-                        color: style.colors.primaryHighlight,
-                      ),
-                      label: 'label_audio_call'.l10nfmt({'by': 'userName'}),
-                      onTap: () {},
-                      noAnimation: true,
-                    ),
-                    AnimatedFabAction(
-                      icon: Icon(
-                        Icons.video_call,
-                        color: style.colors.primaryHighlight,
-                      ),
-                      label: 'label_video_call'.l10nfmt({'by': 'userName'}),
-                      onTap: () {},
-                      noAnimation: true,
-                    ),
-                    AnimatedFabAction(
-                      icon: Icon(
-                        Icons.person,
-                        color: style.colors.primaryHighlight,
-                      ),
-                      label: 'label_contact'.l10n,
-                      onTap: () {},
-                    ),
-                    AnimatedFabAction(
-                      icon: Icon(
-                        Icons.attachment,
-                        color: style.colors.primaryHighlight,
-                      ),
-                      label: 'label_file'.l10n,
-                      onTap: () {},
-                    ),
-                    AnimatedFabAction(
-                      icon: Icon(
-                        Icons.photo,
-                        color: style.colors.primaryHighlight,
-                      ),
-                      label: 'label_photo'.l10n,
-                      onTap: () {},
-                    ),
-                    AnimatedFabAction(
-                      icon: Icon(
-                        Icons.camera,
-                        color: style.colors.primaryHighlight,
-                      ),
-                      label: 'label_camera'.l10n,
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: 200),
-              const Caption('Не используется'),
               element(
                 background: true,
                 title: 'Открыть настройки в звонке.',
