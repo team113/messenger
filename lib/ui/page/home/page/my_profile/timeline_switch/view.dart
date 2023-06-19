@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -39,8 +38,6 @@ class TimelineSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
-
     return GetBuilder(
       init: TimelineSwitchController(Get.find()),
       builder: (TimelineSwitchController c) {
@@ -51,14 +48,7 @@ class TimelineSwitchView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_display_timestamps'.l10n,
-                    style: fonts.headlineMedium,
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_display_timestamps'.l10n),
               const SizedBox(height: 13),
               Flexible(
                 child: ListView.separated(
