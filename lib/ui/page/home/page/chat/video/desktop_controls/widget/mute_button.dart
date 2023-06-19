@@ -21,7 +21,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// Returns the mute/unmute button with a volume overlay above it.
+/// [Widget] which returns a mute/unmute button with a volume overlay above it.
 class MuteButton extends StatelessWidget {
   const MuteButton({
     super.key,

@@ -23,20 +23,20 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// Returns the play/pause button.
+/// [Widget] which returns the play/pause button.
 class StyledPlayPauseButton extends StatelessWidget {
   const StyledPlayPauseButton({
     super.key,
     required this.controller,
-    this.barHeight = 48.0 * 1.5,
+    this.height,
     this.onTap,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Height of the bottom controls bar.
-  final double? barHeight;
+  /// Height of this [StyledPlayPauseButton].
+  final double? height;
 
   /// Callback, called when this [StyledPlayPauseButton] is tapped.
   final void Function()? onTap;
@@ -50,7 +50,7 @@ class StyledPlayPauseButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          height: barHeight,
+          height: height,
           color: style.colors.transparent,
           child: RxBuilder((_) {
             return AnimatedPlayPause(

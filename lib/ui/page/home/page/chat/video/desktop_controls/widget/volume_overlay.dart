@@ -25,7 +25,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/volume_bar.dart';
 
-/// Returns the volume overlay.
+/// [Widget] which returns [Stack]ed volume overlay.
 class VolumeOverlay extends StatelessWidget {
   const VolumeOverlay({
     super.key,

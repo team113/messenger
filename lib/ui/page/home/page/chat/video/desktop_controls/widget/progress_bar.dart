@@ -18,14 +18,13 @@
 // ignore_for_file: implementation_imports
 
 import 'package:chewie/chewie.dart';
-import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/video_progress_bar.dart';
 
-/// Returns the [VideoProgressBar] of the current video progression.
+/// Custom styled [ProgressBar] of the current video progression.
 class CustomProgressBar extends StatelessWidget {
   const CustomProgressBar({
     super.key,

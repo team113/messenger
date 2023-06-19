@@ -52,7 +52,7 @@ class BottomControlBar extends StatelessWidget {
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Height of the bottom controls bar.
+  /// Height of this [BottomControlBar].
   final double? barHeight;
 
   /// Indicator whether the [AnimatedSlider] should be visible or not.
@@ -76,7 +76,7 @@ class BottomControlBar extends StatelessWidget {
   /// Callback, called when progress drag ended.
   final dynamic Function()? onDragEnd;
 
-  ///
+  /// Triggered when a mouse pointer has entered this widget.
   final void Function(PointerEnterEvent)? onEnter;
 
   @override
@@ -106,7 +106,7 @@ class BottomControlBar extends StatelessWidget {
                   const SizedBox(width: 7),
                   StyledPlayPauseButton(
                     controller: controller,
-                    barHeight: barHeight,
+                    height: barHeight,
                     onTap: onPlayPause,
                   ),
                   const SizedBox(width: 12),
@@ -128,7 +128,7 @@ class BottomControlBar extends StatelessWidget {
                   const SizedBox(width: 12),
                   ExpandButton(
                     isFullscreen: isFullscreen,
-                    barHeight: barHeight,
+                    height: barHeight,
                     onTap: onFullscreen,
                   ),
                   const SizedBox(width: 12),

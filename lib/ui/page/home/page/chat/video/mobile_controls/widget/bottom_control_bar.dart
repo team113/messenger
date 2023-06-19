@@ -47,10 +47,10 @@ class BottomControlBar extends StatelessWidget {
   /// Callback, called when [MuteButton] is tapped.
   final void Function()? onTap;
 
-  ///
+  /// Callback, called when progress drag started.
   final dynamic Function()? onDragStart;
 
-  ///
+  /// Callback, called when progress drag ended.
   final dynamic Function()? onDragEnd;
 
   @override
@@ -87,7 +87,7 @@ class BottomControlBar extends StatelessWidget {
                       MuteButton(
                         controller: controller,
                         opacity: hideStuff ? 0.0 : 1.0,
-                        barHeight: barHeight,
+                        height: barHeight,
                         onTap: onTap,
                       ),
                     ],

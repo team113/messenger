@@ -23,22 +23,22 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// Returns the [Center]ed play/pause circular button.
+/// [Widget] which returns [Center]ed play/pause circular button.
 class HitArea extends StatelessWidget {
   const HitArea({
     super.key,
     required this.controller,
-     this.show = false,
+    this.show = false,
     this.onPressed,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  ///
+  /// Indicator whether [CenterPlayButton] should be visible or not.
   final bool show;
 
-  ///
+  /// Callback, called when this [HitArea] is pressed.
   final void Function()? onPressed;
 
   @override

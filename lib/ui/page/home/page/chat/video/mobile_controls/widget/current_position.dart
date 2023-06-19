@@ -23,6 +23,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
+/// [RichText] which returns current position and duration of the video.
 class CurrentPosition extends StatelessWidget {
   const CurrentPosition({super.key, required this.controller});
 
