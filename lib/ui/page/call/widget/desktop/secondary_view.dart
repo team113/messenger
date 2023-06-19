@@ -155,29 +155,25 @@ class SecondaryView extends StatelessWidget {
   /// Callback, called when dragging is ended.
   final dynamic Function(DragEndDetails)? onDragEnd;
 
-  /// Callback, called when pointer has contacted the screen with a primary
-  /// button and has begun to move.
+  /// Callback, called when a pan operation starts.
   final void Function(DragStartDetails)? onPanStart;
 
-  /// Callback, called when pointer that is in contact with the screen with
-  /// a primary button and moving has moved again.
+  /// Callback, called when a pan operation updates.
   final void Function(DragUpdateDetails)? onPanUpdate;
 
-  /// Callback, called when pointer that was previously in contact with the
-  /// screen with a primary button and moving is no longer in contact with
-  /// the screen and was moving at a specific velocity when it stopped
-  /// contacting the screen.
+  /// Callback, called when a pan operation ends.
   final void Function(DragEndDetails)? onPanEnd;
 
-  /// Callback, called when a mouse pointer has entered this widget.
+  /// Callback, called when the mouse cursor enters the area of this
+  /// [SecondaryView].
   final void Function(PointerEnterEvent)? onEnter;
 
-  /// Callback, called when a pointer moves into a position within this
-  /// widget without buttons pressed
+  /// Callback, called when the mouse cursor moves in the area of this
+  /// [SecondaryView].
   final void Function(PointerHoverEvent)? onHover;
 
-  /// Callback, called when a mouse pointer has exited this widget when the
-  /// widget is still mounted.
+  /// Callback, called when the mouse cursor leaves the area of this
+  /// [SecondaryView].
   final void Function(PointerExitEvent)? onExit;
 
   /// Callback, called when the user taps the [InkResponse].
@@ -357,7 +353,7 @@ class SecondaryView extends StatelessWidget {
                                       )
                                     : BorderRadius.zero,
                                 child: ConditionalBackdropFilter(
-                                  condition: PlatformUtils.isWeb && (condition),
+                                  condition: PlatformUtils.isWeb && condition,
                                   child: Container(
                                     color: PlatformUtils.isWeb
                                         ? style.colors.onSecondaryOpacity60

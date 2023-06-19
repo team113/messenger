@@ -110,7 +110,7 @@ class SvgImage extends StatelessWidget {
         excludeFromSemantics: excludeFromSemantics,
       );
 
-  /// Instantiates a widget rendering an SVG picture from an [File].
+  /// Instantiates a widget rendering an SVG picture from a [File].
   ///
   /// Either the [width] and [height] arguments should be specified, or the
   /// widget should be placed in a context setting layout constraints tightly.

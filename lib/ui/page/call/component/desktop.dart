@@ -704,7 +704,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       bool enabled = c.displayMore.isTrue &&
                           c.primaryDrags.value == 0 &&
                           c.secondaryDrags.value == 0;
-                      return LaunchpadWidget(
+                      return Launchpad(
                         displayMore: c.displayMore.value,
                         test: (e) => e?.c == c,
                         onEnter: enabled ? (d) => c.keepUi(true) : null,
@@ -1452,7 +1452,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                     () => TitleBar(
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
-                      constraints: BoxConstraints(maxWidth: c.size.width - 60),
                       toggleFullscreen: c.toggleFullscreen,
                       onTap: WebUtils.isPopup
                           ? null

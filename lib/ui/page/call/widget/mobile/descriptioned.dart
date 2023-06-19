@@ -19,12 +19,12 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// [Column] consisting of the [child] with the provided [description].
-class WidgetWithDescription extends StatelessWidget {
-  const WidgetWithDescription({
+/// [Widget] displaying its [child] with the provided [description].
+class Descriptioned extends StatelessWidget {
+  const Descriptioned({
     super.key,
     required this.child,
-    this.opacity = 1,
+    this.showDescription = true,
     this.duration = const Duration(milliseconds: 200),
     this.description,
   });
@@ -32,11 +32,11 @@ class WidgetWithDescription extends StatelessWidget {
   /// [Widget] displayed along with the description.
   final Widget child;
 
-  /// [Widget] displays a description for the child widget.
+  /// Description of the [child].
   final String? description;
 
-  /// Opacity of the [description].
-  final double opacity;
+  /// Indicator whether the [description] should be showed.
+  final bool showDescription;
 
   /// [Duration] of the transition.
   final Duration duration;
@@ -50,16 +50,17 @@ class WidgetWithDescription extends StatelessWidget {
       children: [
         child,
         const SizedBox(height: 6),
-        DefaultTextStyle(
-          style: fonts.bodySmall!.copyWith(color: style.colors.onPrimary),
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          child: AnimatedOpacity(
-            opacity: opacity,
-            duration: duration,
-            child: description != null ? Text(description!) : const SizedBox(),
+        if (description != null)
+          DefaultTextStyle(
+            style: fonts.bodySmall!.copyWith(color: style.colors.onPrimary),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            child: AnimatedOpacity(
+              opacity: showDescription ? 1 : 0,
+              duration: duration,
+              child: Text(description!),
+            ),
           ),
-        ),
       ],
     );
   }

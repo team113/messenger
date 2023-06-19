@@ -473,10 +473,10 @@ class _CallButtonWidget extends StatelessWidget {
   /// Indicator whether [hint] should be displayed.
   final bool hinted;
 
-  /// Indicator whether the available space needs to be filled.
+  /// Indicator whether the [hint] should be always displayed under the button.
   final bool expanded;
 
-  /// Additional button extension for blurred background.
+  /// Indicator whether background should be blurred.
   final bool withBlur;
 
   /// Background color of this [_CallButtonWidget].

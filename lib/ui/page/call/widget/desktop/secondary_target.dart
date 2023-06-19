@@ -78,7 +78,6 @@ class SecondaryTarget extends StatelessWidget {
                   builder: (context, candidate, rejected) {
                     return IgnorePointer(
                       child: AnimatedOpacity(
-                        key: const Key('SecondaryTargetAnimatedSwitcher'),
                         duration: 200.milliseconds,
                         opacity: drags >= 1 ? 1 : 0,
                         child: Container(

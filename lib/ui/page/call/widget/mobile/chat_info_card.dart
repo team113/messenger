@@ -16,35 +16,36 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 
-/// [Widget] which builds a tile representation of the chat.
-class ChatCardPreview extends StatelessWidget {
-  const ChatCardPreview({
+/// Tile representation of the chat.
+class ChatInfoCard extends StatelessWidget {
+  const ChatInfoCard({
     super.key,
     required this.title,
     required this.subtitle,
     required this.trailing,
-    required this.duration,
+    required this.callDuration,
     required this.child,
     this.onTap,
   });
 
-  /// Title of this [ChatCardPreview].
+  /// Title of this [ChatInfoCard].
   final String title;
 
-  /// Subtitle of this [ChatCardPreview].
+  /// Subtitle of this [ChatInfoCard].
   final String subtitle;
 
-  /// Trailing of this [ChatCardPreview].
+  /// Trailing of this [ChatInfoCard].
   final String trailing;
 
   /// Current duration of the call.
-  final Duration duration;
+  final Rx<Duration> callDuration;
 
-  /// [Widget] wrapped by this [ChatCardPreview].
+  /// [Widget] wrapped by this [ChatInfoCard].
   final Widget child;
 
   /// Callback [Function] that opens a screen to add members to the chat.
@@ -69,7 +70,7 @@ class ChatCardPreview extends StatelessWidget {
             borderRadius: style.cardRadius,
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+              padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
                   child,
@@ -90,12 +91,14 @@ class ChatCardPreview extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              duration.hhMmSs(),
-                              style: fonts.labelLarge!.copyWith(
-                                color: style.colors.onPrimary,
-                              ),
-                            ),
+                            Obx(() {
+                              return Text(
+                                callDuration.value.hhMmSs(),
+                                style: fonts.labelLarge!.copyWith(
+                                  color: style.colors.onPrimary,
+                                ),
+                              );
+                            }),
                           ],
                         ),
                         Padding(

@@ -22,12 +22,11 @@ import '/themes.dart';
 import '/ui/page/call/widget/tooltip_button.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Title bar which containing information about the call.
+/// Title bar of a call.
 class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,
     required this.fullscreen,
-    required this.constraints,
     this.children = const <Widget>[],
     this.height,
     this.onTap,
@@ -39,9 +38,6 @@ class TitleBar extends StatelessWidget {
 
   /// Height of the [TitleBar].
   final double? height;
-
-  /// Maximum width that satisfies the constraints.
-  final BoxConstraints constraints;
 
   /// [Widget]s to display.
   final List<Widget> children;
@@ -69,44 +65,41 @@ class TitleBar extends StatelessWidget {
             onDoubleTap: toggleFullscreen,
           ),
 
-          // Left part of the title bar that displays the recipient or
-          // the caller, its avatar and the call's state.
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ConstrainedBox(
-              constraints: constraints,
-              child: InkWell(
-                onTap: onTap,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: children,
+          Row(
+            children: [
+              // Left part of the title bar that displays the recipient or the
+              // caller, its avatar and the call's state.
+              Flexible(
+                child: InkWell(
+                  onTap: onTap,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: children,
+                  ),
                 ),
               ),
-            ),
-          ),
 
-          // Right part of the title bar that displays buttons.
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 3),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TooltipButton(
-                    onTap: toggleFullscreen,
-                    hint: fullscreen
-                        ? 'btn_fullscreen_exit'.l10n
-                        : 'btn_fullscreen_enter'.l10n,
-                    child: SvgImage.asset(
-                      'assets/icons/fullscreen_${fullscreen ? 'exit' : 'enter'}.svg',
-                      width: 12,
+              // Right part of the title bar that displays buttons.
+              Padding(
+                padding: const EdgeInsets.only(right: 3, left: 5),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TooltipButton(
+                      onTap: toggleFullscreen,
+                      hint: fullscreen
+                          ? 'btn_fullscreen_exit'.l10n
+                          : 'btn_fullscreen_enter'.l10n,
+                      child: SvgImage.asset(
+                        'assets/icons/fullscreen_${fullscreen ? 'exit' : 'enter'}.svg',
+                        width: 12,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
+                    const SizedBox(width: 10),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),

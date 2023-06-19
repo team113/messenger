@@ -28,18 +28,17 @@ import '/ui/page/call/controller.dart';
 /// [Widget] which builds the [Participant] with a [AnimatedClipRRect].
 class AnimatedParticipant extends StatelessWidget {
   const AnimatedParticipant(
-    this.e,
+    this.participant,
     this.muted,
     this.animated,
     this.minimized, {
     super.key,
   });
 
-  /// [Participant] object that represents a separate call entity
-  /// participating in a call.
-  final Participant e;
+  /// [Participant] this [AnimatedParticipant] represents.
+  final Participant participant;
 
-  /// Indicator whether the participant's sound is muted or not.
+  /// Indicator whether the [participant]'s sound is muted or not.
   final bool? muted;
 
   /// Indicator whether animation is turned on or off.
@@ -53,7 +52,7 @@ class AnimatedParticipant extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return AnimatedClipRRect(
-      key: Key(e.member.id.toString()),
+      key: Key(participant.member.id.toString()),
       borderRadius: animated ? BorderRadius.circular(10) : BorderRadius.zero,
       child: AnimatedContainer(
         duration: 200.milliseconds,
@@ -69,12 +68,12 @@ class AnimatedParticipant extends StatelessWidget {
             const ParticipantDecoratorWidget(),
             IgnorePointer(
               child: ParticipantWidget(
-                e,
+                participant,
                 offstageUntilDetermined: true,
               ),
             ),
             ParticipantOverlayWidget(
-              e,
+              participant,
               muted: muted,
               hovered: animated,
               preferBackdrop: !minimized,

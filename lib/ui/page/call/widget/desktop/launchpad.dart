@@ -25,8 +25,8 @@ import '/ui/page/call/component/common.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Panel which containing the dragging and dropping elements.
-class LaunchpadWidget extends StatelessWidget {
-  const LaunchpadWidget({
+class Launchpad extends StatelessWidget {
+  const Launchpad({
     super.key,
     required this.displayMore,
     this.paneledItems = const <Widget>[],
@@ -38,45 +38,44 @@ class LaunchpadWidget extends StatelessWidget {
     this.onWillAccept,
   });
 
-  /// Indicator whether additional elements should be displayed
-  /// in launchpad.
+  /// Indicator whether additional elements should be displayed in launchpad.
   final bool displayMore;
 
   /// Widgets to put inside a [Wrap].
   final List<Widget> paneledItems;
 
-  /// Callback, called when at least one element from the panel list
-  /// satisfies the condition set by the [test] function.
+  /// Callback, called when at least one element from the panel list satisfies
+  /// the condition set by the [test] function.
   final bool Function(CallButton?)? test;
 
   /// Callback, called when the mouse cursor enters the area of this
-  /// [LaunchpadWidget].
+  /// [Launchpad].
   final void Function(PointerEnterEvent)? onEnter;
 
   /// Callback, called when the mouse cursor moves in the area of this
-  /// [LaunchpadWidget].
+  /// [Launchpad].
   final void Function(PointerHoverEvent)? onHover;
 
   /// Callback, called when the mouse cursor leaves the area of this
-  /// [LaunchpadWidget].
+  /// [Launchpad].
   final void Function(PointerExitEvent)? onExit;
 
   /// Callback, called when an acceptable piece of data was dropped over this
   /// drag target.
   final void Function(CallButton)? onAccept;
 
-  /// Callback, called to determine whether this widget is interested in
-  /// receiving a given piece of data being dragged over this drag target.
+  /// Callback, called to determine whether this [Launchpad] is interested in
+  /// receiving a given piece of data being dragged over a [DragTarget].
   final bool Function(CallButton?)? onWillAccept;
 
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    /// Builder function for the [DragTarget].
-    ///
-    /// It is responsible for displaying the visual interface when dragging
-    /// elements onto the target.
+    // Builder function for the [DragTarget].
+    //
+    // It is responsible for displaying the visual interface when dragging
+    // elements onto the target.
     Widget launchpadBuilder(
       BuildContext context,
       List<CallButton?> candidate,
