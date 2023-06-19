@@ -130,7 +130,11 @@ class MemberTile extends StatelessWidget {
                     color: style.colors.primary,
                   ),
                 )
-              : SvgImage.asset('assets/icons/delete.svg', height: 14 * 1.5),
+              : SvgImage.asset(
+                  'assets/icons/delete.svg',
+                  height: 14 * 1.5,
+                  key: const Key('DeleteMemberButton'),
+                ),
         ),
         const SizedBox(width: 6),
       ],
