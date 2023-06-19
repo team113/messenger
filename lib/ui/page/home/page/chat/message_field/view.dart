@@ -648,42 +648,46 @@ class MessageFieldView extends StatelessWidget {
                     .reversed
                     .mapIndexed((i, e) {
                   if (e is SendButton) {
-                    return Obx(() {
-                      return GestureDetector(
-                        onLongPress: canForward ? c.forwarding.toggle : null,
-                        child: WidgetButton(
-                          onPressed: canSend
-                              ? () {
-                                  if (c.editing.value) {
-                                    c.field.unsubmit();
+                    Widget button() {
+                      return Obx(() {
+                        return GestureDetector(
+                          onLongPress: canForward ? c.forwarding.toggle : null,
+                          child: WidgetButton(
+                            onPressed: canSend
+                                ? () {
+                                    if (c.editing.value) {
+                                      c.field.unsubmit();
+                                    }
+                                    c.field.submit();
                                   }
-                                  c.field.submit();
-                                }
-                              : null,
-                          child: SizedBox(
-                            width: 50,
-                            height: 56,
-                            child: Center(
-                              child: AnimatedSwitcher(
-                                duration: 300.milliseconds,
-                                child: c.forwarding.value
-                                    ? SvgImage.asset(
-                                        'assets/icons/forward.svg',
-                                        width: 26,
-                                        height: 22,
-                                      )
-                                    : SvgImage.asset(
-                                        'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
-                                        key: sendKey ?? const Key('Send'),
-                                        width: 25.44,
-                                        height: 21.91,
-                                      ),
+                                : null,
+                            child: SizedBox(
+                              width: 50,
+                              height: 56,
+                              child: Center(
+                                child: AnimatedSwitcher(
+                                  duration: 300.milliseconds,
+                                  child: c.forwarding.value
+                                      ? SvgImage.asset(
+                                          'assets/icons/forward.svg',
+                                          width: 26,
+                                          height: 22,
+                                        )
+                                      : SvgImage.asset(
+                                          'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
+                                          key: sendKey ?? const Key('Send'),
+                                          width: 25.44,
+                                          height: 21.91,
+                                        ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    });
+                        );
+                      });
+                    }
+
+                    return button();
                   }
 
                   return WidgetButton(

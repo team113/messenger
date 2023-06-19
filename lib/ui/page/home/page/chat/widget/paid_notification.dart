@@ -7,8 +7,10 @@ class PaidNotification extends StatelessWidget {
     super.key,
     this.border,
     this.onPressed,
+    this.accepted = false,
   });
 
+  final bool accepted;
   final Border? border;
   final void Function()? onPressed;
 
@@ -47,12 +49,12 @@ class PaidNotification extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'Kirey установил 50 ¤ за отправку сообщения и 150 ¤/мин за за совершение звонка.',
+                    'Kirey установил 50 ¤ за отправку сообщения и 150 ¤/мин за совершение звонка.',
                     style: style.systemMessageStyle,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Принять и продолжить',
+                    accepted ? 'Закрыть' : 'Принять и продолжить',
                     style: style.systemMessageStyle.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                     ),

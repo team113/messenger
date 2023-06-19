@@ -294,7 +294,48 @@ class _ChatViewState extends State<ChatView>
                             ];
                           }
 
-                          return Row(children: children);
+                          return Row(
+                            children: [
+                              if (c.paid)
+                                AnimatedOpacity(
+                                  opacity:
+                                      c.paidDisclaimerDismissed.value ? 1 : 0,
+                                  duration: 300.milliseconds,
+                                  child: Padding(
+                                    // padding: const EdgeInsets.only(right: 28),
+                                    padding: const EdgeInsets.only(right: 25),
+                                    child: WidgetButton(
+                                      onPressed: () {
+                                        c.paidDisclaimerDismissed.value = false;
+                                        c.paidDisclaimer.value = true;
+                                      },
+                                      child: SvgImage.asset(
+                                        'assets/icons/g_coin.svg',
+                                        height: 20,
+                                      ),
+                                      // child: Icon(
+                                      //   Icons.paid_outlined,
+                                      //   color: style.colors.primary,
+                                      // ),
+                                      // child: Text(
+                                      //   '¤',
+                                      //   style:
+                                      //       style.systemMessageStyle.copyWith(
+                                      //     fontWeight: FontWeight.w300,
+                                      //     color: style.colors.primary,
+                                      //     // color: const Color(
+                                      //     //   // 0xFFffcf78,
+                                      //     //   0xFFDEBE99,
+                                      //     // ),
+                                      //     fontSize: 24,
+                                      //   ),
+                                      // ),
+                                    ),
+                                  ),
+                                ),
+                              ...children,
+                            ],
+                          );
                         }),
                       ],
                     ),
@@ -405,152 +446,81 @@ class _ChatViewState extends State<ChatView>
                                   return AnimatedSizeAndFade.showHide(
                                     fadeDuration: 250.milliseconds,
                                     sizeDuration: 250.milliseconds,
-                                    show: (c.paidDisclaimerDismissed.value &&
-                                            c.paid) ||
-                                        c.pinned.isNotEmpty,
+                                    show: c.pinned.isNotEmpty,
                                     child: Row(
                                       children: [
-                                        if (c.pinned.isNotEmpty)
-                                          Expanded(
-                                            child: ContextMenuRegion(
-                                              actions: [
-                                                ContextMenuButton(
-                                                  key: const Key('Unpin'),
-                                                  label: PlatformUtils.isMobile
-                                                      ? 'btn_unpin'.l10n
-                                                      : 'btn_unpin_message'
-                                                          .l10n,
-                                                  trailing: SvgImage.asset(
-                                                    'assets/icons/send_small.svg',
-                                                    width: 18.37,
-                                                    height: 16,
-                                                  ),
-                                                  onPressed: c.unpin,
+                                        Expanded(
+                                          child: ContextMenuRegion(
+                                            actions: [
+                                              ContextMenuButton(
+                                                key: const Key('Unpin'),
+                                                label: PlatformUtils.isMobile
+                                                    ? 'btn_unpin'.l10n
+                                                    : 'btn_unpin_message'.l10n,
+                                                trailing: SvgImage.asset(
+                                                  'assets/icons/send_small.svg',
+                                                  width: 18.37,
+                                                  height: 16,
                                                 ),
-                                              ],
-                                              child: WidgetButton(
-                                                onPressed: () {
-                                                  double? offset = c.visible[c
-                                                      .pinned[
-                                                          c.displayPinned.value]
-                                                      .id];
+                                                onPressed: c.unpin,
+                                              ),
+                                            ],
+                                            child: WidgetButton(
+                                              onPressed: () {
+                                                double? offset = c.visible[c
+                                                    .pinned[
+                                                        c.displayPinned.value]
+                                                    .id];
 
-                                                  if (offset != null) {
-                                                    bool next = offset < 50 ||
-                                                        c
-                                                                .listController
-                                                                .position
-                                                                .pixels ==
-                                                            c
-                                                                .listController
-                                                                .position
-                                                                .maxScrollExtent;
+                                                if (offset != null) {
+                                                  bool next = offset < 50 ||
+                                                      c.listController.position
+                                                              .pixels ==
+                                                          c
+                                                              .listController
+                                                              .position
+                                                              .maxScrollExtent;
 
-                                                    print(
-                                                        '$next ${c.listController.position.pixels} < ${c.listController.position.maxScrollExtent}');
-
-                                                    if (next) {
-                                                      c.displayPinned.value +=
-                                                          1;
-                                                      if (c.displayPinned
-                                                              .value >=
-                                                          c.pinned.length) {
-                                                        c.displayPinned.value =
-                                                            0;
-                                                      }
+                                                  if (next) {
+                                                    c.displayPinned.value += 1;
+                                                    if (c.displayPinned.value >=
+                                                        c.pinned.length) {
+                                                      c.displayPinned.value = 0;
                                                     }
                                                   }
+                                                }
 
-                                                  c.animateTo(
-                                                    c
-                                                        .pinned[c.displayPinned
-                                                            .value]
-                                                        .id,
-                                                  );
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                    left: 6,
-                                                    right: 6,
-                                                    top: 6,
-                                                  ),
-                                                  child: MouseRegion(
-                                                    onEnter: (_) => c
-                                                        .hoveredPinned
-                                                        .value = true,
-                                                    onExit: (_) => c
-                                                        .hoveredPinned
-                                                        .value = false,
-                                                    opaque: false,
-                                                    child: Container(
-                                                      width: double.infinity,
-                                                      height: 60,
-                                                      padding: const EdgeInsets
-                                                          .fromLTRB(
-                                                        8,
-                                                        0,
-                                                        0,
-                                                        8,
-                                                      ),
-                                                      decoration: BoxDecoration(
-                                                        boxShadow: const [
-                                                          CustomBoxShadow(
-                                                            blurRadius: 8,
-                                                            color: Color(
-                                                              0x22000000,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                        borderRadius:
-                                                            style.cardRadius,
-                                                        border: style
-                                                            .systemMessageBorder,
-                                                        color: Colors.white,
-                                                      ),
-                                                      child: LayoutBuilder(
-                                                        builder: (context,
-                                                            constraints) {
-                                                          return _pinned(
-                                                            c,
-                                                            constraints,
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
+                                                c.animateTo(
+                                                  c
+                                                      .pinned[
+                                                          c.displayPinned.value]
+                                                      .id,
+                                                );
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 6,
+                                                  right: 6,
+                                                  top: 6,
                                                 ),
-                                              ),
-                                            ),
-                                          ),
-                                        AnimatedSize(
-                                          duration: 200.milliseconds,
-                                          child: WidgetButton(
-                                            onPressed: onPressed,
-                                            child: c.paidDisclaimerDismissed
-                                                        .value &&
-                                                    c.paid
-                                                ? Container(
-                                                    width: 40,
-                                                    height: 40,
+                                                child: MouseRegion(
+                                                  onEnter: (_) => c
+                                                      .hoveredPinned
+                                                      .value = true,
+                                                  onExit: (_) => c.hoveredPinned
+                                                      .value = false,
+                                                  opaque: false,
+                                                  child: Container(
+                                                    width: double.infinity,
+                                                    height: 60,
                                                     padding: const EdgeInsets
                                                         .fromLTRB(
-                                                      12,
                                                       8,
-                                                      12,
+                                                      0,
+                                                      0,
                                                       8,
-                                                    ),
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                      left: 0,
-                                                      right: 6,
-                                                      top: 6,
                                                     ),
                                                     decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: style
-                                                          .systemMessageBorder,
-                                                      color: Colors.white,
                                                       boxShadow: const [
                                                         CustomBoxShadow(
                                                           blurRadius: 8,
@@ -559,26 +529,84 @@ class _ChatViewState extends State<ChatView>
                                                           ),
                                                         ),
                                                       ],
+                                                      borderRadius:
+                                                          style.cardRadius,
+                                                      border: style
+                                                          .systemMessageBorder,
+                                                      color: Colors.white,
                                                     ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        ' ¤',
-                                                        style: style
-                                                            .systemMessageStyle
-                                                            .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          color: const Color(
-                                                            0xFFffcf78,
-                                                          ),
-                                                          fontSize: 21,
-                                                        ),
-                                                      ),
+                                                    child: LayoutBuilder(
+                                                      builder: (context,
+                                                          constraints) {
+                                                        return _pinned(
+                                                          c,
+                                                          constraints,
+                                                        );
+                                                      },
                                                     ),
-                                                  )
-                                                : const SizedBox(),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
+                                        // AnimatedSize(
+                                        //   duration: 200.milliseconds,
+                                        //   child: WidgetButton(
+                                        //     onPressed: onPressed,
+                                        //     child: c.paidDisclaimerDismissed
+                                        //                 .value &&
+                                        //             c.paid
+                                        //         ? Container(
+                                        //             width: 40,
+                                        //             height: 40,
+                                        //             padding: const EdgeInsets
+                                        //                 .fromLTRB(
+                                        //               12,
+                                        //               8,
+                                        //               12,
+                                        //               8,
+                                        //             ),
+                                        //             margin:
+                                        //                 const EdgeInsets.only(
+                                        //               left: 0,
+                                        //               right: 6,
+                                        //               top: 6,
+                                        //             ),
+                                        //             decoration: BoxDecoration(
+                                        //               shape: BoxShape.circle,
+                                        //               border: style
+                                        //                   .systemMessageBorder,
+                                        //               color: Colors.white,
+                                        //               boxShadow: const [
+                                        //                 CustomBoxShadow(
+                                        //                   blurRadius: 8,
+                                        //                   color: Color(
+                                        //                     0x22000000,
+                                        //                   ),
+                                        //                 ),
+                                        //               ],
+                                        //             ),
+                                        //             child: Center(
+                                        //               child: Text(
+                                        //                 '¤',
+                                        //                 style: style
+                                        //                     .systemMessageStyle
+                                        //                     .copyWith(
+                                        //                   fontWeight:
+                                        //                       FontWeight.w400,
+                                        //                   color: const Color(
+                                        //                     // 0xFFffcf78,
+                                        //                     0xFFDEBE99,
+                                        //                   ),
+                                        //                   fontSize: 21,
+                                        //                 ),
+                                        //               ),
+                                        //             ),
+                                        //           )
+                                        //         : const SizedBox(),
+                                        //   ),
+                                        // ),
                                       ],
                                     ),
                                   );
@@ -933,6 +961,7 @@ class _ChatViewState extends State<ChatView>
               note: element.note,
               authorId: element.authorId,
               me: c.me!,
+              paid: c.paid,
               loadImages: c.settings.value?.loadImages != false,
               reads: c.chat!.members.length > 10
                   ? []
@@ -1801,6 +1830,7 @@ class _ChatViewState extends State<ChatView>
             return AnimatedSizeAndFade.showHide(
               show: c.paidDisclaimer.value,
               child: PaidNotification(
+                accepted: c.paidAccepted.value,
                 border: c.paidBorder.value
                     ? Border.all(
                         color: Theme.of(context).colorScheme.primary,
@@ -1814,6 +1844,7 @@ class _ChatViewState extends State<ChatView>
                   c.paidDisclaimer.value = false;
                   c.paidDisclaimerDismissed.value = true;
                   c.paidBorder.value = false;
+                  c.paidAccepted.value = true;
                 },
               ),
             );

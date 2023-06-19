@@ -212,6 +212,7 @@ class ChatController extends GetxController {
   late final RxBool paidDisclaimer;
   final RxBool paidDisclaimerDismissed = RxBool(false);
   final RxBool paidBorder = RxBool(false);
+  final RxBool paidAccepted = RxBool(false);
 
   ConfirmAction? confirmAction;
 
@@ -367,6 +368,12 @@ class ChatController extends GetxController {
       _myUserService,
       onChanged: updateDraft,
       onSubmit: ({bool onlyDonation = false}) async {
+        if (paidAccepted.value) {
+          paidDisclaimerDismissed.value = true;
+          paidDisclaimer.value = false;
+          paidBorder.value = false;
+        }
+
         if (paid && !paidDisclaimerDismissed.value) {
           if (paidDisclaimer.value) {
             paidBorder.value = true;
@@ -374,6 +381,7 @@ class ChatController extends GetxController {
 
           paidDisclaimer.value = true;
           confirmAction = ConfirmAction.sendMessage;
+          return;
         }
 
         if (paid) {
@@ -516,6 +524,12 @@ class ChatController extends GetxController {
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
+    if (paidAccepted.value) {
+      paidDisclaimerDismissed.value = true;
+      paidDisclaimer.value = false;
+      paidBorder.value = false;
+    }
+
     if (paid && !paidDisclaimerDismissed.value) {
       if (paidDisclaimer.value) {
         paidBorder.value = true;
@@ -528,7 +542,7 @@ class ChatController extends GetxController {
     }
 
     if (paid) {
-      if (_balanceService.balance.value < 10) {
+      if (_balanceService.balance.value < 100) {
         await InsufficientFundsView.show(
           router.context!,
           description: 'label_message_cant_make_call_funds'.l10n,
@@ -536,7 +550,7 @@ class ChatController extends GetxController {
         return;
       } else {
         _balanceService.add(
-          OutgoingTransaction(amount: -10, at: DateTime.now()),
+          OutgoingTransaction(amount: -100, at: DateTime.now()),
         );
       }
     }

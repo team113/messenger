@@ -89,6 +89,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onSelecting,
     this.onPin,
     this.pinned = false,
+    this.paid = false,
   });
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
@@ -165,6 +166,8 @@ class ChatForwardWidget extends StatefulWidget {
 
   final void Function()? onPin;
   final bool pinned;
+
+  final bool paid;
 
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
@@ -367,6 +370,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   delivered: widget.chat.value?.lastDelivery
                                           .isBefore(_at) ==
                                       false,
+                                  price: widget.paid && !_fromMe ? 123 : null,
                                 )
                               ],
                             ),
@@ -532,6 +536,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         at: quote.at,
                         date: true,
                         fontSize: 12,
+                        // price: widget.paid && !_fromMe ? 123 : null,
                       ),
                     ),
                 ],
@@ -557,6 +562,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 at: quote.at,
                                 date: true,
                                 fontSize: 12,
+                                // price: widget.paid && !_fromMe ? 123 : null,
                               ),
                             ),
                           ),
@@ -692,6 +698,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 date: true,
                                 fontSize: 12,
                                 inverted: true,
+                                // price: widget.paid && !_fromMe ? 123 : null,
                               ),
                             ),
                           )
@@ -699,6 +706,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             at: quote.at,
                             date: true,
                             fontSize: 12,
+                            // price: widget.paid && !_fromMe ? 123 : null,
                           ),
                   )
                 ],

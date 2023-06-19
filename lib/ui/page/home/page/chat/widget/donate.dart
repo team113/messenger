@@ -162,9 +162,9 @@ class DonateWidget extends StatelessWidget {
   }
 
   Widget _tooltiped(BuildContext context, Widget child) {
-    // if (transaction == null) {
-    //   return child;
-    // }
+    if (transaction == null) {
+      return child;
+    }
 
     final (style, fonts) = Theme.of(context).styles;
 
