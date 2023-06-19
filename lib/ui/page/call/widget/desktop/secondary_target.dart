@@ -25,7 +25,7 @@ import '/themes.dart';
 import '/ui/page/call/component/desktop.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
-/// [DragTarget] of an empty overlay.
+/// Call's secondary view empty [DragTarget].
 class SecondaryTarget extends StatelessWidget {
   const SecondaryTarget({
     super.key,
