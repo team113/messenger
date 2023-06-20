@@ -16,7 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/cache_info.dart';
+
+import '../model/cache_info.dart';
 
 /// Application cache repository interface.
 abstract class AbstractCacheRepository {

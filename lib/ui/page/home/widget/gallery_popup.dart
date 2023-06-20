@@ -39,7 +39,6 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/file.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -1022,17 +1021,12 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem].
   Future<void> _download(GalleryItem item) async {
     try {
-      Uint8List? data;
-      if (item.checksum != null && CacheUtil.exists(item.checksum!)) {
-        data = await CacheUtil.get(checksum: item.checksum);
-      }
-
       try {
         await PlatformUtils.download(
           item.link,
           item.name,
           item.size,
-          data: data,
+          checksum: item.checksum,
         );
       } catch (_) {
         if (item.onError != null) {
@@ -1041,7 +1035,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             item.link,
             item.name,
             item.size,
-            data: data,
+            checksum: item.checksum,
           );
         } else {
           rethrow;
@@ -1061,17 +1055,20 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
-      Uint8List? data;
-      if (item.checksum != null && CacheUtil.exists(item.checksum!)) {
-        data = await CacheUtil.get(checksum: item.checksum);
-      }
-
       try {
-        await PlatformUtils.saveToGallery(item.link, item.name, data: data);
+        await PlatformUtils.saveToGallery(
+          item.link,
+          item.name,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.saveToGallery(item.link, item.name, data: data);
+          await PlatformUtils.saveToGallery(
+            item.link,
+            item.name,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }
@@ -1090,17 +1087,20 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and opens a share dialog with it.
   Future<void> _share(GalleryItem item) async {
     try {
-      Uint8List? data;
-      if (item.checksum != null && CacheUtil.exists(item.checksum!)) {
-        data = await CacheUtil.get(checksum: item.checksum);
-      }
-
       try {
-        await PlatformUtils.share(item.link, item.name, data: data);
+        await PlatformUtils.share(
+          item.link,
+          item.name,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.share(item.link, item.name, data: data);
+          await PlatformUtils.share(
+            item.link,
+            item.name,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }

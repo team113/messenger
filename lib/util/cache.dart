@@ -41,7 +41,7 @@ CacheUtilImpl CacheUtil = CacheUtilImpl();
 /// Service maintaining downloading and caching.
 class CacheUtilImpl extends DisposableService {
   /// Maximum allowed size of the [cacheDirectory] in bytes.
-  int maxSize = 1024 * 1024 * 1024; // 1 Gb
+  int maxSize = 1024 * 1024 * 100; // 1 Gb
 
   /// Size of all files in the [cacheDirectory] in bytes.
   final RxInt cacheSize = RxInt(0);
@@ -57,12 +57,6 @@ class CacheUtilImpl extends DisposableService {
 
   /// [Mutex] guarding access to the [_optimizeCache] method.
   final Mutex _mutex = Mutex();
-
-  /// [DateTime] of the last [_optimizeCache] executing.
-  DateTime? _lastOptimization;
-
-  /// [Duration] ot the minimal delay between [_optimizeCache] executing.
-  static const Duration _optimizationDelay = Duration(minutes: 30);
 
   /// Returns a path to the cache directory.
   Future<Directory> get cacheDirectory async {
@@ -216,11 +210,7 @@ class CacheUtilImpl extends DisposableService {
   Future<void> _optimizeCache() async {
     await _mutex.protect(() async {
       int overflow = cacheSize.value - maxSize;
-      if (overflow > 0 &&
-          (_lastOptimization == null ||
-              _lastOptimization!
-                  .add(_optimizationDelay)
-                  .isBefore(DateTime.now()))) {
+      if (overflow > 0) {
         overflow += (maxSize * 0.05).floor();
 
         final List<FileSystemEntity> files = _files.toList();
@@ -256,8 +246,6 @@ class CacheUtilImpl extends DisposableService {
             // No-op.
           }
         }
-
-        _lastOptimization = DateTime.now();
 
         _cacheRepository?.update(_files.length, cacheSize.value);
       }

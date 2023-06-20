@@ -28,7 +28,7 @@ import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/file.dart';
+import '/util/cache.dart';
 
 /// [Image.memory] displaying an image fetched from the provided [url].
 ///

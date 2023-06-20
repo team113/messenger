@@ -24,7 +24,7 @@ import '/domain/model/attachment.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/file.dart';
+import '/util/cache.dart';
 
 /// Visual representation of a media [Attachment].
 class MediaAttachment extends StatefulWidget {

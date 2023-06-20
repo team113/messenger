@@ -41,7 +41,7 @@ class CacheRepository extends DisposableInterface
   @override
   void onInit() {
     cacheInfo.value = _cacheLocal.cacheInfo;
-    _initMediaSubscription();
+    _initCacheSubscription();
 
     super.onInit();
   }
@@ -56,7 +56,7 @@ class CacheRepository extends DisposableInterface
   Future<void> clear() => _cacheLocal.clear();
 
   /// Initializes [CacheInfoHiveProvider.boxEvents] subscription.
-  Future<void> _initMediaSubscription() async {
+  Future<void> _initCacheSubscription() async {
     _cacheSubscription = StreamIterator(_cacheLocal.boxEvents);
     while (await _cacheSubscription!.moveNext()) {
       BoxEvent event = _cacheSubscription!.current;

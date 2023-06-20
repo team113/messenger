@@ -55,7 +55,7 @@ import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
 import 'ui/worker/window.dart';
-import 'util/file.dart';
+import 'util/cache.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';

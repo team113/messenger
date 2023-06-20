@@ -27,7 +27,7 @@ import 'package:path_provider/path_provider.dart';
 import '/themes.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/util/backoff.dart';
-import '/util/file.dart';
+import '/util/cache.dart';
 import '/util/platform_utils.dart';
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'

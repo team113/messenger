@@ -17,7 +17,6 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -34,7 +33,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
-    Uint8List? data,
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) async =>

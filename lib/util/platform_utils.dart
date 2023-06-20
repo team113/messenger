@@ -32,6 +32,7 @@ import 'package:window_manager/window_manager.dart';
 import '/config.dart';
 import '/routes.dart';
 import 'backoff.dart';
+import 'cache.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -268,7 +269,7 @@ class PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
-    Uint8List? data,
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) async {
@@ -313,6 +314,11 @@ class PlatformUtilsImpl {
             },
             cancelToken,
           );
+
+          Uint8List? data;
+          if(checksum != null && CacheUtil.exists(checksum)) {
+            data = await CacheUtil.get(checksum: checksum);
+          }
 
           if (file == null) {
             final String name = p.basenameWithoutExtension(filename);
@@ -365,8 +371,13 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
-  Future<void> saveToGallery(String url, String name, {Uint8List? data}) async {
+  Future<void> saveToGallery(String url, String name, {String? checksum}) async {
     if (isMobile && !isWeb) {
+      Uint8List? data;
+      if(checksum != null && CacheUtil.exists(checksum)) {
+        data = await CacheUtil.get(checksum: checksum);
+      }
+
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
       final File file = File(path);
@@ -381,7 +392,12 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads a file from the provided [url] and opens [Share] dialog with it.
-  Future<void> share(String url, String name, {Uint8List? data}) async {
+  Future<void> share(String url, String name, {String? checksum}) async {
+    Uint8List? data;
+    if(checksum != null && CacheUtil.exists(checksum)) {
+      data = await CacheUtil.get(checksum: checksum);
+    }
+
     if (data == null) {
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
