@@ -18,8 +18,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/widget/desktop/animated_drag_target.dart';
 
-import '../animated_delayed_scale.dart';
 import '../conditional_backdrop.dart';
 import '../scaler.dart';
 import '/themes.dart';
@@ -27,8 +27,8 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
 /// View of an secondary overlay.
-class SecondaryView extends StatelessWidget {
-  const SecondaryView({
+class SecondaryOverlay extends StatelessWidget {
+  const SecondaryOverlay({
     super.key,
     required this.height,
     required this.width,
@@ -48,62 +48,62 @@ class SecondaryView extends StatelessWidget {
     this.onEnter,
     this.onHover,
     this.onExit,
-    this.onDragCenterLeft,
-    this.onDragCenterRight,
-    this.onDragBottomCenter,
-    this.onDragTopCenter,
-    this.onDragTopLeft,
-    this.onDragTopRight,
-    this.onDragBottomLeft,
-    this.onDragBottomRight,
+    this.onScaleCenterLeft,
+    this.onScaleCenterRight,
+    this.onScaleBottomCenter,
+    this.onScaleTopCenter,
+    this.onScaleTopLeft,
+    this.onScaleTopRight,
+    this.onScaleBottomLeft,
+    this.onScaleBottomRight,
     this.condition = true,
     this.isVisible = true,
     this.showCursor = true,
-    this.isDragDropVisible = true,
+    this.isAligned = true,
     this.showDragTarget = true,
-    this.isShape = true,
+    this.isHover = true,
     this.isAnyDrag = true,
     this.opacity = 1,
   });
 
-  /// [GlobalKey] of this [SecondaryView].
+  /// [GlobalKey] of this [SecondaryOverlay].
   final GlobalKey<State<StatefulWidget>>? secondaryKey;
 
-  /// Actual size of the [SecondaryView].
+  /// Actual size of the [SecondaryOverlay].
   final Size? size;
 
-  /// Height of this [SecondaryView].
+  /// Height of this [SecondaryOverlay].
   final double height;
 
-  /// Width of this [SecondaryView].
+  /// Width of this [SecondaryOverlay].
   final double width;
 
-  /// Left position of this [SecondaryView].
+  /// Left position of this [SecondaryOverlay].
   final double? left;
 
-  /// Right position of this [SecondaryView].
+  /// Right position of this [SecondaryOverlay].
   final double? right;
 
-  /// Top position of this [SecondaryView].
+  /// Top position of this [SecondaryOverlay].
   final double? top;
 
-  /// Bottom position of this [SecondaryView].
+  /// Bottom position of this [SecondaryOverlay].
   final double? bottom;
 
-  /// Indicator whether this [SecondaryView] is visible.
+  /// Indicator whether this [SecondaryOverlay] is visible.
   final bool isVisible;
 
   /// Indicator whether the cursor should be shown.
   final bool showCursor;
 
-  /// Indicator whether the [buildDragHandle] is currently visible.
-  final bool isDragDropVisible;
+  /// Indicator whether the [alignment] should be used.
+  final bool isAligned;
 
   /// Indicator whether the drag target should be shown.
   final bool showDragTarget;
 
-  /// Indicator whether the widget is a shape.
-  final bool isShape;
+  /// Indicator whether secondary panel is hovered.
+  final bool isHover;
 
   /// Indicator whether there are currently drags at the moment.
   final bool isAnyDrag;
@@ -111,46 +111,46 @@ class SecondaryView extends StatelessWidget {
   /// Indicator whether [BackdropFilter] should be enabled or not.
   final bool condition;
 
-  /// Alignment of [positionedBoilerplate] and secondary panel border.
+  /// Alignment of border and background of secondary panel.
   final Alignment? alignment;
 
   /// Opacity of sliding from top draggable title bar.
   final double opacity;
 
-  /// [Widget] wrapped by this [SecondaryView].
+  /// [Widget] wrapped by this [SecondaryOverlay].
   final Widget child;
 
   /// Callback, called when the delta drag of the left side of the `x` and
   /// the center side of the `y` is triggered.
-  final dynamic Function(double, double)? onDragCenterLeft;
+  final dynamic Function(double, double)? onScaleCenterLeft;
 
   /// Callback, called when the delta drag of the right side of the `x` and
   /// the center side of the `y` is triggered.
-  final dynamic Function(double, double)? onDragCenterRight;
+  final dynamic Function(double, double)? onScaleCenterRight;
 
   /// Callback, called when the delta drag of the center side of the `x` and
   /// the bottom side of the `y` is triggered.
-  final dynamic Function(double, double)? onDragBottomCenter;
+  final dynamic Function(double, double)? onScaleBottomCenter;
 
   /// Callback, called when the delta drag of the center side of the `x` and
   /// the top side of the `y` is triggered.
-  final dynamic Function(double, double)? onDragTopCenter;
+  final dynamic Function(double, double)? onScaleTopCenter;
 
   /// Callback, called when the delta drag of the left side of the `x` and
   /// the top side of the `y` is triggered.
-  final dynamic Function(double, double)? onDragTopLeft;
+  final dynamic Function(double, double)? onScaleTopLeft;
 
   /// Callback, called when the delta drag of the right side of the `x` and
   /// the top side of the `y` is triggered.
-  final dynamic Function(double, double)? onDragTopRight;
+  final dynamic Function(double, double)? onScaleTopRight;
 
   /// Callback, called when the delta drag of the left side of the `x` and
   /// the bottom side of the `y` is triggered.
-  final dynamic Function(double, double)? onDragBottomLeft;
+  final dynamic Function(double, double)? onScaleBottomLeft;
 
   /// Callback, called when the delta drag of the right side of the `x` and
   /// the bottom side of the `y` is triggered.
-  final dynamic Function(double, double)? onDragBottomRight;
+  final dynamic Function(double, double)? onScaleBottomRight;
 
   /// Callback, called when dragging is ended.
   final dynamic Function(DragEndDetails)? onDragEnd;
@@ -165,15 +165,15 @@ class SecondaryView extends StatelessWidget {
   final void Function(DragEndDetails)? onPanEnd;
 
   /// Callback, called when the mouse cursor enters the area of this
-  /// [SecondaryView].
+  /// [SecondaryOverlay].
   final void Function(PointerEnterEvent)? onEnter;
 
   /// Callback, called when the mouse cursor moves in the area of this
-  /// [SecondaryView].
+  /// [SecondaryOverlay].
   final void Function(PointerHoverEvent)? onHover;
 
   /// Callback, called when the mouse cursor leaves the area of this
-  /// [SecondaryView].
+  /// [SecondaryOverlay].
   final void Function(PointerExitEvent)? onExit;
 
   /// Callback, called when the user taps the [InkResponse].
@@ -199,7 +199,7 @@ class SecondaryView extends StatelessWidget {
                   top: top,
                   bottom: bottom,
                   child: IgnorePointer(
-                    child: isDragDropVisible
+                    child: isAligned
                         ? Container(
                             width: width,
                             height: height,
@@ -228,7 +228,7 @@ class SecondaryView extends StatelessWidget {
                     child: SizedBox(
                       width: width,
                       height: height,
-                      child: isDragDropVisible
+                      child: isAligned
                           ? IgnorePointer(
                               child: ClipRRect(
                                 borderRadius: borderRadius,
@@ -255,49 +255,49 @@ class SecondaryView extends StatelessWidget {
                 ),
 
                 positionedBoilerplate(
-                  isDragDropVisible
+                  isAligned
                       ? buildDragHandle(Alignment.centerLeft, context)
                       : const SizedBox(),
                 ),
 
                 positionedBoilerplate(
-                  isDragDropVisible
+                  isAligned
                       ? buildDragHandle(Alignment.centerRight, context)
                       : const SizedBox(),
                 ),
 
                 positionedBoilerplate(
-                  isDragDropVisible
+                  isAligned
                       ? buildDragHandle(Alignment.bottomCenter, context)
                       : const SizedBox(),
                 ),
 
                 positionedBoilerplate(
-                  isDragDropVisible
+                  isAligned
                       ? buildDragHandle(Alignment.topCenter, context)
                       : const SizedBox(),
                 ),
 
                 positionedBoilerplate(
-                  isDragDropVisible
+                  isAligned
                       ? buildDragHandle(Alignment.topLeft, context)
                       : const SizedBox(),
                 ),
 
                 positionedBoilerplate(
-                  isDragDropVisible
+                  isAligned
                       ? buildDragHandle(Alignment.topRight, context)
                       : const SizedBox(),
                 ),
 
                 positionedBoilerplate(
-                  isDragDropVisible
+                  isAligned
                       ? buildDragHandle(Alignment.bottomLeft, context)
                       : const SizedBox(),
                 ),
 
                 positionedBoilerplate(
-                  isDragDropVisible
+                  isAligned
                       ? buildDragHandle(Alignment.bottomRight, context)
                       : const SizedBox(),
                 ),
@@ -346,7 +346,7 @@ class SecondaryView extends StatelessWidget {
                               key: const ValueKey('TitleBar'),
                               opacity: opacity,
                               child: ClipRRect(
-                                borderRadius: isDragDropVisible
+                                borderRadius: isAligned
                                     ? BorderRadius.only(
                                         topLeft: borderRadius.topLeft,
                                         topRight: borderRadius.topRight,
@@ -426,45 +426,9 @@ class SecondaryView extends StatelessWidget {
                     child: SizedBox(
                       width: width,
                       height: height,
-                      child: AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: showDragTarget
-                            ? Container(
-                                color: style.colors.onBackgroundOpacity27,
-                                child: Center(
-                                  child: AnimatedDelayedScale(
-                                    duration: const Duration(
-                                      milliseconds: 300,
-                                    ),
-                                    beginScale: 1,
-                                    endScale: 1.06,
-                                    child: ConditionalBackdropFilter(
-                                      condition: condition,
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          color: condition
-                                              ? style
-                                                  .colors.onBackgroundOpacity27
-                                              : style
-                                                  .colors.onBackgroundOpacity50,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: Icon(
-                                            Icons.add_rounded,
-                                            size: 50,
-                                            color: style.colors.onPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : null,
+                      child: DropBox(
+                        isVisible: showDragTarget,
+                        condition: condition,
                       ),
                     ),
                   ),
@@ -491,7 +455,7 @@ class SecondaryView extends StatelessWidget {
                               duration: 200.milliseconds,
                               margin: const EdgeInsets.all(Scaler.size / 2),
                               decoration: ShapeDecoration(
-                                shape: (isShape && isDragDropVisible)
+                                shape: (isHover && isAligned)
                                     ? RoundedRectangleBorder(
                                         side: BorderSide(
                                           color: style.colors.secondary,
@@ -499,7 +463,7 @@ class SecondaryView extends StatelessWidget {
                                         ),
                                         borderRadius: borderRadius,
                                       )
-                                    : (!isShape && isDragDropVisible)
+                                    : (!isHover && isAligned)
                                         ? RoundedRectangleBorder(
                                             side: BorderSide(
                                               color: style.colors.secondary
@@ -556,6 +520,7 @@ class SecondaryView extends StatelessWidget {
     );
   }
 
+  // Returns widget that can be dragged and resized.
   Widget buildDragHandle(Alignment alignment, BuildContext context) {
     // Returns a [Scaler] scaling the secondary view.
     Widget scaler({
@@ -583,25 +548,25 @@ class SecondaryView extends StatelessWidget {
       widget = scaler(
         cursor: SystemMouseCursors.resizeLeftRight,
         height: height - Scaler.size,
-        onDrag: onDragCenterLeft,
+        onDrag: onScaleCenterLeft,
       );
     } else if (alignment == Alignment.centerRight) {
       widget = scaler(
         cursor: SystemMouseCursors.resizeLeftRight,
         height: height - Scaler.size,
-        onDrag: onDragCenterRight,
+        onDrag: onScaleCenterRight,
       );
     } else if (alignment == Alignment.bottomCenter) {
       widget = scaler(
         cursor: SystemMouseCursors.resizeUpDown,
         width: width - Scaler.size,
-        onDrag: onDragBottomCenter,
+        onDrag: onScaleBottomCenter,
       );
     } else if (alignment == Alignment.topCenter) {
       widget = scaler(
         cursor: SystemMouseCursors.resizeUpDown,
         width: width - Scaler.size,
-        onDrag: onDragTopCenter,
+        onDrag: onScaleTopCenter,
       );
     } else if (alignment == Alignment.topLeft) {
       widget = scaler(
@@ -611,7 +576,7 @@ class SecondaryView extends StatelessWidget {
             : SystemMouseCursors.resizeUpLeftDownRight,
         width: Scaler.size * 2,
         height: Scaler.size * 2,
-        onDrag: onDragTopLeft,
+        onDrag: onScaleTopLeft,
       );
     } else if (alignment == Alignment.topRight) {
       widget = scaler(
@@ -620,7 +585,7 @@ class SecondaryView extends StatelessWidget {
             : SystemMouseCursors.resizeUpRightDownLeft,
         width: Scaler.size * 2,
         height: Scaler.size * 2,
-        onDrag: onDragTopRight,
+        onDrag: onScaleTopRight,
       );
     } else if (alignment == Alignment.bottomLeft) {
       widget = scaler(
@@ -629,7 +594,7 @@ class SecondaryView extends StatelessWidget {
             : SystemMouseCursors.resizeUpRightDownLeft,
         width: Scaler.size * 2,
         height: Scaler.size * 2,
-        onDrag: onDragBottomLeft,
+        onDrag: onScaleBottomLeft,
       );
     } else if (alignment == Alignment.bottomRight) {
       widget = scaler(
@@ -639,7 +604,7 @@ class SecondaryView extends StatelessWidget {
             : SystemMouseCursors.resizeUpLeftDownRight,
         width: Scaler.size * 2,
         height: Scaler.size * 2,
-        onDrag: onDragBottomRight,
+        onDrag: onScaleBottomRight,
       );
     }
 

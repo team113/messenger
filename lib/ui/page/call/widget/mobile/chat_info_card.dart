@@ -15,38 +15,40 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/l10n/l10n.dart';
 
+import '/domain/repository/user.dart';
+import '/domain/repository/chat.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/widget/avatar.dart';
 
 /// Tile representation of the chat.
 class ChatInfoCard extends StatelessWidget {
   const ChatInfoCard({
     super.key,
-    required this.title,
-    required this.subtitle,
-    required this.trailing,
     required this.callDuration,
-    required this.child,
+    this.chat,
+    this.trailing,
     this.onTap,
+    this.condition,
   });
 
-  /// Title of this [ChatInfoCard].
-  final String title;
-
-  /// Subtitle of this [ChatInfoCard].
-  final String subtitle;
+  /// Chat that with ongoing call is happening in.
+  final RxChat? chat;
 
   /// Trailing of this [ChatInfoCard].
-  final String trailing;
+  final String? trailing;
 
   /// Current duration of the call.
   final Rx<Duration> callDuration;
 
-  /// [Widget] wrapped by this [ChatInfoCard].
-  final Widget child;
+  /// Callback, called when least one element satisfies the condition set by
+  /// the [condition] function.
+  final bool Function(RxUser)? condition;
 
   /// Callback [Function] that opens a screen to add members to the chat.
   final void Function()? onTap;
@@ -73,7 +75,7 @@ class ChatInfoCard extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  child,
+                  AvatarWidget.fromRxChat(chat, radius: 30),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -83,7 +85,7 @@ class ChatInfoCard extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                title,
+                                chat?.title.value ?? 'dot'.l10n * 3,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: fonts.headlineLarge!.copyWith(
@@ -105,19 +107,27 @@ class ChatInfoCard extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 5),
                           child: Row(
                             children: [
-                              Text(
-                                subtitle,
-                                style: fonts.labelLarge!.copyWith(
-                                  color: style.colors.onPrimary,
+                              if (condition != null)
+                                Text(
+                                  chat?.members.values
+                                          .firstWhereOrNull(condition!)
+                                          ?.user
+                                          .value
+                                          .status
+                                          ?.val ??
+                                      'label_online'.l10n,
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: style.colors.onPrimary,
+                                  ),
                                 ),
-                              ),
                               const Spacer(),
-                              Text(
-                                trailing,
-                                style: fonts.labelLarge!.copyWith(
-                                  color: style.colors.onPrimary,
+                              if (trailing != null)
+                                Text(
+                                  trailing!,
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: style.colors.onPrimary,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ),

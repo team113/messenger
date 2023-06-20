@@ -80,23 +80,25 @@ class TitleBar extends StatelessWidget {
               ),
 
               // Right part of the title bar that displays buttons.
-              Padding(
-                padding: const EdgeInsets.only(right: 3, left: 5),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TooltipButton(
-                      onTap: toggleFullscreen,
-                      hint: fullscreen
-                          ? 'btn_fullscreen_exit'.l10n
-                          : 'btn_fullscreen_enter'.l10n,
-                      child: SvgImage.asset(
-                        'assets/icons/fullscreen_${fullscreen ? 'exit' : 'enter'}.svg',
-                        width: 12,
+              Align(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 3, left: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TooltipButton(
+                        onTap: toggleFullscreen,
+                        hint: fullscreen
+                            ? 'btn_fullscreen_exit'.l10n
+                            : 'btn_fullscreen_enter'.l10n,
+                        child: SvgImage.asset(
+                          'assets/icons/fullscreen_${fullscreen ? 'exit' : 'enter'}.svg',
+                          width: 12,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
+                      const SizedBox(width: 10),
+                    ],
+                  ),
                 ),
               ),
             ],

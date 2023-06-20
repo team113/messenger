@@ -28,25 +28,21 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 class Launchpad extends StatelessWidget {
   const Launchpad({
     super.key,
-    required this.displayMore,
-    this.paneledItems = const <Widget>[],
-    this.test,
+    this.condition,
     this.onEnter,
     this.onHover,
     this.onExit,
     this.onAccept,
     this.onWillAccept,
+    this.paneledItems = const <Widget>[],
   });
-
-  /// Indicator whether additional elements should be displayed in launchpad.
-  final bool displayMore;
 
   /// Widgets to put inside a [Wrap].
   final List<Widget> paneledItems;
 
   /// Callback, called when at least one element from the panel list satisfies
-  /// the condition set by the [test] function.
-  final bool Function(CallButton?)? test;
+  /// the condition set by the [condition] function.
+  final bool Function(CallButton?)? condition;
 
   /// Callback, called when the mouse cursor enters the area of this
   /// [Launchpad].
@@ -72,82 +68,65 @@ class Launchpad extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    // Builder function for the [DragTarget].
-    //
-    // It is responsible for displaying the visual interface when dragging
-    // elements onto the target.
-    Widget launchpadBuilder(
-      BuildContext context,
-      List<CallButton?> candidate,
-      List<dynamic> rejected,
-    ) {
-      return MouseRegion(
-        onEnter: onEnter,
-        onHover: onHover,
-        onExit: onExit,
-        child: Container(
-          decoration: BoxDecoration(
-            color: style.colors.transparent,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              CustomBoxShadow(
-                color: style.colors.onBackgroundOpacity20,
-                blurRadius: 8,
-                blurStyle: BlurStyle.outer,
-              )
-            ],
-          ),
-          margin: const EdgeInsets.all(2),
-          child: ConditionalBackdropFilter(
-            borderRadius: BorderRadius.circular(30),
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              decoration: BoxDecoration(
-                color: test != null
-                    ? candidate.any(test!)
-                        ? style.colors.onSecondaryOpacity88
-                        : style.colors.onSecondaryOpacity60
-                    : style.colors.onSecondaryOpacity88,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 440),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 35),
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.start,
-                      alignment: WrapAlignment.center,
-                      spacing: 4,
-                      runSpacing: 21,
-                      children: paneledItems,
-                    ),
-                    const SizedBox(height: 20),
+    return Padding(
+        padding: const EdgeInsets.only(bottom: 30),
+        child: DragTarget<CallButton>(
+          onAccept: onAccept,
+          onWillAccept: onWillAccept,
+          builder: (context, candidate, _) {
+            return MouseRegion(
+              onEnter: onEnter,
+              onHover: onHover,
+              onExit: onExit,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: style.colors.transparent,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    CustomBoxShadow(
+                      color: style.colors.onBackgroundOpacity20,
+                      blurRadius: 8,
+                      blurStyle: BlurStyle.outer,
+                    )
                   ],
                 ),
+                margin: const EdgeInsets.all(2),
+                child: ConditionalBackdropFilter(
+                  borderRadius: BorderRadius.circular(30),
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    decoration: BoxDecoration(
+                      color: condition != null
+                          ? candidate.any(condition!)
+                              ? style.colors.onSecondaryOpacity88
+                              : style.colors.onSecondaryOpacity60
+                          : style.colors.onSecondaryOpacity88,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 440),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 35),
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.start,
+                            alignment: WrapAlignment.center,
+                            spacing: 4,
+                            runSpacing: 21,
+                            children: paneledItems,
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 30),
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 150),
-        opacity: displayMore ? 1.0 : 0.0,
-        child: displayMore
-            ? DragTarget<CallButton>(
-                onAccept: onAccept,
-                onWillAccept: onWillAccept,
-                builder: launchpadBuilder,
-              )
-            : const SizedBox(),
-      ),
-    );
+            );
+          },
+        ));
   }
 }

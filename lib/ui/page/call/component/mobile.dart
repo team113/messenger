@@ -44,7 +44,6 @@ import '/themes.dart';
 import '/ui/page/call/widget/mobile/animated_participant.dart';
 import '/ui/page/call/widget/mobile/chat_info_card.dart';
 import '/ui/page/call/widget/mobile/descriptioned.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -530,21 +529,14 @@ Widget mobileCall(CallController c, BuildContext context) {
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 366),
               child: ChatInfoCard(
+                chat: c.chat.value,
                 callDuration: c.duration,
-                title: c.chat.value?.title.value ?? 'dot'.l10n * 3,
-                subtitle: c.chat.value?.members.values
-                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
-                        ?.user
-                        .value
-                        .status
-                        ?.val ??
-                    'label_online'.l10n,
                 trailing: 'label_a_of_b'.l10nfmt({
                   'a': '${c.members.keys.map((k) => k.userId).toSet().length}',
                   'b': '${c.chat.value?.members.length}',
                 }),
+                condition: (e) => e.id != c.me.id.userId,
                 onTap: () => c.openAddMember(context),
-                child: AvatarWidget.fromRxChat(c.chat.value, radius: 30),
               ),
             ),
           ];
