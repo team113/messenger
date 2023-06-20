@@ -127,25 +127,29 @@ abstract class ModalPopup {
   }
 }
 
-/// [Row] with an optional [header] stylized to be a [ModalPopup] header.
+/// [Row] with [text] and [WidgetButton] stylized to be a [ModalPopup] header.
 class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     super.key,
+    this.text,
     this.onBack,
-    this.header,
+    this.close = true,
   });
 
-  /// [Widget] to put as a title of this [ModalPopupHeader].
-  final Widget? header;
+  /// Text to display as a title of this [ModalPopupHeader].
+  final String? text;
 
   /// Callback, called when a back button is pressed.
   ///
   /// If `null`, then no back button is displayed at all.
   final void Function()? onBack;
 
+  /// Indicator whether a close button should be displayed.
+  final bool close;
+
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
@@ -165,18 +169,19 @@ class ModalPopupHeader extends StatelessWidget {
             )
           else
             const SizedBox(width: 40),
-          if (header != null) Expanded(child: header!) else const Spacer(),
-          if (!context.isMobile)
+          if (text != null)
+            Expanded(
+              child: Center(child: Text(text!, style: fonts.headlineMedium)),
+            )
+          else
+            const Spacer(),
+          if (!context.isMobile && close)
             WidgetButton(
               key: const Key('CloseButton'),
               onPressed: Navigator.of(context).pop,
               child: Padding(
                 padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.close,
-                  size: 18,
-                  color: style.colors.primary,
-                ),
+                child: Icon(Icons.close, size: 18, color: style.colors.primary),
               ),
             )
           else
