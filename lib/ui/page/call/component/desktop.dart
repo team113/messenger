@@ -1200,7 +1200,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
+  final style = Theme.of(router.context!).style;
 
   return Obx(() {
     void onDragEnded(_DragData d) {
@@ -2273,7 +2273,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
 /// [DragTarget] of an empty [_secondaryView].
 Widget _secondaryTarget(CallController c) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
+  final style = Theme.of(router.context!).style;
 
   return Obx(() {
     Axis secondaryAxis =
