@@ -311,7 +311,8 @@ class _ChatViewState extends State<ChatView>
                                       },
                                       child: SvgImage.asset(
                                         'assets/icons/g_coin.svg',
-                                        height: 20,
+                                        width: 24,
+                                        height: 24,
                                       ),
                                       // child: Icon(
                                       //   Icons.paid_outlined,

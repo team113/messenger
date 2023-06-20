@@ -33,6 +33,7 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'freelance/view.dart';
 import 'widget/animated_logo.dart';
 import 'widget/cupertino_button.dart';
 
@@ -145,6 +146,19 @@ class AuthView extends StatelessWidget {
                           : null,
               onPressed: () => _download(context),
             ),
+          if (isWeb) const SizedBox(height: 15),
+          OutlinedRoundedButton(
+            title: Text('Freelance'.l10n),
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 2 * 0.7),
+              child: SvgImage.asset(
+                'assets/icons/partner16.svg',
+                width: 36 * 0.6,
+                height: 28 * 0.6,
+              ),
+            ),
+            onPressed: () => FreelanceView.show(context),
+          ),
           const SizedBox(height: 20),
           StyledCupertinoButton(
             key: c.languageKey,
