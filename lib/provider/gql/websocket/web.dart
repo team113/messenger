@@ -27,5 +27,6 @@ WebSocketChannel connect(
   Uri uri, {
   Iterable<String>? protocols,
   HttpClient? customClient,
-}) =>
-    HtmlWebSocketChannel.connect(uri, protocols: protocols);
+}) {
+  return HtmlWebSocketChannel.connect(uri, protocols: protocols);
+}

@@ -40,8 +40,7 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.throwException = false;
     }
 
-    (await PlatformUtils.dio)
-        .interceptors
+    PlatformUtils.client?.interceptors
         .removeWhere((e) => e is DelayedInterceptor);
 
     (await PlatformUtils.dio)

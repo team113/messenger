@@ -27,5 +27,5 @@ WebSocketChannel connect(
   Iterable<String>? protocols,
   HttpClient? customClient,
 }) {
-  throw UnsupportedError('No implementation of the connect api provided');
+  throw UnimplementedError();
 }

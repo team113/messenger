@@ -58,6 +58,9 @@ class Config {
   /// Intended to be used in E2E testing.
   static bool disableInfiniteAnimations = false;
 
+  /// Product identifier of `User-Agent` header to put in network queries.
+  static String userAgent = '';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - default values;
@@ -100,6 +103,10 @@ class Config {
     downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         : (document['downloads']?['directory'] ?? '');
+
+    userAgent = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
+        ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
+        : (document['user']?['agent']?['product'] ?? 'Gapopa');
 
     origin = url;
 
@@ -156,6 +163,7 @@ class Config {
             files = remote['files']?['url'] ?? files;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
+            userAgent = remote['user']?['agent']?['product'] ?? userAgent;
             origin = url;
           }
         }

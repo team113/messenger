@@ -44,16 +44,16 @@ PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
 /// Helper providing platform related features.
 class PlatformUtilsImpl {
+  /// [Dio] client to use in queries.
+  ///
+  /// May be overridden to be mocked in tests.
+  Dio? client;
+
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
-
-  /// [Dio] client to use in queries.
-  ///
-  /// May be overridden to be mocked in tests.
-  Dio? client;
 
   /// Returns a [Dio] client to use in queries.
   Future<Dio> get dio async {
@@ -100,7 +100,7 @@ class PlatformUtilsImpl {
 
       if (isWeb) {
         final info = await device.webBrowserInfo;
-        _userAgent = info.userAgent ?? 'Gapopa/${Pubspec.version}';
+        _userAgent = info.userAgent ?? '${Config.userAgent}/${Pubspec.version}';
         return _userAgent!;
       } else if (isMacOS) {
         final info = await device.macOsInfo;
@@ -120,7 +120,7 @@ class PlatformUtilsImpl {
         system = '${info.systemName} ${info.systemVersion}; ${info.model}';
       }
 
-      _userAgent = 'Gapopa/${Pubspec.version}';
+      _userAgent = '${Config.userAgent}/${Pubspec.version}';
       if (system != null) {
         _userAgent = '$_userAgent ($system)';
       }
