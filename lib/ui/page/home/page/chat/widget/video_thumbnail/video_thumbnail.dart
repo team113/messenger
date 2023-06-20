@@ -24,10 +24,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '/domain/service/file.dart';
 import '/themes.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/util/backoff.dart';
+import '/util/file.dart';
 import '/util/platform_utils.dart';
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
@@ -196,8 +196,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
-    if (FileService.exists(widget.checksum)) {
-      bytes ??= await FileService.get(checksum: widget.checksum!);
+    if (bytes == null &&
+        widget.checksum != null &&
+        CacheUtil.exists(widget.checksum!)) {
+      bytes = await CacheUtil.get(checksum: widget.checksum!);
     }
 
     final DataSource source;

@@ -119,4 +119,5 @@ class ModelTypeId {
   static const chatInfoQuote = 96;
   static const blacklistRecord = 97;
   static const rect = 98;
+  static const cacheInfo = 99;
 }

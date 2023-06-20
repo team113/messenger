@@ -33,7 +33,6 @@ import 'domain/service/auth.dart';
 import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
-import 'domain/service/file.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/user.dart';
 import 'l10n/l10n.dart';
@@ -67,7 +66,6 @@ import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
 import 'ui/worker/settings.dart';
-import 'util/platform_utils.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
 
@@ -629,9 +627,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               chatService,
               callRepository,
             ));
-            if (!PlatformUtils.isWeb) {
-              deps.put(FileService());
-            }
 
             deps.put(CallWorker(
               Get.find(),

@@ -27,7 +27,6 @@ import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import '/domain/service/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -40,6 +39,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/file.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -1023,8 +1023,8 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _download(GalleryItem item) async {
     try {
       Uint8List? data;
-      if (FileService.exists(item.checksum)) {
-        data = await FileService.get(checksum: item.checksum);
+      if (item.checksum != null && CacheUtil.exists(item.checksum!)) {
+        data = await CacheUtil.get(checksum: item.checksum);
       }
 
       try {
@@ -1062,8 +1062,8 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
       Uint8List? data;
-      if (FileService.exists(item.checksum)) {
-        data = await FileService.get(checksum: item.checksum);
+      if (item.checksum != null && CacheUtil.exists(item.checksum!)) {
+        data = await CacheUtil.get(checksum: item.checksum);
       }
 
       try {
@@ -1091,8 +1091,8 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _share(GalleryItem item) async {
     try {
       Uint8List? data;
-      if (FileService.exists(item.checksum)) {
-        data = await FileService.get(checksum: item.checksum);
+      if (item.checksum != null && CacheUtil.exists(item.checksum!)) {
+        data = await CacheUtil.get(checksum: item.checksum);
       }
 
       try {

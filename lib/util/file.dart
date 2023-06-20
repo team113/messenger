@@ -27,23 +27,33 @@ import 'package:get/get.dart' hide Response;
 import 'package:mutex/mutex.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '/domain/repository/cache.dart';
 import '/domain/service/disposable_service.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
+/// Global variable to access [CacheUtilImpl].
+///
+/// May be reassigned to mock specific functionally.
+// ignore: non_constant_identifier_names
+CacheUtilImpl CacheUtil = CacheUtilImpl();
+
 /// Service maintaining downloading and caching.
-class FileService extends DisposableService {
+class CacheUtilImpl extends DisposableService {
   /// Maximum allowed size of the [cacheDirectory] in bytes.
-  static int maxSize = 1024 * 1024 * 1024; // 1 Gb
+  int maxSize = 1024 * 1024 * 1024; // 1 Gb
 
   /// Size of all files in the [cacheDirectory] in bytes.
   final RxInt cacheSize = RxInt(0);
 
-  /// [StreamSubscription] getting all files from the [cacheDirectory].
-  StreamSubscription? cacheSubscription;
+  /// [File]s stored in the [cacheDirectory].
+  final List<File> _files = [];
 
-  /// [StreamSubscription] to the [cacheDirectory] files changes.
-  StreamSubscription? cacheChangesSubscription;
+  /// Path to the cache directory.
+  Directory? _cacheDirectory;
+
+  /// [StreamSubscription] getting all files from the [cacheDirectory].
+  StreamSubscription? _cacheSubscription;
 
   /// [Mutex] guarding access to the [_optimizeCache] method.
   final Mutex _mutex = Mutex();
@@ -51,90 +61,49 @@ class FileService extends DisposableService {
   /// [DateTime] of the last [_optimizeCache] executing.
   DateTime? _lastOptimization;
 
-  /// [Map] of the [File]s stored in the [cacheDirectory] and their sizes.
-  static final Map<FileSystemEntity, int> _files = {};
-
   /// [Duration] ot the minimal delay between [_optimizeCache] executing.
   static const Duration _optimizationDelay = Duration(minutes: 30);
 
-  /// Path to the cache directory.
-  static Directory? _cacheDirectory;
-
   /// Returns a path to the cache directory.
-  static Future<Directory> get cacheDirectory async {
-    return _cacheDirectory ?? await getApplicationSupportDirectory();
+  Future<Directory> get cacheDirectory async {
+    _cacheDirectory ??= await getApplicationSupportDirectory();
+
+    return _cacheDirectory!;
   }
 
-  @override
-  void onInit() async {
+  /// Cache info repository, used to retrieve the stored [CacheInfo].
+  AbstractCacheRepository? _cacheRepository;
+
+  /// Initializes this [CacheUtilImpl].
+  Future<void> init(AbstractCacheRepository cacheRepository) async {
+    _cacheRepository = cacheRepository;
+    cacheSize.value = cacheRepository.cacheInfo.value?.size ?? 0;
+
     try {
       final Directory cache = await cacheDirectory;
 
-      cacheSubscription = cache.list(recursive: true).listen(
+      _cacheSubscription = cache.list(recursive: true).listen(
         (FileSystemEntity file) async {
-          final FileStat stat = await file.stat();
-          if (stat.type != FileSystemEntityType.directory) {
-            cacheSize.value += stat.size;
+          if (file is File) {
+            _files.add(file);
           }
-          _files[file] = stat.size;
         },
-        onDone: () {
-          _optimizeCache();
-          cacheSubscription?.cancel();
-          cacheSubscription = null;
+        onDone: () async {
+          if (_files.length !=
+              (cacheRepository.cacheInfo.value?.filesCount ?? 0)) {
+            cacheSize.value = await _calculateCacheSize();
+            cacheRepository.update(_files.length, cacheSize.value);
+            _optimizeCache();
+          } else {
+            _optimizeCache();
+          }
+          _cacheSubscription?.cancel();
+          _cacheSubscription = null;
         },
       );
-
-      cacheChangesSubscription =
-          cache.watch(recursive: true).listen((FileSystemEvent e) async {
-        if (e.isDirectory) {
-          return;
-        }
-
-        switch (e.type) {
-          case FileSystemEvent.create:
-            // Wait until all bytes have been written to the file to get the
-            // actual size.
-            await Future.delayed(30.seconds);
-            final File file = File(e.path);
-            final FileStat stat = await file.stat();
-
-            // If size == -1 it's mean that file not exist.
-            if (stat.size != -1) {
-              cacheSize.value += stat.size;
-              _files[File(e.path)] = stat.size;
-            }
-            break;
-
-          case FileSystemEvent.delete:
-            _files.removeWhere((file, size) {
-              if (file.path == e.path) {
-                cacheSize.value -= size;
-                return true;
-              }
-              return false;
-            });
-            break;
-
-          default:
-            // No-op.
-            return;
-        }
-
-        _optimizeCache();
-      });
     } on MissingPluginException {
       // No-op.
     }
-
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    cacheSubscription?.cancel();
-    cacheChangesSubscription?.cancel();
-    super.onClose();
   }
 
   /// Gets a file data from cache by the provided [checksum] or downloads by the
@@ -143,7 +112,7 @@ class FileService extends DisposableService {
   /// At least one of [url] or [checksum] arguments must be provided.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
-  static FutureOr<Uint8List?> get({
+  FutureOr<Uint8List?> get({
     String? url,
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
@@ -155,10 +124,9 @@ class FileService extends DisposableService {
     }
 
     return Future.sync(() async {
-      File? file;
       if (checksum != null && !PlatformUtils.isWeb) {
         final Directory cache = await cacheDirectory;
-        file = File('${cache.path}/$checksum');
+        final File file = File('${cache.path}/$checksum');
 
         if (await file.exists()) {
           final Uint8List bytes = await file.readAsBytes();
@@ -195,15 +163,7 @@ class FileService extends DisposableService {
           cancelToken,
         );
 
-        if (checksum != null) {
-          FIFOCache.set(checksum, data);
-        }
-
-        Future.sync(() async {
-          if (file != null) {
-            await file.writeAsBytes(data);
-          }
-        });
+        save(data, checksum);
 
         return data;
       } else {
@@ -213,24 +173,40 @@ class FileService extends DisposableService {
   }
 
   /// Saves the provided [data] to the [FIFOCache] and to the [cacheDirectory].
-  static Future<void> save(Uint8List data) async {
-    String checksum = sha256.convert(data).toString();
+  Future<void> save(Uint8List data, [String? checksum]) async {
+    checksum ??= sha256.convert(data).toString();
     FIFOCache.set(checksum, data);
 
-    final Directory cache = await cacheDirectory;
-    final File file = File('${cache.path}/$checksum');
-    await file.writeAsBytes(data);
+    if (!PlatformUtils.isWeb) {
+      final Directory cache = await cacheDirectory;
+      final File file = File('${cache.path}/$checksum');
+      await file.writeAsBytes(data);
+
+      cacheSize.value += data.length;
+      _files.add(file);
+      _optimizeCache();
+
+      _cacheRepository?.update(_files.length, cacheSize.value);
+    }
   }
 
   /// Returns indicator whether data with the provided [checksum] exists in the
   /// [FIFOCache] or [cacheDirectory].
-  static bool exists(String? checksum) {
-    if (checksum == null) {
-      return false;
+  bool exists(String checksum) {
+    return FIFOCache.exists(checksum) ||
+        _files.any((e) => e.path.endsWith(checksum));
+  }
+
+  /// Calculates size of the cache.
+  Future<int> _calculateCacheSize() async {
+    int size = 0;
+
+    for (var file in _files) {
+      final FileStat stat = await file.stat();
+      size += stat.size;
     }
 
-    return FIFOCache.exists(checksum) ||
-        _files.keys.any((e) => e.path.endsWith(checksum));
+    return size;
   }
 
   /// Deletes files from the [cacheDirectory] if it occupies more then
@@ -245,27 +221,46 @@ class FileService extends DisposableService {
               _lastOptimization!
                   .add(_optimizationDelay)
                   .isBefore(DateTime.now()))) {
-        final List<FileSystemEntity> files = _files.keys.toList();
-        files.sortBy((f) => f.statSync().accessed);
+        overflow += (maxSize * 0.05).floor();
+
+        final List<FileSystemEntity> files = _files.toList();
+
+        Map<FileSystemEntity, FileStat> filesInfo = {};
+        for (FileSystemEntity file in files) {
+          final FileStat stat = await file.stat();
+          if (stat.type == FileSystemEntityType.notFound) {
+            _files.remove(file);
+          }
+
+          filesInfo[file] = await file.stat();
+        }
+
+        files.sortBy((f) => filesInfo[f]!.accessed);
 
         int deleted = 0;
         for (var file in files) {
           try {
-            final int fileSize = _files[file] ?? 0;
-            await file.delete(recursive: true);
-            deleted += fileSize;
-            cacheSize.value -= fileSize;
+            final FileStat stat = filesInfo[file]!;
+            if (stat.type != FileSystemEntityType.notFound) {
+              final int fileSize = stat.size;
+              await file.delete();
+              deleted += fileSize;
+              cacheSize.value -= fileSize;
+              _files.remove(file);
 
-            if (deleted >= overflow) {
-              break;
+              if (deleted >= overflow) {
+                break;
+              }
             }
           } catch (_, __) {
             // No-op.
           }
         }
-      }
 
-      _lastOptimization = DateTime.now();
+        _lastOptimization = DateTime.now();
+
+        _cacheRepository?.update(_files.length, cacheSize.value);
+      }
     });
   }
 }
