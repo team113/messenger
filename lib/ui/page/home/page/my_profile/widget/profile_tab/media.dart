@@ -18,12 +18,12 @@
 import 'package:flutter/material.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '../../../../widget/field_button.dart';
-import '../dense.dart';
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/paddings.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.media] section.
 class ProfileMedia extends StatelessWidget {
@@ -70,7 +70,7 @@ class ProfileMedia extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Dense(
+        Paddings.dense(
           FieldButton(
             text: videoText,
             hint: 'label_media_camera'.l10n,
@@ -79,7 +79,7 @@ class ProfileMedia extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Dense(
+        Paddings.dense(
           FieldButton(
             text: audioText,
             hint: 'label_media_microphone'.l10n,
@@ -88,7 +88,7 @@ class ProfileMedia extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Dense(
+        Paddings.dense(
           FieldButton(
             text: outputText,
             hint: 'label_media_output'.l10n,

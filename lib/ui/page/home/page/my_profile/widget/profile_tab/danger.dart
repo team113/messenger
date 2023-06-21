@@ -18,9 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/l10n/l10n.dart';
 
-import '../../../../widget/field_button.dart';
-import '../dense.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.danger] section.
@@ -36,7 +36,7 @@ class ProfileDanger extends StatelessWidget {
 
     return Column(
       children: [
-        Dense(
+        Paddings.dense(
           FieldButton(
             key: const Key('DeleteAccount'),
             text: 'btn_delete_account'.l10n,

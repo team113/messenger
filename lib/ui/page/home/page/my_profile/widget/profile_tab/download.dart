@@ -17,8 +17,8 @@
 
 import 'package:flutter/material.dart';
 
-import '../dense.dart';
-import '../download_button.dart';
+import '/ui/page/home/page/my_profile/widget/download_button.dart';
+import '/ui/page/home/widget/paddings.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.download] section.
 class ProfileDownloads extends StatelessWidget {
@@ -26,8 +26,8 @@ class ProfileDownloads extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Dense(
-      Column(
+    return Paddings.dense(
+      const Column(
         children: [
           DownloadButton(
             asset: 'windows',

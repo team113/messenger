@@ -18,10 +18,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../dense.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
@@ -47,47 +47,7 @@ class ProfileBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    Widget message({
-      bool fromMe = true,
-      bool isRead = true,
-      String text = '123',
-    }) {
-      return Container(
-        padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
-        child: IntrinsicWidth(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            decoration: BoxDecoration(
-              color: fromMe
-                  ? isRead
-                      ? style.readMessageColor
-                      : style.unreadMessageColor
-                  : style.messageColor,
-              borderRadius: BorderRadius.circular(15),
-              border: fromMe
-                  ? isRead
-                      ? style.secondaryBorder
-                      : Border.all(
-                          color: style.colors.backgroundAuxiliaryLighter,
-                          width: 0.5,
-                        )
-                  : style.primaryBorder,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                  child: Text(text, style: fonts.bodyLarge),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Dense(
+    return Paddings.dense(
       Column(
         children: [
           WidgetButton(
@@ -124,15 +84,14 @@ class ProfileBackground extends StatelessWidget {
                           children: [
                             Align(
                               alignment: Alignment.topLeft,
-                              child: message(
+                              child: _MessageWidget(
                                 fromMe: false,
                                 text: 'label_hello'.l10n,
                               ),
                             ),
                             Align(
                               alignment: Alignment.topRight,
-                              child: message(
-                                fromMe: true,
+                              child: _MessageWidget(
                                 text: 'label_hello_reply'.l10n,
                               ),
                             ),
@@ -168,6 +127,49 @@ class ProfileBackground extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+///
+class _MessageWidget extends StatelessWidget {
+  const _MessageWidget({
+    this.text,
+    this.fromMe = true,
+  });
+
+  ///
+  final bool fromMe;
+
+  ///
+  final String? text;
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
+      child: IntrinsicWidth(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          decoration: BoxDecoration(
+            color: fromMe ? style.readMessageColor : style.messageColor,
+            borderRadius: BorderRadius.circular(15),
+            border: fromMe ? style.secondaryBorder : style.primaryBorder,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (text != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                  child: Text(text!, style: fonts.bodyLarge),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

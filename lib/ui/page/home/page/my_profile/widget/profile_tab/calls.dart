@@ -18,11 +18,11 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/l10n/l10n.dart';
 
-import '../../../../widget/field_button.dart';
-import '/themes.dart';
-import '../dense.dart';
 import '/domain/model/application_settings.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/call_window_switch/controller.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/paddings.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.calls] section.
 class ProfileCall extends StatelessWidget {
@@ -38,7 +38,7 @@ class ProfileCall extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Dense(
+        Paddings.dense(
           FieldButton(
             text: (settings?.enablePopups ?? true)
                 ? 'label_open_calls_in_window'.l10n

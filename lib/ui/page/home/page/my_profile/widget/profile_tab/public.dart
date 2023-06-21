@@ -16,16 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/page/my_profile/controller.dart';
 
-import '../../../../widget/field_button.dart';
-import '../padding.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-
+import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -44,7 +43,7 @@ class ProfileName extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BasicPadding(
+    return Paddings.basic(
       ReactiveTextField(
         key: const Key('NameField'),
         state: name,
@@ -84,7 +83,7 @@ class ProfilePresence extends StatelessWidget {
 
     final Presence? presence = myUser?.presence;
 
-    return BasicPadding(
+    return Paddings.basic(
       FieldButton(
         onPressed: () => StatusView.show(context, expanded: false),
         hint: 'label_presence'.l10n,
@@ -108,7 +107,7 @@ class ProfileStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return BasicPadding(
+    return Paddings.basic(
       ReactiveTextField(
         key: const Key('StatusField'),
         state: status,

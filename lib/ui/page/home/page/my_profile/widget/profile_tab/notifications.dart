@@ -17,11 +17,12 @@
 
 import 'package:flutter/material.dart';
 
-import '../dense.dart';
+
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.notifications]
@@ -47,7 +48,7 @@ class ProfileNotifications extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    return Dense(
+    return Paddings.dense(
       Stack(
         alignment: Alignment.centerRight,
         children: [

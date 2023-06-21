@@ -17,13 +17,13 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../widget/field_button.dart';
-import '../dense.dart';
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/timeline_switch/controller.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/paddings.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.chats] section.
 class ProfileChats extends StatelessWidget {
@@ -39,7 +39,7 @@ class ProfileChats extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Dense(
+        Paddings.dense(
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -54,7 +54,7 @@ class ProfileChats extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Dense(
+        Paddings.dense(
           FieldButton(
             text: (settings?.timelineEnabled ?? true)
                 ? 'label_as_timeline'.l10n

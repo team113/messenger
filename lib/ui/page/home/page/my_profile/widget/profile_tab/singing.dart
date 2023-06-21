@@ -18,10 +18,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../widget/field_button.dart';
-import '../copyable.dart';
-import '../dense.dart';
-import '../padding.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -29,7 +25,10 @@ import '/themes.dart';
 import '/ui/page/home/page/my_profile/add_email/controller.dart';
 import '/ui/page/home/page/my_profile/add_phone/controller.dart';
 import '/ui/page/home/page/my_profile/password/controller.dart';
+import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -47,7 +46,7 @@ class ProfileNum extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BasicPadding(
+    return Paddings.basic(
       Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -78,7 +77,7 @@ class ProfileLogin extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    return BasicPadding(
+    return Paddings.basic(
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -331,7 +330,7 @@ class ProfileEmails extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets.map((e) => Dense(e)).toList(),
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
     );
   }
 }
@@ -492,7 +491,7 @@ class ProfilePhones extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets.map((e) => Dense(e)).toList(),
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
     );
   }
 }
@@ -512,7 +511,7 @@ class ProfilePassword extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Dense(
+        Paddings.dense(
           FieldButton(
             key: myUser?.hasPassword == true
                 ? const Key('ChangePassword')

@@ -17,8 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../widget/field_button.dart';
-import '../dense.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -26,6 +24,8 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/blacklist/view.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/paddings.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.blacklist] section.
 class ProfileBlockedUsers extends StatelessWidget {
@@ -40,7 +40,7 @@ class ProfileBlockedUsers extends StatelessWidget {
 
     return Column(
       children: [
-        Dense(
+        Paddings.dense(
           FieldButton(
             text: 'label_users_count'.l10nfmt({'count': blacklist.length}),
             onPressed:
