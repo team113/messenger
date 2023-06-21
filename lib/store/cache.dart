@@ -42,7 +42,6 @@ class CacheRepository extends DisposableInterface
   void onInit() {
     cacheInfo.value = _cacheLocal.cacheInfo;
     _initCacheSubscription();
-
     super.onInit();
   }
 

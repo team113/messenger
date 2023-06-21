@@ -41,10 +41,13 @@ CacheUtilImpl CacheUtil = CacheUtilImpl();
 /// Service maintaining downloading and caching.
 class CacheUtilImpl extends DisposableService {
   /// Maximum allowed size of the [cacheDirectory] in bytes.
-  int maxSize = 1024 * 1024 * 100; // 1 Gb
+  int maxSize = 1024 * 1024 * 1024; // 1 Gb
 
   /// Size of all files in the [cacheDirectory] in bytes.
   final RxInt cacheSize = RxInt(0);
+
+  /// Cache info repository, used to retrieve the stored [CacheInfo].
+  AbstractCacheRepository? _cacheRepository;
 
   /// [File]s stored in the [cacheDirectory].
   final List<File> _files = [];
@@ -61,12 +64,8 @@ class CacheUtilImpl extends DisposableService {
   /// Returns a path to the cache directory.
   Future<Directory> get cacheDirectory async {
     _cacheDirectory ??= await getApplicationSupportDirectory();
-
     return _cacheDirectory!;
   }
-
-  /// Cache info repository, used to retrieve the stored [CacheInfo].
-  AbstractCacheRepository? _cacheRepository;
 
   /// Initializes this [CacheUtilImpl].
   Future<void> init(AbstractCacheRepository cacheRepository) async {
@@ -196,8 +195,7 @@ class CacheUtilImpl extends DisposableService {
     int size = 0;
 
     for (var file in _files) {
-      final FileStat stat = await file.stat();
-      size += stat.size;
+      size += (await file.stat()).size;
     }
 
     return size;
