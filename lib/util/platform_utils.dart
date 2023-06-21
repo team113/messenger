@@ -316,7 +316,7 @@ class PlatformUtilsImpl {
           );
 
           Uint8List? data;
-          if(checksum != null && CacheUtil.exists(checksum)) {
+          if (checksum != null && CacheUtil.exists(checksum)) {
             data = await CacheUtil.get(checksum: checksum);
           }
 
@@ -371,10 +371,14 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
-  Future<void> saveToGallery(String url, String name, {String? checksum}) async {
+  Future<void> saveToGallery(
+    String url,
+    String name, {
+    String? checksum,
+  }) async {
     if (isMobile && !isWeb) {
       Uint8List? data;
-      if(checksum != null && CacheUtil.exists(checksum)) {
+      if (checksum != null && CacheUtil.exists(checksum)) {
         data = await CacheUtil.get(checksum: checksum);
       }
 
@@ -394,7 +398,7 @@ class PlatformUtilsImpl {
   /// Downloads a file from the provided [url] and opens [Share] dialog with it.
   Future<void> share(String url, String name, {String? checksum}) async {
     Uint8List? data;
-    if(checksum != null && CacheUtil.exists(checksum)) {
+    if (checksum != null && CacheUtil.exists(checksum)) {
       data = await CacheUtil.get(checksum: checksum);
     }
 
