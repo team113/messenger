@@ -30,7 +30,7 @@ import '/util/platform_utils.dart';
 class SecondaryOverlay extends StatelessWidget {
   const SecondaryOverlay({
     super.key,
-    required this.child,
+    this.child,
     this.size,
     this.secondaryKey,
     this.left,
@@ -69,7 +69,7 @@ class SecondaryOverlay extends StatelessWidget {
   /// [GlobalKey] of this [SecondaryOverlay].
   final GlobalKey<State<StatefulWidget>>? secondaryKey;
 
-  /// Actual size of the [SecondaryOverlay].
+  /// Actual size of the [MediaQuery] data.
   final Size? size;
 
   /// Height of this [SecondaryOverlay].
@@ -118,7 +118,7 @@ class SecondaryOverlay extends StatelessWidget {
   final double opacity;
 
   /// [Widget] wrapped by this [SecondaryOverlay].
-  final Widget child;
+  final Widget? child;
 
   /// Callback, called when the delta drag of the left side of the `x` and
   /// the center side of the `y` is triggered.
@@ -303,7 +303,7 @@ class SecondaryOverlay extends StatelessWidget {
                       : const SizedBox(),
                 ),
 
-                child,
+                if (child != null) child!,
 
                 // Discards the pointer when hovered over videos.
                 Positioned(

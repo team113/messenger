@@ -46,8 +46,8 @@ class ChatInfoCard extends StatelessWidget {
   /// Current duration of the call.
   final Rx<Duration> callDuration;
 
-  /// Callback, called when least one element satisfies the condition set by
-  /// the [condition] function.
+  /// Callback, called to check whether there is any member in the chat that
+  /// satisfies the [condition].
   final bool Function(RxUser)? condition;
 
   /// Callback [Function] that opens a screen to add members to the chat.

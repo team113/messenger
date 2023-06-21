@@ -40,8 +40,8 @@ class Launchpad extends StatelessWidget {
   /// Widgets to put inside a [Wrap].
   final List<Widget> paneledItems;
 
-  /// Callback, called when at least one element from the panel list satisfies
-  /// the condition set by the [condition] function.
+  /// Callback, called to check whether a certain condition is met in order to
+  /// apply a certain decoration to a [AnimatedContainer].
   final bool Function(CallButton?)? condition;
 
   /// Callback, called when the mouse cursor enters the area of this
@@ -69,64 +69,65 @@ class Launchpad extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
-        padding: const EdgeInsets.only(bottom: 30),
-        child: DragTarget<CallButton>(
-          onAccept: onAccept,
-          onWillAccept: onWillAccept,
-          builder: (context, candidate, _) {
-            return MouseRegion(
-              onEnter: onEnter,
-              onHover: onHover,
-              onExit: onExit,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: style.colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    CustomBoxShadow(
-                      color: style.colors.onBackgroundOpacity20,
-                      blurRadius: 8,
-                      blurStyle: BlurStyle.outer,
-                    )
-                  ],
-                ),
-                margin: const EdgeInsets.all(2),
-                child: ConditionalBackdropFilter(
-                  borderRadius: BorderRadius.circular(30),
-                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    decoration: BoxDecoration(
-                      color: condition != null
-                          ? candidate.any(condition!)
-                              ? style.colors.onSecondaryOpacity88
-                              : style.colors.onSecondaryOpacity60
-                          : style.colors.onSecondaryOpacity88,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 440),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(height: 35),
-                          Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.start,
-                            alignment: WrapAlignment.center,
-                            spacing: 4,
-                            runSpacing: 21,
-                            children: paneledItems,
-                          ),
-                          const SizedBox(height: 20),
-                        ],
-                      ),
+      padding: const EdgeInsets.only(bottom: 30),
+      child: DragTarget<CallButton>(
+        onAccept: onAccept,
+        onWillAccept: onWillAccept,
+        builder: (context, candidate, _) {
+          return MouseRegion(
+            onEnter: onEnter,
+            onHover: onHover,
+            onExit: onExit,
+            child: Container(
+              decoration: BoxDecoration(
+                color: style.colors.transparent,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  CustomBoxShadow(
+                    color: style.colors.onBackgroundOpacity20,
+                    blurRadius: 8,
+                    blurStyle: BlurStyle.outer,
+                  )
+                ],
+              ),
+              margin: const EdgeInsets.all(2),
+              child: ConditionalBackdropFilter(
+                borderRadius: BorderRadius.circular(30),
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  decoration: BoxDecoration(
+                    color: condition != null
+                        ? candidate.any(condition!)
+                            ? style.colors.onSecondaryOpacity88
+                            : style.colors.onSecondaryOpacity60
+                        : style.colors.onSecondaryOpacity88,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 440),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 35),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.start,
+                          alignment: WrapAlignment.center,
+                          spacing: 4,
+                          runSpacing: 21,
+                          children: paneledItems,
+                        ),
+                        const SizedBox(height: 20),
+                      ],
                     ),
                   ),
                 ),
               ),
-            );
-          },
-        ));
+            ),
+          );
+        },
+      ),
+    );
   }
 }
