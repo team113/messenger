@@ -107,17 +107,19 @@ class PlatformUtilsImpl {
         system = 'macOS ${info.osRelease}; ${info.arch}; ${info.model}';
       } else if (isWindows) {
         final info = await device.windowsInfo;
-        system = '${info.productName}; ${info.buildLab}';
+        system =
+            '${info.productName}; ${info.displayVersion}; ${info.buildLabEx}';
       } else if (isLinux) {
         final info = await device.linuxInfo;
         system = info.prettyName;
       } else if (isAndroid) {
         final info = await device.androidInfo;
         system =
-            'Android ${info.version}; ${info.hardware}; ${info.product}; ${info.manufacturer}';
+            'Android ${info.version.release}; SDK ${info.version.sdkInt}; ${info.manufacturer} ${info.model}; ${info.hardware}';
       } else if (isIOS) {
         final info = await device.iosInfo;
-        system = '${info.systemName} ${info.systemVersion}; ${info.model}';
+        system =
+            '${info.systemName} ${info.systemVersion}; ${info.utsname.machine}';
       }
 
       _userAgent = '${Config.userAgent}/${Pubspec.version}';
