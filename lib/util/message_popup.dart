@@ -30,6 +30,7 @@ class MessagePopup {
   /// Shows an error popup with the provided argument.
   static Future<void> error(dynamic e) async {
     var message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
+
     await showDialog(
       context: router.context!,
       builder: (context) => AlertDialog(
@@ -62,11 +63,7 @@ class MessagePopup {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(title, style: fonts.headlineMedium),
-                ),
-              ),
+              ModalPopupHeader(text: title),
               const SizedBox(height: 13),
               Flexible(
                 child: ListView(

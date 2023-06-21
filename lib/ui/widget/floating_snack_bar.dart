@@ -95,7 +95,7 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return Stack(
       children: [
