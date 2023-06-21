@@ -149,10 +149,9 @@ class _ChatViewState extends State<ChatView>
           final Iterable<String> typings = c.chat!.typingUsers
               .where((e) => e.id != c.me)
               .map((e) => e.name?.val ?? e.num.val);
+
           final ChatMember? partner = c.chat!.chat.value.members
               .firstWhereOrNull((u) => u.user.id != c.me);
-
-          final bool ongoingCall = c.chat!.chat.value.ongoingCall != null;
 
           final Set<UserId>? actualMembers = c
               .chat!.chat.value.ongoingCall?.members
@@ -212,28 +211,21 @@ class _ChatViewState extends State<ChatView>
                                     }),
                                     if (!isMonolog)
                                       ChatSubtitle(
+                                        rxChat: c.chat,
                                         text: typings.join('comma_space'.l10n),
-                                        groupSubtitle:
-                                            c.chat!.chat.value.getSubtitle(),
-                                        ongoingCall: ongoingCall,
-                                        isGroup: c.chat!.chat.value.isGroup,
-                                        isDialog: c.chat!.chat.value.isDialog,
-                                        isTyping: c.chat?.typingUsers
-                                                .any((e) => e.id != c.me) ==
-                                            true,
-                                        muted: c.chat?.chat.value.muted != null,
                                         partner: partner != null,
+                                        future: c.getUser(partner!.user.id),
+                                        test: (e) => e.id != c.me,
                                         subtitle: _buildSubtitle(
                                           context,
-                                          ongoingCall
+                                          c.chat!.chat.value.ongoingCall != null
                                               ? 'label_a_of_b'.l10nfmt({
                                                   'a': actualMembers?.length,
-                                                  'b': c.chat!.members.length
+                                                  'b': c.chat!.members.length,
                                                 })
                                               : null,
                                           c.duration.value?.hhMmSs(),
                                         ),
-                                        child: _userBuilder(context, c),
                                       ),
                                   ],
                                 ),
@@ -635,55 +627,6 @@ class _ChatViewState extends State<ChatView>
         style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
       ),
     );
-  }
-
-  /// Builds a [FutureBuilder] returning a [RxUser] fetched by the
-  /// provided [id].
-  Widget _userBuilder(BuildContext context, ChatController c) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    final Rx<Chat> chat = c.chat!.chat;
-
-    final ChatMember? partner =
-        chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
-
-    if (partner != null) {
-      return Flexible(
-        child: FutureBuilder<RxUser?>(
-          future: c.getUser(partner.user.id),
-          builder: (_, snapshot) {
-            if (snapshot.data != null) {
-              final String? subtitle =
-                  chat.value.getSubtitle(partner: snapshot.data!.user.value);
-
-              final UserTextStatus? status = snapshot.data!.user.value.status;
-
-              if (status != null || subtitle != null) {
-                final StringBuffer buffer = StringBuffer(status ?? '');
-
-                if (status != null && subtitle != null) {
-                  buffer.write('space_vertical_space'.l10n);
-                }
-
-                buffer.write(subtitle ?? '');
-
-                return Text(
-                  buffer.toString(),
-                  style: fonts.bodySmall!.copyWith(
-                    color: style.colors.secondary,
-                  ),
-                );
-              }
-
-              return const SizedBox();
-            }
-
-            return const SizedBox();
-          },
-        ),
-      );
-    }
-    return const SizedBox();
   }
 
   /// Builds a visual representation of a [ListElement] identified by the

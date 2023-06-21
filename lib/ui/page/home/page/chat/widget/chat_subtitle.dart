@@ -17,8 +17,13 @@
 
 import 'package:flutter/material.dart';
 
+import '/domain/model/chat.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
 
@@ -26,58 +31,44 @@ import '/ui/widget/svg/svg.dart';
 class ChatSubtitle extends StatelessWidget {
   const ChatSubtitle({
     super.key,
+    required this.rxChat,
+    required this.test,
     this.text,
-    this.child,
     this.subtitle,
-    this.groupSubtitle,
-    this.ongoingCall = true,
-    this.isGroup = true,
-    this.isDialog = false,
-    this.isTyping = false,
-    this.muted = false,
+    this.future,
     this.partner = true,
   });
 
-  /// [Text] to display in this [ChatSubtitle] when [isGroup] was `false`.
+  /// [RxChat] of this [ChatSubtitle].
+  final RxChat? rxChat;
+
+  /// [Text] to display in this [ChatSubtitle].
   final String? text;
-
-  /// [Text] to display in this [ChatSubtitle] when [isGroup] was `true`.
-  final String? groupSubtitle;
-
-  /// Indicator whether a chat call is in progress.
-  final bool ongoingCall;
-
-  /// Indicator whether chat is a group.
-  final bool isGroup;
-
-  /// Indicator whether chat is a dialog.
-  final bool isDialog;
-
-  /// Indicator whether user currently typing in this chat.
-  final bool isTyping;
-
-  /// Indicator whether chat is muted.
-  final bool muted;
 
   /// Indicator whether the chat is with a partner.
   final bool partner;
 
-  /// [Widget] to display
-  final Widget? child;
-
   /// Subtitle [Widget] of this [ChatSubtitle].
   final Widget? subtitle;
+
+  /// Returns an [RxUser] by the provided id.
+  final Future<RxUser?>? future;
+
+  /// Callback, called for test some condition for a given user.
+  final bool Function(User) test;
 
   @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    if (ongoingCall && subtitle != null) {
+    final Chat chat = rxChat!.chat.value;
+
+    if (chat.ongoingCall != null && subtitle != null) {
       return subtitle!;
     }
 
-    if (isTyping) {
-      if (!isGroup) {
+    if (rxChat?.typingUsers.any(test) == true) {
+      if (!chat.isGroup) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -117,18 +108,18 @@ class ChatSubtitle extends StatelessWidget {
       );
     }
 
-    if (isGroup) {
-      if (groupSubtitle != null) {
+    if (chat.isGroup) {
+      if (chat.getSubtitle() != null) {
         return Text(
-          groupSubtitle!,
+          chat.getSubtitle()!,
           style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
         );
       }
-    } else if (isDialog) {
+    } else if (chat.isDialog) {
       if (partner) {
         return Row(
           children: [
-            if (muted) ...[
+            if (chat.muted != null) ...[
               SvgImage.asset(
                 'assets/icons/muted_dark.svg',
                 width: 19.99 * 0.6,
@@ -136,7 +127,41 @@ class ChatSubtitle extends StatelessWidget {
               ),
               const SizedBox(width: 5),
             ],
-            if (child != null) child!,
+            Flexible(
+              child: FutureBuilder<RxUser?>(
+                future: future,
+                builder: (_, snapshot) {
+                  if (snapshot.data != null) {
+                    final String? subtitle =
+                        chat.getSubtitle(partner: snapshot.data!.user.value);
+
+                    final UserTextStatus? status =
+                        snapshot.data!.user.value.status;
+
+                    if (status != null || subtitle != null) {
+                      final StringBuffer buffer = StringBuffer(status ?? '');
+
+                      if (status != null && subtitle != null) {
+                        buffer.write('space_vertical_space'.l10n);
+                      }
+
+                      buffer.write(subtitle ?? '');
+
+                      return Text(
+                        buffer.toString(),
+                        style: fonts.bodySmall!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      );
+                    }
+
+                    return const SizedBox();
+                  }
+
+                  return const SizedBox();
+                },
+              ),
+            ),
           ],
         );
       }
