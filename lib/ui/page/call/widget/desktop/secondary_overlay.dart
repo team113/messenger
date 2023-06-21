@@ -94,19 +94,19 @@ class SecondaryOverlay extends StatelessWidget {
   /// Indicator whether this [SecondaryOverlay] is visible.
   final bool isVisible;
 
-  /// Indicator whether the cursor should be shown.
+  /// Indicator whether the cursor should be displayed.
   final bool showCursor;
 
   /// Indicator whether the [alignment] should be used.
   final bool isAligned;
 
-  /// Indicator whether the drag target should be shown.
+  /// Indicator whether the drag target should be displayed.
   final bool showDragTarget;
 
   /// Indicator whether secondary panel is hovered.
   final bool isHover;
 
-  /// TODO: docs
+  /// Indicator whether draggable title bar should be displayed.
   final bool showTitleBar;
 
   /// Indicator whether there are currently drags at the moment.
