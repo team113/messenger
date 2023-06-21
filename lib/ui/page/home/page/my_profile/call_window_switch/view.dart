@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -42,8 +41,6 @@ class CallWindowSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
-
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
       builder: (CallWindowSwitchController c) {
@@ -54,11 +51,7 @@ class CallWindowSwitchView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text('label_calls'.l10n, style: fonts.headlineMedium),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_calls'.l10n),
               const SizedBox(height: 13),
               Flexible(
                 child: ListView.separated(

@@ -32,7 +32,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class ScreenShareView extends StatelessWidget {
-  const ScreenShareView(this.call, {Key? key}) : super(key: key);
+  const ScreenShareView(this.call, {super.key});
 
   /// [OngoingCall] this [ScreenShareView] is bound to.
   final Rx<OngoingCall> call;
@@ -71,14 +71,7 @@ class ScreenShareView extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_screen_sharing'.l10n,
-                    style: fonts.headlineMedium,
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_screen_sharing'.l10n),
               const SizedBox(height: 12),
               Flexible(
                 child: Scrollbar(

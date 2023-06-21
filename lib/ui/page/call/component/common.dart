@@ -267,7 +267,7 @@ class AcceptAudioButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _CallButtonWidget(
       hint: hint,
@@ -297,7 +297,7 @@ class AcceptVideoButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _CallButtonWidget(
       hint: hint,
@@ -323,7 +323,7 @@ class DeclineButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _CallButtonWidget(
       hint: hint,
@@ -346,7 +346,7 @@ class DropButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _CallButtonWidget(
       hint: hint,
@@ -367,7 +367,7 @@ class CancelButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _CallButtonWidget(
       hint: hint,
@@ -392,7 +392,7 @@ class EndCallButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _CallButtonWidget(
       asset: 'call_end',
