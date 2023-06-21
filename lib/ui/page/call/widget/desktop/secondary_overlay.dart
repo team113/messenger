@@ -176,7 +176,7 @@ class SecondaryOverlay extends StatelessWidget {
   /// [SecondaryOverlay].
   final void Function(PointerExitEvent)? onExit;
 
-  /// Callback, called when the user taps the [InkResponse].
+  /// Callback, called when [InkResponse] is tapped.
   final void Function()? onTap;
 
   @override
@@ -521,7 +521,7 @@ class SecondaryOverlay extends StatelessWidget {
     );
   }
 
-  // Returns widget that can be dragged and resized.
+  // Returns a widget that can be dragged and resized.
   Widget buildDragHandle(Alignment alignment, BuildContext context) {
     // Returns a [Scaler] scaling the secondary view.
     Widget scaler({

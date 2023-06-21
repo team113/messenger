@@ -15,13 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/l10n/l10n.dart';
 
-import '/domain/repository/user.dart';
 import '/domain/repository/chat.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -32,23 +30,22 @@ class ChatInfoCard extends StatelessWidget {
     super.key,
     required this.callDuration,
     this.chat,
+    this.subtitle,
     this.trailing,
     this.onTap,
-    this.condition,
   });
 
   /// Chat that with ongoing call is happening in.
   final RxChat? chat;
+
+  /// Subtitle of this [ChatInfoCard].
+  final String? subtitle;
 
   /// Trailing of this [ChatInfoCard].
   final String? trailing;
 
   /// Current duration of the call.
   final Rx<Duration> callDuration;
-
-  /// Callback, called to check whether there is any member in the chat that
-  /// satisfies the [condition].
-  final bool Function(RxUser)? condition;
 
   /// Callback [Function] that opens a screen to add members to the chat.
   final void Function()? onTap;
@@ -107,15 +104,9 @@ class ChatInfoCard extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 5),
                           child: Row(
                             children: [
-                              if (condition != null)
+                              if (subtitle != null)
                                 Text(
-                                  chat?.members.values
-                                          .firstWhereOrNull(condition!)
-                                          ?.user
-                                          .value
-                                          .status
-                                          ?.val ??
-                                      'label_online'.l10n,
+                                  subtitle!,
                                   style: fonts.labelLarge!.copyWith(
                                     color: style.colors.onPrimary,
                                   ),

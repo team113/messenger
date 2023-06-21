@@ -535,7 +535,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                   'a': '${c.members.keys.map((k) => k.userId).toSet().length}',
                   'b': '${c.chat.value?.members.length}',
                 }),
-                condition: (e) => e.id != c.me.id.userId,
+                subtitle: c.chat.value?.members.values
+                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
+                        ?.user
+                        .value
+                        .status
+                        ?.val ??
+                    'label_online'.l10n,
                 onTap: () => c.openAddMember(context),
               ),
             ),
