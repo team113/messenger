@@ -18,6 +18,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/themes.dart';
 
@@ -27,6 +28,7 @@ class StyledCupertinoButton extends StatelessWidget {
     super.key,
     required this.label,
     this.onPressed,
+    this.color,
   });
 
   /// Label to display.
@@ -35,13 +37,23 @@ class StyledCupertinoButton extends StatelessWidget {
   /// Callback, called when this button is pressed.
   final void Function()? onPressed;
 
+  final Color? color;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
       fontSize: 13,
-      color: style.colors.secondary,
+      color: color ?? style.colors.secondary,
+    );
+
+    return WidgetButton(
+      onPressed: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+        child: Text(label, style: thin),
+      ),
     );
 
     return MouseRegion(

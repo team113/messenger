@@ -19,6 +19,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/field_button.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -99,6 +101,7 @@ class AuthView extends StatelessWidget {
             onPressed: c.register,
             color: style.colors.primary,
           ),
+
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
@@ -108,6 +111,24 @@ class AuthView extends StatelessWidget {
             onPressed: () => LoginView.show(context),
           ),
           const SizedBox(height: 15),
+          OutlinedRoundedButton(
+            title: Text(
+              // 'Работа и партнёрство'.l10n,
+              // 'Work and cooperation'.l10n,
+              'Work'.l10n,
+            ),
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 2 * 0.7),
+              child: SvgImage.asset(
+                'assets/icons/partner16.svg',
+                width: 36 * 0.61,
+                height: 28 * 0.61,
+              ),
+            ),
+            // color: Color.fromRGBO(110, 184, 118, 1),
+            onPressed: () => FreelanceView.show(context),
+          ),
+          if (isWeb) const SizedBox(height: 15),
           if (isIosWeb)
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n),
@@ -146,20 +167,47 @@ class AuthView extends StatelessWidget {
                           : null,
               onPressed: () => _download(context),
             ),
-          if (isWeb) const SizedBox(height: 15),
-          OutlinedRoundedButton(
-            title: Text('Freelance'.l10n),
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 2 * 0.7),
-              child: SvgImage.asset(
-                'assets/icons/partner16.svg',
-                width: 36 * 0.6,
-                height: 28 * 0.6,
-              ),
-            ),
-            onPressed: () => FreelanceView.show(context),
-          ),
+          // if (isWeb) const SizedBox(height: 15),
+          // OutlinedRoundedButton(
+          //   title: Text(
+          //     // 'Работа и партнёрство'.l10n,
+          //     // 'Work and cooperation'.l10n,
+          //     'Work'.l10n,
+          //   ),
+          //   leading: Padding(
+          //     padding: const EdgeInsets.only(left: 2 * 0.7),
+          //     child: SvgImage.asset(
+          //       'assets/icons/partner16.svg',
+          //       width: 36 * 0.61,
+          //       height: 28 * 0.61,
+          //     ),
+          //   ),
+          //   // color: Color.fromRGBO(110, 184, 118, 1),
+          //   onPressed: () => FreelanceView.show(context),
+          // ),
           const SizedBox(height: 20),
+          // WidgetButton(
+          //   onPressed: () => LanguageSelectionView.show(context, null),
+          //   child: Container(
+          //     child: Text(
+          //       'Work and cooperation',
+          //       style: TextStyle(
+          //         fontSize: 11,
+          //         color: Color.fromRGBO(110, 184, 118, 1),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // StyledCupertinoButton(
+          //   label: 'Work and cooperation',
+          //   onPressed: () => LanguageSelectionView.show(context, null),
+          //   color: Color.fromRGBO(110, 184, 118, 1),
+          // ),
+          // const SizedBox(height: 8),
+
+          const StyledCupertinoButton(label: 'Terms and conditions'),
+          const StyledCupertinoButton(label: 'Contact us'),
+          const SizedBox(height: 32),
           StyledCupertinoButton(
             key: c.languageKey,
             label: 'label_language_entry'.l10nfmt({
