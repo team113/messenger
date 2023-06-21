@@ -766,6 +766,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 condition: !c.minimized.value || c.fullscreen.value,
                 secondaryKey: c.secondaryKey,
                 size: c.size,
+                showTitleBar: c.doughDraggedRenderer.value == null,
                 isVisible: c.secondary.isNotEmpty,
                 showCursor: c.draggedRenderer.value == null,
                 isAligned: c.secondaryAlignment.value == null,

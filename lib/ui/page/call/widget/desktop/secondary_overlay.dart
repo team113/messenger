@@ -18,11 +18,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/widget/desktop/drop_box.dart';
 
 import '../conditional_backdrop.dart';
 import '../scaler.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/desktop/drop_box.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
@@ -64,6 +64,7 @@ class SecondaryOverlay extends StatelessWidget {
     this.opacity = 1,
     this.height = 50,
     this.width = 50,
+    this.showTitleBar = true,
   });
 
   /// [GlobalKey] of this [SecondaryOverlay].
@@ -104,6 +105,9 @@ class SecondaryOverlay extends StatelessWidget {
 
   /// Indicator whether secondary panel is hovered.
   final bool isHover;
+
+  /// TODO: docs
+  final bool showTitleBar;
 
   /// Indicator whether there are currently drags at the moment.
   final bool isAnyDrag;
@@ -321,66 +325,69 @@ class SecondaryOverlay extends StatelessWidget {
                 ),
 
                 // Sliding from top draggable title bar.
-                Positioned(
-                  key: secondaryKey,
-                  left: left,
-                  right: right,
-                  top: top,
-                  bottom: bottom,
-                  child: SizedBox(
-                    width: width,
-                    height: height,
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: SizedBox(
-                        height: 30,
-                        child: MouseRegion(
-                          cursor: isAnyDrag
-                              ? MouseCursor.defer
-                              : SystemMouseCursors.grab,
-                          child: GestureDetector(
-                            onPanStart: onPanStart,
-                            onPanUpdate: onPanUpdate,
-                            onPanEnd: onPanEnd,
-                            child: AnimatedOpacity(
-                              duration: 200.milliseconds,
-                              key: const ValueKey('TitleBar'),
-                              opacity: opacity,
-                              child: ClipRRect(
-                                borderRadius: isAligned
-                                    ? BorderRadius.only(
-                                        topLeft: borderRadius.topLeft,
-                                        topRight: borderRadius.topRight,
-                                      )
-                                    : BorderRadius.zero,
-                                child: ConditionalBackdropFilter(
-                                  condition: PlatformUtils.isWeb && condition,
-                                  child: Container(
-                                    color: PlatformUtils.isWeb
-                                        ? style.colors.onSecondaryOpacity60
-                                        : style.colors.onSecondaryOpacity88,
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(width: 7),
-                                        Expanded(
-                                          child: Text(
-                                            'Draggable',
-                                            style: fonts.labelMedium!.copyWith(
-                                              color: style.colors.onPrimary,
+                if (showTitleBar)
+                  Positioned(
+                    key: secondaryKey,
+                    left: left,
+                    right: right,
+                    top: top,
+                    bottom: bottom,
+                    child: SizedBox(
+                      width: width,
+                      height: height,
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: SizedBox(
+                          height: 30,
+                          child: MouseRegion(
+                            cursor: isAnyDrag
+                                ? MouseCursor.defer
+                                : SystemMouseCursors.grab,
+                            child: GestureDetector(
+                              onPanStart: onPanStart,
+                              onPanUpdate: onPanUpdate,
+                              onPanEnd: onPanEnd,
+                              child: AnimatedOpacity(
+                                duration: 200.milliseconds,
+                                key: const ValueKey('TitleBar'),
+                                opacity: opacity,
+                                child: ClipRRect(
+                                  borderRadius: isAligned
+                                      ? BorderRadius.only(
+                                          topLeft: borderRadius.topLeft,
+                                          topRight: borderRadius.topRight,
+                                        )
+                                      : BorderRadius.zero,
+                                  child: ConditionalBackdropFilter(
+                                    condition: PlatformUtils.isWeb && condition,
+                                    child: Container(
+                                      color: PlatformUtils.isWeb
+                                          ? style.colors.onSecondaryOpacity60
+                                          : style.colors.onSecondaryOpacity88,
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(width: 7),
+                                          Expanded(
+                                            child: Text(
+                                              'Draggable',
+                                              style:
+                                                  fonts.labelMedium!.copyWith(
+                                                color: style.colors.onPrimary,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        ),
-                                        InkResponse(
-                                          onTap: isAnyDrag ? null : onTap,
-                                          child: SvgImage.asset(
-                                            'assets/icons/close.svg',
-                                            height: 10.25,
+                                          InkResponse(
+                                            onTap: isAnyDrag ? null : onTap,
+                                            child: SvgImage.asset(
+                                              'assets/icons/close.svg',
+                                              height: 10.25,
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 7),
-                                      ],
+                                          const SizedBox(width: 7),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -391,7 +398,6 @@ class SecondaryOverlay extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
 
                 positionedBoilerplate(
                   alignment == Alignment.centerRight
