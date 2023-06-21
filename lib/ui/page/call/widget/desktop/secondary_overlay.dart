@@ -18,7 +18,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/widget/desktop/animated_drag_target.dart';
+import 'package:messenger/ui/page/call/widget/desktop/drop_box.dart';
 
 import '../conditional_backdrop.dart';
 import '../scaler.dart';
@@ -30,8 +30,6 @@ import '/util/platform_utils.dart';
 class SecondaryOverlay extends StatelessWidget {
   const SecondaryOverlay({
     super.key,
-    required this.height,
-    required this.width,
     required this.child,
     this.size,
     this.secondaryKey,
@@ -64,6 +62,8 @@ class SecondaryOverlay extends StatelessWidget {
     this.isHover = true,
     this.isAnyDrag = true,
     this.opacity = 1,
+    this.height = 50,
+    this.width = 50,
   });
 
   /// [GlobalKey] of this [SecondaryOverlay].
@@ -235,8 +235,8 @@ class SecondaryOverlay extends StatelessWidget {
                                 child: Stack(
                                   children: [
                                     Container(
-                                        color:
-                                            style.colors.backgroundAuxiliary),
+                                      color: style.colors.backgroundAuxiliary,
+                                    ),
                                     SvgImage.asset(
                                       'assets/images/background_dark.svg',
                                       width: double.infinity,
@@ -244,7 +244,8 @@ class SecondaryOverlay extends StatelessWidget {
                                       fit: BoxFit.cover,
                                     ),
                                     Container(
-                                        color: style.colors.onPrimaryOpacity7),
+                                      color: style.colors.onPrimaryOpacity7,
+                                    ),
                                   ],
                                 ),
                               ),

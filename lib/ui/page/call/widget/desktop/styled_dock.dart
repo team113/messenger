@@ -68,52 +68,46 @@ class StyledDock extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return AnimatedPadding(
-      key: const Key('DockedAnimatedPadding'),
+    return Padding(
+      key: const Key('DockedPadding'),
       padding: const EdgeInsets.only(bottom: 5),
-      curve: Curves.ease,
-      duration: 200.milliseconds,
-      child: AnimatedSwitcher(
-        key: const Key('DockedAnimatedSwitcher'),
-        duration: 200.milliseconds,
-        child: AnimatedSlider(
-          key: const Key('DockedPanelPadding'),
-          isOpen: showBottomUi!,
-          duration: 400.milliseconds,
-          translate: false,
-          listener: listener,
-          child: MouseRegion(
-            onEnter: onEnter,
-            onHover: onHover,
-            onExit: onExit,
-            child: Container(
-              decoration: BoxDecoration(
-                color: style.colors.transparent,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  CustomBoxShadow(
-                    color: style.colors.onBackgroundOpacity20,
-                    blurRadius: 8,
-                    blurStyle: BlurStyle.outer,
-                  )
-                ],
-              ),
-              margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-              child: ConditionalBackdropFilter(
-                key: dockKey,
-                borderRadius: BorderRadius.circular(30),
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: style.colors.onSecondaryOpacity20,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 13,
-                    horizontal: 5,
-                  ),
-                  child: child,
+      child: AnimatedSlider(
+        key: const Key('DockedPanelPadding'),
+        isOpen: showBottomUi!,
+        duration: 400.milliseconds,
+        translate: false,
+        listener: listener,
+        child: MouseRegion(
+          onEnter: onEnter,
+          onHover: onHover,
+          onExit: onExit,
+          child: Container(
+            decoration: BoxDecoration(
+              color: style.colors.transparent,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                CustomBoxShadow(
+                  color: style.colors.onBackgroundOpacity20,
+                  blurRadius: 8,
+                  blurStyle: BlurStyle.outer,
+                )
+              ],
+            ),
+            margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+            child: ConditionalBackdropFilter(
+              key: dockKey,
+              borderRadius: BorderRadius.circular(30),
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: style.colors.onSecondaryOpacity20,
+                  borderRadius: BorderRadius.circular(30),
                 ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 13,
+                  horizontal: 5,
+                ),
+                child: child,
               ),
             ),
           ),

@@ -26,11 +26,12 @@ import '/ui/widget/svg/svg.dart';
 class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,
-    required this.fullscreen,
-    this.children = const <Widget>[],
+    this.child,
+    this.label,
     this.height,
     this.onTap,
     this.toggleFullscreen,
+    this.fullscreen = false,
   });
 
   /// Indicator whether the view is fullscreen or not.
@@ -39,8 +40,11 @@ class TitleBar extends StatelessWidget {
   /// Height of the [TitleBar].
   final double? height;
 
-  /// [Widget]s to display.
-  final List<Widget> children;
+  /// Label of this [TitleBar].
+  final String? label;
+
+  /// Content to display in this [TitleBar].
+  final Widget? child;
 
   /// Callback, called when this [TitleBar] is tapped.
   final void Function()? onTap;
@@ -50,7 +54,7 @@ class TitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Container(
       key: const ValueKey('TitleBar'),
@@ -66,6 +70,7 @@ class TitleBar extends StatelessWidget {
           ),
 
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Left part of the title bar that displays the recipient or the
               // caller, its avatar and the call's state.
@@ -74,31 +79,43 @@ class TitleBar extends StatelessWidget {
                   onTap: onTap,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: children,
+                    children: [
+                      const SizedBox(width: 10),
+                      if (child != null) child!,
+                      const SizedBox(width: 8),
+                      if (label != null)
+                        Flexible(
+                          child: Text(
+                            label!,
+                            style: fonts.labelMedium!.copyWith(
+                              color: style.colors.onPrimary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
 
               // Right part of the title bar that displays buttons.
-              Align(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 3, left: 5),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TooltipButton(
-                        onTap: toggleFullscreen,
-                        hint: fullscreen
-                            ? 'btn_fullscreen_exit'.l10n
-                            : 'btn_fullscreen_enter'.l10n,
-                        child: SvgImage.asset(
-                          'assets/icons/fullscreen_${fullscreen ? 'exit' : 'enter'}.svg',
-                          width: 12,
-                        ),
+              Padding(
+                padding: const EdgeInsets.only(right: 3, left: 5),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TooltipButton(
+                      onTap: toggleFullscreen,
+                      hint: fullscreen
+                          ? 'btn_fullscreen_exit'.l10n
+                          : 'btn_fullscreen_enter'.l10n,
+                      child: SvgImage.asset(
+                        'assets/icons/fullscreen_${fullscreen ? 'exit' : 'enter'}.svg',
+                        width: 12,
                       ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                 ),
               ),
             ],
