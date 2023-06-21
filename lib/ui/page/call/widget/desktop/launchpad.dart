@@ -99,8 +99,8 @@ class Launchpad extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: condition != null
                         ? candidate.any(condition!)
-                            ? style.colors.onSecondaryOpacity88
-                            : style.colors.onSecondaryOpacity60
+                            ? style.colors.primaryAuxiliaryOpacity90
+                            : style.colors.primaryAuxiliaryOpacity60
                         : null,
                     borderRadius: BorderRadius.circular(30),
                   ),
