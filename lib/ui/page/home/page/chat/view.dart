@@ -554,7 +554,7 @@ class _ChatViewState extends State<ChatView>
                             editController: c.edit.value,
                             blacklisted: c.chat?.blacklisted == true,
                             isEdit: c.edit.value != null,
-                            onTap: () => c.unblacklist(),
+                            onTap: c.unblacklist,
                             onItemPressed: (id) =>
                                 c.animateTo(id, offsetBasedOnBottom: true),
                             onEditChanged: c.chat!.chat.value.isMonolog
