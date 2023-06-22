@@ -29,7 +29,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -153,11 +152,6 @@ class _ChatViewState extends State<ChatView>
           final ChatMember? partner = c.chat!.chat.value.members
               .firstWhereOrNull((u) => u.user.id != c.me);
 
-          final Set<UserId>? actualMembers = c
-              .chat!.chat.value.ongoingCall?.members
-              .map((k) => k.user.id)
-              .toSet();
-
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
@@ -216,16 +210,6 @@ class _ChatViewState extends State<ChatView>
                                         partner: partner != null,
                                         future: c.getUser(partner!.user.id),
                                         test: (e) => e.id != c.me,
-                                        subtitle: _buildSubtitle(
-                                          context,
-                                          c.chat!.chat.value.ongoingCall != null
-                                              ? 'label_a_of_b'.l10nfmt({
-                                                  'a': actualMembers?.length,
-                                                  'b': c.chat!.members.length,
-                                                })
-                                              : null,
-                                          c.duration.value?.hhMmSs(),
-                                        ),
                                       ),
                                   ],
                                 ),
@@ -601,31 +585,6 @@ class _ChatViewState extends State<ChatView>
           );
         });
       },
-    );
-  }
-
-  /// Builds a visual representation of a subtitle of the [ChatSubtitle].
-  Text _buildSubtitle(BuildContext context, String? label, String? duration) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    final List<TextSpan> spans = [];
-    if (!context.isMobile) {
-      spans.add(TextSpan(text: 'label_call_active'.l10n));
-      spans.add(TextSpan(text: 'space_vertical_space'.l10n));
-    }
-
-    spans.add(TextSpan(text: label));
-
-    if (duration != null) {
-      spans.add(TextSpan(text: 'space_vertical_space'.l10n));
-      spans.add(TextSpan(text: duration));
-    }
-
-    return Text.rich(
-      TextSpan(
-        children: spans,
-        style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-      ),
     );
   }
 

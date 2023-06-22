@@ -15,8 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -24,11 +28,14 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 /// [Widget] which returns a header subtitle of the chat.
-class ChatSubtitle extends StatelessWidget {
+class ChatSubtitle extends StatefulWidget {
   const ChatSubtitle({
     super.key,
     required this.rxChat,
@@ -58,16 +65,85 @@ class ChatSubtitle extends StatelessWidget {
   final bool Function(User) test;
 
   @override
+  State<ChatSubtitle> createState() => _ChatSubtitleState();
+}
+
+class _ChatSubtitleState extends State<ChatSubtitle> {
+  /// Duration of a [Chat.ongoingCall].
+  final Rx<Duration?> duration = Rx(null);
+
+  /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
+  Timer? _durationTimer;
+
+  // Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
+  // changes.
+  ChatItemId? previousCall;
+
+  /// Worker capturing any [RxChat.chat] changes.
+  Worker? _chatWorker;
+
+  @override
+  void dispose() {
+    _durationTimer?.cancel();
+    _chatWorker?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    _chatWorker = ever(widget.rxChat!.chat, (Chat e) {
+      if (e.id != widget.rxChat!.chat.value.id) {
+        WebUtils.replaceState(widget.rxChat!.chat.value.id.val, e.id.val);
+        widget.rxChat!.chat.value.id = e.id;
+      }
+
+      updateTimer(e);
+    });
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    final Chat chat = rxChat!.chat.value;
+    final Chat chat = widget.rxChat!.chat.value;
 
-    if (chat.ongoingCall != null && subtitle != null) {
-      return subtitle!;
+    final Set<UserId>? actualMembers = widget
+        .rxChat!.chat.value.ongoingCall?.members
+        .map((k) => k.user.id)
+        .toSet();
+
+    if (chat.ongoingCall != null) {
+      final List<TextSpan> spans = [];
+      if (!context.isMobile) {
+        spans.add(TextSpan(text: 'label_call_active'.l10n));
+        spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+      }
+
+      spans.add(
+        TextSpan(
+          text: 'label_a_of_b'.l10nfmt({
+            'a': actualMembers?.length,
+            'b': widget.rxChat!.members.length,
+          }),
+        ),
+      );
+
+      if (duration.value != null) {
+        spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+        spans.add(TextSpan(text: duration.value?.hhMmSs()));
+      }
+
+      return Text.rich(
+        TextSpan(
+          children: spans,
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        ),
+      );
     }
 
-    if (rxChat?.typingUsers.any(test) == true) {
+    if (widget.rxChat?.typingUsers.any(widget.test) == true) {
       if (!chat.isGroup) {
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -90,10 +166,10 @@ class ChatSubtitle extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (text != null)
+          if (widget.text != null)
             Flexible(
               child: Text(
-                text!,
+                widget.text!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: fonts.labelMedium!.copyWith(color: style.colors.primary),
@@ -116,7 +192,7 @@ class ChatSubtitle extends StatelessWidget {
         );
       }
     } else if (chat.isDialog) {
-      if (partner) {
+      if (widget.partner) {
         return Row(
           children: [
             if (chat.muted != null) ...[
@@ -129,7 +205,7 @@ class ChatSubtitle extends StatelessWidget {
             ],
             Flexible(
               child: FutureBuilder<RxUser?>(
-                future: future,
+                future: widget.future,
                 builder: (_, snapshot) {
                   if (snapshot.data != null) {
                     final String? subtitle =
@@ -168,5 +244,33 @@ class ChatSubtitle extends StatelessWidget {
     }
 
     return const SizedBox();
+  }
+
+  // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
+  // from the stored [previousCall].
+  void updateTimer(Chat chat) {
+    if (previousCall != chat.ongoingCall?.id) {
+      previousCall = chat.ongoingCall?.id;
+
+      duration.value = null;
+      _durationTimer?.cancel();
+      _durationTimer = null;
+
+      if (chat.ongoingCall != null) {
+        _durationTimer = Timer.periodic(
+          const Duration(seconds: 1),
+          (_) {
+            if (chat.ongoingCall!.conversationStartedAt != null) {
+              duration.value = DateTime.now().difference(
+                chat.ongoingCall!.conversationStartedAt!.val,
+              );
+              if (mounted) {
+                setState(() {});
+              }
+            }
+          },
+        );
+      }
+    }
   }
 }

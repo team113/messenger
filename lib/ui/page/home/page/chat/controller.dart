@@ -181,9 +181,6 @@ class ChatController extends GetxController {
   /// Used to hide it when no scrolling is happening.
   final RxBool showSticky = RxBool(false);
 
-  /// Duration of a [Chat.ongoingCall].
-  final Rx<Duration?> duration = Rx(null);
-
   /// Indicator whether the [_bottomLoader] should be displayed.
   final RxBool bottomLoader = RxBool(false);
 
@@ -229,9 +226,6 @@ class ChatController extends GetxController {
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
 
-  /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
-  Timer? _durationTimer;
-
   /// [Timer] for resetting the [showSticky].
   Timer? _stickyTimer;
 
@@ -262,9 +256,6 @@ class ChatController extends GetxController {
   /// Worker performing a jump to the last read message on a successful
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
-
-  /// Worker capturing any [RxChat.chat] changes.
-  Worker? _chatWorker;
 
   /// Currently displayed bottom [LoaderElement] in the [elements] list.
   LoaderElement? _bottomLoader;
@@ -380,10 +371,8 @@ class ChatController extends GetxController {
     _messagesSubscription?.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
-    _chatWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
-    _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
     _bottomLoaderStartTimer?.cancel();
@@ -749,46 +738,6 @@ class ChatController extends GetxController {
             // No-op.
             break;
         }
-      });
-
-      // Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
-      // changes.
-      ChatItemId? previousCall;
-
-      // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
-      // from the stored [previousCall].
-      void updateTimer(Chat chat) {
-        if (previousCall != chat.ongoingCall?.id) {
-          previousCall = chat.ongoingCall?.id;
-
-          duration.value = null;
-          _durationTimer?.cancel();
-          _durationTimer = null;
-
-          if (chat.ongoingCall != null) {
-            _durationTimer = Timer.periodic(
-              const Duration(seconds: 1),
-              (_) {
-                if (chat.ongoingCall!.conversationStartedAt != null) {
-                  duration.value = DateTime.now().difference(
-                    chat.ongoingCall!.conversationStartedAt!.val,
-                  );
-                }
-              },
-            );
-          }
-        }
-      }
-
-      updateTimer(chat!.chat.value);
-
-      _chatWorker = ever(chat!.chat, (Chat e) {
-        if (e.id != id) {
-          WebUtils.replaceState(id.val, e.id.val);
-          id = e.id;
-        }
-
-        updateTimer(e);
       });
 
       _messagesWorker ??= ever(
