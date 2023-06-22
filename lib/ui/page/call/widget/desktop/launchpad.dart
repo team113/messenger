@@ -25,7 +25,7 @@ import '/themes.dart';
 import '/ui/page/call/component/common.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
-/// Decorated [Wrap] with the provided [children].
+/// Decorated [Wrap] with the provided [items].
 class Launchpad extends StatelessWidget {
   const Launchpad({
     super.key,

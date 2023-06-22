@@ -657,12 +657,12 @@ class Palette {
 
   /// 25% opacity of the [primaryAuxiliary] color.
   ///
-  /// Used as `possibleContainer` and [StyledDock] color.
+  /// Used as `possibleContainer` and [DockDecorator] color.
   final Color primaryAuxiliaryOpacity25;
 
   /// 60% opacity of the [primaryAuxiliary] color.
   ///
-  /// Used as [StyledDock] buttons color if platform is iOS or Safari.
+  /// Used as [DockDecorator] buttons color if platform is iOS or Safari.
   final Color primaryAuxiliaryOpacity60;
 
   /// 90% opacity of the [primaryAuxiliary] color.
