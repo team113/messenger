@@ -28,6 +28,7 @@ import '/store/model/chat.dart';
 
 /// Possible kinds of a [ChatEvent].
 enum ChatEventKind {
+  callConversationStarted,
   callDeclined,
   callFinished,
   callMemberJoined,
@@ -503,4 +504,28 @@ class EventChatUnfavorited extends FavoriteChatsEvent {
 
   @override
   ChatEventKind get kind => ChatEventKind.unfavorited;
+}
+
+/// Event of an audio/video conversation being started in a [ChatCall], meaning
+/// that enough [ChatCallMember]s joined the `Medea` room after ringing had been
+/// finished.
+class EventChatCallConversationStarted extends ChatEvent {
+  const EventChatCallConversationStarted(
+    super.chatId,
+    this.callId,
+    this.at,
+    this.call,
+  );
+
+  /// ID of the [ChatCall] the conversation started in.
+  final ChatItemId callId;
+
+  /// [PreciseDateTime] when the conversation started.
+  final PreciseDateTime at;
+
+  /// [ChatCall] the conversation started in.
+  final ChatCall call;
+
+  @override
+  ChatEventKind get kind => ChatEventKind.callConversationStarted;
 }

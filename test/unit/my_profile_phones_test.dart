@@ -171,13 +171,13 @@ void main() async {
       }).deleteUserPhone),
     );
 
-    when(graphQlProvider.getBlacklist(
+    when(graphQlProvider.getBlocklist(
       first: 120,
       after: null,
       last: null,
       before: null,
     )).thenAnswer(
-      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+      (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
 
     AuthService authService = Get.put(

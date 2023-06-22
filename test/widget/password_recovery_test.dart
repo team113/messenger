@@ -19,15 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show RecoverUserPasswordErrorCode;
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -98,21 +95,6 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
-    when(
-      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
-    ).thenAnswer((_) => Future.value());
-    when(
-      graphQlProvider.recoverUserPassword(
-        UserLogin('emptyuser'),
-        null,
-        null,
-        null,
-      ),
-    ).thenAnswer(
-      (_) => throw const RecoverUserPasswordException(
-        RecoverUserPasswordErrorCode.codeLimitExceeded,
-      ),
-    );
     when(
       graphQlProvider.validateUserPasswordRecoveryCode(
           UserLogin('login'), null, null, null, ConfirmationCode('1234')),

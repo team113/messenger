@@ -532,9 +532,11 @@ class OngoingCall {
 
                   final CallMemberId id =
                       CallMemberId(node.user.id, node.deviceId);
-                  if (members[id]?.isConnected.value == false) {
-                    members.remove(id)?.dispose();
-                  }
+
+                  // TODO: Uncomment when `ConnectionHandle.onClose` is fixed.
+                  // if (members[id]?.isConnected.value == false) {
+                  members.remove(id)?.dispose();
+                  // }
 
                   if (members.keys.none((e) => e.userId == node.user.id)) {
                     call.value?.members
@@ -659,6 +661,10 @@ class OngoingCall {
                       return false;
                     });
                   }
+                  break;
+
+                case ChatCallEventKind.conversationStarted:
+                  // TODO: Implement [EventChatCallConversationStarted].
                   break;
               }
             }
@@ -1135,13 +1141,14 @@ class OngoingCall {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
 
+      print('onNewConnection $id');
+
       final CallMember? redialed = members[redialedId];
       if (redialed?.isDialing.value == true) {
         members.move(redialedId, id);
       }
 
-      final CallMember? member = members[id];
-
+      CallMember? member = members[id];
       if (member != null) {
         member.id = id;
         member._connection = conn;
@@ -1160,9 +1167,23 @@ class OngoingCall {
       }
 
       conn.onClose(() => members.remove(id)?.dispose());
+
       conn.onRemoteTrackAdded((track) async {
         final Track t = Track(track);
-        final CallMember? member = members[id]?..tracks.add(t);
+
+        if (track.mediaDirection().isEmitting) {
+          final CallMember? redialed = members[redialedId];
+          if (redialed?.isDialing.value == true) {
+            members.move(redialedId, id);
+          }
+
+          member = members[id];
+          member?.id = id;
+          member?.isConnected.value = true;
+          member?.isDialing.value = false;
+
+          member?.tracks.add(t);
+        }
 
         track.onMuted(() => t.isMuted.value = true);
         track.onUnmuted(() => t.isMuted.value = false);
@@ -1172,37 +1193,23 @@ class OngoingCall {
 
           switch (d) {
             case TrackMediaDirection.sendRecv:
-              switch (track.kind()) {
-                case MediaKind.audio:
-                  await t.createRenderer();
-                  break;
-
-                case MediaKind.video:
-                  await t.createRenderer();
-                  break;
-              }
-
-              member?.tracks.addIf(!member.tracks.contains(t), t);
-              break;
-
             case TrackMediaDirection.sendOnly:
+              member?.tracks.addIf(!member!.tracks.contains(t), t);
               switch (track.kind()) {
                 case MediaKind.audio:
-                  t.removeRenderer();
+                  await t.createRenderer();
                   break;
 
                 case MediaKind.video:
-                  t.removeRenderer();
+                  await t.createRenderer();
                   break;
               }
-
-              member?.tracks.addIf(!member.tracks.contains(t), t);
               break;
 
             case TrackMediaDirection.recvOnly:
             case TrackMediaDirection.inactive:
-              t.removeRenderer();
               member?.tracks.remove(t);
+              await t.removeRenderer();
               break;
           }
         });
@@ -1212,7 +1219,9 @@ class OngoingCall {
         switch (track.kind()) {
           case MediaKind.audio:
             if (isRemoteAudioEnabled.isTrue) {
-              await t.createRenderer();
+              if (track.mediaDirection().isEmitting) {
+                await t.createRenderer();
+              }
             } else {
               await member?.setAudioEnabled(false);
             }
@@ -1220,7 +1229,9 @@ class OngoingCall {
 
           case MediaKind.video:
             if (isRemoteVideoEnabled.isTrue) {
-              await t.createRenderer();
+              if (track.mediaDirection().isEmitting) {
+                await t.createRenderer();
+              }
             } else {
               await member?.setVideoEnabled(false, source: t.source);
             }
@@ -1868,37 +1879,61 @@ class Track {
   /// [MediaKind] of this [Track].
   final MediaKind kind;
 
+  /// Indicator whether this [Track] is already disposed or not.
+  ///
+  /// Used to prohibit multiple [dispose] invoking.
+  bool _disposed = false;
+
+  /// [Mutex] guarding the [renderer] synchronized access.
+  ///
+  /// Used to neglect the possible [createRenderer] and [removeRenderer] races.
+  final Mutex _rendererGuard = Mutex();
+
   /// Creates the [renderer] for this [Track].
   Future<void> createRenderer() async {
-    switch (track.kind()) {
-      case MediaKind.audio:
-        renderer.value = RtcAudioRenderer(track);
-        break;
+    await _rendererGuard.protect(() async {
+      if (renderer.value != null) {
+        await renderer.value?.dispose();
+      }
 
-      case MediaKind.video:
-        renderer.value = RtcVideoRenderer(track);
-        await (renderer.value as RtcVideoRenderer?)?.initialize();
-        (renderer.value as RtcVideoRenderer?)?.srcObject = track.getTrack();
-        break;
-    }
+      switch (track.kind()) {
+        case MediaKind.audio:
+          renderer.value = RtcAudioRenderer(track);
+          break;
+
+        case MediaKind.video:
+          renderer.value = RtcVideoRenderer(track);
+          await (renderer.value as RtcVideoRenderer?)?.initialize();
+          (renderer.value as RtcVideoRenderer?)?.srcObject = track.getTrack();
+          break;
+      }
+    });
   }
 
   /// Disposes the [renderer] of this [Track].
-  void removeRenderer() {
-    renderer.value?.dispose();
-    renderer.value = null;
+  Future<void> removeRenderer() async {
+    await _rendererGuard.protect(() async {
+      renderer.value?.dispose();
+      renderer.value = null;
+    });
   }
 
   /// Disposes this [Track].
-  void dispose() {
-    removeRenderer();
-    track.free();
+  ///
+  /// No-op, if this [Track] was already disposed.
+  Future<void> dispose() async {
+    if (!_disposed) {
+      _disposed = true;
+      await Future.wait([removeRenderer(), track.free()]);
+    }
   }
 
   /// Stops the [webrtc.MediaStreamTrack] of this [Track].
-  void stop() {
-    track.getTrack().stop();
-    removeRenderer();
+  Future<void> stop() async {
+    await Future.wait([
+      track.getTrack().stop(),
+      removeRenderer(),
+    ]);
   }
 }
 

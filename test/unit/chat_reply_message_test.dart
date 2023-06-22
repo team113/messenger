@@ -271,7 +271,7 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('2'),
-          const UserId('3'),
+          User(const UserId('3'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
         ),
       ],
@@ -305,7 +305,7 @@ void main() async {
       attachments: anyNamed('attachments'),
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).thenThrow(
-        const PostChatMessageException(PostChatMessageErrorCode.blacklisted));
+        const PostChatMessageException(PostChatMessageErrorCode.blocked));
 
     Get.put(chatProvider);
 
@@ -353,7 +353,7 @@ void main() async {
           ChatMessage(
             const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
             const ChatId('2'),
-            const UserId('3'),
+            User(const UserId('3'), UserNum('1234123412341234')),
             PreciseDateTime.now(),
           ),
         ],

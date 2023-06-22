@@ -215,7 +215,7 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('2'),
-          const UserId('3'),
+          User(const UserId('3'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
         ),
       ],
@@ -291,7 +291,7 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('2'),
-          const UserId('3'),
+          User(const UserId('3'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
         ),
       ],
@@ -375,7 +375,7 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('2'),
-          const UserId('3'),
+          User(const UserId('3'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
         ),
       ],
@@ -401,7 +401,7 @@ void main() async {
     final attachment = FileAttachment(
       id: const AttachmentId('test'),
       filename: 'test.test',
-      original: StorageFile(relativeRef: 'test', size: 100),
+      original: PlainFile(relativeRef: 'test', size: 100),
     );
 
     when(graphQlProvider.postChatMessage(
@@ -452,7 +452,7 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('2'),
-          const UserId('3'),
+          User(const UserId('3'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
         ),
       ],
@@ -470,7 +470,7 @@ void main() async {
     final FileAttachment attachment = FileAttachment(
       id: const AttachmentId('test'),
       filename: 'test.test',
-      original: StorageFile(relativeRef: 'test', size: 100),
+      original: PlainFile(relativeRef: 'test', size: 100),
     );
 
     when(graphQlProvider.postChatMessage(
@@ -523,7 +523,7 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('2'),
-          const UserId('3'),
+          User(const UserId('3'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
         ),
       ],
@@ -547,7 +547,7 @@ void main() async {
       (index) => FileAttachment(
         id: const AttachmentId('test'),
         filename: 'test.test',
-        original: StorageFile(relativeRef: 'test', size: 100),
+        original: PlainFile(relativeRef: 'test', size: 100),
       ),
     );
 
@@ -607,7 +607,7 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('2'),
-          const UserId('3'),
+          User(const UserId('3'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
         ),
       ],

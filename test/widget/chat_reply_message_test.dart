@@ -294,13 +294,13 @@ void main() async {
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((realInvocation) => const Stream.empty());
 
-  when(graphQlProvider.getBlacklist(
+  when(graphQlProvider.getBlocklist(
     first: 120,
     after: null,
     last: null,
     before: null,
   )).thenAnswer(
-    (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
   );
 
   when(graphQlProvider.getMonolog()).thenAnswer(

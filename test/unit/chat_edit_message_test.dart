@@ -198,7 +198,10 @@ void main() async {
       ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        User(
+          const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          UserNum('1234123412341234'),
+        ),
         PreciseDateTime.now(),
       ),
       const ChatMessageText('new text'),
@@ -269,7 +272,10 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          User(
+            const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+            UserNum('1234123412341234'),
+          ),
           PreciseDateTime.now(),
         ),
         const ChatMessageText('new text'),

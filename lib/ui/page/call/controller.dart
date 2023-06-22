@@ -2005,6 +2005,7 @@ class CallController extends GetxController {
                 ? e.video.value == null
                 : e.audio.value == null &&
                     e.video.value?.source != MediaSourceKind.display);
+        participant.member = member;
         if (track.kind == MediaKind.video) {
           participant.video.value = track;
         } else {
@@ -2098,7 +2099,7 @@ class Participant {
         audio = Rx(audio);
 
   /// [CallMember] this [Participant] represents.
-  final CallMember member;
+  CallMember member;
 
   /// [User] this [Participant] represents.
   final Rx<RxUser?> user;

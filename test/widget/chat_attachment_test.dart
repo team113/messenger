@@ -260,13 +260,13 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  when(graphQlProvider.getBlacklist(
+  when(graphQlProvider.getBlocklist(
     first: 120,
     after: null,
     last: null,
     before: null,
   )).thenAnswer(
-    (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
   );
 
   var sessionProvider = Get.put(SessionDataHiveProvider());

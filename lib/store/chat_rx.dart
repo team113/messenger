@@ -1219,6 +1219,11 @@ class HiveRxChat extends RxChat {
                 ),
               );
               break;
+
+            case ChatEventKind.callConversationStarted:
+              event as EventChatCallConversationStarted;
+              chatEntity.value.ongoingCall = event.call;
+              break;
           }
         }
 

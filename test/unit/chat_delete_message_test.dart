@@ -212,7 +212,7 @@ void main() async {
       ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('me'),
+        User(const UserId('me'), UserNum('1234123412341234')),
         PreciseDateTime.now(),
         status: SendingStatus.sent,
       ),
@@ -235,7 +235,7 @@ void main() async {
       () async => await chatService.deleteChatItem(ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('me'),
+        User(const UserId('me'), UserNum('1234123412341234')),
         PreciseDateTime.now(),
         status: SendingStatus.sent,
       )),
@@ -257,7 +257,7 @@ void main() async {
     await chatService.hideChatItem(ChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const UserId('me'),
+      User(const UserId('me'), UserNum('1234123412341234')),
       PreciseDateTime.now(),
       status: SendingStatus.sent,
     ));
@@ -280,7 +280,7 @@ void main() async {
       () async => await chatService.hideChatItem(ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('me'),
+        User(const UserId('me'), UserNum('1234123412341234')),
         PreciseDateTime.now(),
         status: SendingStatus.sent,
       )),

@@ -249,13 +249,13 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+  Future<GetBlocklist$Query$Blocklist> getBlocklist({
     BlocklistCursor? after,
     BlocklistCursor? before,
     int? first,
     int? last,
   }) {
-    return Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist));
+    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist));
   }
 
   @override

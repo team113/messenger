@@ -233,13 +233,13 @@ void main() async {
       (_) => Future.value(RecentChats$Query.fromJson(recentChats)),
     );
 
-    when(graphQlProvider.getBlacklist(
+    when(graphQlProvider.getBlocklist(
       first: 120,
       after: null,
       last: null,
       before: null,
     )).thenAnswer(
-      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+      (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
 
     when(graphQlProvider.contactsEvents(any))
