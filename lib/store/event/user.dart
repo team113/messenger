@@ -48,15 +48,15 @@ enum UserEventKind {
 
 /// Tag representing a [UserEvents] kind.
 enum UserEventsKind {
-  blacklistEvent,
+  blocklistEvent,
   initialized,
   isBlocked,
   user,
   event,
 }
 
-/// Tag representing a [BlacklistEvent] kind.
-enum BlacklistEventsKind {
+/// Tag representing a [BlocklistEvent] kind.
+enum BlocklistEventsKind {
   recordAdded,
   recordRemoved,
 }
@@ -121,17 +121,17 @@ class BlocklistEventsVersioned extends UserEvents {
   final MyUserVersion ver;
 
   @override
-  UserEventsKind get kind => UserEventsKind.blacklistEvent;
+  UserEventsKind get kind => UserEventsKind.blocklistEvent;
 }
 
-class UserEventsBlacklistEventsEvent extends UserEvents {
-  const UserEventsBlacklistEventsEvent(this.event);
+class UserEventsBlocklistEventsEvent extends UserEvents {
+  const UserEventsBlocklistEventsEvent(this.event);
 
   /// [UserEventsVersioned] itself.
   final BlocklistEventsVersioned event;
 
   @override
-  UserEventsKind get kind => UserEventsKind.blacklistEvent;
+  UserEventsKind get kind => UserEventsKind.blocklistEvent;
 }
 
 /// [UserEventsEvent] happening with the [User].

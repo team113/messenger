@@ -409,7 +409,7 @@ class _BackgroundService {
               for (var call in calls) {
                 _incomingCalls.add(call.chatId.val);
 
-                // TODO: Display `Chat` name instead of the `ChatCall.caller`.
+                // TODO: Display `Chat` name instead of the `ChatCall.author`.
                 _displayIncomingCall(
                   call.chatId,
                   call.author.name?.val ?? call.author.num.val,
@@ -435,7 +435,7 @@ class _BackgroundService {
                 content: '${DateTime.now()}',
               );
 
-              // TODO: Display `Chat` name instead of the `ChatCall.caller`.
+              // TODO: Display `Chat` name instead of the `ChatCall.author`.
               _displayIncomingCall(
                 call.chatId,
                 call.author.name?.val ?? call.author.num.val,

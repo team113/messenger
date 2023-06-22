@@ -41,7 +41,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
-import '../provider/hive/blocklist.dart';
+import '/provider/hive/blocklist.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';

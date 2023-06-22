@@ -221,7 +221,7 @@ class UserRepository implements AbstractUserRepository {
         ));
       } else if (events.$$typename == 'BlocklistEventsVersioned') {
         var mixin = events as BlocklistEventsVersionedMixin;
-        yield UserEventsBlacklistEventsEvent(BlocklistEventsVersioned(
+        yield UserEventsBlocklistEventsEvent(BlocklistEventsVersioned(
           mixin.events.map((e) => _blocklistEvent(e)).toList(),
           mixin.myVer,
         ));

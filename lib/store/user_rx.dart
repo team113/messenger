@@ -201,9 +201,9 @@ class HiveRxUser extends RxUser {
         }
         break;
 
-      case UserEventsKind.blacklistEvent:
+      case UserEventsKind.blocklistEvent:
         var userEntity = _userLocal.get(id);
-        var versioned = (events as UserEventsBlacklistEventsEvent).event;
+        var versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
         if (userEntity != null && userEntity.blacklistedVer > versioned.ver) {

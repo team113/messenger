@@ -94,7 +94,7 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
 
   /// [User] who became a [ChatMember].
   ///
-  /// If the same as [ChatItem.authorId], then the [User] joined the [Chat] by
+  /// If the same as [ChatItem.author], then the [User] joined the [Chat] by
   /// himself.
   @HiveField(0)
   final User user;
@@ -114,7 +114,7 @@ class ChatInfoActionMemberRemoved implements ChatInfoAction {
 
   /// [User] who was removed from the [Chat].
   ///
-  /// If the same as [ChatItem.authorId], then the [User] left the [Chat] by
+  /// If the same as [ChatItem.author], then the [User] left the [Chat] by
   /// himself.
   @HiveField(0)
   final User user;

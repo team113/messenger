@@ -15,17 +15,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
-import 'package:messenger/provider/hive/user.dart';
-
 import '../model/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/provider/hive/user.dart';
 
 /// Possible kinds of [MyUserEvent].
 enum MyUserEventKind {
@@ -82,17 +81,6 @@ abstract class MyUserEvent {
 
   /// Returns [MyUserEventKind] of this [MyUserEvent].
   MyUserEventKind get kind;
-}
-
-/// Event of a [User] being added or removed to/from blocklist of the [MyUser].
-abstract class BlocklistEvent extends MyUserEvent {
-  BlocklistEvent(this.user, this.at) : super(user.value.id);
-
-  /// [User] this [BlocklistEvent] is about.
-  final HiveUser user;
-
-  /// [PreciseDateTime] when this [BlocklistEvent] happened.
-  final PreciseDateTime at;
 }
 
 /// Event of an [UserAvatar] being deleted.
@@ -379,6 +367,17 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.unreadChatsCountUpdated;
+}
+
+/// Event of a [User] being added or removed to/from blocklist of the [MyUser].
+abstract class BlocklistEvent extends MyUserEvent {
+  BlocklistEvent(this.user, this.at) : super(user.value.id);
+
+  /// [User] this [BlocklistEvent] is about.
+  final HiveUser user;
+
+  /// [PreciseDateTime] when this [BlocklistEvent] happened.
+  final PreciseDateTime at;
 }
 
 /// Event of a [BlocklistRecord] being added to blocklist of the authenticated

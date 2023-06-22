@@ -38,23 +38,27 @@ abstract class Avatar {
     this.crop,
   });
 
-  /// Full-sized [UserAvatar]'s image [StorageFile], keeping the original sizes.
+  /// Full-sized [ImageFile] representing this [UserAvatar], keeping the
+  /// original dimensions.
   @HiveField(0)
   final ImageFile full;
 
-  /// Big [UserAvatar]'s view image [StorageFile] of `70px`x`70px` size.
+  /// Big view [ImageFile] of this [UserAvatar], square-cropped to its minimum
+  /// dimension (either width or height), and scaled to `250px`x`250px`.
   @HiveField(1)
   final ImageFile big;
 
-  /// Medium [UserAvatar]'s view image [StorageFile] of `46px`x`46px` size.
+  /// Medium view [ImageFile] of this [UserAvatar], square-cropped to its
+  /// minimum dimension (either width or height), and scaled to `100px`x`100px`.
   @HiveField(2)
   final ImageFile medium;
 
-  /// Small [UserAvatar]'s view image [StorageFile] of `25px`x`25px` size.
+  /// Small view [ImageFile] of this [UserAvatar], square-cropped to its minimum
+  /// dimension (either width or height), and scaled to `46px`x`46px`.
   @HiveField(3)
   final ImageFile small;
 
-  /// Original image [StorageFile] representing this [UserAvatar].
+  /// Original [ImageFile] representing this [UserAvatar].
   @HiveField(4)
   final ImageFile original;
 
