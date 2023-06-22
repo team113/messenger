@@ -17,9 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -31,8 +29,8 @@ import '/ui/page/home/widget/paddings.dart';
 class ProfileBlockedUsers extends StatelessWidget {
   const ProfileBlockedUsers(this.blacklist, {super.key});
 
-  /// [List] of [User]s blacklisted by an authenticated [MyUser].
-  final List<RxUser> blacklist;
+  /// [List] of blacklisted [User]s.
+  final List blacklist;
 
   @override
   Widget build(BuildContext context) {

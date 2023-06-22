@@ -16,9 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:medea_jason/medea_jason.dart';
 
-import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -27,9 +25,7 @@ import '/ui/page/home/widget/paddings.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.media] section.
 class ProfileMedia extends StatelessWidget {
-  const ProfileMedia(
-    this.devices,
-    this.media, {
+  const ProfileMedia({
     super.key,
     this.videoSwitch,
     this.microphoneSwitch,
@@ -38,12 +34,6 @@ class ProfileMedia extends StatelessWidget {
     this.audioText,
     this.outputText,
   });
-
-  /// List of [MediaDeviceDetails] of all the available devices.
-  final List<MediaDeviceDetails> devices;
-
-  /// [MediaSettings] that returns the current media settings value.
-  final MediaSettings? media;
 
   /// Label to display for the video [FieldButton].
   final String? videoText;

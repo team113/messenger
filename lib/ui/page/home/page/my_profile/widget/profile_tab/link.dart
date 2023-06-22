@@ -31,13 +31,13 @@ import '/ui/page/home/page/my_profile/link_details/view.dart';
 
 /// [Widget] which represents a [ProfileTab.link] section for a user.
 class ProfileLink extends StatelessWidget {
-  const ProfileLink(this.myUser, this.link, {super.key});
-
-  /// [MyUser] that stores the currently authenticated user.
-  final MyUser? myUser;
+  const ProfileLink(this.link, {super.key, this.transitionCount});
 
   /// [MyUser.chatDirectLink] copyable state.
   final TextFieldState link;
+
+  /// Number of times this [ChatDirectLink] has been used.
+  final int? transitionCount;
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +84,7 @@ class ProfileLink extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: 'label_transition_count'.l10nfmt({
-                            'count': myUser?.chatDirectLink?.usageCount ?? 0
+                            'count': transitionCount ?? 0,
                           }) +
                           'dot_space'.l10n,
                       style: fonts.labelSmall!.copyWith(

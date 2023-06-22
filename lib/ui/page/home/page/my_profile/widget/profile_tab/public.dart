@@ -17,11 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
@@ -33,13 +31,13 @@ import '/util/platform_utils.dart';
 
 /// [Widget] which returns [MyUser.name] editable field.
 class ProfileName extends StatelessWidget {
-  const ProfileName(this.name, this.login, {super.key});
+  const ProfileName(this.name, {super.key, this.isLoginEmpty = false});
 
   /// [MyUser.name] field state.
   final TextFieldState name;
 
-  /// [MyUser.login] field state.
-  final TextFieldState login;
+  ///
+  final bool isLoginEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +48,13 @@ class ProfileName extends StatelessWidget {
         label: 'label_name'.l10n,
         hint: 'label_name_hint'.l10n,
         filled: true,
-        onSuffixPressed: login.text.isEmpty
+        onSuffixPressed: isLoginEmpty
             ? null
             : () {
                 PlatformUtils.copy(text: name.text);
                 MessagePopup.success('label_copied'.l10n);
               },
-        trailing: login.text.isEmpty
+        trailing: isLoginEmpty
             ? null
             : Transform.translate(
                 offset: const Offset(0, -1),
@@ -72,24 +70,27 @@ class ProfileName extends StatelessWidget {
 
 /// [Widget] which returns [WidgetButton] displaying the [MyUser.presence].
 class ProfilePresence extends StatelessWidget {
-  const ProfilePresence(this.myUser, {super.key});
+  const ProfilePresence({super.key, this.text, this.backgroundColor});
 
-  /// [MyUser] that stores the currently authenticated user.
-  final MyUser? myUser;
+  ///
+  final String? text;
+
+  ///
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    final Presence? presence = myUser?.presence;
-
     return Paddings.basic(
       FieldButton(
         onPressed: () => StatusView.show(context, expanded: false),
         hint: 'label_presence'.l10n,
-        text: presence?.localizedString(),
-        trailing:
-            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
+        text: text,
+        trailing: CircleAvatar(
+          backgroundColor: backgroundColor,
+          radius: 7,
+        ),
         style: fonts.titleMedium!.copyWith(color: style.colors.primary),
       ),
     );

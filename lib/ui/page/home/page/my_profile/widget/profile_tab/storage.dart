@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -26,13 +25,11 @@ import '/ui/widget/text_field.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.storage] section.
 class ProfileStorage extends StatelessWidget {
-  const ProfileStorage(this.settings, this.setLoadImages, {super.key});
+  const ProfileStorage({super.key, this.value = true, this.onChanged});
 
-  /// [ApplicationSettings] that returns the current settings.
-  final ApplicationSettings? settings;
+  final bool value;
 
-  /// Called when the user toggles the switch on or off.
-  final void Function(bool enabled) setLoadImages;
+  final void Function(bool)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +60,8 @@ class ProfileStorage extends StatelessWidget {
                   child: Switch.adaptive(
                     activeColor: style.colors.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: settings?.loadImages == true,
-                    onChanged: settings == null ? null : setLoadImages,
+                    value: value,
+                    onChanged: onChanged,
                   ),
                 ),
               ),

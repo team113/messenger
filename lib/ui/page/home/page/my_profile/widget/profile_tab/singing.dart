@@ -36,13 +36,13 @@ import '/util/platform_utils.dart';
 
 /// [Widget] which returns [MyUser.num] copyable field.
 class ProfileNum extends StatelessWidget {
-  const ProfileNum(this.myUser, this.num, {super.key});
-
-  /// [MyUser] that stores the currently authenticated user.
-  final MyUser? myUser;
+  const ProfileNum(this.num, {super.key, this.copy});
 
   /// [MyUser.num] copyable state.
   final TextFieldState num;
+
+  ///
+  final String? copy;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,8 @@ class ProfileNum extends StatelessWidget {
             key: const Key('NumCopyable'),
             state: num,
             label: 'label_num'.l10n,
-            copy: myUser?.num.val,
+            // copy: myUser?.num.val,
+            copy: copy,
           ),
           const SizedBox(height: 10),
         ],
@@ -65,13 +66,13 @@ class ProfileNum extends StatelessWidget {
 
 /// [Widget] which returns [MyUser.login] editable field.
 class ProfileLogin extends StatelessWidget {
-  const ProfileLogin(this.myUser, this.login, {super.key});
+  const ProfileLogin(this.login, {super.key, this.hint});
 
   /// [MyUser.login] field state.
   final TextFieldState login;
 
-  /// [MyUser] that stores the currently authenticated user.
-  final MyUser? myUser;
+  ///
+  final String? hint;
 
   @override
   Widget build(BuildContext context) {
@@ -102,9 +103,7 @@ class ProfileLogin extends StatelessWidget {
                     ),
                   ),
             label: 'label_login'.l10n,
-            hint: myUser?.login == null
-                ? 'label_login_hint'.l10n
-                : myUser!.login!.val,
+            hint: hint,
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
@@ -176,10 +175,26 @@ class ProfileLogin extends StatelessWidget {
 
 /// [Widget] which returns addable list of [MyUser.emails] .
 class ProfileEmails extends StatelessWidget {
-  const ProfileEmails(this.myUser, this.onTrailingPressed, {super.key});
+  const ProfileEmails({
+    super.key,
+    this.text,
+    this.confirmedEmails,
+    this.onPressed,
+    this.onTrailingPressed,
+    this.hasUnconfirmed = false,
+  });
 
-  /// [MyUser] that stores the currently authenticated user.
-  final MyUser? myUser;
+  ///
+  final List? confirmedEmails;
+
+  ///
+  final String? text;
+
+  ///
+  final bool hasUnconfirmed;
+
+  ///
+  final void Function()? onPressed;
 
   /// Callback, called when the trailing is pressed.
   final void Function()? onTrailingPressed;
@@ -190,7 +205,7 @@ class ProfileEmails extends StatelessWidget {
 
     final List<Widget> widgets = [];
 
-    for (UserEmail e in myUser?.emails.confirmed ?? []) {
+    for (UserEmail e in confirmedEmails ?? []) {
       widgets.add(
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +219,7 @@ class ProfileEmails extends StatelessWidget {
                 PlatformUtils.copy(text: e.val);
                 MessagePopup.success('label_copied'.l10n);
               },
-              onTrailingPressed: onTrailingPressed,
+              onTrailingPressed: () => onTrailingPressed,
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
                 offset: const Offset(0, -1),
@@ -277,7 +292,7 @@ class ProfileEmails extends StatelessWidget {
       widgets.add(const SizedBox(height: 10));
     }
 
-    if (myUser?.emails.unconfirmed != null) {
+    if (hasUnconfirmed) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
@@ -290,7 +305,7 @@ class ProfileEmails extends StatelessWidget {
           ),
           child: FieldButton(
             key: const Key('UnconfirmedEmail'),
-            text: myUser!.emails.unconfirmed!.val,
+            text: text,
             hint: 'label_verify_email'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -299,10 +314,7 @@ class ProfileEmails extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            onPressed: () => AddEmailView.show(
-              context,
-              email: myUser!.emails.unconfirmed!,
-            ),
+            onPressed: onPressed,
             onTrailingPressed: onTrailingPressed,
             style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
           ),
@@ -311,13 +323,13 @@ class ProfileEmails extends StatelessWidget {
       widgets.add(const SizedBox(height: 10));
     }
 
-    if (myUser?.emails.unconfirmed == null) {
+    if (!hasUnconfirmed) {
       widgets.add(
         FieldButton(
-          key: myUser?.emails.confirmed.isNotEmpty == true
+          key: confirmedEmails?.isNotEmpty == true
               ? const Key('AddAdditionalEmail')
               : const Key('AddEmail'),
-          text: myUser?.emails.confirmed.isNotEmpty == true
+          text: confirmedEmails?.isNotEmpty == true
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
@@ -337,10 +349,26 @@ class ProfileEmails extends StatelessWidget {
 
 /// [Widget] which returns addable list of [MyUser.phones].
 class ProfilePhones extends StatelessWidget {
-  const ProfilePhones(this.myUser, this.onTrailingPressed, {super.key});
+  const ProfilePhones({
+    super.key,
+    this.confirmedPhones,
+    this.text,
+    this.onPressed,
+    this.onTrailingPressed,
+    this.hasUnconfirmed = false,
+  });
 
-  /// [MyUser] that stores the currently authenticated user.
-  final MyUser? myUser;
+  ///
+  final List? confirmedPhones;
+
+  ///
+  final String? text;
+
+  ///
+  final bool hasUnconfirmed;
+
+  ///
+  final void Function()? onPressed;
 
   /// Callback, called when the trailing is pressed.
   final void Function()? onTrailingPressed;
@@ -351,7 +379,7 @@ class ProfilePhones extends StatelessWidget {
 
     final List<Widget> widgets = [];
 
-    for (UserPhone e in [...myUser?.phones.confirmed ?? []]) {
+    for (UserPhone e in confirmedPhones ?? []) {
       widgets.add(
         Column(
           key: const Key('ConfirmedPhone'),
@@ -438,7 +466,7 @@ class ProfilePhones extends StatelessWidget {
       widgets.add(const SizedBox(height: 10));
     }
 
-    if (myUser?.phones.unconfirmed != null) {
+    if (hasUnconfirmed) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
@@ -451,7 +479,7 @@ class ProfilePhones extends StatelessWidget {
           ),
           child: FieldButton(
             key: const Key('UnconfirmedPhone'),
-            text: myUser!.phones.unconfirmed!.val,
+            text: text,
             hint: 'label_verify_number'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -460,10 +488,7 @@ class ProfilePhones extends StatelessWidget {
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            onPressed: () => AddPhoneView.show(
-              context,
-              phone: myUser!.phones.unconfirmed!,
-            ),
+            onPressed: onPressed,
             onTrailingPressed: onTrailingPressed,
             style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
           ),
@@ -472,14 +497,14 @@ class ProfilePhones extends StatelessWidget {
       widgets.add(const SizedBox(height: 10));
     }
 
-    if (myUser?.phones.unconfirmed == null) {
+    if (!hasUnconfirmed) {
       widgets.add(
         FieldButton(
-          key: myUser?.phones.confirmed.isNotEmpty == true
+          key: confirmedPhones?.isNotEmpty == true
               ? const Key('AddAdditionalPhone')
               : const Key('AddPhone'),
           onPressed: () => AddPhoneView.show(context),
-          text: myUser?.phones.confirmed.isNotEmpty == true
+          text: confirmedPhones?.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
           style: fonts.titleMedium!.copyWith(color: style.colors.primary),
@@ -499,10 +524,10 @@ class ProfilePhones extends StatelessWidget {
 /// [Widget] which returns the buttons changing or setting the password of
 /// the currently authenticated [MyUser].
 class ProfilePassword extends StatelessWidget {
-  const ProfilePassword(this.myUser, {super.key});
+  const ProfilePassword({super.key, this.hasPassword = false});
 
-  /// [MyUser] that stores the currently authenticated user.
-  final MyUser? myUser;
+  ///
+  final bool hasPassword;
 
   @override
   Widget build(BuildContext context) {
@@ -513,15 +538,15 @@ class ProfilePassword extends StatelessWidget {
       children: [
         Paddings.dense(
           FieldButton(
-            key: myUser?.hasPassword == true
+            key: hasPassword
                 ? const Key('ChangePassword')
                 : const Key('SetPassword'),
-            text: myUser?.hasPassword == true
+            text: hasPassword
                 ? 'btn_change_password'.l10n
                 : 'btn_set_password'.l10n,
             onPressed: () => ChangePasswordView.show(context),
             style: fonts.titleMedium!.copyWith(
-              color: myUser?.hasPassword != true
+              color: !hasPassword
                   ? style.colors.dangerColor
                   : style.colors.primary,
             ),

@@ -36,6 +36,8 @@ import '/ui/widget/widget_button.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'add_email/view.dart';
+import 'add_phone/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'microphone_switch/view.dart';
@@ -181,8 +183,15 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                             const SizedBox(height: 10),
-                            ProfileName(c.name, c.login),
-                            ProfilePresence(c.myUser.value),
+                            ProfileName(
+                              c.name,
+                              isLoginEmpty: c.login.text.isEmpty,
+                            ),
+                            ProfilePresence(
+                              text: c.myUser.value?.presence.localizedString(),
+                              backgroundColor:
+                                  c.myUser.value?.presence.getColor(),
+                            ),
                             ProfileStatus(c.status),
                           ],
                         );
@@ -191,19 +200,60 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_login_options'.l10n,
                           children: [
-                            ProfileNum(c.myUser.value, c.num),
-                            ProfileLogin(c.myUser.value, c.login),
+                            ProfileNum(c.num, copy: c.myUser.value?.num.val),
+                            ProfileLogin(
+                              c.login,
+                              hint: c.myUser.value?.login == null
+                                  ? 'label_login_hint'.l10n
+                                  : c.myUser.value?.login?.val,
+                            ),
                             const SizedBox(height: 10),
-                            ProfileEmails(c.myUser.value, () => _deleteEmail),
-                            ProfilePhones(c.myUser.value, () => _deletePhone),
-                            ProfilePassword(c.myUser.value),
+                            ProfileEmails(
+                              confirmedEmails: c.myUser.value?.emails.confirmed,
+                              text: c.myUser.value?.emails.unconfirmed?.val,
+                              hasUnconfirmed:
+                                  c.myUser.value?.emails.unconfirmed != null,
+                              onTrailingPressed: () => _deleteEmail(
+                                c,
+                                context,
+                                c.myUser.value!.emails.unconfirmed!,
+                              ),
+                              onPressed: () => AddEmailView.show(
+                                context,
+                                email: c.myUser.value?.emails.unconfirmed!,
+                              ),
+                            ),
+                            ProfilePhones(
+                              confirmedPhones: c.myUser.value?.phones.confirmed,
+                              text: c.myUser.value?.phones.unconfirmed?.val,
+                              hasUnconfirmed:
+                                  c.myUser.value?.phones.unconfirmed != null,
+                              onPressed: () => AddPhoneView.show(
+                                context,
+                                phone: c.myUser.value?.phones.unconfirmed!,
+                              ),
+                              onTrailingPressed: () => _deletePhone(
+                                c,
+                                context,
+                                c.myUser.value!.phones.unconfirmed!,
+                              ),
+                            ),
+                            ProfilePassword(
+                              hasPassword: c.myUser.value!.hasPassword,
+                            ),
                           ],
                         );
 
                       case ProfileTab.link:
                         return Block(
                           title: 'label_your_direct_link'.l10n,
-                          children: [ProfileLink(c.myUser.value, c.link)],
+                          children: [
+                            ProfileLink(
+                              c.link,
+                              transitionCount:
+                                  c.myUser.value?.chatDirectLink?.usageCount,
+                            )
+                          ],
                         );
 
                       case ProfileTab.background:
@@ -225,7 +275,9 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_chats'.l10n,
                           children: [
                             Obx(
-                              () => ProfileChats(c.settings.value),
+                              () => ProfileChats(
+                                isTimeline: c.settings.value?.timelineEnabled,
+                              ),
                             ),
                           ],
                         );
@@ -235,7 +287,9 @@ class MyProfileView extends StatelessWidget {
                           return Block(
                             title: 'label_calls'.l10n,
                             children: [
-                              Obx(() => ProfileCall(c.settings.value))
+                              Obx(() => ProfileCall(
+                                    showPopups: c.settings.value?.enablePopups,
+                                  ))
                             ],
                           );
                         }
@@ -249,8 +303,6 @@ class MyProfileView extends StatelessWidget {
                             children: [
                               Obx(
                                 () => ProfileMedia(
-                                  c.devices,
-                                  c.media.value,
                                   videoText: (c.devices
                                                   .video()
                                                   .firstWhereOrNull((e) =>
@@ -325,9 +377,10 @@ class MyProfileView extends StatelessWidget {
                           children: [
                             Obx(
                               () => ProfileNotifications(
-                                c.myUser.value,
-                                c.isMuting.value,
-                                (enabled) => c.toggleMute(enabled),
+                                isMuted: c.myUser.value?.muted == null,
+                                onChanged: c.isMuting.value
+                                    ? null
+                                    : (enabled) => c.toggleMute(enabled),
                               ),
                             )
                           ],
@@ -339,8 +392,10 @@ class MyProfileView extends StatelessWidget {
                           children: [
                             Obx(
                               () => ProfileStorage(
-                                c.settings.value,
-                                (enabled) => c.setLoadImages(enabled),
+                                value: c.settings.value?.loadImages == true,
+                                onChanged: c.settings.value == null
+                                    ? null
+                                    : (enabled) => c.setLoadImages(enabled),
                               ),
                             )
                           ],

@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/l10n/l10n.dart';
 
-import '/domain/model/application_settings.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/call_window_switch/controller.dart';
 import '/ui/page/home/widget/field_button.dart';
@@ -26,10 +25,11 @@ import '/ui/page/home/widget/paddings.dart';
 
 /// [Widget] which returns the contents of a [ProfileTab.calls] section.
 class ProfileCall extends StatelessWidget {
-  const ProfileCall(this.settings, {super.key});
+  const ProfileCall({super.key, this.showPopups});
 
-  /// [ApplicationSettings] that returns the current settings.
-  final ApplicationSettings? settings;
+  /// Indicator whether calls will be opened in a separate window or
+  /// within the app.
+  final bool? showPopups;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class ProfileCall extends StatelessWidget {
       children: [
         Paddings.dense(
           FieldButton(
-            text: (settings?.enablePopups ?? true)
+            text: showPopups ?? true
                 ? 'label_open_calls_in_window'.l10n
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,

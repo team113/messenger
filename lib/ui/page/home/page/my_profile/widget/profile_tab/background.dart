@@ -34,7 +34,7 @@ class ProfileBackground extends StatelessWidget {
     super.key,
   });
 
-  /// [Uint8List] that returns the current background as a [Uint8List].
+  /// [Uint8List] that returns the current background.
   final Uint8List? background;
 
   /// Opens an image choose popup and sets the selected file as a [background].
@@ -132,17 +132,18 @@ class ProfileBackground extends StatelessWidget {
   }
 }
 
-///
+/// Widget which display a message on [ProfileBackground].
 class _MessageWidget extends StatelessWidget {
   const _MessageWidget({
     this.text,
     this.fromMe = true,
   });
 
-  ///
+  /// Indicator whether the message is sent by the user or received from
+  /// other users.
   final bool fromMe;
 
-  ///
+  /// Text to display in this [_MessageWidget].
   final String? text;
 
   @override

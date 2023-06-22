@@ -17,8 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-
-import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -28,21 +26,17 @@ import '/ui/widget/text_field.dart';
 /// [Widget] which returns the contents of a [ProfileTab.notifications]
 /// section.
 class ProfileNotifications extends StatelessWidget {
-  const ProfileNotifications(
-    this.myUser,
-    this.isMuting,
-    this.toggleMute, {
+  const ProfileNotifications({
     super.key,
+    this.isMuted = false,
+    this.onChanged,
   });
 
-  /// [MyUser] that stores the currently authenticated user.
-  final MyUser? myUser;
+  ///
+  final bool isMuted;
 
-  /// Indicator whether there's an ongoing [toggleMute] happening.
-  final bool isMuting;
-
-  /// Toggles [MyUser.muted] status.
-  final void Function(bool enabled) toggleMute;
+  ///
+  final void Function(bool)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +49,7 @@ class ProfileNotifications extends StatelessWidget {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text:
-                    (myUser?.muted == null ? 'label_enabled' : 'label_disabled')
-                        .l10n,
+                text: (isMuted ? 'label_enabled' : 'label_disabled').l10n,
                 editable: false,
               ),
               style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
@@ -77,8 +69,8 @@ class ProfileNotifications extends StatelessWidget {
                   child: Switch.adaptive(
                     activeColor: style.colors.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: myUser?.muted == null,
-                    onChanged: isMuting ? null : toggleMute,
+                    value: isMuted,
+                    onChanged: onChanged,
                   ),
                 ),
               ),
