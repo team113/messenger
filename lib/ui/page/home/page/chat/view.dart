@@ -149,7 +149,7 @@ class _ChatViewState extends State<ChatView>
               .where((e) => e.id != c.me)
               .map((e) => e.name?.val ?? e.num.val);
 
-          final ChatMember? partner = c.chat!.chat.value.members
+          final ChatMember? partner = c.chat?.chat.value.members
               .firstWhereOrNull((u) => u.user.id != c.me);
 
           return CustomDropTarget(
@@ -208,8 +208,10 @@ class _ChatViewState extends State<ChatView>
                                         rxChat: c.chat,
                                         text: typings.join('comma_space'.l10n),
                                         partner: partner != null,
-                                        future: c.getUser(partner!.user.id),
                                         test: (e) => e.id != c.me,
+                                        future: partner != null
+                                            ? c.getUser(partner.user.id)
+                                            : null,
                                       ),
                                   ],
                                 ),
