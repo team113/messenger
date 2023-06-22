@@ -41,7 +41,7 @@ class StyledDock extends StatelessWidget {
   });
 
   /// [Key] for handling [dock] widget states.
-  final GlobalKey<State<StatefulWidget>>? dockKey;
+  final GlobalKey? dockKey;
 
   /// Indicator whether to show the [child].
   final bool? showBottomUi;

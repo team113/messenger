@@ -27,19 +27,19 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
 /// View of an secondary overlay.
-class SecondaryOverlay extends StatelessWidget {
-  const SecondaryOverlay({
+class SecondaryDecorator extends StatelessWidget {
+  const SecondaryDecorator({
     super.key,
     this.child,
     this.size,
-    this.secondaryKey,
+    this.globalKey,
     this.left,
     this.right,
     this.top,
     this.bottom,
     this.alignment,
     this.onTap,
-    this.onDragEnd,
+    this.onScaleEnd,
     this.onPanStart,
     this.onPanUpdate,
     this.onPanEnd,
@@ -60,38 +60,36 @@ class SecondaryOverlay extends StatelessWidget {
     this.isAligned = true,
     this.showDragTarget = true,
     this.isHover = true,
-    this.isAnyDrag = true,
-    this.opacity = 1,
     this.height = 50,
     this.width = 50,
     this.showTitleBar = true,
   });
 
-  /// [GlobalKey] of this [SecondaryOverlay].
-  final GlobalKey<State<StatefulWidget>>? secondaryKey;
+  /// [GlobalKey] of this [SecondaryDecorator].
+  final GlobalKey? globalKey;
 
   /// Actual size of the [MediaQuery] data.
   final Size? size;
 
-  /// Height of this [SecondaryOverlay].
+  /// Height of this [SecondaryDecorator].
   final double height;
 
-  /// Width of this [SecondaryOverlay].
+  /// Width of this [SecondaryDecorator].
   final double width;
 
-  /// Left position of this [SecondaryOverlay].
+  /// Left position of this [SecondaryDecorator].
   final double? left;
 
-  /// Right position of this [SecondaryOverlay].
+  /// Right position of this [SecondaryDecorator].
   final double? right;
 
-  /// Top position of this [SecondaryOverlay].
+  /// Top position of this [SecondaryDecorator].
   final double? top;
 
-  /// Bottom position of this [SecondaryOverlay].
+  /// Bottom position of this [SecondaryDecorator].
   final double? bottom;
 
-  /// Indicator whether this [SecondaryOverlay] is visible.
+  /// Indicator whether this [SecondaryDecorator] is visible.
   final bool isVisible;
 
   /// Indicator whether the cursor should be displayed.
@@ -106,11 +104,8 @@ class SecondaryOverlay extends StatelessWidget {
   /// Indicator whether secondary panel is hovered.
   final bool isHover;
 
-  /// Indicator whether draggable title bar should be displayed.
+  /// Indicator whether draggable title bar should be displayed on hover.
   final bool showTitleBar;
-
-  /// Indicator whether there are currently drags at the moment.
-  final bool isAnyDrag;
 
   /// Indicator whether [BackdropFilter] should be enabled or not.
   final bool condition;
@@ -118,10 +113,7 @@ class SecondaryOverlay extends StatelessWidget {
   /// Alignment of border and background of secondary panel.
   final Alignment? alignment;
 
-  /// Opacity of sliding from top draggable title bar.
-  final double opacity;
-
-  /// [Widget] wrapped by this [SecondaryOverlay].
+  /// [Widget] wrapped by this [SecondaryDecorator].
   final Widget? child;
 
   /// Callback, called when the delta drag of the left side of the `x` and
@@ -156,8 +148,8 @@ class SecondaryOverlay extends StatelessWidget {
   /// the bottom side of the `y` is triggered.
   final dynamic Function(double, double)? onScaleBottomRight;
 
-  /// Callback, called when dragging is ended.
-  final dynamic Function(DragEndDetails)? onDragEnd;
+  /// Callback, called when scaling is ended.
+  final dynamic Function(DragEndDetails)? onScaleEnd;
 
   /// Callback, called when a pan operation starts.
   final void Function(DragStartDetails)? onPanStart;
@@ -169,15 +161,15 @@ class SecondaryOverlay extends StatelessWidget {
   final void Function(DragEndDetails)? onPanEnd;
 
   /// Callback, called when the mouse cursor enters the area of this
-  /// [SecondaryOverlay].
+  /// [SecondaryDecorator].
   final void Function(PointerEnterEvent)? onEnter;
 
   /// Callback, called when the mouse cursor moves in the area of this
-  /// [SecondaryOverlay].
+  /// [SecondaryDecorator].
   final void Function(PointerHoverEvent)? onHover;
 
   /// Callback, called when the mouse cursor leaves the area of this
-  /// [SecondaryOverlay].
+  /// [SecondaryDecorator].
   final void Function(PointerExitEvent)? onExit;
 
   /// Callback, called when [InkResponse] is tapped.
@@ -190,207 +182,196 @@ class SecondaryOverlay extends StatelessWidget {
     // [BorderRadius] to decorate the secondary panel with.
     final BorderRadius borderRadius = BorderRadius.circular(10);
 
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(size: size),
-      child: isVisible
-          ? Stack(
-              fit: StackFit.expand,
-              children: [
-                // Secondary panel shadow.
-                Positioned(
-                  left: left,
-                  right: right,
-                  top: top,
-                  bottom: bottom,
-                  child: IgnorePointer(
-                    child: isAligned
-                        ? Container(
-                            width: width,
-                            height: height,
-                            decoration: BoxDecoration(
-                              boxShadow: [
-                                CustomBoxShadow(
-                                  color: style.colors.onBackgroundOpacity27,
-                                  blurRadius: 9,
-                                  blurStyle: BlurStyle.outer,
-                                )
-                              ],
-                              borderRadius: borderRadius,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Secondary panel shadow.
+        Positioned(
+          left: left,
+          right: right,
+          top: top,
+          bottom: bottom,
+          child: IgnorePointer(
+            child: isAligned
+                ? Container(
+                    width: width,
+                    height: height,
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        CustomBoxShadow(
+                          color: style.colors.onBackgroundOpacity27,
+                          blurRadius: 9,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                      borderRadius: borderRadius,
+                    ),
+                  )
+                : const SizedBox(),
+          ),
+        ),
+
+        // Secondary panel background.
+        Positioned(
+          left: left,
+          right: right,
+          top: top,
+          bottom: bottom,
+          child: IgnorePointer(
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: isAligned
+                  ? IgnorePointer(
+                      child: ClipRRect(
+                        borderRadius: borderRadius,
+                        child: Stack(
+                          children: [
+                            Container(
+                              color: style.colors.backgroundAuxiliary,
                             ),
-                          )
-                        : const SizedBox(),
-                  ),
-                ),
+                            SvgImage.asset(
+                              'assets/images/background_dark.svg',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                            Container(
+                              color: style.colors.onPrimaryOpacity7,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
+            ),
+          ),
+        ),
 
-                // Secondary panel background.
-                Positioned(
-                  left: left,
-                  right: right,
-                  top: top,
-                  bottom: bottom,
-                  child: IgnorePointer(
-                    child: SizedBox(
-                      width: width,
-                      height: height,
-                      child: isAligned
-                          ? IgnorePointer(
-                              child: ClipRRect(
-                                borderRadius: borderRadius,
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      color: style.colors.backgroundAuxiliary,
-                                    ),
-                                    SvgImage.asset(
-                                      'assets/images/background_dark.svg',
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Container(
-                                      color: style.colors.onPrimaryOpacity7,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : const SizedBox(),
-                    ),
-                  ),
-                ),
+        positionedBoilerplate(
+          isAligned
+              ? buildDragHandle(Alignment.centerLeft, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  isAligned
-                      ? buildDragHandle(Alignment.centerLeft, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          isAligned
+              ? buildDragHandle(Alignment.centerRight, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  isAligned
-                      ? buildDragHandle(Alignment.centerRight, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          isAligned
+              ? buildDragHandle(Alignment.bottomCenter, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  isAligned
-                      ? buildDragHandle(Alignment.bottomCenter, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          isAligned
+              ? buildDragHandle(Alignment.topCenter, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  isAligned
-                      ? buildDragHandle(Alignment.topCenter, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          isAligned
+              ? buildDragHandle(Alignment.topLeft, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  isAligned
-                      ? buildDragHandle(Alignment.topLeft, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          isAligned
+              ? buildDragHandle(Alignment.topRight, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  isAligned
-                      ? buildDragHandle(Alignment.topRight, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          isAligned
+              ? buildDragHandle(Alignment.bottomLeft, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  isAligned
-                      ? buildDragHandle(Alignment.bottomLeft, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          isAligned
+              ? buildDragHandle(Alignment.bottomRight, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  isAligned
-                      ? buildDragHandle(Alignment.bottomRight, context)
-                      : const SizedBox(),
-                ),
+        if (child != null) child!,
 
-                if (child != null) child!,
+        // Discards the pointer when hovered over videos.
+        Positioned(
+          left: left,
+          right: right,
+          top: top,
+          bottom: bottom,
+          child: MouseRegion(
+            opaque: false,
+            cursor: SystemMouseCursors.basic,
+            child: IgnorePointer(
+              child: SizedBox(width: width, height: height),
+            ),
+          ),
+        ),
 
-                // Discards the pointer when hovered over videos.
-                Positioned(
-                  left: left,
-                  right: right,
-                  top: top,
-                  bottom: bottom,
+        // Sliding from top draggable title bar.
+        if (showTitleBar)
+          Positioned(
+            key: globalKey,
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  height: 30,
                   child: MouseRegion(
-                    opaque: false,
-                    cursor: SystemMouseCursors.basic,
-                    child: IgnorePointer(
-                      child: SizedBox(width: width, height: height),
-                    ),
-                  ),
-                ),
-
-                // Sliding from top draggable title bar.
-                if (showTitleBar)
-                  Positioned(
-                    key: secondaryKey,
-                    left: left,
-                    right: right,
-                    top: top,
-                    bottom: bottom,
-                    child: SizedBox(
-                      width: width,
-                      height: height,
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: SizedBox(
-                          height: 30,
-                          child: MouseRegion(
-                            cursor: isAnyDrag
-                                ? MouseCursor.defer
-                                : SystemMouseCursors.grab,
-                            child: GestureDetector(
-                              onPanStart: onPanStart,
-                              onPanUpdate: onPanUpdate,
-                              onPanEnd: onPanEnd,
-                              child: AnimatedOpacity(
-                                duration: 200.milliseconds,
-                                key: const ValueKey('TitleBar'),
-                                opacity: opacity,
-                                child: ClipRRect(
-                                  borderRadius: isAligned
-                                      ? BorderRadius.only(
-                                          topLeft: borderRadius.topLeft,
-                                          topRight: borderRadius.topRight,
-                                        )
-                                      : BorderRadius.zero,
-                                  child: ConditionalBackdropFilter(
-                                    condition: PlatformUtils.isWeb && condition,
-                                    child: Container(
-                                      color: PlatformUtils.isWeb
-                                          ? style.colors.onSecondaryOpacity60
-                                          : style.colors.onSecondaryOpacity88,
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(width: 7),
-                                          Expanded(
-                                            child: Text(
-                                              'Draggable',
-                                              style:
-                                                  fonts.labelMedium!.copyWith(
-                                                color: style.colors.onPrimary,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          InkResponse(
-                                            onTap: isAnyDrag ? null : onTap,
-                                            child: SvgImage.asset(
-                                              'assets/icons/close.svg',
-                                              height: 10.25,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 7),
-                                        ],
+                    child: GestureDetector(
+                      onPanStart: onPanStart,
+                      onPanUpdate: onPanUpdate,
+                      onPanEnd: onPanEnd,
+                      child: AnimatedOpacity(
+                        duration: 200.milliseconds,
+                        key: const ValueKey('TitleBar'),
+                        opacity: isHover ? 1 : 0,
+                        child: ClipRRect(
+                          borderRadius: isAligned
+                              ? BorderRadius.only(
+                                  topLeft: borderRadius.topLeft,
+                                  topRight: borderRadius.topRight,
+                                )
+                              : BorderRadius.zero,
+                          child: ConditionalBackdropFilter(
+                            condition: PlatformUtils.isWeb && condition,
+                            child: Container(
+                              color: PlatformUtils.isWeb
+                                  ? style.colors.onSecondaryOpacity60
+                                  : style.colors.onSecondaryOpacity88,
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 7),
+                                  Expanded(
+                                    child: Text(
+                                      'Draggable',
+                                      style: fonts.labelMedium!.copyWith(
+                                        color: style.colors.onPrimary,
                                       ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                ),
+                                  InkResponse(
+                                    onTap: onTap,
+                                    child: SvgImage.asset(
+                                      'assets/icons/close.svg',
+                                      height: 10.25,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 7),
+                                ],
                               ),
                             ),
                           ),
@@ -398,132 +379,127 @@ class SecondaryOverlay extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                positionedBoilerplate(
-                  alignment == Alignment.centerRight
-                      ? buildDragHandle(Alignment.centerLeft, context)
-                      : const SizedBox(),
                 ),
+              ),
+            ),
+          ),
 
-                positionedBoilerplate(
-                  alignment == Alignment.centerLeft
-                      ? buildDragHandle(Alignment.centerRight, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          alignment == Alignment.centerRight
+              ? buildDragHandle(Alignment.centerLeft, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  alignment == Alignment.topCenter
-                      ? buildDragHandle(Alignment.bottomCenter, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          alignment == Alignment.centerLeft
+              ? buildDragHandle(Alignment.centerRight, context)
+              : const SizedBox(),
+        ),
 
-                positionedBoilerplate(
-                  alignment == Alignment.bottomCenter
-                      ? buildDragHandle(Alignment.topCenter, context)
-                      : const SizedBox(),
-                ),
+        positionedBoilerplate(
+          alignment == Alignment.topCenter
+              ? buildDragHandle(Alignment.bottomCenter, context)
+              : const SizedBox(),
+        ),
 
-                // Secondary panel drag target indicator.
-                Positioned(
-                  left: left,
-                  right: right,
-                  top: top,
-                  bottom: bottom,
-                  child: IgnorePointer(
-                    child: SizedBox(
-                      width: width,
-                      height: height,
-                      child: DropBox(
-                        isVisible: showDragTarget,
-                        condition: condition,
-                      ),
-                    ),
-                  ),
-                ),
+        positionedBoilerplate(
+          alignment == Alignment.bottomCenter
+              ? buildDragHandle(Alignment.topCenter, context)
+              : const SizedBox(),
+        ),
 
-                // Secondary panel border.
-                Positioned(
-                  left: left == null ? null : (left! - Scaler.size / 2),
-                  right: right == null ? null : (right! - Scaler.size / 2),
-                  top: top == null ? null : (top! - Scaler.size / 2),
-                  bottom: bottom == null ? null : (bottom! - Scaler.size / 2),
-                  child: MouseRegion(
-                    opaque: false,
-                    onEnter: onEnter,
-                    onHover: onHover,
-                    onExit: onExit,
-                    child: SizedBox(
-                      width: width + Scaler.size,
-                      height: height + Scaler.size,
-                      child: Stack(
-                        children: [
-                          IgnorePointer(
-                            child: AnimatedContainer(
-                              duration: 200.milliseconds,
-                              margin: const EdgeInsets.all(Scaler.size / 2),
-                              decoration: ShapeDecoration(
-                                shape: (isHover && isAligned)
-                                    ? RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          color: style.colors.secondary,
-                                          width: 1,
-                                        ),
-                                        borderRadius: borderRadius,
-                                      )
-                                    : (!isHover && isAligned)
-                                        ? RoundedRectangleBorder(
-                                            side: BorderSide(
-                                              color: style.colors.secondary
-                                                  .withOpacity(0),
-                                              width: 1,
-                                            ),
-                                            borderRadius: borderRadius,
+        // Secondary panel drag target indicator.
+        Positioned(
+          left: left,
+          right: right,
+          top: top,
+          bottom: bottom,
+          child: IgnorePointer(
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: AnimatedOpacity(
+                opacity: showDragTarget ? 1 : 0,
+                duration: const Duration(milliseconds: 300),
+                child: DropBox(withBlur: condition),
+              ),
+            ),
+          ),
+        ),
+
+        // Secondary panel border.
+        Positioned(
+          left: left == null ? null : (left! - Scaler.size / 2),
+          right: right == null ? null : (right! - Scaler.size / 2),
+          top: top == null ? null : (top! - Scaler.size / 2),
+          bottom: bottom == null ? null : (bottom! - Scaler.size / 2),
+          child: MouseRegion(
+            opaque: false,
+            onEnter: onEnter,
+            onHover: onHover,
+            onExit: onExit,
+            child: SizedBox(
+              width: width + Scaler.size,
+              height: height + Scaler.size,
+              child: Stack(
+                children: [
+                  IgnorePointer(
+                    child: AnimatedContainer(
+                      duration: 200.milliseconds,
+                      margin: const EdgeInsets.all(Scaler.size / 2),
+                      decoration: ShapeDecoration(
+                        shape: (isHover && isAligned)
+                            ? RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: style.colors.secondary,
+                                  width: 1,
+                                ),
+                                borderRadius: borderRadius,
+                              )
+                            : (!isHover && isAligned)
+                                ? RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color:
+                                          style.colors.secondary.withOpacity(0),
+                                      width: 1,
+                                    ),
+                                    borderRadius: borderRadius,
+                                  )
+                                : Border(
+                                    top: alignment == Alignment.bottomCenter
+                                        ? BorderSide(
+                                            color: style.colors.secondary,
+                                            width: 1,
                                           )
-                                        : Border(
-                                            top: alignment ==
-                                                    Alignment.bottomCenter
-                                                ? BorderSide(
-                                                    color:
-                                                        style.colors.secondary,
-                                                    width: 1,
-                                                  )
-                                                : BorderSide.none,
-                                            left: alignment ==
-                                                    Alignment.centerRight
-                                                ? BorderSide(
-                                                    color:
-                                                        style.colors.secondary,
-                                                    width: 1,
-                                                  )
-                                                : BorderSide.none,
-                                            right: alignment ==
-                                                    Alignment.centerLeft
-                                                ? BorderSide(
-                                                    color:
-                                                        style.colors.secondary,
-                                                    width: 1,
-                                                  )
-                                                : BorderSide.none,
-                                            bottom: alignment ==
-                                                    Alignment.topCenter
-                                                ? BorderSide(
-                                                    color:
-                                                        style.colors.secondary,
-                                                    width: 1,
-                                                  )
-                                                : BorderSide.none,
-                                          ),
-                              ),
-                            ),
-                          ),
-                        ],
+                                        : BorderSide.none,
+                                    left: alignment == Alignment.centerRight
+                                        ? BorderSide(
+                                            color: style.colors.secondary,
+                                            width: 1,
+                                          )
+                                        : BorderSide.none,
+                                    right: alignment == Alignment.centerLeft
+                                        ? BorderSide(
+                                            color: style.colors.secondary,
+                                            width: 1,
+                                          )
+                                        : BorderSide.none,
+                                    bottom: alignment == Alignment.topCenter
+                                        ? BorderSide(
+                                            color: style.colors.secondary,
+                                            width: 1,
+                                          )
+                                        : BorderSide.none,
+                                  ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            )
-          : const SizedBox(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -538,11 +514,11 @@ class SecondaryOverlay extends StatelessWidget {
       double? height,
     }) {
       return MouseRegion(
-        cursor: showCursor ? cursor : MouseCursor.defer,
+        cursor: cursor,
         child: Scaler(
           key: key,
           onDragUpdate: onDrag,
-          onDragEnd: onDragEnd,
+          onDragEnd: onScaleEnd,
           width: width ?? Scaler.size,
           height: height ?? Scaler.size,
         ),

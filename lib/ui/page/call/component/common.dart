@@ -470,7 +470,7 @@ class _CallButtonWidget extends StatelessWidget {
   /// Hint text of this [_CallButtonWidget].
   final String? hint;
 
-  /// Indicator whether [hint] should be displayed.
+  /// Indicator whether [hint] should be displayed in the overlay.
   final bool hinted;
 
   /// Indicator whether the [hint] should be always displayed under the button.

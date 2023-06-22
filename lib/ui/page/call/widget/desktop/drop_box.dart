@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../animated_delayed_scale.dart';
 import '../conditional_backdrop.dart';
@@ -26,54 +25,53 @@ import '/themes.dart';
 class DropBox extends StatelessWidget {
   const DropBox({
     super.key,
-    this.isVisible = true,
-    this.condition = true,
+    this.withBlur = true,
+    this.size = 50,
+    this.padding = const EdgeInsets.all(16),
   });
 
-  /// Indicator whether this [DropBox] should be shown.
-  final bool isVisible;
+  /// Indicator whether background should be blurred.
+  final bool withBlur;
 
-  /// Indicator whether [BackdropFilter] should be enabled or not.
-  final bool condition;
+  /// Size of the icon.
+  final double size;
+
+  /// Padding around of the icon.
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return AnimatedSwitcher(
-      duration: 200.milliseconds,
-      child: isVisible
-          ? Container(
-              color: style.colors.onBackgroundOpacity27,
-              child: Center(
-                child: AnimatedDelayedScale(
-                  duration: const Duration(milliseconds: 300),
-                  beginScale: 1,
-                  endScale: 1.06,
-                  child: ConditionalBackdropFilter(
-                    condition: condition,
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: condition
-                            ? style.colors.onBackgroundOpacity27
-                            : style.colors.onBackgroundOpacity50,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Icon(
-                          Icons.add_rounded,
-                          size: 50,
-                          color: style.colors.onPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
+    return Container(
+      color: style.colors.onBackgroundOpacity27,
+      child: Center(
+        child: AnimatedDelayedScale(
+          duration: const Duration(milliseconds: 300),
+          beginScale: 1,
+          endScale: 1.06,
+          child: ConditionalBackdropFilter(
+            condition: withBlur,
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: withBlur
+                    ? style.colors.onBackgroundOpacity27
+                    : style.colors.onBackgroundOpacity50,
+              ),
+              child: Padding(
+                padding: padding,
+                child: Icon(
+                  Icons.add_rounded,
+                  size: size,
+                  color: style.colors.onPrimary,
                 ),
               ),
-            )
-          : const SizedBox(),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

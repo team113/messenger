@@ -24,8 +24,9 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/component/desktop.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import 'drop_box.dart';
 
-/// Call's secondary view empty [DragTarget].
+/// Secondary view empty [DragTarget].
 class SecondaryTarget extends StatelessWidget {
   const SecondaryTarget({
     super.key,
@@ -112,33 +113,10 @@ class SecondaryTarget extends StatelessWidget {
                           height: axis == Axis.horizontal
                               ? null
                               : min(size, 150 + 44),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AnimatedScale(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.ease,
-                                scale: candidate.isNotEmpty ? 1.06 : 1,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: style.colors.onBackgroundOpacity27,
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(
-                                      10,
-                                    ),
-                                    child: Icon(
-                                      Icons.add_rounded,
-                                      size: 35,
-                                      color: style.colors.onPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          child: const DropBox(
+                            withBlur: false,
+                            size: 35,
+                            padding: EdgeInsets.all(10),
                           ),
                         ),
                       ),

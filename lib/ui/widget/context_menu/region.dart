@@ -170,7 +170,11 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           unconstrained: widget.unconstrained,
           onOpened: () => _displayed = true,
           onClosed: () => _displayed = false,
-          child: widget.builder == null ? child : widget.builder!(_displayed),
+          child: widget.builder == null
+              ? child
+              // Wrap [widget.builder] in [Builder] to avoid errors in call on
+              // Android.
+              : Builder(builder: (_) => widget.builder!(_displayed)),
         );
       } else {
         menu = GestureDetector(
@@ -178,7 +182,11 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           onLongPressStart: widget.enableLongTap
               ? (d) => _show(context, d.globalPosition)
               : null,
-          child: widget.builder == null ? child : widget.builder!(_displayed),
+          child: widget.builder == null
+              ? child
+              // Wrap [widget.builder] in [Builder] to avoid errors in call on
+              // Android.
+              : Builder(builder: (_) => widget.builder!(_displayed)),
         );
 
         if (widget.enablePrimaryTap) {

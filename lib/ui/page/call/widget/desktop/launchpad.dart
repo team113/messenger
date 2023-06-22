@@ -24,25 +24,20 @@ import '/themes.dart';
 import '/ui/page/call/component/common.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
-/// Panel which containing the dragging and dropping elements.
+/// Decorated [Wrap] with the provided [children].
 class Launchpad extends StatelessWidget {
   const Launchpad({
     super.key,
-    this.condition,
     this.onEnter,
     this.onHover,
     this.onExit,
     this.onAccept,
     this.onWillAccept,
-    this.paneledItems = const <Widget>[],
+    this.children = const <Widget>[],
   });
 
   /// Widgets to put inside a [Wrap].
-  final List<Widget> paneledItems;
-
-  /// Callback, called to check whether a certain condition is met in order to
-  /// apply a certain decoration to a [AnimatedContainer].
-  final bool Function(CallButton?)? condition;
+  final List<Widget> children;
 
   /// Callback, called when the mouse cursor enters the area of this
   /// [Launchpad].
@@ -57,11 +52,11 @@ class Launchpad extends StatelessWidget {
   final void Function(PointerExitEvent)? onExit;
 
   /// Callback, called when an acceptable piece of data was dropped over this
-  /// drag target.
+  /// [Launchpad].
   final void Function(CallButton)? onAccept;
 
   /// Callback, called to determine whether this [Launchpad] is interested in
-  /// receiving a given piece of data being dragged over a [DragTarget].
+  /// receiving a given piece of data being dragged over this [Launchpad].
   final bool Function(CallButton?)? onWillAccept;
 
   @override
@@ -97,8 +92,8 @@ class Launchpad extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   decoration: BoxDecoration(
-                    color: condition != null
-                        ? candidate.any(condition!)
+                    color: onWillAccept != null
+                        ? candidate.any(onWillAccept!)
                             ? style.colors.onSecondaryOpacity88
                             : style.colors.onSecondaryOpacity60
                         : null,
@@ -116,7 +111,7 @@ class Launchpad extends StatelessWidget {
                           alignment: WrapAlignment.center,
                           spacing: 4,
                           runSpacing: 21,
-                          children: paneledItems,
+                          children: children,
                         ),
                         const SizedBox(height: 20),
                       ],

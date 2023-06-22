@@ -16,18 +16,21 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/tooltip_button.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Title bar of a call.
 class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,
-    this.child,
-    this.label,
+    required this.chat,
+    required this.titleArguments,
     this.height,
     this.onTap,
     this.toggleFullscreen,
@@ -40,11 +43,11 @@ class TitleBar extends StatelessWidget {
   /// Height of the [TitleBar].
   final double? height;
 
-  /// Label of this [TitleBar].
-  final String? label;
+  /// Callback returned reactive arguments to construct title.
+  final Map<String, String> Function() titleArguments;
 
-  /// Content to display in this [TitleBar].
-  final Widget? child;
+  /// [RxChat] to display in this [TitleBar].
+  final Rx<RxChat?> chat;
 
   /// Callback, called when this [TitleBar] is tapped.
   final void Function()? onTap;
@@ -81,18 +84,19 @@ class TitleBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(width: 10),
-                      if (child != null) child!,
+                      Obx(() => AvatarWidget.fromRxChat(chat.value, radius: 8)),
                       const SizedBox(width: 8),
-                      if (label != null)
-                        Flexible(
-                          child: Text(
-                            label!,
+                      Flexible(
+                        child: Obx(() {
+                          return Text(
+                            'label_call_title'.l10nfmt(titleArguments()),
                             style: fonts.labelMedium!.copyWith(
                               color: style.colors.onPrimary,
                             ),
                             overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
+                          );
+                        }),
+                      ),
                     ],
                   ),
                 ),

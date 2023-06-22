@@ -50,7 +50,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -147,19 +146,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           final Widget child;
 
                           if (!isIncoming) {
-                            child = Stack(
-                              children: [
-                                _primaryView(c),
-                                IgnorePointer(
-                                  child: DropBox(
-                                    isVisible: c.secondaryDrags.value != 0 &&
-                                        c.primaryTargets.value != 0,
-                                    condition: !c.minimized.value ||
-                                        c.fullscreen.value,
-                                  ),
-                                ),
-                              ],
-                            );
+                            child = _primaryView(c);
                           } else {
                             if (isDialog) {
                               final User? user = c.chat.value?.members.values
@@ -423,7 +410,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                         opacity: c.displayMore.value ? 1 : 0,
                         child: c.displayMore.value
                             ? Launchpad(
-                                condition: (e) => e?.c == c,
                                 onEnter: enabled ? (d) => c.keepUi(true) : null,
                                 onHover: enabled ? (d) => c.keepUi(true) : null,
                                 onExit: enabled ? (d) => c.keepUi() : null,
@@ -433,7 +419,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 },
                                 onWillAccept: (CallButton? a) =>
                                     a?.c == c && a?.isRemovable == true,
-                                paneledItems: c.panel.map((e) {
+                                children: c.panel.map((e) {
                                   return SizedBox(
                                     width: 100,
                                     height: 100,
@@ -714,176 +700,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   .addPostFrameCallback((_) => c.relocateSecondary());
             });
 
-            return Obx(() {
-              double? left, right;
-              double? top, bottom;
-              Axis? axis;
-
-              if (c.secondaryAlignment.value == Alignment.centerRight) {
-                top = 0;
-                right = 0;
-                axis = Axis.horizontal;
-              } else if (c.secondaryAlignment.value == Alignment.centerLeft) {
-                top = 0;
-                left = 0;
-                axis = Axis.horizontal;
-              } else if (c.secondaryAlignment.value == Alignment.topCenter) {
-                top = 0;
-                left = 0;
-                axis = Axis.vertical;
-              } else if (c.secondaryAlignment.value == Alignment.bottomCenter) {
-                bottom = 0;
-                left = 0;
-                axis = Axis.vertical;
-              } else {
-                left = c.secondaryLeft.value;
-                top = c.secondaryTop.value;
-                right = c.secondaryRight.value;
-                bottom = c.secondaryBottom.value;
-
-                axis = null;
-              }
-
-              double width, height;
-              if (axis == Axis.horizontal) {
-                width = c.secondaryWidth.value;
-                height = c.size.height;
-              } else if (axis == Axis.vertical) {
-                width = c.size.width;
-                height = c.secondaryHeight.value;
-              } else {
-                width = c.secondaryWidth.value;
-                height = c.secondaryHeight.value;
-              }
-
-              return SecondaryOverlay(
-                height: height,
-                width: width,
-                left: left,
-                right: right,
-                top: top,
-                bottom: bottom,
-                condition: !c.minimized.value || c.fullscreen.value,
-                secondaryKey: c.secondaryKey,
-                size: c.size,
-                showTitleBar: c.doughDraggedRenderer.value == null,
-                isVisible: c.secondary.isNotEmpty,
-                showCursor: c.draggedRenderer.value == null,
-                isAligned: c.secondaryAlignment.value == null,
-                showDragTarget:
-                    c.primaryDrags.value != 0 && c.secondaryTargets.value != 0,
-                isHover: c.secondaryHovered.value || c.primaryDrags.value != 0,
-                alignment: c.secondaryAlignment.value,
-                isAnyDrag:
-                    c.secondaryDrags.value != 0 || c.primaryDrags.value != 0,
-                opacity: c.secondaryHovered.value ? 1 : 0,
-                onTap: c.focusAll,
-                onDragEnd: (_) {
-                  c.updateSecondaryAttach();
-                },
-                onPanStart: (d) {
-                  c.secondaryBottomShifted = null;
-                  c.secondaryDragged.value = true;
-                  c.displayMore.value = false;
-                  c.keepUi(false);
-
-                  c.calculateSecondaryPanning(d.globalPosition);
-
-                  if (c.secondaryAlignment.value != null) {
-                    c.secondaryAlignment.value = null;
-                    c.updateSecondaryOffset(d.globalPosition);
-                  } else {
-                    c.secondaryLeft.value ??= c.size.width -
-                        c.secondaryWidth.value -
-                        (c.secondaryRight.value ?? 0);
-                    c.secondaryTop.value ??= c.size.height -
-                        c.secondaryHeight.value -
-                        (c.secondaryBottom.value ?? 0);
-                    c.applySecondaryConstraints();
-                  }
-
-                  c.secondaryRight.value = null;
-                  c.secondaryBottom.value = null;
-                },
-                onPanUpdate: (d) {
-                  c.updateSecondaryOffset(d.globalPosition);
-                  c.applySecondaryConstraints();
-                },
-                onPanEnd: (d) {
-                  c.secondaryDragged.value = false;
-                  if (c.possibleSecondaryAlignment.value != null) {
-                    c.secondaryAlignment.value =
-                        c.possibleSecondaryAlignment.value;
-                    c.possibleSecondaryAlignment.value = null;
-                    c.applySecondaryConstraints();
-                  } else {
-                    c.updateSecondaryAttach();
-                  }
-                },
-                onEnter: (p) => c.secondaryHovered.value = true,
-                onHover: (p) => c.secondaryHovered.value = true,
-                onExit: (p) => c.secondaryHovered.value = false,
-                onScaleCenterLeft: (dx, dy) => c.resizeSecondary(
-                  context,
-                  x: ScaleModeX.left,
-                  dx: dx,
-                ),
-                onScaleCenterRight: (dx, dy) => c.resizeSecondary(
-                  context,
-                  x: ScaleModeX.right,
-                  dx: -dx,
-                ),
-                onScaleBottomCenter: (dx, dy) => c.resizeSecondary(
-                  context,
-                  y: ScaleModeY.bottom,
-                  dy: -dy,
-                ),
-                onScaleTopCenter: (dx, dy) => c.resizeSecondary(
-                  context,
-                  y: ScaleModeY.top,
-                  dy: dy,
-                ),
-                onScaleTopLeft: (dx, dy) => c.resizeSecondary(
-                  context,
-                  y: ScaleModeY.top,
-                  x: ScaleModeX.left,
-                  dx: dx,
-                  dy: dy,
-                ),
-                onScaleTopRight: (dx, dy) => c.resizeSecondary(
-                  context,
-                  y: ScaleModeY.top,
-                  x: ScaleModeX.right,
-                  dx: -dx,
-                  dy: dy,
-                ),
-                onScaleBottomLeft: (dx, dy) => c.resizeSecondary(
-                  context,
-                  y: ScaleModeY.bottom,
-                  x: ScaleModeX.left,
-                  dx: dx,
-                  dy: -dy,
-                ),
-                onScaleBottomRight: (dx, dy) => c.resizeSecondary(
-                  context,
-                  y: ScaleModeY.bottom,
-                  x: ScaleModeX.right,
-                  dx: -dx,
-                  dy: -dy,
-                ),
-                // Secondary panel itself.
-                child: _secondaryView(
-                  c,
-                  height,
-                  width,
-                  axis: axis,
-                  top: top,
-                  right: right,
-                  left: left,
-                  bottom: bottom,
-                ),
-              );
-            });
+            return _secondaryView(c, context);
           });
         }),
 
@@ -998,7 +815,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                   ),
                   child: Obx(
                     () => TitleBar(
-                      label: 'label_call_title'.l10nfmt(c.titleArguments),
+                      chat: c.chat,
+                      titleArguments: () => c.titleArguments,
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
                       toggleFullscreen: c.toggleFullscreen,
@@ -1010,7 +828,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 c.toggleFullscreen();
                               }
                             },
-                      child: AvatarWidget.fromRxChat(c.chat.value, radius: 8),
                     ),
                   ),
                 ),
@@ -1255,318 +1072,133 @@ Widget _primaryView(CallController c) {
     c.isCursorHidden.value = false;
   }
 
-  return ReorderableFit<DragData>(
-    key: const Key('PrimaryFitView'),
-    allowEmptyTarget: true,
-    onAdded: (d, i) => c.focus(d.participant),
-    onWillAccept: (d) {
-      if (d?.chatId == c.chatId.value) {
-        if (d?.participant.member.id.userId != c.me.id.userId ||
-            d?.participant.video.value?.source != MediaSourceKind.Display) {
-          c.primaryTargets.value = 1;
-        }
-
-        return true;
-      }
-
-      return false;
-    },
-    onLeave: (b) => c.primaryTargets.value = 0,
-    onDragStarted: (r) {
-      c.draggedRenderer.value = r.participant;
-      c.showDragAndDropVideosHint = false;
-      c.primaryDrags.value = 1;
-      c.keepUi(false);
-    },
-    onOffset: () {
-      if (c.minimized.value && !c.fullscreen.value) {
-        return Offset(-c.left.value, -c.top.value - 30);
-      } else if (!WebUtils.isPopup) {
-        return const Offset(0, -30);
-      }
-
-      return Offset.zero;
-    },
-    onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
-    onDragEnd: onDragEnded,
-    onDragCompleted: onDragEnded,
-    onDraggableCanceled: onDragEnded,
-    overlayBuilder: (DragData data) {
-      var participant = data.participant;
-
-      return LayoutBuilder(builder: (context, constraints) {
-        return Obx(() {
-          bool? muted = participant.member.owner == MediaOwnerKind.local
-              ? !c.audioState.value.isEnabled
-              : null;
-
-          bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-              c.primaryDrags.value != 0 ||
-              c.secondaryDragged.value;
-
-          bool isHovered =
-              c.hoveredRenderer.value == participant && !anyDragIsHappening;
-
-          BoxFit? fit = participant.video.value?.renderer.value == null
-              ? null
-              : c.rendererBoxFit[
-                      participant.video.value?.renderer.value!.track.id()] ??
-                  RtcVideoView.determineBoxFit(
-                    participant.video.value?.renderer.value as RtcVideoRenderer,
-                    participant.source,
-                    constraints,
-                    context,
-                  );
-
-          return MouseRegion(
-            opaque: false,
-            onEnter: (d) {
-              if (c.draggedRenderer.value == null) {
-                c.hoveredRenderer.value = data.participant;
-                c.hoveredRendererTimeout = 5;
-                c.isCursorHidden.value = false;
-              }
-            },
-            onHover: (d) {
-              if (c.draggedRenderer.value == null) {
-                c.hoveredRenderer.value = data.participant;
-                c.hoveredRendererTimeout = 5;
-                c.isCursorHidden.value = false;
-              }
-            },
-            onExit: (d) {
-              c.hoveredRendererTimeout = 0;
-              c.hoveredRenderer.value = null;
-              c.isCursorHidden.value = false;
-            },
-            child: AnimatedOpacity(
-              duration: 200.milliseconds,
-              opacity: c.draggedRenderer.value == data.participant ? 0 : 1,
-              child: ContextMenuRegion(
-                key: ObjectKey(participant),
-                preventContextMenu: true,
-                actions: [
-                  if (participant.video.value?.renderer.value != null) ...[
-                    if (participant.source == MediaSourceKind.Device)
-                      ContextMenuButton(
-                        label: fit == null || fit == BoxFit.cover
-                            ? 'btn_call_do_not_cut_video'.l10n
-                            : 'btn_call_cut_video'.l10n,
-                        onPressed: () {
-                          c.rendererBoxFit[
-                              participant.video.value!.renderer.value!.track
-                                  .id()] = fit == null || fit == BoxFit.cover
-                              ? BoxFit.contain
-                              : BoxFit.cover;
-                          if (c.focused.isNotEmpty) {
-                            c.focused.refresh();
-                          } else {
-                            c.remotes.refresh();
-                            c.locals.refresh();
-                          }
-                        },
-                      ),
-                  ],
-                  if (c.primary.length == 1)
-                    ContextMenuButton(
-                      label: 'btn_call_uncenter'.l10n,
-                      onPressed: c.focusAll,
-                    )
-                  else
-                    ContextMenuButton(
-                      label: 'btn_call_center'.l10n,
-                      onPressed: () => c.center(participant),
-                    ),
-                  if (participant.member.id != c.me.id) ...[
-                    if (participant.video.value?.direction.value.isEmitting ??
-                        false)
-                      ContextMenuButton(
-                        label: participant.video.value?.renderer.value != null
-                            ? 'btn_call_disable_video'.l10n
-                            : 'btn_call_enable_video'.l10n,
-                        onPressed: () => c.toggleVideoEnabled(participant),
-                      ),
-                    if (participant.audio.value?.direction.value.isEmitting ??
-                        false)
-                      ContextMenuButton(
-                        label: (participant
-                                    .audio.value?.direction.value.isEnabled ==
-                                true)
-                            ? 'btn_call_disable_audio'.l10n
-                            : 'btn_call_enable_audio'.l10n,
-                        onPressed: () => c.toggleAudioEnabled(participant),
-                      ),
-                    if (participant.member.isDialing.isFalse)
-                      ContextMenuButton(
-                        label: 'btn_call_remove_participant'.l10n,
-                        onPressed: () => c.removeChatCallMember(
-                          participant.member.id.userId,
-                        ),
-                      ),
-                  ] else ...[
-                    ContextMenuButton(
-                      label: c.videoState.value.isEnabled
-                          ? 'btn_call_video_off'.l10n
-                          : 'btn_call_video_on'.l10n,
-                      onPressed: c.toggleVideo,
-                    ),
-                    ContextMenuButton(
-                      label: c.audioState.value.isEnabled
-                          ? 'btn_call_audio_off'.l10n
-                          : 'btn_call_audio_on'.l10n,
-                      onPressed: c.toggleAudio,
-                    ),
-                  ],
-                ],
-                child: IgnorePointer(
-                  child: ParticipantOverlayWidget(
-                    participant,
-                    key: ObjectKey(participant),
-                    muted: muted,
-                    hovered: isHovered,
-                    preferBackdrop: !c.minimized.value || c.fullscreen.value,
-                  ),
-                ),
-              ),
-            ),
-          );
-        });
-      });
-    },
-    decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
-    itemConstraints: (DragData data) {
-      final double size = (c.size.longestSide * 0.33).clamp(100, 250);
-      return BoxConstraints(
-        maxWidth: size,
-        maxHeight: size,
-      );
-    },
-    itemBuilder: (DragData data) {
-      var participant = data.participant;
-      return Obx(() {
-        return ParticipantWidget(
-          participant,
-          key: ObjectKey(participant),
-          offstageUntilDetermined: true,
-          respectAspectRatio: true,
-          borderRadius: BorderRadius.zero,
-          onSizeDetermined: participant.video.value?.renderer.refresh,
-          fit: c.rendererBoxFit[
-              participant.video.value?.renderer.value?.track.id() ?? ''],
-        );
-      });
-    },
-    children: c.primary.map((e) => DragData(e, c.chatId.value)).toList(),
-  );
-}
-
-/// [ReorderableFit] of the [CallController.secondary] participants.
-Widget _secondaryView(
-  CallController c,
-  double height,
-  double width, {
-  Axis? axis,
-  double? top,
-  double? right,
-  double? left,
-  double? bottom,
-}) {
-  void onDragEnded(DragData d) {
-    c.secondaryDrags.value = 0;
-    c.draggedRenderer.value = null;
-    c.doughDraggedRenderer.value = null;
-    c.hoveredRenderer.value = d.participant;
-    c.hoveredRendererTimeout = 5;
-    c.isCursorHidden.value = false;
-  }
-
-  return ReorderableFit<DragData>(
-    key: const Key('SecondaryFitView'),
-    onAdded: (d, i) => c.unfocus(d.participant),
-    onWillAccept: (d) {
-      if (d?.chatId == c.chatId.value) {
-        c.secondaryTargets.value = 1;
-        return true;
-      }
-
-      return false;
-    },
-    onLeave: (b) => c.secondaryTargets.value = 0,
-    onDragStarted: (r) {
-      c.draggedRenderer.value = r.participant;
-      c.showDragAndDropVideosHint = false;
-      c.secondaryDrags.value = 1;
-      c.displayMore.value = false;
-      c.keepUi(false);
-    },
-    onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
-    onDragEnd: onDragEnded,
-    onDragCompleted: onDragEnded,
-    onDraggableCanceled: onDragEnded,
-    axis: axis,
-    width: width,
-    height: height,
-    left: left,
-    top: top,
-    right: right,
-    bottom: bottom,
-    onOffset: () {
-      if (c.minimized.value && !c.fullscreen.value) {
-        return Offset(-c.left.value, -c.top.value - 30);
-      } else if (!WebUtils.isPopup) {
-        return const Offset(0, -30);
-      }
-
-      return Offset.zero;
-    },
-    overlayBuilder: (DragData data) {
-      var participant = data.participant;
-
-      return Obx(() {
-        bool? muted = participant.member.owner == MediaOwnerKind.local
-            ? !c.audioState.value.isEnabled
-            : null;
-
-        bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-            c.primaryDrags.value != 0 ||
-            c.secondaryDragged.value;
-
-        bool isHovered =
-            c.hoveredRenderer.value == participant && !anyDragIsHappening;
-
-        return MouseRegion(
-          opaque: false,
-          onEnter: (d) {
-            if (c.draggedRenderer.value == null) {
-              c.hoveredRenderer.value = data.participant;
-              c.hoveredRendererTimeout = 5;
-              c.isCursorHidden.value = false;
+  return Stack(
+    children: [
+      ReorderableFit<DragData>(
+        key: const Key('PrimaryFitView'),
+        allowEmptyTarget: true,
+        onAdded: (d, i) => c.focus(d.participant),
+        onWillAccept: (d) {
+          if (d?.chatId == c.chatId.value) {
+            if (d?.participant.member.id.userId != c.me.id.userId ||
+                d?.participant.video.value?.source != MediaSourceKind.Display) {
+              c.primaryTargets.value = 1;
             }
-          },
-          onHover: (d) {
-            if (c.draggedRenderer.value == null) {
-              c.hoveredRenderer.value = data.participant;
-              c.hoveredRendererTimeout = 5;
-              c.isCursorHidden.value = false;
-            }
-          },
-          onExit: (d) {
-            c.hoveredRendererTimeout = 0;
-            c.hoveredRenderer.value = null;
-            c.isCursorHidden.value = false;
-          },
-          child: AnimatedSwitcher(
-            duration: 200.milliseconds,
-            child: c.draggedRenderer.value == data.participant
-                ? Container()
-                : ContextMenuRegion(
+
+            return true;
+          }
+
+          return false;
+        },
+        onLeave: (b) => c.primaryTargets.value = 0,
+        onDragStarted: (r) {
+          c.draggedRenderer.value = r.participant;
+          c.showDragAndDropVideosHint = false;
+          c.primaryDrags.value = 1;
+          c.keepUi(false);
+        },
+        onOffset: () {
+          if (c.minimized.value && !c.fullscreen.value) {
+            return Offset(-c.left.value, -c.top.value - 30);
+          } else if (!WebUtils.isPopup) {
+            return const Offset(0, -30);
+          }
+
+          return Offset.zero;
+        },
+        onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
+        onDragEnd: onDragEnded,
+        onDragCompleted: onDragEnded,
+        onDraggableCanceled: onDragEnded,
+        overlayBuilder: (DragData data) {
+          var participant = data.participant;
+
+          return LayoutBuilder(builder: (context, constraints) {
+            return Obx(() {
+              bool? muted = participant.member.owner == MediaOwnerKind.local
+                  ? !c.audioState.value.isEnabled
+                  : null;
+
+              bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                  c.primaryDrags.value != 0 ||
+                  c.secondaryDragged.value;
+
+              bool isHovered =
+                  c.hoveredRenderer.value == participant && !anyDragIsHappening;
+
+              BoxFit? fit = participant.video.value?.renderer.value == null
+                  ? null
+                  : c.rendererBoxFit[participant
+                          .video.value?.renderer.value!.track
+                          .id()] ??
+                      RtcVideoView.determineBoxFit(
+                        participant.video.value?.renderer.value
+                            as RtcVideoRenderer,
+                        participant.source,
+                        constraints,
+                        context,
+                      );
+
+              return MouseRegion(
+                opaque: false,
+                onEnter: (d) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredRenderer.value = data.participant;
+                    c.hoveredRendererTimeout = 5;
+                    c.isCursorHidden.value = false;
+                  }
+                },
+                onHover: (d) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredRenderer.value = data.participant;
+                    c.hoveredRendererTimeout = 5;
+                    c.isCursorHidden.value = false;
+                  }
+                },
+                onExit: (d) {
+                  c.hoveredRendererTimeout = 0;
+                  c.hoveredRenderer.value = null;
+                  c.isCursorHidden.value = false;
+                },
+                child: AnimatedOpacity(
+                  duration: 200.milliseconds,
+                  opacity: c.draggedRenderer.value == data.participant ? 0 : 1,
+                  child: ContextMenuRegion(
                     key: ObjectKey(participant),
                     preventContextMenu: true,
                     actions: [
-                      ContextMenuButton(
-                        label: 'btn_call_center'.l10n,
-                        onPressed: () => c.center(participant),
-                      ),
+                      if (participant.video.value?.renderer.value != null) ...[
+                        if (participant.source == MediaSourceKind.Device)
+                          ContextMenuButton(
+                            label: fit == null || fit == BoxFit.cover
+                                ? 'btn_call_do_not_cut_video'.l10n
+                                : 'btn_call_cut_video'.l10n,
+                            onPressed: () {
+                              c.rendererBoxFit[participant
+                                      .video.value!.renderer.value!.track
+                                      .id()] =
+                                  fit == null || fit == BoxFit.cover
+                                      ? BoxFit.contain
+                                      : BoxFit.cover;
+                              if (c.focused.isNotEmpty) {
+                                c.focused.refresh();
+                              } else {
+                                c.remotes.refresh();
+                                c.locals.refresh();
+                              }
+                            },
+                          ),
+                      ],
+                      if (c.primary.length == 1)
+                        ContextMenuButton(
+                          label: 'btn_call_uncenter'.l10n,
+                          onPressed: c.focusAll,
+                        )
+                      else
+                        ContextMenuButton(
+                          label: 'btn_call_center'.l10n,
+                          onPressed: () => c.center(participant),
+                        ),
                       if (participant.member.id != c.me.id) ...[
                         if (participant
                                 .video.value?.direction.value.isEmitting ??
@@ -1622,27 +1254,392 @@ Widget _secondaryView(
                       ),
                     ),
                   ),
+                ),
+              );
+            });
+          });
+        },
+        decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+        itemConstraints: (DragData data) {
+          final double size = (c.size.longestSide * 0.33).clamp(100, 250);
+          return BoxConstraints(
+            maxWidth: size,
+            maxHeight: size,
+          );
+        },
+        itemBuilder: (DragData data) {
+          var participant = data.participant;
+          return Obx(() {
+            return ParticipantWidget(
+              participant,
+              key: ObjectKey(participant),
+              offstageUntilDetermined: true,
+              respectAspectRatio: true,
+              borderRadius: BorderRadius.zero,
+              onSizeDetermined: participant.video.value?.renderer.refresh,
+              fit: c.rendererBoxFit[
+                  participant.video.value?.renderer.value?.track.id() ?? ''],
+            );
+          });
+        },
+        children: c.primary.map((e) => DragData(e, c.chatId.value)).toList(),
+      ),
+      IgnorePointer(
+        child: AnimatedOpacity(
+          opacity: c.secondaryDrags.value != 0 && c.primaryTargets.value != 0
+              ? 1
+              : 0,
+          duration: const Duration(milliseconds: 300),
+          child: DropBox(
+            withBlur: !c.minimized.value || c.fullscreen.value,
           ),
-        );
-      });
-    },
-    decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
-    itemConstraints: (DragData data) {
-      final double size = (c.size.longestSide * 0.33).clamp(100, 250);
-      return BoxConstraints(maxWidth: size, maxHeight: size);
-    },
-    itemBuilder: (DragData data) {
-      return ParticipantWidget(
-        data.participant,
-        key: ObjectKey(data.participant),
-        offstageUntilDetermined: true,
-        respectAspectRatio: true,
-        borderRadius: BorderRadius.zero,
+        ),
+      ),
+    ],
+  );
+}
+
+/// [ReorderableFit] of the [CallController.secondary] participants.
+Widget _secondaryView(CallController c, BuildContext context) {
+  void onDragEnded(DragData d) {
+    c.secondaryDrags.value = 0;
+    c.draggedRenderer.value = null;
+    c.doughDraggedRenderer.value = null;
+    c.hoveredRenderer.value = d.participant;
+    c.hoveredRendererTimeout = 5;
+    c.isCursorHidden.value = false;
+  }
+
+  return MediaQuery(
+    data: MediaQuery.of(context).copyWith(size: c.size),
+    child: Obx(() {
+      if (c.secondary.isEmpty) {
+        return Container();
+      }
+
+      double? left, right;
+      double? top, bottom;
+      Axis? axis;
+
+      if (c.secondaryAlignment.value == Alignment.centerRight) {
+        top = 0;
+        right = 0;
+        axis = Axis.horizontal;
+      } else if (c.secondaryAlignment.value == Alignment.centerLeft) {
+        top = 0;
+        left = 0;
+        axis = Axis.horizontal;
+      } else if (c.secondaryAlignment.value == Alignment.topCenter) {
+        top = 0;
+        left = 0;
+        axis = Axis.vertical;
+      } else if (c.secondaryAlignment.value == Alignment.bottomCenter) {
+        bottom = 0;
+        left = 0;
+        axis = Axis.vertical;
+      } else {
+        left = c.secondaryLeft.value;
+        top = c.secondaryTop.value;
+        right = c.secondaryRight.value;
+        bottom = c.secondaryBottom.value;
+
+        axis = null;
+      }
+
+      double width, height;
+      if (axis == Axis.horizontal) {
+        width = c.secondaryWidth.value;
+        height = c.size.height;
+      } else if (axis == Axis.vertical) {
+        width = c.size.width;
+        height = c.secondaryHeight.value;
+      } else {
+        width = c.secondaryWidth.value;
+        height = c.secondaryHeight.value;
+      }
+
+      return SecondaryDecorator(
+        height: height,
+        width: width,
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom,
+        condition: !c.minimized.value || c.fullscreen.value,
+        globalKey: c.secondaryKey,
+        size: c.size,
+        showTitleBar: c.doughDraggedRenderer.value == null,
+        isVisible: c.secondary.isNotEmpty,
+        showCursor: c.draggedRenderer.value == null,
+        isAligned: c.secondaryAlignment.value == null,
+        showDragTarget:
+            c.primaryDrags.value != 0 && c.secondaryTargets.value != 0,
+        isHover: c.secondaryHovered.value || c.primaryDrags.value != 0,
+        alignment: c.secondaryAlignment.value,
+        onTap: c.focusAll,
+        onScaleEnd: (_) {
+          c.updateSecondaryAttach();
+        },
+        onPanStart: (d) {
+          c.secondaryBottomShifted = null;
+          c.secondaryDragged.value = true;
+          c.displayMore.value = false;
+          c.keepUi(false);
+
+          c.calculateSecondaryPanning(d.globalPosition);
+
+          if (c.secondaryAlignment.value != null) {
+            c.secondaryAlignment.value = null;
+            c.updateSecondaryOffset(d.globalPosition);
+          } else {
+            c.secondaryLeft.value ??= c.size.width -
+                c.secondaryWidth.value -
+                (c.secondaryRight.value ?? 0);
+            c.secondaryTop.value ??= c.size.height -
+                c.secondaryHeight.value -
+                (c.secondaryBottom.value ?? 0);
+            c.applySecondaryConstraints();
+          }
+
+          c.secondaryRight.value = null;
+          c.secondaryBottom.value = null;
+        },
+        onPanUpdate: (d) {
+          c.updateSecondaryOffset(d.globalPosition);
+          c.applySecondaryConstraints();
+        },
+        onPanEnd: (d) {
+          c.secondaryDragged.value = false;
+          if (c.possibleSecondaryAlignment.value != null) {
+            c.secondaryAlignment.value = c.possibleSecondaryAlignment.value;
+            c.possibleSecondaryAlignment.value = null;
+            c.applySecondaryConstraints();
+          } else {
+            c.updateSecondaryAttach();
+          }
+        },
+        onEnter: (p) => c.secondaryHovered.value = true,
+        onHover: (p) => c.secondaryHovered.value = true,
+        onExit: (p) => c.secondaryHovered.value = false,
+        onScaleCenterLeft: (dx, dy) => c.resizeSecondary(
+          context,
+          x: ScaleModeX.left,
+          dx: dx,
+        ),
+        onScaleCenterRight: (dx, dy) => c.resizeSecondary(
+          context,
+          x: ScaleModeX.right,
+          dx: -dx,
+        ),
+        onScaleBottomCenter: (dx, dy) => c.resizeSecondary(
+          context,
+          y: ScaleModeY.bottom,
+          dy: -dy,
+        ),
+        onScaleTopCenter: (dx, dy) => c.resizeSecondary(
+          context,
+          y: ScaleModeY.top,
+          dy: dy,
+        ),
+        onScaleTopLeft: (dx, dy) => c.resizeSecondary(
+          context,
+          y: ScaleModeY.top,
+          x: ScaleModeX.left,
+          dx: dx,
+          dy: dy,
+        ),
+        onScaleTopRight: (dx, dy) => c.resizeSecondary(
+          context,
+          y: ScaleModeY.top,
+          x: ScaleModeX.right,
+          dx: -dx,
+          dy: dy,
+        ),
+        onScaleBottomLeft: (dx, dy) => c.resizeSecondary(
+          context,
+          y: ScaleModeY.bottom,
+          x: ScaleModeX.left,
+          dx: dx,
+          dy: -dy,
+        ),
+        onScaleBottomRight: (dx, dy) => c.resizeSecondary(
+          context,
+          y: ScaleModeY.bottom,
+          x: ScaleModeX.right,
+          dx: -dx,
+          dy: -dy,
+        ),
+        child: ReorderableFit<DragData>(
+          key: const Key('SecondaryFitView'),
+          onAdded: (d, i) => c.unfocus(d.participant),
+          onWillAccept: (d) {
+            if (d?.chatId == c.chatId.value) {
+              c.secondaryTargets.value = 1;
+              return true;
+            }
+
+            return false;
+          },
+          onLeave: (b) => c.secondaryTargets.value = 0,
+          onDragStarted: (r) {
+            c.draggedRenderer.value = r.participant;
+            c.showDragAndDropVideosHint = false;
+            c.secondaryDrags.value = 1;
+            c.displayMore.value = false;
+            c.keepUi(false);
+          },
+          onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
+          onDragEnd: onDragEnded,
+          onDragCompleted: onDragEnded,
+          onDraggableCanceled: onDragEnded,
+          axis: axis,
+          width: width,
+          height: height,
+          left: left,
+          top: top,
+          right: right,
+          bottom: bottom,
+          onOffset: () {
+            if (c.minimized.value && !c.fullscreen.value) {
+              return Offset(-c.left.value, -c.top.value - 30);
+            } else if (!WebUtils.isPopup) {
+              return const Offset(0, -30);
+            }
+
+            return Offset.zero;
+          },
+          overlayBuilder: (DragData data) {
+            var participant = data.participant;
+
+            return Obx(() {
+              bool? muted = participant.member.owner == MediaOwnerKind.local
+                  ? !c.audioState.value.isEnabled
+                  : null;
+
+              bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                  c.primaryDrags.value != 0 ||
+                  c.secondaryDragged.value;
+
+              bool isHovered =
+                  c.hoveredRenderer.value == participant && !anyDragIsHappening;
+
+              return MouseRegion(
+                opaque: false,
+                onEnter: (d) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredRenderer.value = data.participant;
+                    c.hoveredRendererTimeout = 5;
+                    c.isCursorHidden.value = false;
+                  }
+                },
+                onHover: (d) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredRenderer.value = data.participant;
+                    c.hoveredRendererTimeout = 5;
+                    c.isCursorHidden.value = false;
+                  }
+                },
+                onExit: (d) {
+                  c.hoveredRendererTimeout = 0;
+                  c.hoveredRenderer.value = null;
+                  c.isCursorHidden.value = false;
+                },
+                child: AnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: c.draggedRenderer.value == data.participant
+                      ? Container()
+                      : ContextMenuRegion(
+                          key: ObjectKey(participant),
+                          preventContextMenu: true,
+                          actions: [
+                            ContextMenuButton(
+                              label: 'btn_call_center'.l10n,
+                              onPressed: () => c.center(participant),
+                            ),
+                            if (participant.member.id != c.me.id) ...[
+                              if (participant.video.value?.direction.value
+                                      .isEmitting ??
+                                  false)
+                                ContextMenuButton(
+                                  label:
+                                      participant.video.value?.renderer.value !=
+                                              null
+                                          ? 'btn_call_disable_video'.l10n
+                                          : 'btn_call_enable_video'.l10n,
+                                  onPressed: () =>
+                                      c.toggleVideoEnabled(participant),
+                                ),
+                              if (participant.audio.value?.direction.value
+                                      .isEmitting ??
+                                  false)
+                                ContextMenuButton(
+                                  label: (participant.audio.value?.direction
+                                              .value.isEnabled ==
+                                          true)
+                                      ? 'btn_call_disable_audio'.l10n
+                                      : 'btn_call_enable_audio'.l10n,
+                                  onPressed: () =>
+                                      c.toggleAudioEnabled(participant),
+                                ),
+                              if (participant.member.isDialing.isFalse)
+                                ContextMenuButton(
+                                  label: 'btn_call_remove_participant'.l10n,
+                                  onPressed: () => c.removeChatCallMember(
+                                    participant.member.id.userId,
+                                  ),
+                                ),
+                            ] else ...[
+                              ContextMenuButton(
+                                label: c.videoState.value.isEnabled
+                                    ? 'btn_call_video_off'.l10n
+                                    : 'btn_call_video_on'.l10n,
+                                onPressed: c.toggleVideo,
+                              ),
+                              ContextMenuButton(
+                                label: c.audioState.value.isEnabled
+                                    ? 'btn_call_audio_off'.l10n
+                                    : 'btn_call_audio_on'.l10n,
+                                onPressed: c.toggleAudio,
+                              ),
+                            ],
+                          ],
+                          child: IgnorePointer(
+                            child: ParticipantOverlayWidget(
+                              participant,
+                              key: ObjectKey(participant),
+                              muted: muted,
+                              hovered: isHovered,
+                              preferBackdrop:
+                                  !c.minimized.value || c.fullscreen.value,
+                            ),
+                          ),
+                        ),
+                ),
+              );
+            });
+          },
+          decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+          itemConstraints: (DragData data) {
+            final double size = (c.size.longestSide * 0.33).clamp(100, 250);
+            return BoxConstraints(maxWidth: size, maxHeight: size);
+          },
+          itemBuilder: (DragData data) {
+            return ParticipantWidget(
+              data.participant,
+              key: ObjectKey(data.participant),
+              offstageUntilDetermined: true,
+              respectAspectRatio: true,
+              borderRadius: BorderRadius.zero,
+            );
+          },
+          children:
+              c.secondary.map((e) => DragData(e, c.chatId.value)).toList(),
+          borderRadius: c.secondaryAlignment.value == null
+              ? BorderRadius.circular(10)
+              : null,
+        ),
       );
-    },
-    children: c.secondary.map((e) => DragData(e, c.chatId.value)).toList(),
-    borderRadius:
-        c.secondaryAlignment.value == null ? BorderRadius.circular(10) : null,
+    }),
   );
 }
 
