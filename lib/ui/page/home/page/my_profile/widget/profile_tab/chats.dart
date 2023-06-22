@@ -18,17 +18,17 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/timeline_switch/controller.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.chats] section.
+/// Title with [FieldButton] that toggles the display of chat timestamps
+/// between a timeline format and an in-message format.
 class ProfileChats extends StatelessWidget {
   const ProfileChats({super.key, this.isTimeline});
 
-  /// Indicator whether [ChatItem.at] labels should be displayed as a timeline.
+  /// Indicator whether timestamp labels should be displayed as a timeline.
   final bool? isTimeline;
 
   @override
@@ -55,7 +55,6 @@ class ProfileChats extends StatelessWidget {
         const SizedBox(height: 4),
         Paddings.dense(
           FieldButton(
-            // text: (settings?.timelineEnabled ?? true)
             text: isTimeline ?? true
                 ? 'label_as_timeline'.l10n
                 : 'label_in_message'.l10n,

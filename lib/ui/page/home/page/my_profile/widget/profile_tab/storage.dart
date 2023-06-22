@@ -18,17 +18,18 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home//widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.storage] section.
+/// Label with [Switch.adaptive] that toggles the user's storage settings.
 class ProfileStorage extends StatelessWidget {
   const ProfileStorage({super.key, this.value = true, this.onChanged});
 
+  /// Whether this [Switch.adaptive] is `on` or `off`.
   final bool value;
 
+  /// Called when the user toggles the switch `on` or `off`.
   final void Function(bool)? onChanged;
 
   @override

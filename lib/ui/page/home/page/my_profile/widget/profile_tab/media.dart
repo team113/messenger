@@ -18,12 +18,12 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.media] section.
+/// Column of [FieldButton]s that displays buttons for toggling
+/// media-related options
 class ProfileMedia extends StatelessWidget {
   const ProfileMedia({
     super.key,

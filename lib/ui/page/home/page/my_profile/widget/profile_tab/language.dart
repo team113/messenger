@@ -20,13 +20,12 @@ import 'package:get/get.dart';
 
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/language/view.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.language] section.
+/// Custom-styled [FieldButton] that toggles the language.
 class ProfileLanguage extends StatelessWidget {
   const ProfileLanguage({super.key});
 

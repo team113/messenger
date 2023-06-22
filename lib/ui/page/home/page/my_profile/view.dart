@@ -185,7 +185,7 @@ class MyProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             ProfileName(
                               c.name,
-                              isLoginEmpty: c.login.text.isEmpty,
+                              isHide: c.login.text.isEmpty,
                             ),
                             ProfilePresence(
                               text: c.myUser.value?.presence.localizedString(),
@@ -287,9 +287,11 @@ class MyProfileView extends StatelessWidget {
                           return Block(
                             title: 'label_calls'.l10n,
                             children: [
-                              Obx(() => ProfileCall(
-                                    showPopups: c.settings.value?.enablePopups,
-                                  ))
+                              Obx(
+                                () => ProfileCall(
+                                  enablePopups: c.settings.value?.enablePopups,
+                                ),
+                              )
                             ],
                           );
                         }

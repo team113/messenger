@@ -23,7 +23,7 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.danger] section.
+/// Custom-styled [FieldButton] to display dangerous actions.
 class ProfileDanger extends StatelessWidget {
   const ProfileDanger(this.onPressed, {super.key});
 

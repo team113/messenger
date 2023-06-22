@@ -17,19 +17,17 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/blacklist/view.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.blacklist] section.
+/// Custom-styled FieldButton with [blacklist]ed users.
 class ProfileBlockedUsers extends StatelessWidget {
   const ProfileBlockedUsers(this.blacklist, {super.key});
 
-  /// [List] of blacklisted [User]s.
+  /// [List] of blacklisted users.
   final List blacklist;
 
   @override

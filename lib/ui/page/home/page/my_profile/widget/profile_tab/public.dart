@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
@@ -25,19 +24,19 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// [Widget] which returns [MyUser.name] editable field.
+/// Custom-styled [ReactiveTextField] to display editable [name].
 class ProfileName extends StatelessWidget {
-  const ProfileName(this.name, {super.key, this.isLoginEmpty = false});
+  const ProfileName(this.name, {super.key, this.isHide = false});
 
-  /// [MyUser.name] field state.
+  /// Reactive state of this [ReactiveTextField].
   final TextFieldState name;
 
-  ///
-  final bool isLoginEmpty;
+  /// Indicator whether `onSuffixPressed` and `trailing` should be
+  /// enabled or not.
+  final bool isHide;
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +47,13 @@ class ProfileName extends StatelessWidget {
         label: 'label_name'.l10n,
         hint: 'label_name_hint'.l10n,
         filled: true,
-        onSuffixPressed: isLoginEmpty
+        onSuffixPressed: isHide
             ? null
             : () {
                 PlatformUtils.copy(text: name.text);
                 MessagePopup.success('label_copied'.l10n);
               },
-        trailing: isLoginEmpty
+        trailing: isHide
             ? null
             : Transform.translate(
                 offset: const Offset(0, -1),
@@ -68,14 +67,14 @@ class ProfileName extends StatelessWidget {
   }
 }
 
-/// [Widget] which returns [WidgetButton] displaying the [MyUser.presence].
+/// Custom-styled [FieldButton] to display user presence.
 class ProfilePresence extends StatelessWidget {
   const ProfilePresence({super.key, this.text, this.backgroundColor});
 
-  ///
+  /// Optional label of this [ProfilePresence].
   final String? text;
 
-  ///
+  /// [Color] to fill the circle with [CircleAvatar].
   final Color? backgroundColor;
 
   @override
@@ -97,11 +96,11 @@ class ProfilePresence extends StatelessWidget {
   }
 }
 
-/// [Widget] which returns [MyUser.status] editable field.
+/// Custom-styled [ReactiveTextField] to display editable [status].
 class ProfileStatus extends StatelessWidget {
   const ProfileStatus(this.status, {super.key});
 
-  /// [MyUser.status] field state.
+  /// Reactive state of this [ReactiveTextField].
   final TextFieldState status;
 
   @override

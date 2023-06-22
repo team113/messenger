@@ -19,13 +19,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.background] section.
+/// [Container] with a background image or a default SVG image if no
+/// background is set.
 class ProfileBackground extends StatelessWidget {
   const ProfileBackground(
     this.background,
@@ -132,7 +132,7 @@ class ProfileBackground extends StatelessWidget {
   }
 }
 
-/// Widget which display a message on [ProfileBackground].
+/// Message-styled widget for [ProfileBackground].
 class _MessageWidget extends StatelessWidget {
   const _MessageWidget({
     this.text,

@@ -18,13 +18,12 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.notifications]
-/// section.
+/// Label with [Switch.adaptive] that toggles the user's notification
+/// settings.
 class ProfileNotifications extends StatelessWidget {
   const ProfileNotifications({
     super.key,
@@ -32,10 +31,10 @@ class ProfileNotifications extends StatelessWidget {
     this.onChanged,
   });
 
-  ///
+  /// Indicator whether the notifications are muted or not.
   final bool isMuted;
 
-  ///
+  /// Callback, called when the user toggles the switch `on` or `off`.
   final void Function(bool)? onChanged;
 
   @override

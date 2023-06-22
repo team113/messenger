@@ -23,13 +23,14 @@ import '/ui/page/home/page/my_profile/call_window_switch/controller.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.calls] section.
+/// Custom-styled [FieldButton] for opening calls either in a separate window
+/// or inside the application.
 class ProfileCall extends StatelessWidget {
-  const ProfileCall({super.key, this.showPopups});
+  const ProfileCall({super.key, this.enablePopups});
 
   /// Indicator whether calls will be opened in a separate window or
   /// within the app.
-  final bool? showPopups;
+  final bool? enablePopups;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +41,7 @@ class ProfileCall extends StatelessWidget {
       children: [
         Paddings.dense(
           FieldButton(
-            text: showPopups ?? true
+            text: enablePopups ?? true
                 ? 'label_open_calls_in_window'.l10n
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,

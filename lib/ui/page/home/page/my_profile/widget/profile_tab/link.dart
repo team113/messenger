@@ -19,24 +19,23 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '/config.dart';
-import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/my_profile/link_details/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '/ui/page/home/page/my_profile/link_details/view.dart';
 
-/// [Widget] which represents a [ProfileTab.link] section for a user.
+/// [Widget] which display information about the link to the chat.
 class ProfileLink extends StatelessWidget {
   const ProfileLink(this.link, {super.key, this.transitionCount});
 
-  /// [MyUser.chatDirectLink] copyable state.
+  /// Reactive state of the [ReactiveTextField].
   final TextFieldState link;
 
-  /// Number of times this [ChatDirectLink] has been used.
+  /// Number of times this link has been used.
   final int? transitionCount;
 
   @override
@@ -57,7 +56,6 @@ class ProfileLink extends StatelessWidget {
                     text:
                         '${Config.origin}${Routes.chatDirectLink}/${link.text}',
                   );
-
                   MessagePopup.success('label_copied'.l10n);
                 },
           trailing: link.isEmpty.value

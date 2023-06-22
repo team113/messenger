@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
-/// [Widget] which returns the contents of a [ProfileTab.download] section.
+/// [List] of custom-styled [DownloadButton]s.
 class ProfileDownloads extends StatelessWidget {
   const ProfileDownloads({super.key});
 

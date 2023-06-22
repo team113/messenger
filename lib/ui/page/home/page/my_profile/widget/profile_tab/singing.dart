@@ -18,7 +18,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -34,14 +33,14 @@ import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// [Widget] which returns [MyUser.num] copyable field.
+/// Custom-styled [CopyableTextField] to display copyable [num].
 class ProfileNum extends StatelessWidget {
   const ProfileNum(this.num, {super.key, this.copy});
 
-  /// [MyUser.num] copyable state.
+  /// Reactive state of this [ReactiveTextField].
   final TextFieldState num;
 
-  ///
+  /// Data to put into the clipboard.
   final String? copy;
 
   @override
@@ -54,7 +53,6 @@ class ProfileNum extends StatelessWidget {
             key: const Key('NumCopyable'),
             state: num,
             label: 'label_num'.l10n,
-            // copy: myUser?.num.val,
             copy: copy,
           ),
           const SizedBox(height: 10),
@@ -64,14 +62,14 @@ class ProfileNum extends StatelessWidget {
   }
 }
 
-/// [Widget] which returns [MyUser.login] editable field.
+/// [ReactiveTextField] with label to display user login.
 class ProfileLogin extends StatelessWidget {
   const ProfileLogin(this.login, {super.key, this.hint});
 
-  /// [MyUser.login] field state.
+  /// Reactive state of the [ReactiveTextField].
   final TextFieldState login;
 
-  ///
+  /// Optional hint of the [ReactiveTextField].
   final String? hint;
 
   @override
@@ -173,7 +171,7 @@ class ProfileLogin extends StatelessWidget {
   }
 }
 
-/// [Widget] which returns addable list of [MyUser.emails] .
+/// [Column] with addable list of user emails.
 class ProfileEmails extends StatelessWidget {
   const ProfileEmails({
     super.key,
@@ -184,16 +182,16 @@ class ProfileEmails extends StatelessWidget {
     this.hasUnconfirmed = false,
   });
 
-  ///
+  /// [List] of the user's currently verified email addresses.
   final List? confirmedEmails;
 
-  ///
+  /// Text of [FieldButton] with unverified email.
   final String? text;
 
-  ///
+  /// Indicator whether there is an unverified email.
   final bool hasUnconfirmed;
 
-  ///
+  /// Callback, called when [FieldButton] with unverified email is pressed.
   final void Function()? onPressed;
 
   /// Callback, called when the trailing is pressed.
@@ -347,7 +345,7 @@ class ProfileEmails extends StatelessWidget {
   }
 }
 
-/// [Widget] which returns addable list of [MyUser.phones].
+/// [Column] with addable list of user phones.
 class ProfilePhones extends StatelessWidget {
   const ProfilePhones({
     super.key,
@@ -358,16 +356,16 @@ class ProfilePhones extends StatelessWidget {
     this.hasUnconfirmed = false,
   });
 
-  ///
+  /// [List] of the user's currently verified phone numbers.
   final List? confirmedPhones;
 
-  ///
+  /// Text of [FieldButton] with unverified phone.
   final String? text;
 
-  ///
+  /// Indicator whether there is an unverified phone.
   final bool hasUnconfirmed;
 
-  ///
+  /// Callback, called when [FieldButton] with unverified phone is pressed.
   final void Function()? onPressed;
 
   /// Callback, called when the trailing is pressed.
@@ -521,12 +519,11 @@ class ProfilePhones extends StatelessWidget {
   }
 }
 
-/// [Widget] which returns the buttons changing or setting the password of
-/// the currently authenticated [MyUser].
+/// Custom-styled [FieldButton] for changing or setting the user password.
 class ProfilePassword extends StatelessWidget {
   const ProfilePassword({super.key, this.hasPassword = false});
 
-  ///
+  /// Indicator whether user has a password.
   final bool hasPassword;
 
   @override
