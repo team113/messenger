@@ -27,11 +27,11 @@ import 'package:medea_jason/medea_jason.dart';
 import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/desktop/styled_dock.dart';
+import '../widget/desktop/dock_decorator.dart';
 import '../widget/desktop/launchpad.dart';
 import '../widget/desktop/drop_box.dart';
 import '../widget/desktop/secondary_target.dart';
-import '../widget/desktop/secondary_overlay.dart';
+import '../widget/desktop/secondary_decorator.dart';
 import '../widget/desktop/title_bar.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
@@ -340,8 +340,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                               c.state.value != OngoingCallState.active &&
                               !isOutgoing);
 
-                      return StyledDock(
-                        dockKey: c.dockKey,
+                      return DockDecorator(
+                        globalKey: c.dockKey,
                         showBottomUi: showBottomUi,
                         listener: () =>
                             Future.delayed(Duration.zero, c.relocateSecondary),
@@ -410,6 +410,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                         opacity: c.displayMore.value ? 1 : 0,
                         child: c.displayMore.value
                             ? Launchpad(
+                                items: c.panel,
+                                feedbackSize: CallController.buttonSize,
                                 onEnter: enabled ? (d) => c.keepUi(true) : null,
                                 onHover: enabled ? (d) => c.keepUi(true) : null,
                                 onExit: enabled ? (d) => c.keepUi() : null,
@@ -419,58 +421,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 },
                                 onWillAccept: (CallButton? a) =>
                                     a?.c == c && a?.isRemovable == true,
-                                children: c.panel.map((e) {
-                                  return SizedBox(
-                                    width: 100,
-                                    height: 100,
-                                    child: Column(
-                                      children: [
-                                        DelayedDraggable(
-                                          feedback: Transform.translate(
-                                            offset: const Offset(
-                                              CallController.buttonSize /
-                                                  2 *
-                                                  -1,
-                                              CallController.buttonSize /
-                                                  2 *
-                                                  -1,
-                                            ),
-                                            child: SizedBox(
-                                              height: CallController.buttonSize,
-                                              width: CallController.buttonSize,
-                                              child: e.build(),
-                                            ),
-                                          ),
-                                          data: e,
-                                          onDragStarted: () {
-                                            c.showDragAndDropButtonsHint =
-                                                false;
-                                            c.draggedButton.value = e;
-                                          },
-                                          onDragCompleted: () =>
-                                              c.draggedButton.value = null,
-                                          onDragEnd: (_) =>
-                                              c.draggedButton.value = null,
-                                          onDraggableCanceled: (_, __) =>
-                                              c.draggedButton.value = null,
-                                          maxSimultaneousDrags:
-                                              e.isRemovable ? null : 0,
-                                          dragAnchorStrategy:
-                                              pointerDragAnchorStrategy,
-                                          child: e.build(hinted: false),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          e.hint,
-                                          style: fonts.labelSmall!.copyWith(
-                                            color: style.colors.onPrimary,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
+                                onDragStarted: (e) {
+                                  c.showDragAndDropButtonsHint = false;
+                                  c.draggedButton.value = e;
+                                },
+                                onDragEnd: () => c.draggedButton.value = null,
                               )
                             : const SizedBox(),
                       );
@@ -815,7 +770,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   ),
                   child: Obx(
                     () => TitleBar(
-                      chat: c.chat,
+                      chat: c.chat.value,
                       titleArguments: () => c.titleArguments,
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
@@ -1367,7 +1322,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
         bottom: bottom,
         condition: !c.minimized.value || c.fullscreen.value,
         globalKey: c.secondaryKey,
-        size: c.size,
         showTitleBar: c.doughDraggedRenderer.value == null,
         isVisible: c.secondary.isNotEmpty,
         showCursor: c.draggedRenderer.value == null,

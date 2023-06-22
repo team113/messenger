@@ -40,19 +40,19 @@ class TitleBar extends StatelessWidget {
   /// Indicator whether the view is fullscreen or not.
   final bool fullscreen;
 
-  /// Height of the [TitleBar].
+  /// Height of this [TitleBar].
   final double? height;
 
-  /// Callback returned reactive arguments to construct title.
-  final Map<String, String> Function() titleArguments;
-
   /// [RxChat] to display in this [TitleBar].
-  final Rx<RxChat?> chat;
+  final RxChat? chat;
+
+  /// Callback returned reactive arguments to construct the title.
+  final Map<String, String> Function() titleArguments;
 
   /// Callback, called when this [TitleBar] is tapped.
   final void Function()? onTap;
 
-  /// Toggles fullscreen on and off.
+  /// Callback, toggles fullscreen on and off.
   final void Function()? toggleFullscreen;
 
   @override
@@ -84,7 +84,7 @@ class TitleBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(width: 10),
-                      Obx(() => AvatarWidget.fromRxChat(chat.value, radius: 8)),
+                      AvatarWidget.fromRxChat(chat, radius: 8),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Obx(() {

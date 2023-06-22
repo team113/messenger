@@ -24,7 +24,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 
-/// Tile representation of the chat.
+/// Tile representing a chat.
 class ChatInfoCard extends StatelessWidget {
   const ChatInfoCard({
     super.key,
@@ -35,7 +35,7 @@ class ChatInfoCard extends StatelessWidget {
     this.onTap,
   });
 
-  /// Chat that with ongoing call is happening in.
+  /// [RxChat] call is happening in.
   final RxChat? chat;
 
   /// Subtitle of this [ChatInfoCard].
@@ -44,10 +44,10 @@ class ChatInfoCard extends StatelessWidget {
   /// Trailing of this [ChatInfoCard].
   final String? trailing;
 
-  /// Current duration of the call.
+  /// Duration of the call.
   final Rx<Duration> callDuration;
 
-  /// Callback [Function] that opens a screen to add members to the chat.
+  /// Callback, called when this [ChatInfoCard] is pressed.
   final void Function()? onTap;
 
   @override

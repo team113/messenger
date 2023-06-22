@@ -38,7 +38,7 @@ class Descriptioned extends StatelessWidget {
   /// Indicator whether the [description] should be showed.
   final bool showDescription;
 
-  /// [Duration] of the transition.
+  /// [Duration] of the show/hide [description] animation.
   final Duration duration;
 
   @override

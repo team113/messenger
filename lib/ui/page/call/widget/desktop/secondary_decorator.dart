@@ -26,12 +26,12 @@ import '/ui/page/call/widget/desktop/drop_box.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
-/// View of an secondary overlay.
+/// Secondary view decorator containing shadow, border, background and draggable
+/// title.
 class SecondaryDecorator extends StatelessWidget {
   const SecondaryDecorator({
     super.key,
     this.child,
-    this.size,
     this.globalKey,
     this.left,
     this.right,
@@ -67,9 +67,6 @@ class SecondaryDecorator extends StatelessWidget {
 
   /// [GlobalKey] of this [SecondaryDecorator].
   final GlobalKey? globalKey;
-
-  /// Actual size of the [MediaQuery] data.
-  final Size? size;
 
   /// Height of this [SecondaryDecorator].
   final double height;
@@ -110,7 +107,7 @@ class SecondaryDecorator extends StatelessWidget {
   /// Indicator whether [BackdropFilter] should be enabled or not.
   final bool condition;
 
-  /// Alignment of border and background of secondary panel.
+  /// Alignment of this [SecondaryDecorator].
   final Alignment? alignment;
 
   /// [Widget] wrapped by this [SecondaryDecorator].
@@ -118,38 +115,38 @@ class SecondaryDecorator extends StatelessWidget {
 
   /// Callback, called when the delta drag of the left side of the `x` and
   /// the center side of the `y` is triggered.
-  final dynamic Function(double, double)? onScaleCenterLeft;
+  final void Function(double, double)? onScaleCenterLeft;
 
   /// Callback, called when the delta drag of the right side of the `x` and
   /// the center side of the `y` is triggered.
-  final dynamic Function(double, double)? onScaleCenterRight;
+  final void Function(double, double)? onScaleCenterRight;
 
   /// Callback, called when the delta drag of the center side of the `x` and
   /// the bottom side of the `y` is triggered.
-  final dynamic Function(double, double)? onScaleBottomCenter;
+  final void Function(double, double)? onScaleBottomCenter;
 
   /// Callback, called when the delta drag of the center side of the `x` and
   /// the top side of the `y` is triggered.
-  final dynamic Function(double, double)? onScaleTopCenter;
+  final void Function(double, double)? onScaleTopCenter;
 
   /// Callback, called when the delta drag of the left side of the `x` and
   /// the top side of the `y` is triggered.
-  final dynamic Function(double, double)? onScaleTopLeft;
+  final void Function(double, double)? onScaleTopLeft;
 
   /// Callback, called when the delta drag of the right side of the `x` and
   /// the top side of the `y` is triggered.
-  final dynamic Function(double, double)? onScaleTopRight;
+  final void Function(double, double)? onScaleTopRight;
 
   /// Callback, called when the delta drag of the left side of the `x` and
   /// the bottom side of the `y` is triggered.
-  final dynamic Function(double, double)? onScaleBottomLeft;
+  final void Function(double, double)? onScaleBottomLeft;
 
   /// Callback, called when the delta drag of the right side of the `x` and
   /// the bottom side of the `y` is triggered.
-  final dynamic Function(double, double)? onScaleBottomRight;
+  final void Function(double, double)? onScaleBottomRight;
 
   /// Callback, called when scaling is ended.
-  final dynamic Function(DragEndDetails)? onScaleEnd;
+  final void Function(DragEndDetails)? onScaleEnd;
 
   /// Callback, called when a pan operation starts.
   final void Function(DragStartDetails)? onPanStart;

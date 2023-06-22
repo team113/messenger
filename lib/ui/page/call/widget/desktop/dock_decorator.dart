@@ -26,12 +26,12 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/dock.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 
-/// [Dock] which is used to handle the incoming and outgoing calls
-/// with buttons.
-class StyledDock extends StatelessWidget {
-  const StyledDock({
+/// [Dock] decorator containing shadow, background and playing show/hide
+/// animation.
+class DockDecorator extends StatelessWidget {
+  const DockDecorator({
     super.key,
-    this.dockKey,
+    this.globalKey,
     this.showBottomUi = true,
     this.child,
     this.onEnter,
@@ -40,25 +40,25 @@ class StyledDock extends StatelessWidget {
     this.listener,
   });
 
-  /// [Key] for handling [dock] widget states.
-  final GlobalKey? dockKey;
+  /// [GlobalKey] of this [DockDecorator].
+  final GlobalKey? globalKey;
 
   /// Indicator whether to show the [child].
   final bool? showBottomUi;
 
-  /// [Widget] to display at the bottom of this [StyledDock].
+  /// [Widget] wrapped by this [DockDecorator].
   final Widget? child;
 
   /// Callback, called when the mouse cursor enters the area of this
-  /// [StyledDock].
+  /// [DockDecorator].
   final void Function(PointerEnterEvent)? onEnter;
 
   /// Callback, called when the mouse cursor moves in the area of this
-  /// [StyledDock].
+  /// [DockDecorator].
   final void Function(PointerHoverEvent)? onHover;
 
   /// Callback, called when the mouse cursor leaves the area of this
-  /// [StyledDock].
+  /// [DockDecorator].
   final void Function(PointerExitEvent)? onExit;
 
   /// Callback, called every time the value of the animation changes.
@@ -95,7 +95,7 @@ class StyledDock extends StatelessWidget {
             ),
             margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
             child: ConditionalBackdropFilter(
-              key: dockKey,
+              key: globalKey,
               borderRadius: BorderRadius.circular(30),
               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
               child: Container(
