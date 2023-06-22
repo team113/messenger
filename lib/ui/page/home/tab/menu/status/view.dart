@@ -59,12 +59,7 @@ class StatusView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalPopupHeader(
-              header: Center(
-                child: Text(
-                  expanded ? 'label_status'.l10n : 'label_presence'.l10n,
-                  style: fonts.headlineMedium,
-                ),
-              ),
+              text: expanded ? 'label_status'.l10n : 'label_presence'.l10n,
             ),
             Flexible(
               child: Scrollbar(
