@@ -195,10 +195,10 @@ targets:
                 name: RecentChatsCursor
                 imports:
                   - "package:messenger/store/model/chat.dart"
-            - graphql_type: RememberToken
+            - graphql_type: RefreshToken
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
               dart_type:
-                name: RememberToken
+                name: RefreshToken
                 imports:
                   - "package:messenger/domain/model/session.dart"
             - graphql_type: RememberedSessionVersion

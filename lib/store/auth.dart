@@ -98,7 +98,7 @@ class AuthRepository implements AbstractAuthRepository {
   Future<void> validateToken() async => await _graphQlProvider.validateToken();
 
   @override
-  Future<Credentials> renewSession(RememberToken token) =>
+  Future<Credentials> renewSession(RefreshToken token) =>
       _graphQlProvider.clientGuard.protect(() async {
         var response = (await _graphQlProvider.renewSession(token)).renewSession
             as RenewSession$Mutation$RenewSession$RenewSessionOk;

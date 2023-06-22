@@ -165,13 +165,13 @@ mixin AuthGraphQlMixin {
   }
 
   /// Renews a [Session] of the authenticated [MyUser] identified by the
-  /// provided [RememberToken].
+  /// provided [RefreshToken].
   ///
-  /// Invalidates the provided [RememberToken] and returns a new one, which
+  /// Invalidates the provided [RefreshToken] and returns a new one, which
   /// should be used instead.
   ///
   /// The renewed [Session] has its own expiration after renewal, so to renew it
-  /// again use this mutation with the new returned [RememberToken] (omit using
+  /// again use this mutation with the new returned [RefreshToken] (omit using
   /// old ones).
   ///
   /// The expiration of the renewed [RememberedSession] is not prolonged
@@ -185,8 +185,8 @@ mixin AuthGraphQlMixin {
   ///
   /// ### Non-idempotent
   ///
-  /// Each time creates a new [Session] and generates a new [RememberToken].
-  Future<RenewSession$Mutation> renewSession(RememberToken token) async {
+  /// Each time creates a new [Session] and generates a new [RefreshToken].
+  Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(
