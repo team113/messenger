@@ -28,6 +28,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:stdlibc/stdlibc.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../pubspec.g.dart';
@@ -92,6 +93,8 @@ class PlatformUtilsImpl {
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
   /// Returns a `User-Agent` header to put in the network requests.
+  ///
+  /// Common format is: `Product/Version (OS_Name OS_Mod Kernel_Ver (Build_Ver); SDK_Ver; Arch (Processor); Device_Name; Device_ID)`
   Future<String> get userAgent async {
     if (_userAgent == null) {
       final DeviceInfoPlugin device = DeviceInfoPlugin();
@@ -104,18 +107,50 @@ class PlatformUtilsImpl {
         return _userAgent!;
       } else if (isMacOS) {
         final info = await device.macOsInfo;
-        system = 'macOS ${info.osRelease}; ${info.arch}; ${info.model}';
+        final StringBuffer buffer = StringBuffer(
+          'macOS ${info.osRelease} ${info.kernelVersion}; ${info.arch} ${info.model}',
+        );
+
+        if (info.systemGUID != null) {
+          buffer.write('; ${info.systemGUID}');
+        }
+
+        system = buffer.toString();
       } else if (isWindows) {
         final info = await device.windowsInfo;
         system =
             '${info.productName}; ${info.displayVersion}; ${info.buildLabEx}';
       } else if (isLinux) {
         final info = await device.linuxInfo;
-        system = info.prettyName;
+        final utsname = uname();
+
+        final StringBuffer buffer = StringBuffer(info.prettyName);
+
+        if (utsname != null) {
+          buffer.write(' ${utsname.release}');
+        }
+
+        if (info.variant != null) {
+          buffer.write(' ${info.variant}');
+        }
+
+        if (info.buildId != null) {
+          buffer.write(' (build ${info.buildId})');
+        }
+
+        if (utsname != null) {
+          buffer.write('; ${utsname.machine}');
+        }
+
+        if (info.machineId != null) {
+          buffer.write('; ${info.machineId}');
+        }
+
+        system = buffer.toString();
       } else if (isAndroid) {
         final info = await device.androidInfo;
         system =
-            'Android ${info.version.release}; SDK ${info.version.sdkInt}; ${info.manufacturer} ${info.model}; ${info.hardware}';
+            'Android ${info.version.release}; SDK ${info.version.sdkInt}; ${info.hardware}; ${info.manufacturer} ${info.model}';
       } else if (isIOS) {
         final info = await device.iosInfo;
         system =

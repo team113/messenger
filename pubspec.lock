@@ -1668,6 +1668,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
+  stdlibc:
+    dependency: "direct main"
+    description:
+      name: stdlibc
+      sha256: "953a7bfbd94ce17485cfb3721f1731e5b8be91b5b2bd46355d7c34a7ad96a6ba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
   stream_channel:
     dependency: transitive
     description:
