@@ -26,7 +26,7 @@ import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 import 'avatar.dart';
 import 'chat.dart';
-import 'image_gallery_item.dart';
+import 'gallery_item.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user_call_cover.dart';
 
@@ -49,7 +49,7 @@ class User extends HiveObject {
     this.status,
     this.isDeleted = false,
     ChatId? dialog,
-    this.isBlacklisted,
+    this.isBlocked,
     this.lastSeenAt,
   }) : _dialog = dialog;
 
@@ -97,9 +97,9 @@ class User extends HiveObject {
   @HiveField(6)
   UserCallCover? callCover;
 
-  /// [ImageGalleryItem]s of this [User] ordered by their adding time.
+  /// [GalleryItem]s of this [User] ordered by their adding time.
   @HiveField(7)
-  List<ImageGalleryItem>? gallery;
+  List<GalleryItem>? gallery;
 
   /// Number of mutual [ChatContact]s that this [User] has with the
   /// authenticated [MyUser].
@@ -132,10 +132,9 @@ class User extends HiveObject {
   @HiveField(13)
   ChatId? _dialog;
 
-  /// Indicator whether this [User] is blacklisted by the authenticated
-  /// [MyUser].
+  /// Indicator whether this [User] is blocked by the authenticated [MyUser].
   @HiveField(14)
-  BlacklistRecord? isBlacklisted;
+  BlocklistRecord? isBlocked;
 
   /// [PreciseDateTime] when this [User] was seen online last time.
   @HiveField(17)
@@ -368,32 +367,37 @@ class UserTextStatus extends NewType<String> {
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
 }
 
-/// [User]'s record in the blacklist of the authenticated [MyUser].
-@HiveType(typeId: ModelTypeId.blacklistRecord)
-class BlacklistRecord {
-  BlacklistRecord({
+/// [User]'s record in a blocklist of the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.blocklistRecord)
+class BlocklistRecord {
+  BlocklistRecord({
+    required this.userId,
     this.reason,
     required this.at,
   });
 
-  /// Reason of why the [User] was blacklisted.
+  /// Blocked [User].
   @HiveField(0)
-  final BlacklistReason? reason;
+  final UserId userId;
 
-  /// [PreciseDateTime] when the [User] was blacklisted.
+  /// Reason of why the [User] was blocked.
   @HiveField(1)
+  final BlocklistReason? reason;
+
+  /// [PreciseDateTime] when the [User] was blocked.
+  @HiveField(2)
   final PreciseDateTime at;
 
   @override
   bool operator ==(Object other) =>
-      other is BlacklistRecord && at == other.at && reason == other.reason;
+      other is BlocklistRecord && at == other.at && reason == other.reason;
 
   @override
   int get hashCode => Object.hash(at, reason);
 }
 
-/// Reason of blacklisting a [User] by the authenticated [MyUser].
-@HiveType(typeId: ModelTypeId.blacklistReason)
-class BlacklistReason extends NewType<String> {
-  const BlacklistReason(super.val);
+/// Reason of blocking a [User] by the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.blocklistReason)
+class BlocklistReason extends NewType<String> {
+  const BlocklistReason(super.val);
 }

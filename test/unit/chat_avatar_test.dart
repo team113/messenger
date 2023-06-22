@@ -70,7 +70,7 @@ void main() async {
     'status': null,
     'isDeleted': false,
     'dialog': null,
-    'isBlacklisted': {'blacklisted': false, 'ver': '1'},
+    'isBlocked': {'blacklisted': false, 'ver': '1'},
     'ver': '2'
   };
 

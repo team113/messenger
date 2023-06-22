@@ -215,7 +215,7 @@ class LocalAttachment extends Attachment {
       : status = Rx(status),
         super(
           AttachmentId.local(),
-          StorageFile(relativeRef: '', size: file.size),
+          ImageFile(relativeRef: '', size: file.size),
           file.name,
         );
 

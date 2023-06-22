@@ -20,7 +20,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../model_type_id.dart';
 import 'crop_area.dart';
 import 'file.dart';
-import 'image_gallery_item.dart';
+import 'gallery_item.dart';
 
 part 'user_call_cover.g.dart';
 
@@ -39,9 +39,9 @@ class UserCallCover extends HiveObject {
     this.crop,
   });
 
-  /// [ImageGalleryItem] this [UserCallCover] was created from.
+  /// [GalleryItem] this [UserCallCover] was created from.
   @HiveField(0)
-  final ImageGalleryItem? galleryItem;
+  final GalleryItem? galleryItem;
 
   /// Original image [StorageFile] representing this [UserCallCover].
   @HiveField(1)

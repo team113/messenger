@@ -32,9 +32,7 @@ fragment MyUser on MyUser {
     gallery {
         nodes {
             __typename
-            ... on ImageGalleryItem {
-                ...ImageGalleryItem
-            }
+            ...GalleryItem
         }
     }
     avatar {

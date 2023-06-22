@@ -32,7 +32,6 @@ import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -42,7 +41,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/blacklist.dart';
+import '../provider/hive/blocklist.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
@@ -75,9 +74,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   final MyUserHiveProvider _myUserLocal;
 
   /// Blacklisted [User]s local [Hive] storage.
-  final BlacklistHiveProvider _blacklistLocal;
+  final BlocklistHiveProvider _blacklistLocal;
 
-  /// [ImageGalleryItem] local [Hive] storage.
+  /// [GalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
 
   /// [User]s repository, used to put the fetched [MyUser] into it.
@@ -86,7 +85,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [MyUserHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
 
-  /// [BlacklistHiveProvider.boxEvents] subscription.
+  /// [BlocklistHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _blacklistSubscription;
 
   /// [_myUserRemoteEvents] subscription.
@@ -120,13 +119,13 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     if (!_blacklistLocal.isEmpty) {
       final List<RxUser?> users =
-          await Future.wait(_blacklistLocal.blacklisted.map(_userRepo.get));
+          await Future.wait(_blacklistLocal.blocked.map(_userRepo.get));
       blacklist.addAll(users.whereNotNull());
     }
 
-    final List<HiveUser> blacklisted = await _fetchBlacklist();
+    final List<HiveUser> blacklisted = await _fetchBlocklist();
 
-    for (UserId c in _blacklistLocal.blacklisted) {
+    for (UserId c in _blacklistLocal.blocked) {
       if (blacklisted.none((e) => e.value.id == c)) {
         _blacklistLocal.remove(c);
       }
@@ -389,7 +388,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<ImageGalleryItem?> uploadGalleryItem(
+  Future<GalleryItem?> uploadGalleryItem(
     NativeFile file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
@@ -440,7 +439,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   Future<void> deleteGalleryItem(GalleryItemId id) async {
     int i = myUser.value?.gallery?.indexWhere((e) => e.id == id) ?? -1;
-    ImageGalleryItem? item;
+    GalleryItem? item;
 
     if (i != -1) {
       item = myUser.value?.gallery?.elementAt(i);
@@ -498,16 +497,13 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateCallCover(GalleryItemId? id) =>
       _graphQlProvider.updateUserCallCover(id, null);
 
-  // TODO: Blacklist can be huge, so we should implement pagination and
+  // TODO: Blocklist can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ blacklisted [User]s from the remote.
-  Future<List<HiveUser>> _fetchBlacklist() async {
-    final query = await _graphQlProvider.getBlacklist(first: 120);
-
-    List<HiveUser> users = query.edges.map((e) => e.node.toHive()).toList();
-    for (HiveUser user in users) {
-      _userRepo.put(user);
-    }
+  Future<List<HiveUser>> _fetchBlocklist() async {
+    final query = await _graphQlProvider.getBlocklist(first: 120);
+    final users = query.edges.map((e) => e.node.user.toHive()).toList();
+    users.forEach(_userRepo.put);
 
     return users;
   }
@@ -530,7 +526,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Initializes [BlacklistHiveProvider.boxEvents] subscription.
+  /// Initializes [BlocklistHiveProvider.boxEvents] subscription.
   Future<void> _initBlacklistSubscription() async {
     _blacklistSubscription = StreamIterator(_blacklistLocal.boxEvents);
     while (await _blacklistSubscription!.moveNext()) {
@@ -791,13 +787,13 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.chatDirectLink = event.directLink;
           break;
 
-        case MyUserEventKind.blacklistRecordAdded:
-          event as EventBlacklistRecordAdded;
+        case MyUserEventKind.blocklistRecordAdded:
+          event as EventBlocklistRecordAdded;
           _blacklistLocal.put(event.user.value.id);
           break;
 
-        case MyUserEventKind.blacklistRecordRemoved:
-          event as EventBlacklistRecordRemoved;
+        case MyUserEventKind.blocklistRecordRemoved:
+          event as EventBlocklistRecordRemoved;
           _blacklistLocal.remove(event.user.value.id);
           break;
       }
@@ -983,22 +979,18 @@ class MyUserRepository implements AbstractMyUserRepository {
     } else if (e.$$typename == 'EventUserCameOnline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
-    } else if (e.$$typename == 'EventBlacklistRecordAdded') {
+    } else if (e.$$typename == 'EventBlocklistRecordAdded') {
       var node =
-          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordAdded;
-      return EventBlacklistRecordAdded(
-        node.userId,
+          e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordAdded;
+      return EventBlocklistRecordAdded(
         node.user.toHive(),
         node.at,
+        node.reason,
       );
-    } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
+    } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
       var node =
-          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
-      return EventBlacklistRecordRemoved(
-        node.userId,
-        node.user.toHive(),
-        node.at,
-      );
+          e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordRemoved;
+      return EventBlocklistRecordRemoved(node.user.toHive(), node.at);
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

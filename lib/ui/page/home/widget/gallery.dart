@@ -21,7 +21,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '/domain/model/image_gallery_item.dart';
+import '/domain/model/gallery_item.dart' as model;
 import '/themes.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
@@ -41,7 +41,7 @@ class CarouselGallery extends StatefulWidget {
   /// Gallery items to display in the carousel.
   ///
   /// Displays logo on `null`.
-  final List<ImageGalleryItem>? items;
+  final List<model.GalleryItem>? items;
 
   /// Callback, called when carousel's index has changed.
   final Function(int)? onChanged;

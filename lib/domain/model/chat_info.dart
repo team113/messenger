@@ -32,18 +32,13 @@ class ChatInfo extends ChatItem {
   ChatInfo(
     super.id,
     super.chatId,
-    super.authorId,
+    super.author,
     super.at, {
-    required this.author,
     required this.action,
   });
 
-  /// [User] who triggered this [ChatInfo].
-  @HiveField(5)
-  final User author;
-
   /// [ChatInfoAction] taken upon the [Chat].
-  @HiveField(6)
+  @HiveField(5)
   final ChatInfoAction action;
 }
 

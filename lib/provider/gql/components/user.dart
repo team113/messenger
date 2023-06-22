@@ -1032,12 +1032,12 @@ mixin UserGraphQlMixin {
     );
   }
 
-  /// Blacklists the specified [User] for the authenticated [MyUser].
+  /// Blocks the specified [User] for the authenticated [MyUser].
   ///
-  /// Blacklisted [User]s are not able to communicate with the authenticated
-  /// [MyUser] directly (in [Chat]-dialogs).
+  /// Blocked [User]s are not able to communicate with the authenticated
+  /// [MyUser] directly (in [Chat]-dialogs) and add him to [Chat]-groups.
   ///
-  /// [MyUser]'s blacklist can be obtained via `Query.blacklist`.
+  /// [MyUser]'s blocklist can be obtained via [getBlocklist].
   ///
   /// ### Authentication
   ///
@@ -1045,36 +1045,37 @@ mixin UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [BlacklistEvent] may be produced on success:
-  /// - [EventBlacklistRecordAdded].
+  /// Only the following BlocklistEvent may be produced on success:
+  /// - [EventBlocklistRecordAdded].
   ///
   /// ### Idempotent
   ///
-  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
-  /// [User] is blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> blacklistUser(
+  /// Succeeds as no-op (and returns no [BlocklistEvent]) if the specified
+  /// [User] is blocked by the authenticated [MyUser] already with the same
+  /// [BlocklistReason].
+  Future<BlocklistEventsVersionedMixin?> blockUser(
     UserId id,
-    BlacklistReason? reason,
+    BlocklistReason? reason,
   ) async {
-    final variables = BlacklistUserArguments(id: id, reason: reason);
+    final variables = BlockUserArguments(id: id, reason: reason);
     final QueryResult result = await client.mutate(
       MutationOptions(
-        operationName: 'BlacklistUser',
-        document: BlacklistUserMutation(variables: variables).document,
+        operationName: 'BlockUser',
+        document: BlockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => BlacklistUserException(
-          BlacklistUser$Mutation.fromJson(data).blacklistUser
-              as BlacklistUserErrorCode),
+      onException: (data) => BlockUserException(
+        BlockUser$Mutation.fromJson(data).blockUser as BlockUserErrorCode,
+      ),
     );
-    return BlacklistUser$Mutation.fromJson(result.data!).blacklistUser
-        as BlacklistEventsVersionedMixin?;
+    return BlockUser$Mutation.fromJson(result.data!).blockUser
+        as BlocklistEventsVersionedMixin?;
   }
 
-  /// Removes the specified [User] from the blacklist of the authenticated
+  /// Removes the specified [User] from the blocklist of the authenticated
   /// [MyUser].
   ///
-  /// Reverses the action of [blacklistUser].
+  /// Reverses the action of [blockUser].
   ///
   /// ### Authentication
   ///
@@ -1082,57 +1083,54 @@ mixin UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [BlacklistEvent] may be produced on success:
-  /// - [EventBlacklistRecordRemoved].
+  /// Only the following [BlocklistEvent] may be produced on success:
+  /// - [EventBlocklistRecordRemoved].
   ///
-  /// ### Idempotent
+  /// Idempotent
   ///
-  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
-  /// [User] is not blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> unblacklistUser(UserId id) async {
-    final variables = UnblacklistUserArguments(id: id);
+  /// Succeeds as no-op (and returns no [BlocklistEvent]) if the specified
+  /// [User] is not blocked by the authenticated [MyUser] already.
+  Future<BlocklistEventsVersionedMixin?> unblockUser(UserId id) async {
+    final variables = UnblockUserArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
-        operationName: 'UnblacklistUser',
-        document: UnblacklistUserMutation(variables: variables).document,
+        operationName: 'UnblockUser',
+        document: UnblockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UnblacklistUserException(
-          UnblacklistUser$Mutation.fromJson(data).unblacklistUser
-              as UnblacklistUserErrorCode),
+      onException: (data) => UnblockUserException(
+        UnblockUser$Mutation.fromJson(data).unblockUser as UnblockUserErrorCode,
+      ),
     );
-    return UnblacklistUser$Mutation.fromJson(result.data!).unblacklistUser
-        as BlacklistEventsVersionedMixin?;
+    return UnblockUser$Mutation.fromJson(result.data!).unblockUser
+        as BlocklistEventsVersionedMixin?;
   }
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
+  /// Returns [User]s blocked by this [MyUser] as [BlocklistRecord]s.
   ///
   /// ### Sorting
   ///
-  /// Returned [User]s are sorted primarily by their blacklisting [DateTime],
-  /// and secondary by their IDs (if the blacklisting [DateTime] is the same),
-  /// in descending order.
+  /// Returned [User]s are sorted primarily by their blocking [DateTime], and
+  /// secondary by their IDs (if the blocking [DateTime] is the same), in
+  /// descending order.
   ///
   /// ### Pagination
   ///
   /// It's allowed to specify both [first] and [last] counts at the same time,
   /// provided that [after] and [before] cursors are equal. In such case the
-  /// returned page will include the [User] pointed by the cursor and the
-  /// requested count of [User]s preceding and following it.
+  /// returned page will include the [BlocklistRecord] pointed by the cursor and
+  /// the requested count of [BlocklistRecord]s preceding and following it.
   ///
-  /// If it's desired to receive the [User], pointed by the cursor, without
-  /// querying in both directions, one can specify [first] or [last] count as 0.
-  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+  /// If it's desired to receive the [BlocklistRecord], pointed by the cursor,
+  /// without querying in both directions, one can specify [first] or [last]
+  /// count as 0.
+  Future<GetBlocklist$Query$Blocklist> getBlocklist({
     int? first,
-    BlacklistCursor? after,
+    BlocklistCursor? after,
     int? last,
-    BlacklistCursor? before,
+    BlocklistCursor? before,
   }) async {
-    final variables = GetBlacklistArguments(
+    final variables = GetBlocklistArguments(
       first: first,
       after: after,
       last: last,
@@ -1140,11 +1138,11 @@ mixin UserGraphQlMixin {
     );
     final QueryResult result = await client.query(
       QueryOptions(
-        operationName: 'GetBlacklist',
-        document: GetBlacklistQuery(variables: variables).document,
+        operationName: 'GetBlocklist',
+        document: GetBlocklistQuery(variables: variables).document,
         variables: variables.toJson(),
       ),
     );
-    return GetBlacklist$Query.fromJson(result.data!).blacklist;
+    return GetBlocklist$Query.fromJson(result.data!).blocklist;
   }
 }

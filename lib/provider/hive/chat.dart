@@ -27,7 +27,6 @@ import '/domain/model/chat_item_quote.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
 import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -90,7 +89,7 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(HiveChatInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
+    Hive.maybeRegisterAdapter(GalleryItemAdapter());
     Hive.maybeRegisterAdapter(LastChatReadAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
@@ -98,7 +97,8 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
-    Hive.maybeRegisterAdapter(StorageFileAdapter());
+    Hive.maybeRegisterAdapter(PlainFileAdapter());
+    Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
   }
 

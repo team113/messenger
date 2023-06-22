@@ -215,8 +215,8 @@ class HiveRxUser extends RxUser {
         }
         break;
 
-      case UserEventsKind.isBlacklisted:
-        var versioned = events as UserEventsIsBlacklisted;
+      case UserEventsKind.isBlocked:
+        var versioned = events as UserEventsIsBlocked;
         var userEntity = _userLocal.get(id);
 
         if (userEntity != null) {
@@ -225,7 +225,7 @@ class HiveRxUser extends RxUser {
             break;
           }
 
-          userEntity.value.isBlacklisted = versioned.record;
+          userEntity.value.isBlocked = versioned.record;
           userEntity.blacklistedVer = versioned.ver;
           _userLocal.put(userEntity);
         }

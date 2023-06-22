@@ -21,7 +21,7 @@
 /// previous versions of application. Add new entries to the end.
 class ModelTypeId {
   static const myUser = 0;
-  static const imageGalleryItem = 1;
+  static const galleryItem = 1;
   static const session = 2;
   static const chatDirectLink = 3;
   static const myUserEmails = 4;
@@ -100,13 +100,13 @@ class ModelTypeId {
   static const localAttachment = 77;
   static const mediaType = 78;
   static const hiveBackground = 79;
-  static const storageFile = 80;
+  static const plainFile = 80;
   static const chatCallCredentials = 81;
   static const chatFavoritePosition = 82;
   static const favoriteChatsListVersion = 83;
   static const blacklistCursor = 84;
   static const windowPreferences = 85;
-  static const blacklistReason = 86;
+  static const blocklistReason = 86;
   static const chatMembersDialedAll = 87;
   static const chatMembersDialedConcrete = 88;
   static const chatInfoActionAvatarUpdated = 89;
@@ -117,6 +117,7 @@ class ModelTypeId {
   static const chatMessageQuote = 94;
   static const chatCallQuote = 95;
   static const chatInfoQuote = 96;
-  static const blacklistRecord = 97;
+  static const blocklistRecord = 97;
   static const rect = 98;
+  static const imageFile = 100;
 }

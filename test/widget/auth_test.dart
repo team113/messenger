@@ -34,7 +34,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
@@ -91,7 +91,7 @@ void main() async {
   await backgroundProvider.init(userId: const UserId('me'));
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init(userId: const UserId('me'));
-  var blacklistedUsersProvider = BlacklistHiveProvider();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init(userId: const UserId('me'));
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init(userId: const UserId('me'));
@@ -177,12 +177,6 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Future<void> Function(AuthorizationException)? authExceptionHandler;
 
   @override
-  Future<bool> checkUserIdentifiable(UserLogin? login, UserNum? num,
-      UserEmail? email, UserPhone? phone) async {
-    return (login?.val == 'user');
-  }
-
-  @override
   void reconnect() {}
 
   var userData = {
@@ -256,8 +250,8 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Future<GetBlacklist$Query$Blacklist> getBlacklist({
-    BlacklistCursor? after,
-    BlacklistCursor? before,
+    BlocklistCursor? after,
+    BlocklistCursor? before,
     int? first,
     int? last,
   }) {

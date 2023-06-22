@@ -28,7 +28,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
@@ -469,18 +468,18 @@ class MyProfileController extends GetxController {
         avatarUpload.value = RxStatus.loading();
 
         final List<Future> futures = [];
-        for (var e in List<ImageGalleryItem>.from(
+        for (var e in List<GalleryItem>.from(
           myUser.value?.gallery ?? [],
           growable: false,
         ).map((e) => e.id)) {
           futures.add(_myUserService.deleteGalleryItem(e));
         }
 
-        List<Future<ImageGalleryItem?>> uploads = result.files
+        List<Future<GalleryItem?>> uploads = result.files
             .map((e) => NativeFile.fromPlatformFile(e))
             .map((e) => _myUserService.uploadGalleryItem(e))
             .toList();
-        ImageGalleryItem? item = (await Future.wait(uploads)).firstOrNull;
+        GalleryItem? item = (await Future.wait(uploads)).firstOrNull;
         if (item != null) {
           futures.add(_updateAvatar(item.id));
         }

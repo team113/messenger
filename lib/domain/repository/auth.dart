@@ -38,13 +38,6 @@ abstract class AbstractAuthRepository {
   /// reconnection right away this method may be used.
   void applyToken();
 
-  /// Indicates whether some [User] can be identified by the given [num],
-  /// [login], [email] or [phone].
-  ///
-  /// Exactly one of [num]/[login]/[email]/[phone] arguments must be specified.
-  Future<bool> checkUserIdentifiable(
-      UserLogin? login, UserNum? num, UserEmail? email, UserPhone? phone);
-
   /// Creates a new [MyUser] having only [UserId] and [UserNum] fields, and
   /// creates a new [Session] for this [MyUser].
   ///

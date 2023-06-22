@@ -15,13 +15,13 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation BlacklistUser($id: UserId!, $reason: BlacklistReason) {
-    blacklistUser(id: $id, reason: $reason) {
+mutation BlockUser($id: UserId!, $reason: BlocklistReason) {
+    blockUser(id: $id, reason: $reason) {
         __typename
-        ... on BlacklistEventsVersioned {
-            ...BlacklistEventsVersioned
+        ... on BlocklistEventsVersioned {
+            ...BlocklistEventsVersioned
         }
-        ... on BlacklistUserError {
+        ... on BlockUserError {
             code
         }
     }

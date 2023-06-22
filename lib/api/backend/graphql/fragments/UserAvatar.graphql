@@ -18,9 +18,7 @@
 fragment UserAvatar on UserAvatar {
     galleryItem {
         __typename
-        ... on ImageGalleryItem {
-            ...ImageGalleryItem
-        }
+        ...GalleryItem
     }
     crop {
         topLeft {
@@ -35,22 +33,22 @@ fragment UserAvatar on UserAvatar {
     }
     full {
         __typename
-        ...File
+        ...ImageFile
     }
     big {
         __typename
-        ...File
+        ...ImageFile
     }
     medium {
         __typename
-        ...File
+        ...ImageFile
     }
     small {
         __typename
-        ...File
+        ...ImageFile
     }
     original {
         __typename
-        ...File
+        ...ImageFile
     }
 }

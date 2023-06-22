@@ -265,7 +265,7 @@ class CreateDialogException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case CreateDialogChatErrorCode.blacklisted:
+      case CreateDialogChatErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case CreateDialogChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
@@ -298,7 +298,7 @@ class CreateGroupChatException
         return 'err_wrong_members_count'.l10n;
       case CreateGroupChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case CreateGroupChatErrorCode.blacklisted:
+      case CreateGroupChatErrorCode.blocked:
         return 'err_blacklisted'.l10n;
     }
   }
@@ -342,7 +342,7 @@ class StartChatCallException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case StartChatCallErrorCode.blacklisted:
+      case StartChatCallErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case StartChatCallErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
@@ -525,29 +525,6 @@ class CreateChatContactException
   }
 }
 
-/// Exception of `Mutation.recoverUserPassword` described in the [code].
-class RecoverUserPasswordException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const RecoverUserPasswordException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final RecoverUserPasswordErrorCode code;
-
-  @override
-  String toString() => 'RecoverUserPasswordException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case RecoverUserPasswordErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case RecoverUserPasswordErrorCode.codeLimitExceeded:
-        return 'err_code_limit_exceed'.l10n;
-    }
-  }
-}
-
 /// Exception of `Mutation.validateUserPasswordRecoveryCode` described in the
 /// [code].
 class ValidateUserPasswordRecoveryCodeException
@@ -566,8 +543,6 @@ class ValidateUserPasswordRecoveryCodeException
     switch (code) {
       case ValidateUserPasswordRecoveryErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case ValidateUserPasswordRecoveryErrorCode.unknownUser:
-        return 'err_wrong_recovery_code'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -591,8 +566,6 @@ class ResetUserPasswordException
     switch (code) {
       case ResetUserPasswordErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case ResetUserPasswordErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
       case ResetUserPasswordErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -616,7 +589,7 @@ class AddChatMemberException with LocalizedExceptionMixin implements Exception {
         return 'err_unknown'.l10n;
       case AddChatMemberErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
-      case AddChatMemberErrorCode.blacklisted:
+      case AddChatMemberErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case AddChatMemberErrorCode.notGroup:
         return 'err_not_group'.l10n;
@@ -664,7 +637,7 @@ class PostChatMessageException
   @override
   String toMessage() {
     switch (code) {
-      case PostChatMessageErrorCode.blacklisted:
+      case PostChatMessageErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case PostChatMessageErrorCode.noTextAndNoAttachment:
         return 'err_no_text_and_no_attachment'.l10n;
@@ -1101,7 +1074,7 @@ class UseChatDirectLinkException
     switch (code) {
       case UseChatDirectLinkErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case UseChatDirectLinkErrorCode.blacklisted:
+      case UseChatDirectLinkErrorCode.blocked:
         return 'err_you_are_blacklisted'.l10n;
       case UseChatDirectLinkErrorCode.unknownDirectLink:
         return 'err_unknown_chat_direct_link'.l10n;
@@ -1260,7 +1233,7 @@ class TransformDialogCallIntoGroupCallException
   @override
   String toMessage() {
     switch (code) {
-      case TransformDialogCallIntoGroupCallErrorCode.blacklisted:
+      case TransformDialogCallIntoGroupCallErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case TransformDialogCallIntoGroupCallErrorCode.notDialog:
         return 'err_not_dialog'.l10n;
@@ -1293,7 +1266,7 @@ class ForwardChatItemsException
   @override
   String toMessage() {
     switch (code) {
-      case ForwardChatItemsErrorCode.blacklisted:
+      case ForwardChatItemsErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case ForwardChatItemsErrorCode.noTextAndNoAttachment:
         return 'err_no_text_and_no_attachment'.l10n;
@@ -1469,45 +1442,43 @@ class UnfavoriteChatContactException
   }
 }
 
-/// Exception of `Mutation.blacklistUser` described in the [code].
-class BlacklistUserException with LocalizedExceptionMixin implements Exception {
-  const BlacklistUserException(this.code);
+/// Exception of `Mutation.blockUser` described in the [code].
+class BlockUserException with LocalizedExceptionMixin implements Exception {
+  const BlockUserException(this.code);
 
   /// Reason of why the mutation has failed.
-  final BlacklistUserErrorCode code;
+  final BlockUserErrorCode code;
 
   @override
-  String toString() => 'BlacklistUserException($code)';
+  String toString() => 'BlockUserErrorCode($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case BlacklistUserErrorCode.unknownUser:
+      case BlockUserErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
-      case BlacklistUserErrorCode.artemisUnknown:
+      case BlockUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }
 }
 
-/// Exception of `Mutation.unblacklistUser` described in the [code].
-class UnblacklistUserException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const UnblacklistUserException(this.code);
+/// Exception of `Mutation.unblockUser` described in the [code].
+class UnblockUserException with LocalizedExceptionMixin implements Exception {
+  const UnblockUserException(this.code);
 
   /// Reason of why the mutation has failed.
-  final UnblacklistUserErrorCode code;
+  final UnblockUserErrorCode code;
 
   @override
-  String toString() => 'UnblacklistUserException($code)';
+  String toString() => 'UnblockUserException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case UnblacklistUserErrorCode.unknownUser:
+      case UnblockUserErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
-      case UnblacklistUserErrorCode.artemisUnknown:
+      case UnblockUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

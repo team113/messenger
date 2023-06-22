@@ -203,7 +203,7 @@ void main() async {
                           'edges': [],
                         },
                         'mutualContactsCount': 0,
-                        'isBlacklisted': {
+                        'isBlocked': {
                           'ver': '0',
                         },
                         'ver': '0',

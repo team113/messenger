@@ -1016,11 +1016,12 @@ packages:
   medea_jason:
     dependency: "direct main"
     description:
-      name: medea_jason
-      sha256: d76e28f8c407274d355a29b34710b459e291bdaabad869a7156c839366587c3f
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.0-dev+rev.d675a58f7a3b5c4e0508f0692405d2e1f26e9dd2"
+      path: flutter
+      ref: fix-enums-consistency
+      resolved-ref: b1f72bb968ed6b28d48c3e604eef18636b08ae62
+      url: "https://github.com/instrumentisto/medea-jason.git"
+    source: git
+    version: "0.3.0"
   media_kit:
     dependency: transitive
     description:

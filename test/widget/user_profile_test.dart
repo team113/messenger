@@ -36,7 +36,7 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
@@ -106,7 +106,7 @@ void main() async {
     'status': null,
     'isDeleted': false,
     'dialog': {'id': '004ac2ab-911e-4d67-8671-ebba02758807'},
-    'isBlacklisted': {'blacklisted': false, 'ver': '2'},
+    'isBlocked': {'blacklisted': false, 'ver': '2'},
     'ver': '1'
   };
 
@@ -171,7 +171,7 @@ void main() async {
   await backgroundProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
@@ -302,7 +302,7 @@ void main() async {
           'status': null,
           'isDeleted': false,
           'dialog': null,
-          'isBlacklisted': {'blacklisted': false, 'ver': '5'},
+          'isBlocked': {'blacklisted': false, 'ver': '5'},
           'ver': '4'
         },
       };

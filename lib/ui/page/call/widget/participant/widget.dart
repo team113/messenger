@@ -110,7 +110,7 @@ class ParticipantWidget extends StatelessWidget {
                       key: participant.videoKey,
                       mirror:
                           participant.member.owner == MediaOwnerKind.local &&
-                              participant.source == MediaSourceKind.Device,
+                              participant.source == MediaSourceKind.device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
                       border:

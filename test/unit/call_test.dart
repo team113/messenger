@@ -61,7 +61,7 @@ Map<String, dynamic> _caller([String? id]) => {
       'gallery': {'nodes': []},
       'mutualContactsCount': 0,
       'isDeleted': false,
-      'isBlacklisted': {'blacklisted': false, 'ver': '0'},
+      'isBlocked': {'blacklisted': false, 'ver': '0'},
       'presence': 'AWAY',
       'ver': '0',
     };

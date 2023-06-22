@@ -599,11 +599,11 @@ class _ChatViewState extends State<ChatView>
       bool previousSame = false;
       if (previous != null) {
         previousSame = (previous is ChatMessageElement &&
-                previous.item.value.authorId == e.value.authorId &&
+                previous.item.value.author.id == e.value.author.id &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
                     const Duration(minutes: 5)) ||
             (previous is ChatCallElement &&
-                previous.item.value.authorId == e.value.authorId &&
+                previous.item.value.author.id == e.value.author.id &&
                 e.value.at.val.difference(previous.item.value.at.val) <=
                     const Duration(minutes: 5));
       }
@@ -611,11 +611,11 @@ class _ChatViewState extends State<ChatView>
       bool nextSame = false;
       if (next != null) {
         nextSame = (next is ChatMessageElement &&
-                next.item.value.authorId == e.value.authorId &&
+                next.item.value.author.id == e.value.author.id &&
                 e.value.at.val.difference(next.item.value.at.val) <=
                     const Duration(minutes: 5)) ||
             (next is ChatCallElement &&
-                next.item.value.authorId == e.value.authorId &&
+                next.item.value.author.id == e.value.author.id &&
                 e.value.at.val.difference(next.item.value.at.val) <=
                     const Duration(minutes: 5));
       }
@@ -623,7 +623,7 @@ class _ChatViewState extends State<ChatView>
       return Padding(
         padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(e.value.authorId),
+          future: c.getUser(e.value.author.id),
           builder: (_, u) => ChatItemWidget(
             chat: c.chat!.chat,
             item: e,
@@ -639,7 +639,7 @@ class _ChatViewState extends State<ChatView>
                 : c.chat!.reads.where((m) =>
                     m.at == e.value.at &&
                     m.memberId != c.me &&
-                    m.memberId != e.value.authorId),
+                    m.memberId != e.value.author.id),
             user: u.data,
             getUser: c.getUser,
             animation: _animation,

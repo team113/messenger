@@ -23,7 +23,7 @@ import '/domain/model/avatar.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
-import 'image_gallery_item.dart';
+import 'gallery_item.dart';
 import 'mute_duration.dart';
 import 'user.dart';
 
@@ -110,9 +110,9 @@ class MyUser extends HiveObject {
   @HiveField(7)
   MyUserPhones phones;
 
-  /// [ImageGalleryItem]s of this [MyUser].
+  /// [GalleryItem]s of this [MyUser].
   @HiveField(8)
-  List<ImageGalleryItem>? gallery;
+  List<GalleryItem>? gallery;
 
   /// Count of the unread Chats of this [MyUser].
   @HiveField(9)

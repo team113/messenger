@@ -15,17 +15,17 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/provider/hive/user.dart';
+
 import '../model/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/provider/hive/user.dart';
 
 /// Possible kinds of [MyUserEvent].
 enum MyUserEventKind {
@@ -33,8 +33,8 @@ enum MyUserEventKind {
   avatarUpdated,
   bioDeleted,
   bioUpdated,
-  blacklistRecordAdded,
-  blacklistRecordRemoved,
+  blocklistRecordAdded,
+  blocklistRecordRemoved,
   callCoverDeleted,
   callCoverUpdated,
   cameOffline,
@@ -84,9 +84,20 @@ abstract class MyUserEvent {
   MyUserEventKind get kind;
 }
 
+/// Event of a [User] being added or removed to/from blocklist of the [MyUser].
+abstract class BlocklistEvent extends MyUserEvent {
+  BlocklistEvent(this.user, this.at) : super(user.value.id);
+
+  /// [User] this [BlocklistEvent] is about.
+  final HiveUser user;
+
+  /// [PreciseDateTime] when this [BlocklistEvent] happened.
+  final PreciseDateTime at;
+}
+
 /// Event of an [UserAvatar] being deleted.
 class EventUserAvatarDeleted extends MyUserEvent {
-  const EventUserAvatarDeleted(UserId userId) : super(userId);
+  const EventUserAvatarDeleted(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.avatarDeleted;
@@ -94,7 +105,7 @@ class EventUserAvatarDeleted extends MyUserEvent {
 
 /// Event of an [UserAvatar] being updated.
 class EventUserAvatarUpdated extends MyUserEvent {
-  const EventUserAvatarUpdated(UserId userId, this.avatar) : super(userId);
+  const EventUserAvatarUpdated(super.userId, this.avatar);
 
   /// New [UserAvatar].
   final UserAvatar avatar;
@@ -105,7 +116,7 @@ class EventUserAvatarUpdated extends MyUserEvent {
 
 /// Event of an [UserBio] being deleted.
 class EventUserBioDeleted extends MyUserEvent {
-  const EventUserBioDeleted(UserId userId) : super(userId);
+  const EventUserBioDeleted(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.bioDeleted;
@@ -113,7 +124,7 @@ class EventUserBioDeleted extends MyUserEvent {
 
 /// Event of an [UserBio] being updated.
 class EventUserBioUpdated extends MyUserEvent {
-  const EventUserBioUpdated(UserId userId, this.bio) : super(userId);
+  const EventUserBioUpdated(super.userId, this.bio);
 
   /// New [UserBio].
   final UserBio bio;
@@ -124,7 +135,7 @@ class EventUserBioUpdated extends MyUserEvent {
 
 /// Event of an [UserCallCover] being deleted.
 class EventUserCallCoverDeleted extends MyUserEvent {
-  const EventUserCallCoverDeleted(UserId userId) : super(userId);
+  const EventUserCallCoverDeleted(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.callCoverDeleted;
@@ -132,8 +143,7 @@ class EventUserCallCoverDeleted extends MyUserEvent {
 
 /// Event of an [UserCallCover] being updated.
 class EventUserCallCoverUpdated extends MyUserEvent {
-  const EventUserCallCoverUpdated(UserId userId, this.callCover)
-      : super(userId);
+  const EventUserCallCoverUpdated(super.userId, this.callCover);
 
   /// New [UserCallCover].
   final UserCallCover callCover;
@@ -144,7 +154,7 @@ class EventUserCallCoverUpdated extends MyUserEvent {
 
 /// Event of an [MyUser] coming offline.
 class EventUserCameOffline extends MyUserEvent {
-  const EventUserCameOffline(UserId userId) : super(userId);
+  const EventUserCameOffline(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.cameOffline;
@@ -152,7 +162,7 @@ class EventUserCameOffline extends MyUserEvent {
 
 /// Event of an [MyUser] coming online.
 class EventUserCameOnline extends MyUserEvent {
-  const EventUserCameOnline(UserId userId) : super(userId);
+  const EventUserCameOnline(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.cameOnline;
@@ -160,7 +170,7 @@ class EventUserCameOnline extends MyUserEvent {
 
 /// Event of an [MyUser] being deleted.
 class EventUserDeleted extends MyUserEvent {
-  const EventUserDeleted(UserId userId) : super(userId);
+  const EventUserDeleted(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.deleted;
@@ -168,7 +178,7 @@ class EventUserDeleted extends MyUserEvent {
 
 /// Event of an [MyUser]'s [ChatDirectLink] being deleted.
 class EventUserDirectLinkDeleted extends MyUserEvent {
-  EventUserDirectLinkDeleted(UserId userId) : super(userId);
+  EventUserDirectLinkDeleted(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.directLinkDeleted;
@@ -176,8 +186,7 @@ class EventUserDirectLinkDeleted extends MyUserEvent {
 
 /// Event of an [MyUser]'s [ChatDirectLink] being updated.
 class EventUserDirectLinkUpdated extends MyUserEvent {
-  const EventUserDirectLinkUpdated(UserId userId, this.directLink)
-      : super(userId);
+  const EventUserDirectLinkUpdated(super.userId, this.directLink);
 
   /// New [User]'s [ChatDirectLink].
   final ChatDirectLink directLink;
@@ -188,7 +197,7 @@ class EventUserDirectLinkUpdated extends MyUserEvent {
 
 /// Event of an [MyUser]'s [UserEmail] address being added.
 class EventUserEmailAdded extends MyUserEvent {
-  const EventUserEmailAdded(UserId userId, this.email) : super(userId);
+  const EventUserEmailAdded(super.userId, this.email);
 
   /// Added [UserEmail].
   final UserEmail email;
@@ -199,7 +208,7 @@ class EventUserEmailAdded extends MyUserEvent {
 
 /// Event of an [MyUser]'s email address being confirmed.
 class EventUserEmailConfirmed extends MyUserEvent {
-  const EventUserEmailConfirmed(UserId userId, this.email) : super(userId);
+  const EventUserEmailConfirmed(super.userId, this.email);
 
   /// Confirmed [UserEmail].
   final UserEmail email;
@@ -210,7 +219,7 @@ class EventUserEmailConfirmed extends MyUserEvent {
 
 /// Event of an [MyUser]'s [UserEmail] address being deleted.
 class EventUserEmailDeleted extends MyUserEvent {
-  const EventUserEmailDeleted(UserId userId, this.email) : super(userId);
+  const EventUserEmailDeleted(super.userId, this.email);
 
   /// Deleted [UserEmail].
   final UserEmail email;
@@ -221,11 +230,10 @@ class EventUserEmailDeleted extends MyUserEvent {
 
 /// Event of an [MyUser]'s `GalleryItem` being added.
 class EventUserGalleryItemAdded extends MyUserEvent {
-  const EventUserGalleryItemAdded(UserId userId, this.galleryItem)
-      : super(userId);
+  const EventUserGalleryItemAdded(super.userId, this.galleryItem);
 
-  /// Added `GalleryItem`.
-  final ImageGalleryItem galleryItem;
+  /// Added [GalleryItem].
+  final GalleryItem galleryItem;
 
   @override
   MyUserEventKind get kind => MyUserEventKind.galleryItemAdded;
@@ -233,8 +241,7 @@ class EventUserGalleryItemAdded extends MyUserEvent {
 
 /// Event of an [MyUser]'s `GalleryItem` being deleted.
 class EventUserGalleryItemDeleted extends MyUserEvent {
-  const EventUserGalleryItemDeleted(UserId userId, this.galleryItemId)
-      : super(userId);
+  const EventUserGalleryItemDeleted(super.userId, this.galleryItemId);
 
   /// ID of the deleted `GalleryItem`.
   final GalleryItemId galleryItemId;
@@ -245,7 +252,7 @@ class EventUserGalleryItemDeleted extends MyUserEvent {
 
 /// Event of an [UserLogin] being updated.
 class EventUserLoginUpdated extends MyUserEvent {
-  const EventUserLoginUpdated(UserId userId, this.login) : super(userId);
+  const EventUserLoginUpdated(super.userId, this.login);
 
   /// New [UserLogin].
   final UserLogin login;
@@ -256,7 +263,7 @@ class EventUserLoginUpdated extends MyUserEvent {
 
 /// Event of an [MyUser] being muted.
 class EventUserMuted extends MyUserEvent {
-  const EventUserMuted(UserId userId, this.until) : super(userId);
+  const EventUserMuted(super.userId, this.until);
 
   /// Duration of the mute.
   final MuteDuration until;
@@ -267,7 +274,7 @@ class EventUserMuted extends MyUserEvent {
 
 /// Event of an [UserName] being deleted.
 class EventUserNameDeleted extends MyUserEvent {
-  const EventUserNameDeleted(UserId userId) : super(userId);
+  const EventUserNameDeleted(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.nameDeleted;
@@ -275,7 +282,7 @@ class EventUserNameDeleted extends MyUserEvent {
 
 /// Event of an [UserName] being updated.
 class EventUserNameUpdated extends MyUserEvent {
-  const EventUserNameUpdated(UserId userId, this.name) : super(userId);
+  const EventUserNameUpdated(super.userId, this.name);
 
   /// New [UserName].
   final UserName name;
@@ -286,7 +293,7 @@ class EventUserNameUpdated extends MyUserEvent {
 
 /// Event of an [MyUser]'s password being updated.
 class EventUserPasswordUpdated extends MyUserEvent {
-  const EventUserPasswordUpdated(UserId userId) : super(userId);
+  const EventUserPasswordUpdated(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.passwordUpdated;
@@ -294,7 +301,7 @@ class EventUserPasswordUpdated extends MyUserEvent {
 
 /// Event of an [MyUser]'s phone number being added.
 class EventUserPhoneAdded extends MyUserEvent {
-  const EventUserPhoneAdded(UserId userId, this.phone) : super(userId);
+  const EventUserPhoneAdded(super.userId, this.phone);
 
   /// Added [UserPhone].
   final UserPhone phone;
@@ -305,7 +312,7 @@ class EventUserPhoneAdded extends MyUserEvent {
 
 /// Event of an [MyUser]'s phone number being confirmed.
 class EventUserPhoneConfirmed extends MyUserEvent {
-  const EventUserPhoneConfirmed(UserId userId, this.phone) : super(userId);
+  const EventUserPhoneConfirmed(super.userId, this.phone);
 
   /// Confirmed [UserPhone].
   final UserPhone phone;
@@ -316,7 +323,7 @@ class EventUserPhoneConfirmed extends MyUserEvent {
 
 /// Event of an [MyUser]'s phone number being deleted.
 class EventUserPhoneDeleted extends MyUserEvent {
-  const EventUserPhoneDeleted(UserId userId, this.phone) : super(userId);
+  const EventUserPhoneDeleted(super.userId, this.phone);
 
   /// Deleted [UserPhone].
   final UserPhone phone;
@@ -327,7 +334,7 @@ class EventUserPhoneDeleted extends MyUserEvent {
 
 /// Event of an [MyUser]'s [Presence] being updated.
 class EventUserPresenceUpdated extends MyUserEvent {
-  const EventUserPresenceUpdated(UserId userId, this.presence) : super(userId);
+  const EventUserPresenceUpdated(super.userId, this.presence);
 
   /// New [MyUser]'s [Presence].
   final Presence presence;
@@ -338,7 +345,7 @@ class EventUserPresenceUpdated extends MyUserEvent {
 
 /// Event of an [UserTextStatus] being deleted.
 class EventUserStatusDeleted extends MyUserEvent {
-  const EventUserStatusDeleted(UserId userId) : super(userId);
+  const EventUserStatusDeleted(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.statusDeleted;
@@ -346,7 +353,7 @@ class EventUserStatusDeleted extends MyUserEvent {
 
 /// Event of an [UserTextStatus] being updated.
 class EventUserStatusUpdated extends MyUserEvent {
-  const EventUserStatusUpdated(UserId userId, this.status) : super(userId);
+  const EventUserStatusUpdated(super.userId, this.status);
 
   /// New [UserTextStatus].
   final UserTextStatus status;
@@ -357,7 +364,7 @@ class EventUserStatusUpdated extends MyUserEvent {
 
 /// Event of an [MyUser] being unmuted.
 class EventUserUnmuted extends MyUserEvent {
-  const EventUserUnmuted(UserId userId) : super(userId);
+  const EventUserUnmuted(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.unmuted;
@@ -365,8 +372,7 @@ class EventUserUnmuted extends MyUserEvent {
 
 /// Event of an [MyUser]'s unread `Chat`s count being updated.
 class EventUserUnreadChatsCountUpdated extends MyUserEvent {
-  const EventUserUnreadChatsCountUpdated(UserId userId, this.count)
-      : super(userId);
+  const EventUserUnreadChatsCountUpdated(super.userId, this.count);
 
   /// New [MyUser]'s unread `Chat`s count.
   final int count;
@@ -375,29 +381,23 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.unreadChatsCountUpdated;
 }
 
-/// Event of a [User] being added or removed to/from blacklist of the [MyUser].
-abstract class BlacklistEvent extends MyUserEvent {
-  const BlacklistEvent(super.userId, this.user, this.at);
+/// Event of a [BlocklistRecord] being added to blocklist of the authenticated
+/// [MyUser].
+class EventBlocklistRecordAdded extends BlocklistEvent {
+  EventBlocklistRecordAdded(super.user, super.at, this.reason);
 
-  /// [User] this [BlacklistEvent] is about.
-  final HiveUser user;
-
-  /// [PreciseDateTime] when this [BlacklistEvent] happened.
-  final PreciseDateTime at;
-}
-
-/// Event of an [User] was added to the [MyUser]'s blacklist.
-class EventBlacklistRecordAdded extends BlacklistEvent {
-  const EventBlacklistRecordAdded(super.userId, super.user, super.at);
+  /// Reason of why the [User] was blocked.
+  final BlocklistReason? reason;
 
   @override
-  MyUserEventKind get kind => MyUserEventKind.blacklistRecordAdded;
+  MyUserEventKind get kind => MyUserEventKind.blocklistRecordAdded;
 }
 
-/// Event of an [User] was removed from the [MyUser]'s blacklist.
-class EventBlacklistRecordRemoved extends BlacklistEvent {
-  const EventBlacklistRecordRemoved(super.userId, super.user, super.at);
+/// Event of a [BlocklistRecord] being removed from blocklist of the
+/// authenticated [MyUser].
+class EventBlocklistRecordRemoved extends BlocklistEvent {
+  EventBlocklistRecordRemoved(super.user, super.at);
 
   @override
-  MyUserEventKind get kind => MyUserEventKind.blacklistRecordRemoved;
+  MyUserEventKind get kind => MyUserEventKind.blocklistRecordRemoved;
 }

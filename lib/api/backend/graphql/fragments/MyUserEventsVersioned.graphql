@@ -39,16 +39,15 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             bio
             at
         }
-        ... on EventBlacklistRecordAdded {
-            userId
+        ... on EventBlocklistRecordAdded {
             user {
                 __typename
                 ...User
             }
+            reason
             at
         }
-        ... on EventBlacklistRecordRemoved {
-            userId
+        ... on EventBlocklistRecordRemoved {
             user {
                 __typename
                 ...User
@@ -100,9 +99,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             userId
             galleryItem {
                 __typename
-                ... on ImageGalleryItem {
-                    ...ImageGalleryItem
-                }
+                ...GalleryItem
             }
             at
         }

@@ -19,11 +19,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/file.dart';
 import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import 'base.dart';
 
-/// [Hive] storage for [ImageGalleryItem].
-class GalleryItemHiveProvider extends HiveBaseProvider<ImageGalleryItem> {
+/// [Hive] storage for [GalleryItem].
+class GalleryItemHiveProvider extends HiveBaseProvider<GalleryItem> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -33,13 +32,14 @@ class GalleryItemHiveProvider extends HiveBaseProvider<ImageGalleryItem> {
   @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
-    Hive.maybeRegisterAdapter(StorageFileAdapter());
+    Hive.maybeRegisterAdapter(GalleryItemAdapter());
+    Hive.maybeRegisterAdapter(PlainFileAdapter());
+    Hive.maybeRegisterAdapter(ImageFileAdapter());
   }
 
-  /// Puts the provided [ImageGalleryItem] to [Hive].
-  Future<void> put(ImageGalleryItem item) => putSafe(item.id.val, item);
+  /// Puts the provided [GalleryItem] to [Hive].
+  Future<void> put(GalleryItem item) => putSafe(item.id.val, item);
 
-  /// Removes an [ImageGalleryItem] from [Hive] by its [id].
+  /// Removes an [GalleryItem] from [Hive] by its [id].
   Future<void> remove(GalleryItemId id) => deleteSafe(id.val);
 }

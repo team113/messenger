@@ -82,14 +82,11 @@ class WebStoredCall {
           : ChatCall(
               ChatItemId(data['call']['id']),
               ChatId(data['call']['chatId']),
-              UserId(data['call']['authorId']),
+              User(
+                UserId(data['call']['author']['id']),
+                UserNum(data['call']['author']['num']),
+              ),
               PreciseDateTime.parse(data['call']['at']),
-              caller: data['call']['caller'] == null
-                  ? null
-                  : User(
-                      UserId(data['call']['caller']['id']),
-                      UserNum(data['call']['caller']['num']),
-                    ),
               members: (data['call']['members'] as List<dynamic>)
                   .map((e) => ChatCallMember(
                         user: User(
@@ -145,14 +142,11 @@ class WebStoredCall {
           : {
               'id': call!.id.val,
               'chatId': call!.chatId.val,
-              'authorId': call!.authorId.val,
               'at': call!.at.toString(),
-              'caller': call!.caller == null
-                  ? null
-                  : {
-                      'id': call!.caller?.id.val,
-                      'num': call!.caller?.num.val,
-                    },
+              'author': {
+                'id': call!.author.id.val,
+                'num': call!.author.num.val,
+              },
               'members': call!.members
                   .map((e) => {
                         'user': {

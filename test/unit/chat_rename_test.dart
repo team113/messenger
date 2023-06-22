@@ -180,7 +180,7 @@ void main() async {
                     'online': {'__typename': 'UserOnline'},
                     'mutualContactsCount': 0,
                     'isDeleted': false,
-                    'isBlacklisted': {
+                    'isBlocked': {
                       'blacklisted': false,
                       'ver': '0',
                     },

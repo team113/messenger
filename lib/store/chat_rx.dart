@@ -281,7 +281,7 @@ class HiveRxChat extends RxChat {
         draft = ChatMessage(
           ChatItemId.local(),
           id,
-          me ?? const UserId('dummy'),
+          User(me ?? const UserId('dummy'), const UserNum.unchecked('0')),
           PreciseDateTime.now(),
           text: text,
           repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
@@ -1113,7 +1113,7 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.isHidden = false;
               }
 
-              if (item.value is ChatMessage && item.value.authorId == me) {
+              if (item.value is ChatMessage && item.value.author.id == me) {
                 ChatMessage? pending =
                     _pending.whereType<ChatMessage>().firstWhereOrNull(
                           (e) =>

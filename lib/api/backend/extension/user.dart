@@ -18,7 +18,7 @@
 import '../schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
-import '/domain/model/image_gallery_item.dart';
+import '/domain/model/gallery_item.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/user.dart';
@@ -44,60 +44,34 @@ extension UserConversion on UserMixin {
         presenceIndex: presence?.index,
         status: status,
         isDeleted: isDeleted,
-        isBlacklisted: isBlacklisted.record?.toModel(),
+        isBlocked: isBlocked.record?.toModel(id),
       );
 
   /// Constructs a new [HiveUser] from this [UserMixin].
-  HiveUser toHive() => HiveUser(toModel(), ver, isBlacklisted.ver);
+  HiveUser toHive() => HiveUser(toModel(), ver, isBlocked.ver);
 }
 
 /// Extension adding models construction from a
-/// [UserMixin$IsBlacklisted$Record].
-extension BlacklistRecordConversion on UserMixin$IsBlacklisted$Record {
-  /// Constructs a new [BlacklistRecord] from this
-  /// [UserMixin$IsBlacklisted$Record].
-  BlacklistRecord toModel() => BlacklistRecord(reason: reason, at: at);
+/// [UserMixin$IsBlocked$Record].
+extension BlocklistRecordConversion on UserMixin$IsBlocked$Record {
+  /// Constructs a new [BlocklistRecord] from this
+  /// [UserMixin$IsBlocked$Record].
+  BlocklistRecord toModel(UserId id) => BlocklistRecord(
+        userId: id,
+        reason: reason,
+        at: at,
+      );
 }
 
-/// Extension adding models construction from an [ImageGalleryItem].
-extension ImageGalleryItemConversion on ImageGalleryItemMixin {
-  /// Constructs a new [ImageGalleryItem] from this [ImageGalleryItemMixin].
-  ImageGalleryItem toModel() => ImageGalleryItem(
+/// Extension adding models construction from a [GalleryItemMixin].
+extension GalleryItemConversion on GalleryItemMixin {
+  /// Constructs a new [GalleryItem] from this [GalleryItemMixin].
+  GalleryItem toModel() => GalleryItem(
         addedAt: addedAt,
         id: id,
         original: original.toModel(),
         square: square.toModel(),
       );
-}
-
-/// Extension adding models construction from
-/// [UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
-extension EventUserGalleryItemAdded$GalleryItemConversion
-    on UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem {
-  /// Constructs a new [ImageGalleryItem] from this
-  /// [UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
-  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
-}
-
-/// Extension adding models construction from [UserMixin$Gallery$Nodes].
-extension UserMixinGalleryNodesConversion on UserMixin$Gallery$Nodes {
-  /// Constructs a new [ImageGalleryItem] from this [UserMixin$Gallery$Nodes].
-  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
-}
-
-/// Extension adding models construction from [UserAvatarMixin$GalleryItem].
-extension UserAvatarMixinGalleryConversion on UserAvatarMixin$GalleryItem {
-  /// Constructs a new [ImageGalleryItem] from this
-  /// [UserAvatarMixin$GalleryItem].
-  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
-}
-
-/// Extension adding models construction from [UserCallCoverMixin$GalleryItem].
-extension UserCallCoverMixinGalleryConversion
-    on UserCallCoverMixin$GalleryItem {
-  /// Constructs a new [ImageGalleryItem] from this
-  /// [UserCallCoverMixin$GalleryItem].
-  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
 }
 
 /// Extension adding models construction from an [UserAvatarMixin].

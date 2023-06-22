@@ -121,7 +121,7 @@ class UserController extends GetxController {
   StreamSubscription? _favoritesSubscription;
 
   /// Indicates whether this [user] is blacklisted.
-  BlacklistRecord? get isBlacklisted => user?.user.value.isBlacklisted;
+  BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -257,9 +257,9 @@ class UserController extends GetxController {
   Future<void> blacklist() async {
     blacklistStatus.value = RxStatus.loading();
     try {
-      await _userService.blacklistUser(
+      await _userService.blockUser(
         id,
-        reason.text.isEmpty ? null : BlacklistReason(reason.text),
+        reason.text.isEmpty ? null : BlocklistReason(reason.text),
       );
       reason.clear();
     } finally {
@@ -271,7 +271,7 @@ class UserController extends GetxController {
   Future<void> unblacklist() async {
     blacklistStatus.value = RxStatus.loading();
     try {
-      await _userService.unblacklistUser(id);
+      await _userService.unblockUser(id);
     } finally {
       blacklistStatus.value = RxStatus.empty();
     }

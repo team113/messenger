@@ -50,11 +50,6 @@ class AuthRepository implements AbstractAuthRepository {
   void applyToken() => _graphQlProvider.reconnect();
 
   @override
-  Future<bool> checkUserIdentifiable(UserLogin? login, UserNum? num,
-          UserEmail? email, UserPhone? phone) async =>
-      await _graphQlProvider.checkUserIdentifiable(login, num, email, phone);
-
-  @override
   Future<Credentials> signUp() async {
     var response = await _graphQlProvider.signUp();
     return Credentials(

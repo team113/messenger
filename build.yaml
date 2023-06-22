@@ -27,16 +27,16 @@ targets:
                 name: AttachmentId
                 imports:
                   - "package:messenger/domain/model/attachment.dart"
-            - graphql_type: BlacklistCursor
+            - graphql_type: BlocklistCursor
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
               dart_type:
-                name: BlacklistCursor
+                name: BlocklistCursor
                 imports:
                   - "package:messenger/store/model/my_user.dart"
-            - graphql_type: BlacklistReason
+            - graphql_type: BlocklistReason
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
               dart_type:
-                name: BlacklistReason
+                name: BlocklistReason
                 imports:
                   - "package:messenger/domain/model/user.dart"
             - graphql_type: ChatCallCredentials

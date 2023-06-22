@@ -30,31 +30,6 @@ mixin AuthGraphQlMixin {
   AccessToken? get token;
   set token(AccessToken? value);
 
-  /// Indicates whether some [User] can be identified by the given [num],
-  /// [login], [email] or [phone].
-  ///
-  /// Exactly one of [num]/[login]/[email]/[phone] arguments must be specified.
-  ///
-  /// ### Authentication
-  ///
-  /// None.
-  Future<bool> checkUserIdentifiable(UserLogin? login, UserNum? num,
-      UserEmail? email, UserPhone? phone) async {
-    final variables = CheckUserIdentifiableArguments(
-      num: num,
-      login: login,
-      email: email,
-      phone: phone,
-    );
-    final QueryResult result = await client.query(QueryOptions(
-      operationName: 'CheckUserIdentifiable',
-      document: CheckUserIdentifiableQuery(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return CheckUserIdentifiable$Query.fromJson(result.data!)
-        .checkUserIdentifiable;
-  }
-
   /// Creates a new [MyUser] having only `id` and unique `num` fields, along
   /// with a [Session] for him (valid for the returned expiration).
   ///
@@ -228,7 +203,7 @@ mixin AuthGraphQlMixin {
       UserEmail? email, UserPhone? phone) async {
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
-          'Exactly one of num/login/email/phone should be specified.');
+          'Exactly one of num/login/email/phone should be specified.',);
     }
 
     final variables = RecoverUserPasswordArguments(
@@ -243,9 +218,7 @@ mixin AuthGraphQlMixin {
         document: RecoverUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => RecoverUserPasswordException(
-          RecoverUserPassword$Mutation.fromJson(data).recoverUserPassword
-              as RecoverUserPasswordErrorCode),
+
     );
   }
 

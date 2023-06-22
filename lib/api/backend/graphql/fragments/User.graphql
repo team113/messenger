@@ -31,9 +31,7 @@ fragment User on User {
     gallery {
         nodes {
             __typename
-            ... on ImageGalleryItem {
-                ...ImageGalleryItem
-            }
+            ...GalleryItem
         }
     }
     mutualContactsCount
@@ -49,7 +47,7 @@ fragment User on User {
     dialog {
         id
     }
-    isBlacklisted {
+    isBlocked {
         record {
             reason
             at

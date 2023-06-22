@@ -61,9 +61,7 @@ fragment UserEventsVersioned on UserEventsVersioned {
         ... on EventUserGalleryItemAdded {
             galleryItem {
                 __typename
-                ... on ImageGalleryItem {
-                    ...ImageGalleryItem
-                }
+                ...GalleryItem
             }
             at
         }
