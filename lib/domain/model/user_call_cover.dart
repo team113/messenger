@@ -62,7 +62,7 @@ class UserCallCover extends HiveObject {
   @HiveField(4)
   final StorageFile square;
 
-  /// [CropArea] applied to the [ImageGalleryItem] to create this
+  /// [CropArea] applied to the [GalleryItem] to create this
   /// [UserCallCover].
   @HiveField(5)
   final CropArea? crop;

@@ -83,7 +83,7 @@ class UserController extends GetxController {
   /// authenticated [MyUser].
   late final RxBool inContacts;
 
-  /// Index of the currently displayed [ImageGalleryItem] in the [User.gallery]
+  /// Index of the currently displayed [GalleryItem] in the [User.gallery]
   /// list.
   final RxInt galleryIndex = RxInt(0);
 

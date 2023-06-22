@@ -203,7 +203,8 @@ mixin AuthGraphQlMixin {
       UserEmail? email, UserPhone? phone) async {
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
-          'Exactly one of num/login/email/phone should be specified.',);
+        'Exactly one of num/login/email/phone should be specified.',
+      );
     }
 
     final variables = RecoverUserPasswordArguments(
@@ -218,7 +219,6 @@ mixin AuthGraphQlMixin {
         document: RecoverUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-
     );
   }
 

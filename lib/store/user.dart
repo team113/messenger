@@ -60,7 +60,7 @@ class UserRepository implements AbstractUserRepository {
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
-  /// [ImageGalleryItem] local [Hive] storage.
+  /// [GalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
 
   /// [isReady] value.
