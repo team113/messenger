@@ -98,7 +98,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 height: height,
                 width: width,
-                color: style.colors.onSecondaryOpacity20,
+                color: style.colors.primaryAuxiliaryOpacity25,
               ),
             ),
           );
@@ -617,7 +617,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: style.colors.onSecondaryOpacity20,
+                        color: style.colors.primaryAuxiliaryOpacity25,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(

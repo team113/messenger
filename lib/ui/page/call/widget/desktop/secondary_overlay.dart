@@ -348,8 +348,8 @@ class SecondaryDecorator extends StatelessWidget {
                             condition: PlatformUtils.isWeb && condition,
                             child: Container(
                               color: PlatformUtils.isWeb
-                                  ? style.colors.onSecondaryOpacity60
-                                  : style.colors.onSecondaryOpacity88,
+                                  ? style.colors.primaryAuxiliaryOpacity60
+                                  : style.colors.primaryDarkOpacity70,
                               child: Row(
                                 children: [
                                   const SizedBox(width: 7),
