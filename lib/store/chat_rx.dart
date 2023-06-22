@@ -281,7 +281,7 @@ class HiveRxChat extends RxChat {
         draft = ChatMessage(
           ChatItemId.local(),
           id,
-          User(me ?? const UserId('dummy'), const UserNum.unchecked('0')),
+          User(me ?? const UserId('dummy'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
           text: text,
           repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),

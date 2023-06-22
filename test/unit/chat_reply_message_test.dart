@@ -166,33 +166,31 @@ void main() async {
             {
               '__typename': 'EventChatItemPosted',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+
               'item': {
                 'node': {
                   '__typename': 'ChatMessage',
                   'id': '145f6006-82b9-4d07-9229-354146e4f332',
                   'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                  'authorId': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+                  'author': {
+                    'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+                    'num': '1234123412341234',
+                    'isDeleted': false,
+                    'gallery': {
+                      'nodes': [],
+                      'edges': [],
+                    },
+                    'mutualContactsCount': 0,
+                    'isBlocked': {
+                      'ver': '0',
+                    },
+                    'ver': '0',
+                  },
                   'at': '2022-01-27T11:34:37.191440+00:00',
                   'ver': '1',
                   'repliesTo': [
                     {
                       '__typename': 'ChatMessageQuote',
-                      'original': {
-                        'node': {
-                          '__typename': 'ChatMessage',
-                          'id': '2c15e0e9-51f9-4e57-8589-de574a58558b',
-                          'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                          'authorId': '9a583ecf-d371-43d4-87bc-1cc27e4692e8',
-                          'at': '2022-01-27T10:53:21.405546+00:00',
-                          'ver': '1',
-                          'text': '123',
-                          'editedAt': null,
-                          'attachments': [],
-                          'repliesTo': [],
-                        },
-                        'cursor':
-                            'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
-                      },
                       'at': '2022-01-27T10:53:21.405546+00:00',
                       'author': {
                         'id': 'me',

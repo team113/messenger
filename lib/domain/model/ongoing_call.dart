@@ -1141,8 +1141,6 @@ class OngoingCall {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
 
-      print('onNewConnection $id');
-
       final CallMember? redialed = members[redialedId];
       if (redialed?.isDialing.value == true) {
         members.move(redialedId, id);

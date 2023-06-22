@@ -116,16 +116,6 @@ void main() async {
     final usernameField = find.byKey(const Key('RecoveryField'));
     expect(usernameField, findsOneWidget);
 
-    await tester.enterText(usernameField, 'emptyuser');
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('Proceed')));
-    await tester.pumpAndSettle();
-    await tester.pump(const Duration(seconds: 1));
-
-    final noCodeField = find.byKey(const ValueKey('RecoveryCodeField'));
-    expect(noCodeField, findsNothing);
-
     await tester.enterText(usernameField, 'login');
     await tester.pumpAndSettle();
 

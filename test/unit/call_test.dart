@@ -139,10 +139,9 @@ void main() async {
         {
           'id': 'first',
           'chatId': 'chatId',
-          'authorId': 'authorId',
+          'author': _caller(),
           'answered': false,
           'at': DateTime.now().toString(),
-          'caller': _caller(),
           'withVideo': false,
           'members': [
             {
@@ -221,10 +220,9 @@ void main() async {
                   '__typename': 'ChatCall',
                   'id': 'first',
                   'chatId': 'chatId',
-                  'authorId': 'authorId',
+                  'author': _caller(),
                   'answered': false,
                   'at': DateTime.now().toString(),
-                  'caller': _caller(),
                   'conversationStartedAt': null,
                   'finishReason': 'UNANSWERED',
                   'finishedAt': DateTime.now().toString(),
@@ -260,10 +258,9 @@ void main() async {
           'call': {
             'id': 'second',
             'chatId': 'chatId',
-            'authorId': 'authorId',
+            'author': _caller(),
             'answered': false,
             'at': DateTime.now().toString(),
-            'caller': _caller(),
             'withVideo': false,
             'members': [
               {
@@ -415,10 +412,9 @@ void main() async {
           'call': {
             'id': 'id',
             'chatId': 'incoming',
-            'authorId': 'authorId',
+            'author': _caller(),
             'answered': false,
             'at': DateTime.now().toString(),
-            'caller': _caller(),
             'withVideo': false,
             'members': [
               {
@@ -453,10 +449,9 @@ void main() async {
           'call': {
             'id': 'id',
             'chatId': 'incoming',
-            'authorId': 'authorId',
+            'author': _caller(),
             'answered': false,
             'at': DateTime.now().toString(),
-            'caller': _caller(),
             'withVideo': false,
             'members': [
               {
@@ -565,10 +560,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
           'call': {
             'id': 'id',
             'chatId': chatId.val,
-            'authorId': 'me',
+            'author': _caller('me'),
             'answered': false,
             'at': DateTime.now().toString(),
-            'caller': _caller('me'),
             'withVideo': false,
             'members': [
               {
@@ -600,10 +594,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
               'call': {
                 'id': 'id',
                 'chatId': chatId.val,
-                'authorId': 'me',
+                'author': _caller('me'),
                 'answered': false,
                 'at': DateTime.now().toString(),
-                'caller': _caller('me'),
                 'withVideo': false,
                 'members': [
                   {
@@ -659,10 +652,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                   '__typename': 'ChatCall',
                   'id': 'id',
                   'chatId': chatId.val,
-                  'authorId': 'authorId',
+                  'author': _caller('me'),
                   'answered': false,
                   'at': DateTime.now().toString(),
-                  'caller': _caller('me'),
                   'conversationStartedAt': null,
                   'finishReason': 'UNANSWERED',
                   'finishedAt': DateTime.now().toString(),
@@ -711,10 +703,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                 'call': {
                   'id': 'id',
                   'chatId': chatId.val,
-                  'authorId': 'me',
+                  'author': _caller('me'),
                   'answered': false,
                   'at': DateTime.now().toString(),
-                  'caller': _caller('me'),
                   'withVideo': false,
                   'members': [
                     {

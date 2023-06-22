@@ -160,7 +160,7 @@ class HiveChatMessage extends HiveChatItem {
         ChatMessage(
           existingId ?? ChatItemId.local(),
           chatId,
-          User(me, const UserNum.unchecked('0')),
+          User(me, UserNum('1234123412341234')),
           existingDateTime ?? PreciseDateTime.now(),
           text: text,
           repliesTo: repliesTo,
