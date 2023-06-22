@@ -348,8 +348,7 @@ void main() async {
     when(graphQlProvider.addChatMember(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-    )).thenThrow(
-        const AddChatMemberException(AddChatMemberErrorCode.blocked));
+    )).thenThrow(const AddChatMemberException(AddChatMemberErrorCode.blocked));
 
     expect(
       () async => await chatService.addChatMember(

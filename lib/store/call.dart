@@ -598,7 +598,8 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallConversationStarted') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallConversationStarted;
+      var node = e
+          as ChatCallEventsVersionedMixin$Events$EventChatCallConversationStarted;
       for (var m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
