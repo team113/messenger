@@ -6,7 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.9] · 2023-??-??
+## [0.1.0-alpha.9] · 2023-06-23
 [0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
 
 [Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
@@ -64,7 +64,6 @@ All user visible changes to this project will be documented in this file. This p
 [#118]: /../../pull/118
 [#258]: /../../issues/258
 [#264]: /../../issues/264
-[#367]: /../../issues/367
 [#270]: /../../pull/270
 [#281]: /../../issues/281
 [#286]: /../../pull/286
@@ -76,6 +75,7 @@ All user visible changes to this project will be documented in this file. This p
 [#361]: /../../pull/361
 [#362]: /../../pull/362
 [#356]: /../../pull/356
+[#367]: /../../issues/367
 [#371]: /../../issues/371
 [#375]: /../../pull/375
 [#377]: /../../issues/377
