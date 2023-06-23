@@ -18,30 +18,50 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 
-/// [Widget] which returns a styled as a header [Container] with the provided
-/// [text].
-class MoreHeader extends StatelessWidget {
-  const MoreHeader({super.key, required this.text});
+/// Custom styled [OutlinedRoundedButton].
+class StyledRoundedButton extends StatelessWidget {
+  const StyledRoundedButton({
+    super.key,
+    required this.child,
+    this.leading,
+    this.onPressed,
+    this.color,
+  });
 
-  /// Text that will be displayed in this [MoreHeader].
-  final String text;
+  /// Widget to display before the title.
+  ///
+  /// Typically an [Icon] or a [CircleAvatar] widget.
+  final Widget? leading;
+
+  /// Primary content of this [StyledRoundedButton].
+  final Widget child;
+
+  /// Callback, called when this [StyledRoundedButton] is tapped or activated
+  /// other way.
+  final void Function()? onPressed;
+
+  /// Background color of this [StyledRoundedButton].
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Text(
-            text,
-            style: style.systemMessageStyle
-                .copyWith(color: style.colors.onBackground, fontSize: 18),
+    return Expanded(
+      child: OutlinedRoundedButton(
+        leading: leading,
+        title: child,
+        onPressed: onPressed,
+        color: color,
+        shadows: [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: style.colors.onBackgroundOpacity13,
+            blurStyle: BlurStyle.outer,
           ),
-        ),
+        ],
       ),
     );
   }
