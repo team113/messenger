@@ -537,9 +537,9 @@ class Palette {
     required this.primaryHighlightLightest,
     required this.primaryDark,
     Color? primaryDarkOpacity70,
+    Color? primaryDarkOpacity90,
     required this.primaryAuxiliary,
     Color? primaryAuxiliaryOpacity25,
-    Color? primaryAuxiliaryOpacity60,
     Color? primaryAuxiliaryOpacity90,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
@@ -581,12 +581,10 @@ class Palette {
     required this.userColors,
   })  : primaryDarkOpacity70 =
             primaryDarkOpacity70 ?? primaryDark.withOpacity(0.70),
+        primaryDarkOpacity90 =
+            primaryDarkOpacity90 ?? primaryDark.withOpacity(0.90),
         primaryAuxiliaryOpacity25 =
             primaryAuxiliaryOpacity25 ?? primaryAuxiliary.withOpacity(0.25),
-        primaryAuxiliaryOpacity60 =
-            primaryAuxiliaryOpacity60 ?? primaryAuxiliary.withOpacity(0.60),
-        primaryAuxiliaryOpacity90 =
-            primaryAuxiliaryOpacity90 ?? primaryAuxiliary.withOpacity(0.90),
         onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
@@ -650,6 +648,11 @@ class Palette {
   /// Used for `Draggable` panel elements.
   final Color primaryDarkOpacity70;
 
+  /// 70% opacity of the [primaryDark] color.
+  ///
+  /// Used for [Launchpad] background color.
+  final Color primaryDarkOpacity90;
+
   /// [Color] responsible for the helper primary color.
   ///
   /// Used for alternative primary in case we need to darken.
@@ -659,16 +662,6 @@ class Palette {
   ///
   /// Used as `possibleContainer` and [DockDecorator] color.
   final Color primaryAuxiliaryOpacity25;
-
-  /// 60% opacity of the [primaryAuxiliary] color.
-  ///
-  /// Used as [DockDecorator] buttons color if platform is iOS or Safari.
-  final Color primaryAuxiliaryOpacity60;
-
-  /// 90% opacity of the [primaryAuxiliary] color.
-  ///
-  /// Used as mobile call buttons color if platform is not iOS or Safari.
-  final Color primaryAuxiliaryOpacity90;
 
   /// [Color] for elements to put above the [primary] color.
   ///
@@ -859,10 +852,6 @@ class Palette {
           Color.lerp(color.primaryAuxiliary, other.primaryAuxiliary, t)!,
       primaryAuxiliaryOpacity25: Color.lerp(
           color.primaryAuxiliaryOpacity25, other.primaryAuxiliaryOpacity25, t)!,
-      primaryAuxiliaryOpacity60: Color.lerp(
-          color.primaryAuxiliaryOpacity60, other.primaryAuxiliaryOpacity60, t)!,
-      primaryAuxiliaryOpacity90: Color.lerp(
-          color.primaryAuxiliaryOpacity90, other.primaryAuxiliaryOpacity90, t)!,
       primaryHighlight:
           Color.lerp(color.primaryHighlight, other.primaryHighlight, t)!,
       primaryHighlightShiny: Color.lerp(
@@ -877,6 +866,8 @@ class Palette {
       primaryDark: Color.lerp(color.primaryDark, other.primaryDark, t)!,
       primaryDarkOpacity70: Color.lerp(
           color.primaryDarkOpacity70, other.primaryDarkOpacity70, t)!,
+      primaryDarkOpacity90: Color.lerp(
+          color.primaryDarkOpacity90, other.primaryDarkOpacity90, t)!,
       onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
       onPrimaryOpacity7:
           Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,

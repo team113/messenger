@@ -345,7 +345,7 @@ class SecondaryDecorator extends StatelessWidget {
                             condition: PlatformUtils.isWeb && condition,
                             child: Container(
                               color: PlatformUtils.isWeb
-                                  ? style.colors.primaryAuxiliaryOpacity60
+                                  ? style.colors.primaryDarkOpacity90
                                   : style.colors.primaryDarkOpacity70,
                               child: Row(
                                 children: [

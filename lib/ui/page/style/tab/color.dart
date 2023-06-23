@@ -196,11 +196,20 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                   style.colors.backgroundAuxiliaryLight,
                   'Цвет фона профиля.',
                 ),
+                color(style.colors.primaryDark, 'Цвет элементов звонка'),
+                color(
+                  style.colors.primaryDarkOpacity90,
+                  'Вторичный цвет панели инструментов в звонке',
+                ),
+                color(
+                  style.colors.primaryDarkOpacity70,
+                  'Первичный цвет панели инструментов в звонке',
+                ),
+                color(style.colors.onSecondary, 'Цвет кнопок в звонке.'),
                 color(
                   style.colors.onSecondaryOpacity88,
                   'Цвет верхней перетаскиваемой строки заголовка.',
                 ),
-                color(style.colors.onSecondary, 'Цвет кнопок в звонке.'),
                 color(
                   style.colors.onSecondaryOpacity60,
                   'Дополнительный цвет верхней перетаскиваемой строки заголовка.',
@@ -212,6 +221,14 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
                 color(
                   style.colors.onSecondaryOpacity20,
                   'Цвет мобильного селектора.',
+                ),
+                color(
+                  style.colors.primaryAuxiliary,
+                  'Цвет различных декораторов в звонке',
+                ),
+                color(
+                  style.colors.primaryAuxiliaryOpacity25,
+                  'Цвет ограничителя перетаскивания панели в звонке',
                 ),
                 color(style.colors.primaryHighlight, 'Цвет выпадающего меню.'),
                 color(style.colors.primary, 'Цвет кнопок и ссылок.'),
