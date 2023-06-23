@@ -31,7 +31,7 @@ class AnimatedParticipant extends StatelessWidget {
     this.participant,
     this.muted,
     this.animated,
-    this.minimized, {
+    this.withBlur, {
     super.key,
   });
 
@@ -44,8 +44,8 @@ class AnimatedParticipant extends StatelessWidget {
   /// Indicator whether animation is turned on or off.
   final bool animated;
 
-  /// Indicator whether the widget is minimized or not.
-  final bool minimized;
+  /// Indicator whether the overlay should have a blur under it.
+  final bool withBlur;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +76,7 @@ class AnimatedParticipant extends StatelessWidget {
               participant,
               muted: muted,
               hovered: animated,
-              preferBackdrop: !minimized,
+              preferBackdrop: withBlur,
             ),
           ],
         ),

@@ -54,10 +54,8 @@ class SecondaryDecorator extends StatelessWidget {
     this.onScaleTopRight,
     this.onScaleBottomLeft,
     this.onScaleBottomRight,
-    this.condition = true,
-    this.isVisible = true,
-    this.showCursor = true,
-    this.isAligned = true,
+    this.withBlur = true,
+    this.changeCursor = true,
     this.showDragTarget = true,
     this.isHover = true,
     this.height = 50,
@@ -86,26 +84,21 @@ class SecondaryDecorator extends StatelessWidget {
   /// Bottom position of this [SecondaryDecorator].
   final double? bottom;
 
-  /// Indicator whether this [SecondaryDecorator] is visible.
-  final bool isVisible;
-
-  /// Indicator whether the cursor should be displayed.
-  final bool showCursor;
-
-  /// Indicator whether the [alignment] should be used.
-  final bool isAligned;
+  /// Indicator whether the cursor should be changed.
+  final bool changeCursor;
 
   /// Indicator whether the drag target should be displayed.
   final bool showDragTarget;
 
-  /// Indicator whether secondary panel is hovered.
+  /// Indicator whether this [SecondaryDecorator] is hovered.
   final bool isHover;
 
   /// Indicator whether draggable title bar should be displayed on hover.
   final bool showTitleBar;
 
-  /// Indicator whether [BackdropFilter] should be enabled or not.
-  final bool condition;
+  /// Indicator whether the background should be blurred under the title and
+  /// drag target indicator.
+  final bool withBlur;
 
   /// Alignment of this [SecondaryDecorator].
   final Alignment? alignment;
@@ -169,7 +162,7 @@ class SecondaryDecorator extends StatelessWidget {
   /// [SecondaryDecorator].
   final void Function(PointerExitEvent)? onExit;
 
-  /// Callback, called when [InkResponse] is tapped.
+  /// Callback, called when the close button is tapped.
   final void Function()? onTap;
 
   @override
@@ -189,7 +182,7 @@ class SecondaryDecorator extends StatelessWidget {
           top: top,
           bottom: bottom,
           child: IgnorePointer(
-            child: isAligned
+            child: alignment == null
                 ? Container(
                     width: width,
                     height: height,
@@ -218,7 +211,7 @@ class SecondaryDecorator extends StatelessWidget {
             child: SizedBox(
               width: width,
               height: height,
-              child: isAligned
+              child: alignment == null
                   ? IgnorePointer(
                       child: ClipRRect(
                         borderRadius: borderRadius,
@@ -246,49 +239,49 @@ class SecondaryDecorator extends StatelessWidget {
         ),
 
         positionedBoilerplate(
-          isAligned
+          alignment == null
               ? buildDragHandle(Alignment.centerLeft, context)
               : const SizedBox(),
         ),
 
         positionedBoilerplate(
-          isAligned
+          alignment == null
               ? buildDragHandle(Alignment.centerRight, context)
               : const SizedBox(),
         ),
 
         positionedBoilerplate(
-          isAligned
+          alignment == null
               ? buildDragHandle(Alignment.bottomCenter, context)
               : const SizedBox(),
         ),
 
         positionedBoilerplate(
-          isAligned
+          alignment == null
               ? buildDragHandle(Alignment.topCenter, context)
               : const SizedBox(),
         ),
 
         positionedBoilerplate(
-          isAligned
+          alignment == null
               ? buildDragHandle(Alignment.topLeft, context)
               : const SizedBox(),
         ),
 
         positionedBoilerplate(
-          isAligned
+          alignment == null
               ? buildDragHandle(Alignment.topRight, context)
               : const SizedBox(),
         ),
 
         positionedBoilerplate(
-          isAligned
+          alignment == null
               ? buildDragHandle(Alignment.bottomLeft, context)
               : const SizedBox(),
         ),
 
         positionedBoilerplate(
-          isAligned
+          alignment == null
               ? buildDragHandle(Alignment.bottomRight, context)
               : const SizedBox(),
         ),
@@ -335,14 +328,14 @@ class SecondaryDecorator extends StatelessWidget {
                         key: const ValueKey('TitleBar'),
                         opacity: isHover ? 1 : 0,
                         child: ClipRRect(
-                          borderRadius: isAligned
+                          borderRadius: alignment == null
                               ? BorderRadius.only(
                                   topLeft: borderRadius.topLeft,
                                   topRight: borderRadius.topRight,
                                 )
                               : BorderRadius.zero,
                           child: ConditionalBackdropFilter(
-                            condition: PlatformUtils.isWeb && condition,
+                            condition: PlatformUtils.isWeb && withBlur,
                             child: Container(
                               color: PlatformUtils.isWeb
                                   ? style.colors.primaryDarkOpacity90
@@ -418,7 +411,7 @@ class SecondaryDecorator extends StatelessWidget {
               child: AnimatedOpacity(
                 opacity: showDragTarget ? 1 : 0,
                 duration: const Duration(milliseconds: 300),
-                child: DropBox(withBlur: condition),
+                child: DropBox(withBlur: withBlur),
               ),
             ),
           ),
@@ -445,7 +438,7 @@ class SecondaryDecorator extends StatelessWidget {
                       duration: 200.milliseconds,
                       margin: const EdgeInsets.all(Scaler.size / 2),
                       decoration: ShapeDecoration(
-                        shape: (isHover && isAligned)
+                        shape: (isHover && alignment == null)
                             ? RoundedRectangleBorder(
                                 side: BorderSide(
                                   color: style.colors.secondary,
@@ -453,7 +446,7 @@ class SecondaryDecorator extends StatelessWidget {
                                 ),
                                 borderRadius: borderRadius,
                               )
-                            : (!isHover && isAligned)
+                            : (!isHover && alignment == null)
                                 ? RoundedRectangleBorder(
                                     side: BorderSide(
                                       color:
@@ -500,9 +493,8 @@ class SecondaryDecorator extends StatelessWidget {
     );
   }
 
-  // Returns a widget that can be dragged and resized.
+  /// Returns a [Scaler] scaling this [SecondaryDecorator].
   Widget buildDragHandle(Alignment alignment, BuildContext context) {
-    // Returns a [Scaler] scaling the secondary view.
     Widget scaler({
       Key? key,
       MouseCursor cursor = MouseCursor.defer,
@@ -511,7 +503,7 @@ class SecondaryDecorator extends StatelessWidget {
       double? height,
     }) {
       return MouseRegion(
-        cursor: cursor,
+        cursor: changeCursor ? cursor : MouseCursor.defer,
         child: Scaler(
           key: key,
           onDragUpdate: onDrag,
@@ -591,6 +583,8 @@ class SecondaryDecorator extends StatelessWidget {
     return Align(alignment: alignment, child: widget);
   }
 
+  /// Returns the positioned [child] according to the [left], [right], [top] and
+  /// [bottom] values;
   Widget positionedBoilerplate(Widget child) {
     return Positioned(
       left: left == null ? null : (left! - Scaler.size / 2),

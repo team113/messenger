@@ -32,7 +32,7 @@ class DockDecorator extends StatelessWidget {
   const DockDecorator({
     super.key,
     this.globalKey,
-    this.showBottomUi = true,
+    this.showChild = true,
     this.child,
     this.onEnter,
     this.onHover,
@@ -43,8 +43,8 @@ class DockDecorator extends StatelessWidget {
   /// [GlobalKey] of this [DockDecorator].
   final GlobalKey? globalKey;
 
-  /// Indicator whether to show the [child].
-  final bool? showBottomUi;
+  /// Indicator whether the [child] should be showed.
+  final bool? showChild;
 
   /// [Widget] wrapped by this [DockDecorator].
   final Widget? child;
@@ -73,7 +73,7 @@ class DockDecorator extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 5),
       child: AnimatedSlider(
         key: const Key('DockedPanelPadding'),
-        isOpen: showBottomUi!,
+        isOpen: showChild!,
         duration: 400.milliseconds,
         translate: false,
         listener: listener,

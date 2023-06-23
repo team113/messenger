@@ -201,7 +201,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       e,
                       muted,
                       animated,
-                      c.minimized.value,
+                      !c.minimized.value,
                     );
                   },
                 );
