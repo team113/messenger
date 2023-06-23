@@ -648,7 +648,7 @@ class Palette {
   /// Used for `Draggable` panel elements.
   final Color primaryDarkOpacity70;
 
-  /// 70% opacity of the [primaryDark] color.
+  /// 90% opacity of the [primaryDark] color.
   ///
   /// Used for [Launchpad] background color.
   final Color primaryDarkOpacity90;
