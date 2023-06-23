@@ -485,7 +485,7 @@ class MessageFieldView extends StatelessWidget {
       child: _Attachment(
         attachmentKey: Key('Attachment_${e.id}'),
         size: size,
-        isLoading: !c.field.status.value.isLoading,
+        isLoading: c.field.status.value.isLoading,
         isVisible: c.hoveredAttachment.value == e || PlatformUtils.isMobile,
         onEnter: (_) => c.hoveredAttachment.value = e,
         onExit: (_) => c.hoveredAttachment.value = null,
