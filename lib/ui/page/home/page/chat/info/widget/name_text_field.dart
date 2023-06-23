@@ -17,42 +17,46 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/chat.dart';
-import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/page/home/page/chat/widget/padding.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// [Widget] which returns a [Chat.name] editable field.
-class ChatName extends StatelessWidget {
-  const ChatName(this.chat, this.name, {super.key});
+/// Custom-styled [ReactiveTextField] to manipulate user name.
+class NameTextField extends StatelessWidget {
+  const NameTextField({
+    super.key,
+    required this.state,
+    this.text = '',
+    this.label,
+  });
 
-  /// Reactive [Chat] with chat items.
-  final RxChat? chat;
+  /// Reactive state of the [ReactiveTextField].
+  final ReactiveFieldState state;
 
-  /// [Chat.name] field state.
-  final TextFieldState name;
+  /// Text of this [NameTextField].
+  final String text;
+
+  /// Label of the [ReactiveTextField].
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
-    return BasicPadding(
+    return Paddings.basic(
       ReactiveTextField(
         key: const Key('RenameChatField'),
-        state: name,
-        label: chat?.chat.value.name == null
-            ? chat?.title.value
-            : 'label_name'.l10n,
-        hint: 'label_name_hint'.l10n,
-        onSuffixPressed: name.text.isEmpty
+        state: state,
+        label: label,
+        hint: 'label_chat_name_hint'.l10n,
+        onSuffixPressed: text.isEmpty
             ? null
             : () {
-                PlatformUtils.copy(text: name.text);
+                PlatformUtils.copy(text: text);
                 MessagePopup.success('label_copied'.l10n);
               },
-        trailing: name.text.isEmpty
+        trailing: text.isEmpty
             ? null
             : Transform.translate(
                 offset: const Offset(0, -1),
