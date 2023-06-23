@@ -50,6 +50,10 @@ class PlatformUtilsImpl {
   /// May be overridden to be mocked in tests.
   Dio dio = Dio();
 
+  StreamController<bool>? _activeController;
+
+  StreamController<bool>? _focusController;
+
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
 
@@ -79,33 +83,72 @@ class PlatformUtilsImpl {
 
   /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
-    StreamController<bool>? controller;
+    if (_focusController != null) {
+      return _focusController!.stream;
+    }
 
     if (isWeb) {
       return WebUtils.onFocusChanged;
     } else if (isDesktop) {
       _WindowListener listener = _WindowListener(
-        onBlur: () => controller!.add(false),
-        onFocus: () => controller!.add(true),
+        onBlur: () => _focusController!.add(false),
+        onFocus: () => _focusController!.add(true),
       );
 
-      controller = StreamController<bool>(
+      _focusController = StreamController<bool>.broadcast(
         onListen: () => WindowManager.instance.addListener(listener),
-        onCancel: () => WindowManager.instance.removeListener(listener),
+        onCancel: () {
+          WindowManager.instance.removeListener(listener);
+          _focusController?.close();
+          _focusController = null;
+        },
       );
     } else {
       Worker? worker;
 
-      controller = StreamController<bool>(
+      _focusController = StreamController<bool>.broadcast(
         onListen: () => worker = ever(
           router.lifecycle,
-          (AppLifecycleState a) => controller?.add(a.inForeground),
+          (AppLifecycleState a) => _focusController?.add(a.inForeground),
         ),
-        onCancel: () => worker?.dispose(),
+        onCancel: () {
+          worker?.dispose();
+          _focusController?.close();
+          _focusController = null;
+        },
       );
     }
 
-    return controller.stream;
+    return _focusController!.stream;
+  }
+
+  /// Returns a stream broadcasting the application's window focus changes.
+  Stream<bool> get onActiveChanged {
+    if (_activeController != null) {
+      return _activeController!.stream;
+    }
+
+    StreamSubscription? focusSubscription;
+
+    _activeController = StreamController<bool>.broadcast(
+      onListen: () {
+        focusSubscription = onFocusChanged.listen((focused) {
+          if (focused) {
+            keepActive();
+          } else {
+            _isActive = false;
+            _activeController?.add(false);
+          }
+        });
+      },
+      onCancel: () {
+        focusSubscription?.cancel();
+        _activeController?.close();
+        _activeController = null;
+      },
+    );
+
+    return _activeController!.stream;
   }
 
   /// Returns a stream broadcasting the application's window size changes.
@@ -195,6 +238,51 @@ class PlatformUtilsImpl {
 
     _downloadDirectory = '$path${Config.downloads}';
     return _downloadDirectory!;
+  }
+
+  bool _isActive = true;
+
+  Timer? activeTimer;
+
+  Future<bool> get isActive async => _isActive && await isFocused;
+
+  void keepActive() {
+    _isActive = true;
+    _activeController?.add(true);
+
+    activeTimer?.cancel();
+    activeTimer = Timer(15.seconds, () {
+      _isActive = false;
+      _activeController?.add(false);
+    });
+  }
+
+  void init() {
+    if (_activeController != null) {
+      return;
+    }
+
+    StreamSubscription? focusSubscription;
+
+    _activeController = StreamController<bool>.broadcast(
+      onListen: () {
+        focusSubscription = onFocusChanged.listen((focused) {
+          if (focused) {
+            keepActive();
+          } else {
+            _isActive = false;
+            _activeController?.add(false);
+          }
+        });
+      },
+      onCancel: () {
+        focusSubscription?.cancel();
+        _activeController?.close();
+        _activeController = null;
+      },
+    );
+
+    //return _activeController!.stream;
   }
 
   /// Enters fullscreen mode.

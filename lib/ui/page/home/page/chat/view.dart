@@ -392,11 +392,15 @@ class _ChatViewState extends State<ChatView>
                                               c.isItemDragged.isTrue)
                                       ? const NeverScrollableScrollPhysics()
                                       : const BouncingScrollPhysics(),
+                                  reverse: true,
                                   delegate: FlutterListViewDelegate(
                                     (context, i) => _listElement(context, c, i),
                                     // ignore: invalid_use_of_protected_member
                                     childCount: c.elements.value.length,
+                                    stickyAtTailer: true,
                                     keepPosition: true,
+                                    keepPositionOffset:
+                                        c.active.isTrue ? 20 : 1,
                                     onItemKey: (i) => c.elements.values
                                         .elementAt(i)
                                         .id
@@ -569,7 +573,7 @@ class _ChatViewState extends State<ChatView>
     final style = Theme.of(context).style;
 
     ListElement element = c.elements.values.elementAt(i);
-    bool isLast = i == c.elements.length - 1;
+    bool isLast = i == 0;
 
     if (element is ChatMessageElement ||
         element is ChatCallElement ||
@@ -587,13 +591,13 @@ class _ChatViewState extends State<ChatView>
       }
 
       ListElement? previous;
-      if (i > 0) {
-        previous = c.elements.values.elementAt(i - 1);
+      if (i < c.elements.length - 1) {
+        previous = c.elements.values.elementAt(i + 1);
       }
 
       ListElement? next;
-      if (i < c.elements.length - 1) {
-        next = c.elements.values.elementAt(i + 1);
+      if (i > 0) {
+        next = c.elements.values.elementAt(i - 1);
       }
 
       bool previousSame = false;
@@ -817,7 +821,7 @@ class _ChatViewState extends State<ChatView>
         } else {
           child = SizedBox(
             key: const ValueKey(2),
-            height: c.listController.position.pixels > 0 ? null : 64,
+            height: c.listController.position.pixels == 0 ? null : 64,
           );
         }
 
@@ -1040,7 +1044,7 @@ class _ChatViewState extends State<ChatView>
         return MessageFieldView(
           key: const Key('EditField'),
           controller: c.edit.value,
-          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: false),
           canAttach: false,
         );
       }
@@ -1049,7 +1053,7 @@ class _ChatViewState extends State<ChatView>
         key: const Key('SendField'),
         controller: c.send,
         onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
-        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: false),
         canForward: true,
       );
     });
