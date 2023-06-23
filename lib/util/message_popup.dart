@@ -30,6 +30,7 @@ class MessagePopup {
   /// Shows an error popup with the provided argument.
   static Future<void> error(dynamic e) async {
     var message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
+
     await showDialog(
       context: router.context!,
       builder: (context) => AlertDialog(
@@ -52,12 +53,7 @@ class MessagePopup {
     List<TextSpan> description = const [],
     List<Widget> additional = const [],
   }) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(router.context!)
-        .textTheme
-        .bodyLarge
-        ?.copyWith(color: style.colors.onBackground);
+    final (style, fonts) = Theme.of(router.context!).styles;
 
     return ModalPopup.show(
       context: router.context!,
@@ -67,14 +63,7 @@ class MessagePopup {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    title,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: title),
               const SizedBox(height: 13),
               Flexible(
                 child: ListView(
@@ -87,8 +76,7 @@ class MessagePopup {
                           child: RichText(
                             text: TextSpan(
                               children: description,
-                              style: thin?.copyWith(
-                                fontSize: 15,
+                              style: fonts.labelLarge!.copyWith(
                                 color: style.colors.secondary,
                               ),
                             ),
@@ -112,7 +100,9 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: style.colors.onPrimary),
+                    style: fonts.bodyMedium!.copyWith(
+                      color: style.colors.onPrimary,
+                    ),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   color: style.colors.primary,

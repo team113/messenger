@@ -40,11 +40,7 @@ class BlacklistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       init: BlacklistController(
@@ -59,13 +55,8 @@ class BlacklistView extends StatelessWidget {
             children: [
               const SizedBox(height: 4),
               ModalPopupHeader(
-                header: Center(
-                  child: Text(
+                text:
                     'label_users_count'.l10nfmt({'count': c.blacklist.length}),
-                    style: thin?.copyWith(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
               ),
               const SizedBox(height: 4),
               if (c.blacklist.isEmpty)
@@ -95,9 +86,8 @@ class BlacklistView extends StatelessWidget {
                             const SizedBox(height: 5),
                             Text(
                               '28.12.2022',
-                              style: TextStyle(
+                              style: fonts.bodySmall!.copyWith(
                                 color: style.colors.secondary,
-                                fontSize: 13,
                               ),
                             ),
                           ],
@@ -106,9 +96,8 @@ class BlacklistView extends StatelessWidget {
                               onPressed: () => c.unblacklist(user),
                               child: Text(
                                 'btn_unblock_short'.l10n,
-                                style: TextStyle(
+                                style: fonts.bodySmall!.copyWith(
                                   color: style.colors.primary,
-                                  fontSize: 13,
                                 ),
                               ),
                             ),

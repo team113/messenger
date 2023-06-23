@@ -52,6 +52,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'chat_gallery.dart';
 import 'chat_item.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
@@ -141,7 +142,7 @@ class ChatForwardWidget extends StatefulWidget {
   ///
   /// If not specified, then only media of these [forwards] and [note] will be
   /// in a gallery.
-  final List<Attachment> Function()? onGallery;
+  final List<GalleryAttachment> Function()? onGallery;
 
   /// Callback, called when a drag of these [forwards] starts or ends.
   final void Function(bool)? onDrag;
@@ -264,7 +265,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     final Color color = widget.user?.user.value.id == widget.me
         ? style.colors.primary
@@ -272,7 +273,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             style.colors.userColors.length];
 
     return DefaultTextStyle(
-      style: style.boldBody,
+      style: fonts.bodyLarge!,
       child: Obx(() {
         return _rounded(
           context,
@@ -324,7 +325,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               selectable: PlatformUtils.isDesktop || menu,
                               onChanged: (a) => _selection = a,
                               onSelecting: widget.onSelecting,
-                              style: style.boldBody.copyWith(color: color),
+                              style: fonts.bodyLarge!.copyWith(color: color),
                             ),
                           ),
                         ],
@@ -334,9 +335,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           child: Text(
                             'label_forwarded_messages'
                                 .l10nfmt({'count': widget.forwards.length}),
-                            style: style.boldBody.copyWith(
+                            style: fonts.headlineSmall!.copyWith(
                               color: style.colors.secondary,
-                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -381,7 +381,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       final ChatForward msg = forward.value as ChatForward;
       final ChatItemQuote quote = msg.quote;
 
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       List<Widget> content = [];
 
@@ -396,6 +396,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 (e is FileAttachment && e.isVideo) ||
                 (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
             .toList();
+
+        final Iterable<GalleryAttachment> galleries = media.map(
+          (e) => GalleryAttachment(e, widget.onAttachmentError),
+        );
 
         final List<Attachment> files = quote.attachments
             .where((e) =>
@@ -435,7 +439,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           selectable: PlatformUtils.isDesktop || menu,
                           onChanged: (a) => _selection = a,
                           onSelecting: widget.onSelecting,
-                          style: style.boldBody.copyWith(color: color),
+                          style: fonts.bodyLarge!.copyWith(color: color),
                         ),
                       ),
                     ),
@@ -448,7 +452,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 ? ChatItemWidget.mediaAttachment(
                     context,
                     media.first,
-                    media,
+                    galleries,
                     key: _galleryKeys[msg.id]?.firstOrNull,
                     onGallery: widget.onGallery,
                     onError: widget.onAttachmentError,
@@ -465,7 +469,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             (i, e) => ChatItemWidget.mediaAttachment(
                               context,
                               e,
-                              media,
+                              galleries,
                               key: _galleryKeys[msg.id]?[i],
                               onGallery: widget.onGallery,
                               onError: widget.onAttachmentError,
@@ -496,7 +500,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: MessageTimestamp(
                         at: quote.at,
                         date: true,
-                        fontSize: 12,
+                        fontSize: fonts.labelSmall!.fontSize,
                       ),
                     ),
                 ],
@@ -521,7 +525,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               child: MessageTimestamp(
                                 at: quote.at,
                                 date: true,
-                                fontSize: 12,
+                                fontSize: fonts.labelSmall!.fontSize,
                               ),
                             ),
                           ),
@@ -530,7 +534,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: style.boldBody,
+                      style: fonts.bodyLarge,
                     ),
                   ),
                 ),
@@ -573,11 +577,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
                 child: call?.withVideo == true
                     ? SvgImage.asset(
-                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : '_blue'}.svg',
                         height: 13,
                       )
                     : SvgImage.asset(
-                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : '_blue'}.svg',
                         height: 15,
                       ),
               ),
@@ -590,7 +594,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     time,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: style.boldBody,
+                    style: fonts.bodyLarge,
                   ),
                 ),
               ],
@@ -598,9 +602,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           )
         ];
       } else if (quote is ChatInfoQuote) {
-        content = [Text(quote.action.toString(), style: style.boldBody)];
+        content = [Text(quote.action.toString(), style: fonts.bodyLarge)];
       } else {
-        content = [Text('err_unknown'.l10n, style: style.boldBody)];
+        content = [Text('err_unknown'.l10n, style: fonts.bodyLarge)];
       }
 
       return AnimatedContainer(
@@ -654,7 +658,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               child: MessageTimestamp(
                                 at: quote.at,
                                 date: true,
-                                fontSize: 12,
+                                fontSize: fonts.labelSmall!.fontSize,
                                 inverted: true,
                               ),
                             ),
@@ -662,7 +666,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         : MessageTimestamp(
                             at: quote.at,
                             date: true,
-                            fontSize: 12,
+                            fontSize: fonts.labelSmall!.fontSize,
                           ),
                   )
                 ],
@@ -679,7 +683,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     final ChatItem item = widget.note.value!.value;
 
     if (item is ChatMessage) {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       final TextSpan? text = _text[item.id];
 
@@ -688,6 +692,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             (e is FileAttachment && e.isVideo) ||
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
+
+      final Iterable<GalleryAttachment> galleries = media.map(
+        (e) => GalleryAttachment(e, widget.onAttachmentError),
+      );
 
       final List<Attachment> files = item.attachments.where((e) {
         return ((e is FileAttachment && !e.isVideo) ||
@@ -722,7 +730,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: style.boldBody.copyWith(color: color),
+                      style: fonts.bodyLarge!.copyWith(color: color),
                     ),
                   ),
                 ),
@@ -739,7 +747,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   ? ChatItemWidget.mediaAttachment(
                       context,
                       media.first,
-                      media,
+                      galleries,
                       key: _galleryKeys[item.id]?.lastOrNull,
                       onGallery: widget.onGallery,
                       onError: widget.onAttachmentError,
@@ -756,7 +764,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               (i, e) => ChatItemWidget.mediaAttachment(
                                 context,
                                 e,
-                                media,
+                                galleries,
                                 key: _galleryKeys[item.id]?[i],
                                 onGallery: widget.onGallery,
                                 onError: widget.onAttachmentError,
@@ -803,7 +811,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onChanged: (a) => _selection = a,
                         onSelecting: widget.onSelecting,
-                        style: style.boldBody,
+                        style: fonts.bodyLarge,
                       ),
                     ),
                   ),

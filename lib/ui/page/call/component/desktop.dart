@@ -30,7 +30,9 @@ import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
-import '../widget/participant.dart';
+import '../widget/participant/decorator.dart';
+import '../widget/participant/overlay.dart';
+import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
@@ -55,7 +57,7 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final (style, fonts) = Theme.of(context).styles;
 
   return LayoutBuilder(
     builder: (context, constraints) {
@@ -484,8 +486,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: TextStyle(
-                                          fontSize: 11,
+                                        style: fonts.labelSmall!.copyWith(
                                           color: style.colors.onPrimary,
                                         ),
                                         textAlign: TextAlign.center,
@@ -696,8 +697,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: context.textTheme.bodyLarge?.copyWith(
-                          fontSize: 13,
+                        style: fonts.labelMedium!.copyWith(
                           color: style.colors.onPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -1119,7 +1119,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       return Container(
         key: const ValueKey('TitleBar'),
@@ -1158,8 +1158,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: context.textTheme.bodyLarge?.copyWith(
-                            fontSize: 13,
+                          style: fonts.labelMedium!.copyWith(
                             color: style.colors.onPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -1201,7 +1200,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
+  final style = Theme.of(router.context!).style;
 
   return Obx(() {
     void onDragEnded(_DragData d) {
@@ -1367,7 +1366,7 @@ Widget _primaryView(CallController c) {
                               onPressed: () =>
                                   c.toggleAudioEnabled(participant),
                             ),
-                          if (participant.member.isRedialing.isFalse)
+                          if (participant.member.isDialing.isFalse)
                             ContextMenuButton(
                               label: 'btn_call_remove_participant'.l10n,
                               onPressed: () => c.removeChatCallMember(
@@ -1473,7 +1472,7 @@ Widget _primaryView(CallController c) {
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final (style, fonts) = Theme.of(context).styles;
 
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
@@ -1915,7 +1914,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     onPressed: () =>
                                         c.toggleAudioEnabled(participant),
                                   ),
-                                if (participant.member.isRedialing.isFalse)
+                                if (participant.member.isDialing.isFalse)
                                   ContextMenuButton(
                                     label: 'btn_call_remove_participant'.l10n,
                                     onPressed: () => c.removeChatCallMember(
@@ -2072,7 +2071,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: TextStyle(
+                                        style: fonts.labelMedium!.copyWith(
                                           color: style.colors.onPrimary,
                                         ),
                                         maxLines: 1,
@@ -2274,7 +2273,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
 /// [DragTarget] of an empty [_secondaryView].
 Widget _secondaryTarget(CallController c) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
+  final style = Theme.of(router.context!).style;
 
   return Obx(() {
     Axis secondaryAxis =

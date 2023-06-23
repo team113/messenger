@@ -32,8 +32,8 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -57,7 +57,7 @@ class ChatsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -106,7 +106,7 @@ class ChatsTabView extends StatelessWidget {
                               filled: false,
                               dense: true,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(fontSize: 17),
+                              style: fonts.bodyLarge,
                               onChanged: () => c.search.value!.query.value =
                                   c.search.value!.search.text,
                             ),
@@ -140,8 +140,7 @@ class ChatsTabView extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'label_synchronization'.l10n,
-                              style: TextStyle(
-                                fontSize: 13,
+                              style: fonts.labelMedium!.copyWith(
                                 color: style.colors.secondary,
                               ),
                             ),
@@ -268,7 +267,10 @@ class ChatsTabView extends StatelessWidget {
                           true) {
                         center = Center(
                           key: UniqueKey(),
-                          child: Text('label_nothing_found'.l10n),
+                          child: Text(
+                            'label_nothing_found'.l10n,
+                            style: fonts.labelMedium,
+                          ),
                         );
                       } else {
                         center = Center(
@@ -344,7 +346,7 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style: TextStyle(
+                                      style: fonts.bodySmall!.copyWith(
                                         color: style.colors.onPrimary,
                                       ),
                                     ),
@@ -388,13 +390,7 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                   width: double.infinity,
                                   child: Center(
-                                    child: Text(
-                                      text,
-                                      style: style.systemMessageStyle.copyWith(
-                                        color: style.colors.onBackground,
-                                        fontSize: 15,
-                                      ),
-                                    ),
+                                    child: Text(text, style: fonts.labelLarge),
                                   ),
                                 ),
                               );
@@ -448,7 +444,7 @@ class ChatsTabView extends StatelessWidget {
                                       getUser: c.getUser,
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
-                                      inCall: () => c.inCall(chat.id),
+                                      inCall: () => c.containsCall(chat.id),
                                     );
                                   }),
                                 );
@@ -477,11 +473,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         element.category.name.capitalizeFirst!,
-                                        style:
-                                            style.systemMessageStyle.copyWith(
-                                          color: style.colors.onBackground,
-                                          fontSize: 15,
-                                        ),
+                                        style: fonts.labelLarge,
                                       ),
                                     ),
                                   ),
@@ -517,7 +509,10 @@ class ChatsTabView extends StatelessWidget {
                         delay: const Duration(milliseconds: 300),
                         child: Center(
                           key: const Key('NothingFound'),
-                          child: Text('label_nothing_found'.l10n),
+                          child: Text(
+                            'label_nothing_found'.l10n,
+                            style: fonts.labelMedium,
+                          ),
                         ),
                       );
                     }
@@ -608,15 +603,23 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: () => c.hideChat(e.id),
-                                inCall: () => c.inCall(e.id),
-                                onMute: e.chat.value.isMonolog
+                                inCall: () => c.containsCall(e.id),
+                                onMute: e.chat.value.isMonolog ||
+                                        e.chat.value.id.isLocal
                                     ? null
                                     : () => c.muteChat(e.id),
-                                onUnmute: e.chat.value.isMonolog
+                                onUnmute: e.chat.value.isMonolog ||
+                                        e.chat.value.id.isLocal
                                     ? null
                                     : () => c.unmuteChat(e.id),
-                                onFavorite: () => c.favoriteChat(e.id),
-                                onUnfavorite: () => c.unfavoriteChat(e.id),
+                                onFavorite: e.chat.value.id.isLocal &&
+                                        !e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.favoriteChat(e.id),
+                                onUnfavorite: e.chat.value.id.isLocal &&
+                                        !e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.unfavoriteChat(e.id),
                                 onSelect: c.toggleSelecting,
                                 onTap: c.selecting.value
                                     ? () => c.selectChat(e)
@@ -854,6 +857,148 @@ class ChatsTabView extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  /// Returns an animated [OutlinedRoundedButton]s for creating a group.
+  Widget _createGroup(BuildContext context, ChatsTabController c) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Obx(() {
+      final Widget child;
+
+      if (c.groupCreating.value) {
+        Widget button({
+          Key? key,
+          Widget? leading,
+          required Widget child,
+          void Function()? onPressed,
+          Color? color,
+        }) {
+          return Expanded(
+            child: OutlinedRoundedButton(
+              key: key,
+              leading: leading,
+              title: child,
+              onPressed: onPressed,
+              color: color,
+              shadows: [
+                CustomBoxShadow(
+                  blurRadius: 8,
+                  color: style.colors.onBackgroundOpacity13,
+                  blurStyle: BlurStyle.outer,
+                ),
+              ],
+            ),
+          );
+        }
+
+        child = Padding(
+          padding: EdgeInsets.fromLTRB(
+            8,
+            7,
+            8,
+            PlatformUtils.isMobile && !PlatformUtils.isWeb
+                ? router.context!.mediaQuery.padding.bottom + 7
+                : 12,
+          ),
+          child: Row(
+            children: [
+              button(
+                child: Text(
+                  'btn_cancel'.l10n,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: fonts.titleLarge,
+                ),
+                onPressed: c.closeGroupCreating,
+                color: style.colors.onPrimary,
+              ),
+              const SizedBox(width: 10),
+              button(
+                child: Text(
+                  'btn_create_group'.l10n,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: fonts.titleLarge!.copyWith(
+                    color: style.colors.onPrimary,
+                  ),
+                ),
+                onPressed: c.createGroup,
+                color: style.colors.primary,
+              ),
+            ],
+          ),
+        );
+      } else {
+        child = const SizedBox();
+      }
+
+      return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+    });
+  }
+
+  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
+  /// [Chat]s manipulation.
+  Widget _selectButtons(BuildContext context, ChatsTabController c) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    List<CustomBoxShadow> shadows = [
+      CustomBoxShadow(
+        blurRadius: 8,
+        color: style.colors.onBackgroundOpacity13,
+        blurStyle: BlurStyle.outer,
+      ),
+    ];
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        8,
+        7,
+        8,
+        PlatformUtils.isMobile && !PlatformUtils.isWeb
+            ? router.context!.mediaQuery.padding.bottom + 7
+            : 12,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedRoundedButton(
+              title: Text(
+                'btn_cancel'.l10n,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: fonts.titleLarge,
+              ),
+              onPressed: c.toggleSelecting,
+              shadows: shadows,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Obx(() {
+            return Expanded(
+              child: OutlinedRoundedButton(
+                key: const Key('DeleteChats'),
+                title: Text(
+                  'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: fonts.titleLarge!.copyWith(
+                    color: c.selectedChats.isEmpty
+                        ? style.colors.onBackground
+                        : style.colors.onPrimary,
+                  ),
+                ),
+                onPressed: c.selectedChats.isEmpty
+                    ? null
+                    : () => _hideChats(context, c),
+                color: style.colors.primary,
+                shadows: shadows,
+              ),
+            );
+          }),
+        ],
+      ),
     );
   }
 
