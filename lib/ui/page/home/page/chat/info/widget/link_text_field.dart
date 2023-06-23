@@ -32,8 +32,8 @@ class ChatLinkWidget extends StatelessWidget {
   const ChatLinkWidget({
     super.key,
     required this.state,
-    this.usageCount,
     this.text = '',
+    this.usageCount,
   });
 
   /// Reactive state of the [ReactiveTextField].

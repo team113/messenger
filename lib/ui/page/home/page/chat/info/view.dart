@@ -27,7 +27,6 @@ import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/info/widget/animated_circle.dart';
 import '/ui/page/home/page/chat/info/widget/link_text_field.dart';
-import 'widget/name_text_field.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -40,6 +39,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'widget/name_text_field.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
@@ -509,7 +509,7 @@ class _BigButton extends StatelessWidget {
   }
 }
 
-/// Widget which returns the action buttons to do with this [Chat].
+/// [Widget] which returns the [Column] of action buttons.
 class _Actions extends StatelessWidget {
   const _Actions({
     this.hideChat,
