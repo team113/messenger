@@ -18,7 +18,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
@@ -26,13 +31,14 @@ import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
+import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
+import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/chat_status.dart';
-import '/ui/page/home/widget/chat_subtitle.dart';
 import '/ui/page/home/widget/chat_tile.dart';
-import '/ui/page/home/widget/ongoing_call_button.dart';
-import '/ui/page/home/widget/unread_counter.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
@@ -132,10 +138,8 @@ class RecentChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
-
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
@@ -144,14 +148,15 @@ class RecentChatTile extends StatelessWidget {
       return ChatTile(
         chat: rxChat,
         status: [
-          ChatStatus(rxChat, me, inverted),
-          Text(
-            chat.updatedAt.val.toLocal().short,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: inverted ? style.colors.onPrimary : null),
-          ),
+          _status(context, inverted),
+          if (!chat.id.isLocalWith(me))
+            Text(
+              chat.updatedAt.val.toLocal().short,
+              style: fonts.labelLarge!.copyWith(
+                color:
+                    inverted ? style.colors.onPrimary : style.colors.secondary,
+              ),
+            ),
         ],
         subtitle: [
           const SizedBox(height: 5),
@@ -160,15 +165,7 @@ class RecentChatTile extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(height: 3),
-                Expanded(
-                  child: ChatSubtitle(
-                    me,
-                    rxChat: rxChat,
-                    inverted: inverted,
-                    selected: selected,
-                    getUser: getUser,
-                  ),
-                ),
+                Expanded(child: _subtitle(context, selected, inverted)),
                 if (trailing == null) ...[
                   _ongoingCall(context),
                   if (blocked) ...[
@@ -193,7 +190,7 @@ class RecentChatTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                   ],
-                  UnreadCounter(rxChat, inverted),
+                  _counter(context, inverted),
                 ] else
                   ...trailing!,
               ],
@@ -263,9 +260,577 @@ class RecentChatTile extends StatelessWidget {
     });
   }
 
+  /// Builds a subtitle for the provided [RxChat] containing either its
+  /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
+  Widget _subtitle(BuildContext context, bool selected, bool inverted) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Obx(() {
+      final Chat chat = rxChat.chat.value;
+
+      final ChatItem? item;
+      if (rxChat.messages.isNotEmpty) {
+        item = rxChat.messages.last.value;
+      } else {
+        item = chat.lastItem;
+      }
+
+      List<Widget> subtitle = [];
+
+      final Iterable<String> typings = rxChat.typingUsers
+          .where((User user) => user.id != me)
+          .map((User user) => user.name?.val ?? user.num.val);
+
+      ChatMessage? draft = rxChat.draft.value;
+
+      if (draft != null && !selected) {
+        final StringBuffer desc = StringBuffer();
+
+        if (draft.text != null) {
+          desc.write(draft.text!.val);
+        }
+
+        if (draft.repliesTo.isNotEmpty) {
+          if (desc.isNotEmpty) desc.write('space'.l10n);
+          desc.write(
+              'label_replies'.l10nfmt({'count': draft.repliesTo.length}));
+        }
+
+        final List<Widget> images = [];
+
+        if (draft.attachments.isNotEmpty) {
+          if (draft.text == null) {
+            // TODO: Backend should support single attachment updating.
+            images.addAll(
+              draft.attachments.map((e) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 2),
+                  child: _attachment(e, inverted: inverted),
+                );
+              }),
+            );
+          } else {
+            // TODO: Backend should support single attachment updating.
+            images.add(
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: _attachment(draft.attachments.first, inverted: inverted),
+              ),
+            );
+          }
+        }
+
+        subtitle = [
+          Text('${'label_draft'.l10n}${'colon_space'.l10n}'),
+          if (desc.isEmpty)
+            Flexible(
+              child: LayoutBuilder(builder: (_, constraints) {
+                return Row(
+                  children: images
+                      .take((constraints.maxWidth / (30 + 4)).floor())
+                      .toList(),
+                );
+              }),
+            )
+          else
+            ...images,
+          if (desc.isNotEmpty)
+            Flexible(
+              child: Text(
+                desc.toString(),
+                key: const Key('Draft'),
+              ),
+            ),
+        ];
+      } else if (typings.isNotEmpty) {
+        if (!rxChat.chat.value.isGroup) {
+          subtitle = [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'label_typing'.l10n,
+                  style: fonts.labelMedium!.copyWith(
+                    color: inverted
+                        ? style.colors.onPrimary
+                        : style.colors.primary,
+                  ),
+                ),
+                const SizedBox(width: 3),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: AnimatedTyping(inverted: inverted),
+                ),
+              ],
+            ),
+          ];
+        } else {
+          subtitle = [
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Text(
+                      typings.join('comma_space'.l10n),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: fonts.labelMedium!.copyWith(
+                        color: inverted
+                            ? style.colors.onPrimary
+                            : style.colors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: AnimatedTyping(inverted: inverted),
+                  ),
+                ],
+              ),
+            )
+          ];
+        }
+      } else if (item != null) {
+        if (item is ChatCall) {
+          Widget widget = Padding(
+            padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
+            child: Icon(
+              Icons.call,
+              size: 16,
+              color: inverted
+                  ? style.colors.onPrimary
+                  : style.colors.secondaryBackgroundLightest,
+            ),
+          );
+
+          if (item.finishedAt == null && item.finishReason == null) {
+            subtitle = [
+              widget,
+              Flexible(child: Text('label_call_active'.l10n)),
+            ];
+          } else {
+            final String description =
+                item.finishReason?.localizedString(item.authorId == me) ??
+                    'label_chat_call_ended'.l10n;
+            subtitle = [widget, Flexible(child: Text(description))];
+          }
+        } else if (item is ChatMessage) {
+          final desc = StringBuffer();
+
+          if (item.text != null) {
+            desc.write(item.text!.val);
+          }
+
+          final List<Widget> images = [];
+
+          if (item.attachments.isNotEmpty) {
+            if (item.text == null) {
+              images.addAll(
+                item.attachments.map((e) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 2),
+                    child: _attachment(
+                      e,
+                      inverted: inverted,
+                      onError: () => rxChat.updateAttachments(item!),
+                    ),
+                  );
+                }),
+              );
+            } else {
+              images.add(
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: _attachment(
+                    item.attachments.first,
+                    inverted: inverted,
+                    onError: () => rxChat.updateAttachments(item!),
+                  ),
+                ),
+              );
+            }
+          }
+
+          subtitle = [
+            if (item.authorId == me)
+              Text('${'label_you'.l10n}${'colon_space'.l10n}')
+            else if (chat.isGroup)
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: FutureBuilder<RxUser?>(
+                  future: getUser?.call(item.authorId),
+                  builder: (_, snapshot) => snapshot.data != null
+                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      : AvatarWidget.fromUser(
+                          chat.getUser(item!.authorId),
+                          radius: 10,
+                        ),
+                ),
+              ),
+            if (desc.isEmpty)
+              Flexible(
+                child: LayoutBuilder(builder: (_, constraints) {
+                  return Row(
+                    children: images
+                        .take((constraints.maxWidth / (30 + 4)).floor())
+                        .toList(),
+                  );
+                }),
+              )
+            else
+              ...images,
+            if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
+          ];
+        } else if (item is ChatForward) {
+          subtitle = [
+            if (chat.isGroup)
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: FutureBuilder<RxUser?>(
+                  future: getUser?.call(item.authorId),
+                  builder: (_, snapshot) => snapshot.data != null
+                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      : AvatarWidget.fromUser(
+                          chat.getUser(item!.authorId),
+                          radius: 10,
+                        ),
+                ),
+              ),
+            Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
+          ];
+        } else if (item is ChatInfo) {
+          Widget content = Text('${item.action}');
+
+          // Builds a [FutureBuilder] returning a [User] fetched by the provided
+          // [id].
+          Widget userBuilder(
+            UserId id,
+            Widget Function(BuildContext context, User? user) builder,
+          ) {
+            return FutureBuilder(
+              future: getUser?.call(id),
+              builder: (context, snapshot) {
+                if (snapshot.data != null) {
+                  return Obx(() => builder(context, snapshot.data!.user.value));
+                }
+
+                return builder(context, null);
+              },
+            );
+          }
+
+          switch (item.action.kind) {
+            case ChatInfoActionKind.created:
+              if (chat.isGroup) {
+                content = userBuilder(item.authorId, (context, user) {
+                  user ??= (item as ChatInfo).author;
+                  final Map<String, dynamic> args = {
+                    'author': user.name?.val ?? user.num.val,
+                  };
+
+                  return Text('label_group_created_by'.l10nfmt(args));
+                });
+              } else if (chat.isMonolog) {
+                content = Text('label_monolog_created'.l10n);
+              } else {
+                content = Text('label_dialog_created'.l10n);
+              }
+              break;
+
+            case ChatInfoActionKind.memberAdded:
+              final action = item.action as ChatInfoActionMemberAdded;
+
+              if (item.authorId != action.user.id) {
+                content = userBuilder(action.user.id, (context, user) {
+                  final User author = (item as ChatInfo).author;
+                  user ??= action.user;
+
+                  final Map<String, dynamic> args = {
+                    'author': author.name?.val ?? author.num.val,
+                    'user': user.name?.val ?? user.num.val,
+                  };
+
+                  return Text('label_user_added_user'.l10nfmt(args));
+                });
+              } else {
+                content = Text(
+                  'label_was_added'.l10nfmt(
+                    {'author': '${action.user.name ?? action.user.num}'},
+                  ),
+                );
+              }
+              break;
+
+            case ChatInfoActionKind.memberRemoved:
+              final action = item.action as ChatInfoActionMemberRemoved;
+
+              if (item.authorId != action.user.id) {
+                content = userBuilder(action.user.id, (context, user) {
+                  final User author = (item as ChatInfo).author;
+                  user ??= action.user;
+
+                  final Map<String, dynamic> args = {
+                    'author': author.name?.val ?? author.num.val,
+                    'user': user.name?.val ?? user.num.val,
+                  };
+
+                  return Text('label_user_removed_user'.l10nfmt(args));
+                });
+              } else {
+                content = Text(
+                  'label_was_removed'.l10nfmt(
+                    {'author': '${action.user.name ?? action.user.num}'},
+                  ),
+                );
+              }
+              break;
+
+            case ChatInfoActionKind.avatarUpdated:
+              final action = item.action as ChatInfoActionAvatarUpdated;
+
+              final Map<String, dynamic> args = {
+                'author': item.author.name?.val ?? item.author.num.val,
+              };
+
+              if (action.avatar == null) {
+                content = Text('label_avatar_removed'.l10nfmt(args));
+              } else {
+                content = Text('label_avatar_updated'.l10nfmt(args));
+              }
+              break;
+
+            case ChatInfoActionKind.nameUpdated:
+              final action = item.action as ChatInfoActionNameUpdated;
+
+              final Map<String, dynamic> args = {
+                'author': item.author.name?.val ?? item.author.num.val,
+                if (action.name != null) 'name': action.name?.val
+              };
+
+              if (action.name == null) {
+                content = Text('label_name_removed'.l10nfmt(args));
+              } else {
+                content = Text('label_name_updated'.l10nfmt(args));
+              }
+              break;
+          }
+
+          subtitle = [Flexible(child: content)];
+        } else {
+          subtitle = [Flexible(child: Text('label_empty_message'.l10n))];
+        }
+      } else {
+        subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
+      }
+
+      return DefaultTextStyle(
+        style: fonts.bodyMedium!.copyWith(
+          color: inverted ? style.colors.onPrimary : style.colors.secondary,
+        ),
+        overflow: TextOverflow.ellipsis,
+        child: Row(children: subtitle),
+      );
+    });
+  }
+
+  /// Builds an [Attachment] visual representation.
+  Widget _attachment(
+    Attachment e, {
+    bool inverted = false,
+    Future<void> Function()? onError,
+  }) {
+    Widget? content;
+
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
+    if (e is LocalAttachment) {
+      if (e.file.isImage && e.file.bytes.value != null) {
+        content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
+      } else if (e.file.isVideo) {
+        if (e.file.bytes.value != null) {
+          content = FittedBox(
+            fit: BoxFit.cover,
+            child: VideoThumbnail.bytes(
+              bytes: e.file.bytes.value!,
+              key: key,
+              height: 300,
+            ),
+          );
+        } else {
+          content = Container(
+            color: inverted ? style.colors.onPrimary : style.colors.secondary,
+            child: Icon(
+              Icons.video_file,
+              size: 18,
+              color: inverted ? style.colors.secondary : style.colors.onPrimary,
+            ),
+          );
+        }
+      } else {
+        content = Container(
+          color: inverted ? style.colors.onPrimary : style.colors.secondary,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
+          ),
+        );
+      }
+    }
+
+    if (e is ImageAttachment) {
+      content = RetryImage(
+        e.medium.url,
+        checksum: e.medium.checksum,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        onForbidden: onError,
+        displayProgress: false,
+      );
+    }
+
+    if (e is FileAttachment) {
+      if (e.isVideo) {
+        content = FittedBox(
+          fit: BoxFit.cover,
+          child: VideoThumbnail.url(
+            url: e.original.url,
+            checksum: e.original.checksum,
+            key: key,
+            height: 300,
+            onError: onError,
+          ),
+        );
+      } else {
+        content = Container(
+          color: inverted ? style.colors.onPrimary : style.colors.secondary,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
+          ),
+        );
+      }
+    }
+
+    if (content != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: SizedBox(
+          width: 30,
+          height: 30,
+          child: content,
+        ),
+      );
+    }
+
+    return const SizedBox();
+  }
+
+  /// Builds a [ChatItem.status] visual representation.
+  Widget _status(BuildContext context, bool inverted) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final Chat chat = rxChat.chat.value;
+
+      final ChatItem? item;
+      if (rxChat.messages.isNotEmpty) {
+        item = rxChat.messages.last.value;
+      } else {
+        item = chat.lastItem;
+      }
+
+      if (item != null && item.authorId == me && !chat.isMonolog) {
+        final bool isSent = item.status.value == SendingStatus.sent;
+        final bool isRead =
+            chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
+        final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
+        final bool isError = item.status.value == SendingStatus.error;
+        final bool isSending = item.status.value == SendingStatus.sending;
+
+        return Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: Icon(
+            isRead || isDelivered
+                ? Icons.done_all
+                : isSending
+                    ? Icons.access_alarm
+                    : isError
+                        ? Icons.error_outline
+                        : Icons.done,
+            color: isRead
+                ? inverted
+                    ? style.colors.onPrimary
+                    : style.colors.primary
+                : isError
+                    ? style.colors.dangerColor
+                    : inverted
+                        ? style.colors.onPrimary
+                        : style.colors.secondary,
+            size: 16,
+          ),
+        );
+      }
+
+      return const SizedBox();
+    });
+  }
+
+  /// Returns a visual representation of the [Chat.unreadCount] counter.
+  Widget _counter(BuildContext context, bool inverted) {
+    return Obx(() {
+      final (style, fonts) = Theme.of(context).styles;
+
+      final Chat chat = rxChat.chat.value;
+      final bool muted = chat.muted != null;
+
+      if (rxChat.unreadCount.value > 0) {
+        return Container(
+          key: const Key('UnreadMessages'),
+          margin: const EdgeInsets.only(left: 4),
+          width: 23,
+          height: 23,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: muted
+                ? inverted
+                    ? style.colors.onPrimary
+                    : const Color(0xFFC0C0C0)
+                : style.colors.dangerColor,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            // TODO: Implement and test notations like `4k`, `54m`, etc.
+            rxChat.unreadCount.value > 99
+                ? '99${'plus'.l10n}'
+                : '${rxChat.unreadCount.value}',
+            style: fonts.displaySmall!.copyWith(
+              color: muted
+                  ? inverted
+                      ? style.colors.secondary
+                      : style.colors.onPrimary
+                  : style.colors.onPrimary,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            textAlign: TextAlign.center,
+          ),
+        );
+      }
+
+      return const SizedBox(key: Key('NoUnreadMessages'));
+    });
+  }
+
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -274,28 +839,64 @@ class RecentChatTile extends StatelessWidget {
         return const SizedBox();
       }
 
+      // Returns a rounded rectangular button representing an [OngoingCall]
+      // associated action.
+      Widget button(bool displayed) {
+        return DecoratedBox(
+          key: displayed
+              ? const Key('JoinCallButton')
+              : const Key('DropCallButton'),
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
+            border: Border.all(color: style.colors.onPrimary, width: 0.5),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Material(
+            elevation: 0,
+            type: MaterialType.button,
+            borderRadius: BorderRadius.circular(20),
+            color: displayed ? style.colors.dangerColor : style.colors.primary,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: displayed ? onDrop : onJoin,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      displayed ? Icons.call_end : Icons.call,
+                      size: 16,
+                      color: style.colors.onPrimary,
+                    ),
+                    const SizedBox(width: 6),
+                    PeriodicBuilder(
+                      period: const Duration(seconds: 1),
+                      builder: (_) {
+                        final Duration duration =
+                            DateTime.now().difference(chat.ongoingCall!.at.val);
+                        final String text = duration.hhMmSs();
+
+                        return Text(
+                          text,
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.onPrimary,
+                          ),
+                        ).fixedDigits();
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
       return Padding(
         padding: const EdgeInsets.only(left: 5),
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
-          child: OngoingCallButton(
-            active: inCall?.call() == true,
-            duration: DateTime.now().difference(chat.ongoingCall!.at.val),
-            onDrop: onDrop,
-            onJoin: onJoin,
-            builder: (_) {
-              final String text =
-                  DateTime.now().difference(chat.ongoingCall!.at.val).hhMmSs();
-
-              return Text(
-                text,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
-                    ?.copyWith(color: style.colors.onPrimary),
-              ).fixedDigits();
-            },
-          ),
+          child: button(inCall?.call() == true),
         ),
       );
     });
@@ -303,16 +904,13 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: rxChat.title.value,
-          style: TextStyle(color: style.colors.onBackground),
-        ),
+        TextSpan(text: rxChat.title.value, style: fonts.bodyMedium),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
