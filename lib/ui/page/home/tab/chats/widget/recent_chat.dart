@@ -190,7 +190,17 @@ class RecentChatTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                   ],
-                  _counter(context, inverted),
+                  if (rxChat.unreadCount.value > 0)
+                    _UnreadCounter(
+                      muted: chat.muted != null,
+                      inverted: inverted,
+                      // TODO: Implement and test notations like `4k`, `54m`, etc.
+                      label: rxChat.unreadCount.value > 99
+                          ? '99${'plus'.l10n}'
+                          : '${rxChat.unreadCount.value}',
+                    )
+                  else
+                    const SizedBox(key: Key('NoUnreadMessages'))
                 ] else
                   ...trailing!,
               ],
@@ -782,56 +792,8 @@ class RecentChatTile extends StatelessWidget {
     });
   }
 
-  /// Returns a visual representation of the [Chat.unreadCount] counter.
-  Widget _counter(BuildContext context, bool inverted) {
-    return Obx(() {
-      final (style, fonts) = Theme.of(context).styles;
-
-      final Chat chat = rxChat.chat.value;
-      final bool muted = chat.muted != null;
-
-      if (rxChat.unreadCount.value > 0) {
-        return Container(
-          key: const Key('UnreadMessages'),
-          margin: const EdgeInsets.only(left: 4),
-          width: 23,
-          height: 23,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: muted
-                ? inverted
-                    ? style.colors.onPrimary
-                    : const Color(0xFFC0C0C0)
-                : style.colors.dangerColor,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            // TODO: Implement and test notations like `4k`, `54m`, etc.
-            rxChat.unreadCount.value > 99
-                ? '99${'plus'.l10n}'
-                : '${rxChat.unreadCount.value}',
-            style: fonts.displaySmall!.copyWith(
-              color: muted
-                  ? inverted
-                      ? style.colors.secondary
-                      : style.colors.onPrimary
-                  : style.colors.onPrimary,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.center,
-          ),
-        );
-      }
-
-      return const SizedBox(key: Key('NoUnreadMessages'));
-    });
-  }
-
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -839,64 +801,21 @@ class RecentChatTile extends StatelessWidget {
         return const SizedBox();
       }
 
-      // Returns a rounded rectangular button representing an [OngoingCall]
-      // associated action.
-      Widget button(bool displayed) {
-        return DecoratedBox(
-          key: displayed
-              ? const Key('JoinCallButton')
-              : const Key('DropCallButton'),
-          position: DecorationPosition.foreground,
-          decoration: BoxDecoration(
-            border: Border.all(color: style.colors.onPrimary, width: 0.5),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Material(
-            elevation: 0,
-            type: MaterialType.button,
-            borderRadius: BorderRadius.circular(20),
-            color: displayed ? style.colors.dangerColor : style.colors.primary,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: displayed ? onDrop : onJoin,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
-                child: Row(
-                  children: [
-                    Icon(
-                      displayed ? Icons.call_end : Icons.call,
-                      size: 16,
-                      color: style.colors.onPrimary,
-                    ),
-                    const SizedBox(width: 6),
-                    PeriodicBuilder(
-                      period: const Duration(seconds: 1),
-                      builder: (_) {
-                        final Duration duration =
-                            DateTime.now().difference(chat.ongoingCall!.at.val);
-                        final String text = duration.hhMmSs();
+      final bool displayed = inCall?.call() == true;
 
-                        return Text(
-                          text,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.onPrimary,
-                          ),
-                        ).fixedDigits();
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      }
+      final Duration duration =
+          DateTime.now().difference(chat.ongoingCall!.at.val);
+      final String text = duration.hhMmSs();
 
       return Padding(
         padding: const EdgeInsets.only(left: 5),
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
-          child: button(inCall?.call() == true),
+          child: _RoundedRectangleButton(
+            text: text,
+            displayed: displayed,
+            onTap: displayed ? onDrop : onJoin,
+          ),
         ),
       );
     });
@@ -928,4 +847,126 @@ class RecentChatTile extends StatelessWidget {
         onLongPress: () {},
         child: child,
       );
+}
+
+/// Returns a visual representation of the [Chat.unreadCount] counter.
+class _UnreadCounter extends StatelessWidget {
+  const _UnreadCounter({
+    required this.muted,
+    required this.inverted,
+    required this.label,
+  });
+
+  ///
+  final bool muted;
+
+  ///
+  final bool inverted;
+
+  ///
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Container(
+      key: const Key('UnreadMessages'),
+      margin: const EdgeInsets.only(left: 4),
+      width: 23,
+      height: 23,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: muted
+            ? inverted
+                ? style.colors.onPrimary
+                : const Color(0xFFC0C0C0)
+            : style.colors.dangerColor,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        label,
+        style: fonts.displaySmall!.copyWith(
+          color: muted
+              ? inverted
+                  ? style.colors.secondary
+                  : style.colors.onPrimary
+              : style.colors.onPrimary,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.clip,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+// Returns a rounded rectangular button representing an [OngoingCall]
+// associated action.
+class _RoundedRectangleButton extends StatelessWidget {
+  const _RoundedRectangleButton({
+    super.key,
+    required this.text,
+    required this.displayed,
+    this.onTap,
+  });
+
+  ///
+  final String text;
+
+  ///
+  final bool displayed;
+
+  ///
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return DecoratedBox(
+      key:
+          displayed ? const Key('JoinCallButton') : const Key('DropCallButton'),
+      position: DecorationPosition.foreground,
+      decoration: BoxDecoration(
+        border: Border.all(color: style.colors.onPrimary, width: 0.5),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Material(
+        elevation: 0,
+        type: MaterialType.button,
+        borderRadius: BorderRadius.circular(20),
+        color: displayed ? style.colors.dangerColor : style.colors.primary,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          // onTap: displayed ? onDrop : onJoin,
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
+            child: Row(
+              children: [
+                Icon(
+                  displayed ? Icons.call_end : Icons.call,
+                  size: 16,
+                  color: style.colors.onPrimary,
+                ),
+                const SizedBox(width: 6),
+                PeriodicBuilder(
+                  period: const Duration(seconds: 1),
+                  builder: (_) {
+                    return Text(
+                      text,
+                      style: fonts.bodyMedium!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
+                    ).fixedDigits();
+                  },
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
