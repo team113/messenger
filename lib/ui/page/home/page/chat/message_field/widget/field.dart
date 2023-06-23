@@ -18,67 +18,50 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/attachment.dart';
-import '/domain/model/chat_item.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 
-/// TODO: docs
-class MessageField extends StatelessWidget {
-  const MessageField({
+/// Custom-styled [ReactiveTextField] along with its buttons.
+class CustomField extends StatelessWidget {
+  const CustomField({
     super.key,
-    required this.canAttach,
-    required this.canForward,
-    required this.forwarding,
-    required this.field,
-    required this.fieldKey,
-    required this.sendKey,
-    required this.pickFile,
-    required this.pickImageFromCamera,
-    required this.pickMedia,
-    required this.pickVideoFromCamera,
-    required this.onChanged,
+    required this.state,
+    this.fieldKey,
+    this.sendKey,
+    this.onChanged,
+    this.onPressed,
+    this.onTrailingPressed,
+    this.onLongPress,
+    this.isForwarding = false,
   });
 
-  /// Indicator whether [Attachment]s can be attached to this
-  /// [MessageFieldView].
-  final bool canAttach;
-
-  /// Indicator whether forwarding is possible within this [MessageFieldView].
-  final bool canForward;
-
-  /// Indicator whether forwarding mode is enabled.
-  final RxBool forwarding;
-
-  /// [TextFieldState] for a [ChatMessageText].
-  final TextFieldState field;
-
-  /// [Key] of a [ReactiveTextField] this [MessageFieldView] has.
+  /// [Key] of a [ReactiveTextField] this [CustomField] has.
   final Key? fieldKey;
 
-  /// [Key] of a send button this [MessageFieldView] has.
+  /// [Key] of a send button this [CustomField] has.
   final Key? sendKey;
 
-  /// Opens a file choose popup and adds the selected files to the attachments.
-  final Future<void> Function() pickFile;
+  /// Reactive state of this [ReactiveTextField].
+  final ReactiveFieldState state;
 
-  /// Opens the camera app and adds the captured image to the attachments.
-  final Future<void> Function() pickImageFromCamera;
+  /// Indicator whether forwarding mode is enabled.
+  final bool isForwarding;
 
-  /// Opens a media choose popup and adds the selected files to the
-  /// attachments.
-  final Future<void> Function() pickMedia;
-
-  /// Opens the camera app and adds the captured video to the attachments.
-  final Future<void> Function() pickVideoFromCamera;
-
-  /// Callback, called on the [ReactiveTextField] changes.
+  /// Callback, called when [TextField] is changed.
   final void Function()? onChanged;
+
+  /// Callback, called when the child is pressed.
+  final void Function()? onPressed;
+
+  /// Callback, called when the trailing is pressed.
+  final void Function()? onTrailingPressed;
+
+  /// Callback, called when the trailing is long pressed.
+  final void Function()? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -92,20 +75,7 @@ class MessageField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           WidgetButton(
-            onPressed: canAttach
-                ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-                    ? pickFile
-                    : () async {
-                        field.focus.unfocus();
-                        await AttachmentSourceSelector.show(
-                          context,
-                          onPickFile: pickFile,
-                          onTakePhoto: pickImageFromCamera,
-                          onPickMedia: pickMedia,
-                          onTakeVideo: pickVideoFromCamera,
-                        );
-                      }
-                : null,
+            onPressed: onPressed,
             child: SizedBox(
               width: 56,
               height: 56,
@@ -129,7 +99,7 @@ class MessageField extends StatelessWidget {
                 child: ReactiveTextField(
                   onChanged: onChanged,
                   key: fieldKey ?? const Key('MessageField'),
-                  state: field,
+                  state: state,
                   hint: 'label_send_message_hint'.l10n,
                   minLines: 1,
                   maxLines: 7,
@@ -144,16 +114,16 @@ class MessageField extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onLongPress: canForward ? forwarding.toggle : null,
+            onLongPress: onLongPress,
             child: WidgetButton(
-              onPressed: field.submit,
+              onPressed: onTrailingPressed,
               child: SizedBox(
                 width: 56,
                 height: 56,
                 child: Center(
                   child: AnimatedSwitcher(
                     duration: 300.milliseconds,
-                    child: forwarding.value
+                    child: isForwarding
                         ? SvgImage.asset(
                             'assets/icons/forward.svg',
                             width: 26,

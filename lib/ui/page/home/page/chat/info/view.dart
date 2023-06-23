@@ -17,7 +17,6 @@
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/page/chat/info/widget/link_text_field.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
@@ -27,6 +26,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/info/widget/animated_circle.dart';
+import '/ui/page/home/page/chat/info/widget/link_text_field.dart';
 import 'widget/name_text_field.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/action.dart';

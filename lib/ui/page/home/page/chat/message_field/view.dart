@@ -34,6 +34,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/chat/message_field/widget/field.dart';
 import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
@@ -152,7 +153,32 @@ class MessageFieldView extends StatelessWidget {
                 borderRadius: style.cardRadius,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [_buildHeader(c, context), _buildField(c, context)],
+                  children: [
+                    _buildHeader(c, context),
+                    CustomField(
+                      fieldKey: fieldKey,
+                      sendKey: sendKey,
+                      state: c.field,
+                      isForwarding: c.forwarding.value,
+                      onChanged: onChanged,
+                      onTrailingPressed: c.field.submit,
+                      onLongPress: canForward ? c.forwarding.toggle : null,
+                      onPressed: canAttach
+                          ? !PlatformUtils.isMobile || PlatformUtils.isWeb
+                              ? c.pickFile
+                              : () async {
+                                  c.field.focus.unfocus();
+                                  await AttachmentSourceSelector.show(
+                                    context,
+                                    onPickFile: c.pickFile,
+                                    onTakePhoto: c.pickImageFromCamera,
+                                    onPickMedia: c.pickMedia,
+                                    onTakeVideo: c.pickVideoFromCamera,
+                                  );
+                                }
+                          : null,
+                    )
+                  ],
                 ),
               ),
             ),
@@ -422,104 +448,6 @@ class MessageFieldView extends StatelessWidget {
     });
   }
 
-  /// Builds a visual representation of the send field itself along with its
-  /// buttons.
-  Widget _buildField(MessageFieldController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Container(
-      constraints: const BoxConstraints(minHeight: 56),
-      decoration: BoxDecoration(color: style.cardColor),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          WidgetButton(
-            onPressed: canAttach
-                ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-                    ? c.pickFile
-                    : () async {
-                        c.field.focus.unfocus();
-                        await AttachmentSourceSelector.show(
-                          context,
-                          onPickFile: c.pickFile,
-                          onTakePhoto: c.pickImageFromCamera,
-                          onPickMedia: c.pickMedia,
-                          onTakeVideo: c.pickVideoFromCamera,
-                        );
-                      }
-                : null,
-            child: SizedBox(
-              width: 56,
-              height: 56,
-              child: Center(
-                child: SvgImage.asset(
-                  'assets/icons/attach.svg',
-                  height: 22,
-                  width: 22,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                bottom: 13,
-              ),
-              child: Transform.translate(
-                offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                child: ReactiveTextField(
-                  onChanged: onChanged,
-                  key: fieldKey ?? const Key('MessageField'),
-                  state: c.field,
-                  hint: 'label_send_message_hint'.l10n,
-                  minLines: 1,
-                  maxLines: 7,
-                  filled: false,
-                  dense: true,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: fonts.bodyLarge,
-                  type: TextInputType.multiline,
-                  textInputAction: TextInputAction.newline,
-                ),
-              ),
-            ),
-          ),
-          Obx(() {
-            return GestureDetector(
-              onLongPress: canForward ? c.forwarding.toggle : null,
-              child: WidgetButton(
-                onPressed: c.field.submit,
-                child: SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: 300.milliseconds,
-                      child: c.forwarding.value
-                          ? SvgImage.asset(
-                              'assets/icons/forward.svg',
-                              width: 26,
-                              height: 22,
-                            )
-                          : SvgImage.asset(
-                              'assets/icons/send.svg',
-                              key: sendKey ?? const Key('Send'),
-                              height: 22.85,
-                              width: 25.18,
-                            ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
   /// Returns a visual representation of the provided [Attachment].
   Widget _buildAttachment(
     BuildContext context,
@@ -536,36 +464,46 @@ class MessageFieldView extends StatelessWidget {
 
     const double size = 125;
 
-    // Builds the visual representation of the provided [Attachment] itself.
-    Widget content() {
-      final (style, fonts) = Theme.of(context).styles;
+    final List<Attachment> attachments = c.attachments
+        .where((e) {
+          final Attachment a = e.value;
+          return a is ImageAttachment ||
+              (a is FileAttachment && a.isVideo) ||
+              (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
+        })
+        .map((e) => e.value)
+        .toList();
 
-      if (isImage || isVideo) {
-        // TODO: Backend should support single attachment updating.
-        final Widget child = MediaAttachment(
-          attachment: e,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-        );
+    final int index = c.attachments.indexWhere((m) => m.value == e);
 
-        final List<Attachment> attachments = c.attachments
-            .where((e) {
-              final Attachment a = e.value;
-              return a is ImageAttachment ||
-                  (a is FileAttachment && a.isVideo) ||
-                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
-            })
-            .map((e) => e.value)
-            .toList();
+    final style = Theme.of(context).style;
 
-        return WidgetButton(
-          key: key,
+    return Dismissible(
+      key: Key(e.id.val),
+      direction: DismissDirection.up,
+      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
+      child: _Attachment(
+        attachmentKey: Key('Attachment_${e.id}'),
+        size: size,
+        isLoading: !c.field.status.value.isLoading,
+        isVisible: c.hoveredAttachment.value == e || PlatformUtils.isMobile,
+        onEnter: (_) => c.hoveredAttachment.value = e,
+        onExit: (_) => c.hoveredAttachment.value = null,
+        onTap: () => c.attachments.removeWhere((a) => a.value == e),
+        clip: _Content(
+          size: size,
+          title: p.basenameWithoutExtension(e.filename),
+          subtitle: p.extension(e.filename),
+          trailing: 'label_kb'.l10nfmt({
+            'amount': e.original.size == null
+                ? 'dot'.l10n * 3
+                : e.original.size! ~/ 1024
+          }),
+          isImage: isImage,
+          isVideo: isVideo,
           onPressed: e is LocalAttachment
               ? null
               : () {
-                  final int index =
-                      c.attachments.indexWhere((m) => m.value == e);
                   if (index != -1) {
                     GalleryPopup.show(
                       context: context,
@@ -597,178 +535,31 @@ class MessageFieldView extends StatelessWidget {
                     );
                   }
                 },
-          child: isVideo
-              ? IgnorePointer(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      child,
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: style.colors.onBackgroundOpacity50,
-                        ),
-                        child: Icon(
-                          Icons.play_arrow,
-                          color: style.colors.onPrimary,
-                          size: 48,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : child,
-        );
-      }
-
-      return Container(
-        width: size,
-        height: size,
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: Text(
-                      p.basenameWithoutExtension(e.filename),
-                      style: fonts.bodySmall,
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
+          // TODO: Backend should support single attachment updating.
+          child: MediaAttachment(
+            attachment: e,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: e is LocalAttachment
+            ? e.status.value == SendingStatus.error
+                ? Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.colors.onPrimary,
                     ),
-                  ),
-                  Text(p.extension(e.filename), style: fonts.bodySmall!)
-                ],
-              ),
-            ),
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Text(
-                'label_kb'.l10nfmt({
-                  'amount': e.original.size == null
-                      ? 'dot'.l10n * 3
-                      : e.original.size! ~/ 1024
-                }),
-                style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Builds the [content] along with manipulation buttons and statuses.
-    Widget attachment() {
-      final style = Theme.of(context).style;
-
-      return MouseRegion(
-        key: Key('Attachment_${e.id}'),
-        opaque: false,
-        onEnter: (_) => c.hoveredAttachment.value = e,
-        onExit: (_) => c.hoveredAttachment.value = null,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: style.colors.secondaryHighlight,
-          ),
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: content(),
-              ),
-              Center(
-                child: SizedBox.square(
-                  dimension: 30,
-                  child: ElasticAnimatedSwitcher(
-                    child: e is LocalAttachment
-                        ? e.status.value == SendingStatus.error
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: style.colors.onPrimary,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.error,
-                                    color: style.colors.dangerColor,
-                                  ),
-                                ),
-                              )
-                            : const SizedBox()
-                        : const SizedBox(),
-                  ),
-                ),
-              ),
-              if (!c.field.status.value.isLoading)
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 4, top: 4),
-                    child: Obx(() {
-                      final Widget child;
-
-                      if (c.hoveredAttachment.value == e ||
-                          PlatformUtils.isMobile) {
-                        child = InkWell(
-                          key: const Key('RemovePickedFile'),
-                          onTap: () =>
-                              c.attachments.removeWhere((a) => a.value == e),
-                          child: Container(
-                            width: 15,
-                            height: 15,
-                            margin: const EdgeInsets.only(left: 8, bottom: 8),
-                            child: Container(
-                              key: const Key('Close'),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: style.cardColor,
-                              ),
-                              alignment: Alignment.center,
-                              child: SvgImage.asset(
-                                'assets/icons/close_primary.svg',
-                                width: 7,
-                                height: 7,
-                              ),
-                            ),
-                          ),
-                        );
-                      } else {
-                        child = const SizedBox();
-                      }
-
-                      return AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: child,
-                      );
-                    }),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Dismissible(
-      key: Key(e.id.val),
-      direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-      child: attachment(),
+                    child: Center(
+                      child: Icon(
+                        Icons.error,
+                        color: style.colors.dangerColor,
+                      ),
+                    ),
+                  )
+                : const SizedBox()
+            : const SizedBox(),
+      ),
     );
   }
 
@@ -1033,6 +824,250 @@ class MessageFieldView extends StatelessWidget {
 
               return AnimatedSwitcher(duration: 200.milliseconds, child: child);
             }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// [Widget] which return visual representation of the provided [Attachment]
+/// itself.
+class _Content extends StatelessWidget {
+  const _Content({
+    required this.child,
+    this.title,
+    this.subtitle,
+    this.trailing,
+    this.onPressed,
+    this.size = 125,
+    this.isImage = false,
+    this.isVideo = false,
+  });
+
+  /// Width and height of the [Container] with [title] and [subtitle].
+  final double? size;
+
+  /// Title of this [_Content].
+  final String? title;
+
+  /// Subtitle of this [_Content].
+  final String? subtitle;
+
+  /// Trailing of this [_Content].
+  final String? trailing;
+
+  /// Indicator whether the content is an image or not.
+  final bool isImage;
+
+  /// Indicator whether the content is an video or not.
+  final bool isVideo;
+
+  /// Widget to display in the [WidgetButton].
+  final Widget child;
+
+  /// Callback, called when the [WidgetButton] is pressed.
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    if (isImage || isVideo) {
+      return WidgetButton(
+        key: key,
+        onPressed: onPressed,
+        child: isVideo
+            ? IgnorePointer(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    child,
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: style.colors.onBackgroundOpacity50,
+                      ),
+                      child: Icon(
+                        Icons.play_arrow,
+                        color: style.colors.onPrimary,
+                        size: 48,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : child,
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (title != null)
+                  Flexible(
+                    child: Text(
+                      title!,
+                      style: fonts.bodySmall,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    style: fonts.bodySmall!,
+                  )
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          if (trailing != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Text(
+                trailing!,
+                style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// [_Content] along with manipulation buttons and statuses.
+class _Attachment extends StatelessWidget {
+  const _Attachment({
+    this.attachmentKey,
+    this.clip,
+    this.child,
+    this.onEnter,
+    this.onExit,
+    this.onTap,
+    this.size = 125,
+    this.isLoading = false,
+    this.isVisible = false,
+  });
+
+  /// Key of this [_Attachment].
+  final Key? attachmentKey;
+
+  /// Width and height of this [_Attachment].
+  final double? size;
+
+  /// Rounded-rectangular clip of this [_Attachment].
+  final Widget? clip;
+
+  /// Widget of the [ElasticAnimatedSwitcher].
+  final Widget? child;
+
+  /// Indicator whether this [_Attachment] is currently loading or not.
+  final bool isLoading;
+
+  /// Indicator whether the [InkWell] is visible or not.
+  final bool isVisible;
+
+  /// Callback, called when a mouse pointer has entered this widget.
+  final void Function(PointerEnterEvent)? onEnter;
+
+  /// Callback, called when a mouse pointer has exited this widget.
+  final void Function(PointerExitEvent)? onExit;
+
+  /// Callback, called when the [InkWell] is tapped.
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return MouseRegion(
+      key: attachmentKey,
+      opaque: false,
+      onEnter: onEnter,
+      onExit: onExit,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: style.colors.secondaryHighlight,
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: clip,
+            ),
+            if (child != null)
+              Center(
+                child: SizedBox.square(
+                  dimension: 30,
+                  child: ElasticAnimatedSwitcher(
+                    child: child!,
+                  ),
+                ),
+              ),
+            if (!isLoading)
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4, top: 4),
+                  child: Builder(
+                    builder: (context) {
+                      final Widget child;
+
+                      if (isVisible) {
+                        child = InkWell(
+                          key: const Key('RemovePickedFile'),
+                          onTap: onTap,
+                          child: Container(
+                            width: 15,
+                            height: 15,
+                            margin: const EdgeInsets.only(left: 8, bottom: 8),
+                            child: Container(
+                              key: const Key('Close'),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: style.cardColor,
+                              ),
+                              alignment: Alignment.center,
+                              child: SvgImage.asset(
+                                'assets/icons/close_primary.svg',
+                                width: 7,
+                                height: 7,
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        child = const SizedBox();
+                      }
+
+                      return AnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: child,
+                      );
+                    },
+                  ),
+                ),
+              ),
           ],
         ),
       ),
