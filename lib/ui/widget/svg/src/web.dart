@@ -39,65 +39,30 @@ import '/util/log.dart';
 /// should be placed in a context that sets tight layout constraints. Otherwise,
 /// the image dimensions will change as the image is loaded, which will result
 /// in ugly layout changes.
-class SvgFromAsset extends StatelessWidget {
-  const SvgFromAsset(
-    this.asset, {
-    super.key,
-    this.alignment = Alignment.center,
-    this.excludeFromSemantics = false,
-    this.fit = BoxFit.contain,
-    this.height,
-    this.package,
-    this.placeholderBuilder,
-    this.semanticsLabel,
-    this.width,
-  });
-
-  /// Path to an asset containing an SVG image to display.
-  final String asset;
-
-  /// [Alignment] to display this image with.
-  final Alignment alignment;
-
-  /// [BoxFit] to apply to this image.
-  final BoxFit fit;
-
-  /// Width to constrain this image with.
-  final double? width;
-
-  /// Height to constrain this image with.
-  final double? height;
-
-  /// [String] that identifies the package of the asset.
-  final String? package;
-
-  /// Builder, building a [Widget] to display when this SVG image is being
-  /// loaded, fetched or initialized.
-  final WidgetBuilder? placeholderBuilder;
-
-  /// Label to put on the [Semantics] of this [Widget].
-  ///
-  /// Only meaningful, if [excludeFromSemantics] is not `true`.
-  final String? semanticsLabel;
-
-  /// Indicator whether this [Widget] should be excluded from the [Semantics].
-  final bool excludeFromSemantics;
-
-  @override
-  Widget build(BuildContext context) {
-    String path = package == null ? asset : 'packages/$package/$asset';
-    return _BrowserSvg(
-      key: key,
-      loader: _AssetSvgLoader(path),
-      alignment: alignment,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
-  }
+Widget svgFromAsset(
+  String asset, {
+  Key? key,
+  Alignment alignment = Alignment.center,
+  bool excludeFromSemantics = false,
+  BoxFit fit = BoxFit.contain,
+  double? height,
+  String? package,
+  WidgetBuilder? placeholderBuilder,
+  String? semanticsLabel,
+  double? width,
+}) {
+  String path = package == null ? asset : 'packages/$package/$asset';
+  return _BrowserSvg(
+    key: key,
+    loader: _AssetSvgLoader(path),
+    alignment: alignment,
+    excludeFromSemantics: excludeFromSemantics,
+    fit: fit,
+    height: height,
+    placeholderBuilder: placeholderBuilder,
+    semanticsLabel: semanticsLabel,
+    width: width,
+  );
 }
 
 /// Instantiates a widget rendering an SVG picture from an [Uint8List].
@@ -106,59 +71,28 @@ class SvgFromAsset extends StatelessWidget {
 /// should be placed in a context setting layout constraints tightly. Otherwise,
 /// the image dimensions will change as the image is loaded, which will result
 /// in ugly layout changes.
-class SvgFromBytes extends StatelessWidget {
-  const SvgFromBytes(
-    this.bytes, {
-    super.key,
-    this.alignment = Alignment.center,
-    this.fit = BoxFit.cover,
-    this.width,
-    this.height,
-    this.placeholderBuilder,
-    this.semanticsLabel,
-    this.excludeFromSemantics = false,
-  });
-
-  /// [Uint8List] bytes containing an SVG image to display.
-  final Uint8List bytes;
-
-  /// [Alignment] to display this image with.
-  final Alignment alignment;
-
-  /// [BoxFit] to apply to this image.
-  final BoxFit fit;
-
-  /// Width to constrain this image with.
-  final double? width;
-
-  /// Height to constrain this image with.
-  final double? height;
-
-  /// Builder, building a [Widget] to display when this SVG image is being
-  /// loaded, fetched or initialized.
-  final WidgetBuilder? placeholderBuilder;
-
-  /// Label to put on the [Semantics] of this [Widget].
-  ///
-  /// Only meaningful, if [excludeFromSemantics] is not `true`.
-  final String? semanticsLabel;
-
-  /// Indicator whether this [Widget] should be excluded from the [Semantics].
-  final bool excludeFromSemantics;
-
-  @override
-  Widget build(BuildContext context) => _BrowserSvg(
-        key: key,
-        loader: _BytesSvgLoader(bytes),
-        alignment: alignment,
-        excludeFromSemantics: excludeFromSemantics,
-        fit: fit,
-        height: height,
-        placeholderBuilder: placeholderBuilder,
-        semanticsLabel: semanticsLabel,
-        width: width,
-      );
-}
+Widget svgFromBytes(
+  Uint8List bytes, {
+  Key? key,
+  Alignment alignment = Alignment.center,
+  bool excludeFromSemantics = false,
+  BoxFit fit = BoxFit.cover,
+  double? width,
+  double? height,
+  WidgetBuilder? placeholderBuilder,
+  String? semanticsLabel,
+}) =>
+    _BrowserSvg(
+      key: key,
+      loader: _BytesSvgLoader(bytes),
+      alignment: alignment,
+      excludeFromSemantics: excludeFromSemantics,
+      fit: fit,
+      height: height,
+      placeholderBuilder: placeholderBuilder,
+      semanticsLabel: semanticsLabel,
+      width: width,
+    );
 
 /// Instantiates a widget rendering an SVG picture from a [File].
 ///
@@ -166,59 +100,28 @@ class SvgFromBytes extends StatelessWidget {
 /// should be placed in a context setting layout constraints tightly. Otherwise,
 /// the image dimensions will change as the image is loaded, which will result
 /// in ugly layout changes.
-class SvgFromFile extends StatelessWidget {
-  const SvgFromFile(
-    this.file, {
-    super.key,
-    this.alignment = Alignment.center,
-    this.fit = BoxFit.cover,
-    this.width,
-    this.height,
-    this.placeholderBuilder,
-    this.semanticsLabel,
-    this.excludeFromSemantics = false,
-  });
-
-  /// [File] representing an SVG image to display.
-  final File file;
-
-  /// [Alignment] to display this image with.
-  final Alignment alignment;
-
-  /// [BoxFit] to apply to this image.
-  final BoxFit fit;
-
-  /// Width to constrain this image with.
-  final double? width;
-
-  /// Height to constrain this image with.
-  final double? height;
-
-  /// Builder, building a [Widget] to display when this SVG image is being
-  /// loaded, fetched or initialized.
-  final WidgetBuilder? placeholderBuilder;
-
-  /// Label to put on the [Semantics] of this [Widget].
-  ///
-  /// Only meaningful, if [excludeFromSemantics] is not `true`.
-  final String? semanticsLabel;
-
-  /// Indicator whether this [Widget] should be excluded from the [Semantics].
-  final bool excludeFromSemantics;
-
-  @override
-  Widget build(BuildContext context) => _BrowserSvg(
-        key: key,
-        loader: _FileSvgLoader(file),
-        alignment: alignment,
-        excludeFromSemantics: excludeFromSemantics,
-        fit: fit,
-        height: height,
-        placeholderBuilder: placeholderBuilder,
-        semanticsLabel: semanticsLabel,
-        width: width,
-      );
-}
+Widget svgFromFile(
+  File file, {
+  Key? key,
+  Alignment alignment = Alignment.center,
+  bool excludeFromSemantics = false,
+  BoxFit fit = BoxFit.cover,
+  double? width,
+  double? height,
+  WidgetBuilder? placeholderBuilder,
+  String? semanticsLabel,
+}) =>
+    _BrowserSvg(
+      key: key,
+      loader: _FileSvgLoader(file),
+      alignment: alignment,
+      excludeFromSemantics: excludeFromSemantics,
+      fit: fit,
+      height: height,
+      placeholderBuilder: placeholderBuilder,
+      semanticsLabel: semanticsLabel,
+      width: width,
+    );
 
 /// SVG picture loader.
 abstract class _SvgLoader {
@@ -295,7 +198,7 @@ class _FileSvgLoader implements _SvgLoader {
 /// `html` renderer and through [SvgPicture.memory] on `CanvasKit` renderer.
 class _BrowserSvg extends StatefulWidget {
   const _BrowserSvg({
-    super.key,
+    Key? key,
     required this.loader,
     required this.width,
     required this.height,
@@ -304,7 +207,7 @@ class _BrowserSvg extends StatefulWidget {
     required this.fit,
     required this.placeholderBuilder,
     required this.semanticsLabel,
-  });
+  }) : super(key: key);
 
   /// Loader to load the SVG from.
   final _SvgLoader loader;

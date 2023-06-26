@@ -20,9 +20,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
-import '../selector/selector.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/selector/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
 import 'mobile.dart';
