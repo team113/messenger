@@ -903,8 +903,8 @@ class _UnreadCounter extends StatelessWidget {
 /// Widget which returns a custom-styled rounded rectangular button.
 class _RoundedRectangularButton extends StatelessWidget {
   const _RoundedRectangularButton({
-    required this.duration,
-    required this.isActive,
+    this.duration = const Duration(seconds: 52),
+    this.isActive = true,
     this.onTap,
   });
 
