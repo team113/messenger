@@ -347,33 +347,31 @@ class _HomeViewState extends State<HomeView> {
         /// [Container]s are required for the [sideBar] to keep its state.
         /// Otherwise, [Stack] widget will be updated, which will lead its
         /// children to be updated as well.
-        return MouseRegion(
-          onHover: (_) => PlatformUtils.keepActive(),
-          child: Listener(
-            onPointerDown: (_) => PlatformUtils.keepActive(),
-            child: CallOverlayView(
-              child: Obx(() {
-                return Stack(
-                  key: const Key('HomeView'),
-                  children: [
-                    Container(
-                      color: style.colors.onPrimary,
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
-                    _background(c),
-                    if (c.authStatus.value.isSuccess) ...[
-                      Container(child: context.isNarrow ? null : navigation),
-                      sideBar,
-                      Container(child: context.isNarrow ? navigation : null),
-                    ] else
-                      const Scaffold(
-                        body: Center(child: CustomProgressIndicator()),
-                      )
-                  ],
-                );
-              }),
-            ),
+        return Listener(
+          onPointerDown: (_) => PlatformUtils.keepActive(),
+          onPointerHover: (_) => PlatformUtils.keepActive(),
+          child: CallOverlayView(
+            child: Obx(() {
+              return Stack(
+                key: const Key('HomeView'),
+                children: [
+                  Container(
+                    color: style.colors.onPrimary,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
+                  _background(c),
+                  if (c.authStatus.value.isSuccess) ...[
+                    Container(child: context.isNarrow ? null : navigation),
+                    sideBar,
+                    Container(child: context.isNarrow ? navigation : null),
+                  ] else
+                    const Scaffold(
+                      body: Center(child: CustomProgressIndicator()),
+                    )
+                ],
+              );
+            }),
           ),
         );
       },

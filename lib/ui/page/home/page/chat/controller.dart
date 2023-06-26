@@ -161,12 +161,6 @@ class ChatController extends GetxController {
   /// [ChatItem]s when non-`null`.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
 
-  /// [GlobalKey] of the bottom bar.
-  final GlobalKey bottomBarKey = GlobalKey();
-
-  /// [Rect] the bottom bar takes.
-  final Rx<Rect?> bottomBarRect = Rx(null);
-
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
 
@@ -227,7 +221,7 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
-  /// Indicator whether the application's window is in active.
+  /// Indicator whether the application's window is active.
   RxBool active = RxBool(true);
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
@@ -1190,8 +1184,8 @@ class ChatController extends GetxController {
           showSticky.value = false;
         } else {
           showSticky.value = (listController.offset +
-              MediaQuery.of(router.context!).size.height) -
-              offset >
+                      MediaQuery.of(router.context!).size.height) -
+                  offset >
               170;
         }
       }

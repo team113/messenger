@@ -50,9 +50,17 @@ class PlatformUtilsImpl {
   /// May be overridden to be mocked in tests.
   Dio dio = Dio();
 
+  /// [StreamController] of the [_isActive] status changes.
   StreamController<bool>? _activeController;
 
+  /// [StreamController] of the application's window focus changes.
   StreamController<bool>? _focusController;
+
+  /// Indicator whether the application's window is active.
+  bool _isActive = true;
+
+  /// [Timer] updating the [_isActive] status.
+  Timer? _activeTimer;
 
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
@@ -122,7 +130,7 @@ class PlatformUtilsImpl {
     return _focusController!.stream;
   }
 
-  /// Returns a stream broadcasting the application's window focus changes.
+  /// Returns a stream broadcasting the application's active status changes.
   Stream<bool> get onActiveChanged {
     if (_activeController != null) {
       return _activeController!.stream;
@@ -136,8 +144,7 @@ class PlatformUtilsImpl {
           if (focused) {
             keepActive();
           } else {
-            _isActive = false;
-            _activeController?.add(false);
+            keepActive(false);
           }
         });
       },
@@ -240,50 +247,8 @@ class PlatformUtilsImpl {
     return _downloadDirectory!;
   }
 
-  bool _isActive = true;
-
-  Timer? activeTimer;
-
+  /// Returns indicator whether the application's window is active.
   Future<bool> get isActive async => _isActive && await isFocused;
-
-  void keepActive() {
-    _isActive = true;
-    _activeController?.add(true);
-
-    activeTimer?.cancel();
-    activeTimer = Timer(15.seconds, () {
-      _isActive = false;
-      _activeController?.add(false);
-    });
-  }
-
-  void init() {
-    if (_activeController != null) {
-      return;
-    }
-
-    StreamSubscription? focusSubscription;
-
-    _activeController = StreamController<bool>.broadcast(
-      onListen: () {
-        focusSubscription = onFocusChanged.listen((focused) {
-          if (focused) {
-            keepActive();
-          } else {
-            _isActive = false;
-            _activeController?.add(false);
-          }
-        });
-      },
-      onCancel: () {
-        focusSubscription?.cancel();
-        _activeController?.close();
-        _activeController = null;
-      },
-    );
-
-    //return _activeController!.stream;
-  }
 
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
@@ -470,6 +435,21 @@ class PlatformUtilsImpl {
   /// Stores the provided [text] on the [Clipboard].
   void copy({required String text}) =>
       Clipboard.setData(ClipboardData(text: text));
+
+  /// Keeps the [_isActive] status.
+  void keepActive([bool active = true]) {
+    _isActive = active;
+    _activeController?.add(active);
+
+    _activeTimer?.cancel();
+
+    if (active) {
+      _activeTimer = Timer(15.seconds, () {
+        _isActive = false;
+        _activeController?.add(false);
+      });
+    }
+  }
 }
 
 /// Determining whether a [BuildContext] is mobile or not.
