@@ -490,8 +490,9 @@ class ContactsTabView extends StatelessWidget {
                         : () => _removeContacts(context, c),
                     color: style.colors.primary,
                     child: Text(
-                      'btn_delete_count'
-                          .l10nfmt({'count': c.selectedContacts.length}),
+                      'btn_delete_count'.l10nfmt({
+                        'count': c.selectedContacts.length,
+                      }),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: fonts.titleLarge!.copyWith(
