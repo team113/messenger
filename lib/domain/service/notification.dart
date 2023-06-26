@@ -40,7 +40,7 @@ class NotificationService extends DisposableService {
   /// [_active].
   StreamSubscription? _onActiveChanged;
 
-  /// Indicator whether the application's window is active.
+  /// Indicator whether the application is active.
   bool _active = true;
 
   /// Initializes this [NotificationService].

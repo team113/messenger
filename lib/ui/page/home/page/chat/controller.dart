@@ -221,7 +221,7 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
-  /// Indicator whether the application's window is active.
+  /// Indicator whether the application is active.
   RxBool active = RxBool(true);
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.

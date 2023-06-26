@@ -56,7 +56,7 @@ class PlatformUtilsImpl {
   /// [StreamController] of the application's window focus changes.
   StreamController<bool>? _focusController;
 
-  /// Indicator whether the application's window is active.
+  /// Indicator whether the application is active.
   bool _isActive = true;
 
   /// [Timer] updating the [_isActive] status.
@@ -247,7 +247,7 @@ class PlatformUtilsImpl {
     return _downloadDirectory!;
   }
 
-  /// Returns indicator whether the application's window is active.
+  /// Returns indicator whether the application is active.
   Future<bool> get isActive async => _isActive && await isFocused;
 
   /// Enters fullscreen mode.

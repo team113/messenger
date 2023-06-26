@@ -350,6 +350,7 @@ class _HomeViewState extends State<HomeView> {
         return Listener(
           onPointerDown: (_) => PlatformUtils.keepActive(),
           onPointerHover: (_) => PlatformUtils.keepActive(),
+          onPointerSignal: (_) => PlatformUtils.keepActive(),
           child: CallOverlayView(
             child: Obx(() {
               return Stack(
