@@ -44,7 +44,6 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -850,8 +849,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             const SizedBox(height: 6),
           ],
           if (media.isNotEmpty) ...[
-            // TODO: Show images in the next way: https://stackoverflow.com/a/56556873
-            // Needs to know size of images.
+            // TODO: Replace `ClipRRect` with rounded `DecoratedBox`s when
+            //       `ImageAttachment` sizes are known.
             ClipRRect(
               borderRadius: BorderRadius.only(
                 topLeft: msg.repliesTo.isNotEmpty ||
@@ -1006,16 +1005,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   right: timeInBubble ? 6 : 8,
                   bottom: 4,
                   child: timeInBubble
-                      ? ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.only(left: 4, right: 4),
-                            decoration: BoxDecoration(
-                              color: style.colors.onBackgroundOpacity27,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: _timestamp(msg, true),
+                      ? Container(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          decoration: BoxDecoration(
+                            color: style.colors.onBackgroundOpacity50,
+                            borderRadius: BorderRadius.circular(20),
                           ),
+                          child: _timestamp(msg, true),
                         )
                       : _timestamp(msg),
                 )
