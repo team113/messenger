@@ -32,12 +32,13 @@ import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/decorated_row.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/page/home/widget/styled_rounded_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
@@ -52,7 +53,7 @@ import 'widget/search_user_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
-  const ChatsTabView({Key? key}) : super(key: key);
+  const ChatsTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -823,8 +824,8 @@ class ChatsTabView extends StatelessWidget {
                   );
                 }),
                 bottomNavigationBar: c.groupCreating.value
-                    ? _DecoratedRow(
-                        leading: _StyledRoundedButton(
+                    ? DecoratedRow(
+                        leading: StyledRoundedButton(
                           onPressed: c.closeGroupCreating,
                           color: style.colors.onPrimary,
                           child: Text(
@@ -834,7 +835,7 @@ class ChatsTabView extends StatelessWidget {
                             style: fonts.titleLarge,
                           ),
                         ),
-                        trailing: _StyledRoundedButton(
+                        trailing: StyledRoundedButton(
                           onPressed: c.createGroup,
                           color: style.colors.primary,
                           child: Text(
@@ -848,8 +849,8 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       )
                     : c.selecting.value
-                        ? _DecoratedRow(
-                            leading: _StyledRoundedButton(
+                        ? DecoratedRow(
+                            leading: StyledRoundedButton(
                               onPressed: c.toggleSelecting,
                               child: Text(
                                 'btn_cancel'.l10n,
@@ -858,7 +859,7 @@ class ChatsTabView extends StatelessWidget {
                                 style: fonts.titleLarge,
                               ),
                             ),
-                            trailing: _StyledRoundedButton(
+                            trailing: StyledRoundedButton(
                               key: const Key('DeleteChats'),
                               onPressed: c.selectedChats.isEmpty
                                   ? null
@@ -957,76 +958,5 @@ class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
     } else {
       resolve(GestureDisposition.accepted);
     }
-  }
-}
-
-/// Custom styled [OutlinedRoundedButton].
-class _StyledRoundedButton extends StatelessWidget {
-  const _StyledRoundedButton({
-    super.key,
-    this.child,
-    this.color,
-    this.onPressed,
-  });
-
-  /// Primary content of this button.
-  final Widget? child;
-
-  /// Background color of this button.
-  final Color? color;
-
-  /// Callback, called when this button is tapped or activated other way.
-  final void Function()? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Expanded(
-      child: OutlinedRoundedButton(
-        title: child,
-        onPressed: onPressed,
-        color: color,
-        shadows: [
-          CustomBoxShadow(
-            blurRadius: 8,
-            color: style.colors.onBackgroundOpacity13,
-            blurStyle: BlurStyle.outer,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Row with the [leading] and [trailing] widgets.
-class _DecoratedRow extends StatelessWidget {
-  const _DecoratedRow({this.leading, this.trailing});
-
-  /// Optional leading [Widget].
-  final Widget? leading;
-
-  /// Optional trailing [Widget].
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          if (leading != null) leading!,
-          const SizedBox(width: 10),
-          if (trailing != null) trailing!,
-        ],
-      ),
-    );
   }
 }

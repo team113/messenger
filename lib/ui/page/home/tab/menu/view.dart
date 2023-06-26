@@ -144,106 +144,10 @@ class MenuTabView extends StatelessWidget {
                 final Widget child;
                 final ProfileTab tab = ProfileTab.values[i];
 
-                Widget card({
-                  Key? key,
-                  required String title,
-                  required String subtitle,
-                  required IconData icon,
-                  VoidCallback? onTap,
-                }) {
-                  return Obx(() {
-                    final bool inverted = tab == router.profileSection.value &&
-                        router.route == Routes.me;
-
-                    return Padding(
-                      key: key,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: SizedBox(
-                        height: 73,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: style.cardRadius,
-                            border: style.cardBorder,
-                            color: style.colors.transparent,
-                          ),
-                          child: Material(
-                            type: MaterialType.card,
-                            borderRadius: style.cardRadius,
-                            color: inverted
-                                ? style.colors.primary
-                                : style.cardColor,
-                            child: InkWell(
-                              borderRadius: style.cardRadius,
-                              onTap: onTap ??
-                                  () {
-                                    if (router.profileSection.value == tab) {
-                                      router.profileSection.refresh();
-                                    } else {
-                                      router.profileSection.value = tab;
-                                    }
-                                    router.me();
-                                  },
-                              hoverColor: inverted
-                                  ? style.colors.primary
-                                  : style.cardColor.darken(0.03),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width: 12),
-                                    Icon(
-                                      icon,
-                                      color: inverted
-                                          ? style.colors.onPrimary
-                                          : style.colors.primary,
-                                    ),
-                                    const SizedBox(width: 18),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          DefaultTextStyle(
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                                fonts.headlineLarge!.copyWith(
-                                              color: inverted
-                                                  ? style.colors.onPrimary
-                                                  : style.colors.onBackground,
-                                            ),
-                                            child: Text(title),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          DefaultTextStyle.merge(
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: fonts.labelMedium!.copyWith(
-                                              color: inverted
-                                                  ? style.colors.onPrimary
-                                                  : style.colors.onBackground,
-                                            ),
-                                            child: Text(subtitle),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  });
-                }
-
                 switch (ProfileTab.values[i]) {
                   case ProfileTab.public:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       key: const Key('PublicInformation'),
                       icon: Icons.person,
                       title: 'label_public_information'.l10n,
@@ -252,7 +156,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.signing:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       key: const Key('Signing'),
                       icon: Icons.lock,
                       title: 'label_login_options'.l10n,
@@ -261,7 +166,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.link:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       icon: Icons.link,
                       title: 'label_link_to_chat'.l10n,
                       subtitle: 'label_your_direct_link'.l10n,
@@ -269,7 +175,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.background:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       icon: Icons.image,
                       title: 'label_background'.l10n,
                       subtitle: 'label_app_background'.l10n,
@@ -277,7 +184,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.chats:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       icon: Icons.chat_bubble,
                       title: 'label_chats'.l10n,
                       subtitle: 'label_timeline_style'.l10n,
@@ -286,7 +194,8 @@ class MenuTabView extends StatelessWidget {
 
                   case ProfileTab.calls:
                     if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
-                      child = card(
+                      child = _TabCard(
+                        tab,
                         icon: Icons.call,
                         title: 'label_calls'.l10n,
                         subtitle: 'label_calls_displaying'.l10n,
@@ -300,7 +209,8 @@ class MenuTabView extends StatelessWidget {
                     if (PlatformUtils.isMobile) {
                       return const SizedBox();
                     } else {
-                      child = card(
+                      child = _TabCard(
+                        tab,
                         icon: Icons.video_call,
                         title: 'label_media'.l10n,
                         subtitle: 'label_media_section_hint'.l10n,
@@ -309,7 +219,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.notifications:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       icon: Icons.notifications,
                       title: 'label_notifications'.l10n,
                       subtitle: 'label_sound_and_vibrations'.l10n,
@@ -317,7 +228,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.storage:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       icon: Icons.storage,
                       title: 'label_storage'.l10n,
                       subtitle: 'label_cache_and_downloads'.l10n,
@@ -325,7 +237,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.language:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       key: const Key('Language'),
                       icon: Icons.language,
                       title: 'label_language'.l10n,
@@ -335,7 +248,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.blacklist:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       key: const Key('Blocked'),
                       icon: Icons.block,
                       title: 'label_blocked_users'.l10n,
@@ -345,7 +259,8 @@ class MenuTabView extends StatelessWidget {
 
                   case ProfileTab.download:
                     if (PlatformUtils.isWeb) {
-                      child = card(
+                      child = _TabCard(
+                        tab,
                         icon: Icons.download,
                         title: 'label_download'.l10n,
                         subtitle: 'label_application'.l10n,
@@ -356,7 +271,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.danger:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       key: const Key('DangerZone'),
                       icon: Icons.dangerous,
                       title: 'label_danger_zone'.l10n,
@@ -365,7 +281,8 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.logout:
-                    child = card(
+                    child = _TabCard(
+                      tab,
                       key: const Key('LogoutButton'),
                       icon: Icons.logout,
                       title: 'btn_logout'.l10n,
@@ -389,6 +306,122 @@ class MenuTabView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Custom styled card used to display information on the profile page.
+class _TabCard extends StatelessWidget {
+  const _TabCard(
+    this.tab, {
+    super.key,
+    this.title,
+    this.subtitle,
+    this.icon,
+    this.onTap,
+  });
+
+  /// List of [Routes.me] page sections.
+  final ProfileTab tab;
+
+  /// Optional title of this [_TabCard].
+  final String? title;
+
+  /// Optional subtitle of this [_TabCard].
+  final String? subtitle;
+
+  /// Optional icon of this [_TabCard].
+  final IconData? icon;
+
+  /// Callback, called when this [_TabCard] is tapped.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    final bool inverted =
+        tab == router.profileSection.value && router.route == Routes.me;
+
+    return Padding(
+      key: key,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: SizedBox(
+        height: 73,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            border: style.cardBorder,
+            color: style.colors.transparent,
+          ),
+          child: Material(
+            type: MaterialType.card,
+            borderRadius: style.cardRadius,
+            color: inverted ? style.colors.primary : style.cardColor,
+            child: InkWell(
+              borderRadius: style.cardRadius,
+              onTap: onTap ??
+                  () {
+                    if (router.profileSection.value == tab) {
+                      router.profileSection.refresh();
+                    } else {
+                      router.profileSection.value = tab;
+                    }
+                    router.me();
+                  },
+              hoverColor: inverted
+                  ? style.colors.primary
+                  : style.cardColor.darken(0.03),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 12),
+                    Icon(
+                      icon,
+                      color: inverted
+                          ? style.colors.onPrimary
+                          : style.colors.primary,
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (title != null)
+                            DefaultTextStyle(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: fonts.headlineLarge!.copyWith(
+                                color: inverted
+                                    ? style.colors.onPrimary
+                                    : style.colors.onBackground,
+                              ),
+                              child: Text(title!),
+                            ),
+                          const SizedBox(height: 6),
+                          if (subtitle != null)
+                            DefaultTextStyle.merge(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: fonts.labelMedium!.copyWith(
+                                color: inverted
+                                    ? style.colors.onPrimary
+                                    : style.colors.onBackground,
+                              ),
+                              child: Text(subtitle!),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
