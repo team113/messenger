@@ -44,14 +44,7 @@ class LinkDetailsView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 4),
-          ModalPopupHeader(
-            header: Center(
-              child: Text(
-                'label_your_direct_link'.l10n,
-                style: fonts.headlineMedium,
-              ),
-            ),
-          ),
+          ModalPopupHeader(text: 'label_your_direct_link'.l10n),
           const SizedBox(height: 13),
           Padding(
             padding: ModalPopup.padding(context),
