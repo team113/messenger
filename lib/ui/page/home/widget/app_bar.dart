@@ -25,14 +25,14 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 /// Custom stylized and decorated [AppBar].
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
-    Key? key,
+    super.key,
     this.title,
     this.leading = const [],
     this.actions = const [],
     this.padding,
     this.border,
     this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
-  }) : super(key: key);
+  });
 
   /// Primary centered [Widget] of this [CustomAppBar].
   final Widget? title;
