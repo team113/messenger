@@ -30,13 +30,13 @@ import 'gallery_popup.dart';
 /// Carousel gallery view of [items].
 class CarouselGallery extends StatefulWidget {
   const CarouselGallery({
-    Key? key,
+    super.key,
     this.items,
     this.index = 0,
     this.onChanged,
     this.overlay = const [],
     this.onCarouselController,
-  }) : super(key: key);
+  });
 
   /// Gallery items to display in the carousel.
   ///

@@ -23,9 +23,9 @@ import 'package:flutter/material.dart';
 /// widget.
 class KeepAlivePage extends StatefulWidget {
   const KeepAlivePage({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// [Widget] to keep state of.
   final Widget child;

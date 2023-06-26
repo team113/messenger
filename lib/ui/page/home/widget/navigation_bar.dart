@@ -51,20 +51,6 @@ class CustomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    // [AnimatedOpacity] boilerplate.
-    Widget tab({required Widget child, bool selected = false}) {
-      return AnimatedScale(
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.bounceInOut,
-        scale: selected ? 1.1 : 1,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 150),
-          opacity: selected ? 1 : 0.7,
-          child: AnimatedButton(child: child),
-        ),
-      );
-    }
-
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       decoration: BoxDecoration(
@@ -114,7 +100,7 @@ class CustomNavigationBar extends StatelessWidget {
                                 width: 80,
                                 color: style.colors.transparent,
                                 child: Center(
-                                  child: tab(
+                                  child: _TabWidget(
                                     selected: currentIndex == i,
                                     child: Badge(
                                       largeSize: 15,
@@ -162,6 +148,31 @@ class CustomNavigationBar extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// [AnimatedOpacity] boilerplate.
+class _TabWidget extends StatelessWidget {
+  const _TabWidget({required this.child, this.selected = false});
+
+  /// Widget of this [_TabWidget].
+  final Widget child;
+
+  /// Indicator whether this [_TabWidget] is selected.
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.bounceInOut,
+      scale: selected ? 1.1 : 1,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: selected ? 1 : 0.7,
+        child: AnimatedButton(child: child),
       ),
     );
   }
