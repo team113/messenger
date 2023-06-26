@@ -15,7 +15,7 @@ PODS:
   - FlutterMacOS (1.0.0)
   - medea_flutter_webrtc (0.8.2):
     - FlutterMacOS
-  - medea_jason (0.3.0):
+  - medea_jason (0.3.1-dev):
     - FlutterMacOS
   - media_kit_libs_macos_video (1.0.4):
     - FlutterMacOS
@@ -142,7 +142,7 @@ SPEC CHECKSUMS:
   flutter_meedu_videoplayer: fceb30a833044aaf6410c5da53c3d61ab3d6abbb
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   medea_flutter_webrtc: 3df07fdf7f364256674e060fba563c8ba1379b73
-  medea_jason: 6b8daa05492afbac1c887af7e76ae76d8750a16b
+  medea_jason: 725741db7e72cb15445dd91c1d87218a1084bbb9
   media_kit_libs_macos_video: 0a4a5bf21533cba968c0833f1b59e9af8b5847f1
   media_kit_native_event_loop: 6cf347b98de9735713a86c188467a008af5f860e
   media_kit_video: 1e311a3dfe41f276935f95518b51a0c3ff72114f
