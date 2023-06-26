@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
@@ -53,7 +52,7 @@ import 'widget/search_user_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
-  const ChatsTabView({super.key});
+  const ChatsTabView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -824,9 +823,61 @@ class ChatsTabView extends StatelessWidget {
                   );
                 }),
                 bottomNavigationBar: c.groupCreating.value
-                    ? _createGroup(context, c)
+                    ? _DecoratedRow(
+                        leading: _StyledRoundedButton(
+                          onPressed: c.closeGroupCreating,
+                          color: style.colors.onPrimary,
+                          child: Text(
+                            'btn_cancel'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: fonts.titleLarge,
+                          ),
+                        ),
+                        trailing: _StyledRoundedButton(
+                          onPressed: c.createGroup,
+                          color: style.colors.primary,
+                          child: Text(
+                            'btn_create_group'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: fonts.titleLarge!.copyWith(
+                              color: style.colors.onPrimary,
+                            ),
+                          ),
+                        ),
+                      )
                     : c.selecting.value
-                        ? _selectButtons(context, c)
+                        ? _DecoratedRow(
+                            leading: _StyledRoundedButton(
+                              onPressed: c.toggleSelecting,
+                              child: Text(
+                                'btn_cancel'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: fonts.titleLarge,
+                              ),
+                            ),
+                            trailing: _StyledRoundedButton(
+                              key: const Key('DeleteChats'),
+                              onPressed: c.selectedChats.isEmpty
+                                  ? null
+                                  : () => _hideChats(context, c),
+                              color: style.colors.primary,
+                              child: Text(
+                                'btn_delete_count'.l10nfmt({
+                                  'count': c.selectedChats.length,
+                                }),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: fonts.titleLarge!.copyWith(
+                                  color: c.selectedChats.isEmpty
+                                      ? style.colors.onBackground
+                                      : style.colors.onPrimary,
+                                ),
+                              ),
+                            ),
+                          )
                         : null,
               );
             }),
@@ -849,148 +900,6 @@ class ChatsTabView extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  /// Returns an animated [OutlinedRoundedButton]s for creating a group.
-  Widget _createGroup(BuildContext context, ChatsTabController c) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Obx(() {
-      final Widget child;
-
-      if (c.groupCreating.value) {
-        Widget button({
-          Key? key,
-          Widget? leading,
-          required Widget child,
-          void Function()? onPressed,
-          Color? color,
-        }) {
-          return Expanded(
-            child: OutlinedRoundedButton(
-              key: key,
-              leading: leading,
-              title: child,
-              onPressed: onPressed,
-              color: color,
-              shadows: [
-                CustomBoxShadow(
-                  blurRadius: 8,
-                  color: style.colors.onBackgroundOpacity13,
-                  blurStyle: BlurStyle.outer,
-                ),
-              ],
-            ),
-          );
-        }
-
-        child = Padding(
-          padding: EdgeInsets.fromLTRB(
-            8,
-            7,
-            8,
-            PlatformUtils.isMobile && !PlatformUtils.isWeb
-                ? router.context!.mediaQuery.padding.bottom + 7
-                : 12,
-          ),
-          child: Row(
-            children: [
-              button(
-                child: Text(
-                  'btn_cancel'.l10n,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: fonts.titleLarge,
-                ),
-                onPressed: c.closeGroupCreating,
-                color: style.colors.onPrimary,
-              ),
-              const SizedBox(width: 10),
-              button(
-                child: Text(
-                  'btn_create_group'.l10n,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: fonts.titleLarge!.copyWith(
-                    color: style.colors.onPrimary,
-                  ),
-                ),
-                onPressed: c.createGroup,
-                color: style.colors.primary,
-              ),
-            ],
-          ),
-        );
-      } else {
-        child = const SizedBox();
-      }
-
-      return AnimatedSwitcher(duration: 250.milliseconds, child: child);
-    });
-  }
-
-  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
-  /// [Chat]s manipulation.
-  Widget _selectButtons(BuildContext context, ChatsTabController c) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    List<CustomBoxShadow> shadows = [
-      CustomBoxShadow(
-        blurRadius: 8,
-        color: style.colors.onBackgroundOpacity13,
-        blurStyle: BlurStyle.outer,
-      ),
-    ];
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedRoundedButton(
-              title: Text(
-                'btn_cancel'.l10n,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: fonts.titleLarge,
-              ),
-              onPressed: c.toggleSelecting,
-              shadows: shadows,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Obx(() {
-            return Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('DeleteChats'),
-                title: Text(
-                  'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: fonts.titleLarge!.copyWith(
-                    color: c.selectedChats.isEmpty
-                        ? style.colors.onBackground
-                        : style.colors.onPrimary,
-                  ),
-                ),
-                onPressed: c.selectedChats.isEmpty
-                    ? null
-                    : () => _hideChats(context, c),
-                color: style.colors.primary,
-                shadows: shadows,
-              ),
-            );
-          }),
-        ],
-      ),
     );
   }
 
@@ -1048,5 +957,76 @@ class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
     } else {
       resolve(GestureDisposition.accepted);
     }
+  }
+}
+
+/// Custom styled [OutlinedRoundedButton].
+class _StyledRoundedButton extends StatelessWidget {
+  const _StyledRoundedButton({
+    super.key,
+    this.child,
+    this.color,
+    this.onPressed,
+  });
+
+  /// Primary content of this button.
+  final Widget? child;
+
+  /// Background color of this button.
+  final Color? color;
+
+  /// Callback, called when this button is tapped or activated other way.
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Expanded(
+      child: OutlinedRoundedButton(
+        title: child,
+        onPressed: onPressed,
+        color: color,
+        shadows: [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: style.colors.onBackgroundOpacity13,
+            blurStyle: BlurStyle.outer,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Row with the [leading] and [trailing] widgets.
+class _DecoratedRow extends StatelessWidget {
+  const _DecoratedRow({this.leading, this.trailing});
+
+  /// Optional leading [Widget].
+  final Widget? leading;
+
+  /// Optional trailing [Widget].
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        8,
+        7,
+        8,
+        PlatformUtils.isMobile && !PlatformUtils.isWeb
+            ? router.context!.mediaQuery.padding.bottom + 7
+            : 12,
+      ),
+      child: Row(
+        children: [
+          if (leading != null) leading!,
+          const SizedBox(width: 10),
+          if (trailing != null) trailing!,
+        ],
+      ),
+    );
   }
 }

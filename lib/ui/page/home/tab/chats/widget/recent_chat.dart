@@ -192,15 +192,16 @@ class RecentChatTile extends StatelessWidget {
                   ],
                   if (rxChat.unreadCount.value > 0)
                     _UnreadCounter(
-                      muted: chat.muted != null,
-                      inverted: inverted,
-                      // TODO: Implement and test notations like `4k`, `54m`, etc.
-                      label: rxChat.unreadCount.value > 99
+                      // TODO: Implement and test notations like `4k`, `54m`,
+                      //       etc.
+                      text: rxChat.unreadCount.value > 99
                           ? '99${'plus'.l10n}'
                           : '${rxChat.unreadCount.value}',
+                      inverted: inverted,
+                      muted: chat.muted != null,
                     )
                   else
-                    const SizedBox(key: Key('NoUnreadMessages'))
+                    const SizedBox(key: Key('NoUnreadMessages')),
                 ] else
                   ...trailing!,
               ],
@@ -797,24 +798,20 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
+      final bool isActive = inCall?.call() == true;
+
       if (chat.ongoingCall == null) {
         return const SizedBox();
       }
-
-      final bool displayed = inCall?.call() == true;
-
-      final Duration duration =
-          DateTime.now().difference(chat.ongoingCall!.at.val);
-      final String text = duration.hhMmSs();
 
       return Padding(
         padding: const EdgeInsets.only(left: 5),
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
-          child: _RoundedRectangleButton(
-            text: text,
-            displayed: displayed,
-            onTap: displayed ? onDrop : onJoin,
+          child: _RoundedRectangularButton(
+            isActive: isActive,
+            duration: DateTime.now().difference(chat.ongoingCall!.at.val),
+            onTap: isActive ? onDrop : onJoin,
           ),
         ),
       );
@@ -849,22 +846,24 @@ class RecentChatTile extends StatelessWidget {
       );
 }
 
-/// Returns a visual representation of the [Chat.unreadCount] counter.
+/// Widget which returns a visual representation of the [Chat.unreadCount]
+/// counter.
 class _UnreadCounter extends StatelessWidget {
   const _UnreadCounter({
-    required this.muted,
-    required this.inverted,
-    required this.label,
+    this.text = '1',
+    this.muted = false,
+    this.inverted = false,
   });
 
-  ///
-  final bool muted;
+  /// Text of this [_UnreadCounter].
+  final String? text;
 
-  ///
-  final bool inverted;
+  /// Indicator whether the chat should `muted` or not.
+  final bool? muted;
 
-  ///
-  final String label;
+  /// Indicator whether this [_UnreadCounter] should have its colors
+  /// inverted.
+  final bool? inverted;
 
   @override
   Widget build(BuildContext context) {
@@ -877,18 +876,18 @@ class _UnreadCounter extends StatelessWidget {
       height: 23,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: muted
-            ? inverted
+        color: muted!
+            ? inverted!
                 ? style.colors.onPrimary
                 : const Color(0xFFC0C0C0)
             : style.colors.dangerColor,
       ),
       alignment: Alignment.center,
       child: Text(
-        label,
+        text!,
         style: fonts.displaySmall!.copyWith(
-          color: muted
-              ? inverted
+          color: muted!
+              ? inverted!
                   ? style.colors.secondary
                   : style.colors.onPrimary
               : style.colors.onPrimary,
@@ -901,23 +900,21 @@ class _UnreadCounter extends StatelessWidget {
   }
 }
 
-// Returns a rounded rectangular button representing an [OngoingCall]
-// associated action.
-class _RoundedRectangleButton extends StatelessWidget {
-  const _RoundedRectangleButton({
-    super.key,
-    required this.text,
-    required this.displayed,
+/// Widget which returns a custom-styled rounded rectangular button.
+class _RoundedRectangularButton extends StatelessWidget {
+  const _RoundedRectangularButton({
+    required this.duration,
+    required this.isActive,
     this.onTap,
   });
 
-  ///
-  final String text;
+  /// [Duration] of this [_RoundedRectangularButton].
+  final Duration duration;
 
-  ///
-  final bool displayed;
+  /// Indicator whether this [_RoundedRectangularButton] is active or not.
+  final bool isActive;
 
-  ///
+  /// Callback, called when this [_RoundedRectangularButton] is tapped.
   final void Function()? onTap;
 
   @override
@@ -925,8 +922,7 @@ class _RoundedRectangleButton extends StatelessWidget {
     final (style, fonts) = Theme.of(context).styles;
 
     return DecoratedBox(
-      key:
-          displayed ? const Key('JoinCallButton') : const Key('DropCallButton'),
+      key: isActive ? const Key('JoinCallButton') : const Key('DropCallButton'),
       position: DecorationPosition.foreground,
       decoration: BoxDecoration(
         border: Border.all(color: style.colors.onPrimary, width: 0.5),
@@ -936,17 +932,16 @@ class _RoundedRectangleButton extends StatelessWidget {
         elevation: 0,
         type: MaterialType.button,
         borderRadius: BorderRadius.circular(20),
-        color: displayed ? style.colors.dangerColor : style.colors.primary,
+        color: isActive ? style.colors.dangerColor : style.colors.primary,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          // onTap: displayed ? onDrop : onJoin,
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
             child: Row(
               children: [
                 Icon(
-                  displayed ? Icons.call_end : Icons.call,
+                  isActive ? Icons.call_end : Icons.call,
                   size: 16,
                   color: style.colors.onPrimary,
                 ),
@@ -954,6 +949,8 @@ class _RoundedRectangleButton extends StatelessWidget {
                 PeriodicBuilder(
                   period: const Duration(seconds: 1),
                   builder: (_) {
+                    final String text = duration.hhMmSs();
+
                     return Text(
                       text,
                       style: fonts.bodyMedium!.copyWith(
