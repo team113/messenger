@@ -42,6 +42,15 @@ class AnimatedLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return SvgImage.asset(
+      svgAsset,
+      height: 190 * 0.75,
+      fit: BoxFit.contain,
+      placeholderBuilder: (context) {
+        return const Center(child: CustomProgressIndicator());
+      },
+    );
+
     // Height being a point to switch between [RiveAnimation] and [SvgImage].
     const double height = 250;
 

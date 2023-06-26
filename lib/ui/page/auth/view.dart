@@ -50,7 +50,7 @@ class AuthView extends StatelessWidget {
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        bool isWeb = PlatformUtils.isWeb;
+        bool isWeb = PlatformUtils.isWeb || true;
         bool isAndroidWeb = isWeb && PlatformUtils.isAndroid;
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
@@ -58,6 +58,48 @@ class AuthView extends StatelessWidget {
         final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
           color: style.colors.onBackground,
         );
+
+        final Widget status = LayoutBuilder(builder: (context, constraints) {
+          final bool narrow = constraints.maxWidth > 300;
+
+          return Container(
+            width: double.infinity,
+            color: Colors.white.withOpacity(0.5),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Flex(
+                mainAxisSize: narrow ? MainAxisSize.max : MainAxisSize.min,
+                mainAxisAlignment:
+                    narrow ? MainAxisAlignment.start : MainAxisAlignment.start,
+                direction: narrow ? Axis.horizontal : Axis.vertical,
+                children: [
+                  if (narrow)
+                    const Expanded(
+                      child: StyledCupertinoButton(
+                        label: 'Terms and conditions',
+                      ),
+                    )
+                  else
+                    const StyledCupertinoButton(label: 'Terms and conditions'),
+                  SizedBox(
+                    width: narrow ? 10 : null,
+                    height: narrow ? null : 10,
+                  ),
+                  StyledCupertinoButton(
+                    onPressed: () => _download(context),
+                    label: 'Download app',
+                    // label: 'label_language_entry'.l10nfmt({
+                    //   'code': L10n.chosen.value!.locale.countryCode,
+                    //   'name': L10n.chosen.value!.name,
+                    // }),
+                    // onPressed: () =>
+                    //     LanguageSelectionView.show(context, null),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
 
         // Header part of the page.
         //
@@ -70,17 +112,19 @@ class AuthView extends StatelessWidget {
               .toList(),
           const SizedBox(height: 30),
           Text(
-            'Messenger',
-            style: thin?.copyWith(fontSize: 24, color: style.colors.secondary),
+            'Gapopa',
+            style: thin?.copyWith(fontSize: 34, color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),
           const SizedBox(height: 2),
           Text(
-            'by Gapopa',
-            style:
-                thin?.copyWith(fontSize: 15.4, color: style.colors.secondary),
+            'messenger',
+            style: thin?.copyWith(
+              fontSize: 24,
+              color: style.colors.secondary,
+            ),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -101,22 +145,9 @@ class AuthView extends StatelessWidget {
             onPressed: c.register,
             color: style.colors.primary,
           ),
-
           const SizedBox(height: 15),
           OutlinedRoundedButton(
-            key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n),
-            leading:
-                SvgImage.asset('assets/icons/sign_in.svg', width: 20 * 0.7),
-            onPressed: () => LoginView.show(context),
-          ),
-          const SizedBox(height: 15),
-          OutlinedRoundedButton(
-            title: Text(
-              // 'Работа и партнёрство'.l10n,
-              // 'Work and cooperation'.l10n,
-              'Work'.l10n,
-            ),
+            title: Text('Работа'.l10n),
             leading: Padding(
               padding: const EdgeInsets.only(left: 2 * 0.7),
               child: SvgImage.asset(
@@ -128,45 +159,62 @@ class AuthView extends StatelessWidget {
             // color: Color.fromRGBO(110, 184, 118, 1),
             onPressed: () => FreelanceView.show(context),
           ),
-          if (isWeb) const SizedBox(height: 15),
-          if (isIosWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
-              leading: Padding(
-                padding: const EdgeInsets.only(bottom: 3 * 0.7),
-                child:
-                    SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7),
+          const SizedBox(height: 15),
+          OutlinedRoundedButton(
+            key: const Key('SignInButton'),
+            title: Text('btn_login'.l10n),
+            leading:
+                SvgImage.asset('assets/icons/sign_in.svg', width: 20 * 0.7),
+            onPressed: () => LoginView.show(context),
+          ),
+          // const SizedBox(height: 15),
+          // StyledCupertinoButton(label: 'Скачать'),
+          // const SizedBox(height: 48),
+          // WidgetButton(
+          //   onPressed: () => _download(context),
+          //   child: SvgImage.asset('assets/icons/download_app_store.svg'),
+          // ),
+          if (false) ...[
+            if (isWeb) const SizedBox(height: 15),
+            if (isIosWeb)
+              OutlinedRoundedButton(
+                title: Text('btn_download'.l10n),
+                leading: Padding(
+                  padding: const EdgeInsets.only(bottom: 3 * 0.7),
+                  child:
+                      SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7),
+                ),
+                onPressed: () => _download(context),
               ),
-              onPressed: () => _download(context),
-            ),
-          if (isAndroidWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 2 * 0.7),
-                child:
-                    SvgImage.asset('assets/icons/google.svg', width: 22 * 0.7),
+            if (isAndroidWeb)
+              OutlinedRoundedButton(
+                title: Text('btn_download'.l10n),
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 2 * 0.7),
+                  child: SvgImage.asset('assets/icons/google.svg',
+                      width: 22 * 0.7),
+                ),
+                onPressed: () => _download(context),
               ),
-              onPressed: () => _download(context),
-            ),
-          if (isDesktopWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
-              leading: PlatformUtils.isMacOS
-                  ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
-                  : (PlatformUtils.isWindows)
-                      ? SvgImage.asset(
-                          'assets/icons/windows.svg',
-                          width: 22 * 0.7,
-                        )
-                      : (PlatformUtils.isLinux)
-                          ? SvgImage.asset(
-                              'assets/icons/linux.svg',
-                              width: 22 * 0.7,
-                            )
-                          : null,
-              onPressed: () => _download(context),
-            ),
+            if (isDesktopWeb)
+              OutlinedRoundedButton(
+                title: Text('btn_download'.l10n),
+                leading: PlatformUtils.isMacOS
+                    ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
+                    : (PlatformUtils.isWindows)
+                        ? SvgImage.asset(
+                            'assets/icons/windows.svg',
+                            width: 22 * 0.7,
+                          )
+                        : (PlatformUtils.isLinux)
+                            ? SvgImage.asset(
+                                'assets/icons/linux.svg',
+                                width: 22 * 0.7,
+                              )
+                            : null,
+                onPressed: () => _download(context),
+              ),
+          ],
           // if (isWeb) const SizedBox(height: 15),
           // OutlinedRoundedButton(
           //   title: Text(
@@ -205,17 +253,16 @@ class AuthView extends StatelessWidget {
           // ),
           // const SizedBox(height: 8),
 
-          const StyledCupertinoButton(label: 'Terms and conditions'),
-          const StyledCupertinoButton(label: 'Contact us'),
-          const SizedBox(height: 32),
-          StyledCupertinoButton(
-            key: c.languageKey,
-            label: 'label_language_entry'.l10nfmt({
-              'code': L10n.chosen.value!.locale.countryCode,
-              'name': L10n.chosen.value!.name,
-            }),
-            onPressed: () => LanguageSelectionView.show(context, null),
-          ),
+          // const StyledCupertinoButton(label: 'Terms and conditions'),
+          // const StyledCupertinoButton(label: 'Contact us'),
+          // const SizedBox(height: 32),
+          // StyledCupertinoButton(
+          //   label: 'label_language_entry'.l10nfmt({
+          //     'code': L10n.chosen.value!.locale.countryCode,
+          //     'name': L10n.chosen.value!.name,
+          //   }),
+          //   onPressed: () => LanguageSelectionView.show(context, null),
+          // ),
         ];
 
         return Stack(
@@ -253,21 +300,19 @@ class AuthView extends StatelessWidget {
                           children: [
                             ...header,
                             Flexible(
-                              child: Obx(
-                                () => AnimatedLogo(
+                              child: Obx(() {
+                                return AnimatedLogo(
                                   key: const ValueKey('Logo'),
                                   svgAsset:
                                       'assets/images/logo/head000${c.logoFrame.value}.svg',
                                   onInit: Config.disableInfiniteAnimations
                                       ? null
                                       : (a) => _setBlink(c, a),
-                                ),
-                              ),
+                                );
+                              }),
                             ),
                             ...footer,
-                            SizedBox(
-                              height: MediaQuery.of(context).viewPadding.bottom,
-                            )
+                            Opacity(opacity: 0, child: status),
                           ],
                         ),
                       ),
@@ -276,6 +321,48 @@ class AuthView extends StatelessWidget {
                 ),
               ),
             ),
+            if (false)
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 16, 16, 0),
+                  child: WidgetButton(
+                    onPressed: () => _download(context),
+                    child:
+                        SvgImage.asset('assets/icons/download_app_store.svg'),
+                  ),
+                ),
+              ),
+            if (false)
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.white,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text('Скачать\nприложение'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            Align(alignment: Alignment.bottomCenter, child: status),
           ],
         );
       },

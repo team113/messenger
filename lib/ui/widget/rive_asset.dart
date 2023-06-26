@@ -24,11 +24,13 @@ class RiveAsset extends StatefulWidget {
     super.key,
     this.width,
     this.height,
+    this.pushed = false,
   });
 
   final String asset;
   final double? width;
   final double? height;
+  final bool pushed;
 
   @override
   State<RiveAsset> createState() => _RiveAssetState();
@@ -37,7 +39,15 @@ class RiveAsset extends StatefulWidget {
 class _RiveAssetState extends State<RiveAsset> {
   StateMachineController? _controller;
   SMIBool? _hover;
+  SMIBool? _pushed;
   SMITrigger? _click;
+
+  @override
+  void didUpdateWidget(RiveAsset oldWidget) {
+    setState(() => _pushed?.change(widget.pushed));
+    print('${widget.pushed} ${_pushed}');
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,25 +55,28 @@ class _RiveAssetState extends State<RiveAsset> {
       onEnter: (_) => setState(() => _hover?.change(true)),
       onExit: (_) => setState(() => _hover?.change(false)),
       child: Listener(
-        onPointerDown: (_) => setState(() => _click?.fire()),
+        // onPointerDown: (_) => setState(() => _click?.fire()),
         child: SizedBox(
           width: widget.width,
           height: widget.height,
-          child: RiveAnimation.asset(
-            widget.asset,
-            fit: BoxFit.contain,
-            onInit: (a) {
-              _controller = StateMachineController.fromArtboard(
-                a,
-                a.stateMachines.first.name,
-              );
-              a.addController(_controller!);
+          child: IgnorePointer(
+            child: RiveAnimation.asset(
+              widget.asset,
+              fit: BoxFit.contain,
+              onInit: (a) {
+                _controller = StateMachineController.fromArtboard(
+                  a,
+                  a.stateMachines.first.name,
+                );
+                a.addController(_controller!);
 
-              _hover = _controller?.findInput<bool>('Hover') as SMIBool?;
-              _click = _controller?.findInput<bool>('Click') as SMITrigger?;
+                _hover = _controller?.findInput<bool>('HOVER') as SMIBool?;
+                _click = _controller?.findInput<bool>('Click') as SMITrigger?;
+                _pushed = _controller?.findInput<bool>('PUSH') as SMIBool?;
 
-              setState(() {});
-            },
+                setState(() {});
+              },
+            ),
           ),
         ),
       ),

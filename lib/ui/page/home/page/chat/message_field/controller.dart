@@ -26,6 +26,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/page/chat/message_field/more.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -159,6 +160,8 @@ class MessageFieldController extends GetxController {
   /// [ChatItem] being edited.
   final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
 
+  final RxBool moreOpened = RxBool(false);
+
   final RxBool editing = RxBool(false);
   final RxBool donationHovered = RxBool(false);
 
@@ -241,12 +244,21 @@ class MessageFieldController extends GetxController {
   }
 
   void removeEntries<T>() {
+    if (T.toString() == 'MessageFieldMore') {
+      moreOpened.value = false;
+    }
+    print('$T ${moreOpened.value}');
+
     for (var e in entries.entries.where((e) => e.key == T).toList()) {
       entries.remove(e.key)?.remove();
     }
   }
 
   void addEntry<T>(Widget child) {
+    if (T.toString() == 'MessageFieldMore') {
+      moreOpened.value = true;
+    }
+
     entries[T] = (OverlayEntry(builder: (_) => child));
     router.overlay!.insert(entries[T]!);
   }

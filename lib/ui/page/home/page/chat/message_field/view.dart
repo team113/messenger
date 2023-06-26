@@ -24,6 +24,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/donate.dart';
+import 'package:messenger/ui/widget/rive_asset.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -557,11 +558,19 @@ class MessageFieldView extends StatelessWidget {
                 width: 50,
                 height: 56,
                 child: Center(
-                  child: SvgImage.asset(
-                    'assets/icons/chat_more1.svg',
-                    height: 20,
-                    width: 20,
-                  ),
+                  child: Obx(() {
+                    return RiveAsset(
+                      'assets/icons/more.riv',
+                      width: 30,
+                      height: 30,
+                      pushed: c.moreOpened.value,
+                    );
+                  }),
+                  // child: SvgImage.asset(
+                  //   'assets/icons/chat_more1.svg',
+                  //   height: 20,
+                  //   width: 20,
+                  // ),
                   // child: SvgImage.asset(
                   //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
                   //   height: 22,

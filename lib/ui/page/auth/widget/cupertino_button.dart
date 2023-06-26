@@ -44,8 +44,8 @@ class StyledCupertinoButton extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
-      fontSize: 13,
-      color: color ?? style.colors.secondary,
+      fontSize: 15,
+      color: color ?? style.colors.primary,
     );
 
     return WidgetButton(
