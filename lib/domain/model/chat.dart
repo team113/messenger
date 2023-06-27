@@ -196,7 +196,35 @@ class Chat extends HiveObject {
 
   /// Indicates whether the provided [ChatItem] was read by some [User] other
   /// than [me].
-  bool isRead(ChatItem item, UserId? me) {
+  ///
+  /// If [members] are provided, then accounts its [ChatMember.joinedAt] for a
+  /// more precise read indication.
+  bool isRead(
+    ChatItem item,
+    UserId? me, [
+    List<ChatMember> members = const [],
+  ]) {
+    if (members.isNotEmpty) {
+      if (members.length <= 1) {
+        return true;
+      }
+
+      final Iterable<ChatMember> membersWithoutMe =
+          members.where((e) => e.user.id != me);
+
+      if (membersWithoutMe.isNotEmpty) {
+        final PreciseDateTime firstJoinedAt =
+            membersWithoutMe.fold<PreciseDateTime>(
+          membersWithoutMe.first.joinedAt,
+          (at, member) => member.joinedAt.isBefore(at) ? member.joinedAt : at,
+        );
+
+        if (item.at.isBefore(firstJoinedAt)) {
+          return true;
+        }
+      }
+    }
+
     return lastReads.firstWhereOrNull(
             (e) => !e.at.isBefore(item.at) && e.memberId != me) !=
         null;
@@ -245,7 +273,8 @@ class LastChatRead {
 class ChatId extends NewType<String> {
   const ChatId(super.val);
 
-  /// Constructs a dummy [ChatId].
+  /// Constructs a local [ChatId] from the [id] of the [User] with whom the
+  /// local [Chat] is created.
   factory ChatId.local(UserId id) => ChatId('local_${id.val}');
 
   /// Indicates whether this [ChatId] is a dummy ID.
@@ -255,6 +284,10 @@ class ChatId extends NewType<String> {
   UserId get userId => isLocal
       ? UserId(val.replaceFirst('local_', ''))
       : throw Exception('ChatId is not local');
+
+  /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
+  /// equals the provided [id].
+  bool isLocalWith(UserId? id) => isLocal && userId == id;
 }
 
 /// Name of a [Chat].

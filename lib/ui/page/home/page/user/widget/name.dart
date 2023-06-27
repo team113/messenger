@@ -17,34 +17,31 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:get/get.dart';
-
 import '/domain/model/user.dart';
+import '/l10n/l10n.dart';
+import '/ui/page/home/page/my_profile/widget/copyable.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/text_field.dart';
 
-/// [ListTile] with an information of an [User].
-class AddUserListTile extends StatelessWidget {
-  const AddUserListTile(this.user, this.onTap, {Key? key}) : super(key: key);
+/// [CopyableTextField] representation of the provided [UserName] or [UserNum].
+class UserNameCopyable extends StatelessWidget {
+  const UserNameCopyable(this.name, this.num, {super.key});
 
-  /// [User] this [AddUserListTile] is about.
-  final User user;
+  /// [UserName] to display.
+  final UserName? name;
 
-  /// Callback, called when this [ListTile] is tapped.
-  final VoidCallback onTap;
+  /// [UserNum] to display, if [name] is `null`.
+  final UserNum num;
 
   @override
   Widget build(BuildContext context) {
-    TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
-
-    return ListTile(
-      leading: const CircleAvatar(
-        backgroundColor: Colors.green,
-        child: Icon(Icons.check, color: Colors.white),
+    return Paddings.basic(
+      CopyableTextField(
+        key: const Key('NameField'),
+        state: TextFieldState(text: name?.val ?? num.val),
+        label: 'label_name'.l10n,
+        copy: name?.val ?? num.val,
       ),
-      selected: true,
-      selectedTileColor: const Color(0x11000000),
-      title: Text(user.name?.val ?? user.num.val, style: font17),
-      onTap: onTap,
     );
   }
 }

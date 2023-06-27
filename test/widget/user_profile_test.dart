@@ -44,6 +44,7 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -129,6 +130,13 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
     (_) => const Stream.empty(),
   );
+
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
+  );
+
   AuthService authService =
       AuthService(AuthRepository(graphQlProvider), sessionProvider);
   await authService.init();
@@ -167,6 +175,8 @@ void main() async {
   await blacklistedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);
@@ -395,6 +405,8 @@ void main() async {
       draftProvider,
       userRepository,
       sessionProvider,
+      monologProvider,
+      me: const UserId('me'),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
@@ -410,7 +422,7 @@ void main() async {
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
         find.byKey(const Key('UserScrollable')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.text('5769 2360 9862 1822 '), findsOneWidget);
+    expect(find.text('5769space2360space9862space1822space'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));

@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/file.dart';
+import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -110,7 +111,7 @@ class RetryImage extends StatefulWidget {
 
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
-  final Future<void> Function()? onForbidden;
+  final FutureOr<void> Function()? onForbidden;
 
   /// [BoxFit] to apply to this [RetryImage].
   final BoxFit? fit;
@@ -203,13 +204,15 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final Widget child;
 
     if (_image != null) {
       Widget image;
 
       if (_isSvg) {
-        return SvgLoader.bytes(
+        return SvgImage.bytes(
           _image!,
           width: widget.width,
           height: widget.height,
@@ -271,7 +274,7 @@ class _RetryImageState extends State<RetryImage> {
                     blur: false,
                     padding: const EdgeInsets.all(4),
                     strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: style.colors.primary,
                     value: _progress == 0 ? null : _progress.clamp(0, 1),
                   ),
                 if (widget.cancelable)
@@ -282,18 +285,18 @@ class _RetryImageState extends State<RetryImage> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: style.colors.onBackgroundOpacity20,
                                   blurRadius: 8,
                                   blurStyle: BlurStyle.outer,
                                 ),
                               ],
                             ),
-                            child: SvgLoader.asset(
+                            child: SvgImage.asset(
                               'assets/icons/download.svg',
                               height: 40,
                             ),
                           )
-                        : SvgLoader.asset(
+                        : SvgImage.asset(
                             'assets/icons/close_primary.svg',
                             height: 13,
                           ),
@@ -348,10 +351,7 @@ class _RetryImageState extends State<RetryImage> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
-      child: KeyedSubtree(
-        key: Key('Image_${widget.url}'),
-        child: child,
-      ),
+      child: KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
     );
   }
 
@@ -387,6 +387,8 @@ class _RetryImageState extends State<RetryImage> {
             } on DioError catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
+                _cancelToken.cancel();
+                _fallbackToken.cancel();
               }
             }
 
@@ -399,6 +401,8 @@ class _RetryImageState extends State<RetryImage> {
               if (mounted) {
                 setState(() {});
               }
+            } else {
+              throw Exception('Fallback image is not loaded');
             }
           },
           _fallbackToken,
@@ -453,6 +457,7 @@ class _RetryImageState extends State<RetryImage> {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
                 _cancelToken.cancel();
+                _fallbackToken.cancel();
               }
             }
 

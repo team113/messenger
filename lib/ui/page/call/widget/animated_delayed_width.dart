@@ -20,12 +20,12 @@ import 'package:flutter/material.dart';
 /// [AnimatedContainer] changing its width.
 class AnimatedDelayedWidth extends StatefulWidget {
   const AnimatedDelayedWidth({
-    Key? key,
+    super.key,
     this.delay = Duration.zero,
     required this.beginWidth,
     required this.endWidth,
     this.duration = const Duration(milliseconds: 300),
-  }) : super(key: key);
+  });
 
   /// [Duration] of the delay.
   final Duration delay;

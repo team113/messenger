@@ -38,6 +38,7 @@ import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
@@ -78,6 +79,8 @@ void main() async {
   await backgroundProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
@@ -136,6 +139,12 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
+  );
+
   test('ChatService successfully edits a ChatMessage', () async {
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -174,6 +183,8 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -239,6 +250,8 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));

@@ -259,6 +259,23 @@ class WebUtils {
     }
   }
 
+  /// Sets the provided [updating] value to the browser's storage indicating an
+  /// ongoing [Credentials] refresh.
+  static set credentialsUpdating(bool updating) {
+    html.window.localStorage['credentialsUpdating'] = updating.toString();
+  }
+
+  /// Indicates whether [Credentials] are considered being updated currently.
+  static bool get credentialsUpdating {
+    final String? updating = html.window.localStorage['credentialsUpdating'];
+
+    if (updating == null) {
+      return false;
+    } else {
+      return updating.toLowerCase() == 'true';
+    }
+  }
+
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
 
@@ -534,6 +551,27 @@ class WebUtils {
       html.document.title,
       Uri.base.toString().replaceFirst(from, to),
     );
+  }
+
+  /// Sets the favicon being used to an alert style.
+  static void setAlertFavicon() {
+    for (html.LinkElement e in html.querySelectorAll("link[rel*='icon']")) {
+      if (!e.href.contains('icons/alert/')) {
+        e.href = e.href.replaceFirst('icons/', 'icons/alert/');
+      }
+    }
+  }
+
+  /// Sets the favicon being used to the default style.
+  static void setDefaultFavicon() {
+    for (html.LinkElement e in html.querySelectorAll("link[rel*='icon']")) {
+      e.href = e.href.replaceFirst('icons/alert/', 'icons/');
+    }
+  }
+
+  /// Sets callback to be fired whenever Rust code panics.
+  static void onPanic(void Function(String)? cb) {
+    // No-op.
   }
 }
 

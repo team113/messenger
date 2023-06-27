@@ -26,13 +26,13 @@ import 'fit_view.dart';
 /// Uses [FitView], if there's not enough space for the [Wrap].
 class FitWrap extends StatelessWidget {
   const FitWrap({
-    Key? key,
+    super.key,
     required this.children,
     required this.maxSize,
     this.axis = Axis.horizontal,
     this.spacing = 1,
     this.alignment = WrapAlignment.center,
-  }) : super(key: key);
+  });
 
   /// Widgets to put inside a [Wrap].
   final List<Widget> children;

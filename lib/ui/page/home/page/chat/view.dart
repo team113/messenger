@@ -41,10 +41,11 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -55,7 +56,7 @@ import 'widget/chat_item.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
 
-/// View of the [Routes.chat] page.
+/// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
   const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
 
@@ -94,6 +95,8 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
       init: ChatController(
@@ -110,9 +113,9 @@ class _ChatViewState extends State<ChatView>
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.
         void onDetailsTap() {
-          Chat? chat = c.chat?.chat.value;
+          final Chat? chat = c.chat?.chat.value;
           if (chat != null) {
-            if (chat.isGroup) {
+            if (chat.isGroup || chat.isMonolog) {
               router.chatInfo(widget.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
@@ -140,6 +143,8 @@ class _ChatViewState extends State<ChatView>
             );
           }
 
+          final bool isMonolog = c.chat!.chat.value.isMonolog;
+
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
@@ -157,8 +162,8 @@ class _ChatViewState extends State<ChatView>
                           Material(
                             elevation: 6,
                             type: MaterialType.circle,
-                            shadowColor: const Color(0x55000000),
-                            color: Colors.white,
+                            shadowColor: style.colors.onBackgroundOpacity27,
+                            color: style.colors.onPrimary,
                             child: InkWell(
                               customBorder: const CircleBorder(),
                               onTap: onDetailsTap,
@@ -174,8 +179,8 @@ class _ChatViewState extends State<ChatView>
                           Flexible(
                             child: InkWell(
                               splashFactory: NoSplash.splashFactory,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
+                              hoverColor: style.colors.transparent,
+                              highlightColor: style.colors.transparent,
                               onTap: onDetailsTap,
                               child: DefaultTextStyle.merge(
                                 maxLines: 1,
@@ -191,7 +196,7 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    _chatSubtitle(c),
+                                    if (!isMonolog) _chatSubtitle(c),
                                   ],
                                 ),
                               ),
@@ -204,13 +209,17 @@ class _ChatViewState extends State<ChatView>
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
+                          if (c.chat?.blacklisted == true) {
+                            return const SizedBox.shrink();
+                          }
+
                           final List<Widget> children;
 
                           if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
                               WidgetButton(
                                 onPressed: () => c.call(true),
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/chat_video_call.svg',
                                   height: 17,
                                 ),
@@ -219,7 +228,7 @@ class _ChatViewState extends State<ChatView>
                               WidgetButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: SvgLoader.asset(
+                                child: SvgImage.asset(
                                   'assets/icons/chat_audio_call.svg',
                                   height: 19,
                                 ),
@@ -237,12 +246,12 @@ class _ChatViewState extends State<ChatView>
                                         child: Container(
                                           height: 32,
                                           width: 32,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
+                                          decoration: BoxDecoration(
+                                            color: style.colors.dangerColor,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
-                                            child: SvgLoader.asset(
+                                            child: SvgImage.asset(
                                               'assets/icons/call_end.svg',
                                               width: 32,
                                               height: 32,
@@ -257,13 +266,11 @@ class _ChatViewState extends State<ChatView>
                                           height: 32,
                                           width: 32,
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
+                                            color: style.colors.primary,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
-                                            child: SvgLoader.asset(
+                                            child: SvgImage.asset(
                                               'assets/icons/audio_call_start.svg',
                                               width: 15,
                                               height: 15,
@@ -280,24 +287,26 @@ class _ChatViewState extends State<ChatView>
                       ],
                     ),
                     body: Listener(
-                      onPointerSignal: (s) {
-                        if (s is PointerScrollEvent) {
-                          if ((s.scrollDelta.dy.abs() < 3 &&
-                                  s.scrollDelta.dx.abs() > 3) ||
-                              c.isHorizontalScroll.value) {
-                            double value =
-                                _animation.value + s.scrollDelta.dx / 100;
-                            _animation.value = value.clamp(0, 1);
+                      onPointerSignal: c.settings.value?.timelineEnabled == true
+                          ? (s) {
+                              if (s is PointerScrollEvent) {
+                                if ((s.scrollDelta.dy.abs() < 3 &&
+                                        s.scrollDelta.dx.abs() > 3) ||
+                                    c.isHorizontalScroll.value) {
+                                  double value =
+                                      _animation.value + s.scrollDelta.dx / 100;
+                                  _animation.value = value.clamp(0, 1);
 
-                            if (_animation.value == 0 ||
-                                _animation.value == 1) {
-                              _resetHorizontalScroll(c, 10.milliseconds);
-                            } else {
-                              _resetHorizontalScroll(c);
+                                  if (_animation.value == 0 ||
+                                      _animation.value == 1) {
+                                    _resetHorizontalScroll(c, 10.milliseconds);
+                                  } else {
+                                    _resetHorizontalScroll(c);
+                                  }
+                                }
+                              }
                             }
-                          }
-                        }
-                      },
+                          : null,
                       onPointerPanZoomUpdate: (s) {
                         if (c.scrollOffset.dx.abs() < 7 &&
                             c.scrollOffset.dy.abs() < 7) {
@@ -321,7 +330,8 @@ class _ChatViewState extends State<ChatView>
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          if (c.isSelecting.isFalse)
+                          if (c.settings.value?.timelineEnabled == true &&
+                              c.isSelecting.isFalse)
                             AllowMultipleHorizontalDragGestureRecognizer:
                                 GestureRecognizerFactoryWithHandlers<
                                     AllowMultipleHorizontalDragGestureRecognizer>(
@@ -422,9 +432,27 @@ class _ChatViewState extends State<ChatView>
                                       c.chat!.status.value.isEmpty) &&
                                   c.chat!.messages.isEmpty) {
                                 return Center(
-                                  child: Text(
-                                    key: const Key('NoMessages'),
-                                    'label_no_messages'.l10n,
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: style.systemMessageBorder,
+                                      color: style.systemMessageColor,
+                                    ),
+                                    child: Text(
+                                      key: const Key('NoMessages'),
+                                      isMonolog
+                                          ? 'label_chat_monolog_description'
+                                              .l10n
+                                          : 'label_no_messages'.l10n,
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
                                 );
                               }
@@ -461,7 +489,7 @@ class _ChatViewState extends State<ChatView>
                       );
                     }),
                     bottomNavigationBar: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                      padding: Insets.dense.copyWith(top: 0),
                       child:
                           NotificationListener<SizeChangedLayoutNotification>(
                         onNotification: (l) {
@@ -498,7 +526,7 @@ class _ChatViewState extends State<ChatView>
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
-                                color: const Color(0x40000000),
+                                color: style.colors.onBackgroundOpacity27,
                                 child: Center(
                                   child: AnimatedDelayedScale(
                                     duration: const Duration(milliseconds: 300),
@@ -510,14 +538,15 @@ class _ChatViewState extends State<ChatView>
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(16),
-                                          color: const Color(0x40000000),
+                                          color: style
+                                              .colors.onBackgroundOpacity27,
                                         ),
-                                        child: const Padding(
-                                          padding: EdgeInsets.all(16),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
                                           child: Icon(
                                             Icons.add_rounded,
                                             size: 50,
-                                            color: Colors.white,
+                                            color: style.colors.onPrimary,
                                           ),
                                         ),
                                       ),
@@ -541,6 +570,8 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == 0;
 
@@ -796,7 +827,9 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -822,7 +855,7 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(subtitle.toString(), style: style);
+        return Text(subtitle.toString(), style: textStyle);
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -834,9 +867,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
+                style: textStyle?.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -860,9 +891,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
+                style: textStyle?.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -877,7 +906,7 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.isGroup) {
         final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
-          return Text(subtitle, style: style);
+          return Text(subtitle, style: textStyle);
         }
       } else if (chat.value.isDialog) {
         final ChatMember? partner =
@@ -886,7 +915,7 @@ class _ChatViewState extends State<ChatView>
           return Row(
             children: [
               if (c.chat?.chat.value.muted != null) ...[
-                SvgLoader.asset(
+                SvgImage.asset(
                   'assets/icons/muted_dark.svg',
                   width: 19.99 * 0.6,
                   height: 15 * 0.6,
@@ -915,7 +944,7 @@ class _ChatViewState extends State<ChatView>
 
                           buffer.write(subtitle ?? '');
 
-                          return Text(buffer.toString(), style: style);
+                          return Text(buffer.toString(), style: textStyle);
                         }
 
                         return const SizedBox();
@@ -985,7 +1014,7 @@ class _ChatViewState extends State<ChatView>
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
     if (c.chat?.blacklisted == true) {
-      return _blockedField(c);
+      return SafeArea(child: UnblockButton(c.unblacklist));
     }
 
     return Obx(() {
@@ -1001,7 +1030,7 @@ class _ChatViewState extends State<ChatView>
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
-        onChanged: c.keepTyping,
+        onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
         onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: false),
         canForward: true,
       );
@@ -1043,72 +1072,6 @@ class _ChatViewState extends State<ChatView>
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
           style: style.systemMessageStyle,
-        ),
-      ),
-    );
-  }
-
-  /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
-  Widget _blockedField(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Theme(
-      data: MessageFieldView.theme(context),
-      child: SafeArea(
-        child: Container(
-          key: const Key('BlockedField'),
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            boxShadow: const [
-              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
-            ],
-          ),
-          child: ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
-            ),
-            borderRadius: style.cardRadius,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 56),
-              decoration: BoxDecoration(color: style.cardColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                        bottom: 13,
-                      ),
-                      child: Transform.translate(
-                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                        child: WidgetButton(
-                          onPressed: c.unblacklist,
-                          child: IgnorePointer(
-                            child: ReactiveTextField(
-                              enabled: false,
-                              state: TextFieldState(text: 'btn_unblock'.l10n),
-                              filled: false,
-                              dense: true,
-                              textAlign: TextAlign.center,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(
-                                fontSize: 17,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );

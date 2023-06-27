@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
@@ -36,7 +36,6 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
-import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -45,6 +44,7 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -59,9 +59,11 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'chat_gallery.dart';
 import 'data_attachment.dart';
 import 'media_attachment.dart';
 import 'message_info/view.dart';
+import 'message_timestamp.dart';
 import 'selection_text.dart';
 import 'swipeable_status.dart';
 
@@ -77,8 +79,9 @@ class ChatItemWidget extends StatefulWidget {
     this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
     this.reads = const [],
     this.loadImages = true,
-    this.getUser,
     this.animation,
+    this.timestamp = true,
+    this.getUser,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -118,6 +121,13 @@ class ChatItemWidget extends StatefulWidget {
   /// fetched as soon as they are displayed, if any.
   final bool loadImages;
 
+  /// Optional animation that controls a [SwipeableStatus].
+  final AnimationController? animation;
+
+  /// Indicator whether a [ChatItem.at] should be displayed within this
+  /// [ChatItemWidget].
+  final bool timestamp;
+
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
@@ -137,13 +147,10 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a copy action of this [ChatItem] is triggered.
   final void Function(String text)? onCopy;
 
-  /// Optional animation that controls a [SwipeableStatus].
-  final AnimationController? animation;
-
   /// Callback, called when a gallery list is required.
   ///
   /// If not specified, then only media in this [item] will be in a gallery.
-  final List<Attachment> Function()? onGallery;
+  final List<GalleryAttachment> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final void Function(ChatItemQuote)? onRepliedTap;
@@ -170,13 +177,15 @@ class ChatItemWidget extends StatefulWidget {
   static Widget mediaAttachment(
     BuildContext context,
     Attachment e,
-    List<Attachment> media, {
+    Iterable<GalleryAttachment> media, {
     GlobalKey? key,
-    List<Attachment> Function()? onGallery,
+    Iterable<GalleryAttachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
     bool autoLoad = true,
   }) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final bool isLocal = e is LocalAttachment;
 
     final bool isVideo;
@@ -203,12 +212,15 @@ class ChatItemWidget extends StatefulWidget {
             child: Container(
               width: 60,
               height: 60,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0x80000000),
+                color: style.colors.onBackgroundOpacity50,
               ),
-              child:
-                  const Icon(Icons.play_arrow, color: Colors.white, size: 48),
+              child: Icon(
+                Icons.play_arrow,
+                color: style.colors.onPrimary,
+                size: 48,
+              ),
             ),
           ),
         ],
@@ -241,52 +253,21 @@ class ChatItemWidget extends StatefulWidget {
           onTap: isLocal
               ? null
               : () {
-                  final List<Attachment> attachments =
+                  final Iterable<GalleryAttachment> attachments =
                       onGallery?.call() ?? media;
 
-                  int initial = attachments.indexOf(e);
+                  int initial = attachments.indexed
+                      .firstWhere((a) => a.$2.attachment == e)
+                      .$1;
                   if (initial == -1) {
                     initial = 0;
                   }
 
-                  List<GalleryItem> gallery = [];
-                  for (var o in attachments) {
-                    StorageFile file = o.original;
-                    GalleryItem? item;
-
-                    if (o is FileAttachment) {
-                      item = GalleryItem.video(
-                        file.url,
-                        o.filename,
-                        size: file.size,
-                        checksum: file.checksum,
-                        onError: () async {
-                          await onError?.call();
-                          item?.link = o.original.url;
-                        },
-                      );
-                    } else if (o is ImageAttachment) {
-                      item = GalleryItem.image(
-                        file.url,
-                        o.filename,
-                        size: file.size,
-                        checksum: file.checksum,
-                        onError: () async {
-                          await onError?.call();
-                          item?.link = o.original.url;
-                        },
-                      );
-                    }
-
-                    gallery.add(item!);
-                  }
-
                   GalleryPopup.show(
                     context: context,
-                    gallery: GalleryPopup(
-                      children: gallery,
-                      initial: initial,
-                      initialKey: key,
+                    gallery: ChatGallery(
+                      attachments: attachments,
+                      initial: (initial, key),
                     ),
                   );
                 },
@@ -302,39 +283,34 @@ class ChatItemWidget extends StatefulWidget {
                     ),
               ElasticAnimatedSwitcher(
                 key: Key('AttachmentStatus_${e.id}'),
-                child: !isLocal
+                child: !isLocal || e.status.value == SendingStatus.sent
                     ? Container(key: const Key('Sent'))
                     : Container(
                         constraints: filled
                             ? const BoxConstraints(
-                                minWidth: 300, minHeight: 300)
-                            : null,
-                        child: e.status.value == SendingStatus.sent
-                            ? const Icon(
-                                Icons.check_circle,
-                                key: Key('Sent'),
-                                size: 48,
-                                color: Colors.green,
+                                minWidth: 300,
+                                minHeight: 300,
                               )
-                            : e.status.value == SendingStatus.sending
-                                ? SizedBox(
-                                    width: 60,
-                                    height: 60,
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        key: const Key('Sending'),
-                                        value: e.progress.value,
-                                        backgroundColor: Colors.white,
-                                        strokeWidth: 10,
-                                      ),
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.error,
-                                    key: Key('Error'),
-                                    size: 48,
-                                    color: Colors.red,
+                            : null,
+                        child: e.status.value == SendingStatus.sending
+                            ? SizedBox(
+                                width: 60,
+                                height: 60,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    key: const Key('Sending'),
+                                    value: e.progress.value,
+                                    backgroundColor: style.colors.onPrimary,
+                                    strokeWidth: 10,
                                   ),
+                                ),
+                              )
+                            : Icon(
+                                Icons.error,
+                                key: const Key('Error'),
+                                size: 48,
+                                color: style.colors.dangerColor,
+                              ),
                       ),
               )
             ],
@@ -394,6 +370,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [SelectedContent] of a [SelectionText] within this [ChatItemWidget].
   SelectedContent? _selection;
 
+  /// [TapGestureRecognizer]s for tapping on the [SelectionText.rich] spans, if
+  /// any.
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  /// [TextSpan] of the [ChatItemWidget.item] to display as a text of this
+  /// [ChatItemWidget].
+  TextSpan? _text;
+
+  /// [Worker] reacting on the [ChatItemWidget.item] changes updating the
+  /// [_text] and [_galleryKeys].
+  Worker? _worker;
+
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
@@ -402,19 +390,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.item.value, widget.me);
+      return chat.isRead(widget.item.value, widget.me, chat.members);
     } else {
       return chat.isReadBy(widget.item.value, widget.me);
     }
   }
 
+  /// Returns the [UserId] of [User] posted this [ChatItem].
+  UserId get _author => widget.item.value.authorId;
+
   /// Indicates whether this [ChatItemWidget.item] was posted by the
   /// authenticated [MyUser].
-  bool get _fromMe => widget.item.value.authorId == widget.me;
+  bool get _fromMe => _author == widget.me;
 
   @override
   void initState() {
-    _populateGlobalKeys(widget.item.value);
+    _populateWorker();
     super.initState();
   }
 
@@ -422,25 +413,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   void dispose() {
     _ongoingCallTimer?.cancel();
     _ongoingCallTimer = null;
+
+    _worker?.dispose();
+    for (var r in _recognizers) {
+      r.dispose();
+    }
+
     super.dispose();
   }
 
   @override
   void didUpdateWidget(covariant ChatItemWidget oldWidget) {
     if (oldWidget.item != widget.item) {
-      if (widget.item.value is ChatMessage) {
-        var msg = widget.item.value as ChatMessage;
-
-        bool needsUpdate = true;
-        if (oldWidget.item is ChatMessage) {
-          needsUpdate = msg.attachments.length !=
-              (oldWidget.item as ChatMessage).attachments.length;
-        }
-
-        if (needsUpdate) {
-          _populateGlobalKeys(msg);
-        }
-      }
+      _populateWorker();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -449,6 +434,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     return DefaultTextStyle(
       style: style.boldBody,
       child: Obx(() {
@@ -459,7 +445,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             'Use `ChatForward` widget for rendering `ChatForward`s instead',
           );
         } else if (widget.item.value is ChatCall) {
-          return SelectionContainer.disabled(child: _renderAsChatCall(context));
+          return _renderAsChatCall(context);
         } else if (widget.item.value is ChatInfo) {
           return SelectionContainer.disabled(child: _renderAsChatInfo());
         }
@@ -471,6 +457,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatInfo].
   Widget _renderAsChatInfo() {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final ChatInfo message = widget.item.value as ChatInfo;
 
     final Widget content;
@@ -512,12 +499,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     TextSpan(
                       text: 'label_group_created_by2'.l10nfmt(args),
                       style: style.systemMessageStyle.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: style.colors.secondary,
                       ),
                     ),
                   ],
                   style: style.systemMessageStyle.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: style.colors.primary,
                   ),
                 ),
               );
@@ -525,6 +512,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
             return Text('label_group_created'.l10n);
           });
+        } else if (widget.chat.value?.isMonolog == true) {
+          content = Text('label_monolog_created'.l10n);
         } else {
           content = Text('label_dialog_created'.l10n);
         }
@@ -554,7 +543,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_added_user2'.l10nfmt(args),
                     style: style.systemMessageStyle.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: style.colors.secondary,
                     ),
                   ),
                   TextSpan(
@@ -564,7 +553,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                 ],
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
             );
@@ -585,12 +574,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
                   style: style.systemMessageStyle.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: style.colors.secondary,
                   ),
                 ),
               ],
               style: style.systemMessageStyle.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
+                color: style.colors.primary,
               ),
             ),
           );
@@ -621,7 +610,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_removed_user2'.l10nfmt(args),
                     style: style.systemMessageStyle.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: style.colors.secondary,
                     ),
                   ),
                   TextSpan(
@@ -631,7 +620,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                 ],
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
             );
@@ -652,12 +641,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
                   style: style.systemMessageStyle.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: style.colors.secondary,
                   ),
                 ),
               ],
               style: style.systemMessageStyle.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
+                color: style.colors.primary,
               ),
             ),
           );
@@ -692,13 +681,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase2.l10nfmt(args),
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: style.colors.secondary,
                 ),
               ),
             ],
-            style: style.systemMessageStyle.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+            style:
+                style.systemMessageStyle.copyWith(color: style.colors.primary),
           ),
         );
         break;
@@ -732,34 +720,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase2.l10nfmt(args),
                 style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: style.colors.secondary,
                 ),
               ),
             ],
             style: style.systemMessageStyle.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
+              color: style.colors.primary,
             ),
           ),
         );
         break;
     }
 
-    final bool isSent = widget.item.value.status.value == SendingStatus.sent;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SwipeableStatus(
         animation: widget.animation,
         translate: false,
-        isSent: isSent && _fromMe,
-        isDelivered: isSent &&
-            _fromMe &&
-            widget.chat.value?.lastDelivery.isBefore(message.at) == false,
-        isRead: isSent && (!_fromMe || _isRead),
-        isError: message.status.value == SendingStatus.error,
-        isSending: message.status.value == SendingStatus.sending,
-        swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
-        padding: const EdgeInsets.only(bottom: 8),
+        status: false,
+        swipeable: Text(message.at.val.toLocal().hm),
+        padding: const EdgeInsets.only(bottom: 6.5),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -781,72 +761,38 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
+
     final ChatMessage msg = widget.item.value as ChatMessage;
 
-    String? text = msg.text?.val.trim();
-    if (text?.isEmpty == true) {
-      text = null;
-    } else {
-      text = msg.text?.val;
-    }
-
-    List<Attachment> media = msg.attachments.where((e) {
+    final List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
           (e is FileAttachment && e.isVideo) ||
           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
-    List<Attachment> files = msg.attachments.where((e) {
+    final Iterable<GalleryAttachment> galleries =
+        media.map((e) => GalleryAttachment(e, widget.onAttachmentError));
+
+    final List<Attachment> files = msg.attachments.where((e) {
       return ((e is FileAttachment && !e.isVideo) ||
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
-    Color color = _fromMe
-        ? Theme.of(context).colorScheme.secondary
-        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+    final Color color = _fromMe
+        ? style.colors.primary
+        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.colors.userColors.length];
 
-    double avatarOffset = 0;
-    if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
-        msg.repliesTo.isNotEmpty) {
-      for (ChatItemQuote reply in msg.repliesTo) {
-        if (reply is ChatMessageQuote) {
-          if (reply.text != null && reply.attachments.isNotEmpty) {
-            avatarOffset += 54 + 54 + 4;
-          } else if (reply.text == null && reply.attachments.isNotEmpty) {
-            avatarOffset += 90;
-          } else if (reply.text != null) {
-            if (msg.attachments.isEmpty && text == null) {
-              avatarOffset += 59 - 5;
-            } else {
-              avatarOffset += 55 - 4 + 8;
-            }
-          }
-        }
-
-        if (reply is ChatCallQuote) {
-          if (msg.attachments.isEmpty && text == null) {
-            avatarOffset += 59 - 4;
-          } else {
-            avatarOffset += 55 - 4 + 8;
-          }
-        }
-
-        if (reply is ChatInfoQuote) {
-          if (msg.attachments.isEmpty && text == null) {
-            avatarOffset += 59 - 5;
-          } else {
-            avatarOffset += 55 - 4 + 8;
-          }
-        }
-      }
-    }
+    // Indicator whether the [_timestamp] should be displayed in a bubble above
+    // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
+    final bool timeInBubble =
+        media.isNotEmpty && files.isEmpty && _text == null;
 
     return _rounded(
       context,
-      (menu) {
+      (menu, constraints) {
         final List<Widget> children = [
-          if (msg.repliesTo.isNotEmpty)
+          if (msg.repliesTo.isNotEmpty) ...[
             ...msg.repliesTo.mapIndexed((i, e) {
               return SelectionContainer.disabled(
                 child: AnimatedContainer(
@@ -872,100 +818,67 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: WidgetButton(
                       onPressed:
                           menu ? null : () => widget.onRepliedTap?.call(e),
-                      child: _repliedMessage(e),
+                      child: _repliedMessage(e, constraints),
                     ),
                   ),
                 ),
               );
             }),
-          if (!_fromMe && widget.chat.value?.isGroup == true && widget.avatar)
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                12,
-                msg.attachments.isEmpty && text == null ? 4 : 8,
-                9,
-                files.isEmpty && media.isNotEmpty && text == null
-                    ? 8
-                    : files.isNotEmpty && text == null
-                        ? 0
-                        : 4,
-              ),
-              child: SelectionText(
-                widget.user?.user.value.name?.val ??
-                    widget.user?.user.value.num.val ??
-                    'dot'.l10n * 3,
-                selectable: PlatformUtils.isDesktop || menu,
-                onSelecting: widget.onSelecting,
-                onChanged: (a) => _selection = a,
-                style: style.boldBody.copyWith(color: color),
-              ),
-            ),
-          if (text != null)
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 500),
-              opacity: _isRead || !_fromMe ? 1 : 0.7,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  12,
-                  !_fromMe &&
-                          widget.chat.value?.isGroup == true &&
-                          widget.avatar
-                      ? 0
-                      : 10,
-                  9,
-                  files.isEmpty ? 10 : 0,
-                ),
-                child: SelectionText(
-                  text,
-                  key: Key('Text_${widget.item.value.id}'),
-                  selectable: PlatformUtils.isDesktop || menu,
-                  onSelecting: widget.onSelecting,
-                  onChanged: (a) => _selection = a,
-                  style: style.boldBody,
-                ),
-              ),
-            ),
-          if (files.isNotEmpty)
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 500),
-              opacity: _isRead || !_fromMe ? 1 : 0.55,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                child: Column(
-                  children: files
-                      .map(
-                        (e) => ChatItemWidget.fileAttachment(
-                          e,
-                          onFileTap: widget.onFileTap,
+            const SizedBox(height: 4),
+          ] else
+            SizedBox(height: msg.repliesTo.isNotEmpty || media.isEmpty ? 6 : 0),
+          if (msg.repliesTo.isNotEmpty) ...[
+            ...msg.repliesTo.expand((e) {
+              return [
+                SelectionContainer.disabled(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    decoration: BoxDecoration(
+                      color: style.colors.onBackgroundOpacity2,
+                      borderRadius: style.cardRadius,
+                      border: Border.fromBorderSide(
+                        BorderSide(
+                          color: style.colors.onBackgroundOpacity13,
+                          width: 0.5,
                         ),
-                      )
-                      .toList(),
+                      ),
+                    ),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 500),
+                      opacity: _isRead || !_fromMe ? 1 : 0.55,
+                      child: WidgetButton(
+                        onPressed:
+                            menu ? null : () => widget.onRepliedTap?.call(e),
+                        child: _repliedMessage(e, constraints),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          if (media.isNotEmpty)
+                if (msg.repliesTo.last != e) const SizedBox(height: 6),
+              ];
+            }),
+            const SizedBox(height: 6),
+          ],
+          if (media.isNotEmpty) ...[
             ClipRRect(
               borderRadius: BorderRadius.only(
-                topLeft: text != null ||
-                        msg.repliesTo.isNotEmpty ||
+                topLeft: msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
                             widget.chat.value?.isGroup == true &&
                             widget.avatar)
                     ? Radius.zero
-                    : files.isEmpty
-                        ? const Radius.circular(15)
-                        : Radius.zero,
-                topRight: text != null ||
-                        msg.repliesTo.isNotEmpty ||
+                    : const Radius.circular(15),
+                topRight: msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
                             widget.chat.value?.isGroup == true &&
                             widget.avatar)
                     ? Radius.zero
-                    : files.isEmpty
-                        ? const Radius.circular(15)
-                        : Radius.zero,
-                bottomLeft: const Radius.circular(15),
-                bottomRight: const Radius.circular(15),
+                    : const Radius.circular(15),
+                bottomLeft:
+                    _text != null ? Radius.zero : const Radius.circular(15),
+                bottomRight:
+                    _text != null ? Radius.zero : const Radius.circular(15),
               ),
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
@@ -974,7 +887,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ? ChatItemWidget.mediaAttachment(
                         context,
                         media.first,
-                        media,
+                        galleries,
                         filled: false,
                         key: _galleryKeys[0],
                         onError: widget.onAttachmentError,
@@ -985,13 +898,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         width: media.length * 120,
                         height: max(media.length * 60, 300),
                         child: FitView(
-                          dividerColor: Colors.transparent,
+                          dividerColor: style.colors.transparent,
                           children: media
                               .mapIndexed(
                                 (i, e) => ChatItemWidget.mediaAttachment(
                                   context,
                                   e,
-                                  media,
+                                  galleries,
                                   key: _galleryKeys[i],
                                   onError: widget.onAttachmentError,
                                   onGallery: widget.onGallery,
@@ -1003,40 +916,129 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
               ),
             ),
+            SizedBox(height: files.isNotEmpty || _text != null ? 6 : 0),
+          ],
+          if (files.isNotEmpty) ...[
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 500),
+              opacity: _isRead || !_fromMe ? 1 : 0.55,
+              child: SelectionContainer.disabled(
+                child: Column(
+                  children: [
+                    ...files.expand(
+                      (e) => [
+                        ChatItemWidget.fileAttachment(
+                          e,
+                          onFileTap: widget.onFileTap,
+                        ),
+                        if (files.last != e) const SizedBox(height: 6),
+                      ],
+                    ),
+                    if (_text == null && widget.timestamp)
+                      Opacity(opacity: 0, child: _timestamp(msg)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+          ],
+          if (_text != null ||
+              (widget.timestamp && msg.attachments.isEmpty)) ...[
+            Row(
+              children: [
+                Flexible(
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: _isRead || !_fromMe ? 1 : 0.7,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                      child: SelectionText.rich(
+                        TextSpan(
+                          children: [
+                            if (_text != null) _text!,
+                            if (widget.timestamp && !timeInBubble) ...[
+                              const WidgetSpan(child: SizedBox(width: 4)),
+                              WidgetSpan(
+                                child:
+                                    Opacity(opacity: 0, child: _timestamp(msg)),
+                              )
+                            ],
+                          ],
+                        ),
+                        key: Key('Text_${widget.item.value.id}'),
+                        selectable:
+                            (PlatformUtils.isDesktop || menu) && _text != null,
+                        onSelecting: widget.onSelecting,
+                        onChanged: (a) => _selection = a,
+                        style: style.boldBody,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (_text != null) const SizedBox(height: 6),
+          ],
         ];
 
         return Container(
           padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
-          child: IntrinsicWidth(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              decoration: BoxDecoration(
-                color: _fromMe
-                    ? _isRead
-                        ? style.readMessageColor
-                        : style.unreadMessageColor
-                    : style.messageColor,
-                borderRadius: BorderRadius.circular(15),
-                border: _fromMe
-                    ? _isRead
-                        ? style.secondaryBorder
-                        : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
-                    : style.primaryBorder,
+          child: Stack(
+            children: [
+              IntrinsicWidth(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: _fromMe
+                        ? _isRead
+                            ? style.readMessageColor
+                            : style.unreadMessageColor
+                        : style.messageColor,
+                    borderRadius: BorderRadius.circular(15),
+                    border: _fromMe
+                        ? _isRead
+                            ? style.secondaryBorder
+                            : Border.all(
+                                color: style.readMessageColor,
+                                width: 0.5,
+                              )
+                        : style.primaryBorder,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children,
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: children,
-              ),
-            ),
+              if (widget.timestamp)
+                Positioned(
+                  right: timeInBubble ? 6 : 8,
+                  bottom: 4,
+                  child: timeInBubble
+                      ? ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 4, right: 4),
+                            decoration: BoxDecoration(
+                              color: style.colors.onBackgroundOpacity27,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: _timestamp(msg, true),
+                          ),
+                        )
+                      : _timestamp(msg),
+                )
+            ],
           ),
         );
       },
-      avatarOffset: avatarOffset,
     );
   }
 
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     var message = widget.item.value as ChatCall;
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
@@ -1051,119 +1053,85 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _ongoingCallTimer?.cancel();
     }
 
-    bool isMissed = false;
-
-    String title = 'label_chat_call_ended'.l10n;
-    String? time;
-
-    if (isOngoing) {
-      title = 'label_chat_call_ongoing'.l10n;
-      time = message.conversationStartedAt!.val
-          .difference(DateTime.now())
-          .localizedString();
-    } else if (message.finishReason != null) {
-      title = message.finishReason!.localizedString(_fromMe) ?? title;
-      isMissed = (message.finishReason == ChatCallFinishReason.dropped) ||
-          (message.finishReason == ChatCallFinishReason.unanswered);
-
-      if (message.finishedAt != null && message.conversationStartedAt != null) {
-        time = message.finishedAt!.val
-            .difference(message.conversationStartedAt!.val)
-            .localizedString();
-      }
-    } else {
-      title = message.authorId == widget.me
-          ? 'label_outgoing_call'.l10n
-          : 'label_incoming_call'.l10n;
-    }
-
-    final Style style = Theme.of(context).extension<Style>()!;
-
     final Color color = _fromMe
-        ? Theme.of(context).colorScheme.secondary
-        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+        ? style.colors.primary
+        : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            style.colors.userColors.length];
 
-    final Widget child = AnimatedOpacity(
-      duration: const Duration(milliseconds: 500),
-      opacity: _isRead || !_fromMe ? 1 : 0.55,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    // Returns the contents of the [ChatCall] render along with its timestamp.
+    Widget child(bool menu) {
+      return AnimatedOpacity(
+        duration: const Duration(milliseconds: 500),
+        opacity: _isRead || !_fromMe ? 1 : 0.55,
+        child: Stack(
           children: [
-            if (!_fromMe && widget.chat.value?.isGroup == true && widget.avatar)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                child: Text(
-                  widget.user?.user.value.name?.val ??
-                      widget.user?.user.value.num.val ??
-                      'dot'.l10n * 3,
-                  style: style.boldBody.copyWith(color: color),
-                ),
-              ),
-            const SizedBox(height: 4),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.black.withOpacity(0.03),
-              ),
-              padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 7, 8, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                    child: message.withVideo
-                        ? SvgLoader.asset(
-                            'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                            height: 13 * 1.4,
-                          )
-                        : SvgLoader.asset(
-                            'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                            height: 15 * 1.4,
-                          ),
-                  ),
-                  Flexible(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: style.boldBody,
-                          ),
+                  if (!_fromMe &&
+                      widget.chat.value?.isGroup == true &&
+                      widget.avatar) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                      child: SelectionText.rich(
+                        TextSpan(
+                          text: widget.user?.user.value.name?.val ??
+                              widget.user?.user.value.num.val ??
+                              'dot'.l10n * 3,
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => router.user(_author, push: true),
                         ),
-                        if (time != null) ...[
-                          const SizedBox(width: 8),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 1),
-                            child: Text(
-                              time,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleSmall,
+                        selectable: PlatformUtils.isDesktop || menu,
+                        onSelecting: widget.onSelecting,
+                        onChanged: (a) => _selection = a,
+                        style: style.boldBody.copyWith(color: color),
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                  ],
+                  SelectionContainer.disabled(
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          WidgetSpan(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: _call(message),
                             ),
                           ),
+                          if (widget.timestamp)
+                            WidgetSpan(
+                              child: Opacity(
+                                opacity: 0,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: _timestamp(widget.item.value),
+                                ),
+                              ),
+                            ),
                         ],
-                      ],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
                 ],
               ),
             ),
+            if (widget.timestamp)
+              Positioned(
+                right: 8,
+                bottom: 4,
+                child: _timestamp(widget.item.value),
+              )
           ],
         ),
-      ),
-    );
+      );
+    }
 
     return _rounded(
       context,
-      (_) => Padding(
+      (menu, __) => Padding(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
@@ -1171,7 +1139,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             border: _fromMe
                 ? _isRead
                     ? style.secondaryBorder
-                    : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+                    : Border.all(
+                        color: style.colors.backgroundAuxiliaryLighter,
+                        width: 0.5,
+                      )
                 : style.primaryBorder,
             color: _fromMe
                 ? _isRead
@@ -1182,7 +1153,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(15),
-            child: child,
+            child: child(menu),
           ),
         ),
       ),
@@ -1190,7 +1161,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders the provided [item] as a replied message.
-  Widget _repliedMessage(ChatItemQuote item) {
+  Widget _repliedMessage(ChatItemQuote item, BoxConstraints constraints) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.author == widget.me;
 
@@ -1199,56 +1170,62 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     if (item is ChatMessageQuote) {
       if (item.attachments.isNotEmpty) {
-        additional = item.attachments
-            .map((a) {
-              ImageAttachment? image;
+        int take = (constraints.maxWidth - 35) ~/ 52;
+        if (take <= item.attachments.length - 1) {
+          take -= 1;
+        }
 
-              if (a is ImageAttachment) {
-                image = a;
-              }
+        final List<Widget> widgets = [];
 
-              return Container(
-                margin: const EdgeInsets.only(right: 2),
-                decoration: BoxDecoration(
-                  color: fromMe
-                      ? Colors.white.withOpacity(0.25)
-                      : Colors.black.withOpacity(0.03),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                width: 50,
-                height: 50,
-                child: image == null
-                    ? Icon(
-                        Icons.file_copy,
-                        color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                        size: 28,
-                      )
-                    : RetryImage(
-                        image.medium.url,
-                        checksum: image.medium.checksum,
-                        onForbidden: widget.onAttachmentError,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                        borderRadius: BorderRadius.circular(10.0),
-                        cancelable: true,
-                        autoLoad: widget.loadImages,
-                      ),
-              );
-            })
-            .take(3)
-            .toList();
+        widgets.addAll(item.attachments.map((a) {
+          ImageAttachment? image;
 
-        if (item.attachments.length > 3) {
-          final int count = (item.attachments.length - 3).clamp(1, 99);
+          if (a is ImageAttachment) {
+            image = a;
+          }
 
-          additional.add(
+          return Container(
+            margin: const EdgeInsets.only(right: 2),
+            decoration: BoxDecoration(
+              color: fromMe
+                  ? style.colors.onPrimaryOpacity25
+                  : style.colors.onBackgroundOpacity2,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            width: 50,
+            height: 50,
+            child: image == null
+                ? Icon(
+                    Icons.file_copy,
+                    color: fromMe
+                        ? style.colors.onPrimary
+                        : style.colors.secondaryHighlightDarkest,
+                    size: 28,
+                  )
+                : RetryImage(
+                    image.medium.url,
+                    checksum: image.medium.checksum,
+                    onForbidden: widget.onAttachmentError,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    borderRadius: BorderRadius.circular(10.0),
+                    cancelable: true,
+                    autoLoad: widget.loadImages,
+                  ),
+          );
+        }).take(take));
+
+        if (item.attachments.length > take) {
+          final int count = (item.attachments.length - take).clamp(1, 99);
+
+          widgets.add(
             Container(
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
                 color: fromMe
-                    ? Colors.white.withOpacity(0.25)
-                    : Colors.black.withOpacity(0.03),
+                    ? style.colors.onPrimaryOpacity25
+                    : style.colors.onBackgroundOpacity2,
                 borderRadius: BorderRadius.circular(10),
               ),
               width: 50,
@@ -1258,82 +1235,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    style:
+                        TextStyle(fontSize: 15, color: style.colors.secondary),
                   ),
                 ),
               ),
             ),
           );
         }
+
+        additional = [Row(mainAxisSize: MainAxisSize.min, children: widgets)];
       }
 
       if (item.text != null && item.text!.val.isNotEmpty) {
-        content = Text(
-          item.text!.val,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: style.boldBody,
+        content = SelectionContainer.disabled(
+          child: Text(item.text!.val, maxLines: 1, style: style.boldBody),
         );
       }
     } else if (item is ChatCallQuote) {
-      String title = 'label_chat_call_ended'.l10n;
-      String? time;
-      bool fromMe = widget.me == item.author;
-      bool isMissed = false;
-
-      final ChatCall? call = item.original as ChatCall?;
-
-      if (call?.finishReason == null && call?.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (call?.finishReason != null) {
-        title = call!.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = call.finishReason == ChatCallFinishReason.dropped ||
-            call.finishReason == ChatCallFinishReason.unanswered;
-
-        if (call.finishedAt != null && call.conversationStartedAt != null) {
-          time = call.finishedAt!.val
-              .difference(call.conversationStartedAt!.val)
-              .localizedString();
-        }
-      } else {
-        title = item.author == widget.me
-            ? 'label_outgoing_call'.l10n
-            : 'label_incoming_call'.l10n;
-      }
-
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: call?.withVideo == true
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(child: Text(title, style: style.boldBody)),
-          if (time != null) ...[
-            const SizedBox(width: 9),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.boldBody,
-              ),
-            ),
-          ],
-        ],
-      );
+      content = _call(item.original as ChatCall?);
     } else if (item is ChatInfoQuote) {
       // TODO: Implement `ChatInfo`.
       content = Text(item.action.toString(), style: style.boldBody);
@@ -1344,34 +1264,42 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return FutureBuilder<RxUser?>(
       future: widget.getUser?.call(item.author),
       builder: (context, snapshot) {
-        Color color = snapshot.data?.user.value.id == widget.me
-            ? Theme.of(context).colorScheme.secondary
-            : AvatarWidget.colors[
+        final Color color = snapshot.data?.user.value.id == widget.me
+            ? style.colors.primary
+            : style.colors.userColors[
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    AvatarWidget.colors.length];
+                    style.colors.userColors.length];
 
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(width: 12),
-            Flexible(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: color)),
-                ),
-                margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
+        return ClipRRect(
+          borderRadius: style.cardRadius,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(left: BorderSide(width: 2, color: color)),
+            ),
+            margin: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.fromLTRB(8, 8, 0, 8),
+            child: Stack(
+              children: [
+                Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      snapshot.data?.user.value.name?.val ??
-                          snapshot.data?.user.value.num.val ??
-                          'dot'.l10n * 3,
-                      style: style.boldBody.copyWith(color: color),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            snapshot.data?.user.value.name?.val ??
+                                snapshot.data?.user.value.num.val ??
+                                'dot'.l10n * 3,
+                            style: style.boldBody.copyWith(color: color),
+                          ),
+                        ),
+                      ],
                     ),
+                    if (additional.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      ...additional,
+                    ],
                     if (content != null) ...[
                       const SizedBox(height: 2),
                       DefaultTextStyle.merge(
@@ -1380,27 +1308,109 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         child: content,
                       ),
                     ],
-                    if (additional.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(mainAxisSize: MainAxisSize.min, children: additional),
-                    ],
                   ],
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         );
       },
+    );
+  }
+
+  /// Returns the visual representation of the provided [call].
+  Widget _call(ChatCall? call) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final bool isOngoing =
+        call?.finishReason == null && call?.conversationStartedAt != null;
+
+    bool isMissed = false;
+    String title = 'label_chat_call_ended'.l10n;
+    String? time;
+
+    if (isOngoing) {
+      title = 'label_chat_call_ongoing'.l10n;
+      time = call!.conversationStartedAt!.val
+          .difference(DateTime.now())
+          .localizedString();
+    } else if (call != null && call.finishReason != null) {
+      title = call.finishReason!.localizedString(_fromMe) ?? title;
+      isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
+          (call.finishReason == ChatCallFinishReason.unanswered);
+
+      if (call.finishedAt != null && call.conversationStartedAt != null) {
+        time = call.finishedAt!.val
+            .difference(call.conversationStartedAt!.val)
+            .localizedString();
+      }
+    } else {
+      title = call?.authorId == widget.me
+          ? 'label_outgoing_call'.l10n
+          : 'label_incoming_call'.l10n;
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: call?.withVideo ?? false
+              ? SvgImage.asset(
+                  'assets/icons/call_video${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
+                  height: 11,
+                )
+              : SvgImage.asset(
+                  'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
+                  height: 12,
+                ),
+        ),
+        Flexible(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style.boldBody,
+                ),
+              ),
+              if (time != null) ...[
+                const SizedBox(width: 8),
+                Padding(
+                  padding: const EdgeInsets.only(top: 2.5),
+                  child: Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      Text(
+                        time,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ).fixedDigits(),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(width: 2),
+      ],
     );
   }
 
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool menu) builder, {
-    double avatarOffset = 0,
-  }) {
-    ChatItem item = widget.item.value;
+    Widget Function(bool menu, BoxConstraints constraints) builder,
+  ) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final ChatItem item = widget.item.value;
 
     String? copyable;
     if (item is ChatMessage) {
@@ -1409,11 +1419,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
       (e) =>
-          !e.at.val.isBefore(widget.item.value.at.val) &&
-          e.memberId != widget.item.value.authorId,
+          !e.at.val.isBefore(widget.item.value.at.val) && e.memberId != _author,
     );
 
-    bool isSent = item.status.value == SendingStatus.sent;
+    final bool isSent = item.status.value == SendingStatus.sent;
 
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
@@ -1427,22 +1436,20 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
 
-        if (user != null) {
-          avatars.add(
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 1),
-              child: FutureBuilder<RxUser?>(
-                future: widget.getUser?.call(user.id),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
-                  }
-                  return AvatarWidget.fromUser(user, radius: 10);
-                },
-              ),
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: FutureBuilder<RxUser?>(
+              future: widget.getUser?.call(m.memberId),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                }
+                return AvatarWidget.fromUser(user, radius: 10);
+              },
             ),
-          );
-        }
+          ),
+        );
       }
 
       if (widget.reads.length > maxAvatars) {
@@ -1455,18 +1462,50 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
 
+    // Builds the provided [builder] and the [avatars], if any.
+    Widget child(bool menu, constraints) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          builder(menu, constraints),
+          if (avatars.isNotEmpty)
+            Transform.translate(
+              offset: Offset(-12, -widget.margin.bottom),
+              child: WidgetButton(
+                onPressed: () => MessageInfo.show(
+                  context,
+                  reads: reads ?? [],
+                  id: widget.item.value.id,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: avatars,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
       translate: _fromMe,
-      isSent: isSent && _fromMe,
-      isDelivered: isSent &&
-          _fromMe &&
-          widget.chat.value?.lastDelivery.isBefore(item.at) == false,
-      isRead: isSent && (!_fromMe || _isRead),
+      status: _fromMe,
+      isSent: isSent,
+      isDelivered:
+          isSent && widget.chat.value?.lastDelivery.isBefore(item.at) == false,
+      isRead: isSent && _isRead,
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
-      swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-      padding: EdgeInsets.only(bottom: avatars.isNotEmpty == true ? 33 : 13),
+      swipeable: Text(item.at.val.toLocal().hm),
+      padding: EdgeInsets.only(
+        bottom: (avatars.isNotEmpty ? 28 : 7) + widget.margin.bottom,
+      ),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -1536,7 +1575,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             mainAxisAlignment:
                 _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             children: [
-              if (_fromMe)
+              if (_fromMe && !widget.timestamp)
                 Padding(
                   key: Key('MessageStatus_${item.id}'),
                   padding: const EdgeInsets.only(top: 16),
@@ -1552,13 +1591,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               child: Icon(Icons.access_alarm, size: 15),
                             )
                           : item.status.value == SendingStatus.error
-                              ? const Padding(
-                                  key: Key('Error'),
-                                  padding: EdgeInsets.only(bottom: 8),
+                              ? Padding(
+                                  key: const Key('Error'),
+                                  padding: const EdgeInsets.only(bottom: 8),
                                   child: Icon(
                                     Icons.error_outline,
                                     size: 15,
-                                    color: Colors.red,
+                                    color: style.colors.dangerColor,
                                   ),
                                 )
                               : Container(key: const Key('Sent')),
@@ -1567,7 +1606,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               if (!_fromMe && widget.chat.value!.isGroup)
                 Padding(
-                  padding: EdgeInsets.only(top: 8 + avatarOffset),
+                  padding: const EdgeInsets.only(top: 8),
                   child: widget.avatar
                       ? InkWell(
                           customBorder: const CircleBorder(),
@@ -1579,13 +1618,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               Flexible(
                 child: LayoutBuilder(builder: (context, constraints) {
-                  return ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: min(
-                        550,
-                        constraints.maxWidth - SwipeableStatus.width,
-                      ),
+                  final BoxConstraints itemConstraints = BoxConstraints(
+                    maxWidth: min(
+                      550,
+                      constraints.maxWidth - SwipeableStatus.width,
                     ),
+                  );
+
+                  return ConstrainedBox(
+                    constraints: itemConstraints,
                     child: Material(
                       key: Key('Message_${item.id}'),
                       type: MaterialType.transparency,
@@ -1612,7 +1653,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/copy_small.svg',
                                 height: 18,
                               ),
@@ -1625,7 +1666,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_reply'.l10n
                                   : 'btn_reply_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/reply.svg',
                                 height: 18,
                               ),
@@ -1637,7 +1678,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
-                                trailing: SvgLoader.asset(
+                                trailing: SvgImage.asset(
                                   'assets/icons/forward.svg',
                                   height: 18,
                                 ),
@@ -1658,7 +1699,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: SvgLoader.asset(
+                                trailing: SvgImage.asset(
                                   'assets/icons/edit.svg',
                                   height: 18,
                                 ),
@@ -1669,11 +1710,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 height: 18,
                               ),
                               onPressed: () async {
+                                bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = _fromMe &&
                                     !widget.chat.value!
                                         .isRead(widget.item.value, widget.me) &&
@@ -1682,18 +1724,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 await ConfirmDialog.show(
                                   context,
                                   title: 'label_delete_message'.l10n,
-                                  description: deletable
+                                  description: deletable || isMonolog
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,
                                   variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onHide,
-                                      child: Text(
-                                        'label_delete_for_me'.l10n,
-                                        key: const Key('HideForMe'),
+                                    if (!deletable || !isMonolog)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onHide,
+                                        child: Text(
+                                          'label_delete_for_me'.l10n,
+                                          key: const Key('HideForMe'),
+                                        ),
                                       ),
-                                    ),
                                     if (deletable)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,
@@ -1713,7 +1756,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
@@ -1725,7 +1768,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
+                              trailing: SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,
@@ -1752,33 +1795,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        builder: (bool menu) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            builder(menu),
-                            if (avatars.isNotEmpty)
-                              Transform.translate(
-                                offset: Offset(-12, -widget.margin.bottom),
-                                child: WidgetButton(
-                                  onPressed: () => MessageInfo.show(
-                                    context,
-                                    reads: reads ?? [],
-                                    id: widget.item.value.id,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: avatars,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                        builder: PlatformUtils.isMobile
+                            ? (menu) => child(menu, itemConstraints)
+                            : null,
+                        child: PlatformUtils.isMobile
+                            ? null
+                            : child(false, itemConstraints),
                       ),
                     ),
                   );
@@ -1791,6 +1813,57 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
+  /// Builds a [MessageTimestamp] of the provided [item].
+  Widget _timestamp(ChatItem item, [bool inverted = false]) {
+    return Obx(() {
+      final bool isMonolog = widget.chat.value?.isMonolog == true;
+
+      return KeyedSubtree(
+        key: Key('MessageStatus_${item.id}'),
+        child: MessageTimestamp(
+          at: item.at,
+          status: _fromMe ? item.status.value : null,
+          read: _isRead || isMonolog,
+          delivered:
+              widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
+                  isMonolog,
+          inverted: inverted,
+        ),
+      );
+    });
+  }
+
+  /// Populates the [_worker] invoking the [_populateSpans] and
+  /// [_populateGlobalKeys] on the [ChatItemWidget.item] changes.
+  void _populateWorker() {
+    _worker?.dispose();
+    _populateGlobalKeys(widget.item.value);
+    _populateSpans(widget.item.value);
+
+    ChatMessageText? text;
+    int attachments = 0;
+
+    if (widget.item.value is ChatMessage) {
+      final msg = widget.item.value as ChatMessage;
+      attachments = msg.attachments.length;
+      text = msg.text;
+    }
+
+    _worker = ever(widget.item, (ChatItem item) {
+      if (item is ChatMessage) {
+        if (item.attachments.length != attachments) {
+          _populateGlobalKeys(item);
+          attachments = item.attachments.length;
+        }
+
+        if (text != item.text) {
+          _populateSpans(item);
+          text = item.text;
+        }
+      }
+    });
+  }
+
   /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].
   void _populateGlobalKeys(ChatItem msg) {
     if (msg is ChatMessage) {
@@ -1801,6 +1874,28 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
           .map((e) => GlobalKey())
           .toList();
+    } else if (msg is ChatForward) {
+      throw Exception(
+        'Use `ChatForward` widget for rendering `ChatForward`s instead',
+      );
+    }
+  }
+
+  /// Populates the [_text] with the [ChatMessage.text] of the provided [item]
+  /// parsed through a [LinkParsingExtension.parseLinks] method.
+  void _populateSpans(ChatItem msg) {
+    if (msg is ChatMessage) {
+      for (var r in _recognizers) {
+        r.dispose();
+      }
+      _recognizers.clear();
+
+      final String? string = msg.text?.val.trim();
+      if (string?.isEmpty == true) {
+        _text = null;
+      } else {
+        _text = string?.parseLinks(_recognizers, router.context);
+      }
     } else if (msg is ChatForward) {
       throw Exception(
         'Use `ChatForward` widget for rendering `ChatForward`s instead',
@@ -1869,5 +1964,122 @@ extension LocalizedDurationExtension on Duration {
     }
 
     return result;
+  }
+}
+
+/// Extension adding an ability to parse links and e-mails from a [String].
+extension LinkParsingExtension on String {
+  /// [RegExp] detecting links and e-mails in a [parseLinks] method.
+  static final RegExp _regex = RegExp(
+    r'([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)|((([a-z]+:\/\/)?(www\.)?([a-zA-Z0-9_-]+\.)+[a-zA-Z]{2,})((\/\S*)?[^,\u0027")}\].:;?!`\s])?)',
+  );
+
+  /// Returns [TextSpan]s containing plain text along with links and e-mails
+  /// detected and parsed.
+  ///
+  /// [recognizers] are [TapGestureRecognizer]s constructed, so ensure to
+  /// dispose them properly.
+  TextSpan parseLinks(
+    List<TapGestureRecognizer> recognizers, [
+    BuildContext? context,
+  ]) {
+    final Iterable<RegExpMatch> matches = _regex.allMatches(this);
+    if (matches.isEmpty) {
+      return TextSpan(text: this);
+    }
+
+    final Style? style = context?.theme.extension<Style>()!;
+
+    String text = this;
+    final List<TextSpan> spans = [];
+    final List<String> links = [];
+
+    for (RegExpMatch match in matches) {
+      links.add(text.substring(match.start, match.end));
+    }
+
+    for (int i = 0; i < links.length; i++) {
+      final String link = links[i];
+
+      final int index = text.indexOf(link);
+      final List<String> parts = [
+        text.substring(0, index),
+        text.substring(index + link.length),
+      ];
+
+      if (parts[0].isNotEmpty) {
+        spans.add(TextSpan(text: parts[0]));
+      }
+
+      final TapGestureRecognizer recognizer = TapGestureRecognizer();
+      recognizers.add(recognizer);
+
+      spans.add(
+        TextSpan(
+          text: link,
+          style: style?.linkStyle,
+          recognizer: recognizer
+            ..onTap = () async {
+              final Uri uri;
+
+              if (link.isEmail) {
+                uri = Uri(scheme: 'mailto', path: link);
+              } else {
+                uri = Uri.parse(
+                  !link.startsWith('http') ? 'https://$link' : link,
+                );
+              }
+
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri);
+              }
+            },
+        ),
+      );
+
+      if (parts[1].isNotEmpty) {
+        if (i == links.length - 1) {
+          spans.add(TextSpan(text: parts[1]));
+        } else {
+          text = parts[1];
+        }
+      }
+    }
+
+    return TextSpan(children: spans);
+  }
+}
+
+/// Extension adding a fixed-length digits [Text] transformer.
+extension FixedDigitsExtension on Text {
+  /// [RegExp] detecting numbers.
+  static final RegExp _regex = RegExp(r'\d');
+
+  /// Returns a [Text] guaranteed to have fixed width of digits in it.
+  Widget fixedDigits() {
+    Text copyWith(String string) {
+      return Text(
+        string,
+        style: style,
+        strutStyle: strutStyle,
+        textAlign: textAlign,
+        textDirection: textDirection,
+        locale: locale,
+        softWrap: softWrap,
+        overflow: overflow,
+        textScaleFactor: textScaleFactor,
+        maxLines: maxLines,
+        textWidthBasis: textWidthBasis,
+        textHeightBehavior: textHeightBehavior,
+        selectionColor: selectionColor,
+      );
+    }
+
+    return Stack(
+      children: [
+        Opacity(opacity: 0, child: copyWith(data!.replaceAll(_regex, '0'))),
+        copyWith(data!),
+      ],
+    );
   }
 }

@@ -33,7 +33,7 @@ import '/store/model/chat.dart';
 import '/util/log.dart';
 
 /// [Chat] related functionality.
-abstract class ChatGraphQlMixin {
+mixin ChatGraphQlMixin {
   GraphQlClient get client;
 
   /// Returns a [Chat] by its ID.
@@ -1319,5 +1319,52 @@ abstract class ChatGraphQlMixin {
     );
     return ClearChat$Mutation.fromJson(result.data!).clearChat
         as ChatEventsVersionedMixin?;
+  }
+
+  /// Creates a [Chat]-monolog for the authenticated [MyUser].
+  ///
+  /// There can be only one [Chat]-monolog for the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op if the [Chat]-monolog for the authenticated [MyUser]
+  /// exists already, and returns it.
+  Future<ChatMixin> createMonologChat(ChatName? name) async {
+    final variables = CreateMonologChatArguments(name: name);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'CreateMonologChat',
+        document: CreateMonologChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return CreateMonologChat$Mutation.fromJson(result.data!).createMonologChat;
+  }
+
+  /// Returns the monolog [Chat] of the authenticated [MyUser].
+  ///
+  /// If there is no [Chat]-monolog, the one could be created via
+  /// [createMonologChat].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Query returns `null` when no [Chat]-monolog exists for the authenticated
+  /// [MyUser].
+  Future<ChatMixin?> getMonolog() async {
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetMonolog',
+        document: GetMonologQuery().document,
+      ),
+    );
+    return GetMonolog$Query.fromJson(result.data!).monolog;
   }
 }

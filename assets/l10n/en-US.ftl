@@ -32,7 +32,7 @@ alert_chat_will_be_hidden1 = Chat{" "}
 alert_chat_will_be_hidden2 = {" "}will be hidden.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
 alert_contact_will_be_removed1 = Contact{" "}
-alert_contact_will_be_removed2 = {" "}will be removed.
+alert_contact_will_be_removed2 = {" "}will be deleted.
 alert_contacts_will_be_deleted = Contacts ({$count}) will be deleted. Continue?
 alert_dialog_will_be_cleared1 = Dialog with user{" "}
 alert_dialog_will_be_cleared2 = {" "}will be cleared.
@@ -190,6 +190,7 @@ btn_media_settings = Media settings
 btn_message_info = Message info
 btn_mute = Mute
 btn_mute_chat = Mute chat
+btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
 btn_participants = Participants
@@ -208,7 +209,6 @@ btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save
 btn_save_to_gallery = Save to gallery
-btn_saved_messages = Saved messages
 btn_select = Select
 btn_set_password = Set password
 btn_settings = Settings
@@ -219,6 +219,7 @@ btn_unblock = Unblock
 btn_unblock_short = Unblock
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
+btn_unmute_chats = Unmute chats
 btn_upload = Upload
 btn_video_call = Video call
 btn_write_message = Write a message
@@ -238,6 +239,7 @@ err_call_not_found = Call not found
 err_call_popup_was_blocked =
     Call popup was blocked.
     Allow the popup windows to display call as a popup
+err_cant_forward_calls = Call forwarding is not allowed
 err_chat_contact_not_owner = Access to contact denied
 err_chat_direct_link_occupied = Link is occupied
 err_code_limit_exceed =
@@ -379,11 +381,15 @@ label_app_background = Application background
 label_application = Application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
+label_as_timeline = As timeline
 label_attachments = [{$count} { $count ->
     [1] attachment
     *[other] attachments
     }]
-label_audio_call = Audio call
+label_audio_call = Audio call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_audio_notifications = Audio notifications
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
@@ -396,7 +402,6 @@ label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
 label_block = Block
-label_blocked_count = Blocked: {$count}
 label_blocked_users = Blocked users
 label_cache_and_downloads = Cache and downloads
 label_call_active = Active call
@@ -429,7 +434,9 @@ label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
-label_chat_monolog = Saved messages
+label_chat_monolog = Notes
+label_chat_monolog_description = Write down notes, ideas or forward other messages to save them here. Only you can see this chat.
+label_chat_name_hint = Chat name
 label_chats = Messages
 label_clear_history = Clear history
 label_confirm = Confirm
@@ -477,6 +484,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_disabled = Disabled
+label_display_timestamps = Display timestamps
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -501,6 +509,10 @@ label_favorite_contacts = Favorite
 label_file = File
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
+label_forwarded_messages = {$count ->
+    [1] Пересланное сообщение
+   *[other] Пересланные сообщения
+}
 label_gallery = Gallery
 label_group_created = Group created
 label_group_created_by = {$author} created the group
@@ -523,6 +535,7 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Hint from Gapopa
 label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
+label_in_message = In message
 label_incoming_call = Incoming call
 label_introduction_description =
     Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
@@ -555,6 +568,7 @@ label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_monolog_created = Chat created
 label_mute_for = { $days ->
     [0] { $hours ->
             [0] { $minutes ->
@@ -619,7 +633,7 @@ label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information
 label_public_section_hint = Avatar and name
-label_read_at = Read at: {$day}.{$month}.{$year} {$hour}:{$minute}
+label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
 label_recent = Recent
@@ -669,9 +683,11 @@ label_sound_and_vibrations = Sound and vibration
 label_status = Status
 label_storage = Storage
 label_subtitle_participants = participants
+label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
+label_timeline_style = Timeline style
 label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
@@ -692,10 +708,14 @@ label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = removed
 label_user_removed_user3 = {" "}{$user}
 label_users = Users
+label_users_count = Users: {$count}
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number
 label_video = Video
-label_video_call = Video call
+label_video_call = Video call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:

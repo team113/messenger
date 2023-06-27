@@ -68,10 +68,11 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
+import 'widget/chat_gallery.dart';
 
 export 'view.dart';
 
-/// Controller of the [Routes.chat] page.
+/// Controller of the [Routes.chats] page.
 class ChatController extends GetxController {
   ChatController(
     this.id,
@@ -319,19 +320,20 @@ class ChatController extends GetxController {
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
             if (send.replied.any((e) => e is ChatCall)) {
-              MessagePopup.error('err_call_forward'.l10n);
-            } else {
-              bool? result = await ChatForwardView.show(
-                router.context!,
-                id,
-                send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
-                text: send.field.text,
-                attachments: send.attachments.map((e) => e.value).toList(),
-              );
+              MessagePopup.error('err_cant_forward_calls'.l10n);
+              return;
+            }
 
-              if (result == true) {
-                send.clear();
-              }
+            bool? result = await ChatForwardView.show(
+              router.context!,
+              id,
+              send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
+              text: send.field.text,
+              attachments: send.attachments.map((e) => e.value).toList(),
+            );
+
+            if (result == true) {
+              send.clear();
             }
           }
         } else {
@@ -404,6 +406,7 @@ class ChatController extends GetxController {
     edit.value?.onClose();
 
     _audioPlayer?.dispose();
+    _audioPlayer = null;
     AudioCache.instance.clear('audio/message_sent.mp3');
 
     if (chat?.chat.value.isDialog == true) {
@@ -555,7 +558,9 @@ class ChatController extends GetxController {
 
       send.field.unchecked = draft?.text?.val ?? send.field.text;
       send.field.unsubmit();
-      send.replied.value = List.from(draft?.repliesTo ?? []);
+      send.replied.value = List.from(
+        draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],
+      );
 
       for (Attachment e in draft?.attachments ?? []) {
         send.attachments.add(MapEntry(GlobalKey(), e));
@@ -582,14 +587,16 @@ class ChatController extends GetxController {
           // if it was posted less than [groupForwardThreshold] ago.
           if (previous is ChatForwardElement &&
               previous.authorId == item.authorId &&
-              item.at.val.difference(previous.forwards.last.value.at.val) <
+              item.at.val
+                      .difference(previous.forwards.last.value.at.val)
+                      .abs() <
                   groupForwardThreshold &&
               previous.note.value == null) {
             insert = false;
             previous.note.value = e;
           } else if (next is ChatForwardElement &&
               next.authorId == item.authorId &&
-              next.forwards.last.value.at.val.difference(item.at.val) <
+              next.forwards.last.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold &&
               next.note.value == null) {
             insert = false;
@@ -902,6 +909,19 @@ class ChatController extends GetxController {
             );
 
             elements[_bottomLoader!.id] = _bottomLoader!;
+
+            if (listController.hasClients &&
+                listController.position.pixels >=
+                    listController.position.maxScrollExtent - 100) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                listController.sliverController.animateToIndex(
+                  elements.length - 1,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                  offsetBasedOnBottom: true,
+                );
+              });
+            }
           }
         },
       );
@@ -1075,25 +1095,43 @@ class ChatController extends GetxController {
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 
-  /// Returns a [List] of [Attachment]s representing a collection of all the
-  /// media files of this [chat].
-  List<Attachment> calculateGallery() {
-    final List<Attachment> attachments = [];
+  /// Returns a [List] of [GalleryAttachment]s representing a collection of all
+  /// the media files of this [chat].
+  List<GalleryAttachment> calculateGallery() {
+    final List<GalleryAttachment> attachments = [];
 
     for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
       if (m.value is ChatMessage) {
         final ChatMessage msg = m.value as ChatMessage;
-        attachments.addAll(msg.attachments.where(
-          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
-        ));
+        attachments.addAll(
+          msg.attachments
+              .where(
+                (e) =>
+                    e is ImageAttachment || (e is FileAttachment && e.isVideo),
+              )
+              .map(
+                (e) => GalleryAttachment(e, () => chat?.updateAttachments(msg)),
+              ),
+        );
       } else if (m.value is ChatForward) {
         final ChatForward msg = m.value as ChatForward;
         final ChatItemQuote item = msg.quote;
 
         if (item is ChatMessageQuote) {
-          attachments.addAll(item.attachments.where(
-            (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
-          ));
+          attachments.addAll(
+            item.attachments
+                .where(
+                  (e) =>
+                      e is ImageAttachment ||
+                      (e is FileAttachment && e.isVideo),
+                )
+                .map(
+                  (e) => GalleryAttachment(
+                    e,
+                    () => chat?.updateAttachments(m.value),
+                  ),
+                ),
+          );
         }
       }
     }
@@ -1283,12 +1321,21 @@ class ChatController extends GetxController {
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
-      await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
+    // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    await runZonedGuarded(
+      () async {
+        _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
+        await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
+      },
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 
   /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the
@@ -1527,7 +1574,7 @@ extension ChatViewExt on Chat {
 
     switch (kind) {
       case ChatKind.monolog:
-        title = 'label_chat_monolog'.l10n;
+        title = name?.val ?? 'label_chat_monolog'.l10n;
         break;
 
       case ChatKind.dialog:

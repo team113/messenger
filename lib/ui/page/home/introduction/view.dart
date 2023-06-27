@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/sharable.dart';
 import '/ui/widget/modal_popup.dart';
@@ -43,8 +44,11 @@ class IntroductionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: style.colors.onBackground,
+        );
 
     return GetBuilder(
       key: const Key('IntroductionView'),
@@ -72,7 +76,7 @@ class IntroductionView extends StatelessWidget {
                   style: thin,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
@@ -86,7 +90,7 @@ class IntroductionView extends StatelessWidget {
                   style: thin,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
@@ -98,14 +102,14 @@ class IntroductionView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? Colors.black
-                          : Colors.white,
+                          ? style.colors.onBackground
+                          : style.colors.onPrimary,
                     ),
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
                       : c.setPassword,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -116,7 +120,7 @@ class IntroductionView extends StatelessWidget {
                   'label_password_set'.l10n,
                   style: thin?.copyWith(
                     fontSize: 15,
-                    color: const Color(0xFF888888),
+                    color: style.colors.secondary,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -126,10 +130,10 @@ class IntroductionView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: thin?.copyWith(color: Colors.white),
+                      style: thin?.copyWith(color: style.colors.onPrimary),
                     ),
                     onPressed: Navigator.of(context).pop,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: style.colors.primary,
                   ),
                 ),
               ];
@@ -144,11 +148,11 @@ class IntroductionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_set_password'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: thin?.copyWith(color: style.colors.onPrimary),
                   ),
                   onPressed: () =>
                       c.stage.value = IntroductionViewStage.password,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -185,7 +189,7 @@ class IntroductionView extends StatelessWidget {
                             text: c.num.text,
                             label: 'label_num'.l10n,
                             share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                            trailing: SvgLoader.asset(
+                            trailing: SvgImage.asset(
                               'assets/icons/share.svg',
                               width: 18,
                             ),

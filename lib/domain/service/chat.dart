@@ -43,9 +43,8 @@ class ChatService extends DisposableService {
   /// [AuthService] to get an authorized user.
   final AuthService _authService;
 
-  /// Changes to `true` once the underlying data storage is initialized and
-  /// [chats] value is fetched.
-  RxBool get isReady => _chatRepository.isReady;
+  /// Returns the [RxStatus] of the [chats] initialization.
+  Rx<RxStatus> get status => _chatRepository.status;
 
   /// Returns the current reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
@@ -53,16 +52,14 @@ class ChatService extends DisposableService {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get monolog => _chatRepository.monolog;
+
   @override
   void onInit() {
     _chatRepository.init(onMemberRemoved: _onMemberRemoved);
     super.onInit();
-  }
-
-  @override
-  void onClose() {
-    _chatRepository.dispose();
-    super.onClose();
   }
 
   /// Creates a group [Chat] with the provided members and the authenticated
@@ -152,7 +149,7 @@ class ChatService extends DisposableService {
 
     if (userId == me) {
       chat = chats.remove(chatId);
-      if (router.route.startsWith('${Routes.chat}/$chatId')) {
+      if (router.route.startsWith('${Routes.chats}/$chatId')) {
         router.home();
       }
     }
@@ -301,7 +298,7 @@ class ChatService extends DisposableService {
   /// If [userId] is [me], then removes the specified [Chat] from the [chats].
   Future<void> _onMemberRemoved(ChatId id, UserId userId) async {
     if (userId == me) {
-      if (router.route.startsWith('${Routes.chat}/$id')) {
+      if (router.route.startsWith('${Routes.chats}/$id')) {
         router.home();
       }
       await _chatRepository.remove(id);
@@ -333,11 +330,14 @@ extension ChatIsRoute on Chat {
     final UserId? member =
         members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
 
-    final bool byId = route.startsWith('${Routes.chat}/$id');
+    final bool byId = route.startsWith('${Routes.chats}/$id');
     final bool byUser = isDialog &&
         member != null &&
-        route.startsWith('${Routes.chat}/${ChatId.local(member)}');
+        route.startsWith('${Routes.chats}/${ChatId.local(member)}');
+    final bool byMonolog = isMonolog &&
+        me != null &&
+        route.startsWith('${Routes.chats}/${ChatId.local(me)}');
 
-    return byId || byUser;
+    return byId || byUser || byMonolog;
   }
 }

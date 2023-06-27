@@ -42,6 +42,7 @@ import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
@@ -89,6 +90,8 @@ void main() async {
   await backgroundProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   AuthService authService = Get.put(
     AuthService(
@@ -153,6 +156,12 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
+  );
+
   test('ChatService doesn\'t split message with $maxText symbols', () async {
     final ChatMessageText message = ChatMessageText('A' * maxText);
 
@@ -190,6 +199,7 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
         me: const UserId('me'),
       ),
     );
@@ -265,6 +275,7 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
         me: const UserId('me'),
       ),
     );
@@ -348,6 +359,7 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
         me: const UserId('me'),
       ),
     );
@@ -425,6 +437,7 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
         me: const UserId('me'),
       ),
     );
@@ -494,6 +507,7 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
         me: const UserId('me'),
       ),
     );
@@ -577,6 +591,7 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
         me: const UserId('me'),
       ),
     );

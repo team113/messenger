@@ -131,6 +131,8 @@ class ChatForwardController extends GetxController {
           final ChatMessageText? text =
               send.field.text.isEmpty ? null : ChatMessageText(send.field.text);
 
+          final List<ChatItemQuoteInput> quotes = send.quotes.reversed.toList();
+
           final List<Future<void>> futures = [
             ...searchResults.value!.chats.map((e) {
               return _chatService.forwardChatItems(

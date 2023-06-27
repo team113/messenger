@@ -29,12 +29,12 @@ Feature: Favorite chats
     When I long press "Alice and Bob" chat
     And I tap `FavoriteChatButton` button
     Then I see "Alice and Bob" chat as favorite
-    And I see "Alice and Bob" chat first in chats list
+    And I see "Alice and Bob" chat first in favorites list
 
     When I long press "Alice and Charlie" chat
     And I tap `FavoriteChatButton` button
     Then I see "Alice and Charlie" chat as favorite
-    And I see "Alice and Charlie" chat first in chats list
+    And I see "Alice and Charlie" chat first in favorites list
 
   Scenario: User removes chat from favorites
     Given "Alice and Bob" chat is favorite
@@ -43,7 +43,6 @@ Feature: Favorite chats
     When I long press "Alice and Bob" chat
     And I tap `UnfavoriteChatButton` button
     Then I see "Alice and Bob" chat as unfavorited
-    And I see "Alice and Bob" chat last in chats list
 
   Scenario: User reorders favorite chats
     Given "Alice and Bob" chat is favorite
@@ -52,7 +51,7 @@ Feature: Favorite chats
     And I see "Alice and Charlie" chat as favorite
 
     When I drag "Alice and Bob" chat 200 pixels down
-    Then I see "Alice and Bob" chat last in chats list
+    Then I see "Alice and Bob" chat last in favorites list
 
     When I drag "Alice and Charlie" chat 200 pixels down
-    Then I see "Alice and Charlie" chat last in chats list
+    Then I see "Alice and Charlie" chat last in favorites list

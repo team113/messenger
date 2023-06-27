@@ -52,7 +52,7 @@ class ContactRepository implements AbstractContactRepository {
   );
 
   @override
-  final RxBool isReady = RxBool(false);
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   @override
   final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
@@ -91,11 +91,13 @@ class ContactRepository implements AbstractContactRepository {
           favorites[c.value.id] = entry;
         }
       }
-
-      isReady.value = true;
-    } else {
-      isReady.value = _sessionLocal.getChatContactsListVersion() != null;
     }
+
+    status.value = _contactLocal.isEmpty
+        ? _sessionLocal.getChatContactsListVersion() != null
+            ? RxStatus.loadingMore()
+            : RxStatus.loading()
+        : RxStatus.loadingMore();
 
     _initLocalSubscription();
     _initRemoteSubscription();
@@ -295,7 +297,9 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> _contactRemoteEvent(ChatContactsEvents event) async {
     switch (event.kind) {
       case ChatContactsEventsKind.initialized:
-        // No-op.
+        if (_sessionLocal.getChatContactsListVersion() != null) {
+          status.value = RxStatus.success();
+        }
         break;
 
       case ChatContactsEventsKind.chatContactsList:
@@ -313,7 +317,7 @@ class ContactRepository implements AbstractContactRepository {
           _putChatContact(c);
         }
 
-        isReady.value = true;
+        status.value = RxStatus.success();
         break;
 
       case ChatContactsEventsKind.event:

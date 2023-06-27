@@ -231,7 +231,7 @@ class HiveRxChat extends RxChat {
     );
 
     _updateTitle(chat.value.members.map((e) => e.user));
-    _updateFields().then((_) => chat.value.isGroup ? null : _updateAvatar());
+    _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
     _worker = ever(chat, (_) => _updateFields());
 
     _messagesSubscription = messages.changes.listen((e) {
@@ -490,7 +490,10 @@ class HiveRxChat extends RxChat {
     }
 
     _readTimer?.cancel();
-    _readTimer = AwaitableTimer(const Duration(seconds: 1), () async {
+    _readTimer = AwaitableTimer(
+        chat.value.lastItem?.id == untilId
+            ? Duration.zero
+            : const Duration(seconds: 1), () async {
       try {
         // await _chatRepository.readUntil(id, untilId);
       } catch (_) {
@@ -740,19 +743,24 @@ class HiveRxChat extends RxChat {
       await _local.init(userId: me);
 
       // TODO(review): hm...
+      // for (var e in saved) {
+      //   if (e is HiveChatMessage) {
+      //     await put(
+      //       // Clone [HiveChatMessage]s because [saved] items is attached to
+      //       // another [Hive] box.
+      //       HiveChatMessage(
+      //         (e.value as ChatMessage)..status.value = SendingStatus.sending,
+      //         e.cursor,
+      //         e.ver,
+      //         e.repliesToCursor,
+      //       ),
+      //     );
+      //   }
+      // }
+
       for (var e in saved) {
-        if (e is HiveChatMessage) {
-          await put(
-            // Clone [HiveChatMessage]s because [saved] items is attached to
-            // another [Hive] box.
-            HiveChatMessage(
-              (e.value as ChatMessage)..status.value = SendingStatus.sending,
-              e.cursor,
-              e.ver,
-              e.repliesToCursor,
-            ),
-          );
-        }
+        e.value.chatId = newChat.id;
+        _local.put(e);
       }
 
       (_pagination.provider as HiveGraphQlPageProvider)
@@ -765,30 +773,34 @@ class HiveRxChat extends RxChat {
   /// Adds the provided [ChatItem] to the [messages] list.
   void _add(ChatItem item) {
     if (!PlatformUtils.isWeb) {
-      if (item is ChatMessage) {
-        for (var a in item.attachments.whereType<FileAttachment>()) {
-          a.init();
-        }
-      } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
-        if (nested is ChatMessageQuote) {
-          for (var a in nested.attachments.whereType<FileAttachment>()) {
+      final List<Future> futures = [];
+
+      for (ChatItem item in messages.map((e) => e.value)) {
+        if (item is ChatMessage) {
+          for (var a in item.attachments.whereType<FileAttachment>()) {
             a.init();
+          }
+        } else if (item is ChatForward) {
+          ChatItemQuote nested = item.quote;
+          if (nested is ChatMessageQuote) {
+            for (var a in nested.attachments.whereType<FileAttachment>()) {
+              a.init();
+            }
           }
         }
       }
-    }
 
-    int i = messages.indexWhere((e) => e.value.id == item.id);
-    if (i == -1) {
-      Rx<ChatItem> rxItem = Rx<ChatItem>(item);
-      messages.insertAfter(
-        rxItem,
-        (e) => rxItem.value.at.compareTo(e.value.at) == 1,
-      );
-    } else {
-      messages[i].value = item;
-      messages[i].refresh();
+      int i = messages.indexWhere((e) => e.value.id == item.id);
+      if (i == -1) {
+        Rx<ChatItem> rxItem = Rx<ChatItem>(item);
+        messages.insertAfter(
+          rxItem,
+          (e) => rxItem.value.at.compareTo(e.value.at) == 1,
+        );
+      } else {
+        messages[i].value = item;
+        messages[i].refresh();
+      }
     }
   }
 
@@ -798,7 +810,7 @@ class HiveRxChat extends RxChat {
       _updateTitle();
     }
 
-    if (chat.value.isGroup) {
+    if (!chat.value.isDialog) {
       avatar.value = chat.value.avatar;
     }
 
@@ -870,15 +882,12 @@ class HiveRxChat extends RxChat {
     RxUser? member;
 
     switch (chat.value.kind) {
-      case ChatKind.monolog:
-        member = members.values.firstOrNull;
-        break;
-
       case ChatKind.dialog:
         member = members.values.firstWhereOrNull((e) => e.id != me);
         break;
 
       case ChatKind.group:
+      case ChatKind.monolog:
         avatar.value = chat.value.avatar;
         break;
 
@@ -1045,14 +1054,21 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
-              chatEntity.value.ongoingCall = event.call;
 
-              if (chat.value.isGroup) {
-                chatEntity.value.ongoingCall!.conversationStartedAt =
-                    PreciseDateTime.now();
+              if (!chat.value.isDialog) {
+                event.call.conversationStartedAt ??= PreciseDateTime.now();
               }
 
+              chatEntity.value.ongoingCall = event.call;
               _chatRepository.addCall(event.call);
+
+              var message = await get(event.call.id, key: event.call.key);
+
+              if (message != null) {
+                event.call.at = message.value.at;
+                message.value = event.call;
+                message.save();
+              }
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -1117,7 +1133,18 @@ class HiveRxChat extends RxChat {
 
                 if (ids != null && ids.length >= 2) {
                   chatEntity.value.ongoingCall?.conversationStartedAt =
-                      PreciseDateTime.now();
+                      event.call.conversationStartedAt ?? event.at;
+
+                  if (chatEntity.value.ongoingCall != null) {
+                    final call = chatEntity.value.ongoingCall!;
+                    var message = await get(call.id, key: call.key);
+
+                    if (message != null) {
+                      call.at = message.value.at;
+                      message.value = call;
+                      message.save();
+                    }
+                  }
                 }
               }
               break;
@@ -1125,6 +1152,15 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.lastItemUpdated:
               event as EventChatLastItemUpdated;
               chatEntity.value.lastItem = event.lastItem?.value;
+
+              // TODO [ChatCall.conversationStartedAt] shouldn't be `null` here
+              //      when starting group or monolog [ChatCall].
+              if (!chatEntity.value.isDialog &&
+                  chatEntity.value.lastItem is ChatCall) {
+                (chatEntity.value.lastItem as ChatCall).conversationStartedAt =
+                    PreciseDateTime.now();
+              }
+
               chatEntity.value.updatedAt =
                   event.lastItem?.value.at ?? chatEntity.value.updatedAt;
               if (event.lastItem != null) {
@@ -1185,6 +1221,10 @@ class HiveRxChat extends RxChat {
               event as EventChatItemPosted;
               final HiveChatItem item = event.item;
 
+              if (chatEntity.value.isHidden) {
+                chatEntity.value.isHidden = false;
+              }
+
               if (item.value is ChatMessage && item.value.authorId == me) {
                 ChatMessage? pending =
                     _pending.whereType<ChatMessage>().firstWhereOrNull(
@@ -1228,6 +1268,9 @@ class HiveRxChat extends RxChat {
                     final action = msg.action as ChatInfoActionMemberRemoved;
                     chatEntity.value.members
                         .removeWhere((e) => e.user.id == action.user.id);
+                    chatEntity.value.lastReads
+                        .removeWhere((e) => e.memberId == action.user.id);
+                    reads.removeWhere((e) => e.memberId == action.user.id);
                     await _chatRepository.onMemberRemoved(id, action.user.id);
                     break;
 
@@ -1293,12 +1336,51 @@ class HiveRxChat extends RxChat {
         break;
     }
   }
+
+  @override
+  int compareTo(RxChat other) {
+    if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall == null) {
+      return -1;
+    } else if (chat.value.ongoingCall == null &&
+        other.chat.value.ongoingCall != null) {
+      return 1;
+    } else if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall != null) {
+      return chat.value.ongoingCall!.at
+          .compareTo(other.chat.value.ongoingCall!.at);
+    }
+
+    if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition == null) {
+      return -1;
+    } else if (chat.value.favoritePosition == null &&
+        other.chat.value.favoritePosition != null) {
+      return 1;
+    } else if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition != null) {
+      return chat.value.favoritePosition!
+          .compareTo(other.chat.value.favoritePosition!);
+    }
+
+    if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
+      return 1;
+    } else if (!chat.value.id.isLocalWith(me) &&
+        other.chat.value.id.isLocalWith(me)) {
+      return -1;
+    }
+
+    return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
+  }
 }
 
 /// Extension adding an ability to insert the element based on some condition to
 /// [List].
 extension ListInsertAfter<T> on List<T> {
   /// Inserts the [element] after the [test] condition becomes `true`.
+  ///
+  /// Only meaningful, if this [List] is sorted in some way, as this method
+  /// iterates it from the [first] til the [last].
   void insertAfter(T element, bool Function(T) test) {
     if (isEmpty || !test(this[0])) {
       insert(0, element);
@@ -1321,7 +1403,7 @@ class AwaitableTimer {
       try {
         _completer.complete(await callback());
       } on StateError {
-        // No-op, as [Future] is allowed to be already completed.
+        // No-op, as [Future] is allowed to be completed.
       } catch (e, stackTrace) {
         _completer.completeError(e, stackTrace);
       }

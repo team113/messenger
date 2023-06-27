@@ -18,15 +18,15 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/util/platform_utils.dart';
-
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 
 /// [ReactiveTextField]-styled button.
 class FieldButton extends StatefulWidget {
   const FieldButton({
-    Key? key,
+    super.key,
     this.text,
     this.textAlign = TextAlign.start,
     this.hint,
@@ -36,8 +36,7 @@ class FieldButton extends StatefulWidget {
     this.trailing,
     this.prefix,
     this.style,
-    this.fillColor = Colors.white,
-  }) : super(key: key);
+  });
 
   /// Optional label of this [FieldButton].
   final String? text;
@@ -67,9 +66,6 @@ class FieldButton extends StatefulWidget {
 
   /// [TextStyle] of the [text].
   final TextStyle? style;
-
-  /// Fill color of the [ReactiveTextField].
-  final Color fillColor;
 
   @override
   State<FieldButton> createState() => _FieldButtonState();
@@ -104,8 +100,8 @@ class _FieldButtonState extends State<FieldButton> {
             prefix: widget.prefix,
             style: widget.style,
             fillColor: _hovered && widget.onPressed != null
-                ? style.cardHoveredColor
-                : widget.fillColor,
+                ? style.colors.onPrimary.darken(0.03)
+                : style.colors.onPrimary,
           ),
         ),
       ),

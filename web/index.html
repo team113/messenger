@@ -33,8 +33,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Gapopa">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
   <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
   <link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
@@ -51,8 +49,6 @@
   <meta name="msapplication-TileColor" content="#ffffff">
   <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
-
-  <link rel="icon" type="image/pg" href="favicon/png" />
 
   <title>Gapopa</title>
   <link rel="manifest" href="manifest.json">
@@ -197,33 +193,23 @@
           );
         });
       }
-    } else {
-      window.addEventListener('beforeunload', function (e) {
-        window.localStorage.removeItem('credentials');
-        for (var key in localStorage) {
-          if (key.startsWith('call_')) {
-            window.localStorage.removeItem(key);
-          }
-        }
-      });
     }
   </script>
 </head>
 
 <body>
   <div id="loader" class="container content">
-    <div class="col align-middle" style="vertical-align: middle;">
-      <div class="row justify-content-center">
-        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:18pt; font-family: SF UI Display, system-ui;">Messenger</div>
+    <div style="vertical-align: middle;">
+      <div style="display: flex; justify-content: center; margin-bottom: 12px;">
+        <div style="color:#888888; font-weight: 300; font-size:18pt; font-family: SF UI Display, system-ui;">Messenger</div>
       </div>
-      <div class="row justify-content-center mb-5">
-        <div class="col-auto h4"
-          style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui; transform: translate(0px, -8px);">by Gapopa</div>
+      <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+        <div style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui; transform: translate(0px, -8px);">by Gapopa</div>
       </div>
-      <div class="row justify-content-center">
+      <div style="display: flex; justify-content: center;">
         <canvas class="gapopa" id="canvas"></canvas>
       </div>
-      <div class="row justify-content-center mt-5">
+      <div style="display: flex; justify-content: center; margin-top: 24px;">
         <div class="col-auto h4 shimmer" style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui;">Downloading</div>
       </div>
     </div>

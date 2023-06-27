@@ -190,6 +190,7 @@ btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
 btn_mute = Отключить звук
 btn_mute_chat = Отключить звук
+btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
 btn_participants = Участники
@@ -208,7 +209,6 @@ btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
 btn_save = Сохранить
 btn_save_to_gallery = Сохранить в галерею
-btn_saved_messages = Сохранённые сообщения
 btn_select = Выбрать
 btn_set_password = Задать пароль
 btn_settings = Настройки
@@ -219,6 +219,7 @@ btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
+btn_unmute_chats = Включить звук
 btn_upload = Загрузить
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
@@ -238,6 +239,7 @@ err_call_not_found = Данный звонок не найден
 err_call_popup_was_blocked =
     Всплывающее окно заблокировано.
     Разрешите всплывающие окна, чтобы отображать в них звонки
+err_cant_forward_calls = Пересылка звонков не поддерживается
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята
 err_code_limit_exceed =
@@ -393,12 +395,16 @@ label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
+label_as_timeline = Как таймлайн
 label_attachments = [{$count} { $count ->
     [1] прикрепление
     [few] прикрепления
     *[other] прикреплений
     }]
-label_audio_call = Аудиозвонок
+label_audio_call = Аудиозвонок{$by ->
+        [x]{""}
+        *[other] {" "}от {$by}
+    }
 label_audio_notifications = Звуковые уведомления
 label_avatar_removed = {$author} удалил аватар
 label_avatar_removed1 = {$author}
@@ -411,7 +417,6 @@ label_background = Бэкграунд
 label_biography = Биография
 label_biography_hint = Несколько слов о Вас
 label_block = Заблокировать
-label_blocked_count = Заблокировано: {$count}
 label_blocked_users = Заблокированные пользователи
 label_cache_and_downloads = Кэш и загрузки
 label_call_active = Активный звонок
@@ -444,7 +449,9 @@ label_chat_call_moved = Перемещённый звонок
 label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
 label_chat_members = Участники
-label_chat_monolog = Сохранённые сообщения
+label_chat_monolog = Заметки
+label_chat_monolog_description = Пишите заметки, идеи или пересылайте другие сообщения, чтобы сохранить их здесь. Только Вы видите этот чат.
+label_chat_name_hint = Название чата
 label_chats = Чаты
 label_clear_history = Очистить историю
 label_confirm = Подтвердить
@@ -493,6 +500,7 @@ label_direct_chat_link_in_chat_description =
     - отправлять сообщения в чат группы,
     - совершать звонки
 label_disabled = Отключены
+label_display_timestamps = Отображать метки времени
 label_download = Скачать
 label_download_application = Скачать приложение
 label_draft = Черновик
@@ -517,6 +525,10 @@ label_favorite_contacts = Избранные
 label_file = Файл
 label_forward_message = Переслать сообщение
 label_forwarded_message = Пересланное сообщение
+label_forwarded_messages = {$count ->
+    [1] Forwarded message
+   *[other] Forwarded messages
+}
 label_gallery = Галерея
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
@@ -539,6 +551,7 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Подсказка от Gapopa
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
+label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_introduction_description =
     Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
@@ -571,6 +584,7 @@ label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
+label_monolog_created = Чат создан
 label_mute_for = { $days ->
     [0] { $hours ->
             [0] { $minutes ->
@@ -638,7 +652,7 @@ label_presence_present = Онлайн
 label_profile = Профиль
 label_public_information = Публичная информация
 label_public_section_hint = Аватар и имя
-label_read_at = Прочитано: {$day}.{$month}.{$year} {$hour}:{$minute}
+label_read_at = Прочитано: {$date}
 label_read_by = Прочитано
 label_reason = Причина
 label_recent = Недавние
@@ -689,9 +703,11 @@ label_sound_and_vibrations = Звук и вибрация
 label_status = Статус
 label_storage = Хранилище
 label_subtitle_participants = участников
+label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
+label_timeline_style = Стиль метки времени
 label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный
@@ -712,10 +728,14 @@ label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = удалил(а)
 label_user_removed_user3 = {" "}{$user}
 label_users = Пользователи
+label_users_count = Пользователей: {$count}
 label_verify_email = Верифицировать E-mail
 label_verify_number = Верифицировать номер телефона
 label_video = Видео
-label_video_call = Видеозвонок
+label_video_call = Видеозвонок{$by ->
+        [x]{""}
+        *[other] {" "}от {$by}
+    }
 label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:

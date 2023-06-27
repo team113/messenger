@@ -28,7 +28,7 @@ import '/store/event/chat_call.dart';
 import '/store/model/chat_call.dart';
 
 /// [ChatCall] related functionality.
-abstract class CallGraphQlMixin {
+mixin CallGraphQlMixin {
   GraphQlClient get client;
 
   /// Returns a list of incoming [ChatCall]s of the authenticated [MyUser].

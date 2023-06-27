@@ -99,7 +99,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
             );
           } else {
             if (attachment.file.isSvg) {
-              return SvgLoader.bytes(
+              return SvgImage.bytes(
                 attachment.file.bytes.value!,
                 width: widget.width,
                 height: widget.height,
@@ -137,18 +137,22 @@ class _MediaAttachmentState extends State<MediaAttachment> {
               ),
             );
           } else {
-            return VideoThumbnail.bytes(
-              bytes: attachment.file.bytes.value!,
-              height: widget.height,
+            return Center(
+              child: VideoThumbnail.bytes(
+                bytes: attachment.file.bytes.value!,
+                height: widget.height,
+              ),
             );
           }
         });
       } else {
-        return VideoThumbnail.url(
-          url: attachment.original.url,
-          checksum: attachment.original.checksum,
-          height: widget.height,
-          onError: widget.onError,
+        return Center(
+          child: VideoThumbnail.url(
+            url: attachment.original.url,
+            checksum: attachment.original.checksum,
+            height: widget.height,
+            onError: widget.onError,
+          ),
         );
       }
     }

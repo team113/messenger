@@ -41,8 +41,8 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     Hive.maybeRegisterAdapter(CredentialsAdapter());
     Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
-    Hive.maybeRegisterAdapter(RememberedSessionAdapter());
     Hive.maybeRegisterAdapter(RememberTokenAdapter());
+    Hive.maybeRegisterAdapter(RememberedSessionAdapter());
     Hive.maybeRegisterAdapter(SessionAdapter());
     Hive.maybeRegisterAdapter(SessionDataAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());

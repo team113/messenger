@@ -20,6 +20,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Circular progress indicator, which spins to indicate that the application is
@@ -64,6 +65,8 @@ class CustomProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return ConditionalBackdropFilter(
       condition: blur,
       borderRadius: BorderRadius.circular(60),
@@ -73,8 +76,9 @@ class CustomProgressIndicator extends StatelessWidget {
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
           value: value,
-          color: color ?? const Color(0xFFAFAFAF),
-          backgroundColor: backgroundColor ?? const Color(0xFFD5D5D5),
+          color: color ?? style.colors.secondaryHighlightDarkest,
+          backgroundColor:
+              backgroundColor ?? style.colors.secondaryHighlightDark,
           valueColor: valueColor,
           strokeWidth: strokeWidth,
         ),
@@ -278,11 +282,13 @@ class _CircularProgressIndicatorState
 
   /// Returns the [Color] of the progress indicator.
   Color _getValueColor(BuildContext context, {Color? defaultColor}) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return widget.valueColor?.value ??
         widget.color ??
         ProgressIndicatorTheme.of(context).color ??
         defaultColor ??
-        Theme.of(context).colorScheme.primary;
+        style.colors.onBackground;
   }
 
   /// Draws a determinate progress indicator.
@@ -293,9 +299,8 @@ class _CircularProgressIndicatorState
     double offsetValue,
     double rotationValue,
   ) {
-    final ProgressIndicatorThemeData defaults = Theme.of(context).useMaterial3
-        ? _CircularProgressIndicatorDefaultsM3(context)
-        : _CircularProgressIndicatorDefaultsM2(context);
+    final Style style = Theme.of(context).extension<Style>()!;
+
     final Color? trackColor = widget.backgroundColor ??
         ProgressIndicatorTheme.of(context).circularTrackColor;
 
@@ -307,7 +312,10 @@ class _CircularProgressIndicatorState
       child: CustomPaint(
         painter: _CircularProgressIndicatorPainter(
           backgroundColor: trackColor,
-          valueColor: _getValueColor(context, defaultColor: defaults.color),
+          valueColor: _getValueColor(
+            context,
+            defaultColor: style.colors.secondary,
+          ),
           value: widget.value,
           headValue: headValue,
           tailValue: tailValue,
@@ -334,32 +342,4 @@ class _CircularProgressIndicatorState
       },
     );
   }
-}
-
-/// Hand coded defaults based on Material Design 2.
-class _CircularProgressIndicatorDefaultsM2 extends ProgressIndicatorThemeData {
-  _CircularProgressIndicatorDefaultsM2(this.context);
-
-  /// [BuildContext] used to get the [_colors].
-  final BuildContext context;
-
-  /// Default [ColorScheme].
-  late final ColorScheme _colors = Theme.of(context).colorScheme;
-
-  @override
-  Color get color => _colors.primary;
-}
-
-/// Hand coded defaults based on Material Design 3.
-class _CircularProgressIndicatorDefaultsM3 extends ProgressIndicatorThemeData {
-  _CircularProgressIndicatorDefaultsM3(this.context);
-
-  /// [BuildContext] used to get the [_colors].
-  final BuildContext context;
-
-  /// Default [ColorScheme].
-  late final ColorScheme _colors = Theme.of(context).colorScheme;
-
-  @override
-  Color get color => _colors.primary;
 }
