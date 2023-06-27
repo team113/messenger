@@ -24,7 +24,6 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
@@ -39,11 +38,11 @@ class ChatSubtitle extends StatefulWidget {
   const ChatSubtitle({
     super.key,
     required this.rxChat,
-    required this.test,
+    required this.onWillAccept,
     this.text,
     this.subtitle,
     this.future,
-    this.partner = true,
+    this.member = true,
   });
 
   /// [RxChat] of this [ChatSubtitle].
@@ -52,22 +51,24 @@ class ChatSubtitle extends StatefulWidget {
   /// [Text] to display in this [ChatSubtitle].
   final String? text;
 
-  /// Indicator whether the chat is with a partner.
-  final bool partner;
+  /// Indicator whether the chat is with a member.
+  final bool member;
 
   /// Subtitle [Widget] of this [ChatSubtitle].
   final Widget? subtitle;
 
-  /// Returns an [RxUser] by the provided id.
-  final Future<RxUser?>? future;
+  /// Computation of the [FutureBuilder].
+  final Future? future;
 
-  /// Callback, called for test some condition for a given user.
-  final bool Function(User) test;
+  /// Callback, called to determine whether this widget of the currently
+  /// typing users takes part in the [ChatSubtitle].
+  final bool Function(User) onWillAccept;
 
   @override
   State<ChatSubtitle> createState() => _ChatSubtitleState();
 }
 
+/// State of an [ChatSubtitle] maintaining the [_durationTimer].
 class _ChatSubtitleState extends State<ChatSubtitle> {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
@@ -75,8 +76,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
   /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
   Timer? _durationTimer;
 
-  // Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
-  // changes.
+  /// Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
+  /// changes.
   ChatItemId? previousCall;
 
   /// Worker capturing any [RxChat.chat] changes.
@@ -91,14 +92,10 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
   @override
   void initState() {
-    _chatWorker = ever(widget.rxChat!.chat, (Chat e) {
-      if (e.id != widget.rxChat!.chat.value.id) {
-        WebUtils.replaceState(widget.rxChat!.chat.value.id.val, e.id.val);
-        widget.rxChat!.chat.value.id = e.id;
-      }
-
-      updateTimer(e);
-    });
+    _chatWorker = ever(
+      widget.rxChat!.chat,
+      (Chat e) => updateChatAndTimer(e),
+    );
 
     super.initState();
   }
@@ -143,7 +140,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
       );
     }
 
-    if (widget.rxChat?.typingUsers.any(widget.test) == true) {
+    if (widget.rxChat?.typingUsers.any(widget.onWillAccept) == true) {
       if (!chat.isGroup) {
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -185,14 +182,12 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
     }
 
     if (chat.isGroup) {
-      if (chat.getSubtitle() != null) {
-        return Text(
-          chat.getSubtitle()!,
-          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-        );
-      }
+      return Text(
+        chat.getSubtitle()!,
+        style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+      );
     } else if (chat.isDialog) {
-      if (widget.partner) {
+      if (widget.member) {
         return Row(
           children: [
             if (chat.muted != null) ...[
@@ -204,7 +199,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
               const SizedBox(width: 5),
             ],
             Flexible(
-              child: FutureBuilder<RxUser?>(
+              child: FutureBuilder(
                 future: widget.future,
                 builder: (_, snapshot) {
                   if (snapshot.data != null) {
@@ -248,7 +243,12 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
   // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
   // from the stored [previousCall].
-  void updateTimer(Chat chat) {
+  void updateChatAndTimer(Chat chat) {
+    if (chat.id != widget.rxChat!.chat.value.id) {
+      WebUtils.replaceState(widget.rxChat!.chat.value.id.val, chat.id.val);
+      widget.rxChat!.chat.value.id = chat.id;
+    }
+
     if (previousCall != chat.ongoingCall?.id) {
       previousCall = chat.ongoingCall?.id;
 

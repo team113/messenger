@@ -149,7 +149,7 @@ class _ChatViewState extends State<ChatView>
               .where((e) => e.id != c.me)
               .map((e) => e.name?.val ?? e.num.val);
 
-          final ChatMember? partner = c.chat?.chat.value.members
+          final ChatMember? member = c.chat?.chat.value.members
               .firstWhereOrNull((u) => u.user.id != c.me);
 
           return CustomDropTarget(
@@ -207,10 +207,10 @@ class _ChatViewState extends State<ChatView>
                                       ChatSubtitle(
                                         rxChat: c.chat,
                                         text: typings.join('comma_space'.l10n),
-                                        partner: partner != null,
-                                        test: (e) => e.id != c.me,
-                                        future: partner != null
-                                            ? c.getUser(partner.user.id)
+                                        member: member != null,
+                                        onWillAccept: (e) => e.id != c.me,
+                                        future: member != null
+                                            ? c.getUser(member.user.id)
                                             : null,
                                       ),
                                   ],
@@ -527,18 +527,7 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: SizeChangedLayoutNotifier(
                           key: c.bottomBarKey,
-                          child: _BottomBar(
-                            sendController: c.send,
-                            editController: c.edit.value,
-                            blacklisted: c.chat?.blacklisted == true,
-                            isEdit: c.edit.value != null,
-                            onTap: c.unblacklist,
-                            onItemPressed: (id) =>
-                                c.animateTo(id, offsetBasedOnBottom: true),
-                            onEditChanged: c.chat!.chat.value.isMonolog
-                                ? null
-                                : c.keepTyping,
-                          ),
+                          child: _bottomBar(c),
                         ),
                       ),
                     ),
@@ -863,6 +852,33 @@ class _ChatViewState extends State<ChatView>
     return const SizedBox();
   }
 
+  /// Returns a bottom bar of this [ChatView] to display under the messages list
+  /// containing a send/edit field.
+  Widget _bottomBar(ChatController c) {
+    if (c.chat?.blacklisted == true) {
+      return SafeArea(child: UnblockButton(c.unblacklist));
+    }
+
+    return Obx(() {
+      if (c.edit.value != null) {
+        return MessageFieldView(
+          key: const Key('EditField'),
+          controller: c.edit.value,
+          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+          canAttach: false,
+        );
+      }
+
+      return MessageFieldView(
+        key: const Key('SendField'),
+        controller: c.send,
+        onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
+        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+        canForward: true,
+      );
+    });
+  }
+
   /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
   /// the provided [duration].
   ///
@@ -893,63 +909,4 @@ class AllowMultipleHorizontalDragGestureRecognizer
     extends HorizontalDragGestureRecognizer {
   @override
   void rejectGesture(int pointer) => acceptGesture(pointer);
-}
-
-/// [Widget] which returns a bottom bar of this [ChatView] to display under
-/// the messages list containing a send/edit field or [UnblockButton].
-class _BottomBar extends StatelessWidget {
-  const _BottomBar({
-    this.editController,
-    this.sendController,
-    this.onTap,
-    this.onItemPressed,
-    this.onEditChanged,
-    this.blacklisted = false,
-    this.isEdit = false,
-  });
-
-  /// [MessageFieldController] for editing a [ChatMessage].
-  final MessageFieldController? editController;
-
-  /// [MessageFieldController] for sending a [ChatMessage].
-  final MessageFieldController? sendController;
-
-  /// Indicates whether chat is blacklisted or not.
-  final bool blacklisted;
-
-  /// Indicator whether [ChatMessage] is currently being edited or not.
-  final bool isEdit;
-
-  /// Callback, called when [UnblockButton] is tapped.
-  final void Function()? onTap;
-
-  /// Callback, called when a [ChatItem] being a reply or edited is pressed.
-  final Future<void> Function(ChatItemId)? onItemPressed;
-
-  /// Callback, called while editing [ChatMessage].
-  final void Function()? onEditChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    if (blacklisted) {
-      return SafeArea(child: UnblockButton(onTap));
-    }
-
-    if (isEdit) {
-      return MessageFieldView(
-        key: const Key('EditField'),
-        controller: editController,
-        onItemPressed: onItemPressed,
-        canAttach: false,
-      );
-    }
-
-    return MessageFieldView(
-      key: const Key('SendField'),
-      controller: sendController,
-      onChanged: onEditChanged,
-      onItemPressed: onItemPressed,
-      canForward: true,
-    );
-  }
 }
