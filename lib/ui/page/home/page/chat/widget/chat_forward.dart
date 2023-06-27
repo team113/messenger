@@ -279,94 +279,90 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           context,
           (menu) => Padding(
             padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
-            child: ClipRRect(
-              clipBehavior: _fromMe ? Clip.antiAlias : Clip.none,
-              borderRadius: BorderRadius.circular(15),
-              child: IntrinsicWidth(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  decoration: BoxDecoration(
-                    color: _fromMe
-                        ? _isRead
-                            ? style.readMessageColor
-                            : style.unreadMessageColor
-                        : style.messageColor,
-                    borderRadius: BorderRadius.circular(15),
-                    border: _fromMe
-                        ? _isRead
-                            ? style.secondaryBorder
-                            : Border.all(
-                                color: style.colors.backgroundAuxiliaryLighter,
-                                width: 0.5,
-                              )
-                        : style.primaryBorder,
-                  ),
-                  child: Obx(() {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (widget.note.value != null) _note(menu),
-                        if (!_fromMe &&
-                            widget.chat.value?.isGroup == true &&
-                            widget.note.value == null) ...[
-                          const SizedBox(height: 6),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                            child: SelectionText.rich(
-                              TextSpan(
-                                text: widget.user?.user.value.name?.val ??
-                                    widget.user?.user.value.num.val ??
-                                    'dot'.l10n * 3,
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () =>
-                                      router.user(widget.authorId, push: true),
-                              ),
-                              selectable: PlatformUtils.isDesktop || menu,
-                              onChanged: (a) => _selection = a,
-                              onSelecting: widget.onSelecting,
-                              style: fonts.bodyLarge!.copyWith(color: color),
-                            ),
-                          ),
-                        ],
+            child: IntrinsicWidth(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                decoration: BoxDecoration(
+                  color: _fromMe
+                      ? _isRead
+                          ? style.readMessageColor
+                          : style.unreadMessageColor
+                      : style.messageColor,
+                  borderRadius: BorderRadius.circular(15),
+                  border: _fromMe
+                      ? _isRead
+                          ? style.secondaryBorder
+                          : Border.all(
+                              color: style.colors.backgroundAuxiliaryLighter,
+                              width: 0.5,
+                            )
+                      : style.primaryBorder,
+                ),
+                child: Obx(() {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (widget.note.value != null) _note(menu),
+                      if (!_fromMe &&
+                          widget.chat.value?.isGroup == true &&
+                          widget.note.value == null) ...[
                         const SizedBox(height: 6),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                          child: Text(
-                            'label_forwarded_messages'
-                                .l10nfmt({'count': widget.forwards.length}),
-                            style: fonts.headlineSmall!.copyWith(
-                              color: style.colors.secondary,
+                          child: SelectionText.rich(
+                            TextSpan(
+                              text: widget.user?.user.value.name?.val ??
+                                  widget.user?.user.value.num.val ??
+                                  'dot'.l10n * 3,
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () =>
+                                    router.user(widget.authorId, push: true),
                             ),
+                            selectable: PlatformUtils.isDesktop || menu,
+                            onChanged: (a) => _selection = a,
+                            onSelecting: widget.onSelecting,
+                            style: fonts.bodyLarge!.copyWith(color: color),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 6),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                        child: Text(
+                          'label_forwarded_messages'
+                              .l10nfmt({'count': widget.forwards.length}),
+                          style: fonts.headlineSmall!.copyWith(
+                            color: style.colors.secondary,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      ...widget.forwards.map((e) => _forwardedMessage(e, menu)),
+                      if (widget.timestamp) ...[
+                        const SizedBox(height: 2),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Row(
+                            children: [
+                              const Spacer(),
+                              MessageTimestamp(
+                                at: _at,
+                                status: SendingStatus.sent,
+                                read: _isRead,
+                                delivered: widget.chat.value?.lastDelivery
+                                        .isBefore(_at) ==
+                                    false,
+                              )
+                            ],
                           ),
                         ),
                         const SizedBox(height: 4),
-                        ...widget.forwards
-                            .map((e) => _forwardedMessage(e, menu)),
-                        if (widget.timestamp) ...[
-                          const SizedBox(height: 2),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: Row(
-                              children: [
-                                const Spacer(),
-                                MessageTimestamp(
-                                  at: _at,
-                                  status: SendingStatus.sent,
-                                  read: _isRead,
-                                  delivered: widget.chat.value?.lastDelivery
-                                          .isBefore(_at) ==
-                                      false,
-                                )
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                        ],
                       ],
-                    );
-                  }),
-                ),
+                    ],
+                  );
+                }),
               ),
             ),
           ),
@@ -619,58 +615,55 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 500),
           opacity: _isRead || !_fromMe ? 1 : 0.55,
-          child: ClipRRect(
-            borderRadius: style.cardRadius,
-            child: WidgetButton(
-              onPressed: menu ? null : () => widget.onForwardedTap?.call(quote),
-              child: Stack(
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                          child: IntrinsicWidth(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: content,
-                            ),
+          child: WidgetButton(
+            onPressed: menu ? null : () => widget.onForwardedTap?.call(quote),
+            child: Stack(
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                        child: IntrinsicWidth(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: content,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  Positioned(
-                    right: timeInBubble ? 6 : 8,
-                    bottom: 4,
-                    child: timeInBubble
-                        ? ConditionalBackdropFilter(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.only(left: 4, right: 4),
-                              decoration: BoxDecoration(
-                                color: style.colors.onBackgroundOpacity27,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: MessageTimestamp(
-                                at: quote.at,
-                                date: true,
-                                fontSize: fonts.labelSmall!.fontSize,
-                                inverted: true,
-                              ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  right: timeInBubble ? 6 : 8,
+                  bottom: 4,
+                  child: timeInBubble
+                      ? ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 4, right: 4),
+                            decoration: BoxDecoration(
+                              color: style.colors.onBackgroundOpacity27,
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                          )
-                        : MessageTimestamp(
-                            at: quote.at,
-                            date: true,
-                            fontSize: fonts.labelSmall!.fontSize,
+                            child: MessageTimestamp(
+                              at: quote.at,
+                              date: true,
+                              fontSize: fonts.labelSmall!.fontSize,
+                              inverted: true,
+                            ),
                           ),
-                  )
-                ],
-              ),
+                        )
+                      : MessageTimestamp(
+                          at: quote.at,
+                          date: true,
+                          fontSize: fonts.labelSmall!.fontSize,
+                        ),
+                )
+              ],
             ),
           ),
         ),
