@@ -27,7 +27,7 @@ import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/message_field/view.dart';
+import '/ui/page/home/page/chat/message_field/widget/input_reactive_field.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
@@ -76,7 +76,7 @@ class ContactsTabView extends StatelessWidget {
 
               if (c.search.value != null) {
                 child = Theme(
-                  data: MessageFieldView.theme(context),
+                  data: InputReactiveField.theme(context),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Transform.translate(

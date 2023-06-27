@@ -34,7 +34,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/message_field/widget/field.dart';
 import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
@@ -47,6 +46,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'widget/input_reactive_field.dart';
 import 'controller.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
@@ -88,40 +88,6 @@ class MessageFieldView extends StatelessWidget {
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
 
-  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
-  static ThemeData theme(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    final OutlineInputBorder border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(25),
-      borderSide: BorderSide.none,
-    );
-
-    return Theme.of(context).copyWith(
-      shadowColor: style.colors.onBackgroundOpacity27,
-      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
-      inputDecorationTheme: InputDecorationTheme(
-        border: border,
-        errorBorder: border,
-        enabledBorder: border,
-        focusedBorder: border,
-        disabledBorder: border,
-        focusedErrorBorder: border,
-        focusColor: style.colors.onPrimary,
-        fillColor: style.colors.onPrimary,
-        hoverColor: style.colors.transparent,
-        filled: true,
-        isDense: true,
-        contentPadding: EdgeInsets.fromLTRB(
-          15,
-          PlatformUtils.isDesktop ? 30 : 23,
-          15,
-          0,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -130,56 +96,54 @@ class MessageFieldView extends StatelessWidget {
       init: controller ?? MessageFieldController(Get.find(), Get.find()),
       global: false,
       builder: (MessageFieldController c) {
-        return Theme(
-          data: theme(context),
-          child: SafeArea(
-            child: Container(
-              key: const Key('SendField'),
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
-                  ),
-                ],
+        return SafeArea(
+          child: Container(
+            key: const Key('SendField'),
+            decoration: BoxDecoration(
+              borderRadius: style.cardRadius,
+              boxShadow: [
+                CustomBoxShadow(
+                  blurRadius: 8,
+                  color: style.colors.onBackgroundOpacity13,
+                ),
+              ],
+            ),
+            child: ConditionalBackdropFilter(
+              condition: style.cardBlur > 0,
+              filter: ImageFilter.blur(
+                sigmaX: style.cardBlur,
+                sigmaY: style.cardBlur,
               ),
-              child: ConditionalBackdropFilter(
-                condition: style.cardBlur > 0,
-                filter: ImageFilter.blur(
-                  sigmaX: style.cardBlur,
-                  sigmaY: style.cardBlur,
-                ),
-                borderRadius: style.cardRadius,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildHeader(c, context),
-                    CustomField(
-                      fieldKey: fieldKey,
-                      sendKey: sendKey,
-                      state: c.field,
-                      isForwarding: c.forwarding.value,
-                      onChanged: onChanged,
-                      onTrailingPressed: c.field.submit,
-                      onLongPress: canForward ? c.forwarding.toggle : null,
-                      onPressed: canAttach
-                          ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-                              ? c.pickFile
-                              : () async {
-                                  c.field.focus.unfocus();
-                                  await AttachmentSourceSelector.show(
-                                    context,
-                                    onPickFile: c.pickFile,
-                                    onTakePhoto: c.pickImageFromCamera,
-                                    onPickMedia: c.pickMedia,
-                                    onTakeVideo: c.pickVideoFromCamera,
-                                  );
-                                }
-                          : null,
-                    )
-                  ],
-                ),
+              borderRadius: style.cardRadius,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildHeader(c, context),
+                  InputReactiveField(
+                    fieldKey: fieldKey,
+                    sendKey: sendKey,
+                    state: c.field,
+                    isForwarding: c.forwarding.value,
+                    onChanged: onChanged,
+                    onTrailingPressed: c.field.submit,
+                    onTrailingLongPressed:
+                        canForward ? c.forwarding.toggle : null,
+                    onPressed: canAttach
+                        ? !PlatformUtils.isMobile || PlatformUtils.isWeb
+                            ? c.pickFile
+                            : () async {
+                                c.field.focus.unfocus();
+                                await AttachmentSourceSelector.show(
+                                  context,
+                                  onPickFile: c.pickFile,
+                                  onTakePhoto: c.pickImageFromCamera,
+                                  onPickMedia: c.pickMedia,
+                                  onTakeVideo: c.pickVideoFromCamera,
+                                );
+                              }
+                        : null,
+                  )
+                ],
               ),
             ),
           ),
@@ -483,7 +447,7 @@ class MessageFieldView extends StatelessWidget {
       direction: DismissDirection.up,
       onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
       child: _Attachment(
-        attachmentKey: Key('Attachment_${e.id}'),
+        key: Key('Attachment_${e.id}'),
         size: size,
         isLoading: c.field.status.value.isLoading,
         isVisible: c.hoveredAttachment.value == e || PlatformUtils.isMobile,
@@ -954,7 +918,7 @@ class _Content extends StatelessWidget {
 /// [_Content] along with manipulation buttons and statuses.
 class _Attachment extends StatelessWidget {
   const _Attachment({
-    this.attachmentKey,
+    super.key,
     this.clip,
     this.child,
     this.onEnter,
@@ -964,9 +928,6 @@ class _Attachment extends StatelessWidget {
     this.isLoading = false,
     this.isVisible = false,
   });
-
-  /// Key of this [_Attachment].
-  final Key? attachmentKey;
 
   /// Width and height of this [_Attachment].
   final double? size;
@@ -997,7 +958,6 @@ class _Attachment extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return MouseRegion(
-      key: attachmentKey,
       opaque: false,
       onEnter: onEnter,
       onExit: onExit,

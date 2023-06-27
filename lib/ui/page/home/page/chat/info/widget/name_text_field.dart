@@ -29,15 +29,11 @@ class NameTextField extends StatelessWidget {
   const NameTextField({
     super.key,
     required this.state,
-    this.text = '',
     this.label,
   });
 
-  /// Reactive state of the [ReactiveTextField].
-  final ReactiveFieldState state;
-
-  /// Text of this [NameTextField].
-  final String text;
+  /// State of the [ReactiveTextField].
+  final TextFieldState state;
 
   /// Label of the [ReactiveTextField].
   final String? label;
@@ -46,17 +42,16 @@ class NameTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Paddings.basic(
       ReactiveTextField(
-        key: const Key('RenameChatField'),
         state: state,
         label: label,
         hint: 'label_chat_name_hint'.l10n,
-        onSuffixPressed: text.isEmpty
+        onSuffixPressed: state.text.isEmpty
             ? null
             : () {
-                PlatformUtils.copy(text: text);
+                PlatformUtils.copy(text: state.text);
                 MessagePopup.success('label_copied'.l10n);
               },
-        trailing: text.isEmpty
+        trailing: state.text.isEmpty
             ? null
             : Transform.translate(
                 offset: const Offset(0, -1),

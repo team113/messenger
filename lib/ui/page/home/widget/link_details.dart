@@ -18,19 +18,34 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 
-import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 
-/// View showing details about a [MyUser.chatDirectLink].
+/// View showing details about a chat direct link.
 ///
 /// Intended to be displayed with the [show] method.
-class LinkDetailsView extends StatelessWidget {
-  const LinkDetailsView({super.key});
+class LinkDetails extends StatelessWidget {
+  const LinkDetails({super.key, this.header, this.description});
 
-  /// Displays a [LinkDetailsView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const LinkDetailsView());
+  /// Header text of this [LinkDetails].
+  final String? header;
+
+  /// Description text of this [LinkDetails].
+  final String? description;
+
+  /// Displays a [LinkDetails] wrapped in a [ModalPopup].
+  static Future<T?> show<T>(
+    BuildContext context,
+    String header,
+    String description,
+  ) {
+    return ModalPopup.show(
+      context: context,
+      child: LinkDetails(
+        description: description,
+        header: header,
+      ),
+    );
   }
 
   @override
@@ -44,15 +59,13 @@ class LinkDetailsView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 4),
-          ModalPopupHeader(text: 'label_your_direct_link'.l10n),
+          ModalPopupHeader(text: header),
           const SizedBox(height: 13),
           Padding(
             padding: ModalPopup.padding(context),
             child: RichText(
               text: TextSpan(
-                children: [
-                  TextSpan(text: 'label_direct_chat_link_description'.l10n),
-                ],
+                children: [TextSpan(text: description)],
                 style: fonts.bodyMedium!.copyWith(
                   color: style.colors.secondary,
                 ),

@@ -30,7 +30,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/page/chat/message_field/view.dart';
+import '/ui/page/home/page/chat/message_field/widget/input_reactive_field.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
@@ -92,7 +92,7 @@ class ChatsTabView extends StatelessWidget {
 
                     if (c.searching.value) {
                       child = Theme(
-                        data: MessageFieldView.theme(context),
+                        data: InputReactiveField.theme(context),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Transform.translate(

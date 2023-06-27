@@ -38,6 +38,8 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/animated_circle_avatar.dart';
+import '/ui/page/home/widget/link_details.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -52,7 +54,6 @@ import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'language/view.dart';
-import 'link_details/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
@@ -66,8 +67,6 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find()),
@@ -100,92 +99,37 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_public_information'.l10n,
                           children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                WidgetButton(
-                                  onPressed: c.myUser.value?.avatar == null
-                                      ? c.uploadAvatar
-                                      : () async {
-                                          await GalleryPopup.show(
-                                            context: context,
-                                            gallery: GalleryPopup(
-                                              initialKey: c.avatarKey,
-                                              children: [
-                                                GalleryItem.image(
-                                                  c.myUser.value!.avatar!
-                                                      .original.url,
-                                                  c.myUser.value!.num.val,
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                  child: AvatarWidget.fromMyUser(
-                                    c.myUser.value,
-                                    key: c.avatarKey,
-                                    radius: 100,
-                                    badge: false,
-                                  ),
-                                ),
-                                Positioned.fill(
-                                  child: Obx(() {
-                                    return AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: c.avatarUpload.value.isLoading
-                                          ? Container(
-                                              width: 200,
-                                              height: 200,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: style.colors
-                                                    .onBackgroundOpacity13,
+                            AnimatedCircleAvatar(
+                              isLoading: c.avatarUpload.value.isLoading,
+                              isVisible: c.myUser.value?.avatar != null,
+                              onPressed: c.uploadAvatar,
+                              onPressedAdditional: c.deleteAvatar,
+                              avatar: WidgetButton(
+                                onPressed: c.myUser.value?.avatar == null
+                                    ? c.uploadAvatar
+                                    : () async {
+                                        await GalleryPopup.show(
+                                          context: context,
+                                          gallery: GalleryPopup(
+                                            initialKey: c.avatarKey,
+                                            children: [
+                                              GalleryItem.image(
+                                                c.myUser.value!.avatar!.original
+                                                    .url,
+                                                c.myUser.value!.num.val,
                                               ),
-                                              child: const Center(
-                                                child:
-                                                    CustomProgressIndicator(),
-                                              ),
-                                            )
-                                          : const SizedBox.shrink(),
-                                    );
-                                  }),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                child: AvatarWidget.fromMyUser(
+                                  c.myUser.value,
+                                  key: c.avatarKey,
+                                  radius: 100,
+                                  badge: false,
                                 ),
-                              ],
+                              ),
                             ),
-                            const SizedBox(height: 5),
-                            Obx(() {
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  WidgetButton(
-                                    key: const Key('UploadAvatar'),
-                                    onPressed: c.uploadAvatar,
-                                    child: Text(
-                                      'btn_upload'.l10n,
-                                      style: fonts.labelSmall!.copyWith(
-                                        color: style.colors.primary,
-                                      ),
-                                    ),
-                                  ),
-                                  if (c.myUser.value?.avatar != null) ...[
-                                    Text(
-                                      'space_or_space'.l10n,
-                                      style: fonts.bodySmall,
-                                    ),
-                                    WidgetButton(
-                                      key: const Key('DeleteAvatar'),
-                                      onPressed: c.deleteAvatar,
-                                      child: Text(
-                                        'btn_delete'.l10n.toLowerCase(),
-                                        style: fonts.bodySmall!.copyWith(
-                                          color: style.colors.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              );
-                            }),
                             const SizedBox(height: 10),
                             _name(c),
                             _presence(c, context),
@@ -458,7 +402,11 @@ Widget _link(BuildContext context, MyProfileController c) {
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
-                          await LinkDetailsView.show(context);
+                          await LinkDetails.show(
+                            context,
+                            'label_your_direct_link'.l10n,
+                            'label_direct_chat_link_description'.l10n,
+                          );
                         },
                     ),
                   ],

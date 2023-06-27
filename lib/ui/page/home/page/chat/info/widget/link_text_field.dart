@@ -22,6 +22,7 @@ import '/themes.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/page/home/widget/link_details.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -96,7 +97,14 @@ class ChatLinkWidget extends StatelessWidget {
                       style: fonts.labelSmall!.copyWith(
                         color: style.colors.primary,
                       ),
-                      recognizer: TapGestureRecognizer()..onTap = () {},
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await LinkDetails.show(
+                            context,
+                            'label_direct_chat_link'.l10n,
+                            'label_direct_chat_link_description'.l10n,
+                          );
+                        },
                     ),
                   ],
                 ),

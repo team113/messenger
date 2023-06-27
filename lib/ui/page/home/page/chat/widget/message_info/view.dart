@@ -23,7 +23,7 @@ import '/domain/model/chat_item.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/message_field/view.dart';
+import '/ui/page/home/page/chat/message_field/widget/input_reactive_field.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
@@ -109,7 +109,7 @@ class MessageInfo extends StatelessWidget {
                         : null,
                     margin: const EdgeInsets.only(top: 4),
                     title: Theme(
-                      data: MessageFieldView.theme(context),
+                      data: InputReactiveField.theme(context),
                       child: Transform.translate(
                         offset: const Offset(0, 1),
                         child: ReactiveTextField(
@@ -207,8 +207,9 @@ class MessageInfo extends StatelessWidget {
                                 subtitle: [
                                   const SizedBox(height: 3),
                                   Text(
-                                    'label_read_at'
-                                        .l10nfmt({'date': time.yMdHm}),
+                                    'label_read_at'.l10nfmt({
+                                      'date': time.yMdHm,
+                                    }),
                                     style: fonts.bodySmall!.copyWith(
                                       color: style.colors.secondary,
                                     ),

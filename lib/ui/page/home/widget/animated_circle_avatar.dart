@@ -23,11 +23,11 @@ import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
 
-/// Circular [Container] with an description.
-class AnimatedCircle extends StatelessWidget {
-  const AnimatedCircle({
+/// Circular avatar with provided buttons.
+class AnimatedCircleAvatar extends StatelessWidget {
+  const AnimatedCircleAvatar({
     super.key,
-    this.child,
+    this.avatar,
     this.onPressed,
     this.onPressedAdditional,
     this.isLoading = false,
@@ -41,7 +41,7 @@ class AnimatedCircle extends StatelessWidget {
   final bool isVisible;
 
   /// [Widget] that is displayed within the circle.
-  final Widget? child;
+  final Widget? avatar;
 
   /// Callback, called when label was pressed.
   final void Function()? onPressed;
@@ -58,7 +58,7 @@ class AnimatedCircle extends StatelessWidget {
         Stack(
           alignment: Alignment.center,
           children: [
-            if (child != null) child!,
+            if (avatar != null) avatar!,
             Positioned.fill(
               child: AnimatedSwitcher(
                 duration: 200.milliseconds,

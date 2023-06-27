@@ -25,10 +25,10 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
-import '/ui/page/home/page/chat/info/widget/animated_circle.dart';
 import '/ui/page/home/page/chat/info/widget/link_text_field.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/action.dart';
+import '/ui/page/home/widget/animated_circle_avatar.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -44,7 +44,7 @@ import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
 class ChatInfoView extends StatelessWidget {
-  const ChatInfoView(this.id, {Key? key}) : super(key: key);
+  const ChatInfoView(this.id, {super.key});
 
   /// ID of the [Chat] of this info page.
   final ChatId id;
@@ -211,12 +211,12 @@ class ChatInfoView extends StatelessWidget {
                   Block(
                     title: 'label_public_information'.l10n,
                     children: [
-                      AnimatedCircle(
+                      AnimatedCircleAvatar(
                         isLoading: c.avatar.value.isLoading,
                         isVisible: c.chat?.chat.value.avatar != null,
                         onPressed: c.pickAvatar,
                         onPressedAdditional: c.deleteAvatar,
-                        child: WidgetButton(
+                        avatar: WidgetButton(
                           key: Key('ChatAvatar_${c.chat!.id}'),
                           onPressed: c.chat?.chat.value.avatar == null
                               ? c.pickAvatar
@@ -244,8 +244,8 @@ class ChatInfoView extends StatelessWidget {
                       ),
                       const SizedBox(height: 15),
                       NameTextField(
+                        key: const Key('RenameChatField'),
                         state: c.name,
-                        text: c.name.text,
                         label: c.chat?.chat.value.name == null
                             ? c.chat?.title.value
                             : 'label_name'.l10n,
@@ -270,23 +270,7 @@ class ChatInfoView extends StatelessWidget {
                   ],
                   Block(
                     title: 'label_actions'.l10n,
-                    children: [
-                      _Actions(
-                        isMonolog: c.isMonolog,
-                        favorited: c.chat?.chat.value.favoritePosition != null,
-                        muted: c.chat?.chat.value.muted != null,
-                        hideChat: () => _hideChat(c, context),
-                        clearChat: () => _clearChat(c, context),
-                        leaveGroup: () => _leaveGroup(c, context),
-                        blacklistChat: () => _blacklistChat(c, context),
-                        onFavorited: c.chat?.chat.value.favoritePosition != null
-                            ? c.unfavoriteChat
-                            : c.favoriteChat,
-                        onMuted: c.chat?.chat.value.muted != null
-                            ? c.unmuteChat
-                            : c.muteChat,
-                      )
-                    ],
+                    children: [_actions(c, context)],
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -335,7 +319,7 @@ class ChatInfoView extends StatelessWidget {
         members.insert(0, me);
       }
 
-      final (style, _) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -368,6 +352,130 @@ class ChatInfoView extends StatelessWidget {
         ],
       );
     });
+  }
+
+  /// Returns the action buttons to do with this [Chat].
+  Widget _actions(ChatInfoController c, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!c.isMonolog)
+          ActionButton(
+            onPressed: () {},
+            text: 'btn_add_to_contacts'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              ),
+            ),
+          ),
+        Obx(() {
+          final bool favorited = c.chat?.chat.value.favoritePosition != null;
+          return ActionButton(
+            key: Key(
+              favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
+            ),
+            onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
+            text: favorited
+                ? 'btn_delete_from_favorites'.l10n
+                : 'btn_add_to_favorites'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              ),
+            ),
+          );
+        }),
+        if (!c.isMonolog)
+          Obx(() {
+            final bool muted = c.chat?.chat.value.muted != null;
+            return ActionButton(
+              onPressed: muted ? c.unmuteChat : c.muteChat,
+              text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: muted
+                      ? SvgImage.asset(
+                          'assets/icons/btn_mute.svg',
+                          width: 18.68,
+                          height: 15,
+                        )
+                      : SvgImage.asset(
+                          'assets/icons/btn_unmute.svg',
+                          width: 17.86,
+                          height: 15,
+                        ),
+                ),
+              ),
+            );
+          }),
+        ActionButton(
+          key: const Key('HideChatButton'),
+          onPressed: () => _hideChat(c, context),
+          text: 'btn_hide_chat'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+        ),
+        ActionButton(
+          key: const Key('ClearHistoryButton'),
+          onPressed: () => _clearChat(c, context),
+          text: 'btn_clear_history'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+        ),
+        if (!c.isMonolog) ...[
+          ActionButton(
+            onPressed: () => _leaveGroup(c, context),
+            text: 'btn_leave_group'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              ),
+            ),
+          ),
+          ActionButton(
+            onPressed: () => _blacklistChat(c, context),
+            text: 'btn_block'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              ),
+            ),
+          ),
+          ActionButton(
+            onPressed: () {},
+            text: 'btn_report'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
   /// Opens a confirmation popup leaving this [Chat].
@@ -505,166 +613,6 @@ class _BigButton extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// [Widget] which returns the [Column] of action buttons.
-class _Actions extends StatelessWidget {
-  const _Actions({
-    this.hideChat,
-    this.clearChat,
-    this.leaveGroup,
-    this.blacklistChat,
-    this.onFavorited,
-    this.onMuted,
-    this.isMonolog = false,
-    this.favorited = true,
-    this.muted = true,
-  });
-
-  /// Indicates whether the chat is a monolog.
-  final bool isMonolog;
-
-  /// Indicates whether the chat is in favorite.
-  final bool favorited;
-
-  /// Indicates whether the chat is muted.
-  final bool muted;
-
-  /// Callback, called when the user hide the chat.
-  final void Function()? hideChat;
-
-  /// Callback, called when the user clear the chat.
-  final void Function()? clearChat;
-
-  /// Callback, called when the user leave from chat.
-  final void Function()? leaveGroup;
-
-  /// Callback, called when the user blacklist the chat.
-  final void Function()? blacklistChat;
-
-  /// Callback, called when the user favorite the chat.
-  final void Function()? onFavorited;
-
-  /// Callback, called when the user mute the chat.
-  final void Function()? onMuted;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!isMonolog)
-          ActionButton(
-            onPressed: () {},
-            text: 'btn_add_to_contacts'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-          ),
-        ActionButton(
-          key: Key(
-            favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
-          ),
-          onPressed: onFavorited,
-          text: favorited
-              ? 'btn_delete_from_favorites'.l10n
-              : 'btn_add_to_favorites'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
-          ),
-        ),
-        if (!isMonolog)
-          ActionButton(
-            onPressed: onMuted,
-            text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: muted
-                    ? SvgImage.asset(
-                        'assets/icons/btn_mute.svg',
-                        width: 18.68,
-                        height: 15,
-                      )
-                    : SvgImage.asset(
-                        'assets/icons/btn_unmute.svg',
-                        width: 17.86,
-                        height: 15,
-                      ),
-              ),
-            ),
-          ),
-        ActionButton(
-          key: const Key('HideChatButton'),
-          onPressed: hideChat,
-          text: 'btn_hide_chat'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
-          ),
-        ),
-        ActionButton(
-          key: const Key('ClearHistoryButton'),
-          onPressed: clearChat,
-          text: 'btn_clear_history'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
-          ),
-        ),
-        if (!isMonolog) ...[
-          ActionButton(
-            onPressed: leaveGroup,
-            text: 'btn_leave_group'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-          ),
-          ActionButton(
-            onPressed: blacklistChat,
-            text: 'btn_block'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-          ),
-          ActionButton(
-            onPressed: () {},
-            text: 'btn_report'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-          ),
-        ],
-      ],
     );
   }
 }
