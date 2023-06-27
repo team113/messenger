@@ -222,7 +222,7 @@ class ChatController extends GetxController {
   bool _ignorePositionChanges = false;
 
   /// Indicator whether the application is active.
-  RxBool active = RxBool(true);
+  final RxBool active = RxBool(true);
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;

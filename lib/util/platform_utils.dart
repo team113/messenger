@@ -440,7 +440,7 @@ class PlatformUtilsImpl {
   void copy({required String text}) =>
       Clipboard.setData(ClipboardData(text: text));
 
-  /// Keeps the [_isActive] status.
+  /// Keeps the [_isActive] status as [active].
   void keepActive([bool active = true]) {
     _isActive = active;
     _activityController?.add(active);
