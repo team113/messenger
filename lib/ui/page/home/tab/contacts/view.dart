@@ -222,12 +222,12 @@ class ContactsTabView extends StatelessWidget {
             ],
             leading: [
               Obx(() {
-                final bool selected = c.contacts.isNotEmpty &&
-                    c.contacts.every(
-                      (e) => c.selectedContacts.any((m) => m == e.id),
-                    );
-
                 if (c.selecting.value) {
+                  final bool selected = c.contacts.isNotEmpty &&
+                      c.contacts.every(
+                        (e) => c.selectedContacts.any((m) => m == e.id),
+                      );
+
                   return WidgetButton(
                     onPressed: () {
                       bool selected = c.contacts.every(
@@ -260,12 +260,12 @@ class ContactsTabView extends StatelessWidget {
                 return AnimatedSwitcher(
                   duration: 250.milliseconds,
                   child: WidgetButton(
-                    key: c.search.value != null
-                        ? const Key('CloseSearchButton')
-                        : const Key('SearchButton'),
+                    key: c.search.value == null
+                        ? const Key('SearchButton')
+                        : const Key('CloseSearchButton'),
                     onPressed: c.search.value == null
                         ? () => c.toggleSearch(true)
-                        : () {},
+                        : () => c.toggleSearch(false),
                     child: Container(
                       padding: const EdgeInsets.only(left: 20, right: 6),
                       height: double.infinity,
@@ -626,13 +626,6 @@ class ContactsTabView extends StatelessWidget {
             label: 'btn_delete'.l10n,
             onPressed: () => _removeFromContacts(c, context, contact),
             trailing: const Icon(Icons.delete),
-          ),
-          const ContextMenuDivider(),
-          ContextMenuButton(
-            key: const Key('SelectContactButton'),
-            label: 'btn_select'.l10n,
-            onPressed: c.toggleSelecting,
-            trailing: const Icon(Icons.select_all),
           ),
         ],
         subtitle: [

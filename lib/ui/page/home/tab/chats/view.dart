@@ -172,20 +172,20 @@ class ChatsTabView extends StatelessWidget {
                   }),
                   leading: [
                     Obx(() {
-                      final bool selected = c.chats.isNotEmpty &&
-                          c.chats.where((e) {
-                            final bool isHidden = e.chat.value.isHidden &&
-                                !e.chat.value.isRoute(router.route, c.me);
-
-                            return ((!e.id.isLocal ||
-                                    e.messages.isNotEmpty ||
-                                    e.chat.value.isMonolog) &&
-                                !isHidden);
-                          }).every(
-                            (e) => c.selectedChats.any((m) => m == e.id),
-                          );
-
                       if (c.selecting.value) {
+                        final bool selected = c.chats.isNotEmpty &&
+                            c.chats.where((e) {
+                              final bool isHidden = e.chat.value.isHidden &&
+                                  !e.chat.value.isRoute(router.route, c.me);
+
+                              return ((!e.id.isLocal ||
+                                      e.messages.isNotEmpty ||
+                                      e.chat.value.isMonolog) &&
+                                  !isHidden);
+                            }).every(
+                              (e) => c.selectedChats.any((m) => m == e.id),
+                            );
+
                         return WidgetButton(
                           onPressed: () {
                             final List<RxChat> chats = [];
@@ -300,8 +300,6 @@ class ChatsTabView extends StatelessWidget {
                                 } else {
                                   if (c.groupCreating.value) {
                                     c.closeGroupCreating();
-                                  } else {
-                                    c.startGroupCreating();
                                   }
                                 }
                               },
