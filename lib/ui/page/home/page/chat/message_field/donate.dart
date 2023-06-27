@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -302,10 +303,12 @@ class _MenuButtonState extends State<_MenuButton> {
                     height: 40,
                     width: 50,
                     child: Center(
-                      child: SvgImage.asset(
-                        'assets/icons/send_mini3.svg',
-                        width: 19.28,
-                        height: 16.6,
+                      child: AnimatedButton(
+                        child: SvgImage.asset(
+                          'assets/icons/send_mini3.svg',
+                          width: 19.28,
+                          height: 16.6,
+                        ),
                       ),
                     ),
                   ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -71,19 +72,77 @@ class MessageFieldMore extends StatelessWidget {
         children: widgets,
       );
 
+      print('${rect?.width}');
+
       return Stack(
         fit: StackFit.expand,
         children: [
-          Listener(
-            onPointerDown: (_) {
-              c.removeEntries<MessageFieldMore>();
-            },
-            child: Container(
-              width: constraints.maxWidth,
-              height: constraints.maxHeight,
-              color: Colors.transparent,
+          Align(
+            alignment: Alignment.topLeft,
+            child: Listener(
+              onPointerDown: (_) {
+                c.removeEntries<MessageFieldMore>();
+              },
+              child: Container(
+                width: rect?.left ?? constraints.maxWidth,
+                height: constraints.maxHeight,
+                color: Colors.transparent,
+              ),
             ),
           ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Listener(
+              onPointerDown: (_) {
+                c.removeEntries<MessageFieldMore>();
+              },
+              child: Container(
+                margin: EdgeInsets.only(
+                  left: (rect?.left ?? constraints.maxWidth) + 50,
+                ),
+                // width: constraints.maxWidth - (rect?.right ?? 0) - 10,
+                width: constraints.maxWidth -
+                    (rect?.left ?? constraints.maxWidth) -
+                    50,
+                height: constraints.maxHeight,
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Listener(
+              onPointerDown: (_) {
+                c.removeEntries<MessageFieldMore>();
+              },
+              child: Container(
+                margin:
+                    EdgeInsets.only(left: (rect?.left ?? constraints.maxWidth)),
+                // width: constraints.maxWidth - (rect?.right ?? 0) - 10,
+                width: 50,
+                height: rect?.top ?? 0,
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          // Align(
+          //   alignment: Alignment.topLeft,
+          //   child: Listener(
+          //     onPointerDown: (_) {
+          //       c.removeEntries<MessageFieldMore>();
+          //     },
+          //     child: Container(
+          //       margin: EdgeInsets.only(
+          //         left: (rect?.left ?? constraints.maxWidth),
+          //         top: rect?.top ?? 0,
+          //       ),
+          //       // width: constraints.maxWidth - (rect?.right ?? 0) - 10,
+          //       width: 50,
+          //       height: (rect?.height ?? 0) + 5,
+          //       color: Colors.transparent,
+          //     ),
+          //   ),
+          // ),
           Positioned(
             left: left,
             right: context.isNarrow ? right : null,
@@ -198,17 +257,27 @@ class _MenuButtonState extends State<_MenuButton> {
                   height: 40,
                   width: 40,
                   child: Center(
-                    child: widget.pinned
-                        ? SvgImage.asset(
-                            'assets/icons/unpin4.svg',
-                            width: 15.5,
-                            height: 17,
-                          )
-                        : SvgImage.asset(
-                            'assets/icons/pin2${widget.onPinned != null ? '' : '_disabled'}.svg',
-                            width: 9.65,
-                            height: 17,
-                          ),
+                    child: AnimatedButton(
+                      child: AnimatedSwitcher(
+                        duration: 100.milliseconds,
+                        child: widget.pinned
+                            ? SvgImage.asset(
+                                'assets/icons/unpin4.svg',
+                                key: const Key('Unpin'),
+                                width: 15.5,
+                                height: 17,
+                              )
+                            : Transform.translate(
+                                offset: const Offset(0.5, 0),
+                                child: SvgImage.asset(
+                                  'assets/icons/pin2${widget.onPinned != null ? '' : '_disabled'}.svg',
+                                  key: const Key('Pin'),
+                                  width: 9.65,
+                                  height: 17,
+                                ),
+                              ),
+                      ),
+                    ),
                   ),
                 ),
               ),

@@ -24,6 +24,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/donate.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 import 'package:messenger/ui/widget/rive_asset.dart';
 import 'package:path/path.dart' as p;
 
@@ -535,8 +536,12 @@ class MessageFieldView extends StatelessWidget {
             WidgetButton(
               onPressed: canAttach
                   ? () {
-                      c.removeEntries<MessageFieldMore>();
-                      c.addEntry<MessageFieldMore>(MessageFieldMore(c));
+                      if (c.moreOpened.value) {
+                        c.removeEntries<MessageFieldMore>();
+                      } else {
+                        c.removeEntries<MessageFieldMore>();
+                        c.addEntry<MessageFieldMore>(MessageFieldMore(c));
+                      }
                     }
                   : null,
               // onPressed: canAttach
@@ -559,8 +564,21 @@ class MessageFieldView extends StatelessWidget {
                 height: 56,
                 child: Center(
                   child: Obx(() {
+                    return AnimatedScale(
+                      duration: const Duration(milliseconds: 150),
+                      curve: Curves.bounceInOut,
+                      scale: c.moreOpened.value ? 1.1 : 1,
+                      child: AnimatedButton(
+                        child: SvgImage.asset(
+                          'assets/icons/chat_more1.svg',
+                          height: 22,
+                          width: 22,
+                        ),
+                      ),
+                    );
+
                     return RiveAsset(
-                      'assets/icons/more.riv',
+                      'assets/icons/more5.riv',
                       width: 30,
                       height: 30,
                       pushed: c.moreOpened.value,
@@ -677,16 +695,20 @@ class MessageFieldView extends StatelessWidget {
                                 child: AnimatedSwitcher(
                                   duration: 300.milliseconds,
                                   child: c.forwarding.value
-                                      ? SvgImage.asset(
-                                          'assets/icons/forward.svg',
-                                          width: 26,
-                                          height: 22,
+                                      ? AnimatedButton(
+                                          child: SvgImage.asset(
+                                            'assets/icons/forward.svg',
+                                            width: 26,
+                                            height: 22,
+                                          ),
                                         )
-                                      : SvgImage.asset(
-                                          'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
-                                          key: sendKey ?? const Key('Send'),
-                                          width: 25.44,
-                                          height: 21.91,
+                                      : AnimatedButton(
+                                          child: SvgImage.asset(
+                                            'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
+                                            key: sendKey ?? const Key('Send'),
+                                            width: 25.44,
+                                            height: 21.91,
+                                          ),
                                         ),
                                 ),
                               ),
@@ -710,20 +732,22 @@ class MessageFieldView extends StatelessWidget {
                         width: 50,
                         height: 56,
                         child: Center(
-                          child: e.icon == null
-                              ? Transform.translate(
-                                  offset: e.offset,
-                                  child: SvgImage.asset(
-                                    'assets/icons/${e.asset}.svg',
-                                    width: e.assetWidth,
-                                    height: e.assetHeight,
+                          child: AnimatedButton(
+                            child: e.icon == null
+                                ? Transform.translate(
+                                    offset: e.offset,
+                                    child: SvgImage.asset(
+                                      'assets/icons/${e.asset}.svg',
+                                      width: e.assetWidth,
+                                      height: e.assetHeight,
+                                    ),
+                                  )
+                                : Icon(
+                                    e.icon,
+                                    size: 28,
+                                    color: style.colors.primary,
                                   ),
-                                )
-                              : Icon(
-                                  e.icon,
-                                  size: 28,
-                                  color: style.colors.primary,
-                                ),
+                          ),
                         ),
                       ),
                     ),
@@ -1247,22 +1271,22 @@ class MessageFieldView extends StatelessWidget {
           children: [
             Expanded(child: expanded),
             Obx(() {
-              final Widget child;
+              final Widget child = WidgetButton(
+                key: const Key('CancelReplyButton'),
+                onPressed: onClose,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
+                  child: _close(context),
+                ),
+              );
 
-              if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
-                child = WidgetButton(
-                  key: const Key('CancelReplyButton'),
-                  onPressed: onClose,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
-                    child: _close(context),
-                  ),
-                );
-              } else {
-                child = const SizedBox();
-              }
-
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return AnimatedOpacity(
+                duration: 200.milliseconds,
+                opacity: c.hoveredReply.value == item || PlatformUtils.isMobile
+                    ? 1
+                    : 0,
+                child: child,
+              );
             }),
           ],
         ),

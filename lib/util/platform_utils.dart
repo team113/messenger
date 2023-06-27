@@ -52,6 +52,22 @@ class PlatformUtilsImpl {
   /// May be overridden to be mocked in tests.
   Dio dio = Dio();
 
+  /// [StreamController] of the application's [_isActive] status changes.
+  StreamController<bool>? _activityController;
+
+  /// [StreamController] of the application's window focus changes.
+  StreamController<bool>? _focusController;
+
+  /// Indicator whether the application is in active state.
+  bool _isActive = true;
+
+  /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
+  /// passed.
+  Timer? _activityTimer;
+
+  /// [Duration] of inactivity to consider [_isActive] as `false`.
+  static const Duration _activityTimeout = Duration(seconds: 15);
+
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
 
@@ -88,33 +104,71 @@ class PlatformUtilsImpl {
 
   /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
-    StreamController<bool>? controller;
+    if (_focusController != null) {
+      return _focusController!.stream;
+    }
 
     if (isWeb) {
       return WebUtils.onFocusChanged;
     } else if (isDesktop) {
       _WindowListener listener = _WindowListener(
-        onBlur: () => controller!.add(false),
-        onFocus: () => controller!.add(true),
+        onBlur: () => _focusController!.add(false),
+        onFocus: () => _focusController!.add(true),
       );
 
-      controller = StreamController<bool>(
+      _focusController = StreamController<bool>.broadcast(
         onListen: () => WindowManager.instance.addListener(listener),
-        onCancel: () => WindowManager.instance.removeListener(listener),
+        onCancel: () {
+          WindowManager.instance.removeListener(listener);
+          _focusController?.close();
+          _focusController = null;
+        },
       );
     } else {
       Worker? worker;
 
-      controller = StreamController<bool>(
+      _focusController = StreamController<bool>.broadcast(
         onListen: () => worker = ever(
           router.lifecycle,
-          (AppLifecycleState a) => controller?.add(a.inForeground),
+          (AppLifecycleState a) => _focusController?.add(a.inForeground),
         ),
-        onCancel: () => worker?.dispose(),
+        onCancel: () {
+          worker?.dispose();
+          _focusController?.close();
+          _focusController = null;
+        },
       );
     }
 
-    return controller.stream;
+    return _focusController!.stream;
+  }
+
+  /// Returns a stream broadcasting the application's active status changes.
+  Stream<bool> get onActivityChanged {
+    if (_activityController != null) {
+      return _activityController!.stream;
+    }
+
+    StreamSubscription? focusSubscription;
+
+    _activityController = StreamController<bool>.broadcast(
+      onListen: () {
+        focusSubscription = onFocusChanged.listen((focused) {
+          if (focused) {
+            keepActive();
+          } else {
+            keepActive(false);
+          }
+        });
+      },
+      onCancel: () {
+        focusSubscription?.cancel();
+        _activityController?.close();
+        _activityController = null;
+      },
+    );
+
+    return _activityController!.stream;
   }
 
   /// Returns a stream broadcasting the application's window size changes.
@@ -226,6 +280,9 @@ class PlatformUtilsImpl {
       },
     };
   }
+
+  /// Indicates whether the application is in active state.
+  Future<bool> get isActive async => _isActive && await isFocused;
 
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
@@ -426,6 +483,21 @@ class PlatformUtilsImpl {
   /// Stores the provided [text] on the [Clipboard].
   void copy({required String text}) =>
       Clipboard.setData(ClipboardData(text: text));
+
+  /// Keeps the [_isActive] status as [active].
+  void keepActive([bool active = true]) {
+    _isActive = active;
+    _activityController?.add(active);
+
+    _activityTimer?.cancel();
+
+    if (active) {
+      _activityTimer = Timer(_activityTimeout, () {
+        _isActive = false;
+        _activityController?.add(false);
+      });
+    }
+  }
 }
 
 /// Determining whether a [BuildContext] is mobile or not.

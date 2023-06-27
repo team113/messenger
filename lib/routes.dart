@@ -749,8 +749,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   }
 
   @override
-  Widget build(BuildContext context) => LifecycleObserver(
-        didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
+  Widget build(BuildContext context) {
+    return LifecycleObserver(
+      didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
+      child: Listener(
+        onPointerDown: (_) => PlatformUtils.keepActive(),
+        onPointerHover: (_) => PlatformUtils.keepActive(),
+        onPointerSignal: (_) => PlatformUtils.keepActive(),
         child: Scaffold(
           body: Navigator(
             key: navigatorKey,
@@ -764,7 +769,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             },
           ),
         ),
-      );
+      ),
+    );
+  }
 
   /// Sets the browser's tab title accordingly to the [_state.tab] value.
   void _updateTabTitle() {

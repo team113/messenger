@@ -44,8 +44,8 @@ class _RiveAssetState extends State<RiveAsset> {
 
   @override
   void didUpdateWidget(RiveAsset oldWidget) {
-    setState(() => _pushed?.change(widget.pushed));
-    print('${widget.pushed} ${_pushed}');
+    setState(() => _hover?.change(widget.pushed));
+    print('${widget.pushed} ${_hover?.value}');
     super.didUpdateWidget(oldWidget);
   }
 
@@ -53,13 +53,15 @@ class _RiveAssetState extends State<RiveAsset> {
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (_) => setState(() => _hover?.change(true)),
-      onExit: (_) => setState(() => _hover?.change(false)),
+      onExit:
+          widget.pushed ? null : (_) => setState(() => _hover?.change(false)),
       child: Listener(
         // onPointerDown: (_) => setState(() => _click?.fire()),
         child: SizedBox(
           width: widget.width,
           height: widget.height,
           child: IgnorePointer(
+            ignoring: false,
             child: RiveAnimation.asset(
               widget.asset,
               fit: BoxFit.contain,
@@ -70,9 +72,11 @@ class _RiveAssetState extends State<RiveAsset> {
                 );
                 a.addController(_controller!);
 
+                print('inputs: ${_controller?.inputs.map((e) => e.name)}');
+
                 _hover = _controller?.findInput<bool>('HOVER') as SMIBool?;
-                _click = _controller?.findInput<bool>('Click') as SMITrigger?;
-                _pushed = _controller?.findInput<bool>('PUSH') as SMIBool?;
+                // _click = _controller?.findInput<bool>('PUSH') as SMITrigger?;
+                // _pushed = _controller?.findInput<bool>('PUSH') as SMIBool?;
 
                 setState(() {});
               },

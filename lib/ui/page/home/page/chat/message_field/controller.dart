@@ -244,18 +244,22 @@ class MessageFieldController extends GetxController {
   }
 
   void removeEntries<T>() {
-    if (T.toString() == 'MessageFieldMore') {
-      moreOpened.value = false;
-    }
-    print('$T ${moreOpened.value}');
+    final found = entries.entries.where((e) => e.key == T).toList();
 
-    for (var e in entries.entries.where((e) => e.key == T).toList()) {
-      entries.remove(e.key)?.remove();
+    if (found.isNotEmpty) {
+      // if (T.toString() == 'MessageFieldMore') {
+      moreOpened.value = false;
+      // }
+      print('$T ${moreOpened.value}');
+
+      for (var e in found) {
+        entries.remove(e.key)?.remove();
+      }
     }
   }
 
-  void addEntry<T>(Widget child) {
-    if (T.toString() == 'MessageFieldMore') {
+  void addEntry<T>(Widget child, [bool hovered = false]) {
+    if (T.toString() == 'MessageFieldMore' || !hovered) {
       moreOpened.value = true;
     }
 

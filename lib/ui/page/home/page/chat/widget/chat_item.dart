@@ -909,8 +909,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
           ],
           if (media.isNotEmpty) ...[
+            // TODO: Replace `ClipRRect` with rounded `DecoratedBox`s when
+            //       `ImageAttachment` sizes are known.
             ClipRRect(
-              clipBehavior: Clip.none,
               borderRadius: BorderRadius.only(
                 topLeft: msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
@@ -1069,16 +1070,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 right: timeInBubble ? 6 : 8,
                 bottom: 4,
                 child: timeInBubble
-                    ? ConditionalBackdropFilter(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 4, right: 4),
-                          decoration: BoxDecoration(
-                            color: style.colors.onBackgroundOpacity27,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: _timestamp(msg, true),
+                    ? Container(
+                        padding: const EdgeInsets.only(left: 4, right: 4),
+                        decoration: BoxDecoration(
+                          color: style.colors.onBackgroundOpacity50,
+                          borderRadius: BorderRadius.circular(20),
                         ),
+                        child: _timestamp(msg, true),
                       )
                     : _timestamp(msg),
               )
@@ -1225,10 +1223,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 : style.messageColor,
             borderRadius: BorderRadius.circular(15),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: child(menu),
-          ),
+          child: child(menu),
         ),
       ),
     );
@@ -1372,50 +1367,46 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.fromLTRB(8, 8, 0, 8),
-            child: Stack(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            snapshot.data?.user.value.name?.val ??
-                                snapshot.data?.user.value.num.val ??
-                                'dot'.l10n * 3,
-                            style: fonts.bodyLarge!.copyWith(color: color),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (donate != null)
-                      DonateWidget(
-                        height: 90,
-                        donate: donate,
-                        timestamp: _text == null
-                            ? _timestamp(widget.item.value, false, true)
-                            : null,
-                        title: snapshot.data?.user.value.name?.val ??
+                    Expanded(
+                      child: Text(
+                        snapshot.data?.user.value.name?.val ??
                             snapshot.data?.user.value.num.val ??
                             'dot'.l10n * 3,
-                        onTitlePressed: () => router.user(_author, push: true),
+                        style: fonts.bodyLarge!.copyWith(color: color),
                       ),
-                    if (additional.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      ...additional,
-                    ],
-                    if (content != null) ...[
-                      const SizedBox(height: 2),
-                      DefaultTextStyle.merge(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        child: content,
-                      ),
-                    ],
+                    ),
                   ],
                 ),
+                if (donate != null)
+                  DonateWidget(
+                    height: 90,
+                    donate: donate,
+                    timestamp: _text == null
+                        ? _timestamp(widget.item.value, false, true)
+                        : null,
+                    title: snapshot.data?.user.value.name?.val ??
+                        snapshot.data?.user.value.num.val ??
+                        'dot'.l10n * 3,
+                    onTitlePressed: () => router.user(_author, push: true),
+                  ),
+                if (additional.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  ...additional,
+                ],
+                if (content != null) ...[
+                  const SizedBox(height: 2),
+                  DefaultTextStyle.merge(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    child: content,
+                  ),
+                ],
               ],
             ),
           ),

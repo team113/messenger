@@ -21,6 +21,7 @@ import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -31,6 +32,8 @@ import 'package:intl/intl.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/domain/model/chat_item_quote.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
+import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/page/home/widget/retry_image.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
@@ -231,18 +234,22 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               WidgetButton(
                                 onPressed: () => c.call(true),
-                                child: SvgImage.asset(
-                                  'assets/icons/chat_video_call.svg',
-                                  height: 17,
+                                child: AnimatedButton(
+                                  child: SvgImage.asset(
+                                    'assets/icons/chat_video_call.svg',
+                                    height: 17,
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 28),
                               WidgetButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: SvgImage.asset(
-                                  'assets/icons/chat_audio_call.svg',
-                                  height: 19,
+                                child: AnimatedButton(
+                                  child: SvgImage.asset(
+                                    'assets/icons/chat_audio_call.svg',
+                                    height: 19,
+                                  ),
                                 ),
                               ),
                             ];
@@ -302,7 +309,6 @@ class _ChatViewState extends State<ChatView>
                                       c.paidDisclaimerDismissed.value ? 1 : 0,
                                   duration: 300.milliseconds,
                                   child: Padding(
-                                    // padding: const EdgeInsets.only(right: 28),
                                     padding: const EdgeInsets.only(right: 25),
                                     child: WidgetButton(
                                       onPressed: () {
@@ -314,23 +320,6 @@ class _ChatViewState extends State<ChatView>
                                         width: 24,
                                         height: 24,
                                       ),
-                                      // child: Icon(
-                                      //   Icons.paid_outlined,
-                                      //   color: style.colors.primary,
-                                      // ),
-                                      // child: Text(
-                                      //   '¤',
-                                      //   style:
-                                      //       style.systemMessageStyle.copyWith(
-                                      //     fontWeight: FontWeight.w300,
-                                      //     color: style.colors.primary,
-                                      //     // color: const Color(
-                                      //     //   // 0xFFffcf78,
-                                      //     //   0xFFDEBE99,
-                                      //     // ),
-                                      //     fontSize: 24,
-                                      //   ),
-                                      // ),
                                     ),
                                   ),
                                 ),
@@ -551,63 +540,6 @@ class _ChatViewState extends State<ChatView>
                                             ),
                                           ),
                                         ),
-                                        // AnimatedSize(
-                                        //   duration: 200.milliseconds,
-                                        //   child: WidgetButton(
-                                        //     onPressed: onPressed,
-                                        //     child: c.paidDisclaimerDismissed
-                                        //                 .value &&
-                                        //             c.paid
-                                        //         ? Container(
-                                        //             width: 40,
-                                        //             height: 40,
-                                        //             padding: const EdgeInsets
-                                        //                 .fromLTRB(
-                                        //               12,
-                                        //               8,
-                                        //               12,
-                                        //               8,
-                                        //             ),
-                                        //             margin:
-                                        //                 const EdgeInsets.only(
-                                        //               left: 0,
-                                        //               right: 6,
-                                        //               top: 6,
-                                        //             ),
-                                        //             decoration: BoxDecoration(
-                                        //               shape: BoxShape.circle,
-                                        //               border: style
-                                        //                   .systemMessageBorder,
-                                        //               color: Colors.white,
-                                        //               boxShadow: const [
-                                        //                 CustomBoxShadow(
-                                        //                   blurRadius: 8,
-                                        //                   color: Color(
-                                        //                     0x22000000,
-                                        //                   ),
-                                        //                 ),
-                                        //               ],
-                                        //             ),
-                                        //             child: Center(
-                                        //               child: Text(
-                                        //                 '¤',
-                                        //                 style: style
-                                        //                     .systemMessageStyle
-                                        //                     .copyWith(
-                                        //                   fontWeight:
-                                        //                       FontWeight.w400,
-                                        //                   color: const Color(
-                                        //                     // 0xFFffcf78,
-                                        //                     0xFFDEBE99,
-                                        //                   ),
-                                        //                   fontSize: 21,
-                                        //                 ),
-                                        //               ),
-                                        //             ),
-                                        //           )
-                                        //         : const SizedBox(),
-                                        //   ),
-                                        // ),
                                       ],
                                     ),
                                   );
@@ -622,41 +554,50 @@ class _ChatViewState extends State<ChatView>
                                             child: Container()),
                                       ),
                                       Obx(() {
-                                        final Widget child = Scrollbar(
+                                        final Widget child = FlutterListView(
+                                          key: const Key('MessagesList'),
                                           controller: c.listController,
-                                          child: FlutterListView(
-                                            key: const Key('MessagesList'),
-                                            controller: c.listController,
-                                            physics: c.isHorizontalScroll
-                                                        .isTrue ||
-                                                    (PlatformUtils.isDesktop &&
-                                                        c.isItemDragged.isTrue)
-                                                ? const NeverScrollableScrollPhysics()
-                                                : const BouncingScrollPhysics(),
-                                            delegate: FlutterListViewDelegate(
-                                              (context, i) =>
-                                                  _listElement(context, c, i),
-                                              childCount:
-                                                  // ignore: invalid_use_of_protected_member
-                                                  c.elements.value.length,
-                                              keepPosition: true,
-                                              onItemKey: (i) => c
-                                                  .elements.values
-                                                  .elementAt(i)
-                                                  .id
-                                                  .toString(),
-                                              onItemSticky: (i) =>
-                                                  c.elements.values.elementAt(i)
-                                                      is DateTimeElement,
-                                              initIndex: c.initIndex,
-                                              initOffset: c.initOffset,
-                                              initOffsetBasedOnBottom: false,
-                                            ),
+                                          physics: c.isHorizontalScroll
+                                                      .isTrue ||
+                                                  (PlatformUtils.isDesktop &&
+                                                      c.isItemDragged.isTrue)
+                                              ? const NeverScrollableScrollPhysics()
+                                              : const BouncingScrollPhysics(),
+                                          reverse: true,
+                                          delegate: FlutterListViewDelegate(
+                                            (context, i) =>
+                                                _listElement(context, c, i),
+                                            childCount:
+                                                // ignore: invalid_use_of_protected_member
+                                                c.elements.value.length,
+                                            stickyAtTailer: true,
+                                            keepPosition: true,
+                                            keepPositionOffset:
+                                                c.active.isTrue ? 20 : 1,
+                                            onItemKey: (i) => c.elements.values
+                                                .elementAt(i)
+                                                .id
+                                                .toString(),
+                                            onItemSticky: (i) =>
+                                                c.elements.values.elementAt(i)
+                                                    is DateTimeElement,
+                                            initIndex: c.initIndex,
+                                            initOffset: c.initOffset,
+                                            initOffsetBasedOnBottom: false,
+                                            disableCacheItems:
+                                                kDebugMode ? true : false,
                                           ),
                                         );
 
                                         if (PlatformUtils.isMobile) {
-                                          return child;
+                                          if (!PlatformUtils.isWeb) {
+                                            return Scrollbar(
+                                              controller: c.listController,
+                                              child: child,
+                                            );
+                                          } else {
+                                            return child;
+                                          }
                                         }
 
                                         return SelectionArea(
@@ -676,12 +617,32 @@ class _ChatViewState extends State<ChatView>
                                                 c.chat!.status.value.isEmpty) &&
                                             c.chat!.messages.isEmpty) {
                                           return Center(
-                                            child: Text(
-                                              key: const Key('NoMessages'),
-                                              isMonolog
-                                                  ? 'label_chat_monolog_description'
-                                                      .l10n
-                                                  : 'label_no_messages'.l10n,
+                                            child: Container(
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                border:
+                                                    style.systemMessageBorder,
+                                                color: style.systemMessageColor,
+                                              ),
+                                              child: Text(
+                                                key: const Key('NoMessages'),
+                                                isMonolog
+                                                    ? 'label_chat_monolog_description'
+                                                        .l10n
+                                                    : 'label_no_messages'.l10n,
+                                                textAlign: TextAlign.center,
+                                                style: fonts.labelMedium,
+                                              ),
                                             ),
                                           );
                                         }
@@ -723,39 +684,8 @@ class _ChatViewState extends State<ChatView>
                       );
                     }),
                     bottomNavigationBar: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
-                      child:
-                          NotificationListener<SizeChangedLayoutNotification>(
-                        onNotification: (l) {
-                          Rect previous = c.bottomBarRect.value ??
-                              const Rect.fromLTWH(0, 0, 0, 55);
-                          SchedulerBinding.instance.addPostFrameCallback((_) {
-                            c.bottomBarRect.value =
-                                c.bottomBarKey.globalPaintBounds;
-
-                            if (!c.ignorePositionChanges) {
-                              if (c.bottomBarRect.value != null &&
-                                  c.listController.position.maxScrollExtent >
-                                      0 &&
-                                  c.listController.position.pixels <
-                                      c.listController.position
-                                          .maxScrollExtent) {
-                                Rect current = c.bottomBarRect.value!;
-                                c.listController.jumpTo(
-                                  c.listController.position.pixels +
-                                      (current.height - previous.height),
-                                );
-                              }
-                            }
-                          });
-
-                          return true;
-                        },
-                        child: SizeChangedLayoutNotifier(
-                          key: c.bottomBarKey,
-                          child: _bottomBar(c),
-                        ),
-                      ),
+                      padding: Insets.dense.copyWith(top: 0),
+                      child: _bottomBar(c),
                     ),
                   ),
                   IgnorePointer(
@@ -811,7 +741,7 @@ class _ChatViewState extends State<ChatView>
     final (style, fonts) = Theme.of(context).styles;
 
     ListElement element = c.elements.values.elementAt(i);
-    bool isLast = i == c.elements.length - 1;
+    bool isLast = i == 0;
 
     if (element is ChatMessageElement ||
         element is ChatCallElement ||
@@ -829,13 +759,13 @@ class _ChatViewState extends State<ChatView>
       }
 
       ListElement? previous;
-      if (i > 0) {
-        previous = c.elements.values.elementAt(i - 1);
+      if (i < c.elements.length - 1) {
+        previous = c.elements.values.elementAt(i + 1);
       }
 
       ListElement? next;
-      if (i < c.elements.length - 1) {
-        next = c.elements.values.elementAt(i + 1);
+      if (i > 0) {
+        next = c.elements.values.elementAt(i - 1);
       }
 
       bool previousSame = false;
@@ -874,15 +804,12 @@ class _ChatViewState extends State<ChatView>
             duration: 400.milliseconds,
             curve: Curves.ease,
             color: c.highlight.value == i
-                // ? Colors.white
-                //     .darken(0.03)
                 ? style.unreadMessageColor.withOpacity(0.9)
                 : const Color(0x00FFFFFF),
             child: ChatItemWidget(
               chat: c.chat!.chat,
               item: e,
               me: c.me!,
-              // paid: c.chat?.messageCost != 0,
               paid: c.paid,
               avatar: !previousSame,
               margin: EdgeInsets.zero,
@@ -1097,7 +1024,7 @@ class _ChatViewState extends State<ChatView>
         } else {
           child = SizedBox(
             key: const ValueKey(2),
-            height: c.listController.position.pixels > 0 ? null : 64,
+            height: c.listController.position.pixels == 0 ? null : 64,
           );
         }
 
@@ -1817,7 +1744,7 @@ class _ChatViewState extends State<ChatView>
           child: MessageFieldView(
             key: const Key('EditField'),
             controller: c.edit.value,
-            onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+            onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: false),
           ),
         );
       }
@@ -1856,7 +1783,8 @@ class _ChatViewState extends State<ChatView>
               key: const Key('SendField'),
               controller: c.send,
               onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
-              onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+              onItemPressed: (id) =>
+                  c.animateTo(id, offsetBasedOnBottom: false),
               canForward: true,
             ),
           ),

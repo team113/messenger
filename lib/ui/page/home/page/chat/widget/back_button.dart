@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
@@ -47,10 +48,12 @@ class StyledBackButton extends StatelessWidget {
         onPressed: () => Navigator.maybePop(context),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: style.colors.primary,
-            size: 22,
+          child: AnimatedButton(
+            child: Icon(
+              Icons.arrow_back_ios_rounded,
+              color: style.colors.primary,
+              size: 22,
+            ),
           ),
         ),
         // child: SvgImage.asset(

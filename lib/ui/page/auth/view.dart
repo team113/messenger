@@ -64,37 +64,33 @@ class AuthView extends StatelessWidget {
 
           return Container(
             width: double.infinity,
-            color: Colors.white.withOpacity(0.5),
+            // color: Colors.white.withOpacity(0.5),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Flex(
-                mainAxisSize: narrow ? MainAxisSize.max : MainAxisSize.min,
-                mainAxisAlignment:
-                    narrow ? MainAxisAlignment.start : MainAxisAlignment.start,
-                direction: narrow ? Axis.horizontal : Axis.vertical,
-                children: [
-                  if (narrow)
-                    const Expanded(
-                      child: StyledCupertinoButton(
-                        label: 'Terms and conditions',
-                      ),
-                    )
-                  else
-                    const StyledCupertinoButton(label: 'Terms and conditions'),
-                  SizedBox(
-                    width: narrow ? 10 : null,
-                    height: narrow ? null : 10,
-                  ),
-                  StyledCupertinoButton(
-                    onPressed: () => _download(context),
-                    label: 'Download app',
-                    // label: 'label_language_entry'.l10nfmt({
-                    //   'code': L10n.chosen.value!.locale.countryCode,
-                    //   'name': L10n.chosen.value!.name,
-                    // }),
-                    // onPressed: () =>
-                    //     LanguageSelectionView.show(context, null),
-                  ),
+                mainAxisSize: narrow ? MainAxisSize.min : MainAxisSize.min,
+                mainAxisAlignment: narrow
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.center,
+                // direction: narrow ? Axis.horizontal : Axis.vertical,
+                direction: Axis.vertical,
+                children: const [
+                  // if (narrow)
+                  //   const Expanded(
+                  //     child: StyledCupertinoButton(
+                  //       label: 'Terms and conditions',
+                  //     ),
+                  //   )
+                  // else
+
+                  // Container(
+                  //   margin: const EdgeInsets.symmetric(horizontal: 10),
+                  //   width: 1,
+                  //   height: 12,
+                  //   color: Colors.grey,
+                  // ),
+                  StyledCupertinoButton(label: 'Work with us'),
+                  StyledCupertinoButton(label: 'Terms and conditions'),
                 ],
               ),
             ),
@@ -113,7 +109,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Gapopa',
-            style: thin?.copyWith(fontSize: 34, color: style.colors.secondary),
+            style: thin?.copyWith(fontSize: 36, color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -145,20 +141,20 @@ class AuthView extends StatelessWidget {
             onPressed: c.register,
             color: style.colors.primary,
           ),
-          const SizedBox(height: 15),
-          OutlinedRoundedButton(
-            title: Text('Работа'.l10n),
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 2 * 0.7),
-              child: SvgImage.asset(
-                'assets/icons/partner16.svg',
-                width: 36 * 0.61,
-                height: 28 * 0.61,
-              ),
-            ),
-            // color: Color.fromRGBO(110, 184, 118, 1),
-            onPressed: () => FreelanceView.show(context),
-          ),
+          // const SizedBox(height: 15),
+          // OutlinedRoundedButton(
+          //   title: Text('Работа'.l10n),
+          //   leading: Padding(
+          //     padding: const EdgeInsets.only(left: 2 * 0.7),
+          //     child: SvgImage.asset(
+          //       'assets/icons/partner16.svg',
+          //       width: 36 * 0.61,
+          //       height: 28 * 0.61,
+          //     ),
+          //   ),
+          //   // color: Color.fromRGBO(110, 184, 118, 1),
+          //   onPressed: () => FreelanceView.show(context),
+          // ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
@@ -174,7 +170,7 @@ class AuthView extends StatelessWidget {
           //   onPressed: () => _download(context),
           //   child: SvgImage.asset('assets/icons/download_app_store.svg'),
           // ),
-          if (false) ...[
+          if (true) ...[
             if (isWeb) const SizedBox(height: 15),
             if (isIosWeb)
               OutlinedRoundedButton(

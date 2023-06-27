@@ -112,6 +112,8 @@ Future<void> main() async {
     await authService.init();
     await L10n.init();
 
+    WebUtils.deleteLoader();
+
     runApp(
       DefaultAssetBundle(
         key: UniqueKey(),

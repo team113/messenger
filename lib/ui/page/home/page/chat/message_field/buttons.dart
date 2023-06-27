@@ -6,6 +6,7 @@ import 'package:messenger/ui/page/home/page/chat/widget/attachment_selector.dart
 import 'package:messenger/util/platform_utils.dart';
 
 import 'donate.dart';
+import 'more.dart';
 
 abstract class ChatButton {
   ChatButton(this.c);
@@ -272,12 +273,14 @@ class DonateButton extends ChatButton {
               c,
               globalKey: key.currentContext == null ? null : key,
             ),
+            hovered,
           );
         }
       };
 
   @override
   void Function(bool)? get onPressed => (b) async {
+        c.removeEntries<MessageFieldMore>();
         c.removeEntries<MessageFieldDonate>();
         c.addEntry<MessageFieldDonate>(
           MessageFieldDonate(
