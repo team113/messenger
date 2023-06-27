@@ -41,7 +41,7 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        final Style style = Theme.of(context).extension<Style>()!;
+        final (style, fonts) = Theme.of(context).styles;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -110,17 +110,15 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style:
-                                  TextStyle(color: style.colors.onBackground),
+                              style: fonts.headlineMedium,
                             ),
                             Obx(() {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(color: style.colors.secondary),
+                                style: fonts.labelMedium!.copyWith(
+                                  color: style.colors.secondary,
+                                ),
                               );
                             }),
                           ],
@@ -210,24 +208,22 @@ class MenuTabView extends StatelessWidget {
                                           DefaultTextStyle(
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall!
-                                                .copyWith(
-                                                  color: inverted
-                                                      ? style.colors.onPrimary
-                                                      : null,
-                                                ),
+                                            style:
+                                                fonts.headlineLarge!.copyWith(
+                                              color: inverted
+                                                  ? style.colors.onPrimary
+                                                  : style.colors.onBackground,
+                                            ),
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),
                                           DefaultTextStyle.merge(
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
+                                            style: fonts.labelMedium!.copyWith(
                                               color: inverted
                                                   ? style.colors.onPrimary
-                                                  : null,
+                                                  : style.colors.onBackground,
                                             ),
                                             child: Text(subtitle),
                                           ),

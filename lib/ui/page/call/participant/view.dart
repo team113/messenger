@@ -22,17 +22,13 @@ import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/member_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
-import '/ui/widget/svg/svg.dart';
-import '/ui/widget/widget_button.dart';
-import '/util/message_popup.dart';
 import 'controller.dart';
 
 /// [OngoingCall.members] enumeration and administration view.
@@ -40,10 +36,10 @@ import 'controller.dart';
 /// Intended to be displayed with the [show] method.
 class ParticipantView extends StatelessWidget {
   const ParticipantView({
-    Key? key,
+    super.key,
     required this.call,
     required this.duration,
-  }) : super(key: key);
+  });
 
   /// [OngoingCall] this modal is bound to.
   final Rx<OngoingCall> call;
@@ -66,11 +62,7 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       init: ParticipantController(
@@ -120,15 +112,10 @@ class ParticipantView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     ModalPopupHeader(
-                      header: Center(
-                        child: Text(
-                          'label_participants_of'.l10nfmt({
-                            'a': ids.length,
-                            'b': c.chat.value?.members.length ?? 1,
-                          }),
-                          style: thin?.copyWith(fontSize: 18),
-                        ),
-                      ),
+                      text: 'label_participants_of'.l10nfmt({
+                        'a': ids.length,
+                        'b': c.chat.value?.members.length ?? 1,
+                      }),
                     ),
                     const SizedBox(height: 12),
                     Expanded(
@@ -137,8 +124,36 @@ class ParticipantView extends StatelessWidget {
                         child: ListView(
                           controller: c.scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
-                          children: c.chat.value!.members.values.map((e) {
-                            return _user(context, c, e);
+                          children: c.chat.value!.members.values.map((user) {
+                            bool inCall = false;
+                            bool isRedialed = false;
+
+                            CallMember? member =
+                                call.value.members.values.firstWhereOrNull(
+                              (e) => e.id.userId == user.id,
+                            );
+
+                            if (member != null) {
+                              inCall = true;
+                              isRedialed = member.isDialing.isTrue;
+                            }
+
+                            return MemberTile(
+                              user: user,
+                              canLeave: user.id == c.me,
+                              inCall: user.id == c.me ? null : inCall,
+                              onTap: () {
+                                // TODO: Open the [Routes.user] page.
+                              },
+                              // TODO: Wait for backend to support removing
+                              //       active call notification.
+                              onCall: inCall
+                                  ? isRedialed
+                                      ? null
+                                      : () => c.removeChatCallMember(user.id)
+                                  : () => c.redialChatCallMember(user.id),
+                              onKick: () => c.removeChatMember(user.id),
+                            );
                           }).toList(),
                         ),
                       ),
@@ -152,7 +167,9 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: TextStyle(color: style.colors.onPrimary),
+                          style: fonts.titleLarge!.copyWith(
+                            color: style.colors.onPrimary,
+                          ),
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
@@ -179,104 +196,5 @@ class ParticipantView extends StatelessWidget {
         });
       },
     );
-  }
-
-  /// Returns a visual representation of the provided [user].
-  Widget _user(BuildContext context, ParticipantController c, RxUser user) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Obx(() {
-      bool inCall = false;
-      bool isRedialed = false;
-
-      CallMember? member = call.value.members.values
-          .firstWhereOrNull((e) => e.id.userId == user.id);
-
-      if (member != null) {
-        inCall = true;
-        isRedialed = member.isDialing.isTrue;
-      }
-
-      return ContactTile(
-        user: user,
-        dense: true,
-        onTap: () {
-          // TODO: Open the [Routes.user] page.
-        },
-        darken: 0.05,
-        trailing: [
-          if (user.id != c.me)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: Material(
-                  key: Key(inCall ? 'inCall' : 'NotInCall'),
-                  color: inCall
-                      ? isRedialed
-                          ? style.colors.secondaryBackgroundLightest
-                          : style.colors.dangerColor
-                      : style.colors.primary,
-                  type: MaterialType.circle,
-                  child: InkWell(
-                    onTap: inCall
-                        ? isRedialed
-                            ? null
-                            : () => c.removeChatCallMember(user.id)
-                        : () => c.redialChatCallMember(user.id),
-                    borderRadius: BorderRadius.circular(60),
-                    child: SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: Center(
-                        child: inCall && !isRedialed
-                            ? SvgImage.asset('assets/icons/call_end.svg')
-                            : SvgImage.asset(
-                                'assets/icons/audio_call_start.svg',
-                                width: 13,
-                                height: 13,
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          WidgetButton(
-            onPressed: () async {
-              final bool? result = await MessagePopup.alert(
-                user.id == c.me
-                    ? 'label_leave_group'.l10n
-                    : 'label_remove_member'.l10n,
-                description: [
-                  if (c.me == user.id)
-                    TextSpan(text: 'alert_you_will_leave_group'.l10n)
-                  else ...[
-                    TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-                    TextSpan(
-                      text:
-                          user.user.value.name?.val ?? user.user.value.num.val,
-                      style: TextStyle(color: style.colors.onBackground),
-                    ),
-                    TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-                  ],
-                ],
-              );
-
-              if (result == true) {
-                await c.removeChatMember(user.id);
-              }
-            },
-            child: user.id == c.me
-                ? Text(
-                    'btn_leave'.l10n,
-                    style: TextStyle(color: style.colors.primary, fontSize: 15),
-                  )
-                : SvgImage.asset('assets/icons/delete.svg', height: 14 * 1.5),
-          ),
-          const SizedBox(width: 6),
-        ],
-      );
-    });
   }
 }

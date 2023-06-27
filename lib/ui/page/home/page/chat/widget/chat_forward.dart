@@ -265,7 +265,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     final Color color = widget.user?.user.value.id == widget.me
         ? style.colors.primary
@@ -273,101 +273,96 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             style.colors.userColors.length];
 
     return DefaultTextStyle(
-      style: style.boldBody,
+      style: fonts.bodyLarge!,
       child: Obx(() {
         return _rounded(
           context,
           (menu) => Padding(
             padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
-            child: ClipRRect(
-              clipBehavior: _fromMe ? Clip.antiAlias : Clip.none,
-              borderRadius: BorderRadius.circular(15),
-              child: IntrinsicWidth(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  decoration: BoxDecoration(
-                    color: _fromMe
-                        ? _isRead
-                            ? style.readMessageColor
-                            : style.unreadMessageColor
-                        : style.messageColor,
-                    borderRadius: BorderRadius.circular(15),
-                    border: _fromMe
-                        ? _isRead
-                            ? style.secondaryBorder
-                            : Border.all(
-                                color: style.colors.backgroundAuxiliaryLighter,
-                                width: 0.5,
-                              )
-                        : style.primaryBorder,
-                  ),
-                  child: Obx(() {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (widget.note.value != null) _note(menu),
-                        if (!_fromMe &&
-                            widget.chat.value?.isGroup == true &&
-                            widget.note.value == null) ...[
-                          const SizedBox(height: 6),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                            child: SelectionText.rich(
-                              TextSpan(
-                                text: widget.user?.user.value.name?.val ??
-                                    widget.user?.user.value.num.val ??
-                                    'dot'.l10n * 3,
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () =>
-                                      router.user(widget.authorId, push: true),
-                              ),
-                              selectable: PlatformUtils.isDesktop || menu,
-                              onChanged: (a) => _selection = a,
-                              onSelecting: widget.onSelecting,
-                              style: style.boldBody.copyWith(color: color),
-                            ),
-                          ),
-                        ],
+            child: IntrinsicWidth(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                decoration: BoxDecoration(
+                  color: _fromMe
+                      ? _isRead
+                          ? style.readMessageColor
+                          : style.unreadMessageColor
+                      : style.messageColor,
+                  borderRadius: BorderRadius.circular(15),
+                  border: _fromMe
+                      ? _isRead
+                          ? style.secondaryBorder
+                          : Border.all(
+                              color: style.colors.backgroundAuxiliaryLighter,
+                              width: 0.5,
+                            )
+                      : style.primaryBorder,
+                ),
+                child: Obx(() {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (widget.note.value != null) _note(menu),
+                      if (!_fromMe &&
+                          widget.chat.value?.isGroup == true &&
+                          widget.note.value == null) ...[
                         const SizedBox(height: 6),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                          child: Text(
-                            'label_forwarded_messages'
-                                .l10nfmt({'count': widget.forwards.length}),
-                            style: style.boldBody.copyWith(
-                              color: style.colors.secondary,
-                              fontSize: 13,
+                          child: SelectionText.rich(
+                            TextSpan(
+                              text: widget.user?.user.value.name?.val ??
+                                  widget.user?.user.value.num.val ??
+                                  'dot'.l10n * 3,
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () =>
+                                    router.user(widget.authorId, push: true),
                             ),
+                            selectable: PlatformUtils.isDesktop || menu,
+                            onChanged: (a) => _selection = a,
+                            onSelecting: widget.onSelecting,
+                            style: fonts.bodyLarge!.copyWith(color: color),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 6),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                        child: Text(
+                          'label_forwarded_messages'
+                              .l10nfmt({'count': widget.forwards.length}),
+                          style: fonts.headlineSmall!.copyWith(
+                            color: style.colors.secondary,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      ...widget.forwards.map((e) => _forwardedMessage(e, menu)),
+                      if (widget.timestamp) ...[
+                        const SizedBox(height: 2),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Row(
+                            children: [
+                              const Spacer(),
+                              MessageTimestamp(
+                                at: _at,
+                                status: SendingStatus.sent,
+                                read: _isRead,
+                                delivered: widget.chat.value?.lastDelivery
+                                        .isBefore(_at) ==
+                                    false,
+                              )
+                            ],
                           ),
                         ),
                         const SizedBox(height: 4),
-                        ...widget.forwards
-                            .map((e) => _forwardedMessage(e, menu)),
-                        if (widget.timestamp) ...[
-                          const SizedBox(height: 2),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: Row(
-                              children: [
-                                const Spacer(),
-                                MessageTimestamp(
-                                  at: _at,
-                                  status: SendingStatus.sent,
-                                  read: _isRead,
-                                  delivered: widget.chat.value?.lastDelivery
-                                          .isBefore(_at) ==
-                                      false,
-                                )
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                        ],
                       ],
-                    );
-                  }),
-                ),
+                    ],
+                  );
+                }),
               ),
             ),
           ),
@@ -382,7 +377,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       final ChatForward msg = forward.value as ChatForward;
       final ChatItemQuote quote = msg.quote;
 
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       List<Widget> content = [];
 
@@ -440,7 +435,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           selectable: PlatformUtils.isDesktop || menu,
                           onChanged: (a) => _selection = a,
                           onSelecting: widget.onSelecting,
-                          style: style.boldBody.copyWith(color: color),
+                          style: fonts.bodyLarge!.copyWith(color: color),
                         ),
                       ),
                     ),
@@ -501,7 +496,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: MessageTimestamp(
                         at: quote.at,
                         date: true,
-                        fontSize: 12,
+                        fontSize: fonts.labelSmall!.fontSize,
                       ),
                     ),
                 ],
@@ -526,7 +521,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               child: MessageTimestamp(
                                 at: quote.at,
                                 date: true,
-                                fontSize: 12,
+                                fontSize: fonts.labelSmall!.fontSize,
                               ),
                             ),
                           ),
@@ -535,7 +530,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: style.boldBody,
+                      style: fonts.bodyLarge,
                     ),
                   ),
                 ),
@@ -595,7 +590,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     time,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: style.boldBody,
+                    style: fonts.bodyLarge,
                   ),
                 ),
               ],
@@ -603,9 +598,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           )
         ];
       } else if (quote is ChatInfoQuote) {
-        content = [Text(quote.action.toString(), style: style.boldBody)];
+        content = [Text(quote.action.toString(), style: fonts.bodyLarge)];
       } else {
-        content = [Text('err_unknown'.l10n, style: style.boldBody)];
+        content = [Text('err_unknown'.l10n, style: fonts.bodyLarge)];
       }
 
       return AnimatedContainer(
@@ -666,7 +661,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                     onChanged: (a) => _selection = a,
                                     onSelecting: widget.onSelecting,
                                     style:
-                                        style.boldBody.copyWith(color: color),
+                                        fonts.bodyLarge?.copyWith(color: color),
                                   ),
                                 ),
                               ],
@@ -721,7 +716,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     final ChatItem item = widget.note.value!.value;
 
     if (item is ChatMessage) {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       final TextSpan? text = _text[item.id];
 
@@ -768,7 +763,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: style.boldBody.copyWith(color: color),
+                      style: fonts.bodyLarge!.copyWith(color: color),
                     ),
                   ),
                 ),
@@ -849,7 +844,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onChanged: (a) => _selection = a,
                         onSelecting: widget.onSelecting,
-                        style: style.boldBody,
+                        style: fonts.bodyLarge,
                       ),
                     ),
                   ),

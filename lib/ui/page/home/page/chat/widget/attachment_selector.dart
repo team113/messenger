@@ -73,7 +73,7 @@ class AttachmentSourceSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget button({
       required String text,
@@ -90,7 +90,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: TextStyle(fontSize: 15, color: style.colors.onBackground),
+          style: fonts.titleMedium!,
           color: style.colors.primary,
           child: SizedBox(
             width: 60,
@@ -134,10 +134,8 @@ class AttachmentSourceSelector extends StatelessWidget {
       button(
         text: 'label_file'.l10n,
         onPressed: onPickFile,
-        child: SvgImage.asset(
-          'assets/icons/file.svg',
-          width: 60,
-          height: 60,
+        child: Center(
+          child: SvgImage.asset('assets/icons/file.svg', height: 29),
         ),
       ),
     ];

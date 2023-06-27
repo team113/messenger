@@ -20,9 +20,9 @@ import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
@@ -40,7 +40,6 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -95,7 +94,7 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
@@ -382,41 +381,45 @@ class _ChatViewState extends State<ChatView>
                               child: ContextMenuInterceptor(child: Container()),
                             ),
                             Obx(() {
-                              final Widget child = Scrollbar(
+                              final Widget child = FlutterListView(
+                                key: const Key('MessagesList'),
                                 controller: c.listController,
-                                child: FlutterListView(
-                                  key: const Key('MessagesList'),
-                                  controller: c.listController,
-                                  physics: c.isHorizontalScroll.isTrue ||
-                                          (PlatformUtils.isDesktop &&
-                                              c.isItemDragged.isTrue)
-                                      ? const NeverScrollableScrollPhysics()
-                                      : const BouncingScrollPhysics(),
-                                  reverse: true,
-                                  delegate: FlutterListViewDelegate(
-                                    (context, i) => _listElement(context, c, i),
-                                    // ignore: invalid_use_of_protected_member
-                                    childCount: c.elements.value.length,
-                                    keepPosition: true,
-                                    keepPositionOffset:
-                                        c.keepPositionOffset.value,
-                                    onItemKey: (i) => c.elements.values
-                                        .elementAt(i)
-                                        .id
-                                        .toString(),
-                                    onItemSticky: (i) => c.elements.values
-                                        .elementAt(i) is DateTimeElement,
-                                    stickyAtTailer: true,
-                                    initIndex: c.initIndex,
-                                    initOffset: c.initOffset,
-                                    initOffsetBasedOnBottom: true,
-                                    disableCacheItems: true,
-                                  ),
+                                physics: c.isHorizontalScroll.isTrue ||
+                                        (PlatformUtils.isDesktop &&
+                                            c.isItemDragged.isTrue)
+                                    ? const NeverScrollableScrollPhysics()
+                                    : const BouncingScrollPhysics(),
+                                reverse: true,
+                                delegate: FlutterListViewDelegate(
+                                  (context, i) => _listElement(context, c, i),
+                                  // ignore: invalid_use_of_protected_member
+                                  childCount: c.elements.value.length,
+                                  keepPosition: true,
+                                  keepPositionOffset:
+                                      c.keepPositionOffset.value,
+                                  onItemKey: (i) => c.elements.values
+                                      .elementAt(i)
+                                      .id
+                                      .toString(),
+                                  onItemSticky: (i) => c.elements.values
+                                      .elementAt(i) is DateTimeElement,
+                                  stickyAtTailer: true,
+                                  initIndex: c.initIndex,
+                                  initOffset: c.initOffset,
+                                  initOffsetBasedOnBottom: true,
+                                  disableCacheItems: true,
                                 ),
                               );
 
                               if (PlatformUtils.isMobile) {
-                                return child;
+                                if (!PlatformUtils.isWeb) {
+                                  return Scrollbar(
+                                    controller: c.listController,
+                                    child: child,
+                                  );
+                                } else {
+                                  return child;
+                                }
                               }
 
                               return SelectionArea(
@@ -452,6 +455,7 @@ class _ChatViewState extends State<ChatView>
                                               .l10n
                                           : 'label_no_messages'.l10n,
                                       textAlign: TextAlign.center,
+                                      style: fonts.labelMedium,
                                     ),
                                   ),
                                 );
@@ -490,34 +494,7 @@ class _ChatViewState extends State<ChatView>
                     }),
                     bottomNavigationBar: Padding(
                       padding: Insets.dense.copyWith(top: 0),
-                      child:
-                          NotificationListener<SizeChangedLayoutNotification>(
-                        onNotification: (l) {
-                          final Rect? previous = c.bottomBarRect.value;
-
-                          if (previous != null) {
-                            SchedulerBinding.instance.addPostFrameCallback((_) {
-                              c.bottomBarRect.value =
-                                  c.bottomBarKey.globalPaintBounds;
-                              if (c.bottomBarRect.value != null &&
-                                  c.listController.position.maxScrollExtent >
-                                      0) {
-                                Rect current = c.bottomBarRect.value!;
-                                c.listController.jumpTo(
-                                  c.listController.position.pixels -
-                                      (current.height - previous.height),
-                                );
-                              }
-                            });
-                          }
-
-                          return true;
-                        },
-                        child: SizeChangedLayoutNotifier(
-                          key: c.bottomBarKey,
-                          child: _bottomBar(c),
-                        ),
-                      ),
+                      child: _bottomBar(c),
                     ),
                   ),
                   IgnorePointer(
@@ -570,7 +547,7 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == 0;
@@ -827,9 +804,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
@@ -855,7 +830,10 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return Text(subtitle.toString(), style: textStyle);
+        return Text(
+          subtitle.toString(),
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        );
       }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
@@ -867,7 +845,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               Text(
                 'label_typing'.l10n,
-                style: textStyle?.copyWith(color: style.colors.primary),
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -891,7 +869,7 @@ class _ChatViewState extends State<ChatView>
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: textStyle?.copyWith(color: style.colors.primary),
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -906,7 +884,10 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.isGroup) {
         final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
-          return Text(subtitle, style: textStyle);
+          return Text(
+            subtitle,
+            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+          );
         }
       } else if (chat.value.isDialog) {
         final ChatMember? partner =
@@ -944,7 +925,12 @@ class _ChatViewState extends State<ChatView>
 
                           buffer.write(subtitle ?? '');
 
-                          return Text(buffer.toString(), style: textStyle);
+                          return Text(
+                            buffer.toString(),
+                            style: fonts.bodySmall!.copyWith(
+                              color: style.colors.secondary,
+                            ),
+                          );
                         }
 
                         return const SizedBox();
@@ -966,7 +952,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time, ChatController c, int i) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1000,7 +986,9 @@ class _ChatViewState extends State<ChatView>
                 ),
                 child: Text(
                   time.toRelative(),
-                  style: style.systemMessageStyle,
+                  style: fonts.bodySmall!.copyWith(
+                    color: style.colors.secondary,
+                  ),
                 ),
               ),
             ),
@@ -1057,7 +1045,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Builds a visual representation of an [UnreadMessagesElement].
   Widget _unreadLabel(BuildContext context, ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Container(
       width: double.infinity,
@@ -1071,7 +1059,7 @@ class _ChatViewState extends State<ChatView>
       child: Center(
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
-          style: style.systemMessageStyle,
+          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
         ),
       ),
     );

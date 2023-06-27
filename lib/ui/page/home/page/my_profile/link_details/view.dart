@@ -35,11 +35,7 @@ class LinkDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     return AnimatedSizeAndFade(
       fadeDuration: const Duration(milliseconds: 250),
@@ -48,14 +44,7 @@ class LinkDetailsView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 4),
-          ModalPopupHeader(
-            header: Center(
-              child: Text(
-                'label_your_direct_link'.l10n,
-                style: thin?.copyWith(fontSize: 18),
-              ),
-            ),
-          ),
+          ModalPopupHeader(text: 'label_your_direct_link'.l10n),
           const SizedBox(height: 13),
           Padding(
             padding: ModalPopup.padding(context),
@@ -64,8 +53,9 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style:
-                    thin?.copyWith(fontSize: 15, color: style.colors.secondary),
+                style: fonts.bodyMedium!.copyWith(
+                  color: style.colors.secondary,
+                ),
               ),
             ),
           ),

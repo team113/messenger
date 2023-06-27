@@ -18,6 +18,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -29,6 +30,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
+import '/util/platform_utils.dart';
 
 /// Animated context menu optimized and decorated for mobile screens.
 class FloatingContextMenu extends StatefulWidget {
@@ -215,6 +217,10 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   @override
   void initState() {
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
     _fading = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
@@ -247,6 +253,9 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   @override
   void dispose() {
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
     _fading.dispose();
     super.dispose();
   }
@@ -433,7 +442,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// Builds the [_AnimatedMenu.actions].
   Widget _actions() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     final List<Widget> widgets = [];
 
@@ -483,9 +492,20 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   }
 
   /// Starts a dismiss animation.
-  void _dismiss() {
-    HapticFeedback.selectionClick();
+  void _dismiss({bool withFeedback = true}) {
+    if (withFeedback) {
+      HapticFeedback.selectionClick();
+    }
     _bounds = widget.globalKey.globalPaintBounds ?? _bounds;
     _fading.reverse();
+  }
+
+  /// Invokes [_dismiss].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true` to intercept back button.
+  bool _onBack(bool _, RouteInfo __) {
+    _dismiss(withFeedback: false);
+    return true;
   }
 }

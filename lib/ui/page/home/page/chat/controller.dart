@@ -158,12 +158,6 @@ class ChatController extends GetxController {
   /// [ChatItem]s when non-`null`.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
 
-  /// [GlobalKey] of the bottom bar.
-  final GlobalKey bottomBarKey = GlobalKey();
-
-  /// [Rect] the bottom bar takes.
-  final Rx<Rect?> bottomBarRect = Rx(null);
-
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
 
@@ -224,9 +218,16 @@ class ChatController extends GetxController {
   /// Subscription for the [RxChat.messages] updating the [elements].
   StreamSubscription? _messagesSubscription;
 
-  /// Indicator whether [_loadMessages] and [_updateFabStates] should not be
-  /// react on [FlutterListViewController.position] changes.
+  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
+  /// [active].
+  StreamSubscription? _onActivityChanged;
+
+  /// Indicator whether [_updateFabStates] should not be react on
+  /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
+
+  /// Indicator whether the application is active.
+  final RxBool active = RxBool(true);
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
@@ -372,6 +373,15 @@ class ChatController extends GetxController {
       },
     );
 
+    PlatformUtils.isActive.then((value) => active.value = value);
+    _onActivityChanged = PlatformUtils.onActivityChanged.listen((v) {
+      active.value = v;
+
+      if (v) {
+        readChat(_lastSeenItem.value);
+      }
+    });
+
     super.onInit();
   }
 
@@ -392,6 +402,7 @@ class ChatController extends GetxController {
     _chatWorker?.dispose();
     _statusWorker?.dispose();
     _typingSubscription?.cancel();
+    _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -909,19 +920,6 @@ class ChatController extends GetxController {
             );
 
             elements[_bottomLoader!.id] = _bottomLoader!;
-
-            if (listController.hasClients &&
-                listController.position.pixels >=
-                    listController.position.maxScrollExtent - 100) {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                listController.sliverController.animateToIndex(
-                  elements.length - 1,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.ease,
-                  offsetBasedOnBottom: true,
-                );
-              });
-            }
           }
         },
       );
@@ -982,7 +980,8 @@ class ChatController extends GetxController {
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
   Future<void> readChat(ChatItem? item) async {
-    if (item != null &&
+    if (active.isTrue &&
+        item != null &&
         !chat!.chat.value.isReadBy(item, me) &&
         status.value.isSuccess &&
         !status.value.isLoadingMore &&

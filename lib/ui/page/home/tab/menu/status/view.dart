@@ -50,11 +50,7 @@ class StatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final fonts = Theme.of(context).fonts;
 
     return GetBuilder(
       init: StatusController(Get.find()),
@@ -63,12 +59,7 @@ class StatusView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalPopupHeader(
-              header: Center(
-                child: Text(
-                  expanded ? 'label_status'.l10n : 'label_presence'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
-                ),
-              ),
+              text: expanded ? 'label_status'.l10n : 'label_presence'.l10n,
             ),
             Flexible(
               child: Scrollbar(
@@ -112,10 +103,7 @@ class StatusView extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'label_presence'.l10n,
-                            style: style.systemMessageStyle.copyWith(
-                              color: style.colors.onBackground,
-                              fontSize: 18,
-                            ),
+                            style: fonts.headlineMedium,
                           ),
                         ),
                       ),
