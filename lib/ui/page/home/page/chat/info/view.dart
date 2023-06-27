@@ -363,12 +363,9 @@ class ChatInfoView extends StatelessWidget {
           ActionButton(
             onPressed: () {},
             text: 'btn_add_to_contacts'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+            trailing: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
         Obx(() {
@@ -381,12 +378,9 @@ class ChatInfoView extends StatelessWidget {
             text: favorited
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+            trailing: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           );
         }),
@@ -396,22 +390,19 @@ class ChatInfoView extends StatelessWidget {
             return ActionButton(
               onPressed: muted ? c.unmuteChat : c.muteChat,
               text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: muted
-                      ? SvgImage.asset(
-                          'assets/icons/btn_mute.svg',
-                          width: 18.68,
-                          height: 15,
-                        )
-                      : SvgImage.asset(
-                          'assets/icons/btn_unmute.svg',
-                          width: 17.86,
-                          height: 15,
-                        ),
-                ),
+              trailing: Transform.scale(
+                scale: 1.15,
+                child: muted
+                    ? SvgImage.asset(
+                        'assets/icons/btn_mute.svg',
+                        width: 18.68,
+                        height: 15,
+                      )
+                    : SvgImage.asset(
+                        'assets/icons/btn_unmute.svg',
+                        width: 17.86,
+                        height: 15,
+                      ),
               ),
             );
           }),
@@ -419,58 +410,43 @@ class ChatInfoView extends StatelessWidget {
           key: const Key('HideChatButton'),
           onPressed: () => _hideChat(c, context),
           text: 'btn_hide_chat'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
+          trailing: Transform.scale(
+            scale: 1.15,
+            child: SvgImage.asset('assets/icons/delete.svg', height: 14),
           ),
         ),
         ActionButton(
           key: const Key('ClearHistoryButton'),
           onPressed: () => _clearChat(c, context),
           text: 'btn_clear_history'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
+          trailing: Transform.scale(
+            scale: 1.15,
+            child: SvgImage.asset('assets/icons/delete.svg', height: 14),
           ),
         ),
         if (!c.isMonolog) ...[
           ActionButton(
             onPressed: () => _leaveGroup(c, context),
             text: 'btn_leave_group'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+            trailing: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
           ActionButton(
             onPressed: () => _blacklistChat(c, context),
             text: 'btn_block'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+            trailing: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
           ActionButton(
             onPressed: () {},
             text: 'btn_report'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+            trailing: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
         ],
