@@ -145,9 +145,11 @@ class OngoingCall {
   })  : chatId = Rx(chatId),
         _me = CallMemberId(me, null),
         audioDevice = RxnString(mediaSettings?.audioDevice),
+        _defaultAudioDevice = mediaSettings?.audioDevice,
         videoDevice = RxnString(mediaSettings?.videoDevice),
         screenDevice = RxnString(mediaSettings?.screenDevice),
-        outputDevice = RxnString(mediaSettings?.outputDevice) {
+        outputDevice = RxnString(mediaSettings?.outputDevice),
+        _defaultOutputDevice = mediaSettings?.outputDevice {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -202,16 +204,22 @@ class OngoingCall {
   late final Rx<LocalTrackState> screenShareState;
 
   /// ID of the currently used video device.
-  late final RxnString videoDevice;
+  final RxnString videoDevice;
 
   /// ID of the currently used microphone device.
-  late final RxnString audioDevice;
+  final RxnString audioDevice;
 
   /// ID of the currently used screen share device.
   final RxnString screenDevice;
 
   /// ID of the currently used audio output device.
-  late final RxnString outputDevice;
+  final RxnString outputDevice;
+
+  /// ID of the default microphone device.
+  String? _defaultAudioDevice;
+
+  /// ID of the default audio output device.
+  String? _defaultOutputDevice;
 
   /// Indicator whether the inbound audio in this [OngoingCall] is enabled or
   /// not.
@@ -915,7 +923,14 @@ class OngoingCall {
   /// Sets device with [deviceId] as a currently used [audioDevice].
   ///
   /// Does nothing if [deviceId] is already an ID of the [audioDevice].
-  Future<void> setAudioDevice(String deviceId) async {
+  Future<void> setAudioDevice(
+    String deviceId, {
+    bool updateDefault = false,
+  }) async {
+    if (updateDefault) {
+      _defaultAudioDevice = deviceId;
+    }
+
     if ((audioDevice.value != null && deviceId != audioDevice.value) ||
         (audioDevice.value == null &&
             devices.audio().firstOrNull?.deviceId() != deviceId)) {
@@ -937,7 +952,14 @@ class OngoingCall {
   /// Sets device with [deviceId] as a currently used [outputDevice].
   ///
   /// Does nothing if [deviceId] is already an ID of the [outputDevice].
-  Future<void> setOutputDevice(String deviceId) async {
+  Future<void> setOutputDevice(
+    String deviceId, {
+    bool updateDefault = false,
+  }) async {
+    if (updateDefault) {
+      _defaultOutputDevice = deviceId;
+    }
+
     if (deviceId != outputDevice.value) {
       await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
       outputDevice.value = deviceId;
@@ -1611,7 +1633,8 @@ class OngoingCall {
     List<MediaDeviceDetails> added = const [],
     List<MediaDeviceDetails> removed = const [],
   ]) {
-    if (added.output().isNotEmpty) {
+    if (added.output().isNotEmpty &&
+        outputDevice.value != _defaultOutputDevice) {
       setOutputDevice(added.output().first.deviceId());
     } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
         (outputDevice.value == null &&
@@ -1628,7 +1651,7 @@ class OngoingCall {
     List<MediaDeviceDetails> added = const [],
     List<MediaDeviceDetails> removed = const [],
   ]) {
-    if (added.audio().isNotEmpty) {
+    if (added.audio().isNotEmpty && audioDevice.value != _defaultAudioDevice) {
       setAudioDevice(added.audio().first.deviceId());
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
         (audioDevice.value == null &&

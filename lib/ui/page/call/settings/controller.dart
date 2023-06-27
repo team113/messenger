@@ -89,13 +89,13 @@ class CallSettingsController extends GetxController {
 
   /// Sets device with [id] as a used by default microphone device.
   void setAudioDevice(String id) {
-    _call.value.setAudioDevice(id);
+    _call.value.setAudioDevice(id, updateDefault: true);
     _settingsRepo.setAudioDevice(id);
   }
 
   /// Sets device with [id] as a used by default output device.
   void setOutputDevice(String id) {
-    _call.value.setOutputDevice(id);
+    _call.value.setOutputDevice(id, updateDefault: true);
     _settingsRepo.setOutputDevice(id);
   }
 
