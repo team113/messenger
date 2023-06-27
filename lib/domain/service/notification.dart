@@ -36,12 +36,12 @@ class NotificationService extends DisposableService {
   /// [AudioPlayer] playing a notification sound.
   AudioPlayer? _audioPlayer;
 
-  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
-  /// [_focused].
-  StreamSubscription? _onFocusChanged;
+  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
+  /// [_active].
+  StreamSubscription? _onActivityChanged;
 
-  /// Indicator whether the application's window is in focus.
-  bool _focused = true;
+  /// Indicator whether the application is active.
+  bool _active = true;
 
   /// Initializes this [NotificationService].
   ///
@@ -58,8 +58,9 @@ class NotificationService extends DisposableService {
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
   }) async {
-    PlatformUtils.isFocused.then((value) => _focused = value);
-    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
+    PlatformUtils.isActive.then((value) => _active = value);
+    _onActivityChanged =
+        PlatformUtils.onActivityChanged.listen((v) => _active = v);
 
     _initAudio();
     if (PlatformUtils.isWeb) {
@@ -89,7 +90,7 @@ class NotificationService extends DisposableService {
 
   @override
   void onClose() {
-    _onFocusChanged?.cancel();
+    _onActivityChanged?.cancel();
     _audioPlayer?.dispose();
     _audioPlayer = null;
     AudioCache.instance.clear('audio/notification.mp3');
@@ -109,7 +110,7 @@ class NotificationService extends DisposableService {
   }) async {
     // If application is in focus and the payload is the current route, then
     // don't show a local notification.
-    if (_focused && payload == router.route) return;
+    if (_active && payload == router.route) return;
 
     if (playSound) {
       runZonedGuarded(() async {
