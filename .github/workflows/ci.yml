@@ -148,6 +148,7 @@ jobs:
                           libgstreamer1.0-dev
                           libgstreamer-plugins-base1.0-dev
                           libpulse-dev
+                          libmpv-dev
                           mpv
         if: ${{ matrix.platform == 'linux' }}
 
