@@ -20,6 +20,7 @@ import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -382,37 +383,41 @@ class _ChatViewState extends State<ChatView>
                               child: ContextMenuInterceptor(child: Container()),
                             ),
                             Obx(() {
-                              final Widget child = Scrollbar(
+                              final Widget child = FlutterListView(
+                                key: const Key('MessagesList'),
                                 controller: c.listController,
-                                child: FlutterListView(
-                                  key: const Key('MessagesList'),
-                                  controller: c.listController,
-                                  physics: c.isHorizontalScroll.isTrue ||
-                                          (PlatformUtils.isDesktop &&
-                                              c.isItemDragged.isTrue)
-                                      ? const NeverScrollableScrollPhysics()
-                                      : const BouncingScrollPhysics(),
-                                  delegate: FlutterListViewDelegate(
-                                    (context, i) => _listElement(context, c, i),
-                                    // ignore: invalid_use_of_protected_member
-                                    childCount: c.elements.value.length,
-                                    keepPosition: true,
-                                    onItemKey: (i) => c.elements.values
-                                        .elementAt(i)
-                                        .id
-                                        .toString(),
-                                    onItemSticky: (i) => c.elements.values
-                                        .elementAt(i) is DateTimeElement,
-                                    initIndex: c.initIndex,
-                                    initOffset: c.initOffset,
-                                    initOffsetBasedOnBottom: false,
-                                    disableCacheItems: true,
-                                  ),
+                                physics: c.isHorizontalScroll.isTrue ||
+                                        (PlatformUtils.isDesktop &&
+                                            c.isItemDragged.isTrue)
+                                    ? const NeverScrollableScrollPhysics()
+                                    : const BouncingScrollPhysics(),
+                                delegate: FlutterListViewDelegate(
+                                  (context, i) => _listElement(context, c, i),
+                                  // ignore: invalid_use_of_protected_member
+                                  childCount: c.elements.value.length,
+                                  keepPosition: true,
+                                  onItemKey: (i) => c.elements.values
+                                      .elementAt(i)
+                                      .id
+                                      .toString(),
+                                  onItemSticky: (i) => c.elements.values
+                                      .elementAt(i) is DateTimeElement,
+                                  initIndex: c.initIndex,
+                                  initOffset: c.initOffset,
+                                  initOffsetBasedOnBottom: false,
+                                  disableCacheItems: kDebugMode ? true : false,
                                 ),
                               );
 
                               if (PlatformUtils.isMobile) {
-                                return child;
+                                if (!PlatformUtils.isWeb) {
+                                  return Scrollbar(
+                                    controller: c.listController,
+                                    child: child,
+                                  );
+                                } else {
+                                  return child;
+                                }
                               }
 
                               return SelectionArea(
