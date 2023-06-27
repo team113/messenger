@@ -50,17 +50,21 @@ class PlatformUtilsImpl {
   /// May be overridden to be mocked in tests.
   Dio dio = Dio();
 
-  /// [StreamController] of the [_isActive] status changes.
-  StreamController<bool>? _activeController;
+  /// [StreamController] of the application's [_isActive] status changes.
+  StreamController<bool>? _activityController;
 
   /// [StreamController] of the application's window focus changes.
   StreamController<bool>? _focusController;
 
-  /// Indicator whether the application is active.
+  /// Indicator whether the application is in active state.
   bool _isActive = true;
 
-  /// [Timer] updating the [_isActive] status.
-  Timer? _activeTimer;
+  /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
+  /// passed.
+  Timer? _activityTimer;
+
+  /// [Duration] of inactivity to consider [_isActive] as `false`.
+  static const Duration _activityTimeout = Duration(seconds: 15);
 
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
@@ -131,14 +135,14 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a stream broadcasting the application's active status changes.
-  Stream<bool> get onActiveChanged {
-    if (_activeController != null) {
-      return _activeController!.stream;
+  Stream<bool> get onActivityChanged {
+    if (_activityController != null) {
+      return _activityController!.stream;
     }
 
     StreamSubscription? focusSubscription;
 
-    _activeController = StreamController<bool>.broadcast(
+    _activityController = StreamController<bool>.broadcast(
       onListen: () {
         focusSubscription = onFocusChanged.listen((focused) {
           if (focused) {
@@ -150,12 +154,12 @@ class PlatformUtilsImpl {
       },
       onCancel: () {
         focusSubscription?.cancel();
-        _activeController?.close();
-        _activeController = null;
+        _activityController?.close();
+        _activityController = null;
       },
     );
 
-    return _activeController!.stream;
+    return _activityController!.stream;
   }
 
   /// Returns a stream broadcasting the application's window size changes.
@@ -247,7 +251,7 @@ class PlatformUtilsImpl {
     return _downloadDirectory!;
   }
 
-  /// Returns indicator whether the application is active.
+  /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
 
   /// Enters fullscreen mode.
@@ -439,14 +443,14 @@ class PlatformUtilsImpl {
   /// Keeps the [_isActive] status.
   void keepActive([bool active = true]) {
     _isActive = active;
-    _activeController?.add(active);
+    _activityController?.add(active);
 
-    _activeTimer?.cancel();
+    _activityTimer?.cancel();
 
     if (active) {
-      _activeTimer = Timer(15.seconds, () {
+      _activityTimer = Timer(_activityTimeout, () {
         _isActive = false;
-        _activeController?.add(false);
+        _activityController?.add(false);
       });
     }
   }

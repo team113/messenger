@@ -213,9 +213,9 @@ class ChatController extends GetxController {
   /// Subscription for the [RxChat.messages] updating the [elements].
   StreamSubscription? _messagesSubscription;
 
-  /// Subscription to the [PlatformUtils.onActiveChanged] updating the
+  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
   /// [active].
-  StreamSubscription? _onActiveChanged;
+  StreamSubscription? _onActivityChanged;
 
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
@@ -351,7 +351,7 @@ class ChatController extends GetxController {
     );
 
     PlatformUtils.isActive.then((value) => active.value = value);
-    _onActiveChanged = PlatformUtils.onActiveChanged.listen((v) {
+    _onActivityChanged = PlatformUtils.onActivityChanged.listen((v) {
       active.value = v;
 
       if (v) {
@@ -377,7 +377,7 @@ class ChatController extends GetxController {
     _readWorker?.dispose();
     _chatWorker?.dispose();
     _typingSubscription?.cancel();
-    _onActiveChanged?.cancel();
+    _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();

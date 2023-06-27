@@ -36,9 +36,9 @@ class NotificationService extends DisposableService {
   /// [AudioPlayer] playing a notification sound.
   AudioPlayer? _audioPlayer;
 
-  /// Subscription to the [PlatformUtils.onActiveChanged] updating the
+  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
   /// [_active].
-  StreamSubscription? _onActiveChanged;
+  StreamSubscription? _onActivityChanged;
 
   /// Indicator whether the application is active.
   bool _active = true;
@@ -59,7 +59,8 @@ class NotificationService extends DisposableService {
         onDidReceiveLocalNotification,
   }) async {
     PlatformUtils.isActive.then((value) => _active = value);
-    _onActiveChanged = PlatformUtils.onActiveChanged.listen((v) => _active = v);
+    _onActivityChanged =
+        PlatformUtils.onActivityChanged.listen((v) => _active = v);
 
     _initAudio();
     if (PlatformUtils.isWeb) {
@@ -89,7 +90,7 @@ class NotificationService extends DisposableService {
 
   @override
   void onClose() {
-    _onActiveChanged?.cancel();
+    _onActivityChanged?.cancel();
     _audioPlayer?.dispose();
     _audioPlayer = null;
     AudioCache.instance.clear('audio/notification.mp3');
