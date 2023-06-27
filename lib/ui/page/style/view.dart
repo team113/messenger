@@ -23,7 +23,7 @@ import 'tab/element.dart';
 
 /// View of the [Routes.style] page.
 class StyleView extends StatelessWidget {
-  const StyleView({Key? key}) : super(key: key);
+  const StyleView({super.key});
 
   @override
   Widget build(BuildContext context) {

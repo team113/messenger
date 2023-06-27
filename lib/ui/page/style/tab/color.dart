@@ -56,10 +56,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
             child: Container(
               width: 150,
               height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color,
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: color),
               child: Center(
                 child: Text(
                   color.toHex(),
