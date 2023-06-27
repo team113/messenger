@@ -16,11 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ffi' hide Size;
 import 'dart:io';
 
 import 'package:async/async.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -29,6 +31,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stdlibc/stdlibc.dart';
+import 'package:win32/win32.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../pubspec.g.dart';
@@ -108,8 +111,19 @@ class PlatformUtilsImpl {
       } else if (isMacOS) {
         final info = await device.macOsInfo;
         final StringBuffer buffer = StringBuffer(
-          'macOS ${info.osRelease} ${info.kernelVersion}; ${info.arch} ${info.model}',
+          'macOS ${info.osRelease} ${info.kernelVersion}',
         );
+
+        buffer.write('; ${info.arch}');
+
+        final res = await Process.run('sysctl', ['machdep.cpu.brand_string']);
+        if (res.exitCode == 0) {
+          buffer.write(
+            ' ${res.stdout.toString().substring('machdep.cpu.brand_string: '.length, res.stdout.toString().length - 1)}',
+          );
+        }
+
+        buffer.write('; ${info.model}');
 
         if (info.systemGUID != null) {
           buffer.write('; ${info.systemGUID}');
@@ -118,8 +132,49 @@ class PlatformUtilsImpl {
         system = buffer.toString();
       } else if (isWindows) {
         final info = await device.windowsInfo;
-        system =
-            '${info.productName}; ${info.displayVersion}; ${info.buildLabEx}';
+
+        final StringBuffer buffer = StringBuffer(
+          '${info.productName} (build ${info.buildLabEx}); ${info.displayVersion}',
+        );
+
+        Pointer<SYSTEM_INFO> lpSystemInfo = calloc<SYSTEM_INFO>();
+        try {
+          GetNativeSystemInfo(lpSystemInfo);
+
+          String? architecture;
+
+          switch (lpSystemInfo.ref.Anonymous.Anonymous.wProcessorArchitecture) {
+            case PROCESSOR_ARCHITECTURE_AMD64:
+              architecture = 'x64';
+              break;
+
+            case PROCESSOR_ARCHITECTURE_ARM:
+              architecture = 'ARM';
+              break;
+
+            case PROCESSOR_ARCHITECTURE_ARM64:
+              architecture = 'ARM64';
+              break;
+
+            case PROCESSOR_ARCHITECTURE_IA64:
+              architecture = 'IA64';
+              break;
+
+            case PROCESSOR_ARCHITECTURE_INTEL:
+              architecture = 'x86';
+              break;
+          }
+
+          if (architecture != null) {
+            buffer.write('; $architecture');
+          }
+        } finally {
+          free(lpSystemInfo);
+        }
+
+        buffer.write('; ${info.deviceId}');
+
+        system = buffer.toString();
       } else if (isLinux) {
         final info = await device.linuxInfo;
         final utsname = uname();
