@@ -321,6 +321,7 @@ class ChatsTabView extends StatelessWidget {
                               !c.groupCreating.value &&
                               !c.selecting.value)
                             ContextMenuRegion(
+                              key: const Key('ChatsMenu'),
                               selector: c.moreKey,
                               alignment: Alignment.topRight,
                               enablePrimaryTap: true,

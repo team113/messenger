@@ -24,7 +24,7 @@ Feature: Contacts selection
     And I wait until `HomeView` is present
     And I tap `ContactsButton` button
 
-    When I long press "Bob" contact
+    When I tap `ContactsMenu` button
     And I tap `SelectContactButton` button
     Then I see "Bob" contact as unselected
     And I see "Charlie" contact as unselected

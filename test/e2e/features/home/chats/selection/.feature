@@ -24,7 +24,7 @@ Feature: Chats selection
     And I have "Alice and Charlie" group with Charlie
     And I wait until text "Alice and Charlie" is present
 
-    When I long press "Alice and Bob" chat
+    When I tap `ChatsMenu` button
     And I tap `SelectChatButton` button
     Then I see "Alice and Bob" chat as unselected
     And I see "Alice and Charlie" chat as unselected

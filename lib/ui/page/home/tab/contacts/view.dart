@@ -189,6 +189,7 @@ class ContactsTabView extends StatelessWidget {
                       ),
                     if (c.search.value == null && !c.selecting.value)
                       ContextMenuRegion(
+                        key: const Key('ContactsMenu'),
                         alignment: Alignment.topRight,
                         enablePrimaryTap: true,
                         selector: c.moreKey,
