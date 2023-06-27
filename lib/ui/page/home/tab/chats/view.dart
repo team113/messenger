@@ -231,8 +231,9 @@ class ChatsTabView extends StatelessWidget {
                           key: c.searching.value
                               ? const Key('CloseSearchButton')
                               : const Key('SearchButton'),
-                          onPressed:
-                              c.searching.value ? c.closeSearch : c.startSearch,
+                          onPressed: c.searching.value
+                              ? () => c.closeSearch(true)
+                              : () => c.startSearch(),
                           child: Container(
                             padding: const EdgeInsets.only(
                               left: 20,
