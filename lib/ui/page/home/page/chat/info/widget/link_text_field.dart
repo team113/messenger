@@ -33,15 +33,11 @@ class ChatLinkWidget extends StatelessWidget {
   const ChatLinkWidget({
     super.key,
     required this.state,
-    this.text = '',
     this.usageCount,
   });
 
   /// Reactive state of the [ReactiveTextField].
-  final ReactiveFieldState state;
-
-  /// Text of this [ChatLinkWidget].
-  final String text;
+  final TextFieldState state;
 
   /// Number of times the link has been used.
   final int? usageCount;
@@ -57,15 +53,16 @@ class ChatLinkWidget extends StatelessWidget {
         ReactiveTextField(
           key: const Key('LinkField'),
           state: state,
-          onSuffixPressed: text.isEmpty
+          onSuffixPressed: state.text.isEmpty
               ? null
               : () {
                   PlatformUtils.copy(
-                    text: '${Config.origin}${Routes.chatDirectLink}/$text',
+                    text:
+                        '${Config.origin}${Routes.chatDirectLink}/${state.text}',
                   );
                   MessagePopup.success('label_copied'.l10n);
                 },
-          trailing: text.isEmpty
+          trailing: state.text.isEmpty
               ? null
               : Transform.translate(
                   offset: const Offset(0, -1),

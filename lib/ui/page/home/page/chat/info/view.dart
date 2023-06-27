@@ -262,7 +262,6 @@ class ChatInfoView extends StatelessWidget {
                       children: [
                         ChatLinkWidget(
                           state: c.link,
-                          text: c.link.text,
                           usageCount: c.chat?.chat.value.directLink?.usageCount,
                         )
                       ],
