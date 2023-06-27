@@ -202,7 +202,7 @@ class ContactsTabView extends StatelessWidget {
                             onPressed: c.toggleSorting,
                           ),
                           ContextMenuButton(
-                            key: const Key('SelectChatButton'),
+                            key: const Key('SelectContactsButton'),
                             label: 'btn_select_and_delete'.l10n,
                             onPressed: c.toggleSelecting,
                           ),

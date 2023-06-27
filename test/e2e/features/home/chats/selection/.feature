@@ -25,7 +25,7 @@ Feature: Chats selection
     And I wait until text "Alice and Charlie" is present
 
     When I tap `ChatsMenu` button
-    And I tap `SelectChatButton` button
+    And I tap `SelectChatsButton` button
     Then I see "Alice and Bob" chat as unselected
     And I see "Alice and Charlie" chat as unselected
 

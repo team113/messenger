@@ -333,7 +333,7 @@ class ChatsTabView extends StatelessWidget {
                                   onPressed: c.startGroupCreating,
                                 ),
                                 ContextMenuButton(
-                                  key: const Key('SelectChatButton'),
+                                  key: const Key('SelectChatsButton'),
                                   label: 'btn_select_and_delete'.l10n,
                                   onPressed: c.toggleSelecting,
                                 ),
