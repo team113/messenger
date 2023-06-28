@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
@@ -211,88 +212,13 @@ class MenuTabView extends StatelessWidget {
                     final bool inverted = tab == router.profileSection.value &&
                         router.route == Routes.me;
 
-                    return Padding(
-                      key: key,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: SizedBox(
-                        height: 73,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: style.cardRadius,
-                            border: style.cardBorder,
-                            color: style.colors.transparent,
-                          ),
-                          child: Material(
-                            type: MaterialType.card,
-                            borderRadius: style.cardRadius,
-                            color: inverted
-                                ? style.colors.primary
-                                : style.cardColor,
-                            child: InkWell(
-                              borderRadius: style.cardRadius,
-                              onTap: onTap ??
-                                  () {
-                                    if (router.profileSection.value == tab) {
-                                      router.profileSection.refresh();
-                                    } else {
-                                      router.profileSection.value = tab;
-                                    }
-                                    router.me();
-                                  },
-                              hoverColor: inverted
-                                  ? style.colors.primary
-                                  : style.cardColor.darken(0.03),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width: 12),
-                                    Icon(
-                                      icon,
-                                      color: inverted
-                                          ? style.colors.onPrimary
-                                          : style.colors.primary,
-                                    ),
-                                    const SizedBox(width: 18),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          DefaultTextStyle(
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                                fonts.headlineLarge!.copyWith(
-                                              color: inverted
-                                                  ? style.colors.onPrimary
-                                                  : style.colors.onBackground,
-                                            ),
-                                            child: Text(title),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          DefaultTextStyle.merge(
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: fonts.labelMedium!.copyWith(
-                                              color: inverted
-                                                  ? style.colors.onPrimary
-                                                  : style.colors.onBackground,
-                                            ),
-                                            child: Text(subtitle),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    return CardButton(
+                      title: title,
+                      subtitle: subtitle,
+                      icon: icon,
+                      tab: tab,
+                      onPressed: onTap,
+                      inverted: inverted,
                     );
                   });
                 }
@@ -465,6 +391,127 @@ class MenuTabView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class CardButton extends StatefulWidget {
+  const CardButton({
+    super.key,
+    this.inverted = false,
+    this.onPressed,
+    this.tab = ProfileTab.blacklist,
+    this.title = '',
+    this.subtitle = '',
+    this.icon,
+  });
+
+  final bool inverted;
+  final void Function()? onPressed;
+  final ProfileTab tab;
+  final String title;
+  final String subtitle;
+  final IconData? icon;
+
+  @override
+  State<CardButton> createState() => _CardButtonState();
+}
+
+class _CardButtonState extends State<CardButton> {
+  bool _hovered = false;
+
+  final GlobalKey _key = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: SizedBox(
+        height: 73,
+        child: MouseRegion(
+          opaque: false,
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: style.cardRadius,
+              border: style.cardBorder,
+              color: style.colors.transparent,
+            ),
+            child: Material(
+              type: MaterialType.card,
+              borderRadius: style.cardRadius,
+              color: widget.inverted ? style.colors.primary : style.cardColor,
+              child: InkWell(
+                borderRadius: style.cardRadius,
+                onTap: widget.onPressed ??
+                    () {
+                      if (router.profileSection.value == widget.tab) {
+                        router.profileSection.refresh();
+                      } else {
+                        router.profileSection.value = widget.tab;
+                      }
+                      router.me();
+                    },
+                hoverColor: widget.inverted
+                    ? style.colors.primary
+                    : style.cardColor.darken(0.03),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 12),
+                      AnimatedScale(
+                        key: _key,
+                        duration: 100.milliseconds,
+                        scale: _hovered ? 1.05 : 1,
+                        child: Icon(
+                          widget.icon,
+                          color: widget.inverted
+                              ? style.colors.onPrimary
+                              : style.colors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 18),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            DefaultTextStyle(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: fonts.headlineLarge!.copyWith(
+                                color: widget.inverted
+                                    ? style.colors.onPrimary
+                                    : style.colors.onBackground,
+                              ),
+                              child: Text(widget.title),
+                            ),
+                            const SizedBox(height: 6),
+                            DefaultTextStyle.merge(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: fonts.labelMedium!.copyWith(
+                                color: widget.inverted
+                                    ? style.colors.onPrimary
+                                    : style.colors.onBackground,
+                              ),
+                              child: Text(widget.subtitle),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -558,32 +558,32 @@ class MessageFieldView extends StatelessWidget {
               //             );
               //           }
               //     : null,
-              child: SizedBox(
-                // color: Colors.yellow,
-                width: 50,
-                height: 56,
-                child: Center(
-                  child: Obx(() {
-                    return AnimatedScale(
-                      duration: const Duration(milliseconds: 150),
-                      curve: Curves.bounceInOut,
-                      scale: c.moreOpened.value ? 1.1 : 1,
-                      child: AnimatedButton(
+              child: AnimatedButton(
+                child: SizedBox(
+                  // color: Colors.yellow,
+                  width: 50,
+                  height: 56,
+                  child: Center(
+                    child: Obx(() {
+                      return AnimatedScale(
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.bounceInOut,
+                        scale: c.moreOpened.value ? 1.1 : 1,
                         child: SvgImage.asset(
                           'assets/icons/chat_more1.svg',
                           height: 22,
                           width: 22,
                         ),
-                      ),
-                    );
+                      );
 
-                    return RiveAsset(
-                      'assets/icons/more5.riv',
-                      width: 30,
-                      height: 30,
-                      pushed: c.moreOpened.value,
-                    );
-                  }),
+                      return RiveAsset(
+                        'assets/icons/more5.riv',
+                        width: 30,
+                        height: 30,
+                        pushed: c.moreOpened.value,
+                      );
+                    }),
+                  ),
                   // child: SvgImage.asset(
                   //   'assets/icons/chat_more1.svg',
                   //   height: 20,

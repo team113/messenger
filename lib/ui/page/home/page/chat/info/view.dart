@@ -18,6 +18,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -127,10 +128,12 @@ class ChatInfoView extends StatelessWidget {
                   onPressed: () => router.chat(id, push: true),
                   child: Transform.translate(
                     offset: const Offset(0, 1),
-                    child: SvgImage.asset(
-                      'assets/icons/chat.svg',
-                      width: 20.12,
-                      height: 21.62,
+                    child: AnimatedButton(
+                      child: SvgImage.asset(
+                        'assets/icons/chat.svg',
+                        width: 20.12,
+                        height: 21.62,
+                      ),
                     ),
                   ),
                 ),
@@ -139,18 +142,22 @@ class ChatInfoView extends StatelessWidget {
                     const SizedBox(width: 28),
                     WidgetButton(
                       onPressed: () => c.call(true),
-                      child: SvgImage.asset(
-                        'assets/icons/chat_video_call.svg',
-                        height: 17,
+                      child: AnimatedButton(
+                        child: SvgImage.asset(
+                          'assets/icons/chat_video_call.svg',
+                          height: 17,
+                        ),
                       ),
                     ),
                   ],
                   const SizedBox(width: 28),
                   WidgetButton(
                     onPressed: () => c.call(false),
-                    child: SvgImage.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
+                    child: AnimatedButton(
+                      child: SvgImage.asset(
+                        'assets/icons/chat_audio_call.svg',
+                        height: 19,
+                      ),
                     ),
                   ),
                 ] else ...[
@@ -162,18 +169,20 @@ class ChatInfoView extends StatelessWidget {
                         ? WidgetButton(
                             key: const Key('Drop'),
                             onPressed: c.dropCall,
-                            child: Container(
-                              height: 22,
-                              width: 22,
-                              decoration: BoxDecoration(
-                                color: style.colors.dangerColor,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: SvgImage.asset(
-                                  'assets/icons/call_end.svg',
-                                  width: 22,
-                                  height: 22,
+                            child: AnimatedButton(
+                              child: Container(
+                                height: 22,
+                                width: 22,
+                                decoration: BoxDecoration(
+                                  color: style.colors.dangerColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgImage.asset(
+                                    'assets/icons/call_end.svg',
+                                    width: 22,
+                                    height: 22,
+                                  ),
                                 ),
                               ),
                             ),
@@ -181,18 +190,20 @@ class ChatInfoView extends StatelessWidget {
                         : WidgetButton(
                             key: const Key('Join'),
                             onPressed: c.joinCall,
-                            child: Container(
-                              height: 22,
-                              width: 22,
-                              decoration: BoxDecoration(
-                                color: style.colors.primary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: SvgImage.asset(
-                                  'assets/icons/audio_call_start.svg',
-                                  width: 10,
-                                  height: 10,
+                            child: AnimatedButton(
+                              child: Container(
+                                height: 22,
+                                width: 22,
+                                decoration: BoxDecoration(
+                                  color: style.colors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgImage.asset(
+                                    'assets/icons/audio_call_start.svg',
+                                    width: 10,
+                                    height: 10,
+                                  ),
                                 ),
                               ),
                             ),
@@ -469,68 +480,14 @@ class ChatInfoView extends StatelessWidget {
 
       final style = Theme.of(context).style;
 
-      Widget bigButton({
-        Key? key,
-        Widget? leading,
-        required Widget title,
-        void Function()? onTap,
-      }) {
-        return SizedBox(
-          key: key,
-          height: 56,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              border: style.cardBorder,
-              color: style.colors.transparent,
-            ),
-            child: Material(
-              type: MaterialType.card,
-              borderRadius: style.cardRadius,
-              color: style.cardColor.darken(0.05),
-              child: InkWell(
-                borderRadius: style.cardRadius,
-                onTap: onTap,
-                hoverColor: style.cardColor.darken(0.08),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: DefaultTextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: style.colors.primary,
-                            fontWeight: FontWeight.w300,
-                          ),
-                          child: title,
-                        ),
-                      ),
-                      if (leading != null) ...[
-                        const SizedBox(width: 12),
-                        leading,
-                        const SizedBox(width: 4),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          bigButton(
+          BigButton(
             key: const Key('AddMemberButton'),
             leading: Icon(Icons.people, color: style.colors.primary),
             title: Text('btn_add_member'.l10n),
-            onTap: () => AddChatMemberView.show(context, chatId: id),
+            onPressed: () => AddChatMemberView.show(context, chatId: id),
           ),
           const SizedBox(height: 3),
           ...members.map((e) {
@@ -549,37 +506,41 @@ class ChatInfoView extends StatelessWidget {
                     WidgetButton(
                       key: const Key('Drop'),
                       onPressed: () => c.removeChatCallMember(e.id),
-                      child: Container(
-                        height: 22,
-                        width: 22,
-                        decoration: BoxDecoration(
-                          color: style.colors.dangerColor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: SvgImage.asset(
-                            'assets/icons/call_end.svg',
-                            width: 22,
-                            height: 22,
+                      child: AnimatedButton(
+                        child: Container(
+                          height: 22,
+                          width: 22,
+                          decoration: BoxDecoration(
+                            color: style.colors.dangerColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: SvgImage.asset(
+                              'assets/icons/call_end.svg',
+                              width: 22,
+                              height: 22,
+                            ),
                           ),
                         ),
                       ),
                     )
                   else
-                    Material(
-                      color: style.colors.primary,
-                      type: MaterialType.circle,
-                      child: InkWell(
-                        onTap: () => c.redialChatCallMember(e.id),
-                        borderRadius: BorderRadius.circular(60),
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: Center(
-                            child: SvgImage.asset(
-                              'assets/icons/audio_call_start.svg',
-                              width: 10,
-                              height: 10,
+                    AnimatedButton(
+                      child: Material(
+                        color: style.colors.primary,
+                        type: MaterialType.circle,
+                        child: InkWell(
+                          onTap: () => c.redialChatCallMember(e.id),
+                          borderRadius: BorderRadius.circular(60),
+                          child: SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: Center(
+                              child: SvgImage.asset(
+                                'assets/icons/audio_call_start.svg',
+                                width: 10,
+                                height: 10,
+                              ),
                             ),
                           ),
                         ),
@@ -588,21 +549,25 @@ class ChatInfoView extends StatelessWidget {
                   const SizedBox(width: 12),
                 ],
                 if (e.id == c.me)
-                  WidgetButton(
-                    onPressed: () => _removeChatMember(c, context, e),
-                    child: Text(
-                      'btn_leave'.l10n,
-                      style:
-                          TextStyle(color: style.colors.primary, fontSize: 15),
+                  AnimatedButton(
+                    child: WidgetButton(
+                      onPressed: () => _removeChatMember(c, context, e),
+                      child: Text(
+                        'btn_leave'.l10n,
+                        style: TextStyle(
+                            color: style.colors.primary, fontSize: 15),
+                      ),
                     ),
                   )
                 else
-                  WidgetButton(
-                    key: const Key('DeleteMemberButton'),
-                    onPressed: () => _removeChatMember(c, context, e),
-                    child: SvgImage.asset(
-                      'assets/icons/delete.svg',
-                      height: 14 * 1.5,
+                  AnimatedButton(
+                    child: WidgetButton(
+                      key: const Key('DeleteMemberButton'),
+                      onPressed: () => _removeChatMember(c, context, e),
+                      child: SvgImage.asset(
+                        'assets/icons/delete.svg',
+                        height: 14 * 1.5,
+                      ),
                     ),
                   ),
                 const SizedBox(width: 6),
@@ -843,5 +808,85 @@ class ChatInfoView extends StatelessWidget {
     if (result == true) {
       // TODO: Blacklist this [Chat].
     }
+  }
+}
+
+class BigButton extends StatefulWidget {
+  const BigButton({
+    super.key,
+    this.onPressed,
+    required this.title,
+    this.leading,
+  });
+
+  final Widget? leading;
+  final Widget title;
+  final void Function()? onPressed;
+
+  @override
+  State<BigButton> createState() => _BigButtonState();
+}
+
+class _BigButtonState extends State<BigButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return MouseRegion(
+      opaque: false,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: SizedBox(
+        height: 56,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            border: style.cardBorder,
+            color: style.colors.transparent,
+          ),
+          child: Material(
+            type: MaterialType.card,
+            borderRadius: style.cardRadius,
+            color: style.cardColor.darken(0.05),
+            child: InkWell(
+              borderRadius: style.cardRadius,
+              onTap: widget.onPressed,
+              hoverColor: style.cardColor.darken(0.08),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: DefaultTextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: style.colors.primary,
+                          fontWeight: FontWeight.w300,
+                        ),
+                        child: widget.title,
+                      ),
+                    ),
+                    if (widget.leading != null) ...[
+                      const SizedBox(width: 12),
+                      AnimatedScale(
+                        duration: const Duration(milliseconds: 100),
+                        scale: _hovered ? 1.05 : 1,
+                        child: widget.leading!,
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

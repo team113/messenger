@@ -189,6 +189,8 @@ class _MenuButtonState extends State<_MenuButton> {
   bool _hovered = false;
   bool _pressed = false;
 
+  final GlobalKey _globalKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -215,22 +217,27 @@ class _MenuButtonState extends State<_MenuButton> {
               const SizedBox(width: 16),
               SizedBox(
                 width: 26,
-                child: (widget.button.icon == null)
-                    ? Transform.translate(
-                        offset: widget.button.offsetMini,
-                        child: SvgImage.asset(
-                          'assets/icons/${widget.button.assetMini ?? widget.button.asset}.svg',
-                          width: widget.button.assetMiniWidth ??
-                              widget.button.assetWidth,
-                          height: widget.button.assetMiniHeight ??
-                              widget.button.assetHeight,
+                child: AnimatedScale(
+                  key: _globalKey,
+                  duration: const Duration(milliseconds: 100),
+                  scale: _hovered ? 1.05 : 1,
+                  child: (widget.button.icon == null)
+                      ? Transform.translate(
+                          offset: widget.button.offsetMini,
+                          child: SvgImage.asset(
+                            'assets/icons/${widget.button.assetMini ?? widget.button.asset}.svg',
+                            width: widget.button.assetMiniWidth ??
+                                widget.button.assetWidth,
+                            height: widget.button.assetMiniHeight ??
+                                widget.button.assetHeight,
+                          ),
+                        )
+                      : Icon(
+                          widget.button.icon ?? Icons.attach_email,
+                          size: 28,
+                          color: style.colors.primary,
                         ),
-                      )
-                    : Icon(
-                        widget.button.icon ?? Icons.attach_email,
-                        size: 28,
-                        color: style.colors.primary,
-                      ),
+                ),
               ),
               // SvgImage.asset(
               //   'assets/icons/${e.asset}.svg',

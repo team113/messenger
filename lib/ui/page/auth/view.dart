@@ -108,15 +108,7 @@ class AuthView extends StatelessWidget {
               .toList(),
           const SizedBox(height: 30),
           Text(
-            'Gapopa',
-            style: thin?.copyWith(fontSize: 36, color: style.colors.secondary),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'messenger',
+            'Messenger',
             style: thin?.copyWith(
               fontSize: 24,
               color: style.colors.secondary,
@@ -125,6 +117,33 @@ class AuthView extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),
+          const SizedBox(height: 2),
+          Text(
+            'by Gapopa',
+            style: thin?.copyWith(fontSize: 17, color: style.colors.secondary),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+
+          // Text(
+          //   'Gapopa',
+          //   style: thin?.copyWith(fontSize: 32, color: style.colors.secondary),
+          //   textAlign: TextAlign.center,
+          //   overflow: TextOverflow.ellipsis,
+          //   maxLines: 1,
+          // ),
+          // const SizedBox(height: 2),
+          // Text(
+          //   'messenger',
+          //   style: thin?.copyWith(
+          //     fontSize: 17,
+          //     color: style.colors.secondary,
+          //   ),
+          //   textAlign: TextAlign.center,
+          //   overflow: TextOverflow.ellipsis,
+          //   maxLines: 1,
+          // ),
           const SizedBox(height: 25),
         ];
 

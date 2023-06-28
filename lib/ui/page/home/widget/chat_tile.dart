@@ -26,6 +26,7 @@ import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import 'animated_button.dart';
 
 /// [Chat] visual representation.
 class ChatTile extends StatefulWidget {

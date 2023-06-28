@@ -255,48 +255,50 @@ class _ChatViewState extends State<ChatView>
                             ];
                           } else {
                             children = [
-                              AnimatedSwitcher(
-                                key: const Key('ActiveCallButton'),
-                                duration: 300.milliseconds,
-                                child: c.inCall
-                                    ? WidgetButton(
-                                        key: const Key('Drop'),
-                                        onPressed: c.dropCall,
-                                        child: Container(
-                                          height: 32,
-                                          width: 32,
-                                          decoration: BoxDecoration(
-                                            color: style.colors.dangerColor,
-                                            shape: BoxShape.circle,
+                              AnimatedButton(
+                                child: AnimatedSwitcher(
+                                  key: const Key('ActiveCallButton'),
+                                  duration: 300.milliseconds,
+                                  child: c.inCall
+                                      ? WidgetButton(
+                                          key: const Key('Drop'),
+                                          onPressed: c.dropCall,
+                                          child: Container(
+                                            height: 32,
+                                            width: 32,
+                                            decoration: BoxDecoration(
+                                              color: style.colors.dangerColor,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Center(
+                                              child: SvgImage.asset(
+                                                'assets/icons/call_end.svg',
+                                                width: 32,
+                                                height: 32,
+                                              ),
+                                            ),
                                           ),
-                                          child: Center(
-                                            child: SvgImage.asset(
-                                              'assets/icons/call_end.svg',
-                                              width: 32,
-                                              height: 32,
+                                        )
+                                      : WidgetButton(
+                                          key: const Key('Join'),
+                                          onPressed: c.joinCall,
+                                          child: Container(
+                                            height: 32,
+                                            width: 32,
+                                            decoration: BoxDecoration(
+                                              color: style.colors.primary,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Center(
+                                              child: SvgImage.asset(
+                                                'assets/icons/audio_call_start.svg',
+                                                width: 15,
+                                                height: 15,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      )
-                                    : WidgetButton(
-                                        key: const Key('Join'),
-                                        onPressed: c.joinCall,
-                                        child: Container(
-                                          height: 32,
-                                          width: 32,
-                                          decoration: BoxDecoration(
-                                            color: style.colors.primary,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                            child: SvgImage.asset(
-                                              'assets/icons/audio_call_start.svg',
-                                              width: 15,
-                                              height: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                ),
                               ),
                             ];
                           }

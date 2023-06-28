@@ -21,6 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -261,11 +262,13 @@ class ReactiveTextField extends StatelessWidget {
                                         : SizedBox(
                                             key: const ValueKey('Icon'),
                                             width: trailingWidth,
-                                            child: suffix != null
-                                                ? Icon(suffix)
-                                                : trailing == null
-                                                    ? Container()
-                                                    : trailing!,
+                                            child: AnimatedButton(
+                                              child: suffix != null
+                                                  ? Icon(suffix)
+                                                  : trailing == null
+                                                      ? Container()
+                                                      : trailing!,
+                                            ),
                                           ),
                       ),
                     ),

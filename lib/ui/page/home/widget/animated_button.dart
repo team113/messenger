@@ -19,7 +19,15 @@ import 'package:flutter/material.dart';
 
 /// [Widget] animating its size on hover and clicks.
 class AnimatedButton extends StatefulWidget {
-  const AnimatedButton({super.key, required this.child});
+  const AnimatedButton({
+    super.key,
+    required this.child,
+    this.modifier = 1,
+    this.enabled = true,
+  });
+
+  final bool enabled;
+  final double modifier;
 
   /// Widget to animate.
   final Widget child;
@@ -50,6 +58,10 @@ class _AnimatedButtonState extends State<AnimatedButton>
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.enabled) {
+      return widget.child;
+    }
+
     return MouseRegion(
       opaque: false,
       onEnter: (_) => setState(() => _hovered = true),
@@ -60,15 +72,16 @@ class _AnimatedButtonState extends State<AnimatedButton>
           _controller.reset();
           _controller.forward();
         },
+        onPointerUp: (_) {},
         child: AnimatedScale(
           duration: const Duration(milliseconds: 100),
-          scale: _hovered ? 1.05 : 1,
+          scale: _hovered ? (1 + 0.05 * widget.modifier) : 1,
           child: AnimatedBuilder(
             animation: _controller,
             builder: (_, child) {
               return Transform.scale(
                 scale: 1.0 -
-                    Tween<double>(begin: 0.0, end: 0.2)
+                    Tween<double>(begin: 0.0, end: 0.2 * widget.modifier)
                         .animate(
                           CurvedAnimation(
                             parent: _controller,
@@ -80,7 +93,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
                           ),
                         )
                         .value +
-                    Tween<double>(begin: 0.0, end: 0.2)
+                    Tween<double>(begin: 0.0, end: 0.2 * widget.modifier)
                         .animate(
                           CurvedAnimation(
                             parent: _controller,

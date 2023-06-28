@@ -88,6 +88,8 @@ class _FieldButtonState extends State<FieldButton> {
   /// Indicator whether this [FieldButton] is hovered.
   bool _hovered = false;
 
+  final GlobalKey _key = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -108,7 +110,15 @@ class _FieldButtonState extends State<FieldButton> {
             state: TextFieldState(text: widget.text, editable: false),
             label: widget.label,
             maxLines: widget.maxLines,
-            trailing: widget.trailing,
+            trailing: AnimatedScale(
+              key: _key,
+              duration: const Duration(milliseconds: 100),
+              scale: _hovered ? 1.05 : 1,
+              child: Transform.translate(
+                offset: const Offset(0, 1),
+                child: widget.trailing,
+              ),
+            ),
             prefixStyle: widget.prefixStyle,
             prefixText: widget.prefixText,
             floatingLabelBehavior: widget.floatingLabelBehavior,

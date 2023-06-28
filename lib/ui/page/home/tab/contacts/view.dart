@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 
@@ -200,40 +201,44 @@ class ContactsTabView extends StatelessWidget {
                           height: double.infinity,
                           child: SizedBox(
                             width: 29.17,
-                            child: AnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
+                            child: AnimatedButton(
+                              child: AnimatedSwitcher(
+                                duration: 250.milliseconds,
+                                child: child,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     if (c.search.value == null && !c.selecting.value)
-                      ContextMenuRegion(
-                        alignment: Alignment.topRight,
-                        enablePrimaryTap: true,
-                        selector: c.moreKey,
-                        margin: const EdgeInsets.only(bottom: 4, right: 0),
-                        actions: [
-                          ContextMenuButton(
-                            label: c.sortByName
-                                ? 'label_sort_by_visit'.l10n
-                                : 'label_sort_by_name'.l10n,
-                            onPressed: c.toggleSorting,
-                          ),
-                          ContextMenuButton(
-                            key: const Key('SelectChatButton'),
-                            label: 'btn_select_and_delete'.l10n,
-                            onPressed: c.toggleSelecting,
-                            // trailing: const Icon(Icons.select_all),
-                          ),
-                        ],
-                        child: Container(
-                          key: c.moreKey,
-                          padding: const EdgeInsets.only(left: 12, right: 18),
-                          height: double.infinity,
-                          child: Icon(
-                            Icons.more_vert,
-                            color: Theme.of(context).colorScheme.primary,
+                      AnimatedButton(
+                        child: ContextMenuRegion(
+                          alignment: Alignment.topRight,
+                          enablePrimaryTap: true,
+                          selector: c.moreKey,
+                          margin: const EdgeInsets.only(bottom: 4, right: 0),
+                          actions: [
+                            ContextMenuButton(
+                              label: c.sortByName
+                                  ? 'label_sort_by_visit'.l10n
+                                  : 'label_sort_by_name'.l10n,
+                              onPressed: c.toggleSorting,
+                            ),
+                            ContextMenuButton(
+                              key: const Key('SelectChatButton'),
+                              label: 'btn_select_and_delete'.l10n,
+                              onPressed: c.toggleSelecting,
+                              // trailing: const Icon(Icons.select_all),
+                            ),
+                          ],
+                          child: Container(
+                            key: c.moreKey,
+                            padding: const EdgeInsets.only(left: 12, right: 18),
+                            height: double.infinity,
+                            child: Icon(
+                              Icons.more_vert,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           ),
                         ),
                       ),
@@ -267,39 +272,43 @@ class ContactsTabView extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.only(left: 20, right: 6),
                       height: double.infinity,
-                      child: SelectedDot(
-                        selected: selected,
-                        inverted: false,
-                        outlined: !selected,
-                        size: 21,
+                      child: AnimatedButton(
+                        child: SelectedDot(
+                          selected: selected,
+                          inverted: false,
+                          outlined: !selected,
+                          size: 21,
+                        ),
                       ),
                     ),
                   );
                 }
 
-                return AnimatedSwitcher(
-                  duration: 250.milliseconds,
-                  child: WidgetButton(
-                    key: c.search.value != null
-                        ? const Key('CloseSearchButton')
-                        : const Key('SearchButton'),
-                    onPressed: c.search.value == null
-                        ? () => c.toggleSearch(true)
-                        : () {},
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 20, right: 6),
-                      height: double.infinity,
-                      child: c.search.value != null
-                          ? Icon(
-                              key: const Key('ArrowBack'),
-                              Icons.arrow_back_ios_new,
-                              size: 20,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                          : SvgImage.asset(
-                              'assets/icons/search.svg',
-                              width: 17.77,
-                            ),
+                return AnimatedButton(
+                  child: AnimatedSwitcher(
+                    duration: 250.milliseconds,
+                    child: WidgetButton(
+                      key: c.search.value != null
+                          ? const Key('CloseSearchButton')
+                          : const Key('SearchButton'),
+                      onPressed: c.search.value == null
+                          ? () => c.toggleSearch(true)
+                          : () {},
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 20, right: 6),
+                        height: double.infinity,
+                        child: c.search.value != null
+                            ? Icon(
+                                key: const Key('ArrowBack'),
+                                Icons.arrow_back_ios_new,
+                                size: 20,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : SvgImage.asset(
+                                'assets/icons/search.svg',
+                                width: 17.77,
+                              ),
+                      ),
                     ),
                   ),
                 );

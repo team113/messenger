@@ -144,6 +144,8 @@ class _MenuButtonState extends State<_MenuButton> {
 
   TextFieldState? _state;
 
+  final GlobalKey _key = GlobalKey();
+
   @override
   void initState() {
     if (widget.button == 0) {
@@ -179,11 +181,14 @@ class _MenuButtonState extends State<_MenuButton> {
                       },
                 child: SizedBox(
                   width: 26,
-                  child: SvgImage.asset(
-                    // 'assets/icons/donate_mini$prefix.svg',
-                    'assets/icons/donate_mini${sum == null /*&& !_state!.isEmpty.value*/ ? '_grey' : ''}.svg',
-                    width: 22.84,
-                    height: 22,
+                  child: AnimatedButton(
+                    enabled: !_state!.isEmpty.value && sum != null,
+                    child: SvgImage.asset(
+                      // 'assets/icons/donate_mini$prefix.svg',
+                      'assets/icons/donate_mini${sum == null /*&& !_state!.isEmpty.value*/ ? '_grey' : ''}.svg',
+                      width: 22.84,
+                      height: 22,
+                    ),
                   ),
                 ),
               );
@@ -229,10 +234,13 @@ class _MenuButtonState extends State<_MenuButton> {
                   height: 40,
                   width: 50,
                   child: Center(
-                    child: SvgImage.asset(
-                      'assets/icons/${widget.canSend ? 'send_mini3' : 'attachment_mini'}${sum == null ? '_grey' : ''}.svg',
-                      width: widget.canSend ? 19.28 : 18.88 * 0.9,
-                      height: widget.canSend ? 16.6 : 21 * 0.9,
+                    child: AnimatedButton(
+                      enabled: sum != null && widget.canSend,
+                      child: SvgImage.asset(
+                        'assets/icons/${widget.canSend ? 'send_mini3' : 'attachment_mini'}${sum == null ? '_grey' : ''}.svg',
+                        width: widget.canSend ? 19.28 : 18.88 * 0.9,
+                        height: widget.canSend ? 16.6 : 21 * 0.9,
+                      ),
                     ),
                   ),
                 ),
@@ -264,11 +272,16 @@ class _MenuButtonState extends State<_MenuButton> {
               const SizedBox(width: 16),
               SizedBox(
                 width: 26,
-                child: SvgImage.asset(
-                  // 'assets/icons/donate_mini$prefix.svg',
-                  'assets/icons/donate_mini.svg',
-                  width: 22.84,
-                  height: 22,
+                child: AnimatedScale(
+                  key: _key,
+                  duration: const Duration(milliseconds: 100),
+                  scale: _hovered ? 1.05 : 1,
+                  child: SvgImage.asset(
+                    // 'assets/icons/donate_mini$prefix.svg',
+                    'assets/icons/donate_mini.svg',
+                    width: 22.84,
+                    height: 22,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -284,14 +297,16 @@ class _MenuButtonState extends State<_MenuButton> {
               const Spacer(),
               const SizedBox(width: 16),
               if (!widget.canSend)
-                SizedBox(
-                  height: 40,
-                  width: 50,
-                  child: Center(
-                    child: SvgImage.asset(
-                      'assets/icons/attachment_mini.svg',
-                      width: 18.88 * 0.9,
-                      height: 21 * 0.9,
+                AnimatedButton(
+                  child: SizedBox(
+                    height: 40,
+                    width: 50,
+                    child: Center(
+                      child: SvgImage.asset(
+                        'assets/icons/attachment_mini.svg',
+                        width: 18.88 * 0.9,
+                        height: 21 * 0.9,
+                      ),
                     ),
                   ),
                 )

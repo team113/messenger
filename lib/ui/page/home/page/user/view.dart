@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -153,12 +154,14 @@ class UserView extends StatelessWidget {
                 actions: [
                   WidgetButton(
                     onPressed: c.openChat,
-                    child: Transform.translate(
-                      offset: const Offset(0, 1),
-                      child: SvgImage.asset(
-                        'assets/icons/chat.svg',
-                        width: 20.12,
-                        height: 21.62,
+                    child: AnimatedButton(
+                      child: Transform.translate(
+                        offset: const Offset(0, 1),
+                        child: SvgImage.asset(
+                          'assets/icons/chat.svg',
+                          width: 20.12,
+                          height: 21.62,
+                        ),
                       ),
                     ),
                   ),
@@ -174,18 +177,22 @@ class UserView extends StatelessWidget {
                           const SizedBox(width: 28),
                           WidgetButton(
                             onPressed: () => c.call(true),
-                            child: SvgImage.asset(
-                              'assets/icons/chat_video_call.svg',
-                              height: 17,
+                            child: AnimatedButton(
+                              child: SvgImage.asset(
+                                'assets/icons/chat_video_call.svg',
+                                height: 17,
+                              ),
                             ),
                           ),
                         ],
                         const SizedBox(width: 28),
                         WidgetButton(
                           onPressed: () => c.call(false),
-                          child: SvgImage.asset(
-                            'assets/icons/chat_audio_call.svg',
-                            height: 19,
+                          child: AnimatedButton(
+                            child: SvgImage.asset(
+                              'assets/icons/chat_audio_call.svg',
+                              height: 19,
+                            ),
                           ),
                         ),
                       ],

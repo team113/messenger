@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';

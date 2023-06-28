@@ -22,6 +22,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Dropdown selecting the provided [items].
@@ -29,7 +30,7 @@ import '/util/platform_utils.dart';
 /// Intended to be displayed with the [show] method.
 class Selector<T> extends StatefulWidget {
   const Selector({
-    Key? key,
+    super.key,
     required this.items,
     required this.itemBuilder,
     this.buttonBuilder,
@@ -41,7 +42,7 @@ class Selector<T> extends StatefulWidget {
     this.width = 260,
     this.margin = EdgeInsets.zero,
     required this.isMobile,
-  }) : super(key: key);
+  });
 
   /// [List] of items to select from.
   final List<T> items;
@@ -172,9 +173,10 @@ class _SelectorState<T> extends State<Selector<T>> {
 
       Offset offset =
           Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+      RenderBox? buttonBox;
       final keyContext = widget.buttonKey?.currentContext;
       if (keyContext != null) {
-        final buttonBox = keyContext.findRenderObject() as RenderBox?;
+        buttonBox = keyContext.findRenderObject() as RenderBox?;
         offset = buttonBox?.localToGlobal(Offset.zero) ?? offset;
 
         RenderBox? contextBox;
@@ -290,9 +292,31 @@ class _SelectorState<T> extends State<Selector<T>> {
         );
       }
 
+      final bounds = widget.buttonKey?.globalPaintBounds;
+
       return Stack(
         fit: StackFit.expand,
         children: [
+          // Align(
+          //   alignment: Alignment.centerLeft,
+          //   child: Listener(
+          //     onPointerDown: (_) => Navigator.of(context).pop(),
+          //     child: Container(
+          //       width: bounds?.left,
+          //       color: Colors.red,
+          //     ),
+          //   ),
+          // ),
+          // Align(
+          //   alignment: Alignment.centerRight,
+          //   child: Listener(
+          //     onPointerDown: (_) => Navigator.of(context).pop(),
+          //     child: Container(
+          //       width: (bounds?.right ?? 0) + (bounds?.width ?? 0),
+          //       color: Colors.red,
+          //     ),
+          //   ),
+          // ),
           Positioned(
             left: left,
             right: right,
