@@ -554,8 +554,7 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> chats = [];
 
                             for (RxChat e in c.chats) {
-                              final bool isHidden = e.chat.value.isHidden &&
-                                  !e.chat.value.isRoute(router.route, c.me);
+                              final bool isHidden = e.chat.value.isHidden;
 
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||

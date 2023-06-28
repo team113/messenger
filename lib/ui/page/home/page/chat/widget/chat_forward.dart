@@ -279,7 +279,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         return _rounded(
           context,
           (menu) => Padding(
-            padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+            padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
             child: IntrinsicWidth(
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 500),

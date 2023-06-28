@@ -580,11 +580,11 @@ class _ChatViewState extends State<ChatView>
       if (previous != null) {
         previousSame = (previous is ChatMessageElement &&
                 previous.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(previous.item.value.at.val) <=
+                e.value.at.val.difference(previous.item.value.at.val).abs() <=
                     const Duration(minutes: 5)) ||
             (previous is ChatCallElement &&
                 previous.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(previous.item.value.at.val) <=
+                e.value.at.val.difference(previous.item.value.at.val).abs() <=
                     const Duration(minutes: 5));
       }
 
@@ -592,16 +592,19 @@ class _ChatViewState extends State<ChatView>
       if (next != null) {
         nextSame = (next is ChatMessageElement &&
                 next.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(next.item.value.at.val) <=
+                e.value.at.val.difference(next.item.value.at.val).abs() <=
                     const Duration(minutes: 5)) ||
             (next is ChatCallElement &&
                 next.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(next.item.value.at.val) <=
+                e.value.at.val.difference(next.item.value.at.val).abs() <=
                     const Duration(minutes: 5));
       }
 
       return Padding(
-        padding: EdgeInsets.only(bottom: isLast ? 8 : 0),
+        padding: EdgeInsets.only(
+          top: previousSame ? 0 : 4.5,
+          bottom: nextSame ? 0 : 4.5 + (isLast ? 8 : 0),
+        ),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.authorId),
           builder: (_, u) => Obx(() {
@@ -611,16 +614,12 @@ class _ChatViewState extends State<ChatView>
               color: c.highlight.value == i
                   ? style.colors.primaryOpacity20
                   : const Color(0x00FFFFFF),
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+              padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatItemWidget(
                 chat: c.chat!.chat,
                 item: e,
                 me: c.me!,
                 avatar: !previousSame,
-                margin: EdgeInsets.only(
-                  top: previousSame ? 1.5 : 6,
-                  bottom: nextSame ? 1.5 : 6,
-                ),
                 loadImages: c.settings.value?.loadImages != false,
                 reads: c.chat!.members.length > 10
                     ? []
@@ -670,7 +669,10 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (element is ChatForwardElement) {
       return Padding(
-        padding: EdgeInsets.only(bottom: isLast ? 8 : 0),
+        padding: EdgeInsets.only(
+          top: 4.5,
+          bottom: 4.5 + (isLast ? 8 : 0),
+        ),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {
@@ -680,7 +682,7 @@ class _ChatViewState extends State<ChatView>
               color: c.highlight.value == i
                   ? style.colors.primaryOpacity20
                   : const Color(0x00ffffff),
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+              padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
                 chat: c.chat!.chat,
@@ -726,8 +728,8 @@ class _ChatViewState extends State<ChatView>
                   await Future.wait(futures);
                 },
                 onReply: () {
-                  if (element.forwards.any(
-                          (e) => c.send.replied.any((i) => i.id == e.value.id)) ||
+                  if (element.forwards.any((e) =>
+                          c.send.replied.any((i) => i.id == e.value.id)) ||
                       c.send.replied
                           .any((i) => i.id == element.note.value?.value.id)) {
                     for (Rx<ChatItem> e in element.forwards) {

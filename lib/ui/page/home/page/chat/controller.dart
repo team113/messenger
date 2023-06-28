@@ -273,7 +273,7 @@ class ChatController extends GetxController {
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 2);
 
-  /// [Timer] resetting the [highlight] value after the [_highlightTimer] has
+  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
   /// passed.
   Timer? _highlightTimer;
 
