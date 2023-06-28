@@ -165,7 +165,8 @@ jobs:
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
-                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}'
+                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_USER_AGENT_VERSION=${{ github.sha }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name

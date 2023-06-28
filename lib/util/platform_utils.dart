@@ -34,10 +34,10 @@ import 'package:stdlibc/stdlibc.dart';
 import 'package:win32/win32.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../pubspec.g.dart';
 import '/config.dart';
 import '/routes.dart';
 import 'backoff.dart';
+import 'ios_utils.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -106,7 +106,8 @@ class PlatformUtilsImpl {
 
       if (isWeb) {
         final info = await device.webBrowserInfo;
-        _userAgent = info.userAgent ?? '${Config.userAgent}/${Pubspec.version}';
+        _userAgent = info.userAgent ??
+            '${Config.userAgentProduct}/${Config.userAgentVersion}';
         return _userAgent!;
       } else if (isMacOS) {
         final info = await device.macOsInfo;
@@ -204,15 +205,41 @@ class PlatformUtilsImpl {
         system = buffer.toString();
       } else if (isAndroid) {
         final info = await device.androidInfo;
-        system =
-            'Android ${info.version.release}; SDK ${info.version.sdkInt}; ${info.hardware}; ${info.manufacturer} ${info.model}';
+        final utsname = uname();
+
+        final StringBuffer buffer = StringBuffer(
+          'Android ${info.version.release} ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
+        );
+
+        if (utsname != null) {
+          buffer.write('; ${utsname.machine} ${info.hardware}');
+        }
+
+        buffer.write('; ${info.manufacturer} ${info.model}; ${info.id}');
+
+        system = buffer.toString();
       } else if (isIOS) {
         final info = await device.iosInfo;
-        system =
-            '${info.systemName} ${info.systemVersion}; ${info.utsname.machine}';
+        final StringBuffer buffer = StringBuffer(
+          '${info.systemName} ${info.systemVersion} ${info.utsname.version}',
+        );
+
+        try {
+          buffer.write('; ${await IosUtils.getArchitecture()}');
+        } catch (_) {
+          // No-op.
+        }
+
+        buffer.write('; ${info.utsname.machine}');
+
+        if (info.identifierForVendor != null) {
+          buffer.write('; ${info.identifierForVendor}');
+        }
+
+        system = buffer.toString();
       }
 
-      _userAgent = '${Config.userAgent}/${Pubspec.version}';
+      _userAgent = '${Config.userAgentProduct}/${Config.userAgentVersion}';
       if (system != null) {
         _userAgent = '$_userAgent ($system)';
       }
