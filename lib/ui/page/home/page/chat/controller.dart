@@ -224,6 +224,9 @@ class ChatController extends GetxController {
   /// Indicator whether the application is active.
   final RxBool active = RxBool(true);
 
+  /// Index of the item that should be highlighted.
+  final RxnInt highlight = RxnInt(null);
+
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
@@ -266,6 +269,13 @@ class ChatController extends GetxController {
 
   /// Currently displayed bottom [LoaderElement] in the [elements] list.
   LoaderElement? _bottomLoader;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 2);
+
+  /// [Timer] resetting the [highlight] value after the [_highlightTimer] has
+  /// passed.
+  Timer? _highlightTimer;
 
   /// [Timer] adding the [_bottomLoader] to the [elements] list.
   Timer? _bottomLoaderStartTimer;
@@ -957,6 +967,8 @@ class ChatController extends GetxController {
     });
 
     if (index != -1) {
+      _highlight(index);
+
       if (listController.hasClients) {
         await listController.sliverController.animateToIndex(
           index,
@@ -969,6 +981,14 @@ class ChatController extends GetxController {
         initIndex = index;
       }
     }
+  }
+
+  /// Highlights the item with the provided [index].
+  Future<void> _highlight(int index) async {
+    highlight.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
   }
 
   /// Animates [listController] to the last [ChatItem] in the [RxChat.messages]
@@ -1248,6 +1268,7 @@ class ChatController extends GetxController {
     if (itemId != null) {
       int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
+        _highlight(i);
         index = i;
         offset = (MediaQuery.of(router.context!).size.height) / 3;
       }

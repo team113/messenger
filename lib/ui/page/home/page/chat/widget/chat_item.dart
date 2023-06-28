@@ -129,7 +129,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
-  final Future<RxUser?> Function(UserId userId)? getUser;
+  final FutureOr<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final void Function()? onHide;
@@ -466,11 +466,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       UserId id,
       Widget Function(BuildContext context, User? user) builder,
     ) {
+      final FutureOr<RxUser?>? result = widget.getUser?.call(id);
+
       return FutureBuilder(
-        future: widget.getUser?.call(id),
+        future: result is Future<RxUser?> ? result : null,
         builder: (context, snapshot) {
-          if (snapshot.data != null) {
-            return Obx(() => builder(context, snapshot.data!.user.value));
+          RxUser? data = snapshot.data ?? (result is RxUser? ? result : null);
+          if (data != null) {
+            return Obx(() => builder(context, data.user.value));
           }
 
           return builder(context, null);
@@ -1247,14 +1250,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       content = Text('err_unknown'.l10n, style: fonts.headlineMedium);
     }
 
+    final FutureOr<RxUser?>? result = widget.getUser?.call(item.author);
+
     return FutureBuilder<RxUser?>(
-      future: widget.getUser?.call(item.author),
-      builder: (context, snapshot) {
-        final Color color = snapshot.data?.user.value.id == widget.me
+      future: result is Future<RxUser?> ? result : null,
+      builder: (_, snapshot) {
+        RxUser? data = snapshot.data ?? (result is RxUser? ? result : null);
+
+        final Color color = data?.user.value.id == widget.me
             ? style.colors.primary
-            : style.colors.userColors[
-                (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    style.colors.userColors.length];
+            : style.colors.userColors[(data?.user.value.num.val.sum() ?? 3) %
+                style.colors.userColors.length];
 
         return ClipRRect(
           borderRadius: style.cardRadius,
@@ -1272,8 +1278,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        snapshot.data?.user.value.name?.val ??
-                            snapshot.data?.user.value.num.val ??
+                        data?.user.value.name?.val ??
+                            data?.user.value.num.val ??
                             'dot'.l10n * 3,
                         style: fonts.bodyLarge!.copyWith(color: color),
                       ),
@@ -1420,14 +1426,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
 
+        final FutureOr<RxUser?>? result = widget.getUser?.call(m.memberId);
+
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: FutureBuilder<RxUser?>(
-              future: widget.getUser?.call(m.memberId),
+              future: result is Future<RxUser?> ? result : null,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                RxUser? data =
+                    snapshot.data ?? (result is RxUser? ? result : null);
+
+                if (data != null) {
+                  return AvatarWidget.fromRxUser(data, radius: 10);
                 }
                 return AvatarWidget.fromUser(user, radius: 10);
               },
