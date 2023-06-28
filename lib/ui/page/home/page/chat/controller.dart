@@ -957,7 +957,7 @@ class ChatController extends GetxController {
   Future<void> animateTo(
     ChatItemId id, {
     bool offsetBasedOnBottom = true,
-    double offset = 0,
+    double offset = 50,
   }) async {
     int index = elements.values.toList().indexWhere((e) {
       return e.id.id == id ||
