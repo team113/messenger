@@ -175,13 +175,10 @@ class ChatsTabView extends StatelessWidget {
                       if (c.selecting.value) {
                         final bool selected = c.chats.isNotEmpty &&
                             c.chats.where((e) {
-                              final bool isHidden = e.chat.value.isHidden &&
-                                  !e.chat.value.isRoute(router.route, c.me);
-
-                              return ((!e.id.isLocal ||
+                              return (!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
-                                  !isHidden);
+                                  !e.chat.value.isHidden;
                             }).every(
                               (e) => c.selectedChats.any((m) => m == e.id),
                             );
@@ -191,13 +188,10 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> chats = [];
 
                             for (RxChat e in c.chats) {
-                              final bool isHidden = e.chat.value.isHidden &&
-                                  !e.chat.value.isRoute(router.route, c.me);
-
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
-                                  !isHidden) {
+                                  !e.chat.value.isHidden) {
                                 chats.add(e);
                               }
                             }
@@ -624,11 +618,8 @@ class ChatsTabView extends StatelessWidget {
                   } else {
                     if (c.chats.none(
                       (e) {
-                        final bool isHidden = e.chat.value.isHidden &&
-                            !e.chat.value.isRoute(router.route, c.me);
-
                         return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                            !isHidden;
+                            !e.chat.value.isHidden;
                       },
                     )) {
                       if (c.status.value.isLoadingMore) {
@@ -660,13 +651,10 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> chats = [];
 
                             for (RxChat e in c.chats) {
-                              final bool isHidden = e.chat.value.isHidden &&
-                                  !e.chat.value.isRoute(router.route, c.me);
-
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
-                                  !isHidden) {
+                                  !e.chat.value.isHidden) {
                                 if (e.chat.value.ongoingCall != null) {
                                   calls.add(e);
                                 } else if (e.chat.value.favoritePosition !=
