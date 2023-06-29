@@ -29,7 +29,7 @@ class AnimatedCircleAvatar extends StatelessWidget {
     super.key,
     this.avatar,
     this.onPressed,
-    this.onPressedAdditional,
+    this.onTrailingPressed,
     this.isLoading = false,
     this.isVisible = true,
   });
@@ -46,8 +46,8 @@ class AnimatedCircleAvatar extends StatelessWidget {
   /// Callback, called when label was pressed.
   final void Function()? onPressed;
 
-  /// Callback, called when additional label was pressed.
-  final void Function()? onPressedAdditional;
+  /// Callback, called when trailing label was pressed.
+  final void Function()? onTrailingPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +98,7 @@ class AnimatedCircleAvatar extends StatelessWidget {
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
-                onPressed: onPressedAdditional,
+                onPressed: onTrailingPressed,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
                   style:

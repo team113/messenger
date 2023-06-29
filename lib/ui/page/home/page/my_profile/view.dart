@@ -103,7 +103,7 @@ class MyProfileView extends StatelessWidget {
                               isLoading: c.avatarUpload.value.isLoading,
                               isVisible: c.myUser.value?.avatar != null,
                               onPressed: c.uploadAvatar,
-                              onPressedAdditional: c.deleteAvatar,
+                              onTrailingPressed: c.deleteAvatar,
                               avatar: WidgetButton(
                                 onPressed: c.myUser.value?.avatar == null
                                     ? c.uploadAvatar

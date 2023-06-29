@@ -215,7 +215,7 @@ class ChatInfoView extends StatelessWidget {
                         isLoading: c.avatar.value.isLoading,
                         isVisible: c.chat?.chat.value.avatar != null,
                         onPressed: c.pickAvatar,
-                        onPressedAdditional: c.deleteAvatar,
+                        onTrailingPressed: c.deleteAvatar,
                         avatar: WidgetButton(
                           key: Key('ChatAvatar_${c.chat!.id}'),
                           onPressed: c.chat?.chat.value.avatar == null
