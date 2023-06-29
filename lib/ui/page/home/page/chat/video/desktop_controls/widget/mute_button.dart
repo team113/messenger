@@ -41,11 +41,11 @@ class MuteButton extends StatelessWidget {
   /// Height of the bottom controls bar.
   final double? barHeight;
 
-  /// Triggered when a mouse pointer has entered this widget.
+  /// Callback, called when a mouse pointer has entered this widget.
   final void Function(PointerEnterEvent)? onEnter;
 
   /// Callback, called when this [MuteButton] is tapped.
-  final void Function()? onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

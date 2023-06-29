@@ -144,10 +144,11 @@ class SwipeableStatus extends StatelessWidget {
       );
 }
 
-/// Returns a [Row] of [swipeable] and a optional status.
+/// Widget which returns a [Row] of [swipeable] and a optional status.
 class _SwipeableWithStatus extends StatelessWidget {
   const _SwipeableWithStatus({this.children = const <Widget>[]});
 
+  ///  Widgets to put inside this [_SwipeableWithStatus].
   final List<Widget> children;
 
   @override

@@ -39,7 +39,7 @@ class StyledPlayPauseButton extends StatelessWidget {
   final double? height;
 
   /// Callback, called when this [StyledPlayPauseButton] is tapped.
-  final void Function()? onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

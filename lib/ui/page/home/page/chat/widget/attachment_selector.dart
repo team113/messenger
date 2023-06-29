@@ -148,7 +148,7 @@ class _AttachmentButton extends StatelessWidget {
   final Widget? child;
 
   /// Callback, called when this [_AttachmentButton] is pressed.
-  final void Function()? onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {

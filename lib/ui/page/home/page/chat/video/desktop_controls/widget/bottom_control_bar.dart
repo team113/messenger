@@ -62,13 +62,13 @@ class BottomControlBar extends StatelessWidget {
   final bool? isFullscreen;
 
   /// Callback, called when [StyledPlayPauseButton] is tapped.
-  final void Function()? onPlayPause;
+  final VoidCallback? onPlayPause;
 
   /// Callback, called when [MuteButton] is tapped.
-  final void Function()? onMute;
+  final VoidCallback? onMute;
 
   /// Callback, called when [ExpandButton] is tapped.
-  final void Function()? onFullscreen;
+  final VoidCallback? onFullscreen;
 
   /// Callback, called when progress drag started.
   final dynamic Function()? onDragStart;
