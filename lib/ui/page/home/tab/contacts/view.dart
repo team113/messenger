@@ -32,11 +32,11 @@ import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/page/home/widget/decorated_row.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
-import '/ui/page/home/widget/styled_rounded_button.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -472,9 +472,11 @@ class ContactsTabView extends StatelessWidget {
               ],
             );
           }),
-          bottomNavigationBar: c.selecting.value
-              ? DecoratedRow(
-                  leading: StyledRoundedButton(
+          bottomNavigationBar: Obx(() {
+            if (c.selecting.value) {
+              return BottomPaddedRow(
+                children: [
+                  ShadowedRoundedButton(
                     onPressed: c.toggleSelecting,
                     child: Text(
                       'btn_cancel'.l10n,
@@ -483,7 +485,7 @@ class ContactsTabView extends StatelessWidget {
                       style: fonts.titleLarge,
                     ),
                   ),
-                  trailing: StyledRoundedButton(
+                  ShadowedRoundedButton(
                     key: const Key('DeleteContacts'),
                     onPressed: c.selectedContacts.isEmpty
                         ? null
@@ -501,9 +503,13 @@ class ContactsTabView extends StatelessWidget {
                             : style.colors.onPrimary,
                       ),
                     ),
-                  ),
-                )
-              : null,
+                  )
+                ],
+              );
+            }
+
+            return const SizedBox();
+          }),
         );
       }),
     );

@@ -32,9 +32,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
-import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
@@ -43,6 +41,8 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'rectangular_call_button.dart';
+import 'unread_counter.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
 class RecentChatTile extends StatelessWidget {
@@ -190,17 +190,15 @@ class RecentChatTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                   ],
-                  if (rxChat.unreadCount.value > 0)
-                    _UnreadCounter(
-                      // TODO: Implement and test notations like `4k`, `54m`,
-                      //       etc.
-                      text: rxChat.unreadCount.value > 99
-                          ? '99${'plus'.l10n}'
-                          : '${rxChat.unreadCount.value}',
+                  if (rxChat.unreadCount.value > 0) ...[
+                    const SizedBox(width: 4),
+                    UnreadCounter(
+                      key: const Key('UnreadMessages'),
+                      rxChat.unreadCount.value,
                       inverted: inverted,
-                      muted: chat.muted != null,
-                    )
-                  else
+                      dimmed: chat.muted != null,
+                    ),
+                  ] else
                     const SizedBox(key: Key('NoUnreadMessages')),
                 ] else
                   ...trailing!,
@@ -808,10 +806,13 @@ class RecentChatTile extends StatelessWidget {
         padding: const EdgeInsets.only(left: 5),
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
-          child: _RoundedRectangularButton(
+          child: RectangularCallButton(
+            key: isActive
+                ? const Key('JoinCallButton')
+                : const Key('DropCallButton'),
             isActive: isActive,
             duration: DateTime.now().difference(chat.ongoingCall!.at.val),
-            onTap: isActive ? onDrop : onJoin,
+            onPressed: isActive ? onDrop : onJoin,
           ),
         ),
       );
@@ -844,126 +845,4 @@ class RecentChatTile extends StatelessWidget {
         onLongPress: () {},
         child: child,
       );
-}
-
-/// Widget which returns a visual representation of the [Chat.unreadCount]
-/// counter.
-class _UnreadCounter extends StatelessWidget {
-  const _UnreadCounter({
-    this.text = '1',
-    this.muted = false,
-    this.inverted = false,
-  });
-
-  /// Text of this [_UnreadCounter].
-  final String? text;
-
-  /// Indicator whether the chat should `muted` or not.
-  final bool? muted;
-
-  /// Indicator whether this [_UnreadCounter] should have its colors
-  /// inverted.
-  final bool? inverted;
-
-  @override
-  Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Container(
-      key: const Key('UnreadMessages'),
-      margin: const EdgeInsets.only(left: 4),
-      width: 23,
-      height: 23,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: muted!
-            ? inverted!
-                ? style.colors.onPrimary
-                : const Color(0xFFC0C0C0)
-            : style.colors.dangerColor,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        text!,
-        style: fonts.displaySmall!.copyWith(
-          color: muted!
-              ? inverted!
-                  ? style.colors.secondary
-                  : style.colors.onPrimary
-              : style.colors.onPrimary,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.clip,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-}
-
-/// Widget which returns a custom-styled rounded rectangular button.
-class _RoundedRectangularButton extends StatelessWidget {
-  const _RoundedRectangularButton({
-    this.duration = const Duration(seconds: 52),
-    this.isActive = true,
-    this.onTap,
-  });
-
-  /// [Duration] of this [_RoundedRectangularButton].
-  final Duration duration;
-
-  /// Indicator whether this [_RoundedRectangularButton] is active or not.
-  final bool isActive;
-
-  /// Callback, called when this [_RoundedRectangularButton] is tapped.
-  final void Function()? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return DecoratedBox(
-      key: isActive ? const Key('JoinCallButton') : const Key('DropCallButton'),
-      position: DecorationPosition.foreground,
-      decoration: BoxDecoration(
-        border: Border.all(color: style.colors.onPrimary, width: 0.5),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Material(
-        elevation: 0,
-        type: MaterialType.button,
-        borderRadius: BorderRadius.circular(20),
-        color: isActive ? style.colors.dangerColor : style.colors.primary,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
-            child: Row(
-              children: [
-                Icon(
-                  isActive ? Icons.call_end : Icons.call,
-                  size: 16,
-                  color: style.colors.onPrimary,
-                ),
-                const SizedBox(width: 6),
-                PeriodicBuilder(
-                  period: const Duration(seconds: 1),
-                  builder: (_) {
-                    final String text = duration.hhMmSs();
-
-                    return Text(
-                      text,
-                      style: fonts.bodyMedium!.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
-                    ).fixedDigits();
-                  },
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

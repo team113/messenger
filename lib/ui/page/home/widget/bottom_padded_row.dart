@@ -21,18 +21,32 @@ import 'package:get/get.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
 
-/// Row with the [leading] and [trailing] widgets.
-class DecoratedRow extends StatelessWidget {
-  const DecoratedRow({super.key, this.leading, this.trailing});
+/// [Row] padded to be at the bottom of the screen expanding its [children].
+class BottomPaddedRow extends StatelessWidget {
+  const BottomPaddedRow({
+    super.key,
+    this.children = const [],
+    this.spacing = 10,
+  });
 
-  /// Optional leading [Widget].
-  final Widget? leading;
+  /// [Widget]s to put in the [Row].
+  final List<Widget> children;
 
-  /// Optional trailing [Widget].
-  final Widget? trailing;
+  /// Spacing between [children].
+  final double spacing;
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> widgets = [];
+
+    for (int i = 0; i < children.length; ++i) {
+      widgets.add(Expanded(child: children[i]));
+
+      if (i != children.length) {
+        widgets.add(SizedBox(width: spacing));
+      }
+    }
+
     return Padding(
       padding: EdgeInsets.fromLTRB(
         8,
@@ -42,13 +56,7 @@ class DecoratedRow extends StatelessWidget {
             ? router.context!.mediaQuery.padding.bottom + 7
             : 12,
       ),
-      child: Row(
-        children: [
-          if (leading != null) leading!,
-          const SizedBox(width: 10),
-          if (trailing != null) trailing!,
-        ],
-      ),
+      child: Row(children: widgets),
     );
   }
 }

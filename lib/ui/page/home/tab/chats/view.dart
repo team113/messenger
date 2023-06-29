@@ -32,11 +32,11 @@ import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/decorated_row.dart';
+import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
-import '/ui/page/home/widget/styled_rounded_button.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -823,9 +823,11 @@ class ChatsTabView extends StatelessWidget {
                     ),
                   );
                 }),
-                bottomNavigationBar: c.groupCreating.value
-                    ? DecoratedRow(
-                        leading: StyledRoundedButton(
+                bottomNavigationBar: Obx(() {
+                  if (c.groupCreating.value) {
+                    return BottomPaddedRow(
+                      children: [
+                        ShadowedRoundedButton(
                           onPressed: c.closeGroupCreating,
                           color: style.colors.onPrimary,
                           child: Text(
@@ -835,7 +837,7 @@ class ChatsTabView extends StatelessWidget {
                             style: fonts.titleLarge,
                           ),
                         ),
-                        trailing: StyledRoundedButton(
+                        ShadowedRoundedButton(
                           onPressed: c.createGroup,
                           color: style.colors.primary,
                           child: Text(
@@ -847,39 +849,45 @@ class ChatsTabView extends StatelessWidget {
                             ),
                           ),
                         ),
-                      )
-                    : c.selecting.value
-                        ? DecoratedRow(
-                            leading: StyledRoundedButton(
-                              onPressed: c.toggleSelecting,
-                              child: Text(
-                                'btn_cancel'.l10n,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: fonts.titleLarge,
-                              ),
+                      ],
+                    );
+                  } else if (c.selecting.value) {
+                    return BottomPaddedRow(
+                      children: [
+                        ShadowedRoundedButton(
+                          onPressed: c.toggleSelecting,
+                          child: Text(
+                            'btn_cancel'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: fonts.titleLarge,
+                          ),
+                        ),
+                        ShadowedRoundedButton(
+                          key: const Key('DeleteChats'),
+                          onPressed: c.selectedChats.isEmpty
+                              ? null
+                              : () => _hideChats(context, c),
+                          color: style.colors.primary,
+                          child: Text(
+                            'btn_delete_count'.l10nfmt({
+                              'count': c.selectedChats.length,
+                            }),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: fonts.titleLarge!.copyWith(
+                              color: c.selectedChats.isEmpty
+                                  ? style.colors.onBackground
+                                  : style.colors.onPrimary,
                             ),
-                            trailing: StyledRoundedButton(
-                              key: const Key('DeleteChats'),
-                              onPressed: c.selectedChats.isEmpty
-                                  ? null
-                                  : () => _hideChats(context, c),
-                              color: style.colors.primary,
-                              child: Text(
-                                'btn_delete_count'.l10nfmt({
-                                  'count': c.selectedChats.length,
-                                }),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: fonts.titleLarge!.copyWith(
-                                  color: c.selectedChats.isEmpty
-                                      ? style.colors.onBackground
-                                      : style.colors.onPrimary,
-                                ),
-                              ),
-                            ),
-                          )
-                        : null,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return const SizedBox();
+                }),
               );
             }),
             Obx(() {

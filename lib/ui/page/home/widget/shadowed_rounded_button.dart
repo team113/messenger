@@ -20,9 +20,9 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
-/// Custom styled [OutlinedRoundedButton].
-class StyledRoundedButton extends StatelessWidget {
-  const StyledRoundedButton({
+/// [OutlinedRoundedButton] with [CustomBoxShadow].
+class ShadowedRoundedButton extends StatelessWidget {
+  const ShadowedRoundedButton({
     super.key,
     this.child,
     this.color,
@@ -42,19 +42,17 @@ class StyledRoundedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Expanded(
-      child: OutlinedRoundedButton(
-        title: child,
-        onPressed: onPressed,
-        color: color,
-        shadows: [
-          CustomBoxShadow(
-            blurRadius: 8,
-            color: style.colors.onBackgroundOpacity13,
-            blurStyle: BlurStyle.outer,
-          ),
-        ],
-      ),
+    return OutlinedRoundedButton(
+      title: child,
+      onPressed: onPressed,
+      color: color,
+      shadows: [
+        CustomBoxShadow(
+          blurRadius: 8,
+          color: style.colors.onBackgroundOpacity13,
+          blurStyle: BlurStyle.outer,
+        ),
+      ],
     );
   }
 }
