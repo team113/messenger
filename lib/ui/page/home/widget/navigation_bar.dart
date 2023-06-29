@@ -125,7 +125,7 @@ class CustomNavigationBar extends StatelessWidget {
                                         vertical: 0,
                                         horizontal: 4.4,
                                       ),
-                                      offset: const Offset(2, -2),
+                                      offset: const Offset(2, -4),
                                       label: b.badge == null
                                           ? null
                                           : Transform.translate(
@@ -137,7 +137,7 @@ class CustomNavigationBar extends StatelessWidget {
                                                           : 0.25,
                                                     )
                                                   : PlatformUtils.isDesktop
-                                                      ? const Offset(0, -0.7)
+                                                      ? const Offset(-0.1, -0.2)
                                                       : Offset.zero,
                                               child: Text(
                                                 b.badge!,
@@ -146,6 +146,7 @@ class CustomNavigationBar extends StatelessWidget {
                                             ),
                                       textStyle: fonts.bodySmall!.copyWith(
                                         color: style.colors.onPrimary,
+                                        fontSize: 9,
                                       ),
                                       backgroundColor: b.badgeColor ??
                                           style.colors.dangerColor,

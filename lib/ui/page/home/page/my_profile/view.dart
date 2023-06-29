@@ -33,6 +33,7 @@ import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import 'package:messenger/ui/page/home/widget/animated_button.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../chat/message_field/view.dart';
@@ -99,9 +100,11 @@ class MyProfileView extends StatelessWidget {
               actions: [
                 WidgetButton(
                   onPressed: () {},
-                  child: SvgImage.asset(
-                    'assets/icons/search.svg',
-                    width: 17.77,
+                  child: AnimatedButton(
+                    child: SvgImage.asset(
+                      'assets/icons/search.svg',
+                      width: 17.77,
+                    ),
                   ),
                 ),
               ],

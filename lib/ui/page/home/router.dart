@@ -31,6 +31,7 @@ import 'page/public/view.dart';
 import 'page/transaction/view.dart';
 import 'page/user/view.dart';
 import 'page/balance/view.dart';
+import 'page/vacancy/view.dart';
 
 /// [Routes.home] page [RouterDelegate] that builds the nested [Navigator].
 ///
@@ -133,6 +134,13 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           key: ValueKey('TransactionPage$id'),
           name: '${Routes.transaction}/$id',
           child: TransactionView(id),
+        ));
+      } else if (route.startsWith('${Routes.vacancy}/')) {
+        final id = route.replaceFirst('${Routes.vacancy}/', '');
+        pages.add(_CustomPage(
+          key: ValueKey('VacancyPage$id'),
+          name: '${Routes.vacancy}/$id',
+          child: VacancyView(id),
         ));
       }
     }

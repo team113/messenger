@@ -95,6 +95,7 @@ class Routes {
   static const user = '/user';
   static const balance = '/top_up';
   static const transaction = '/transaction';
+  static const vacancy = '/vacancy';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -251,7 +252,8 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.funds ||
             routes.last == Routes.user ||
             routes.last == Routes.balance ||
-            routes.last == Routes.transaction) {
+            routes.last == Routes.transaction ||
+            routes.last == Routes.vacancy) {
           routes.last = Routes.home;
         }
       } else {
@@ -738,6 +740,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.public) ||
         _state.route.startsWith(Routes.balance) ||
         _state.route.startsWith(Routes.transaction) ||
+        _state.route.startsWith(Routes.vacancy) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -881,6 +884,9 @@ extension RouteLinks on RouterState {
   void transaction(String id, {bool push = false}) => push
       ? this.push('${Routes.transaction}/$id')
       : go('${Routes.transaction}/$id');
+
+  void vacancy(String id, {bool push = false}) =>
+      push ? this.push('${Routes.vacancy}/$id') : go('${Routes.vacancy}/$id');
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].
