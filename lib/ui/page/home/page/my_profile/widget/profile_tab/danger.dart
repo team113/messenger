@@ -28,7 +28,7 @@ class ProfileDanger extends StatelessWidget {
   const ProfileDanger(this.onPressed, {super.key});
 
   /// Callback, called when this [ProfileDanger] is pressed.
-  final void Function() onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {

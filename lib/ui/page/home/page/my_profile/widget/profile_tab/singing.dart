@@ -192,10 +192,10 @@ class ProfileEmails extends StatelessWidget {
   final bool hasUnconfirmed;
 
   /// Callback, called when [FieldButton] with unverified email is pressed.
-  final void Function()? onPressed;
+  final VoidCallback? onPressed;
 
   /// Callback, called when the trailing is pressed.
-  final void Function()? onTrailingPressed;
+  final VoidCallback? onTrailingPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -366,10 +366,10 @@ class ProfilePhones extends StatelessWidget {
   final bool hasUnconfirmed;
 
   /// Callback, called when [FieldButton] with unverified phone is pressed.
-  final void Function()? onPressed;
+  final VoidCallback? onPressed;
 
   /// Callback, called when the trailing is pressed.
-  final void Function()? onTrailingPressed;
+  final VoidCallback? onTrailingPressed;
 
   @override
   Widget build(BuildContext context) {

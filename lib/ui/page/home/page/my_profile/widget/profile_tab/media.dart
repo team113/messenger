@@ -45,13 +45,13 @@ class ProfileMedia extends StatelessWidget {
   final String? outputText;
 
   /// Callback, called when the video switch is toggled.
-  final void Function()? videoSwitch;
+  final VoidCallback? videoSwitch;
 
   /// Callback, called when the microphone switch is toggled.
-  final void Function()? microphoneSwitch;
+  final VoidCallback? microphoneSwitch;
 
   /// Callback, called when the output switch is toggled.
-  final void Function()? outputSwitch;
+  final VoidCallback? outputSwitch;
 
   @override
   Widget build(BuildContext context) {

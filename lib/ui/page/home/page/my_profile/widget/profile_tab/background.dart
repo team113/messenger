@@ -38,10 +38,10 @@ class ProfileBackground extends StatelessWidget {
   final Uint8List? background;
 
   /// Opens an image choose popup and sets the selected file as a [background].
-  final Future<void> Function() pickBackground;
+  final VoidCallback? pickBackground;
 
   /// Removes the currently set [background].
-  final Future<void> Function() removeBackground;
+  final VoidCallback? removeBackground;
 
   @override
   Widget build(BuildContext context) {

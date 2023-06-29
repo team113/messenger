@@ -276,7 +276,7 @@ class MyProfileView extends StatelessWidget {
                           children: [
                             Obx(
                               () => ProfileChats(
-                                isTimeline: c.settings.value?.timelineEnabled,
+                                isTimeline: c.settings.value!.timelineEnabled,
                               ),
                             ),
                           ],

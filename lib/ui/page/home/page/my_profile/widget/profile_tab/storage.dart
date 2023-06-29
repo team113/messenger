@@ -26,7 +26,7 @@ import '/ui/widget/text_field.dart';
 class ProfileStorage extends StatelessWidget {
   const ProfileStorage({super.key, this.value = true, this.onChanged});
 
-  /// Whether this [Switch.adaptive] is `on` or `off`.
+  /// Indicator whether the [Switch.adaptive] is `on` or `off`.
   final bool value;
 
   /// Called when the user toggles the switch `on` or `off`.

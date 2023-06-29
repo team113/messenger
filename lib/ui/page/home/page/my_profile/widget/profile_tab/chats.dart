@@ -26,10 +26,10 @@ import '/ui/page/home/widget/paddings.dart';
 /// Title with [FieldButton] that toggles the display of chat timestamps
 /// between a timeline format and an in-message format.
 class ProfileChats extends StatelessWidget {
-  const ProfileChats({super.key, this.isTimeline});
+  const ProfileChats({super.key, this.isTimeline = true});
 
   /// Indicator whether timestamp labels should be displayed as a timeline.
-  final bool? isTimeline;
+  final bool isTimeline;
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +55,8 @@ class ProfileChats extends StatelessWidget {
         const SizedBox(height: 4),
         Paddings.dense(
           FieldButton(
-            text: isTimeline ?? true
-                ? 'label_as_timeline'.l10n
-                : 'label_in_message'.l10n,
+            text:
+                isTimeline ? 'label_as_timeline'.l10n : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
             style: fonts.titleMedium!.copyWith(color: style.colors.primary),
