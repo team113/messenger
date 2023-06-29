@@ -137,22 +137,18 @@ class _MediaAttachmentState extends State<MediaAttachment> {
               ),
             );
           } else {
-            return Center(
-              child: VideoThumbnail.bytes(
-                bytes: attachment.file.bytes.value!,
-                height: widget.height,
-              ),
+            return VideoThumbnail.bytes(
+              bytes: attachment.file.bytes.value!,
+              height: widget.height,
             );
           }
         });
       } else {
-        return Center(
-          child: VideoThumbnail.url(
-            url: attachment.original.url,
-            checksum: attachment.original.checksum,
-            height: widget.height,
-            onError: widget.onError,
-          ),
+        return VideoThumbnail.url(
+          url: attachment.original.url,
+          checksum: attachment.original.checksum,
+          height: widget.height,
+          onError: widget.onError,
         );
       }
     }

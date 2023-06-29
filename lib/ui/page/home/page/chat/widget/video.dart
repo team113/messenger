@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -128,9 +129,35 @@ class _VideoState extends State<Video> {
         return _controller.dataStatus.loaded
             ? Stack(
                 children: [
-                  MeeduVideoPlayer(
-                    controller: _controller,
-                    customControls: (_, __, ___) => const SizedBox(),
+                  Center(
+                    child: LayoutBuilder(builder: (_, constraints) {
+                      double? width;
+                      double? height;
+
+                      if (_controller.videoPlayerController != null) {
+                        double maxHeight = constraints.maxHeight;
+                        double maxWidth = constraints.maxWidth;
+
+                        width =
+                            _controller.videoPlayerController!.value.size.width;
+                        height = _controller
+                            .videoPlayerController!.value.size.height;
+
+                        double index =
+                            min(maxHeight / height, maxWidth / width);
+                        width *= index;
+                        height *= index;
+                      }
+
+                      return SizedBox(
+                        width: width,
+                        height: height,
+                        child: MeeduVideoPlayer(
+                          controller: _controller,
+                          customControls: (_, __, ___) => const SizedBox(),
+                        ),
+                      );
+                    }),
                   ),
                   PlatformUtils.isMobile
                       ? MobileControls(controller: _controller)
