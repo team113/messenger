@@ -224,7 +224,7 @@ class ChatController extends GetxController {
   /// Indicator whether the application is active.
   final RxBool active = RxBool(true);
 
-  /// Index of the item that should be highlighted.
+  /// Index of an item from the [elements] that should be highlighted.
   final RxnInt highlight = RxnInt(null);
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
@@ -983,14 +983,6 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Highlights the item with the provided [index].
-  Future<void> _highlight(int index) async {
-    highlight.value = index;
-
-    _highlightTimer?.cancel();
-    _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
-  }
-
   /// Animates [listController] to the last [ChatItem] in the [RxChat.messages]
   /// list.
   Future<void> animateToBottom() async {
@@ -1146,6 +1138,14 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Highlights the item with the provided [index].
+  Future<void> _highlight(int index) async {
+    highlight.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
+  }
+
   /// Plays the message sent sound.
   void _playMessageSent() {
     runZonedGuarded(
@@ -1260,8 +1260,9 @@ class ChatController extends GetxController {
   }
 
   /// Calculates a [_ListViewIndexCalculationResult] of a [FlutterListView].
-  _ListViewIndexCalculationResult _calculateListViewIndex(
-      [bool fixMotion = true]) {
+  _ListViewIndexCalculationResult _calculateListViewIndex([
+    bool fixMotion = true,
+  ]) {
     int index = 0;
     double offset = 0;
 

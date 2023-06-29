@@ -613,7 +613,7 @@ class _ChatViewState extends State<ChatView>
               curve: Curves.ease,
               color: c.highlight.value == i
                   ? style.colors.primaryOpacity20
-                  : const Color(0x00FFFFFF),
+                  : style.colors.primaryOpacity20.withOpacity(0),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatItemWidget(
                 chat: c.chat!.chat,
@@ -681,7 +681,7 @@ class _ChatViewState extends State<ChatView>
               curve: Curves.ease,
               color: c.highlight.value == i
                   ? style.colors.primaryOpacity20
-                  : const Color(0x00ffffff),
+                  : style.colors.primaryOpacity20.withOpacity(0),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
@@ -738,7 +738,8 @@ class _ChatViewState extends State<ChatView>
 
                     if (element.note.value != null) {
                       c.send.replied.removeWhere(
-                          (i) => i.id == element.note.value!.value.id);
+                        (i) => i.id == element.note.value!.value.id,
+                      );
                     }
                   } else {
                     if (element.note.value != null) {

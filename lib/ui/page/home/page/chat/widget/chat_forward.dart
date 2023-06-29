@@ -412,7 +412,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           FutureBuilder<RxUser?>(
               future: result is Future<RxUser?> ? result : null,
               builder: (context, snapshot) {
-                RxUser? data =
+                final RxUser? data =
                     snapshot.data ?? (result is RxUser? ? result : null);
 
                 final Color color = data?.user.value.id == widget.me

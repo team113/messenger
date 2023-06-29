@@ -467,7 +467,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       return FutureBuilder(
         future: result is Future<RxUser?> ? result : null,
         builder: (context, snapshot) {
-          RxUser? data = snapshot.data ?? (result is RxUser? ? result : null);
+          final RxUser? data =
+              snapshot.data ?? (result is RxUser? ? result : null);
           if (data != null) {
             return Obx(() => builder(context, data.user.value));
           }
@@ -1251,7 +1252,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return FutureBuilder<RxUser?>(
       future: result is Future<RxUser?> ? result : null,
       builder: (_, snapshot) {
-        RxUser? data = snapshot.data ?? (result is RxUser? ? result : null);
+        final RxUser? data =
+            snapshot.data ?? (result is RxUser? ? result : null);
 
         final Color color = data?.user.value.id == widget.me
             ? style.colors.primary
@@ -1430,7 +1432,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             child: FutureBuilder<RxUser?>(
               future: result is Future<RxUser?> ? result : null,
               builder: (context, snapshot) {
-                RxUser? data =
+                final RxUser? data =
                     snapshot.data ?? (result is RxUser? ? result : null);
 
                 if (data != null) {
