@@ -18,6 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
 
+import 'tab/element.dart';
+
 // import 'tab/color.dart';
 // import 'tab/text.dart';
 // import 'tab/element.dart';
@@ -28,277 +30,286 @@ class StyleView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return SafeArea(
+    return const SafeArea(
       child: Scaffold(
         body: Row(
           children: [
-            Flexible(
-              flex: 1,
-              child: Container(
-                color: style.colors.onPrimary,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: CustomScrollView(
-                        slivers: [
-                          SliverAppBar(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                bottom: Radius.circular(10),
-                              ),
-                            ),
-                            title: Text(
-                              'Style by Gapopa',
-                              style: fonts.displayMedium!.copyWith(
-                                color: style.colors.onBackground,
-                              ),
-                            ),
-                          ),
-                          SliverList(
-                            delegate: SliverChildListDelegate(
-                              [
-                                Column(
-                                  children: [
-                                    ExpansionTile(
-                                      iconColor: style.colors.secondary,
-                                      collapsedIconColor:
-                                          style.colors.secondary,
-                                      title: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.format_paint_rounded,
-                                            color: style.colors.secondary,
-                                          ),
-                                          const SizedBox(width: 7),
-                                          Text(
-                                            'Цветовая палитра',
-                                            style:
-                                                fonts.headlineLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      children: [
-                                        ListTile(
-                                          title: Text(
-                                            'Цвета приложения',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Цвета аватаров',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    ExpansionTile(
-                                      iconColor: style.colors.secondary,
-                                      collapsedIconColor:
-                                          style.colors.secondary,
-                                      title: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.text_fields_rounded,
-                                            color: style.colors.secondary,
-                                          ),
-                                          const SizedBox(width: 7),
-                                          Text(
-                                            'Типографика',
-                                            style:
-                                                fonts.headlineLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      children: [
-                                        ListTile(
-                                          title: Text(
-                                            'Виды шрифтов',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Стили шрифтов',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Интервалы',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    ExpansionTile(
-                                      iconColor: style.colors.secondary,
-                                      collapsedIconColor:
-                                          style.colors.secondary,
-                                      title: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.play_lesson_rounded,
-                                            color: style.colors.secondary,
-                                          ),
-                                          const SizedBox(width: 7),
-                                          Text(
-                                            'Мультимедиа',
-                                            style:
-                                                fonts.headlineLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      children: [
-                                        ListTile(
-                                          title: Text(
-                                            'Изображения',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Анимация',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Звук',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    ExpansionTile(
-                                      iconColor: style.colors.secondary,
-                                      collapsedIconColor:
-                                          style.colors.secondary,
-                                      title: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.widgets_rounded,
-                                            color: style.colors.secondary,
-                                          ),
-                                          const SizedBox(width: 7),
-                                          Text(
-                                            'Элементы',
-                                            style:
-                                                fonts.headlineLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      children: [
-                                        ListTile(
-                                          title: Text(
-                                            'Поля ввода',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Кнопки',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Аватары',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Системные сообщения', // Подсказки и предупреждения
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Переключатели',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text(
-                                            'Всплывающие окна',
-                                            style: fonts.labelLarge!.copyWith(
-                                              color: style.colors.onBackground,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 1800),
-                                  ],
+            Flexible(flex: 1, child: _NavigationBar()),
+            Flexible(flex: 4, child: _ContentScrollView()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ContentScrollView extends StatelessWidget {
+  const _ContentScrollView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFFF5F5F5),
+      child: CustomScrollView(
+        slivers: [
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                const ElementStyleTabView(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavigationBar extends StatelessWidget {
+  const _NavigationBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Container(
+      color: style.colors.onPrimary,
+      child: Column(
+        children: [
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: 100,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(10),
+                    ),
+                  ),
+                  leadingWidth: double.infinity,
+                  leading: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 20,
+                      top: 20,
+                    ),
+                    child: Text(
+                      'Style by Gapopa',
+                      style: fonts.displayLarge!.copyWith(
+                        color: const Color(0xFF1F3C5D),
+                      ),
+                    ),
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      Column(
+                        children: [
+                          ExpansionTile(
+                            iconColor: const Color(0xFF1F3C5D),
+                            collapsedIconColor: const Color(0xFF1F3C5D),
+                            title: Row(
+                              children: [
+                                Icon(
+                                  Icons.format_paint_rounded,
+                                  color: const Color(0xFF1F3C5D),
+                                ),
+                                const SizedBox(width: 7),
+                                Text(
+                                  'Цветовая палитра',
+                                  style: fonts.headlineLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
                                 ),
                               ],
                             ),
+                            children: [
+                              ListTile(
+                                title: Text(
+                                  'Цвета приложения',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Цвета аватаров',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          ExpansionTile(
+                            iconColor: const Color(0xFF1F3C5D),
+                            collapsedIconColor: const Color(0xFF1F3C5D),
+                            title: Row(
+                              children: [
+                                Icon(
+                                  Icons.text_fields_rounded,
+                                  color: const Color(0xFF1F3C5D),
+                                ),
+                                const SizedBox(width: 7),
+                                Text(
+                                  'Типографика',
+                                  style: fonts.headlineLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            children: [
+                              ListTile(
+                                title: Text(
+                                  'Виды шрифтов',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Стили шрифтов',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Интервалы',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          ExpansionTile(
+                            iconColor: const Color(0xFF1F3C5D),
+                            collapsedIconColor: const Color(0xFF1F3C5D),
+                            title: Row(
+                              children: [
+                                Icon(
+                                  Icons.play_lesson_rounded,
+                                  color: const Color(0xFF1F3C5D),
+                                ),
+                                const SizedBox(width: 7),
+                                Text(
+                                  'Мультимедиа',
+                                  style: fonts.headlineLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            children: [
+                              ListTile(
+                                title: Text(
+                                  'Изображения',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Анимация',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Звук',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          ExpansionTile(
+                            iconColor: const Color(0xFF1F3C5D),
+                            collapsedIconColor: const Color(0xFF1F3C5D),
+                            title: Row(
+                              children: [
+                                Icon(
+                                  Icons.widgets_rounded,
+                                  color: const Color(0xFF1F3C5D),
+                                ),
+                                const SizedBox(width: 7),
+                                Text(
+                                  'Элементы',
+                                  style: fonts.headlineLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            children: [
+                              ListTile(
+                                title: Text(
+                                  'Поля ввода',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Кнопки',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Аватары',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Системные сообщения', // Подсказки и предупреждения
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Переключатели',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Всплывающие окна',
+                                  style: fonts.labelLarge!.copyWith(
+                                    color: const Color(0xFF1F3C5D),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
-            Flexible(
-              flex: 4,
-              child: Container(
-                color: Color(0xFFF5f5f5),
-                child: CustomScrollView(
-                  slivers: [
-                    SliverList(
-                      delegate: SliverChildListDelegate(
-                        [
-                          Column(
-                            children: [Text('Content')],
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

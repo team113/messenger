@@ -32,32 +32,46 @@ class ElementStyleTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     // final (style, fonts) = Theme.of(context).styles;
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 70),
-        child: CustomScrollView(
-          slivers: [
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  const SizedBox(height: 20),
-                  const _Header(label: 'Элементы интерфейса'),
-                  const SizedBox(height: 100),
-                  const _Header(label: 'Изображения'),
-                  const _SmallHeader(label: 'Аватар'),
-                  const _Avatar(),
-                  const Divider(),
-                  const _SmallHeader(label: 'Логотип'),
-                  const _Logo(),
-                  const SizedBox(height: 15),
-                  const Divider(),
-                  const _SmallHeader(label: 'Иконки'),
-                  const SizedBox(height: 1000),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 70),
+      child: Column(
+        children: [
+          SizedBox(height: 20),
+          _Header(label: 'Цветовая палитра'),
+          _SmallHeader(label: 'Цвет приложения'),
+          Divider(),
+          _SmallHeader(label: 'Цвет аватаров'),
+          Divider(),
+          _Header(label: 'Типографика'),
+          _SmallHeader(label: 'Виды шрифтов'),
+          Divider(),
+          _SmallHeader(label: 'Стили шрифтов'),
+          Divider(),
+          _SmallHeader(label: 'Интервалы'),
+          Divider(),
+          _Header(label: 'Мультимедиа'),
+          _SmallHeader(label: 'Изображения'),
+          _Logo(),
+          Divider(),
+          _SmallHeader(label: 'Анимация'),
+          Divider(),
+          _SmallHeader(label: 'Звук'),
+          Divider(),
+          _Header(label: 'Элементы'),
+          _SmallHeader(label: 'Поля ввода'),
+          Divider(),
+          _SmallHeader(label: 'Кнопки'),
+          Divider(),
+          _SmallHeader(label: 'Аватары'),
+          _Avatar(),
+          Divider(),
+          _SmallHeader(label: 'Системные сообщения'),
+          Divider(),
+          _SmallHeader(label: 'Переключатели'),
+          Divider(),
+          _SmallHeader(label: 'Всплывающие окна'),
+          Divider(),
+        ],
       ),
     );
   }
