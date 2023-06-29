@@ -406,14 +406,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
         timeInBubble = text == null && media.isNotEmpty && files.isEmpty;
 
-        final FutureOr<RxUser?>? result = widget.getUser?.call(quote.author);
+        final FutureOr<RxUser?>? user = widget.getUser?.call(quote.author);
 
         content = [
           FutureBuilder<RxUser?>(
-              future: result is Future<RxUser?> ? result : null,
+              future: user is Future<RxUser?> ? user : null,
               builder: (context, snapshot) {
                 final RxUser? data =
-                    snapshot.data ?? (result is RxUser? ? result : null);
+                    snapshot.data ?? (user is RxUser? ? user : null);
 
                 final Color color = data?.user.value.id == widget.me
                     ? style.colors.primary
@@ -853,16 +853,16 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
 
-        final FutureOr<RxUser?>? result = widget.getUser?.call(m.memberId);
+        final FutureOr<RxUser?>? member = widget.getUser?.call(m.memberId);
 
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: FutureBuilder<RxUser?>(
-              future: result is Future<RxUser?> ? result : null,
+              future: member is Future<RxUser?> ? member : null,
               builder: (context, snapshot) {
                 RxUser? data =
-                    snapshot.data ?? (result is RxUser? ? result : null);
+                    snapshot.data ?? (member is RxUser? ? member : null);
 
                 if (data != null) {
                   return AvatarWidget.fromRxUser(data, radius: 10);
