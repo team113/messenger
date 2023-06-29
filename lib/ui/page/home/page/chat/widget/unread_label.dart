@@ -20,8 +20,7 @@ import 'package:flutter/material.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 
-/// Expanded [Container] displaying the provided [count] as an unread messages
-/// label.
+/// [Container] displaying the provided [count] as an unread messages label.
 class UnreadLabel extends StatelessWidget {
   const UnreadLabel(this.count, {super.key});
 
