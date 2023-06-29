@@ -153,7 +153,7 @@ class CustomNavigationBar extends StatelessWidget {
   }
 }
 
-/// [AnimatedOpacity] boilerplate.
+/// [AnimatedOpacity] boilerplate widget.
 class _TabWidget extends StatelessWidget {
   const _TabWidget({required this.child, this.selected = false});
 
