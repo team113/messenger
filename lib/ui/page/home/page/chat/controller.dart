@@ -255,6 +255,9 @@ class ChatController extends GetxController {
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
 
+  /// Worker capturing any [RxChat.chat] changes.
+  Worker? _chatWorker;
+
   /// Currently displayed bottom [LoaderElement] in the [elements] list.
   LoaderElement? _bottomLoader;
 
@@ -366,6 +369,7 @@ class ChatController extends GetxController {
   void onClose() {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
+    _chatWorker?.dispose();
     _typingSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
@@ -733,6 +737,13 @@ class ChatController extends GetxController {
           case OperationKind.updated:
             // No-op.
             break;
+        }
+      });
+
+      _chatWorker = ever(chat!.chat, (Chat e) {
+        if (e.id != id) {
+          WebUtils.replaceState(id.val, e.id.val);
+          id = e.id;
         }
       });
 

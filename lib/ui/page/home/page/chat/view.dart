@@ -144,13 +144,6 @@ class _ChatViewState extends State<ChatView>
 
           final bool isMonolog = c.chat!.chat.value.isMonolog;
 
-          final Iterable<String> typings = c.chat!.typingUsers
-              .where((e) => e.id != c.me)
-              .map((e) => e.name?.val ?? e.num.val);
-
-          final ChatMember? member = c.chat?.chat.value.members
-              .firstWhereOrNull((u) => u.user.id != c.me);
-
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
@@ -202,16 +195,7 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    if (!isMonolog)
-                                      ChatSubtitle(
-                                        rxChat: c.chat,
-                                        text: typings.join('comma_space'.l10n),
-                                        member: member != null,
-                                        onWillAccept: (e) => e.id != c.me,
-                                        future: member != null
-                                            ? c.getUser(member.user.id)
-                                            : null,
-                                      ),
+                                    if (!isMonolog) ChatSubtitle(c.chat!, c.me),
                                   ],
                                 ),
                               ),
@@ -787,7 +771,7 @@ class _ChatViewState extends State<ChatView>
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
         child: TimeLabelWidget(
-          time: element.id.at.val,
+          element.id.at.val,
           animation: _animation,
           opacity: c.stickyIndex.value == i && c.showSticky.value ? 1 : 0,
         ),

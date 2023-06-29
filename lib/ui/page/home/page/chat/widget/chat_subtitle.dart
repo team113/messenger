@@ -17,13 +17,15 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
@@ -31,38 +33,25 @@ import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 
-/// [Widget] which returns a header subtitle of the chat.
+/// Subtitle visual representation of a [RxChat].
 class ChatSubtitle extends StatefulWidget {
-  const ChatSubtitle({
+  const ChatSubtitle(
+    this.chat,
+    this.me, {
     super.key,
-    required this.rxChat,
-    required this.onWillAccept,
-    this.text,
-    this.subtitle,
-    this.future,
-    this.member = true,
+    this.withActivities = true,
   });
 
-  /// [RxChat] of this [ChatSubtitle].
-  final RxChat? rxChat;
+  /// [RxChat] to display subtitle of.
+  final RxChat chat;
 
-  /// [Text] to display in this [ChatSubtitle].
-  final String? text;
+  /// [UserId] of the currently authorized [MyUser].
+  final UserId? me;
 
-  /// Indicator whether the chat is with a member.
-  final bool member;
-
-  /// Subtitle [Widget] of this [ChatSubtitle].
-  final Widget? subtitle;
-
-  /// Computation of the [FutureBuilder].
-  final Future? future;
-
-  /// Callback, called to determine whether this widget of the currently
-  /// typing users takes part in the [ChatSubtitle].
-  final bool Function(User) onWillAccept;
+  /// Indicator whether ongoing activities of the provided [chat] should be
+  /// displayed withing this [ChatSubtitle].
+  final bool withActivities;
 
   @override
   State<ChatSubtitle> createState() => _ChatSubtitleState();
@@ -70,17 +59,17 @@ class ChatSubtitle extends StatefulWidget {
 
 /// State of an [ChatSubtitle] maintaining the [_durationTimer].
 class _ChatSubtitleState extends State<ChatSubtitle> {
-  /// Duration of a [Chat.ongoingCall].
-  final Rx<Duration?> duration = Rx(null);
-
-  /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
-  Timer? _durationTimer;
+  /// Duration of a [Chat.ongoingCall] to display, if any.
+  Duration? _duration;
 
   /// Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
   /// changes.
-  ChatItemId? previousCall;
+  ChatItemId? _previousCall;
 
-  /// Worker capturing any [RxChat.chat] changes.
+  /// [Timer] for updating [_duration] of a [Chat.ongoingCall], if any.
+  Timer? _durationTimer;
+
+  /// Worker invoking the [_updateTimer] on the [RxChat.chat] changes.
   Worker? _chatWorker;
 
   @override
@@ -92,11 +81,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
   @override
   void initState() {
-    _chatWorker = ever(
-      widget.rxChat!.chat,
-      (Chat e) => updateChatAndTimer(e),
-    );
-
+    if (widget.withActivities) {
+      _chatWorker = ever(widget.chat.chat, _updateTimer);
+    }
     super.initState();
   }
 
@@ -104,51 +91,79 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    final Chat chat = widget.rxChat!.chat.value;
+    final Chat chat = widget.chat.chat.value;
 
     final Set<UserId>? actualMembers = widget
-        .rxChat!.chat.value.ongoingCall?.members
+        .chat.chat.value.ongoingCall?.members
         .map((k) => k.user.id)
         .toSet();
 
-    if (chat.ongoingCall != null) {
-      final List<TextSpan> spans = [];
-      if (!context.isMobile) {
-        spans.add(TextSpan(text: 'label_call_active'.l10n));
-        spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+    if (widget.withActivities) {
+      if (chat.ongoingCall != null) {
+        final List<TextSpan> spans = [];
+        if (!context.isMobile) {
+          spans.add(TextSpan(text: 'label_call_active'.l10n));
+          spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+        }
+
+        spans.add(
+          TextSpan(
+            text: 'label_a_of_b'.l10nfmt({
+              'a': actualMembers?.length,
+              'b': widget.chat.members.length,
+            }),
+          ),
+        );
+
+        if (_duration != null) {
+          spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+          spans.add(TextSpan(text: _duration?.hhMmSs()));
+        }
+
+        return Text.rich(
+          TextSpan(
+            children: spans,
+            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+          ),
+        );
       }
 
-      spans.add(
-        TextSpan(
-          text: 'label_a_of_b'.l10nfmt({
-            'a': actualMembers?.length,
-            'b': widget.rxChat!.members.length,
-          }),
-        ),
-      );
+      final bool isTyping =
+          widget.chat.typingUsers.any((e) => e.id != widget.me) == true;
+      if (isTyping) {
+        if (!chat.isGroup) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'label_typing'.l10n,
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+              ),
+              const SizedBox(width: 3),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 3),
+                child: AnimatedTyping(),
+              ),
+            ],
+          );
+        }
 
-      if (duration.value != null) {
-        spans.add(TextSpan(text: 'space_vertical_space'.l10n));
-        spans.add(TextSpan(text: duration.value?.hhMmSs()));
-      }
+        final Iterable<String> typings = widget.chat.typingUsers
+            .where((e) => e.id != widget.me)
+            .map((e) => e.name?.val ?? e.num.val);
 
-      return Text.rich(
-        TextSpan(
-          children: spans,
-          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-        ),
-      );
-    }
-
-    if (widget.rxChat?.typingUsers.any(widget.onWillAccept) == true) {
-      if (!chat.isGroup) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              'label_typing'.l10n,
-              style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+            Flexible(
+              child: Text(
+                typings.join('comma_space'.l10n),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+              ),
             ),
             const SizedBox(width: 3),
             const Padding(
@@ -158,27 +173,6 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
           ],
         );
       }
-
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (widget.text != null)
-            Flexible(
-              child: Text(
-                widget.text!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
-              ),
-            ),
-          const SizedBox(width: 3),
-          const Padding(
-            padding: EdgeInsets.only(bottom: 3),
-            child: AnimatedTyping(),
-          ),
-        ],
-      );
     }
 
     if (chat.isGroup) {
@@ -187,54 +181,46 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
       );
     } else if (chat.isDialog) {
-      if (widget.member) {
-        return Row(
-          children: [
-            if (chat.muted != null) ...[
-              SvgImage.asset(
-                'assets/icons/muted_dark.svg',
-                width: 19.99 * 0.6,
-                height: 15 * 0.6,
-              ),
-              const SizedBox(width: 5),
+      final RxUser? member = widget.chat.members.values
+          .firstWhereOrNull((u) => u.user.value.id != widget.me);
+
+      if (member != null) {
+        return Obx(() {
+          final String? subtitle = chat.getSubtitle(partner: member.user.value);
+          final UserTextStatus? status = member.user.value.status;
+          final Widget child;
+
+          if (status != null || subtitle != null) {
+            final StringBuffer buffer = StringBuffer(status ?? '');
+
+            if (status != null && subtitle != null) {
+              buffer.write('space_vertical_space'.l10n);
+            }
+
+            buffer.write(subtitle ?? '');
+
+            child = Text(
+              buffer.toString(),
+              style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+            );
+          } else {
+            child = const SizedBox();
+          }
+
+          return Row(
+            children: [
+              if (chat.muted != null) ...[
+                SvgImage.asset(
+                  'assets/icons/muted_dark.svg',
+                  width: 19.99 * 0.6,
+                  height: 15 * 0.6,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Flexible(child: child),
             ],
-            Flexible(
-              child: FutureBuilder(
-                future: widget.future,
-                builder: (_, snapshot) {
-                  if (snapshot.data != null) {
-                    final String? subtitle =
-                        chat.getSubtitle(partner: snapshot.data!.user.value);
-
-                    final UserTextStatus? status =
-                        snapshot.data!.user.value.status;
-
-                    if (status != null || subtitle != null) {
-                      final StringBuffer buffer = StringBuffer(status ?? '');
-
-                      if (status != null && subtitle != null) {
-                        buffer.write('space_vertical_space'.l10n);
-                      }
-
-                      buffer.write(subtitle ?? '');
-
-                      return Text(
-                        buffer.toString(),
-                        style: fonts.bodySmall!.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      );
-                    }
-
-                    return const SizedBox();
-                  }
-
-                  return const SizedBox();
-                },
-              ),
-            ),
-          ],
-        );
+          );
+        });
       }
     }
 
@@ -242,17 +228,12 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
   }
 
   // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
-  // from the stored [previousCall].
-  void updateChatAndTimer(Chat chat) {
-    if (chat.id != widget.rxChat!.chat.value.id) {
-      WebUtils.replaceState(widget.rxChat!.chat.value.id.val, chat.id.val);
-      widget.rxChat!.chat.value.id = chat.id;
-    }
+  // from the stored [_previousCall].
+  void _updateTimer(Chat chat) {
+    if (_previousCall != chat.ongoingCall?.id) {
+      _previousCall = chat.ongoingCall?.id;
 
-    if (previousCall != chat.ongoingCall?.id) {
-      previousCall = chat.ongoingCall?.id;
-
-      duration.value = null;
+      _duration = null;
       _durationTimer?.cancel();
       _durationTimer = null;
 
@@ -261,9 +242,10 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
           const Duration(seconds: 1),
           (_) {
             if (chat.ongoingCall!.conversationStartedAt != null) {
-              duration.value = DateTime.now().difference(
+              _duration = DateTime.now().difference(
                 chat.ongoingCall!.conversationStartedAt!.val,
               );
+
               if (mounted) {
                 setState(() {});
               }

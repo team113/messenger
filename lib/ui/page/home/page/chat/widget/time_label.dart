@@ -24,9 +24,9 @@ import 'swipeable_status.dart';
 /// Centered [time] wrapped in a [SwipeableStatus] animating its [opacity]
 /// changes.
 class TimeLabelWidget extends StatelessWidget {
-  const TimeLabelWidget({
+  const TimeLabelWidget(
+    this.time, {
     super.key,
-    required this.time,
     this.opacity = 1,
     this.animation,
   });
