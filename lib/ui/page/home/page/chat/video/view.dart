@@ -138,7 +138,7 @@ class _VideoState extends State<VideoView> {
                           controller: _controller,
                           onClose: widget.onClose,
                           toggleFullscreen: widget.toggleFullscreen,
-                          isFullscreen: widget.isFullscreen,
+                          isFullscreen: widget.isFullscreen?.value,
                           showInterfaceFor: widget.showInterfaceFor,
                         ),
                 ],

@@ -56,7 +56,7 @@ class BottomControlBar extends StatelessWidget {
   final double? barHeight;
 
   /// Indicator whether the [AnimatedSlider] should be visible or not.
-  final bool? isOpen;
+  final bool isOpen;
 
   /// Indicator whether this video is in fullscreen mode.
   final bool isFullscreen;
@@ -85,7 +85,7 @@ class BottomControlBar extends StatelessWidget {
 
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
-      isOpen: isOpen!,
+      isOpen: isOpen,
       translate: false,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8, left: 32, right: 32),

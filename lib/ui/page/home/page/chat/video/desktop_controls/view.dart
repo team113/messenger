@@ -49,7 +49,7 @@ class DesktopControlsView extends StatefulWidget {
   final VoidCallback? toggleFullscreen;
 
   /// Reactive indicator of whether this video is in fullscreen mode.
-  final RxBool? isFullscreen;
+  final bool? isFullscreen;
 
   /// [Duration] to initially show an user interface for.
   final Duration? showInterfaceFor;
@@ -182,7 +182,7 @@ class _DesktopControlsState extends State<DesktopControlsView>
                   volumeKey: _volumeKey,
                   barHeight: _barHeight,
                   isOpen: _showBottomBar || _showInterface,
-                  isFullscreen: widget.isFullscreen?.value == true,
+                  isFullscreen: widget.isFullscreen == true,
                   onPlayPause: _playPause,
                   onFullscreen: _onExpandCollapse,
                   onMute: () {
