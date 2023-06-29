@@ -1,30 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
-
-import 'periodic_builder.dart';
 
 /// Widget which returns a custom-styled rounded rectangular button.
 class RectangularCallButton extends StatelessWidget {
   const RectangularCallButton({
     super.key,
-    this.duration = const Duration(seconds: 52),
     this.isActive = true,
+    this.child,
     this.onPressed,
   });
 
-  /// [Duration] to display inside this [RectangularCallButton].
-  final Duration duration;
-
   /// Indicator whether this [RectangularCallButton] is active or not.
   final bool isActive;
+
+  /// [Widget] to display inside this [RectangularCallButton].
+  final Widget? child;
 
   /// Callback, called when this [RectangularCallButton] is pressed.
   final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return DecoratedBox(
       position: DecorationPosition.foreground,
@@ -50,19 +47,7 @@ class RectangularCallButton extends StatelessWidget {
                   color: style.colors.onPrimary,
                 ),
                 const SizedBox(width: 6),
-                PeriodicBuilder(
-                  period: const Duration(seconds: 1),
-                  builder: (_) {
-                    final String text = duration.hhMmSs();
-
-                    return Text(
-                      text,
-                      style: fonts.bodyMedium!.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
-                    ).fixedDigits();
-                  },
-                )
+                if (child != null) child!,
               ],
             ),
           ),

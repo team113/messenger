@@ -32,6 +32,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -41,6 +42,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'periodic_builder.dart';
 import 'rectangular_call_button.dart';
 import 'unread_counter.dart';
 
@@ -793,6 +795,8 @@ class RecentChatTile extends StatelessWidget {
 
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -811,8 +815,22 @@ class RecentChatTile extends StatelessWidget {
                 ? const Key('JoinCallButton')
                 : const Key('DropCallButton'),
             isActive: isActive,
-            duration: DateTime.now().difference(chat.ongoingCall!.at.val),
             onPressed: isActive ? onDrop : onJoin,
+            child: PeriodicBuilder(
+              period: const Duration(seconds: 1),
+              builder: (_) {
+                final Duration duration =
+                    DateTime.now().difference(chat.ongoingCall!.at.val);
+                final String text = duration.hhMmSs();
+
+                return Text(
+                  text,
+                  style: fonts.bodyMedium!.copyWith(
+                    color: style.colors.onPrimary,
+                  ),
+                ).fixedDigits();
+              },
+            ),
           ),
         ),
       );
