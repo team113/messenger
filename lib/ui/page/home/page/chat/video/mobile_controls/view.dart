@@ -20,10 +20,10 @@ import 'dart:async';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
-import 'package:messenger/ui/page/home/page/chat/video/mobile_controls/widget/bottom_control_bar.dart';
-import 'package:messenger/ui/page/home/page/chat/video/mobile_controls/widget/hit_area.dart';
 
 import '/themes.dart';
+import '/ui/page/home/page/chat/video/mobile_controls/widget/bottom_control_bar.dart';
+import '/ui/page/home/page/chat/video/mobile_controls/widget/hit_area.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 

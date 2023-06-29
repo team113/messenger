@@ -22,6 +22,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import '/ui/page/home/page/chat/widget/video_progress_bar.dart';
 import '/themes.dart';
 
+/// Custom styled [ProgressBar] of the current video progression.
 class CustomProgressBar extends StatelessWidget {
   const CustomProgressBar({
     super.key,

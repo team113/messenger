@@ -29,7 +29,7 @@ class ExpandButton extends StatelessWidget {
   });
 
   /// Indicator whether this video is in fullscreen mode.
-  final bool? isFullscreen;
+  final bool isFullscreen;
 
   /// Height of this [ExpandButton].
   final double? height;
@@ -47,7 +47,7 @@ class ExpandButton extends StatelessWidget {
         height: height,
         child: Center(
           child: Icon(
-            isFullscreen! ? Icons.fullscreen_exit : Icons.fullscreen,
+            isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
             color: style.colors.onPrimary,
             size: 21,
           ),

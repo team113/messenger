@@ -59,7 +59,7 @@ class BottomControlBar extends StatelessWidget {
   final bool? isOpen;
 
   /// Indicator whether this video is in fullscreen mode.
-  final bool? isFullscreen;
+  final bool isFullscreen;
 
   /// Callback, called when [StyledPlayPauseButton] is tapped.
   final VoidCallback? onPlayPause;
