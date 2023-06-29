@@ -18,7 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - History clearing. ([#361])
         - Text selection in messages. ([#118], [#17])
         - Clickable links and emails. ([#436], [#388])
-        - Messages highlighting. ([#467])
+        - Replied and forwarded messages highlighting. ([#467])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
         - Chat-monolog. ([#456], [#412], [#333], [#326])    
