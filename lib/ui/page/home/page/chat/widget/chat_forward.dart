@@ -861,7 +861,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             child: FutureBuilder<RxUser?>(
               future: member is Future<RxUser?> ? member : null,
               builder: (context, snapshot) {
-                RxUser? data =
+                final RxUser? data =
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 if (data != null) {
