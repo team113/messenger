@@ -287,10 +287,8 @@ class StyleView extends StatelessWidget {
                     SliverList(
                       delegate: SliverChildListDelegate(
                         [
-                          Expanded(
-                            child: Column(
-                              children: [Text('asdfsadf')],
-                            ),
+                          Column(
+                            children: [Text('Content')],
                           )
                         ],
                       ),
