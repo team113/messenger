@@ -124,6 +124,8 @@ Future<void> main() async {
 
     Get.put(BackgroundWorker(Get.find()));
 
+    WebUtils.deleteLoader();
+
     runApp(
       DefaultAssetBundle(
         key: UniqueKey(),

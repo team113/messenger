@@ -41,4 +41,9 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
 
   @override
   Future<String> get downloadsDirectory => Future.value('.temp_hive/downloads');
+
+  @override
+  void keepActive([bool active = true]) {
+    // No-op.
+  }
 }

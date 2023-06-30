@@ -50,4 +50,9 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
 
   @override
   void copy({String? text}) => clipboard = text;
+
+  @override
+  void keepActive([bool active = true]) {
+    // No-op.
+  }
 }
