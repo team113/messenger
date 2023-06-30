@@ -41,6 +41,7 @@ class VideoThumbnail extends StatefulWidget {
     this.bytes,
     this.checksum,
     this.height,
+    this.width,
     this.onError,
   }) : assert(bytes != null || url != null);
 
@@ -50,6 +51,7 @@ class VideoThumbnail extends StatefulWidget {
     required String url,
     String? checksum,
     double? height,
+    double? width,
     Future<void> Function()? onError,
   }) =>
       VideoThumbnail._(
@@ -57,6 +59,7 @@ class VideoThumbnail extends StatefulWidget {
         url: url,
         checksum: checksum,
         height: height,
+        width: width,
         onError: onError,
       );
 
@@ -65,12 +68,14 @@ class VideoThumbnail extends StatefulWidget {
     Key? key,
     required Uint8List bytes,
     double? height,
+    double? width,
     Future<void> Function()? onError,
   }) =>
       VideoThumbnail._(
         key: key,
         bytes: bytes,
         height: height,
+        width: width,
         onError: onError,
       );
 
@@ -85,6 +90,9 @@ class VideoThumbnail extends StatefulWidget {
 
   /// Optional height this [VideoThumbnail] occupies.
   final double? height;
+
+  /// Optional width this [VideoThumbnail] occupies.
+  final double? width;
 
   /// Callback, called on the video loading errors.
   final Future<void> Function()? onError;
@@ -102,6 +110,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
     loadingWidget: const SizedBox(),
     showLogs: kDebugMode,
+    initialFit: BoxFit.cover,
   );
 
   // TODO: Should be kept in a cache file service.
@@ -144,7 +153,11 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
         double width = 0;
         double height = 0;
 
-        if (_controller.videoPlayerController?.value.isInitialized == true) {
+        if (widget.width != null && widget.height != null) {
+          width = widget.width!;
+          height = widget.height!;
+        } else if (_controller.videoPlayerController?.value.isInitialized ==
+            true) {
           width = _controller.videoPlayerController!.value.size.width;
           height = _controller.videoPlayerController!.value.size.height;
 
@@ -188,7 +201,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                   ],
                 ),
               )
-            : SizedBox(width: 250, height: widget.height ?? 250);
+            : SizedBox(
+                width: widget.width ?? 250,
+                height: widget.height ?? 250,
+              );
       }),
     );
   }

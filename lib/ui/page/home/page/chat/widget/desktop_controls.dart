@@ -192,7 +192,7 @@ class _DesktopControlsState extends State<DesktopControls>
                 onExit: (d) {
                   if (mounted) {
                     setState(() => _showBottomBar = false);
-                    if(!_dragging) {
+                    if (!_dragging) {
                       _volumeEntry?.remove();
                       _volumeEntry = null;
                     }
@@ -445,7 +445,7 @@ class _DesktopControlsState extends State<DesktopControls>
                                   setState(() => _dragging = true);
                                 },
                                 onDragEnd: () {
-                                  if(!_showBottomBar) {
+                                  if (!_showBottomBar) {
                                     _volumeEntry?.remove();
                                     _volumeEntry = null;
                                   }

@@ -143,10 +143,12 @@ class _VideoState extends State<Video> {
                         height = _controller
                             .videoPlayerController!.value.size.height;
 
-                        double index =
-                            min(maxHeight / height, maxWidth / width);
-                        width *= index;
-                        height *= index;
+                        if (maxHeight < height || maxWidth < width) {
+                          double index =
+                              min(maxHeight / height, maxWidth / width);
+                          width *= index;
+                          height *= index;
+                        }
                       }
 
                       return SizedBox(
