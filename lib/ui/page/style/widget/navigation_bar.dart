@@ -17,21 +17,12 @@ class StyleNavigationBar extends StatelessWidget {
             child: CustomScrollView(
               slivers: [
                 SliverAppBar(
-                  expandedHeight: 100,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(10),
-                    ),
-                  ),
+                  expandedHeight: 80,
                   leadingWidth: double.infinity,
-                  leading: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 20,
-                      top: 20,
-                    ),
-                    child: Text(
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: Text(
                       'Style by Gapopa',
-                      style: fonts.displayLarge!.copyWith(
+                      style: fonts.headlineLarge!.copyWith(
                         color: const Color(0xFF1F3C5D),
                       ),
                     ),

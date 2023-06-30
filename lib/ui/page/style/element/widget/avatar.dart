@@ -10,7 +10,7 @@ import '/themes.dart';
 import '../../../home/widget/avatar.dart';
 
 class AvatarView extends StatelessWidget {
-  const AvatarView();
+  const AvatarView({super.key});
 
   @override
   Widget build(BuildContext context) {
