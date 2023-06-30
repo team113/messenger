@@ -75,7 +75,6 @@ class ChatItemWidget extends StatefulWidget {
     required this.me,
     this.user,
     this.avatar = true,
-    this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
     this.reads = const [],
     this.loadImages = true,
     this.animation,
@@ -110,9 +109,6 @@ class ChatItemWidget extends StatefulWidget {
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
 
-  /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
-  final EdgeInsets margin;
-
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
 
@@ -129,7 +125,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
-  final Future<RxUser?> Function(UserId userId)? getUser;
+  final FutureOr<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final void Function()? onHide;
@@ -466,11 +462,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       UserId id,
       Widget Function(BuildContext context, User? user) builder,
     ) {
+      final FutureOr<RxUser?>? user = widget.getUser?.call(id);
+
       return FutureBuilder(
-        future: widget.getUser?.call(id),
+        future: user is Future<RxUser?> ? user : null,
         builder: (context, snapshot) {
-          if (snapshot.data != null) {
-            return Obx(() => builder(context, snapshot.data!.user.value));
+          final RxUser? data = snapshot.data ?? (user is RxUser? ? user : null);
+          if (data != null) {
+            return Obx(() => builder(context, data.user.value));
           }
 
           return builder(context, null);
@@ -972,7 +971,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ];
 
         return Container(
-          padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
+          padding: const EdgeInsets.fromLTRB(5, 0, 2, 0),
           child: Stack(
             children: [
               IntrinsicWidth(
@@ -1119,7 +1118,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       (menu, __) => Padding(
-        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
+        padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
@@ -1247,14 +1246,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       content = Text('err_unknown'.l10n, style: fonts.headlineMedium);
     }
 
+    final FutureOr<RxUser?>? user = widget.getUser?.call(item.author);
+
     return FutureBuilder<RxUser?>(
-      future: widget.getUser?.call(item.author),
-      builder: (context, snapshot) {
-        final Color color = snapshot.data?.user.value.id == widget.me
+      future: user is Future<RxUser?> ? user : null,
+      builder: (_, snapshot) {
+        final RxUser? data = snapshot.data ?? (user is RxUser? ? user : null);
+
+        final Color color = data?.user.value.id == widget.me
             ? style.colors.primary
-            : style.colors.userColors[
-                (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    style.colors.userColors.length];
+            : style.colors.userColors[(data?.user.value.num.val.sum() ?? 3) %
+                style.colors.userColors.length];
 
         return ClipRRect(
           borderRadius: style.cardRadius,
@@ -1272,8 +1274,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        snapshot.data?.user.value.name?.val ??
-                            snapshot.data?.user.value.num.val ??
+                        data?.user.value.name?.val ??
+                            data?.user.value.num.val ??
                             'dot'.l10n * 3,
                         style: fonts.bodyLarge!.copyWith(color: color),
                       ),
@@ -1420,14 +1422,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
 
+        final FutureOr<RxUser?>? member = widget.getUser?.call(m.memberId);
+
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: FutureBuilder<RxUser?>(
-              future: widget.getUser?.call(m.memberId),
+              future: member is Future<RxUser?> ? member : null,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                final RxUser? data =
+                    snapshot.data ?? (member is RxUser? ? member : null);
+
+                if (data != null) {
+                  return AvatarWidget.fromRxUser(data, radius: 10);
                 }
                 return AvatarWidget.fromUser(user, radius: 10);
               },
@@ -1455,7 +1462,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           builder(menu, constraints),
           if (avatars.isNotEmpty)
             Transform.translate(
-              offset: Offset(-12, -widget.margin.bottom),
+              offset: const Offset(-12, 0),
               child: WidgetButton(
                 onPressed: () => MessageInfo.show(
                   context,
@@ -1487,9 +1494,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(item.at.val.toLocal().hm),
-      padding: EdgeInsets.only(
-        bottom: (avatars.isNotEmpty ? 28 : 7) + widget.margin.bottom,
-      ),
+      padding: EdgeInsets.only(bottom: avatars.isNotEmpty ? 28 : 7),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
