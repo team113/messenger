@@ -16,48 +16,27 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-// import 'package:messenger/themes.dart';
 
-import 'element/view.dart';
-import 'widget/navigation_bar.dart';
+import '../element/widget/header.dart';
+import 'widget/avatar.dart';
+import 'widget/palette.dart';
 
-/// View of the [Routes.style] page.
-class StyleView extends StatelessWidget {
-  const StyleView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const SafeArea(
-      child: Scaffold(
-        body: Row(
-          children: [
-            Flexible(flex: 1, child: StyleNavigationBar()),
-            Flexible(flex: 4, child: _ContentScrollView()),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ContentScrollView extends StatelessWidget {
-  const _ContentScrollView();
+class ColorStyleView extends StatelessWidget {
+  const ColorStyleView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF5F5F5),
-      child: CustomScrollView(
-        slivers: [
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                const ElementStyleTabView(),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return const Column(
+      children: [
+        SizedBox(height: 20),
+        Header(label: 'Цветовая палитра'),
+        SmallHeader(label: 'Цвет приложения'),
+        PaletteWidget(),
+        Divider(),
+        SmallHeader(label: 'Цвет аватаров'),
+        AvatarColors(),
+        Divider(),
+      ],
     );
   }
 }

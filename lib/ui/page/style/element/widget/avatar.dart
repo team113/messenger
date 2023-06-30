@@ -1,31 +1,70 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
-//                       <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
+// ignore_for_file: unused_element
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/themes.dart';
 
-import '../../../widget/progress_indicator.dart';
-import '../../../widget/widget_button.dart';
+import '../../../../widget/progress_indicator.dart';
+import '../../../../widget/widget_button.dart';
+import '/themes.dart';
+import '../../../home/widget/avatar.dart';
 
-/// TODO: Replace with AnimatedCircleAvatar after merge #427
-class AnimatedCircleAvatar extends StatelessWidget {
-  const AnimatedCircleAvatar({
+class AvatarView extends StatelessWidget {
+  const AvatarView();
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, _) = Theme.of(context).styles;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            Tooltip(
+              message: 'Аватары Пользователей',
+              child: SizedBox(
+                height: 120,
+                width: 250,
+                child: GridView.count(
+                  crossAxisCount: style.colors.userColors.length ~/ 2,
+                  children: List.generate(
+                    style.colors.userColors.length,
+                    (i) => AvatarWidget(
+                      title: 'Сергей Александрович',
+                      color: i,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 150),
+        const Column(
+          children: [
+            Tooltip(
+              message: 'Изменение аватара',
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 25),
+                child: _AnimatedCircleAvatar(
+                  avatar: AvatarWidget(
+                    radius: 50,
+                    title: 'Сергей Александрович',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// TODO: Replace with _AnimatedCircleAvatar after merge #427
+class _AnimatedCircleAvatar extends StatelessWidget {
+  const _AnimatedCircleAvatar({
     super.key,
     this.avatar,
     this.onPressed,
