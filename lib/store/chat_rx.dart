@@ -141,6 +141,9 @@ class HiveRxChat extends RxChat {
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
 
+  /// [Map] of the currently happening [updateAttachments].
+  final Map<ChatItemId, Future<void>> _attachmentsUpdates = {};
+
   @override
   UserId? get me => _chatRepository.me;
 
@@ -333,6 +336,16 @@ class HiveRxChat extends RxChat {
       return;
     }
 
+    Future<void>? future = _attachmentsUpdates[item.id];
+    if (future != null) {
+      return future;
+    }
+
+    _attachmentsUpdates[item.id] = Future(() => _updateAttachments(item));
+  }
+
+  /// Updates the [Attachment]s of the specified [item] to be up-to-date.
+  Future<void> _updateAttachments(ChatItem item) async {
     HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
     if (stored != null) {
       List<Attachment> response = await _chatRepository.attachments(stored);

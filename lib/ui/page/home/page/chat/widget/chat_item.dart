@@ -437,6 +437,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return DefaultTextStyle(
       style: fonts.bodyLarge!,
       child: Obx(() {
+        print('ChatItem OBX');
         if (widget.item.value is ChatMessage) {
           return _renderAsChatMessage(context);
         } else if (widget.item.value is ChatForward) {
