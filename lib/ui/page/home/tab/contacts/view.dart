@@ -213,7 +213,7 @@ class ContactsTabView extends StatelessWidget {
                           height: double.infinity,
                           child: Icon(
                             Icons.more_vert,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: style.colors.primary,
                           ),
                         ),
                       ),
@@ -275,7 +275,7 @@ class ContactsTabView extends StatelessWidget {
                               key: const Key('ArrowBack'),
                               Icons.arrow_back_ios_new,
                               size: 20,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: style.colors.primary,
                             )
                           : SvgImage.asset(
                               'assets/icons/search.svg',

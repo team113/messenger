@@ -44,8 +44,7 @@ class SelectedDot extends StatelessWidget {
   /// to its base one when [selected] is `true`.
   final bool inverted;
 
-  /// Indicator whether this [SelectedDot] should have border and icon when
-  /// [selected] is `false`.
+  /// Indicator whether this [SelectedDot] should be outlined.
   final bool outlined;
 
   @override

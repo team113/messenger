@@ -22,10 +22,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
         - Chat-monolog. ([#456], [#412], [#333], [#326])
-        - More menu. ([#463])
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
-        - More menu. ([#463])
     - Media panel:
         - Low signal icons. ([#454])
 - Web:
@@ -50,6 +48,9 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Inverted selected chat colors. ([#405])
         - Chats with ongoing calls sorting above favorites. ([#392], [#371])
+        - Redesigned chats selecting. ([#463])
+    - Contacts tab:
+        - Redesigned contacts selecting. ([#463])
     - Home page:
         - Redesigned navigation buttons animation. ([#440])
         - Redesigned quick mute and status changing menus. ([#443])
