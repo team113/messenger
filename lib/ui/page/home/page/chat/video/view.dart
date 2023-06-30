@@ -31,9 +31,9 @@ import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
-/// VideoView player with controls.
-class VideoView extends StatefulWidget {
-  const VideoView(
+/// Video player with controls.
+class Video extends StatefulWidget {
+  const Video(
     this.url, {
     super.key,
     this.onClose,
@@ -66,15 +66,15 @@ class VideoView extends StatefulWidget {
   final Duration? showInterfaceFor;
 
   @override
-  State<VideoView> createState() => _VideoState();
+  State<Video> createState() => _VideoState();
 }
 
-/// State of a [VideoView] used to initialize and dispose video controller.
-class _VideoState extends State<VideoView> {
+/// State of a [Video] used to initialize and dispose video controller.
+class _VideoState extends State<Video> {
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
-  /// [CancelToken] for cancelling the [VideoView.url] header fetching.
+  /// [CancelToken] for cancelling the [Video.url] header fetching.
   CancelToken? _cancelToken;
 
   final MeeduPlayerController _controller = MeeduPlayerController(
@@ -108,7 +108,7 @@ class _VideoState extends State<VideoView> {
   }
 
   @override
-  void didUpdateWidget(VideoView oldWidget) {
+  void didUpdateWidget(Video oldWidget) {
     if (oldWidget.url != widget.url) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _initVideo();

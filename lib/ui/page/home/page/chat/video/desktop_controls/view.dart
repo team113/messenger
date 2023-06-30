@@ -42,17 +42,17 @@ class DesktopControlsView extends StatefulWidget {
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Callback, called when a close video action is fired.
-  final VoidCallback? onClose;
-
-  /// Callback, called when a toggle fullscreen action is fired.
-  final VoidCallback? toggleFullscreen;
-
-  /// Reactive indicator of whether this video is in fullscreen mode.
+  /// Indicator of whether this video is in fullscreen mode.
   final bool? isFullscreen;
 
   /// [Duration] to initially show an user interface for.
   final Duration? showInterfaceFor;
+
+  /// Callback, called when a close video action is fired.
+  final void Function()? onClose;
+
+  /// Callback, called when a toggle fullscreen action is fired.
+  final void Function()? toggleFullscreen;
 
   @override
   State<StatefulWidget> createState() => _DesktopControlsState();

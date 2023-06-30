@@ -39,7 +39,7 @@ class HitArea extends StatelessWidget {
   final bool show;
 
   /// Callback, called when this [HitArea] is pressed.
-  final VoidCallback? onPressed;
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {

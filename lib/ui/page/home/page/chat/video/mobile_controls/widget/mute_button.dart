@@ -40,7 +40,7 @@ class MuteButton extends StatelessWidget {
   final double? height;
 
   /// Callback, called when this [MuteButton] is tapped.
-  final VoidCallback? onTap;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
