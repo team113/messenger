@@ -52,7 +52,6 @@ class MenuButton extends StatelessWidget {
     final (style, fonts) = Theme.of(context).styles;
 
     return Padding(
-      key: key,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: SizedBox(
         height: 73,
