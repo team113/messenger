@@ -32,7 +32,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -795,42 +794,31 @@ class RecentChatTile extends StatelessWidget {
 
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
     return Obx(() {
       final Chat chat = rxChat.chat.value;
-
-      final bool isActive = inCall?.call() == true;
 
       if (chat.ongoingCall == null) {
         return const SizedBox();
       }
 
+      final bool isActive = inCall?.call() == true;
+
       return Padding(
         padding: const EdgeInsets.only(left: 5),
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
-          child: RectangularCallButton(
-            key: isActive
-                ? const Key('JoinCallButton')
-                : const Key('DropCallButton'),
-            isActive: isActive,
-            onPressed: isActive ? onDrop : onJoin,
-            child: PeriodicBuilder(
-              period: const Duration(seconds: 1),
-              builder: (_) {
-                final Duration duration =
-                    DateTime.now().difference(chat.ongoingCall!.at.val);
-                final String text = duration.hhMmSs();
-
-                return Text(
-                  text,
-                  style: fonts.bodyMedium!.copyWith(
-                    color: style.colors.onPrimary,
-                  ),
-                ).fixedDigits();
-              },
-            ),
+          child: PeriodicBuilder(
+            period: const Duration(seconds: 1),
+            builder: (_) {
+              return RectangularCallButton(
+                key: isActive
+                    ? const Key('JoinCallButton')
+                    : const Key('DropCallButton'),
+                isActive: isActive,
+                onPressed: isActive ? onDrop : onJoin,
+                at: chat.ongoingCall!.at.val,
+              );
+            },
           ),
         ),
       );

@@ -16,29 +16,34 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
-/// Widget which returns a custom-styled rounded rectangular button.
+import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/themes.dart';
+
+/// Rounded rectangular button representing an [OngoingCall] happening.
 class RectangularCallButton extends StatelessWidget {
   const RectangularCallButton({
     super.key,
     this.isActive = true,
-    this.child,
+    required this.at,
     this.onPressed,
   });
 
   /// Indicator whether this [RectangularCallButton] is active or not.
   final bool isActive;
 
-  /// [Widget] to display inside this [RectangularCallButton].
-  final Widget? child;
+  /// [DateTime] to display difference with within this button.
+  final DateTime at;
 
   /// Callback, called when this [RectangularCallButton] is pressed.
   final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
+
+    final Duration duration = DateTime.now().difference(at);
+    final String text = duration.hhMmSs();
 
     return DecoratedBox(
       position: DecorationPosition.foreground,
@@ -64,7 +69,11 @@ class RectangularCallButton extends StatelessWidget {
                   color: style.colors.onPrimary,
                 ),
                 const SizedBox(width: 6),
-                if (child != null) child!,
+                Text(
+                  text,
+                  style:
+                      fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
+                ).fixedDigits(),
               ],
             ),
           ),
