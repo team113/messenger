@@ -32,14 +32,15 @@ import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
@@ -51,7 +52,7 @@ import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
 class ContactsTabView extends StatelessWidget {
-  const ContactsTabView({Key? key}) : super(key: key);
+  const ContactsTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -563,8 +564,44 @@ class ContactsTabView extends StatelessWidget {
               ],
             );
           }),
-          bottomNavigationBar:
-              c.selecting.value ? _selectButtons(context, c) : null,
+          bottomNavigationBar: Obx(() {
+            if (c.selecting.value) {
+              return BottomPaddedRow(
+                children: [
+                  ShadowedRoundedButton(
+                    onPressed: c.toggleSelecting,
+                    child: Text(
+                      'btn_cancel'.l10n,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: fonts.titleLarge,
+                    ),
+                  ),
+                  ShadowedRoundedButton(
+                    key: const Key('DeleteContacts'),
+                    onPressed: c.selectedContacts.isEmpty
+                        ? null
+                        : () => _removeContacts(context, c),
+                    color: style.colors.primary,
+                    child: Text(
+                      'btn_delete_count'.l10nfmt({
+                        'count': c.selectedContacts.length,
+                      }),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: fonts.titleLarge!.copyWith(
+                        color: c.selectedContacts.isEmpty
+                            ? style.colors.onBackground
+                            : style.colors.onPrimary,
+                      ),
+                    ),
+                  )
+                ],
+              );
+            }
+
+            return const SizedBox();
+          }),
         );
       }),
     );
@@ -702,71 +739,6 @@ class ContactsTabView extends StatelessWidget {
         ],
       );
     });
-  }
-
-  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
-  /// [ChatContacts]s manipulation.
-  Widget _selectButtons(BuildContext context, ContactsTabController c) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    List<CustomBoxShadow> shadows = [
-      CustomBoxShadow(
-        blurRadius: 8,
-        color: style.colors.onBackgroundOpacity13,
-        blurStyle: BlurStyle.outer,
-      ),
-    ];
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedRoundedButton(
-              title: Text(
-                'btn_cancel'.l10n,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: fonts.titleLarge,
-              ),
-              onPressed: c.toggleSelecting,
-              shadows: shadows,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Obx(() {
-            return Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('DeleteContacts'),
-                title: Text(
-                  'btn_delete_count'
-                      .l10nfmt({'count': c.selectedContacts.length}),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: fonts.titleLarge!.copyWith(
-                    color: c.selectedContacts.isEmpty
-                        ? style.colors.onBackground
-                        : style.colors.onPrimary,
-                  ),
-                ),
-                onPressed: c.selectedContacts.isEmpty
-                    ? null
-                    : () => _removeContacts(context, c),
-                color: style.colors.primary,
-                shadows: shadows,
-              ),
-            );
-          }),
-        ],
-      ),
-    );
   }
 
   /// Opens a confirmation popup deleting the provided [contact] from address

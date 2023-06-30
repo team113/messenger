@@ -32,9 +32,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
-import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
@@ -43,6 +41,9 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'periodic_builder.dart';
+import 'rectangular_call_button.dart';
+import 'unread_counter.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
 class RecentChatTile extends StatelessWidget {
@@ -190,7 +191,16 @@ class RecentChatTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                   ],
-                  _counter(context, inverted),
+                  if (rxChat.unreadCount.value > 0) ...[
+                    const SizedBox(width: 4),
+                    UnreadCounter(
+                      key: const Key('UnreadMessages'),
+                      rxChat.unreadCount.value,
+                      inverted: inverted,
+                      dimmed: chat.muted != null,
+                    ),
+                  ] else
+                    const SizedBox(key: Key('NoUnreadMessages')),
                 ] else
                   ...trailing!,
               ],
@@ -775,56 +785,8 @@ class RecentChatTile extends StatelessWidget {
     });
   }
 
-  /// Returns a visual representation of the [Chat.unreadCount] counter.
-  Widget _counter(BuildContext context, bool inverted) {
-    return Obx(() {
-      final (style, fonts) = Theme.of(context).styles;
-
-      final Chat chat = rxChat.chat.value;
-      final bool muted = chat.muted != null;
-
-      if (rxChat.unreadCount.value > 0) {
-        return Container(
-          key: const Key('UnreadMessages'),
-          margin: const EdgeInsets.only(left: 4),
-          width: 23,
-          height: 23,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: muted
-                ? inverted
-                    ? style.colors.onPrimary
-                    : const Color(0xFFC0C0C0)
-                : style.colors.dangerColor,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            // TODO: Implement and test notations like `4k`, `54m`, etc.
-            rxChat.unreadCount.value > 99
-                ? '99${'plus'.l10n}'
-                : '${rxChat.unreadCount.value}',
-            style: fonts.displaySmall!.copyWith(
-              color: muted
-                  ? inverted
-                      ? style.colors.secondary
-                      : style.colors.onPrimary
-                  : style.colors.onPrimary,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.center,
-          ),
-        );
-      }
-
-      return const SizedBox(key: Key('NoUnreadMessages'));
-    });
-  }
-
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -832,64 +794,25 @@ class RecentChatTile extends StatelessWidget {
         return const SizedBox();
       }
 
-      // Returns a rounded rectangular button representing an [OngoingCall]
-      // associated action.
-      Widget button(bool displayed) {
-        return DecoratedBox(
-          key: displayed
-              ? const Key('JoinCallButton')
-              : const Key('DropCallButton'),
-          position: DecorationPosition.foreground,
-          decoration: BoxDecoration(
-            border: Border.all(color: style.colors.onPrimary, width: 0.5),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Material(
-            elevation: 0,
-            type: MaterialType.button,
-            borderRadius: BorderRadius.circular(20),
-            color: displayed ? style.colors.dangerColor : style.colors.primary,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: displayed ? onDrop : onJoin,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
-                child: Row(
-                  children: [
-                    Icon(
-                      displayed ? Icons.call_end : Icons.call,
-                      size: 16,
-                      color: style.colors.onPrimary,
-                    ),
-                    const SizedBox(width: 6),
-                    PeriodicBuilder(
-                      period: const Duration(seconds: 1),
-                      builder: (_) {
-                        final Duration duration =
-                            DateTime.now().difference(chat.ongoingCall!.at.val);
-                        final String text = duration.hhMmSs();
-
-                        return Text(
-                          text,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.onPrimary,
-                          ),
-                        ).fixedDigits();
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      }
+      final bool isActive = inCall?.call() == true;
 
       return Padding(
         padding: const EdgeInsets.only(left: 5),
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
-          child: button(inCall?.call() == true),
+          child: PeriodicBuilder(
+            period: const Duration(seconds: 1),
+            builder: (_) {
+              return RectangularCallButton(
+                key: isActive
+                    ? const Key('JoinCallButton')
+                    : const Key('DropCallButton'),
+                isActive: isActive,
+                onPressed: isActive ? onDrop : onJoin,
+                at: chat.ongoingCall!.at.val,
+              );
+            },
+          ),
         ),
       );
     });
