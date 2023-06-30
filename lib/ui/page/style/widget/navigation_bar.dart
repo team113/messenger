@@ -53,7 +53,7 @@ class StyleNavigationBar extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 7),
                                 Text(
-                                  'Цветовая палитра',
+                                  'Color palette',
                                   style: fonts.headlineLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -63,7 +63,7 @@ class StyleNavigationBar extends StatelessWidget {
                             children: [
                               ListTile(
                                 title: Text(
-                                  'Цвета приложения',
+                                  'Application colors',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -71,7 +71,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Цвета аватаров',
+                                  'Avatar colors',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -90,7 +90,7 @@ class StyleNavigationBar extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 7),
                                 Text(
-                                  'Типографика',
+                                  'Typography',
                                   style: fonts.headlineLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -100,7 +100,7 @@ class StyleNavigationBar extends StatelessWidget {
                             children: [
                               ListTile(
                                 title: Text(
-                                  'Виды шрифтов',
+                                  'Font',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -108,7 +108,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Стили шрифтов',
+                                  'Styles',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -116,7 +116,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Интервалы',
+                                  'Intervals',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -129,13 +129,13 @@ class StyleNavigationBar extends StatelessWidget {
                             collapsedIconColor: const Color(0xFF1F3C5D),
                             title: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.play_lesson_rounded,
-                                  color: const Color(0xFF1F3C5D),
+                                  color: Color(0xFF1F3C5D),
                                 ),
                                 const SizedBox(width: 7),
                                 Text(
-                                  'Мультимедиа',
+                                  'Multimedia',
                                   style: fonts.headlineLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -145,7 +145,7 @@ class StyleNavigationBar extends StatelessWidget {
                             children: [
                               ListTile(
                                 title: Text(
-                                  'Изображения',
+                                  'Images',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -153,7 +153,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Анимация',
+                                  'Animation',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -161,7 +161,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Звук',
+                                  'Sound',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -174,13 +174,13 @@ class StyleNavigationBar extends StatelessWidget {
                             collapsedIconColor: const Color(0xFF1F3C5D),
                             title: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.widgets_rounded,
-                                  color: const Color(0xFF1F3C5D),
+                                  color: Color(0xFF1F3C5D),
                                 ),
                                 const SizedBox(width: 7),
                                 Text(
-                                  'Элементы',
+                                  'Elements',
                                   style: fonts.headlineLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -190,7 +190,7 @@ class StyleNavigationBar extends StatelessWidget {
                             children: [
                               ListTile(
                                 title: Text(
-                                  'Поля ввода',
+                                  'Text fields',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -198,7 +198,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Кнопки',
+                                  'Buttons',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -206,7 +206,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Аватары',
+                                  'Avatars',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -214,7 +214,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Системные сообщения', // Подсказки и предупреждения
+                                  'System messages', // Подсказки и предупреждения
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -222,7 +222,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Переключатели',
+                                  'Switchers',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
@@ -230,7 +230,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Всплывающие окна',
+                                  'Pop-ups',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),

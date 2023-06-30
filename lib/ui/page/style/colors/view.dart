@@ -29,11 +29,11 @@ class ColorStyleView extends StatelessWidget {
     return const Column(
       children: [
         SizedBox(height: 20),
-        Header(label: 'Цветовая палитра'),
-        SmallHeader(label: 'Цвет приложения'),
+        Header(label: 'Colors palette'),
+        SmallHeader(label: 'Application colors'),
         PaletteWidget(),
         Divider(),
-        SmallHeader(label: 'Цвет аватаров'),
+        SmallHeader(label: 'Avatar colors'),
         AvatarColors(),
         Divider(),
       ],

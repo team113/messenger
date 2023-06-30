@@ -22,7 +22,7 @@ class AvatarView extends StatelessWidget {
         Column(
           children: [
             Tooltip(
-              message: 'Аватары Пользователей',
+              message: 'User avatars',
               child: SizedBox(
                 height: 120,
                 width: 250,
@@ -31,7 +31,7 @@ class AvatarView extends StatelessWidget {
                   children: List.generate(
                     style.colors.userColors.length,
                     (i) => AvatarWidget(
-                      title: 'Сергей Александрович',
+                      title: 'John Doe',
                       color: i,
                     ),
                   ),
@@ -44,13 +44,13 @@ class AvatarView extends StatelessWidget {
         const Column(
           children: [
             Tooltip(
-              message: 'Изменение аватара',
+              message: 'Changing the avatar',
               child: Padding(
                 padding: EdgeInsets.only(bottom: 25),
                 child: _AnimatedCircleAvatar(
                   avatar: AvatarWidget(
                     radius: 50,
-                    title: 'Сергей Александрович',
+                    title: 'John Doe',
                   ),
                 ),
               ),

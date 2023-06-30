@@ -11,7 +11,7 @@ class LogoView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Tooltip(
-          message: 'Logo в полный рост',
+          message: 'Full-length Logo',
           child: SvgImage.asset(
             'assets/images/logo/logo0000.svg',
             height: 300,
@@ -20,7 +20,7 @@ class LogoView extends StatelessWidget {
         ),
         const SizedBox(width: 100),
         Tooltip(
-          message: 'Logo голова',
+          message: 'Logo head',
           child: SvgImage.asset(
             'assets/images/logo/head0000.svg',
             height: 150,

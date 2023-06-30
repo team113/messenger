@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 // import 'package:messenger/themes.dart';
 
 import '../colors/view.dart';
+import '../fonts/family.dart';
 import 'widget/avatar.dart';
 import 'widget/header.dart';
 import 'widget/logo.dart';
@@ -38,34 +39,35 @@ class ElementStyleTabView extends StatelessWidget {
       child: Column(
         children: [
           ColorStyleView(),
-          Header(label: 'Типографика'),
-          SmallHeader(label: 'Виды шрифтов'),
+          Header(label: 'Typography'),
+          SmallHeader(label: 'Font'),
+          FontFamiliesView(),
           Divider(),
-          SmallHeader(label: 'Стили шрифтов'),
+          SmallHeader(label: 'Styles'),
           Divider(),
-          SmallHeader(label: 'Интервалы'),
+          SmallHeader(label: 'Intervals'),
           Divider(),
-          Header(label: 'Мультимедиа'),
-          SmallHeader(label: 'Изображения'),
+          Header(label: 'Multimedia'),
+          SmallHeader(label: 'Images'),
           LogoView(),
           Divider(),
-          SmallHeader(label: 'Анимация'),
+          SmallHeader(label: 'Animation'),
           Divider(),
-          SmallHeader(label: 'Звук'),
+          SmallHeader(label: 'Sound'),
           Divider(),
-          Header(label: 'Элементы'),
-          SmallHeader(label: 'Поля ввода'),
+          Header(label: 'Elements'),
+          SmallHeader(label: 'Text fields'),
           Divider(),
-          SmallHeader(label: 'Кнопки'),
+          SmallHeader(label: 'Buttons'),
           Divider(),
-          SmallHeader(label: 'Аватары'),
+          SmallHeader(label: 'Avatars'),
           AvatarView(),
           Divider(),
-          SmallHeader(label: 'Системные сообщения'),
+          SmallHeader(label: 'System messages'),
           Divider(),
-          SmallHeader(label: 'Переключатели'),
+          SmallHeader(label: 'Switchers'),
           Divider(),
-          SmallHeader(label: 'Всплывающие окна'),
+          SmallHeader(label: 'Pop-ups'),
           Divider(),
         ],
       ),

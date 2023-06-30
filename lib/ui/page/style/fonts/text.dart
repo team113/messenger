@@ -138,7 +138,7 @@ class FontStyleTabView extends StatelessWidget {
                 ],
               ),
               trailing: Text(
-                'Шрифт: ${style.fontSize} пт, цвет: ${style.color?.toHex()}',
+                'Font: ${style.fontSize} px, color: ${style.color?.toHex()}',
                 style: const TextStyle(fontSize: 15, color: Colors.grey),
               ),
             ),
