@@ -229,6 +229,9 @@ class ChatController extends GetxController {
   /// Indicator whether the application is active.
   final RxBool active = RxBool(true);
 
+  /// Index of an item from the [elements] that should be highlighted.
+  final RxnInt highlight = RxnInt(null);
+
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
@@ -283,6 +286,13 @@ class ChatController extends GetxController {
 
   /// Worker capturing any [status] changes.
   Worker? _statusWorker;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 2);
+
+  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
+  /// passed.
+  Timer? _highlightTimer;
 
   /// [Timer] adding the [_bottomLoader] to the [elements] list.
   Timer? _bottomLoaderStartTimer;
@@ -1003,7 +1013,7 @@ class ChatController extends GetxController {
   Future<void> animateTo(
     ChatItemId id, {
     bool offsetBasedOnBottom = true,
-    double offset = 0,
+    double offset = 50,
   }) async {
     int index = elements.values.toList().indexWhere((e) {
       return e.id.id == id ||
@@ -1013,6 +1023,8 @@ class ChatController extends GetxController {
     });
 
     if (index != -1) {
+      _highlight(index);
+
       if (listController.hasClients) {
         await listController.sliverController.animateToIndex(
           index,
@@ -1180,6 +1192,14 @@ class ChatController extends GetxController {
         await attachment.download();
       }
     }
+  }
+
+  /// Highlights the item with the provided [index].
+  Future<void> _highlight(int index) async {
+    highlight.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
   }
 
   /// Plays the message sent sound.
@@ -1355,14 +1375,16 @@ class ChatController extends GetxController {
   }
 
   /// Calculates a [_ListViewIndexCalculationResult] of a [FlutterListView].
-  _ListViewIndexCalculationResult _calculateListViewIndex(
-      [bool fixMotion = true]) {
+  _ListViewIndexCalculationResult _calculateListViewIndex([
+    bool fixMotion = true,
+  ]) {
     int index = 0;
     double offset = 0;
 
     if (itemId != null) {
       int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
+        _highlight(i);
         index = i;
         offset = (MediaQuery.of(router.context!).size.height) / 3;
       }
