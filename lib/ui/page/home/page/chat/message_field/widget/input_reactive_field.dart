@@ -52,16 +52,16 @@ class InputReactiveField extends StatelessWidget {
   final bool isForwarding;
 
   /// Callback, called when [TextField] is changed.
-  final VoidCallback? onChanged;
+  final void Function()? onChanged;
 
   /// Callback, called when the child is pressed.
-  final VoidCallback? onPressed;
+  final void Function()? onPressed;
 
   /// Callback, called when the trailing is pressed.
-  final VoidCallback? onTrailingPressed;
+  final void Function()? onTrailingPressed;
 
   /// Callback, called when the trailing is long pressed.
-  final VoidCallback? onTrailingLongPressed;
+  final void Function()? onTrailingLongPressed;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {

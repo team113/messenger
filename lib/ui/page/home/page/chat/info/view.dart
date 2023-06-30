@@ -28,7 +28,7 @@ import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/info/widget/link_text_field.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/action.dart';
-import '/ui/page/home/widget/animated_circle_avatar.dart';
+import '/ui/page/home/widget/animated_circle_loader.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -211,12 +211,12 @@ class ChatInfoView extends StatelessWidget {
                   Block(
                     title: 'label_public_information'.l10n,
                     children: [
-                      AnimatedCircleAvatar(
+                      AnimatedCircleLoader(
                         isLoading: c.avatar.value.isLoading,
                         isVisible: c.chat?.chat.value.avatar != null,
                         onPressed: c.pickAvatar,
                         onTrailingPressed: c.deleteAvatar,
-                        avatar: WidgetButton(
+                        child: WidgetButton(
                           key: Key('ChatAvatar_${c.chat!.id}'),
                           onPressed: c.chat?.chat.value.avatar == null
                               ? c.pickAvatar

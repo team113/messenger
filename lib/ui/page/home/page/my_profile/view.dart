@@ -38,7 +38,7 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/page/home/widget/animated_circle_avatar.dart';
+import '../../widget/animated_circle_loader.dart';
 import '/ui/page/home/widget/link_details.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -99,12 +99,12 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_public_information'.l10n,
                           children: [
-                            AnimatedCircleAvatar(
+                            AnimatedCircleLoader(
                               isLoading: c.avatarUpload.value.isLoading,
                               isVisible: c.myUser.value?.avatar != null,
                               onPressed: c.uploadAvatar,
                               onTrailingPressed: c.deleteAvatar,
-                              avatar: WidgetButton(
+                              child: WidgetButton(
                                 onPressed: c.myUser.value?.avatar == null
                                     ? c.uploadAvatar
                                     : () async {
