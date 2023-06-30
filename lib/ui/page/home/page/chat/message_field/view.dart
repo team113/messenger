@@ -1004,34 +1004,36 @@ class MessageFieldView extends StatelessWidget {
             Obx(() {
               final Widget child;
 
-              if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
-                child = WidgetButton(
-                  key: const Key('CancelReplyButton'),
-                  onPressed: onClose,
+              child = WidgetButton(
+                key: const Key('CancelReplyButton'),
+                onPressed: onClose,
+                child: Container(
+                  width: 15,
+                  height: 15,
+                  margin: const EdgeInsets.only(right: 4, top: 4),
                   child: Container(
-                    width: 15,
-                    height: 15,
-                    margin: const EdgeInsets.only(right: 4, top: 4),
-                    child: Container(
-                      key: const Key('Close'),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: style.cardColor,
-                      ),
-                      alignment: Alignment.center,
-                      child: SvgImage.asset(
-                        'assets/icons/close_primary.svg',
-                        width: 7,
-                        height: 7,
-                      ),
+                    key: const Key('Close'),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.cardColor,
+                    ),
+                    alignment: Alignment.center,
+                    child: SvgImage.asset(
+                      'assets/icons/close_primary.svg',
+                      width: 7,
+                      height: 7,
                     ),
                   ),
-                );
-              } else {
-                child = const SizedBox();
-              }
+                ),
+              );
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return AnimatedOpacity(
+                duration: 200.milliseconds,
+                opacity: c.hoveredReply.value == item || PlatformUtils.isMobile
+                    ? 1
+                    : 0,
+                child: child,
+              );
             }),
           ],
         ),
