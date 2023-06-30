@@ -226,7 +226,7 @@ class ChatsTabView extends StatelessWidget {
                               ? const Key('CloseSearchButton')
                               : const Key('SearchButton'),
                           onPressed: c.searching.value
-                              ? () => c.closeSearch(true)
+                              ? () => c.closeSearch(c.groupCreating.isFalse)
                               : () => c.startSearch(),
                           child: Container(
                             padding: const EdgeInsets.only(
@@ -354,7 +354,7 @@ class ChatsTabView extends StatelessWidget {
 
                   final Widget? child;
 
-                  if (c.groupCreating.value) {
+                  if (c.groupCreating.isTrue) {
                     Widget? center;
 
                     if (c.search.value?.query.isNotEmpty == true &&
