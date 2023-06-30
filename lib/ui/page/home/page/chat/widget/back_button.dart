@@ -23,9 +23,11 @@ import '/ui/widget/widget_button.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({super.key, this.color});
+  const StyledBackButton({super.key, this.onPressed, this.color});
 
   final Color? color;
+
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class StyledBackButton extends StatelessWidget {
 
     if (ModalRoute.of(context)?.canPop == true) {
       return WidgetButton(
-        onPressed: () => Navigator.maybePop(context),
+        onPressed: onPressed ?? () => Navigator.maybePop(context),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: AnimatedButton(

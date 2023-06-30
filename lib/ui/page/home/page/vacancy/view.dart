@@ -29,6 +29,7 @@ import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
+import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -72,14 +73,14 @@ class VacancyView extends StatelessWidget {
                 Block(
                   title: 'Details',
                   children: [
-                    _padding(Text(e.description)),
+                    Paddings.basic(Text(e.description)),
                     const SizedBox(height: 4),
                   ],
                 ),
                 Block(
                   title: 'Actions',
                   children: [
-                    _padding(
+                    Paddings.basic(
                       FieldButton(
                         text: 'Связаться',
                         style: TextStyle(color: style.colors.primary),
@@ -96,8 +97,4 @@ class VacancyView extends StatelessWidget {
       },
     );
   }
-
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
 }

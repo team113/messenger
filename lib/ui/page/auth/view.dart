@@ -74,7 +74,7 @@ class AuthView extends StatelessWidget {
                     : MainAxisAlignment.center,
                 // direction: narrow ? Axis.horizontal : Axis.vertical,
                 direction: Axis.vertical,
-                children: const [
+                children: [
                   // if (narrow)
                   //   const Expanded(
                   //     child: StyledCupertinoButton(
@@ -89,8 +89,14 @@ class AuthView extends StatelessWidget {
                   //   height: 12,
                   //   color: Colors.grey,
                   // ),
-                  StyledCupertinoButton(label: 'Work with us'),
-                  StyledCupertinoButton(label: 'Terms and conditions'),
+                  StyledCupertinoButton(
+                    onPressed: () {
+                      router.vacancy(null, push: true);
+                      print(router.routes);
+                    },
+                    label: 'Vacancies',
+                  ),
+                  const StyledCupertinoButton(label: 'Terms and conditions'),
                 ],
               ),
             ),

@@ -372,6 +372,18 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
+                  case ProfileTab.vacancies:
+                    child = card(
+                      key: const Key('VacanciesButton'),
+                      icon: Icons.work,
+                      title: 'Vacancies'.l10n,
+                      subtitle: 'Work with us'.l10n,
+                      onTap: () {
+                        router.vacancy(null);
+                      },
+                    );
+                    break;
+
                   case ProfileTab.logout:
                     child = card(
                       key: const Key('LogoutButton'),

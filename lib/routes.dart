@@ -67,6 +67,7 @@ import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
+import 'ui/page/vacancy/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
@@ -125,6 +126,7 @@ enum ProfileTab {
   blacklist,
   download,
   danger,
+  vacancies,
   logout,
 }
 
@@ -286,6 +288,7 @@ class RouterState extends ChangeNotifier {
     switch (to) {
       case Routes.home:
       case Routes.style:
+      case Routes.vacancy:
         return to;
       default:
         if (_auth.status.value.isSuccess) {
@@ -734,6 +737,16 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       ));
     }
 
+    if (_state.route == Routes.vacancy) {
+      pages.add(
+        const MaterialPage(
+          key: ValueKey('VacancyPage'),
+          name: Routes.vacancy,
+          child: VacancyView(),
+        ),
+      );
+    }
+
     if (_state.route.startsWith(Routes.chats) ||
         _state.route.startsWith(Routes.contacts) ||
         _state.route.startsWith(Routes.user) ||
@@ -885,8 +898,9 @@ extension RouteLinks on RouterState {
       ? this.push('${Routes.transaction}/$id')
       : go('${Routes.transaction}/$id');
 
-  void vacancy(String id, {bool push = false}) =>
-      push ? this.push('${Routes.vacancy}/$id') : go('${Routes.vacancy}/$id');
+  void vacancy(String? id, {bool push = false}) => push
+      ? this.push('${Routes.vacancy}${id == null ? '' : '/$id'}')
+      : go('${Routes.vacancy}${id == null ? '' : '/$id'}');
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

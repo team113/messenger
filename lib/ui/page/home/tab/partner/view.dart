@@ -225,7 +225,7 @@ class PartnerTabView extends StatelessWidget {
                     padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
                     child: Center(child: Text('Работайте с нами')),
                   ),
-                  ...Vacancies.all.map((e) {
+                  ...[Vacancies.all.first].map((e) {
                     return Obx(() {
                       final bool selected = router.routes.firstWhereOrNull(
                               (m) => m == '${Routes.vacancy}/${e.id}') !=
