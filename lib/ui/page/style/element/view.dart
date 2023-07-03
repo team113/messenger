@@ -16,15 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/style/fonts/style.dart';
 
 import '../colors/view.dart';
-import '../fonts/family.dart';
+import '../fonts/view.dart';
+
+import '../media/view.dart';
 import 'widget/avatar.dart';
 import 'widget/header.dart';
-import 'widget/logo.dart';
-
-// import '/themes.dart';
 
 /// Elements tab view of the [Routes.style] page.
 class ElementStyleTabView extends StatelessWidget {
@@ -37,23 +35,8 @@ class ElementStyleTabView extends StatelessWidget {
       child: Column(
         children: [
           ColorStyleView(),
-          Header(label: 'Typography'),
-          SmallHeader(label: 'Font'),
-          FontFamiliesView(),
-          Divider(),
-          SmallHeader(label: 'Styles'),
-          FontStyleView(),
-          Divider(),
-          SmallHeader(label: 'Links'),
-          Divider(),
-          Header(label: 'Multimedia'),
-          SmallHeader(label: 'Images'),
-          LogoView(),
-          Divider(),
-          SmallHeader(label: 'Animation'),
-          Divider(),
-          SmallHeader(label: 'Sound'),
-          Divider(),
+          FontsView(),
+          MultimediaView(),
           Header(label: 'Elements'),
           SmallHeader(label: 'Text fields'),
           Divider(),

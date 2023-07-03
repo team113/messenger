@@ -8,8 +8,9 @@ class FontStyleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Wrap(
         alignment: WrapAlignment.center,
         spacing: 16,
