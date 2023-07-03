@@ -394,23 +394,8 @@ void main() async {
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
 
-    final ChatController chatController = Get.put(
-      ChatController(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-      ),
-      tag: '0d72d245-8425-467a-9ebd-082d4f47850b',
-    );
-
     await tester.pumpWidget(createWidgetForTesting(
-      child: ChatView(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        controller: chatController,
-      ),
+      child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
@@ -418,6 +403,8 @@ void main() async {
     await gesture.addPointer(location: Offset.zero);
     addTearDown(gesture.removePointer);
 
+    ChatController chatController =
+        Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
     chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
