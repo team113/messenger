@@ -190,6 +190,7 @@ btn_media_settings = Media settings
 btn_message_info = Message info
 btn_mute = Mute
 btn_mute_chat = Mute chat
+btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
 btn_participants = Participants
@@ -218,6 +219,7 @@ btn_unblock = Unblock
 btn_unblock_short = Unblock
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
+btn_unmute_chats = Unmute chats
 btn_upload = Upload
 btn_video_call = Video call
 btn_write_message = Write a message
@@ -383,7 +385,10 @@ label_attachments = [{$count} { $count ->
     [1] attachment
     *[other] attachments
     }]
-label_audio_call = Audio call
+label_audio_call = Audio call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_audio_notifications = Audio notifications
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
@@ -428,7 +433,9 @@ label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
-label_chat_monolog = To myself
+label_chat_monolog = Notes
+label_chat_monolog_description = Write down notes, ideas or forward other messages to save them here. Only you can see this chat.
+label_chat_name_hint = Chat name
 label_chats = Messages
 label_clear_history = Clear history
 label_confirm = Confirm
@@ -457,6 +464,7 @@ label_delete_phone_number = Delete phone number
 label_delivered = Delivered
 label_details = Details.
 label_dialog_created = Dialog created
+label_dialog_created_by_link = Dialog created via direct link
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
     Users who came via a direct link to
@@ -476,7 +484,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_disabled = Disabled
-label_display_timestamps = Display time stamps
+label_display_timestamps = Display timestamps
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -501,6 +509,10 @@ label_favorite_contacts = Favorite
 label_file = File
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
+label_forwarded_messages = {$count ->
+    [1] Пересланное сообщение
+   *[other] Пересланные сообщения
+}
 label_gallery = Gallery
 label_group_created = Group created
 label_group_created_by = {$author} created the group
@@ -621,7 +633,7 @@ label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information
 label_public_section_hint = Avatar and name
-label_read_at = Read at: {$day}.{$month}.{$year} {$hour}:{$minute}
+label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
 label_recent = Recent
@@ -700,7 +712,10 @@ label_users_count = Users: {$count}
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number
 label_video = Video
-label_video_call = Video call
+label_video_call = Video call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:

@@ -26,7 +26,7 @@ import '/ui/page/home/widget/avatar.dart';
 /// [InkResponse.hoverColor].
 class InkWellWithHover extends StatefulWidget {
   const InkWellWithHover({
-    Key? key,
+    super.key,
     this.selected = false,
     this.selectedColor,
     this.selectedHoverColor,
@@ -38,7 +38,7 @@ class InkWellWithHover extends StatefulWidget {
     this.onTap,
     this.folded = false,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// Indicator whether this [InkWellWithHover] is selected.
   final bool selected;
@@ -84,7 +84,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return ClipPath(
       clipper:

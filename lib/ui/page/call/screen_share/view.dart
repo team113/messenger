@@ -32,7 +32,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class ScreenShareView extends StatelessWidget {
-  const ScreenShareView(this.call, {Key? key}) : super(key: key);
+  const ScreenShareView(this.call, {super.key});
 
   /// [OngoingCall] this [ScreenShareView] is bound to.
   final Rx<OngoingCall> call;
@@ -53,11 +53,7 @@ class ScreenShareView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget framelessBuilder = const SizedBox(
       height: videoHeight,
@@ -75,14 +71,7 @@ class ScreenShareView extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_screen_sharing'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_screen_sharing'.l10n),
               const SizedBox(height: 12),
               Flexible(
                 child: Scrollbar(
@@ -136,7 +125,9 @@ class ScreenShareView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_share'.l10n,
-                    style: thin?.copyWith(color: style.colors.onPrimary),
+                    style: fonts.bodyMedium!.copyWith(
+                      color: style.colors.onPrimary,
+                    ),
                   ),
                   onPressed: () {
                     c.freeTracks();

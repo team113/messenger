@@ -16,19 +16,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
 
 /// [InkWell] button with a [Tooltip] of a [hint].
 class TooltipButton extends StatelessWidget {
   const TooltipButton({
-    Key? key,
+    super.key,
     this.child,
     this.onTap,
     this.hint,
     this.verticalOffset,
-  }) : super(key: key);
+  });
 
   /// Widget of this button.
   final Widget? child;
@@ -44,7 +43,7 @@ class TooltipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget button = InkWell(
       hoverColor: style.colors.transparent,
@@ -59,9 +58,7 @@ class TooltipButton extends StatelessWidget {
         : Tooltip(
             verticalOffset: verticalOffset,
             message: hint!,
-            textStyle: context.theme.outlinedButtonTheme.style!.textStyle!
-                .resolve({MaterialState.disabled})!.copyWith(
-              fontSize: 13,
+            textStyle: fonts.headlineSmall!.copyWith(
               color: style.colors.onPrimary,
               shadows: [
                 Shadow(blurRadius: 6, color: style.colors.onBackground),

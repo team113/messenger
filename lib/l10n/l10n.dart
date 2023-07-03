@@ -21,6 +21,8 @@ import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 /// Localization of this application.
 class L10n {
@@ -41,6 +43,8 @@ class L10n {
   /// Initializes this [L10n] with the default [Locale] of the device, or
   /// optionally with the provided [Language].
   static Future<void> init([Language? lang]) async {
+    await initializeDateFormatting();
+
     if (lang == null) {
       List<Locale> locales = WidgetsBinding.instance.platformDispatcher.locales;
       for (int i = 0; i < locales.length && chosen.value == null; ++i) {
@@ -65,6 +69,7 @@ class L10n {
     }
 
     if (languages.contains(lang)) {
+      Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
       _bundle = FluentBundle(lang.toString())
         ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'));
@@ -110,4 +115,41 @@ extension L10nExtension on String {
   /// Returns a value identified by this [String] from the current [L10n] with
   /// the provided [args].
   String l10nfmt(Map<String, dynamic> args) => L10n._format(this, args: args);
+}
+
+/// Extension adding an ability to get [DateTime] formatted according to [L10n].
+extension L10nDateExtension on DateTime {
+  /// Returns this [DateTime] formatted in `Hm` format.
+  String get hm => DateFormat.Hm().format(this);
+
+  /// Returns this [DateTime] formatted in `yMd` format.
+  String get yMd => DateFormat.yMd().format(this);
+
+  /// Returns this [DateTime] formatted as short weekday name.
+  String get e => DateFormat.E().format(this);
+
+  /// Returns this [DateTime] formatted in `yMdHm` format.
+  String get yMdHm => '$yMd${'space'.l10n}$hm';
+
+  /// Returns short text representing this [DateTime].
+  ///
+  /// Returns string in format `Hm`, if [DateTime] is within today. Returns a
+  /// short weekday name, if [difference] between this [DateTime] and
+  /// [DateTime.now] is less than 7 days. Otherwise returns a string in `yMdHm`
+  /// format.
+  String get short {
+    final DateTime now = DateTime.now();
+    final DateTime from = DateTime(now.year, now.month, now.day);
+    final DateTime to = DateTime(year, month, day);
+
+    final int differenceInDays = from.difference(to).inDays;
+
+    if (differenceInDays > 6) {
+      return yMd;
+    } else if (differenceInDays < 1) {
+      return hm;
+    } else {
+      return e;
+    }
+  }
 }

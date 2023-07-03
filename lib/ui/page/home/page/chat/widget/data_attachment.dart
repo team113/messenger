@@ -50,7 +50,7 @@ class _DataAttachmentState extends State<DataAttachment> {
     final Attachment e = widget.attachment;
 
     return Obx(() {
-      final Style style = Theme.of(context).extension<Style>()!;
+      final (style, fonts) = Theme.of(context).styles;
 
       Widget leading = Container();
 
@@ -62,8 +62,8 @@ class _DataAttachmentState extends State<DataAttachment> {
               onTap: e.cancelDownload,
               child: Container(
                 key: const Key('Downloading'),
-                width: 34,
-                height: 34,
+                width: 29,
+                height: 29,
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
@@ -88,8 +88,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                 child: Center(
                   child: SvgImage.asset(
                     'assets/icons/cancel.svg',
-                    width: 11,
-                    height: 11,
+                    width: 9,
+                    height: 9,
                   ),
                 ),
               ),
@@ -99,17 +99,19 @@ class _DataAttachmentState extends State<DataAttachment> {
           case DownloadStatus.isFinished:
             leading = Container(
               key: const Key('Downloaded'),
-              height: 34,
-              width: 34,
+              height: 29,
+              width: 29,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: style.colors.primary,
               ),
               child: Center(
-                child: Icon(
-                  Icons.insert_drive_file,
-                  color: style.colors.onPrimary,
-                  size: 16,
+                child: Transform.translate(
+                  offset: const Offset(0.3, -0.5),
+                  child: SvgImage.asset(
+                    'assets/icons/file.svg',
+                    height: 12.5,
+                  ),
                 ),
               ),
             );
@@ -119,13 +121,12 @@ class _DataAttachmentState extends State<DataAttachment> {
             leading = AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               key: const Key('Download'),
-              height: 34,
-              width: 34,
+              height: 29,
+              width: 29,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _hovered
-                    ? style.colors.backgroundAuxiliaryLighter
-                    : style.colors.transparent,
+                color:
+                    _hovered ? style.colors.backgroundAuxiliaryLighter : null,
                 border: Border.all(
                   width: 2,
                   color: style.colors.primary,
@@ -136,8 +137,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                 child: Center(
                   child: SvgImage.asset(
                     'assets/icons/arrow_down.svg',
-                    width: 10.55,
-                    height: 14,
+                    width: 9.12,
+                    height: 10.39,
                   ),
                 ),
               ),
@@ -149,7 +150,7 @@ class _DataAttachmentState extends State<DataAttachment> {
           case SendingStatus.sending:
             leading = SizedBox.square(
               key: const Key('Sending'),
-              dimension: 18,
+              dimension: 29,
               child: CircularProgressIndicator(
                 value: e.progress.value,
                 backgroundColor: style.colors.onPrimary,
@@ -162,7 +163,7 @@ class _DataAttachmentState extends State<DataAttachment> {
             leading = Icon(
               Icons.check_circle,
               key: const Key('Sent'),
-              size: 18,
+              size: 29,
               color: style.colors.acceptAuxiliaryColor,
             );
             break;
@@ -171,7 +172,7 @@ class _DataAttachmentState extends State<DataAttachment> {
             leading = Icon(
               Icons.error_outline,
               key: const Key('Error'),
-              size: 18,
+              size: 29,
               color: style.colors.dangerColor,
             );
             break;
@@ -183,70 +184,66 @@ class _DataAttachmentState extends State<DataAttachment> {
         onExit: (_) => setState(() => _hovered = false),
         child: Padding(
           key: Key('File_${e.id}'),
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
           child: WidgetButton(
             onPressed: widget.onPressed,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: style.colors.onBackgroundOpacity2,
-              ),
-              padding: const EdgeInsets.all(4),
-              child: Row(
-                children: [
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                p.basenameWithoutExtension(e.filename),
-                                style: style.boldBody,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Text(
-                              p.extension(e.filename),
-                              style: style.boldBody,
+            child: Row(
+              children: [
+                const SizedBox(width: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: AnimatedSwitcher(
+                    key: Key('AttachmentStatus_${e.id}'),
+                    duration: 250.milliseconds,
+                    child: leading,
+                  ),
+                ),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              p.basenameWithoutExtension(e.filename),
+                              style: fonts.bodyLarge,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          'label_kb'.l10nfmt({
-                            'amount': e.original.size == null
-                                ? 'dot'.l10n * 3
-                                : e.original.size! ~/ 1024
-                          }),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: style.boldBody.copyWith(
-                            fontSize: 13,
-                            color: style.colors.secondary,
                           ),
-                        ),
-                      ],
-                    ),
+                          Text(
+                            p.extension(e.filename),
+                            style: fonts.bodyLarge,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'label_kb'.l10nfmt({
+                              'amount': e.original.size == null
+                                  ? 'dot'.l10n * 3
+                                  : e.original.size! ~/ 1024
+                            }),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: fonts.headlineSmall!.copyWith(
+                              color: style.colors.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: AnimatedSwitcher(
-                      key: Key('AttachmentStatus_${e.id}'),
-                      duration: 250.milliseconds,
-                      child: leading,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
