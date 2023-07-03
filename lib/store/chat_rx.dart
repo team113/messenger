@@ -339,9 +339,12 @@ class HiveRxChat extends RxChat {
     Future<void>? future = _attachmentsUpdates[item.id];
     if (future != null) {
       return future;
+    } else {
+      future = _updateAttachments(item);
+      _attachmentsUpdates[item.id] = future;
+      await future;
+      _attachmentsUpdates.remove(item.id);
     }
-
-    _attachmentsUpdates[item.id] = Future(() => _updateAttachments(item));
   }
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
