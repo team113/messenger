@@ -145,19 +145,17 @@ class ContactsTabView extends StatelessWidget {
                       key: const Key('CloseSearch'),
                       height: 11,
                     );
-                  } else {
-                    child = null;
                   }
                 } else {
-                  child = c.selecting.value
-                      ? SvgImage.asset(
-                          c.search.value != null
-                              ? 'assets/icons/search_exit.svg'
-                              : 'assets/icons/close_primary.svg',
-                          key: const Key('CloseGroupSearching'),
-                          height: c.search.value != null ? 11 : 15,
-                        )
-                      : null;
+                  if (c.selecting.value) {
+                    child = SvgImage.asset(
+                      c.search.value != null
+                          ? 'assets/icons/search_exit.svg'
+                          : 'assets/icons/close_primary.svg',
+                      key: const Key('CloseGroupSearching'),
+                      height: c.search.value != null ? 11 : 15,
+                    );
+                  }
                 }
 
                 return Row(

@@ -115,7 +115,7 @@ class ChatsTabController extends GetxController {
     Timer(2.seconds, () => fetching.value = null),
   );
 
-  /// [GlobalKey] of the `more` button.
+  /// [GlobalKey] of the more button.
   final GlobalKey moreKey = GlobalKey();
 
   /// [Chat]s service used to update the [chats].

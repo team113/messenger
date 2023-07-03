@@ -185,20 +185,20 @@ class ChatsTabView extends StatelessWidget {
 
                         return WidgetButton(
                           onPressed: () {
-                            final List<RxChat> chats = [];
-
-                            for (RxChat e in c.chats) {
-                              if ((!e.id.isLocal ||
-                                      e.messages.isNotEmpty ||
-                                      e.chat.value.isMonolog) &&
-                                  !e.chat.value.isHidden) {
-                                chats.add(e);
-                              }
-                            }
-
                             if (selected) {
                               c.selectedChats.clear();
                             } else {
+                              final List<RxChat> chats = [];
+
+                              for (RxChat e in c.chats) {
+                                if ((!e.id.isLocal ||
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden) {
+                                  chats.add(e);
+                                }
+                              }
+
                               for (var e in chats) {
                                 if (!c.selectedChats.contains(e.id)) {
                                   c.selectChat(e);
@@ -229,10 +229,7 @@ class ChatsTabView extends StatelessWidget {
                               ? () => c.closeSearch(c.groupCreating.isFalse)
                               : () => c.startSearch(),
                           child: Container(
-                            padding: const EdgeInsets.only(
-                              left: 20,
-                              right: 6,
-                            ),
+                            padding: const EdgeInsets.only(left: 20, right: 6),
                             height: double.infinity,
                             child: c.searching.value
                                 ? Icon(
@@ -252,7 +249,7 @@ class ChatsTabView extends StatelessWidget {
                   ],
                   actions: [
                     Obx(() {
-                      final Widget? child;
+                      Widget? child;
 
                       if (c.searching.value) {
                         if (c.search.value?.search.isEmpty.value == false) {
@@ -261,17 +258,15 @@ class ChatsTabView extends StatelessWidget {
                             key: const Key('CloseSearch'),
                             height: 11,
                           );
-                        } else {
-                          child = null;
                         }
                       } else {
-                        child = c.groupCreating.value || c.selecting.value
-                            ? SvgImage.asset(
-                                'assets/icons/close_primary.svg',
-                                key: const Key('CloseGroupSearching'),
-                                height: 15,
-                              )
-                            : null;
+                        if (c.groupCreating.value || c.selecting.value) {
+                          child = SvgImage.asset(
+                            'assets/icons/close_primary.svg',
+                            key: const Key('CloseGroupSearching'),
+                            height: 15,
+                          );
+                        }
                       }
 
                       return Row(
