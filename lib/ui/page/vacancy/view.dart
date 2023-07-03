@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/vacancy.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
@@ -14,6 +16,7 @@ import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'controller.dart';
+import 'widget/vacancy_description.dart';
 
 class VacancyView extends StatelessWidget {
   const VacancyView({super.key});
@@ -116,9 +119,7 @@ class VacancyView extends StatelessWidget {
           key: Key(e.id),
           appBar: CustomAppBar(
             leading: [
-              StyledBackButton(
-                onPressed: () => c.vacancy.value = null,
-              ),
+              StyledBackButton(onPressed: () => c.vacancy.value = null),
             ],
             title: Text(e.title),
             actions: const [SizedBox(width: 46)],
@@ -131,19 +132,32 @@ class VacancyView extends StatelessWidget {
                 Block(
                   title: 'Details',
                   children: [
-                    Paddings.basic(Text(e.description)),
+                    Paddings.basic(
+                      VacancyDescription(e.description),
+                    ),
                     const SizedBox(height: 4),
                   ],
                 ),
                 Block(
-                  title: 'Связаться с нами',
+                  title: 'Schedule an interview',
                   children: [
                     Paddings.basic(Column(
                       children: [
-                        ReactiveTextField(
-                          state: c.email,
-                          label: 'E-mail*',
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: Text(
+                              'Интервью проводится онлайн с использованием мессенджера Gapopa. Устойчивая аудио- и видеосвязь обязательна. В процессе интервью сотрудник HR отдела будет готов ответить на Ваши вопросы, попросит Вас рассказать о себе, а также Вам может быть предложено решить техническую задачу.',
+                              style: TextStyle(
+                                color: style.colors.secondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
                         ),
+                        const SizedBox(height: 24),
+                        ReactiveTextField(state: c.email, label: 'E-mail*'),
                         const SizedBox(height: 16),
                         Obx(() {
                           return FieldButton(
@@ -161,6 +175,29 @@ class VacancyView extends StatelessWidget {
                           maxLines: 5,
                         ),
                         const SizedBox(height: 24),
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: Text(
+                              c.status.value.isEmpty
+                                  ? '''Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
+
+• Вы не удалите пользовательские данные из приложения (браузера);
+
+• Вы не нажмёте кнопку "Выйти".
+
+Чтобы не потерять доступ к аккаунту, задайте пароль.'''
+                                  // ? 'Аккаунт создаётся автоматически. Доступ к аккаунту без пароля сохраняется в течение одного года. Чтобы не потерять доступ, задайте пароль.'
+                                  : 'Вы будете перенаправлены в чат с HR-менеджером.',
+                              style: TextStyle(
+                                color: style.colors.secondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
                         Obx(() {
                           final bool enabled =
                               !c.email.isEmpty.value && c.resume.value != null;
@@ -179,26 +216,6 @@ class VacancyView extends StatelessWidget {
                             ),
                           );
                         }),
-                        // FieldButton(
-                        //   text: 'Отправить',
-                        //   style: TextStyle(color: style.colors.primary),
-                        //   textAlign: TextAlign.center,
-                        //   onPressed: () {},
-                        // ),
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: Text(
-                              'Вы будете перенаправлены в чат с HR-менеджером.',
-                              style: TextStyle(
-                                color: style.colors.secondary,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     )),
                   ],

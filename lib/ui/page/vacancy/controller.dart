@@ -1,4 +1,6 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/gestures.dart' show TapGestureRecognizer;
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -7,8 +9,10 @@ import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/model/vacancy.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -36,6 +40,8 @@ class VacancyController extends GetxController {
   late final Rx<NativeFile?> resume = Rx(null);
   late final TextFieldState text = TextFieldState();
 
+  Rx<RxStatus> get status => _authService.status;
+
   Future<void> pick() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -58,6 +64,8 @@ class VacancyController extends GetxController {
   }
 
   Future<void> send() async {
+    RxChat? chat;
+
     if (_authService.status.value.isEmpty) {
       await _authService.register();
       router.home();
@@ -65,31 +73,37 @@ class VacancyController extends GetxController {
       while (!Get.isRegistered<ChatService>()) {
         await Future.delayed(const Duration(milliseconds: 50));
       }
+    } else {
+      final UserService userService = Get.find();
+      final user = await userService
+          .get(const UserId('a3f14328-c844-4666-887f-d70127c3cb31'));
 
-      final ChatService chatService = Get.find();
+      chat = user?.dialog.value;
+    }
 
-      final chat = await chatService.get(
-        ChatId.local(const UserId('a3f14328-c844-4666-887f-d70127c3cb31')),
+    final ChatService chatService = Get.find();
+
+    chat ??= await chatService.get(
+      ChatId.local(const UserId('a3f14328-c844-4666-887f-d70127c3cb31')),
+    );
+
+    if (chat != null) {
+      router.chat(chat.id, push: true);
+
+      final attachment = LocalAttachment(
+        resume.value!,
+        status: SendingStatus.sending,
       );
+      chatService.uploadAttachment(attachment);
 
-      if (chat != null) {
-        router.chat(chat.id, push: true);
-
-        final attachment = LocalAttachment(
-          resume.value!,
-          status: SendingStatus.sending,
-        );
-        chatService.uploadAttachment(attachment);
-
-        await chatService.sendChatMessage(
-          chat.id,
-          attachments: [attachment],
-          text: ChatMessageText('''Vacancy: ${vacancy.value!.title}
+      await chatService.sendChatMessage(
+        chat.id,
+        attachments: [attachment],
+        text: ChatMessageText('''Vacancy: ${vacancy.value!.title}
 E-mail: ${email.text}
 Message: ${text.text.isEmpty ? '-' : text.text}
 '''),
-        );
-      }
+      );
     }
   }
 }

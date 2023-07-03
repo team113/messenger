@@ -94,7 +94,7 @@ class AuthView extends StatelessWidget {
                       router.vacancy(null, push: true);
                       print(router.routes);
                     },
-                    label: 'Vacancies',
+                    label: 'Work with us',
                   ),
                   const StyledCupertinoButton(label: 'Terms and conditions'),
                 ],
