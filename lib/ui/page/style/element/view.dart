@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-// import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/style/fonts/style.dart';
 
 import '../colors/view.dart';
 import '../fonts/family.dart';
@@ -32,8 +32,6 @@ class ElementStyleTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final (style, fonts) = Theme.of(context).styles;
-
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 70),
       child: Column(
@@ -44,8 +42,9 @@ class ElementStyleTabView extends StatelessWidget {
           FontFamiliesView(),
           Divider(),
           SmallHeader(label: 'Styles'),
+          FontStyleView(),
           Divider(),
-          SmallHeader(label: 'Intervals'),
+          SmallHeader(label: 'Links'),
           Divider(),
           Header(label: 'Multimedia'),
           SmallHeader(label: 'Images'),

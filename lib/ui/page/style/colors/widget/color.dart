@@ -28,8 +28,6 @@ class CustomColor extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    // final HSLColor hsl = HSLColor.fromColor(color);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

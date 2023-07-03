@@ -107,7 +107,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Intervals',
+                                  'Links',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
