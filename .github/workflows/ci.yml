@@ -159,6 +159,13 @@ jobs:
 
       - run: make flutter.pub
 
+      - name: Parse `User-Agent` version
+        id: version
+        run: echo ::set-output
+                  ver=${{ (startsWith(github.ref, 'refs/tags/v')
+                            && "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)")
+                        || github.sha }}
+
       - run: make flutter.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'web' }}
       - run: make flutter.build platform=${{ matrix.platform }}
@@ -166,7 +173,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_USER_AGENT_VERSION=${{ github.sha }}'
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.version.outputs.ver }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name

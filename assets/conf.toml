@@ -69,7 +69,7 @@
 # Default:
 #   product = "Gapopa"
 
-# Version identifier of `User-Agent` header to put in network queries.
+# Version of product of `User-Agent` header to put in network queries.
 #
 # Unused for Web, as browser picks the `User-Agent` itself.
 #

@@ -16,13 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:ffi' hide Size;
 import 'dart:io';
 
 import 'package:async/async.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -30,14 +27,11 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:stdlibc/stdlibc.dart';
-import 'package:win32/win32.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import '/routes.dart';
 import 'backoff.dart';
-import 'ios_utils.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -112,155 +106,8 @@ class PlatformUtilsImpl {
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
   /// Returns a `User-Agent` header to put in the network requests.
-  ///
-  /// Common format is: `Product/Version (OS_Name OS_Mod Kernel_Ver (Build_Ver); SDK_Ver; Arch (Processor); Device_Name; Device_ID)`
   Future<String> get userAgent async {
-    if (_userAgent == null) {
-      final DeviceInfoPlugin device = DeviceInfoPlugin();
-
-      String? system;
-
-      if (isWeb) {
-        final info = await device.webBrowserInfo;
-        _userAgent = info.userAgent ??
-            '${Config.userAgentProduct}/${Config.userAgentVersion}';
-        return _userAgent!;
-      } else if (isMacOS) {
-        final info = await device.macOsInfo;
-        final StringBuffer buffer = StringBuffer(
-          'macOS ${info.osRelease} ${info.kernelVersion}',
-        );
-
-        buffer.write('; ${info.arch}');
-
-        final res = await Process.run('sysctl', ['machdep.cpu.brand_string']);
-        if (res.exitCode == 0) {
-          buffer.write(
-            ' ${res.stdout.toString().substring('machdep.cpu.brand_string: '.length, res.stdout.toString().length - 1)}',
-          );
-        }
-
-        buffer.write('; ${info.model}');
-
-        if (info.systemGUID != null) {
-          buffer.write('; ${info.systemGUID}');
-        }
-
-        system = buffer.toString();
-      } else if (isWindows) {
-        final info = await device.windowsInfo;
-
-        final StringBuffer buffer = StringBuffer(
-          '${info.productName} (build ${info.buildLabEx}); ${info.displayVersion}',
-        );
-
-        Pointer<SYSTEM_INFO> lpSystemInfo = calloc<SYSTEM_INFO>();
-        try {
-          GetNativeSystemInfo(lpSystemInfo);
-
-          String? architecture;
-
-          switch (lpSystemInfo.ref.Anonymous.Anonymous.wProcessorArchitecture) {
-            case PROCESSOR_ARCHITECTURE_AMD64:
-              architecture = 'x64';
-              break;
-
-            case PROCESSOR_ARCHITECTURE_ARM:
-              architecture = 'ARM';
-              break;
-
-            case PROCESSOR_ARCHITECTURE_ARM64:
-              architecture = 'ARM64';
-              break;
-
-            case PROCESSOR_ARCHITECTURE_IA64:
-              architecture = 'IA64';
-              break;
-
-            case PROCESSOR_ARCHITECTURE_INTEL:
-              architecture = 'x86';
-              break;
-          }
-
-          if (architecture != null) {
-            buffer.write('; $architecture');
-          }
-        } finally {
-          free(lpSystemInfo);
-        }
-
-        buffer.write('; ${info.deviceId}');
-
-        system = buffer.toString();
-      } else if (isLinux) {
-        final info = await device.linuxInfo;
-        final utsname = uname();
-
-        final StringBuffer buffer = StringBuffer(info.prettyName);
-
-        if (utsname != null) {
-          buffer.write(' ${utsname.release}');
-        }
-
-        if (info.variant != null) {
-          buffer.write(' ${info.variant}');
-        }
-
-        if (info.buildId != null) {
-          buffer.write(' (build ${info.buildId})');
-        }
-
-        if (utsname != null) {
-          buffer.write('; ${utsname.machine}');
-        }
-
-        if (info.machineId != null) {
-          buffer.write('; ${info.machineId}');
-        }
-
-        system = buffer.toString();
-      } else if (isAndroid) {
-        final info = await device.androidInfo;
-        final utsname = uname();
-
-        final StringBuffer buffer = StringBuffer(
-          'Android ${info.version.release} ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
-        );
-
-        if (utsname != null) {
-          buffer.write('; ${utsname.machine} ${info.hardware}');
-        }
-
-        buffer.write('; ${info.manufacturer} ${info.model}; ${info.id}');
-
-        system = buffer.toString();
-      } else if (isIOS) {
-        final info = await device.iosInfo;
-        final StringBuffer buffer = StringBuffer(
-          '${info.systemName} ${info.systemVersion} ${info.utsname.version}',
-        );
-
-        try {
-          buffer.write('; ${await IosUtils.getArchitecture()}');
-        } catch (_) {
-          // No-op.
-        }
-
-        buffer.write('; ${info.utsname.machine}');
-
-        if (info.identifierForVendor != null) {
-          buffer.write('; ${info.identifierForVendor}');
-        }
-
-        system = buffer.toString();
-      }
-
-      _userAgent = '${Config.userAgentProduct}/${Config.userAgentVersion}';
-      if (system != null) {
-        _userAgent = '$_userAgent ($system)';
-      }
-    }
-
+    _userAgent ??= await WebUtils.userAgent;
     return _userAgent!;
   }
 
