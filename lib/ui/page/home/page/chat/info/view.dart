@@ -57,8 +57,7 @@ class ChatInfoView extends StatelessWidget {
       key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
       tag: id.val,
-      global: false,
-      dispose: (state) => state.controller?.onClose(),
+      global: !Get.isRegistered<ChatInfoController>(tag: id.val),
       builder: (c) {
         return Obx(() {
           if (c.status.value.isLoading) {
