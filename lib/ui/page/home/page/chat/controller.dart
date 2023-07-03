@@ -403,7 +403,6 @@ class ChatController extends GetxController {
 
     _audioPlayer?.dispose();
     _audioPlayer = null;
-    AudioCache.instance.clear('audio/message_sent.mp3');
 
     if (chat?.chat.value.isDialog == true) {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
@@ -1219,7 +1218,6 @@ class ChatController extends GetxController {
     await runZonedGuarded(
       () async {
         _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
-        await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
       },
       (e, _) {
         if (e is MissingPluginException) {
@@ -1319,7 +1317,7 @@ class ChatController extends GetxController {
   /// Scrolls to the last read message.
   void _scrollToLastRead() {
     Future.delayed(1.milliseconds, () {
-      if (listController.hasClients) {
+      if (listController.hasClients && listController.positions.length == 1) {
         if (chat?.messages.isEmpty == false) {
           var result = _calculateListViewIndex(false);
 

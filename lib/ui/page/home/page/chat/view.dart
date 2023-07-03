@@ -57,11 +57,7 @@ import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
-  const ChatView(
-    this.id, {
-    super.key,
-    this.itemId,
-  });
+  const ChatView(this.id, {super.key, this.itemId});
 
   /// ID of this [Chat].
   final ChatId id;
