@@ -161,9 +161,10 @@ jobs:
 
       - name: Parse `User-Agent` version
         id: version
-        run: echo ::set-output
-                  ver=${{ (startsWith(github.ref, 'refs/tags/v')
-                            && grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)
+        run: |
+          pubspec = "grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2"
+          echo ::set-output
+                  ver=${{ (startsWith(github.ref, 'refs/tags/v') && pubspec)
                         || github.sha }}
 
       - run: make flutter.build platform=${{ matrix.platform }}
