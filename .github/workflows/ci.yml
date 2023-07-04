@@ -162,12 +162,13 @@ jobs:
       - name: Parse `User-Agent` version
         id: version
         run: |
-          if ${{ startsWith(github.ref, 'refs/tags/v') }}; then
+          if ${{ startsWith(github.ref, 'refs/pull/') }}; then
             echo ::set-output
                  ver=$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)
           else
             echo ::set-output ver=${{ github.sha }}
           fi
+        if: ${{ matrix.platform != 'web' }}
 
       - run: make flutter.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'web' }}
