@@ -108,6 +108,7 @@ class _ChatViewState extends State<ChatView>
         itemId: widget.itemId,
       ),
       tag: widget.id.val,
+      global: !Get.isRegistered<ChatController>(tag: widget.id.val),
       builder: (c) {
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.

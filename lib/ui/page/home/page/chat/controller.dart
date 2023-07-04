@@ -1317,7 +1317,7 @@ class ChatController extends GetxController {
   /// Scrolls to the last read message.
   void _scrollToLastRead() {
     Future.delayed(1.milliseconds, () {
-      if (listController.hasClients && listController.positions.length == 1) {
+      if (listController.hasClients) {
         if (chat?.messages.isEmpty == false) {
           var result = _calculateListViewIndex(false);
 
