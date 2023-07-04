@@ -1,3 +1,20 @@
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
@@ -9,35 +26,32 @@ class FontStyleView extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 16,
-        runSpacing: 16,
-        children: [
-          _FontWidget(label: 'displayLarge', style: fonts.displayLarge!),
-          _FontWidget(label: 'displayMedium', style: fonts.displayMedium!),
-          _FontWidget(label: 'displaySmall', style: fonts.displaySmall!),
-          _FontWidget(label: 'headlineLarge', style: fonts.headlineLarge!),
-          _FontWidget(label: 'headlineMedium', style: fonts.headlineMedium!),
-          _FontWidget(label: 'headlineSmall', style: fonts.headlineSmall!),
-          _FontWidget(label: 'titleLarge', style: fonts.titleLarge!),
-          _FontWidget(label: 'titleMedium', style: fonts.titleMedium!),
-          _FontWidget(label: 'titleSmall', style: fonts.titleSmall!),
-          _FontWidget(label: 'labelLarge', style: fonts.labelLarge!),
-          _FontWidget(label: 'labelMedium', style: fonts.labelMedium!),
-          _FontWidget(label: 'labelSmall', style: fonts.labelSmall!),
-          _FontWidget(label: 'bodyLarge', style: fonts.bodyLarge!),
-          _FontWidget(label: 'bodyMedium', style: fonts.bodyMedium!),
-          _FontWidget(label: 'bodySmall', style: fonts.bodySmall!),
-          _FontWidget(
-            label: 'linkStyle',
-            style: style.linkStyle,
-            color: 'Blue',
-          ),
-        ],
-      ),
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 16,
+      children: [
+        _FontWidget(label: 'displayLarge', style: fonts.displayLarge!),
+        _FontWidget(label: 'displayMedium', style: fonts.displayMedium!),
+        _FontWidget(label: 'displaySmall', style: fonts.displaySmall!),
+        _FontWidget(label: 'headlineLarge', style: fonts.headlineLarge!),
+        _FontWidget(label: 'headlineMedium', style: fonts.headlineMedium!),
+        _FontWidget(label: 'headlineSmall', style: fonts.headlineSmall!),
+        _FontWidget(label: 'titleLarge', style: fonts.titleLarge!),
+        _FontWidget(label: 'titleMedium', style: fonts.titleMedium!),
+        _FontWidget(label: 'titleSmall', style: fonts.titleSmall!),
+        _FontWidget(label: 'labelLarge', style: fonts.labelLarge!),
+        _FontWidget(label: 'labelMedium', style: fonts.labelMedium!),
+        _FontWidget(label: 'labelSmall', style: fonts.labelSmall!),
+        _FontWidget(label: 'bodyLarge', style: fonts.bodyLarge!),
+        _FontWidget(label: 'bodyMedium', style: fonts.bodyMedium!),
+        _FontWidget(label: 'bodySmall', style: fonts.bodySmall!),
+        _FontWidget(
+          label: 'linkStyle',
+          style: style.linkStyle,
+          color: 'Blue',
+        ),
+      ],
     );
   }
 }

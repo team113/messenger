@@ -17,29 +17,39 @@
 
 import 'package:flutter/material.dart';
 
-import '/ui/page/style/widget/header.dart';
-import 'widget/animation.dart';
-import 'widget/images.dart';
-import 'widget/sounds.dart';
+import '/ui/page/style/colors/view.dart';
+import '/ui/page/style/element/view.dart';
+import '/ui/page/style/fonts/view.dart';
+import '/ui/page/style/media/view.dart';
 
-class MultimediaView extends StatelessWidget {
-  const MultimediaView({super.key});
+class ContentScrollView extends StatelessWidget {
+  const ContentScrollView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        Header(label: 'Multimedia'),
-        SmallHeader(label: 'Images'),
-        ImagesView(),
-        Divider(),
-        SmallHeader(label: 'Animation'),
-        AnimationStyleWidget(),
-        Divider(),
-        SmallHeader(label: 'Sound'),
-        SoundsWidget(),
-        Divider(),
-      ],
+    return Container(
+      color: const Color(0xFFF5F5F5),
+      child: CustomScrollView(
+        slivers: [
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 70),
+                  child: Column(
+                    children: [
+                      ColorStyleView(),
+                      FontsView(),
+                      MultimediaView(),
+                      ElementStyleTabView(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

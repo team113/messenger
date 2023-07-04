@@ -16,9 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-// import 'package:messenger/themes.dart';
 
-import 'element/view.dart';
+import 'widget/content.dart';
 import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.style] page.
@@ -32,31 +31,9 @@ class StyleView extends StatelessWidget {
         body: Row(
           children: [
             Flexible(flex: 1, child: StyleNavigationBar()),
-            Flexible(flex: 4, child: _ContentScrollView()),
+            Flexible(flex: 4, child: ContentScrollView()),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ContentScrollView extends StatelessWidget {
-  const _ContentScrollView();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF5F5F5),
-      child: CustomScrollView(
-        slivers: [
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                const ElementStyleTabView(),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

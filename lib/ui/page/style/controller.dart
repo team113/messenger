@@ -90,15 +90,18 @@ class StyleController extends GetxController {
   /// Plays the given [asset].
   Future<void> play(String asset, {bool fade = false}) async {
     runZonedGuarded(() async {
-      await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer?.play(
         AssetSource('audio/$asset'),
         volume: fade ? 0 : 1,
         position: Duration.zero,
-        mode: PlayerMode.mediaPlayer,
+        mode: PlayerMode.lowLatency,
       );
 
       isPlayingMap[asset] = true;
+
+      _audioPlayer?.onPlayerComplete.listen((event) {
+        isPlayingMap[asset] = false;
+      });
 
       if (fade) {
         _fadeTimer?.cancel();

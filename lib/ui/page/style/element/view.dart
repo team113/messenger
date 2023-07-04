@@ -17,12 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../colors/view.dart';
-import '../fonts/view.dart';
-
-import '../media/view.dart';
+import '/ui/page/style/widget/header.dart';
 import 'widget/avatar.dart';
-import 'widget/header.dart';
+
 
 /// Elements tab view of the [Routes.style] page.
 class ElementStyleTabView extends StatelessWidget {
@@ -30,29 +27,23 @@ class ElementStyleTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 70),
-      child: Column(
-        children: [
-          ColorStyleView(),
-          FontsView(),
-          MultimediaView(),
-          Header(label: 'Elements'),
-          SmallHeader(label: 'Text fields'),
-          Divider(),
-          SmallHeader(label: 'Buttons'),
-          Divider(),
-          SmallHeader(label: 'Avatars'),
-          AvatarView(),
-          Divider(),
-          SmallHeader(label: 'System messages'),
-          Divider(),
-          SmallHeader(label: 'Switchers'),
-          Divider(),
-          SmallHeader(label: 'Pop-ups'),
-          Divider(),
-        ],
-      ),
+    return const Column(
+      children: [
+        Header(label: 'Elements'),
+        SmallHeader(label: 'Text fields'),
+        Divider(),
+        SmallHeader(label: 'Buttons'),
+        Divider(),
+        SmallHeader(label: 'Avatars'),
+        AvatarView(),
+        Divider(),
+        SmallHeader(label: 'System messages'),
+        Divider(),
+        SmallHeader(label: 'Switchers'),
+        Divider(),
+        SmallHeader(label: 'Pop-ups'),
+        Divider(),
+      ],
     );
   }
 }

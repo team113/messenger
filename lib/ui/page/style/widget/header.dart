@@ -17,28 +17,50 @@
 
 import 'package:flutter/material.dart';
 
-import '/ui/page/style/widget/header.dart';
-import 'widget/animation.dart';
-import 'widget/images.dart';
-import 'widget/sounds.dart';
+import '/themes.dart';
 
-class MultimediaView extends StatelessWidget {
-  const MultimediaView({super.key});
+///
+class Header extends StatelessWidget {
+  const Header({super.key, this.label = ''});
+
+  ///
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final fonts = Theme.of(context).fonts;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Header(label: 'Multimedia'),
-        SmallHeader(label: 'Images'),
-        ImagesView(),
-        Divider(),
-        SmallHeader(label: 'Animation'),
-        AnimationStyleWidget(),
-        Divider(),
-        SmallHeader(label: 'Sound'),
-        SoundsWidget(),
-        Divider(),
+        Text(
+          label,
+          style: fonts.displayLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+        ),
+      ],
+    );
+  }
+}
+
+///
+class SmallHeader extends StatelessWidget {
+  const SmallHeader({super.key, this.label = ''});
+
+  ///
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final fonts = Theme.of(context).fonts;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const SizedBox(height: 50),
+        Text(
+          label,
+          style: fonts.headlineLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+        ),
       ],
     );
   }
