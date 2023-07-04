@@ -157,18 +157,34 @@ jobs:
              || matrix.platform == 'macos'
              || matrix.platform == 'windows' }}
 
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
       - run: make flutter.pub
 
       - name: Parse `User-Agent` version
         id: version
         run: |
-          if (${{ startsWith(github.ref, 'refs/tags/v') }}); then
-            echo ::set-output \
-                 ver=$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)
+          if ${{ startsWith(github.ref, 'refs/tags/v') }}; then
+            echo ::set-output ver=${{ steps.semver.outputs.group1 }}
           else
             echo ::set-output ver=${{ github.sha }}
           fi
-        if: ${{ matrix.platform != 'web' }}
+        if: ${{ matrix.platform != 'web' && matrix.platform != 'windows' }}
+      - name: Parse `User-Agent` version
+        id: version
+        run: |
+          if (${{ startsWith(github.ref, 'refs/tags/v') }}) {
+            Write-Output "ver=${{ steps.semver.outputs.group1 }}"
+          } else {
+            Write-Output "ver=${{ github.sha }}"
+          }
+        if: ${{ matrix.platform != 'web' && matrix.platform == 'windows' }}
 
       - run: make flutter.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'web' }}
