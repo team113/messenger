@@ -210,6 +210,7 @@ btn_resend_message = Повторить отправку
 btn_save = Сохранить
 btn_save_to_gallery = Сохранить в галерею
 btn_select = Выбрать
+btn_select_and_delete = Выбрать и удалить
 btn_set_password = Задать пароль
 btn_settings = Настройки
 btn_share = Поделиться
@@ -699,6 +700,8 @@ label_short_weekday =
     }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_sort_by_name = Cортировать по имени
+label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
 label_status = Статус
 label_storage = Хранилище

@@ -107,7 +107,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                   : widget.unselectedColor,
           child: InkWell(
             borderRadius: widget.borderRadius,
-            onTap: widget.onTap?.call,
+            onTap: widget.onTap,
             onHover: (v) => setState(() => hovered = v),
             hoverColor: style.colors.transparent,
             child: Stack(
