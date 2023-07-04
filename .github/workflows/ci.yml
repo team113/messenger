@@ -168,20 +168,23 @@ jobs:
       - run: make flutter.pub
 
       - name: Parse `User-Agent` version
-        id: version
+        id: version-unix
         run: |
-          ${{ runner.os == 'Windows' &&
-            "if (${{ startsWith(github.ref, 'refs/tags/v') }}) {
-              Write-Output 'ver=${{ steps.semver.outputs.group1 }}'
-            } else {
-              Write-Output 'ver=${{ github.sha }}'
-            }" || "if ${{ startsWith(github.ref, 'refs/tags/v') }}; then
-              echo ::set-output ver=${{ steps.semver.outputs.group1 }}
-            else
-              echo ::set-output ver=${{ github.sha }}
-            fi"
-          }}
+          if ${{ startsWith(github.ref, 'refs/tags/v') }}; then
+            echo ::set-output ver=${{ steps.semver.outputs.group1 }}
+          else
+            echo ::set-output ver=${{ github.sha }}
+          fi
         if: ${{ matrix.platform != 'web' && matrix.platform != 'windows' }}
+      - name: Parse `User-Agent` version
+        id: version-windows
+        run: |
+          if (${{ startsWith(github.ref, 'refs/tags/v') }}) {
+            Write-Output "ver=${{ steps.semver.outputs.group1 }}"
+          } else {
+            Write-Output "ver=${{ github.sha }}"
+          }
+        if: ${{ matrix.platform != 'web' && matrix.platform == 'windows' }}
 
       - run: make flutter.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'web' }}
@@ -190,7 +193,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_USER_AGENT_VERSION=${{ steps.version.outputs.ver }}'
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.version-unix.outputs.ver || steps.version-windows.outputs.ver }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name
