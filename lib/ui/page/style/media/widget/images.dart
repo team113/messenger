@@ -15,6 +15,58 @@ class ImagesView extends StatelessWidget {
       child: Column(
         children: [
           Row(
+            children: [
+              Flexible(
+                child: Tooltip(
+                  message: 'Dark background image',
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: style.colors.onPrimary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: SvgImage.asset(
+                          'assets/images/background_dark.svg',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+          Row(
+            children: [
+              Flexible(
+                child: Tooltip(
+                  message: 'Light background image',
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1F3C5D),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: SvgImage.asset(
+                          'assets/images/background_light.svg',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+          Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Tooltip(
@@ -98,58 +150,6 @@ class ImagesView extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 30),
-          Row(
-            children: [
-              Flexible(
-                child: Tooltip(
-                  message: 'Dark background image',
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: style.colors.onPrimary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: SvgImage.asset(
-                          'assets/images/background_dark.svg',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 30),
-          Row(
-            children: [
-              Flexible(
-                child: Tooltip(
-                  message: 'Light background image',
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1F3C5D),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: SvgImage.asset(
-                          'assets/images/background_light.svg',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ),
             ],
           ),

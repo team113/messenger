@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../element/widget/header.dart';
 import 'widget/animation.dart';
 import 'widget/images.dart';
+import 'widget/sounds.dart';
 
 class MultimediaView extends StatelessWidget {
   const MultimediaView({super.key});
@@ -19,6 +20,7 @@ class MultimediaView extends StatelessWidget {
         AnimationStyleWidget(),
         Divider(),
         SmallHeader(label: 'Sound'),
+        SoundsWidget(),
         Divider(),
       ],
     );

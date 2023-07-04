@@ -43,7 +43,7 @@ class FontWidget extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: 500,
+          height: 300,
           decoration: BoxDecoration(
             color: style.colors.onPrimary,
             borderRadius: BorderRadius.circular(12),
@@ -56,10 +56,6 @@ class FontWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'),
-                  SizedBox(height: 40),
-                  Text('абвгдеёжзийклмнопрстуфхцчшщъыьэюя'),
-                  SizedBox(height: 40),
                   Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                   SizedBox(height: 40),
                   Text('abcdefghijklmnopqrstuvwxyz'),
@@ -86,7 +82,7 @@ class FontWidget extends StatelessWidget {
             label,
             style: fonts.displayLarge!.copyWith(
               color: const Color(0xFFF5F5F5),
-              fontSize: 100,
+              fontSize: 55,
             ),
           ),
         ),

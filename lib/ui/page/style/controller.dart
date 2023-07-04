@@ -17,6 +17,8 @@
 
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart';
 
@@ -31,15 +33,33 @@ class StyleController extends GetxController {
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);
 
+  /// TODO: docs
+  RxBool isPlaying = RxBool(false);
+
   /// [SMITrigger] triggering the blinking animation.
   SMITrigger? blink;
 
   /// [Timer] periodically increasing the [logoFrame].
   Timer? _animationTimer;
 
+  /// [AudioPlayer] currently playing an audio.
+  AudioPlayer? _audioPlayer;
+
+  /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
+  Timer? _fadeTimer;
+
+  @override
+  void onInit() {
+    _initAudio();
+    super.onInit();
+  }
+
   @override
   void onClose() {
     _animationTimer?.cancel();
+    _audioPlayer?.dispose();
+    _audioPlayer = null;
+    AudioCache.instance.clearAll();
     super.onClose();
   }
 
@@ -54,6 +74,83 @@ class StyleController extends GetxController {
       (t) {
         ++logoFrame.value;
         if (logoFrame >= 9) t.cancel();
+      },
+    );
+  }
+
+  final Map<String, bool> isPlayingMap = {
+    'chinese.mp3': false,
+    'chinese-web.mp3': false,
+    'ringing.mp3': false,
+    'message_sent.mp3': false,
+    'notification.mp3': false,
+    'pop.mp3': false,
+  }.obs;
+
+  /// Plays the given [asset].
+  Future<void> play(String asset, {bool fade = false}) async {
+    runZonedGuarded(() async {
+      await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
+      await _audioPlayer?.play(
+        AssetSource('audio/$asset'),
+        volume: fade ? 0 : 1,
+        position: Duration.zero,
+        mode: PlayerMode.mediaPlayer,
+      );
+
+      isPlayingMap[asset] = true;
+
+      if (fade) {
+        _fadeTimer?.cancel();
+        _fadeTimer = Timer.periodic(
+          const Duration(milliseconds: 100),
+          (timer) async {
+            if (timer.tick > 9) {
+              timer.cancel();
+            } else {
+              await _audioPlayer?.setVolume((timer.tick + 1) / 10);
+            }
+          },
+        );
+      }
+    }, (e, _) {
+      if (!e.toString().contains('NotAllowedError')) {
+        throw e;
+      }
+    });
+  }
+
+  /// Stops the audio that is currently playing.
+  Future<void> stop(String asset) async {
+    _fadeTimer?.cancel();
+    _fadeTimer = null;
+    isPlayingMap[asset] = false;
+    await _audioPlayer?.setReleaseMode(ReleaseMode.release);
+    await _audioPlayer?.release();
+  }
+
+  /// Initializes the [_audioPlayer].
+  Future<void> _initAudio() async {
+    // [AudioPlayer] constructor creates a hanging [Future], which can't be
+    // awaited.
+    await runZonedGuarded(
+      () async {
+        _audioPlayer = AudioPlayer();
+        await AudioCache.instance.loadAll([
+          'audio/chinese.mp3',
+          'audio/chinese-web.mp3',
+          'audio/message-sent.mp3',
+          'audio/notification.mp3',
+          'audio/pop.mp3',
+          'audio/ringing.mp3'
+        ]);
+      },
+      (e, _) {
+        if (e is MissingPluginException) {
+          _audioPlayer = null;
+        } else {
+          throw e;
+        }
       },
     );
   }
