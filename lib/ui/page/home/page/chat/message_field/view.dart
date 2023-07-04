@@ -46,6 +46,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import '/ui/page/home/widget/animated_button.dart';
 import 'controller.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
@@ -453,10 +454,12 @@ class MessageFieldView extends StatelessWidget {
               width: 56,
               height: 56,
               child: Center(
-                child: SvgImage.asset(
-                  'assets/icons/attach.svg',
-                  height: 22,
-                  width: 22,
+                child: AnimatedButton(
+                  child: SvgImage.asset(
+                    'assets/icons/attach.svg',
+                    height: 22,
+                    width: 22,
+                  ),
                 ),
               ),
             ),
@@ -498,16 +501,20 @@ class MessageFieldView extends StatelessWidget {
                     child: AnimatedSwitcher(
                       duration: 300.milliseconds,
                       child: c.forwarding.value
-                          ? SvgImage.asset(
-                              'assets/icons/forward.svg',
-                              width: 26,
-                              height: 22,
+                          ? AnimatedButton(
+                              child: SvgImage.asset(
+                                'assets/icons/forward.svg',
+                                width: 26,
+                                height: 22,
+                              ),
                             )
-                          : SvgImage.asset(
-                              'assets/icons/send.svg',
-                              key: sendKey ?? const Key('Send'),
-                              height: 22.85,
-                              width: 25.18,
+                          : AnimatedButton(
+                              child: SvgImage.asset(
+                                'assets/icons/send.svg',
+                                key: sendKey ?? const Key('Send'),
+                                height: 22.85,
+                                width: 25.18,
+                              ),
                             ),
                     ),
                   ),

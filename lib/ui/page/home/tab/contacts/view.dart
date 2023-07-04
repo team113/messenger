@@ -31,6 +31,7 @@ import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
+import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/contact_tile.dart';
@@ -153,24 +154,26 @@ class ContactsTabView extends StatelessWidget {
                   );
                 }
 
-                return WidgetButton(
-                  onPressed: () {
-                    if (c.selecting.value) {
-                      c.toggleSelecting();
-                    } else if (c.search.value != null) {
-                      c.toggleSearch(false);
-                    } else {
-                      c.toggleSorting();
-                    }
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    width: 29.69 + 12 + 18,
-                    height: double.infinity,
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: 250.milliseconds,
-                        child: child,
+                return AnimatedButton(
+                  child: WidgetButton(
+                    onPressed: () {
+                      if (c.selecting.value) {
+                        c.toggleSelecting();
+                      } else if (c.search.value != null) {
+                        c.toggleSearch(false);
+                      } else {
+                        c.toggleSorting();
+                      }
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: 29.69 + 12 + 18,
+                      height: double.infinity,
+                      child: Center(
+                        child: AnimatedSwitcher(
+                          duration: 250.milliseconds,
+                          child: child,
+                        ),
                       ),
                     ),
                   ),
@@ -183,14 +186,19 @@ class ContactsTabView extends StatelessWidget {
                   return const SizedBox(width: 49.77);
                 }
 
-                return WidgetButton(
-                  key: const Key('SearchButton'),
-                  onPressed: c.search.value != null ? null : c.toggleSearch,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 20, right: 12),
-                    height: double.infinity,
-                    child:
-                        SvgImage.asset('assets/icons/search.svg', width: 17.77),
+                return AnimatedButton(
+                  enabled: c.search.value == null,
+                  child: WidgetButton(
+                    key: const Key('SearchButton'),
+                    onPressed: c.search.value != null ? null : c.toggleSearch,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 20, right: 12),
+                      height: double.infinity,
+                      child: SvgImage.asset(
+                        'assets/icons/search.svg',
+                        width: 17.77,
+                      ),
+                    ),
                   ),
                 );
               }),

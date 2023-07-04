@@ -37,6 +37,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -218,65 +219,71 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               WidgetButton(
                                 onPressed: () => c.call(true),
-                                child: SvgImage.asset(
-                                  'assets/icons/chat_video_call.svg',
-                                  height: 17,
+                                child: AnimatedButton(
+                                  child: SvgImage.asset(
+                                    'assets/icons/chat_video_call.svg',
+                                    height: 17,
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 28),
                               WidgetButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: SvgImage.asset(
-                                  'assets/icons/chat_audio_call.svg',
-                                  height: 19,
+                                child: AnimatedButton(
+                                  child: SvgImage.asset(
+                                    'assets/icons/chat_audio_call.svg',
+                                    height: 19,
+                                  ),
                                 ),
                               ),
                             ];
                           } else {
                             children = [
-                              AnimatedSwitcher(
-                                key: const Key('ActiveCallButton'),
-                                duration: 300.milliseconds,
-                                child: c.inCall
-                                    ? WidgetButton(
-                                        key: const Key('Drop'),
-                                        onPressed: c.dropCall,
-                                        child: Container(
-                                          height: 32,
-                                          width: 32,
-                                          decoration: BoxDecoration(
-                                            color: style.colors.dangerColor,
-                                            shape: BoxShape.circle,
+                              AnimatedButton(
+                                child: AnimatedSwitcher(
+                                  key: const Key('ActiveCallButton'),
+                                  duration: 300.milliseconds,
+                                  child: c.inCall
+                                      ? WidgetButton(
+                                          key: const Key('Drop'),
+                                          onPressed: c.dropCall,
+                                          child: Container(
+                                            height: 32,
+                                            width: 32,
+                                            decoration: BoxDecoration(
+                                              color: style.colors.dangerColor,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Center(
+                                              child: SvgImage.asset(
+                                                'assets/icons/call_end.svg',
+                                                width: 32,
+                                                height: 32,
+                                              ),
+                                            ),
                                           ),
-                                          child: Center(
-                                            child: SvgImage.asset(
-                                              'assets/icons/call_end.svg',
-                                              width: 32,
-                                              height: 32,
+                                        )
+                                      : WidgetButton(
+                                          key: const Key('Join'),
+                                          onPressed: c.joinCall,
+                                          child: Container(
+                                            height: 32,
+                                            width: 32,
+                                            decoration: BoxDecoration(
+                                              color: style.colors.primary,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Center(
+                                              child: SvgImage.asset(
+                                                'assets/icons/audio_call_start.svg',
+                                                width: 15,
+                                                height: 15,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      )
-                                    : WidgetButton(
-                                        key: const Key('Join'),
-                                        onPressed: c.joinCall,
-                                        child: Container(
-                                          height: 32,
-                                          width: 32,
-                                          decoration: BoxDecoration(
-                                            color: style.colors.primary,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                            child: SvgImage.asset(
-                                              'assets/icons/audio_call_start.svg',
-                                              width: 15,
-                                              height: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                ),
                               ),
                             ];
                           }

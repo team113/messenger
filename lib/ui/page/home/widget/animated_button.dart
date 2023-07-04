@@ -15,11 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 /// [Widget] animating its size on hover and clicks.
 class AnimatedButton extends StatefulWidget {
-  const AnimatedButton({super.key, required this.child});
+  const AnimatedButton({super.key, required this.child, this.enabled = true});
+
+  /// Indicator whether animation is enabled.
+  final bool enabled;
 
   /// Widget to animate.
   final Widget child;
@@ -50,15 +54,21 @@ class _AnimatedButtonState extends State<AnimatedButton>
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.enabled) {
+      return widget.child;
+    }
+
     return MouseRegion(
       opaque: false,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: Listener(
         behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) {
-          _controller.reset();
-          _controller.forward();
+        onPointerDown: (event) {
+          if (event.buttons == kPrimaryMouseButton) {
+            _controller.reset();
+            _controller.forward();
+          }
         },
         child: AnimatedScale(
           duration: const Duration(milliseconds: 100),

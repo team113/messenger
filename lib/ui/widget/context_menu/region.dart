@@ -170,7 +170,10 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           unconstrained: widget.unconstrained,
           onOpened: () => _displayed = true,
           onClosed: () => _displayed = false,
-          child: widget.builder == null ? child : widget.builder!(_displayed),
+          child: widget.builder == null
+              ? child
+              // Wrap [widget.builder] with [Builder] to rebuild on [setState].
+              : Builder(builder: (_) => widget.builder!(_displayed)),
         );
       } else {
         menu = GestureDetector(

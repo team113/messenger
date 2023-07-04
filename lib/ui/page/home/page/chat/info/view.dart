@@ -29,6 +29,7 @@ import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/action.dart';
+import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -127,10 +128,12 @@ class ChatInfoView extends StatelessWidget {
                   onPressed: () => router.chat(id, push: true),
                   child: Transform.translate(
                     offset: const Offset(0, 1),
-                    child: SvgImage.asset(
-                      'assets/icons/chat.svg',
-                      width: 20.12,
-                      height: 21.62,
+                    child: AnimatedButton(
+                      child: SvgImage.asset(
+                        'assets/icons/chat.svg',
+                        width: 20.12,
+                        height: 21.62,
+                      ),
                     ),
                   ),
                 ),
@@ -139,18 +142,22 @@ class ChatInfoView extends StatelessWidget {
                     const SizedBox(width: 28),
                     WidgetButton(
                       onPressed: () => c.call(true),
-                      child: SvgImage.asset(
-                        'assets/icons/chat_video_call.svg',
-                        height: 17,
+                      child: AnimatedButton(
+                        child: SvgImage.asset(
+                          'assets/icons/chat_video_call.svg',
+                          height: 17,
+                        ),
                       ),
                     ),
                   ],
                   const SizedBox(width: 28),
                   WidgetButton(
                     onPressed: () => c.call(false),
-                    child: SvgImage.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
+                    child: AnimatedButton(
+                      child: SvgImage.asset(
+                        'assets/icons/chat_audio_call.svg',
+                        height: 19,
+                      ),
                     ),
                   ),
                 ] else ...[
@@ -162,18 +169,20 @@ class ChatInfoView extends StatelessWidget {
                         ? WidgetButton(
                             key: const Key('Drop'),
                             onPressed: c.dropCall,
-                            child: Container(
-                              height: 22,
-                              width: 22,
-                              decoration: BoxDecoration(
-                                color: style.colors.dangerColor,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: SvgImage.asset(
-                                  'assets/icons/call_end.svg',
-                                  width: 22,
-                                  height: 22,
+                            child: AnimatedButton(
+                              child: Container(
+                                height: 22,
+                                width: 22,
+                                decoration: BoxDecoration(
+                                  color: style.colors.dangerColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgImage.asset(
+                                    'assets/icons/call_end.svg',
+                                    width: 22,
+                                    height: 22,
+                                  ),
                                 ),
                               ),
                             ),
@@ -181,18 +190,20 @@ class ChatInfoView extends StatelessWidget {
                         : WidgetButton(
                             key: const Key('Join'),
                             onPressed: c.joinCall,
-                            child: Container(
-                              height: 22,
-                              width: 22,
-                              decoration: BoxDecoration(
-                                color: style.colors.primary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: SvgImage.asset(
-                                  'assets/icons/audio_call_start.svg',
-                                  width: 10,
-                                  height: 10,
+                            child: AnimatedButton(
+                              child: Container(
+                                height: 22,
+                                width: 22,
+                                decoration: BoxDecoration(
+                                  color: style.colors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgImage.asset(
+                                    'assets/icons/audio_call_start.svg',
+                                    width: 10,
+                                    height: 10,
+                                  ),
                                 ),
                               ),
                             ),

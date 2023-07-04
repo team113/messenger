@@ -24,6 +24,7 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/animated_button.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'allow_overflow.dart';
@@ -233,11 +234,13 @@ class ReactiveTextField extends StatelessWidget {
                                         : SizedBox(
                                             key: const ValueKey('Icon'),
                                             width: 24,
-                                            child: suffix != null
-                                                ? Icon(suffix)
-                                                : trailing == null
-                                                    ? Container()
-                                                    : trailing!,
+                                            child: AnimatedButton(
+                                              child: suffix != null
+                                                  ? Icon(suffix)
+                                                  : trailing == null
+                                                      ? Container()
+                                                      : trailing!,
+                                            ),
                                           ),
                       ),
                     ),
@@ -276,6 +279,9 @@ class ReactiveTextField extends StatelessWidget {
                   : PlatformUtils.isIOS
                       ? CupertinoTextSelectionControls()
                       : null,
+              contextMenuBuilder: null,
+              canRequestFocus:
+                  PlatformUtils.isMobile ? true : state.editable.value,
               controller: state.controller,
               style: this.style,
               focusNode: state.focus,
@@ -287,9 +293,22 @@ class ReactiveTextField extends StatelessWidget {
               onSubmitted: (s) => state.submit(),
               inputFormatters: formatters,
               readOnly: !enabled || !state.editable.value,
-              enabled: enabled && state.editable.value,
+              enabled: enabled,
               decoration: InputDecoration(
                 isDense: dense ?? PlatformUtils.isMobile,
+                focusedBorder: state.editable.value
+                    ? null
+                    : OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: style.colors.secondaryHighlightDarkest,
+                        ),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(100),
+                        ),
+                      ),
+                floatingLabelStyle: state.editable.value
+                    ? null
+                    : TextStyle(color: style.colors.secondaryHighlightDarkest),
                 prefixText: prefixText,
                 prefix: prefix,
                 fillColor: fillColor ?? style.colors.onPrimary,

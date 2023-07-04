@@ -40,6 +40,7 @@ class UserNumCopyable extends StatelessWidget {
             RegExp(r'.{4}'),
             (match) => '${match.group(0)}${'space'.l10n}',
           ),
+          editable: false,
         ),
         label: 'label_num'.l10n,
         copy: num.val,

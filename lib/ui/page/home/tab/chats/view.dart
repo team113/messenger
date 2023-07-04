@@ -31,6 +31,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
+import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/field_button.dart';
@@ -175,17 +176,21 @@ class ChatsTabView extends StatelessWidget {
                         return const SizedBox(width: 49.77);
                       }
 
-                      return AnimatedSwitcher(
-                        duration: 250.milliseconds,
-                        child: WidgetButton(
-                          key: const Key('SearchButton'),
-                          onPressed: c.searching.value ? null : c.startSearch,
-                          child: Container(
-                            padding: const EdgeInsets.only(left: 20, right: 12),
-                            height: double.infinity,
-                            child: SvgImage.asset(
-                              'assets/icons/search.svg',
-                              width: 17.77,
+                      return AnimatedButton(
+                        enabled: c.searching.isFalse,
+                        child: AnimatedSwitcher(
+                          duration: 250.milliseconds,
+                          child: WidgetButton(
+                            key: const Key('SearchButton'),
+                            onPressed: c.searching.value ? null : c.startSearch,
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.only(left: 20, right: 12),
+                              height: double.infinity,
+                              child: SvgImage.asset(
+                                'assets/icons/search.svg',
+                                width: 17.77,
+                              ),
                             ),
                           ),
                         ),
@@ -217,31 +222,33 @@ class ChatsTabView extends StatelessWidget {
                               );
                       }
 
-                      return WidgetButton(
-                        key: c.searching.value
-                            ? const Key('CloseSearchButton')
-                            : null,
-                        onPressed: () {
-                          if (c.searching.value) {
-                            c.closeSearch(!c.groupCreating.value);
-                          } else if (c.selecting.value) {
-                            c.toggleSelecting();
-                          } else {
-                            if (c.groupCreating.value) {
-                              c.closeGroupCreating();
+                      return AnimatedButton(
+                        child: WidgetButton(
+                          key: c.searching.value
+                              ? const Key('CloseSearchButton')
+                              : null,
+                          onPressed: () {
+                            if (c.searching.value) {
+                              c.closeSearch(!c.groupCreating.value);
+                            } else if (c.selecting.value) {
+                              c.toggleSelecting();
                             } else {
-                              c.startGroupCreating();
+                              if (c.groupCreating.value) {
+                                c.closeGroupCreating();
+                              } else {
+                                c.startGroupCreating();
+                              }
                             }
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 12, right: 18),
-                          height: double.infinity,
-                          child: SizedBox(
-                            width: 21.77,
-                            child: AnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 12, right: 18),
+                            height: double.infinity,
+                            child: SizedBox(
+                              width: 21.77,
+                              child: AnimatedSwitcher(
+                                duration: 250.milliseconds,
+                                child: child,
+                              ),
                             ),
                           ),
                         ),

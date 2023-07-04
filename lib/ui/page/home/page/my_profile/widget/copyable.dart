@@ -75,28 +75,22 @@ class CopyableTextField extends StatelessWidget {
             actions: [
               ContextMenuButton(
                 label: 'label_copy'.l10n,
-                onPressed: () => _copy(context),
+                onPressed: _copy,
               ),
             ],
-            child: InkWell(
-              borderRadius: BorderRadius.circular(25),
-              onTap: (copy ?? state.text).isEmpty ? null : () => _copy(context),
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  prefix: leading,
-                  state: state,
-                  trailing: Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child:
-                          SvgImage.asset('assets/icons/copy.svg', height: 15),
-                    ),
-                  ),
-                  label: label,
-                  style: this.style,
+            child: ReactiveTextField(
+              prefix: leading,
+              state: state,
+              onSuffixPressed: (copy ?? state.text).isNotEmpty ? _copy : null,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgImage.asset('assets/icons/copy.svg', height: 15),
                 ),
               ),
+              label: label,
+              style: this.style,
             ),
           ),
         ),
@@ -105,7 +99,7 @@ class CopyableTextField extends StatelessWidget {
   }
 
   /// Puts a [copy] of data into the clipboard and shows a snackbar.
-  void _copy(BuildContext context) {
+  void _copy() {
     PlatformUtils.copy(text: copy ?? state.text);
     MessagePopup.success('label_copied'.l10n);
   }
