@@ -162,7 +162,7 @@ jobs:
       - name: Parse `User-Agent` version
         id: version
         run: |
-          if ${{ startsWith(github.ref, 'refs/pull') }}; then
+          if (${{ startsWith(github.ref, 'refs/tags/v') }}); then
             echo ::set-output \
                  ver=$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)
           else
