@@ -19,6 +19,11 @@ import 'package:flutter/material.dart';
 
 import '/ui/page/style/widget/header.dart';
 import 'widget/avatar.dart';
+import 'widget/button.dart';
+import 'widget/pop_up.dart';
+import 'widget/switcher.dart';
+import 'widget/system_message.dart';
+import 'widget/text_field.dart';
 
 /// Elements tab view of the [Routes.style] page.
 class ElementStyleTabView extends StatelessWidget {
@@ -30,18 +35,24 @@ class ElementStyleTabView extends StatelessWidget {
       children: [
         Header(label: 'Elements'),
         SmallHeader(label: 'Text fields'),
+        TextFieldWidget(),
         Divider(),
         SmallHeader(label: 'Buttons'),
+        ButtonsWidget(),
         Divider(),
         SmallHeader(label: 'Avatars'),
         AvatarView(),
         Divider(),
         SmallHeader(label: 'System messages'),
+        SystemMessageWidget(),
         Divider(),
         SmallHeader(label: 'Switchers'),
+        SwitcherWidget(),
         Divider(),
         SmallHeader(label: 'Pop-ups'),
+        PopUpWidget(),
         Divider(),
+        SizedBox(height: 50),
       ],
     );
   }
