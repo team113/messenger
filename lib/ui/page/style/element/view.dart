@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import '/ui/page/style/widget/header.dart';
 import 'widget/avatar.dart';
 
-
 /// Elements tab view of the [Routes.style] page.
 class ElementStyleTabView extends StatelessWidget {
   const ElementStyleTabView({super.key});
