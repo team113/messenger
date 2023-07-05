@@ -224,10 +224,13 @@ class ReactiveTextField extends StatelessWidget {
                                     : (state.approvable && state.changed.value)
                                         ? AllowOverflow(
                                             key: const ValueKey('Approve'),
-                                            child: Text(
-                                              'btn_save'.l10n,
-                                              style: fonts.bodySmall!.copyWith(
-                                                color: style.colors.primary,
+                                            child: AnimatedButton(
+                                              key: const Key('AnimatedButton'),
+                                              child: Text(
+                                                'btn_save'.l10n,
+                                                style: fonts.bodySmall!.copyWith(
+                                                  color: style.colors.primary,
+                                                ),
                                               ),
                                             ),
                                           )
@@ -279,6 +282,7 @@ class ReactiveTextField extends StatelessWidget {
                   : PlatformUtils.isIOS
                       ? CupertinoTextSelectionControls()
                       : null,
+              // TODO: Implement custom [contextMenuBuilder].
               contextMenuBuilder: null,
               canRequestFocus:
                   PlatformUtils.isMobile ? true : state.editable.value,

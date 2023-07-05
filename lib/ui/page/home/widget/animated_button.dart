@@ -22,6 +22,9 @@ import 'package:flutter/material.dart';
 class AnimatedButton extends StatefulWidget {
   const AnimatedButton({super.key, required this.child});
 
+  /// Multiplier to scale the [child] on hover.
+  static const double scale = 1.05;
+
   /// Widget to animate.
   final Widget child;
 
@@ -71,7 +74,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
         },
         child: AnimatedScale(
           duration: const Duration(milliseconds: 100),
-          scale: _hovered ? 1.05 : 1,
+          scale: _hovered ? AnimatedButton.scale : 1,
           child: AnimatedBuilder(
             animation: _controller,
             builder: (_, child) {

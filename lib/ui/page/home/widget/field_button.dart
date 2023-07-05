@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -96,7 +97,14 @@ class _FieldButtonState extends State<FieldButton> {
             state: TextFieldState(text: widget.text, editable: false),
             label: widget.hint,
             maxLines: widget.maxLines,
-            trailing: widget.trailing,
+            trailing: widget.onTrailingPressed == null ? AnimatedScale(
+              duration: const Duration(milliseconds: 100),
+              scale: _hovered ? AnimatedButton.scale : 1,
+              child: Transform.translate(
+                offset: const Offset(0, 1),
+                child: widget.trailing,
+              ),
+            ) : null,
             prefix: widget.prefix,
             style: widget.style,
             fillColor: _hovered && widget.onPressed != null
@@ -120,7 +128,18 @@ class _FieldButtonState extends State<FieldButton> {
             alignment: Alignment.centerRight,
             child: WidgetButton(
               onPressed: widget.onTrailingPressed,
-              child: const SizedBox(width: 50, height: double.infinity),
+              child: SizedBox(
+                width: 50,
+                height: double.infinity,
+                child: AnimatedButton(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: widget.trailing!,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
