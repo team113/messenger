@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -34,7 +35,6 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_logo.dart';
-import 'widget/cupertino_button.dart';
 
 /// View of the [Routes.auth] page.
 class AuthView extends StatelessWidget {
@@ -142,13 +142,16 @@ class AuthView extends StatelessWidget {
                           : null,
               onPressed: () => _download(context),
             ),
-          const SizedBox(height: 20),
-          StyledCupertinoButton(
+          const SizedBox(height: 35),
+          WidgetButton(
             key: c.languageKey,
-            label: 'label_language_entry'.l10nfmt({
-              'code': L10n.chosen.value!.locale.countryCode,
-              'name': L10n.chosen.value!.name,
-            }),
+            child: Text(
+              'label_language_entry'.l10nfmt({
+                'code': L10n.chosen.value!.locale.countryCode,
+                'name': L10n.chosen.value!.name,
+              }),
+              style: fonts.labelMedium!.copyWith(color: style.colors.secondary),
+            ),
             onPressed: () => LanguageSelectionView.show(context, null),
           ),
         ];

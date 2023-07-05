@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
@@ -71,7 +70,7 @@ class CustomColor extends StatelessWidget {
             child: WidgetButton(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: color.toHex()));
-                MessagePopup.success('label_copied'.l10n);
+                MessagePopup.success('Copied');
               },
               child: Container(
                 width: 120,

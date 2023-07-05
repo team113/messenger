@@ -43,6 +43,7 @@ class WidgetButton extends StatelessWidget {
 
     return MouseRegion(
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
+      opaque: false,
       child: GestureDetector(
         onTap: onPressed,
         behavior: behavior,

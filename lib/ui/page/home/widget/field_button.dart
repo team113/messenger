@@ -36,7 +36,10 @@ class FieldButton extends StatefulWidget {
     this.trailing,
     this.prefix,
     this.style,
+    this.color,
   });
+
+  final Color? color;
 
   /// Optional label of this [FieldButton].
   final String? text;
@@ -99,9 +102,10 @@ class _FieldButtonState extends State<FieldButton> {
             trailing: widget.trailing,
             prefix: widget.prefix,
             style: widget.style,
-            fillColor: _hovered && widget.onPressed != null
-                ? style.colors.onPrimary.darken(0.03)
-                : style.colors.onPrimary,
+            fillColor: widget.color ??
+                ((_hovered && widget.onPressed != null)
+                    ? style.colors.onPrimary.darken(0.03)
+                    : style.colors.onPrimary),
           ),
         ),
       ),

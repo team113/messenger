@@ -30,7 +30,10 @@ class MenuButton extends StatelessWidget {
     this.icon,
     this.onPressed,
     this.inverted = false,
+    this.color,
   });
+
+  final Color? color;
 
   /// Optional title of this [MenuButton].
   final String? title;
@@ -64,7 +67,7 @@ class MenuButton extends StatelessWidget {
           child: Material(
             type: MaterialType.card,
             borderRadius: style.cardRadius,
-            color: inverted ? style.colors.primary : style.cardColor,
+            color: color ?? (inverted ? style.colors.primary : style.cardColor),
             child: InkWell(
               borderRadius: style.cardRadius,
               onTap: onPressed,

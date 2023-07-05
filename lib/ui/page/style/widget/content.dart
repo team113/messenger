@@ -38,10 +38,14 @@ class ContentScrollView extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 70),
                   child: Column(
                     children: [
+                      // ColorStyleView(),
+                      // FontsView(),
+                      // MultimediaView(),
+                      SizedBox(height: 200),
+                      ElementStyleTabView(),
                       ColorStyleView(),
                       FontsView(),
                       MultimediaView(),
-                      ElementStyleTabView(),
                     ],
                   ),
                 ),
