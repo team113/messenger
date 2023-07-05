@@ -184,10 +184,7 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                             const SizedBox(height: 10),
-                            ProfileName(
-                              c.name,
-                              isHide: c.login.text.isEmpty,
-                            ),
+                            ProfileName(c.name, isHide: c.login.text.isEmpty),
                             ProfilePresence(
                               text: c.myUser.value?.presence.localizedString(),
                               backgroundColor:
@@ -261,13 +258,13 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_background'.l10n,
                           children: [
-                            Obx(
-                              () => ProfileBackground(
+                            Obx(() {
+                              return ProfileBackground(
                                 c.background.value,
                                 () => c.pickBackground(),
                                 () => c.removeBackground(),
-                              ),
-                            )
+                              );
+                            })
                           ],
                         );
 
@@ -275,117 +272,114 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_chats'.l10n,
                           children: [
-                            Obx(
-                              () => ProfileChats(
+                            Obx(() {
+                              return ProfileChats(
                                 isTimeline: c.settings.value!.timelineEnabled,
-                              ),
-                            ),
+                              );
+                            }),
                           ],
                         );
 
                       case ProfileTab.calls:
-                        if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
-                          return Block(
-                            title: 'label_calls'.l10n,
-                            children: [
-                              Obx(
-                                () => ProfileCall(
-                                  enablePopups: c.settings.value?.enablePopups,
-                                ),
-                              )
-                            ],
-                          );
+                        if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
+                          return const SizedBox();
                         }
 
-                        return const SizedBox();
+                        return Block(
+                          title: 'label_calls'.l10n,
+                          children: [
+                            Obx(
+                              () => ProfileCall(
+                                enablePopups: c.settings.value?.enablePopups,
+                              ),
+                            )
+                          ],
+                        );
 
                       case ProfileTab.media:
-                        if (!PlatformUtils.isMobile) {
-                          return Block(
-                            title: 'label_media'.l10n,
-                            children: [
-                              Obx(
-                                () => ProfileMedia(
-                                  videoText: (c.devices
-                                                  .video()
-                                                  .firstWhereOrNull((e) =>
-                                                      e.deviceId() ==
-                                                      c.media.value
-                                                          ?.videoDevice) ??
-                                              c.devices.video().firstOrNull)
-                                          ?.label() ??
-                                      'label_media_no_device_available'.l10n,
-                                  videoSwitch: () async {
-                                    await CameraSwitchView.show(
-                                      context,
-                                      camera: c.media.value?.videoDevice,
-                                    );
-
-                                    if (c.devices.video().isEmpty) {
-                                      c.devices.value =
-                                          await MediaUtils.enumerateDevices();
-                                    }
-                                  },
-                                  audioText: (c.devices
-                                                  .audio()
-                                                  .firstWhereOrNull((e) =>
-                                                      e.deviceId() ==
-                                                      c.media.value
-                                                          ?.audioDevice) ??
-                                              c.devices.audio().firstOrNull)
-                                          ?.label() ??
-                                      'label_media_no_device_available'.l10n,
-                                  microphoneSwitch: () async {
-                                    await MicrophoneSwitchView.show(
-                                      context,
-                                      mic: c.media.value?.audioDevice,
-                                    );
-
-                                    if (c.devices.audio().isEmpty) {
-                                      c.devices.value =
-                                          await MediaUtils.enumerateDevices();
-                                    }
-                                  },
-                                  outputText: (c.devices
-                                                  .output()
-                                                  .firstWhereOrNull((e) =>
-                                                      e.deviceId() ==
-                                                      c.media.value
-                                                          ?.outputDevice) ??
-                                              c.devices.output().firstOrNull)
-                                          ?.label() ??
-                                      'label_media_no_device_available'.l10n,
-                                  outputSwitch: () async {
-                                    await OutputSwitchView.show(
-                                      context,
-                                      output: c.media.value?.outputDevice,
-                                    );
-
-                                    if (c.devices.output().isEmpty) {
-                                      c.devices.value =
-                                          await MediaUtils.enumerateDevices();
-                                    }
-                                  },
-                                ),
-                              )
-                            ],
-                          );
+                        if (PlatformUtils.isMobile) {
+                          return const SizedBox();
                         }
 
-                        return const SizedBox();
+                        return Block(
+                          title: 'label_media'.l10n,
+                          children: [
+                            Obx(() {
+                              return ProfileMedia(
+                                videoText: (c.devices.video().firstWhereOrNull(
+                                                (e) =>
+                                                    e.deviceId() ==
+                                                    c.media.value
+                                                        ?.videoDevice) ??
+                                            c.devices.video().firstOrNull)
+                                        ?.label() ??
+                                    'label_media_no_device_available'.l10n,
+                                videoSwitch: () async {
+                                  await CameraSwitchView.show(
+                                    context,
+                                    camera: c.media.value?.videoDevice,
+                                  );
+
+                                  if (c.devices.video().isEmpty) {
+                                    c.devices.value =
+                                        await MediaUtils.enumerateDevices();
+                                  }
+                                },
+                                audioText: (c.devices.audio().firstWhereOrNull(
+                                                (e) =>
+                                                    e.deviceId() ==
+                                                    c.media.value
+                                                        ?.audioDevice) ??
+                                            c.devices.audio().firstOrNull)
+                                        ?.label() ??
+                                    'label_media_no_device_available'.l10n,
+                                microphoneSwitch: () async {
+                                  await MicrophoneSwitchView.show(
+                                    context,
+                                    mic: c.media.value?.audioDevice,
+                                  );
+
+                                  if (c.devices.audio().isEmpty) {
+                                    c.devices.value =
+                                        await MediaUtils.enumerateDevices();
+                                  }
+                                },
+                                outputText: (c.devices
+                                                .output()
+                                                .firstWhereOrNull((e) =>
+                                                    e.deviceId() ==
+                                                    c.media.value
+                                                        ?.outputDevice) ??
+                                            c.devices.output().firstOrNull)
+                                        ?.label() ??
+                                    'label_media_no_device_available'.l10n,
+                                outputSwitch: () async {
+                                  await OutputSwitchView.show(
+                                    context,
+                                    output: c.media.value?.outputDevice,
+                                  );
+
+                                  if (c.devices.output().isEmpty) {
+                                    c.devices.value =
+                                        await MediaUtils.enumerateDevices();
+                                  }
+                                },
+                              );
+                            })
+                          ],
+                        );
 
                       case ProfileTab.notifications:
                         return Block(
                           title: 'label_audio_notifications'.l10n,
                           children: [
-                            Obx(
-                              () => ProfileNotifications(
+                            Obx(() {
+                              return ProfileNotifications(
                                 isMuted: c.myUser.value?.muted == null,
-                                onChanged: c.isMuting.value
-                                    ? null
-                                    : (enabled) => c.toggleMute(enabled),
-                              ),
-                            )
+                                onChanged:
+                                    c.isMuting.value ? null : c.toggleMute,
+                              );
+                            })
                           ],
                         );
 
@@ -393,14 +387,14 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_storage'.l10n,
                           children: [
-                            Obx(
-                              () => ProfileStorage(
+                            Obx(() {
+                              return ProfileStorage(
                                 value: c.settings.value?.loadImages == true,
                                 onChanged: c.settings.value == null
                                     ? null
                                     : (enabled) => c.setLoadImages(enabled),
-                              ),
-                            )
+                              );
+                            })
                           ],
                         );
 
@@ -417,14 +411,14 @@ class MyProfileView extends StatelessWidget {
                         );
 
                       case ProfileTab.download:
-                        if (PlatformUtils.isWeb) {
-                          return Block(
-                            title: 'label_download_application'.l10n,
-                            children: const [ProfileDownloads()],
-                          );
+                        if (!PlatformUtils.isWeb) {
+                          return const SizedBox();
                         }
 
-                        return const SizedBox();
+                        return Block(
+                          title: 'label_download_application'.l10n,
+                          children: const [ProfileDownloads()],
+                        );
 
                       case ProfileTab.danger:
                         return Block(
