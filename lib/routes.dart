@@ -66,6 +66,7 @@ import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
 import 'ui/worker/settings.dart';
+import 'util/platform_utils.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
 
@@ -670,8 +671,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   }
 
   @override
-  Widget build(BuildContext context) => LifecycleObserver(
-        didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
+  Widget build(BuildContext context) {
+    return LifecycleObserver(
+      didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
+      child: Listener(
+        onPointerDown: (_) => PlatformUtils.keepActive(),
+        onPointerHover: (_) => PlatformUtils.keepActive(),
+        onPointerSignal: (_) => PlatformUtils.keepActive(),
         child: Scaffold(
           body: Navigator(
             key: navigatorKey,
@@ -685,7 +691,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             },
           ),
         ),
-      );
+      ),
+    );
+  }
 
   /// Sets the browser's tab title accordingly to the [_state.tab] value.
   void _updateTabTitle() {

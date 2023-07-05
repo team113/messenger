@@ -36,13 +36,16 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/login/view.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/platform_utils.dart';
 import 'password_recovery_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
+  PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
   Hive.init('./test/.temp_hive/password_recovery');
