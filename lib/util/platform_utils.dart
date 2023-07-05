@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -30,7 +29,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../pubspec.g.dart';
 import '/config.dart';
 import '/routes.dart';
 import 'backoff.dart';
@@ -109,41 +107,7 @@ class PlatformUtilsImpl {
 
   /// Returns a `User-Agent` header to put in the network requests.
   Future<String> get userAgent async {
-    if (_userAgent == null) {
-      final DeviceInfoPlugin device = DeviceInfoPlugin();
-
-      String? system;
-
-      if (isWeb) {
-        final info = await device.webBrowserInfo;
-        _userAgent = info.userAgent ?? '${Config.userAgent}/${Pubspec.version}';
-        return _userAgent!;
-      } else if (isMacOS) {
-        final info = await device.macOsInfo;
-        system = 'macOS ${info.osRelease}; ${info.arch}; ${info.model}';
-      } else if (isWindows) {
-        final info = await device.windowsInfo;
-        system =
-            '${info.productName}; ${info.displayVersion}; ${info.buildLabEx}';
-      } else if (isLinux) {
-        final info = await device.linuxInfo;
-        system = info.prettyName;
-      } else if (isAndroid) {
-        final info = await device.androidInfo;
-        system =
-            'Android ${info.version.release}; SDK ${info.version.sdkInt}; ${info.manufacturer} ${info.model}; ${info.hardware}';
-      } else if (isIOS) {
-        final info = await device.iosInfo;
-        system =
-            '${info.systemName} ${info.systemVersion}; ${info.utsname.machine}';
-      }
-
-      _userAgent = '${Config.userAgent}/${Pubspec.version}';
-      if (system != null) {
-        _userAgent = '$_userAgent ($system)';
-      }
-    }
-
+    _userAgent ??= await WebUtils.userAgent;
     return _userAgent!;
   }
 

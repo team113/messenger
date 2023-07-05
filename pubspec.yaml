@@ -24,6 +24,7 @@ dependencies:
       url: https://github.com/krida2000/dough
       path: packages/dough/
   email_validator: ^2.1.17
+  ffi: ^2.0.2
   file_picker: ^5.3.0
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
@@ -80,6 +81,7 @@ dependencies:
   sentry_flutter: ^7.5.2
   share_plus: ^7.0.0
   sliding_up_panel: ^2.0.0+1
+  stdlibc: ^0.1.4
   toml: ^0.14.0
   universal_io: ^2.2.0
   url_launcher: ^6.1.11
@@ -89,6 +91,7 @@ dependencies:
   web_socket_channel: ^2.4.0
   window_manager: ^0.3.2
   windows_taskbar: ^1.1.1
+  win32: ^5.0.5
 
 dev_dependencies:
   artemis: ^7.13.0-beta.1

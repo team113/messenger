@@ -22,6 +22,7 @@ import 'package:toml/toml.dart';
 
 import '/util/log.dart';
 import '/util/platform_utils.dart';
+import 'pubspec.g.dart';
 
 /// Configuration of this application.
 class Config {
@@ -59,7 +60,10 @@ class Config {
   static bool disableInfiniteAnimations = false;
 
   /// Product identifier of `User-Agent` header to put in network queries.
-  static String userAgent = '';
+  static String userAgentProduct = '';
+
+  /// Version identifier of `User-Agent` header to put in network queries.
+  static String userAgentVersion = '';
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
@@ -104,9 +108,13 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         : (document['downloads']?['directory'] ?? '');
 
-    userAgent = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
+    userAgentProduct = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
         : (document['user']?['agent']?['product'] ?? 'Gapopa');
+
+    userAgentVersion = const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
+        ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
+        : (document['user']?['agent']?['version'] ?? Pubspec.version);
 
     origin = url;
 
@@ -163,7 +171,10 @@ class Config {
             files = remote['files']?['url'] ?? files;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
-            userAgent = remote['user']?['agent']?['product'] ?? userAgent;
+            userAgentProduct =
+                remote['user']?['agent']?['product'] ?? userAgentProduct;
+            userAgentVersion =
+                remote['user']?['agent']?['version'] ?? userAgentVersion;
             origin = url;
           }
         }

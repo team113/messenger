@@ -68,3 +68,10 @@
 #
 # Default:
 #   product = "Gapopa"
+
+# Version of product of `User-Agent` header to put in network queries.
+#
+# Unused for Web, as browser picks the `User-Agent` itself.
+#
+# Default:
+#   version = $(PUBSPEC_VERSION)
