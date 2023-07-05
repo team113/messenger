@@ -22,6 +22,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
@@ -70,7 +71,7 @@ class StatusView extends StatelessWidget {
                   shrinkWrap: true,
                   children: [
                     if (expanded) ...[
-                      _padding(
+                      Paddings.basic(
                         ReactiveTextField(
                           key: const Key('StatusField'),
                           state: c.status,
@@ -131,8 +132,4 @@ class StatusView extends StatelessWidget {
       },
     );
   }
-
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
 }
