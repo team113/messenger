@@ -97,14 +97,16 @@ class _FieldButtonState extends State<FieldButton> {
             state: TextFieldState(text: widget.text, editable: false),
             label: widget.hint,
             maxLines: widget.maxLines,
-            trailing: widget.onTrailingPressed == null ? AnimatedScale(
-              duration: const Duration(milliseconds: 100),
-              scale: _hovered ? AnimatedButton.scale : 1,
-              child: Transform.translate(
-                offset: const Offset(0, 1),
-                child: widget.trailing,
-              ),
-            ) : null,
+            trailing: widget.onTrailingPressed == null
+                ? AnimatedScale(
+                    duration: const Duration(milliseconds: 100),
+                    scale: _hovered ? AnimatedButton.scale : 1,
+                    child: Transform.translate(
+                      offset: const Offset(0, 1),
+                      child: widget.trailing,
+                    ),
+                  )
+                : null,
             prefix: widget.prefix,
             style: widget.style,
             fillColor: _hovered && widget.onPressed != null

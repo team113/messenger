@@ -228,7 +228,8 @@ class ReactiveTextField extends StatelessWidget {
                                               key: const Key('AnimatedButton'),
                                               child: Text(
                                                 'btn_save'.l10n,
-                                                style: fonts.bodySmall!.copyWith(
+                                                style:
+                                                    fonts.bodySmall!.copyWith(
                                                   color: style.colors.primary,
                                                 ),
                                               ),
