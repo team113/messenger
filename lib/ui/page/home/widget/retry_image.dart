@@ -158,7 +158,7 @@ class _RetryImageState extends State<RetryImage> {
   CancelToken _cancelToken = CancelToken();
 
   /// [CancelToken] canceling the [_loadFallback] operation.
-  final CancelToken _fallbackToken = CancelToken();
+  CancelToken _fallbackToken = CancelToken();
 
   /// Indicator whether image fetching has been canceled.
   bool _canceled = false;
@@ -181,7 +181,9 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
-    if (oldWidget.url != widget.url) {
+    if (oldWidget.fallbackUrl != widget.fallbackUrl) {
+      _fallbackToken.cancel();
+      _fallbackToken = CancelToken();
       _loadFallback();
     }
 
@@ -383,12 +385,12 @@ class _RetryImageState extends State<RetryImage> {
               data = await PlatformUtils.dio.get(
                 widget.fallbackUrl!,
                 options: Options(responseType: ResponseType.bytes),
+                cancelToken: _fallbackToken,
               );
             } on DioError catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
-                _cancelToken.cancel();
-                _fallbackToken.cancel();
+                return;
               }
             }
 
@@ -456,8 +458,7 @@ class _RetryImageState extends State<RetryImage> {
             } on DioError catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
-                _cancelToken.cancel();
-                _fallbackToken.cancel();
+                return;
               }
             }
 

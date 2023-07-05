@@ -18,9 +18,10 @@ All user visible changes to this project will be documented in this file. This p
         - History clearing. ([#361])
         - Text selection in messages. ([#118], [#17])
         - Clickable links and emails. ([#436], [#388])
+        - Replied and forwarded messages highlighting. ([#467])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
-        - Chat-monolog. ([#456], [#412], [#333], [#326])    
+        - Chat-monolog. ([#456], [#412], [#333], [#326])
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
     - Media panel:
@@ -47,6 +48,9 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Inverted selected chat colors. ([#405])
         - Chats with ongoing calls sorting above favorites. ([#392], [#371])
+        - Redesigned chats selecting. ([#463])
+    - Contacts tab:
+        - Redesigned contacts selecting. ([#463])
     - Home page:
         - Redesigned navigation buttons animation. ([#440])
         - Redesigned quick mute and status changing menus. ([#443])
@@ -101,6 +105,8 @@ All user visible changes to this project will be documented in this file. This p
 [#454]: /../../pull/454
 [#456]: /../../pull/456
 [#462]: /../../pull/462
+[#463]: /../../pull/463
+[#467]: /../../pull/467
 
 
 

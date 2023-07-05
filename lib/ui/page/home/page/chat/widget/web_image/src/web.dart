@@ -123,7 +123,7 @@ class _WebImageState extends State<WebImage> {
           } on DioError catch (e) {
             if (e.response?.statusCode == 403) {
               await widget.onForbidden?.call();
-              _cancelToken.cancel();
+              return;
             }
           }
 
