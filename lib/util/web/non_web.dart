@@ -229,4 +229,9 @@ class WebUtils {
 
   /// Sets callback to be fired whenever Rust code panics.
   static void onPanic(void Function(String)? cb) => jason.onPanic(cb);
+
+  /// Deletes the loader element.
+  static void deleteLoader() {
+    // No-op.
+  }
 }

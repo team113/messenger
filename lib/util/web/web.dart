@@ -573,6 +573,11 @@ class WebUtils {
   static void onPanic(void Function(String)? cb) {
     // No-op.
   }
+
+  /// Deletes the loader element.
+  static void deleteLoader() {
+    html.document.getElementById('loader')?.remove();
+  }
 }
 
 /// Extension adding JSON manipulation methods to a [Rect].
