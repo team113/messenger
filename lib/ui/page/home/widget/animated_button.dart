@@ -20,10 +20,7 @@ import 'package:flutter/material.dart';
 
 /// [Widget] animating its size on hover and clicks.
 class AnimatedButton extends StatefulWidget {
-  const AnimatedButton({super.key, required this.child, this.enabled = true});
-
-  /// Indicator whether animation is enabled.
-  final bool enabled;
+  const AnimatedButton({super.key, required this.child});
 
   /// Widget to animate.
   final Widget child;
@@ -53,11 +50,13 @@ class _AnimatedButtonState extends State<AnimatedButton>
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (!widget.enabled) {
-      return widget.child;
-    }
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return MouseRegion(
       opaque: false,
       onEnter: (_) => setState(() => _hovered = true),

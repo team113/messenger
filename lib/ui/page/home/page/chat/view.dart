@@ -58,7 +58,7 @@ import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
+  const ChatView(this.id, {super.key, this.itemId});
 
   /// ID of this [Chat].
   final ChatId id;
@@ -109,6 +109,7 @@ class _ChatViewState extends State<ChatView>
         itemId: widget.itemId,
       ),
       tag: widget.id.val,
+      global: !Get.isRegistered<ChatController>(tag: widget.id.val),
       builder: (c) {
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.

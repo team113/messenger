@@ -40,6 +40,7 @@ import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
@@ -136,67 +137,157 @@ class ContactsTabView extends StatelessWidget {
             }),
             actions: [
               Obx(() {
-                final Widget child;
+                Widget? child;
 
-                if (c.search.value != null || c.selecting.value) {
-                  child = SvgImage.asset(
-                    'assets/icons/close_primary.svg',
-                    key: const Key('CloseSearch'),
-                    height: 15,
-                    width: 15,
-                  );
+                if (c.search.value != null) {
+                  if (c.search.value?.search.isEmpty.value == false) {
+                    child = SvgImage.asset(
+                      'assets/icons/search_exit.svg',
+                      key: const Key('CloseSearch'),
+                      height: 11,
+                    );
+                  }
                 } else {
-                  child = SvgImage.asset(
-                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                    key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-                    width: 29.69,
-                    height: 21,
-                  );
+                  if (c.selecting.value) {
+                    child = SvgImage.asset(
+                      c.search.value != null
+                          ? 'assets/icons/search_exit.svg'
+                          : 'assets/icons/close_primary.svg',
+                      key: const Key('CloseGroupSearching'),
+                      height: c.search.value != null ? 11 : 15,
+                    );
+                  }
                 }
 
-                return AnimatedButton(
-                  child: WidgetButton(
-                    onPressed: () {
-                      if (c.selecting.value) {
-                        c.toggleSelecting();
-                      } else if (c.search.value != null) {
-                        c.toggleSearch(false);
-                      } else {
-                        c.toggleSorting();
-                      }
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: 29.69 + 12 + 18,
-                      height: double.infinity,
-                      child: Center(
-                        child: AnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: child,
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (child != null)
+                      AnimatedButton(
+                        child: WidgetButton(
+                          onPressed: () {
+                            if (c.search.value != null) {
+                              if (c.search.value?.search.isEmpty.value ==
+                                  false) {
+                                c.search.value?.search.clear();
+                                c.search.value?.query.value = '';
+                                c.search.value?.search.focus.requestFocus();
+                              }
+                            } else if (c.selecting.value) {
+                              c.toggleSelecting();
+                            }
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            width: 29.69 + 12 + 18,
+                            height: double.infinity,
+                            child: Center(
+                              child: AnimatedSwitcher(
+                                duration: 250.milliseconds,
+                                child: child,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    if (c.search.value == null && !c.selecting.value)
+                      AnimatedButton(
+                        child: ContextMenuRegion(
+                          key: const Key('ContactsMenu'),
+                          alignment: Alignment.topRight,
+                          enablePrimaryTap: true,
+                          enableSecondaryTap: false,
+                          selector: c.moreKey,
+                          margin: const EdgeInsets.only(bottom: 4, right: 0),
+                          actions: [
+                            ContextMenuButton(
+                              label: c.sortByName
+                                  ? 'label_sort_by_visit'.l10n
+                                  : 'label_sort_by_name'.l10n,
+                              onPressed: c.toggleSorting,
+                            ),
+                            ContextMenuButton(
+                              key: const Key('SelectContactsButton'),
+                              label: 'btn_select_and_delete'.l10n,
+                              onPressed: c.toggleSelecting,
+                            ),
+                          ],
+                          child: Container(
+                            key: c.moreKey,
+                            padding: const EdgeInsets.only(left: 12, right: 18),
+                            height: double.infinity,
+                            child: Icon(
+                              Icons.more_vert,
+                              color: style.colors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 );
               }),
             ],
             leading: [
               Obx(() {
                 if (c.selecting.value) {
-                  return const SizedBox(width: 49.77);
+                  final bool selected = c.contacts.isNotEmpty &&
+                      c.contacts.every(
+                        (e) => c.selectedContacts.any((m) => m == e.id),
+                      );
+
+                  return WidgetButton(
+                    onPressed: () {
+                      bool selected = c.contacts.every(
+                        (e) => c.selectedContacts.any((m) => m == e.id),
+                      );
+
+                      if (selected) {
+                        c.selectedContacts.clear();
+                      } else {
+                        for (var e in c.contacts) {
+                          if (!c.selectedContacts.contains(e.id)) {
+                            c.selectContact(e);
+                          }
+                        }
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 20, right: 6),
+                      height: double.infinity,
+                      child: SelectedDot(
+                        selected: selected,
+                        inverted: false,
+                        outlined: !selected,
+                        size: 21,
+                      ),
+                    ),
+                  );
                 }
 
                 return AnimatedButton(
-                  enabled: c.search.value == null,
-                  child: WidgetButton(
-                    key: const Key('SearchButton'),
-                    onPressed: c.search.value != null ? null : c.toggleSearch,
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 20, right: 12),
-                      height: double.infinity,
-                      child: SvgImage.asset(
-                        'assets/icons/search.svg',
-                        width: 17.77,
+                  child: AnimatedSwitcher(
+                    duration: 250.milliseconds,
+                    child: WidgetButton(
+                      key: c.search.value == null
+                          ? const Key('SearchButton')
+                          : const Key('CloseSearchButton'),
+                      onPressed: c.search.value == null
+                          ? () => c.toggleSearch(true)
+                          : () => c.toggleSearch(false),
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 20, right: 6),
+                        height: double.infinity,
+                        child: c.search.value != null
+                            ? Icon(
+                                key: const Key('ArrowBack'),
+                                Icons.arrow_back_ios_new,
+                                size: 20,
+                                color: style.colors.primary,
+                              )
+                            : SvgImage.asset(
+                                'assets/icons/search.svg',
+                                width: 17.77,
+                              ),
                       ),
                     ),
                   ),
@@ -580,13 +671,6 @@ class ContactsTabView extends StatelessWidget {
             label: 'btn_delete'.l10n,
             onPressed: () => _removeFromContacts(c, context, contact),
             trailing: const Icon(Icons.delete),
-          ),
-          const ContextMenuDivider(),
-          ContextMenuButton(
-            key: const Key('SelectContactButton'),
-            label: 'btn_select'.l10n,
-            onPressed: c.toggleSelecting,
-            trailing: const Icon(Icons.select_all),
           ),
         ],
         subtitle: [
