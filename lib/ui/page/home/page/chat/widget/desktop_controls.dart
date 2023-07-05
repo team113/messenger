@@ -43,6 +43,7 @@ class DesktopControls extends StatefulWidget {
     this.toggleFullscreen,
     this.isFullscreen,
     this.showInterfaceFor,
+    this.size,
   }) : super(key: key);
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
@@ -59,6 +60,9 @@ class DesktopControls extends StatefulWidget {
 
   /// [Duration] to initially show an user interface for.
   final Duration? showInterfaceFor;
+
+  /// [Size] of the video this [DesktopControls] used for.
+  final Size? size;
 
   @override
   State<StatefulWidget> createState() => _DesktopControlsState();
@@ -147,24 +151,27 @@ class _DesktopControlsState extends State<DesktopControls>
               behavior: HitTestBehavior.deferToChild,
               onTap: widget.onClose,
               child: Center(
-                child: Listener(
-                  behavior: HitTestBehavior.translucent,
-                  onPointerDown: (e) {
-                    if (e.buttons & kPrimaryButton != 0 &&
-                        _volumeEntry == null) {
-                      _playPause();
-                    }
-                  },
-                  // Double tap inside [AspectRatio] toggles fullscreen.
-                  child: GestureDetector(
+                child: SizedBox.fromSize(
+                  size: widget.size,
+                  child: Listener(
                     behavior: HitTestBehavior.translucent,
-                    onTap: () {},
-                    onDoubleTap: _onExpandCollapse,
-                    // Required for the [GestureDetector]s to take the full
-                    // width and height.
-                    child: const SizedBox(
-                      width: double.infinity,
-                      height: double.infinity,
+                    onPointerDown: (e) {
+                      if (e.buttons & kPrimaryButton != 0 &&
+                          _volumeEntry == null) {
+                        _playPause();
+                      }
+                    },
+                    // Double tap inside [AspectRatio] toggles fullscreen.
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {},
+                      onDoubleTap: _onExpandCollapse,
+                      // Required for the [GestureDetector]s to take the full
+                      // width and height.
+                      child: const SizedBox(
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
                     ),
                   ),
                 ),

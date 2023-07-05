@@ -37,6 +37,9 @@ import 'video_progress_bar.dart';
 class MobileControls extends StatefulWidget {
   const MobileControls({Key? key, required this.controller}) : super(key: key);
 
+  /// [Duration] to seek forward or backward for.
+  static const Duration seekDuration = Duration(seconds: 5);
+
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
@@ -189,7 +192,7 @@ class _MobileControlsState extends State<MobileControls>
                 onDoubleTap: _seekBackward,
                 child: Container(
                   color: style.colors.transparent,
-                  width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
+                  width: MediaQuery.of(context).size.width / 4,
                   height: double.infinity,
                 ),
               ),
@@ -202,7 +205,7 @@ class _MobileControlsState extends State<MobileControls>
                 onDoubleTap: _seekForward,
                 child: Container(
                   color: style.colors.transparent,
-                  width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
+                  width: MediaQuery.of(context).size.width / 4,
                   height: double.infinity,
                 ),
               ),
@@ -426,16 +429,16 @@ class _MobileControlsState extends State<MobileControls>
       return;
     }
 
-    _hideSeekBackward();
+    _hideSeekBackward(timeout: Duration.zero);
     _seekForwardDuration += Duration(
       seconds: (widget.controller.duration.value.inSeconds -
               widget.controller.position.value.inSeconds)
-          .clamp(0, 5),
+          .clamp(0, MobileControls.seekDuration.inSeconds),
     );
     _showSeekForward = true;
 
     widget.controller.seekTo(
-      widget.controller.position.value + const Duration(seconds: 5),
+      widget.controller.position.value + MobileControls.seekDuration,
     );
 
     if (!_hideStuff) {
@@ -448,10 +451,10 @@ class _MobileControlsState extends State<MobileControls>
   }
 
   /// Hides the seek forward indicator.
-  void _hideSeekForward() {
+  void _hideSeekForward({Duration timeout = const Duration(seconds: 1)}) {
     _seekForwardTimer?.cancel();
     _seekForwardTimer = Timer(
-      1.seconds,
+      timeout,
       () async {
         setState(() => _showSeekForward = false);
         await Future.delayed(200.milliseconds);
@@ -468,14 +471,15 @@ class _MobileControlsState extends State<MobileControls>
       return;
     }
 
-    _hideSeekForward();
+    _hideSeekForward(timeout: Duration.zero);
     _seekBackwardDuration += Duration(
-      seconds: widget.controller.position.value.inSeconds.clamp(0, 5),
+      seconds: widget.controller.position.value.inSeconds
+          .clamp(0, MobileControls.seekDuration.inSeconds),
     );
     _showSeekBackward = true;
 
     widget.controller.seekTo(
-      widget.controller.position.value - const Duration(seconds: 5),
+      widget.controller.position.value - MobileControls.seekDuration,
     );
 
     if (!_hideStuff) {
@@ -488,10 +492,10 @@ class _MobileControlsState extends State<MobileControls>
   }
 
   /// Hides the seek backward indicator.
-  void _hideSeekBackward() {
+  void _hideSeekBackward({Duration timeout = const Duration(seconds: 1)}) {
     _seekBackwardTimer?.cancel();
     _seekBackwardTimer = Timer(
-      1.seconds,
+      timeout,
       () async {
         setState(() => _showSeekBackward = false);
         await Future.delayed(200.milliseconds);
