@@ -574,7 +574,7 @@ extension GetAttachmentsChatMessageAttachmentConversion
 extension GetAttachmentsChatForwardAttachmentConversion
     on GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments {
   /// Constructs a new [Attachment] from this
-  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments].
+  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments].
   Attachment toModel() => _attachment(this);
 }
 
