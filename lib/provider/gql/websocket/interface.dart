@@ -20,7 +20,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// Creates a new WebSocket connection.
 ///
-/// Connects to [uri] using and returns a channel that can be used to
+/// Connects to the provided [uri] and returns a channel that can be used to
 /// communicate over the resulting socket.
 WebSocketChannel connect(
   Uri uri, {
