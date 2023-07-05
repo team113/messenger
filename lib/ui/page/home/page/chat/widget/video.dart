@@ -135,8 +135,8 @@ class _VideoState extends State<Video> {
                       double? height;
 
                       if (_controller.videoPlayerController != null) {
-                        double maxHeight = constraints.maxHeight;
-                        double maxWidth = constraints.maxWidth;
+                        final double maxHeight = constraints.maxHeight;
+                        final double maxWidth = constraints.maxWidth;
 
                         width =
                             _controller.videoPlayerController!.value.size.width;
@@ -144,10 +144,10 @@ class _VideoState extends State<Video> {
                             .videoPlayerController!.value.size.height;
 
                         if (maxHeight < height || maxWidth < width) {
-                          double index =
+                          final double ratio =
                               min(maxHeight / height, maxWidth / width);
-                          width *= index;
-                          height *= index;
+                          width *= ratio;
+                          height *= ratio;
                         }
                       }
 

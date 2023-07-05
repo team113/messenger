@@ -131,13 +131,7 @@ class _MobileControlsState extends State<MobileControls>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.fast_rewind,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(
-                          height: 0,
-                        ),
+                        const Icon(Icons.fast_rewind, color: Colors.white),
                         Text(
                           'label_count_seconds'.l10nfmt(
                             {'count': _seekBackwardDuration.inSeconds},
@@ -173,13 +167,7 @@ class _MobileControlsState extends State<MobileControls>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.fast_forward,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(
-                          height: 0,
-                        ),
+                        const Icon(Icons.fast_forward, color: Colors.white),
                         Text(
                           'label_count_seconds'.l10nfmt(
                             {'count': _seekForwardDuration.inSeconds},
