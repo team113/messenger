@@ -69,11 +69,11 @@
 # Default:
 #   product = "Gapopa"
 
-# Version of product of `User-Agent` header to put in network queries.
+# Product version of `User-Agent` header to put in network queries.
 #
 # If an empty string is passed, then the default value is used.
 #
 # Unused for Web, as browser picks the `User-Agent` itself.
 #
 # Default:
-#   version = $(PUBSPEC_VERSION)$(GIT_COMMIT_HASH)
+#   version = "$(git describe --tags --dirty)"
