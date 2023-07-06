@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import '/ui/page/style/widget/header.dart';
 import 'widget/avatar.dart';
 import 'widget/button.dart';
+import 'widget/navigation.dart';
 import 'widget/pop_up.dart';
 import 'widget/switcher.dart';
 import 'widget/system_message.dart';
@@ -27,18 +28,20 @@ import 'widget/text_field.dart';
 
 /// Elements tab view of the [Routes.style] page.
 class ElementStyleTabView extends StatelessWidget {
-  const ElementStyleTabView({super.key});
+  const ElementStyleTabView({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         Header(label: 'Elements'),
         SmallHeader(label: 'Text fields'),
         TextFieldWidget(),
         Divider(),
         SmallHeader(label: 'Buttons'),
-        ButtonsWidget(),
+        ButtonsWidget(isDarkMode: isDarkMode),
         Divider(),
         SmallHeader(label: 'Avatars'),
         AvatarView(),
@@ -51,6 +54,9 @@ class ElementStyleTabView extends StatelessWidget {
         Divider(),
         SmallHeader(label: 'Pop-ups'),
         PopUpWidget(),
+        Divider(),
+        SmallHeader(label: 'Navigation'),
+        NavigationWidget(),
         Divider(),
         SizedBox(height: 50),
       ],

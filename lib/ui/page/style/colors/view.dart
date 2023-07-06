@@ -22,19 +22,21 @@ import 'widget/avatar.dart';
 import 'widget/palette.dart';
 
 class ColorStyleView extends StatelessWidget {
-  const ColorStyleView({super.key});
+  const ColorStyleView({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         SizedBox(height: 20),
         Header(label: 'Colors palette'),
         SmallHeader(label: 'Application colors'),
-        PaletteWidget(),
+        PaletteWidget(isDarkMode: isDarkMode),
         Divider(),
         SmallHeader(label: 'Avatar colors'),
-        AvatarColors(),
+        AvatarColors(isDarkMode: isDarkMode),
         Divider(),
       ],
     );

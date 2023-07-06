@@ -113,7 +113,13 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     this.trailing,
     this.showTrailing = false,
     this.onPressed,
+    this.color,
+    this.style,
   }) : super(key: key);
+
+  final Color? color;
+
+  final TextStyle? style;
 
   /// Label of this [ContextMenuButton].
   final String label;
@@ -164,11 +170,12 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            color: isMouseOver
-                ? context.isMobile
-                    ? style.contextMenuHoveredColor
-                    : style.colors.primary
-                : style.colors.transparent,
+            color: widget.color ??
+                (isMouseOver
+                    ? context.isMobile
+                        ? style.contextMenuHoveredColor
+                        : style.colors.primary
+                    : style.colors.transparent),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -185,14 +192,15 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: fonts.titleMedium!.copyWith(
-                  color: (isMouseOver && !context.isMobile)
-                      ? style.colors.onPrimary
-                      : style.colors.onBackground,
-                  fontSize: context.isMobile
-                      ? fonts.bodyLarge!.fontSize
-                      : fonts.bodySmall!.fontSize,
-                ),
+                style: widget.style ??
+                    (fonts.titleMedium!.copyWith(
+                      color: (isMouseOver && !context.isMobile)
+                          ? style.colors.onPrimary
+                          : style.colors.onBackground,
+                      fontSize: context.isMobile
+                          ? fonts.bodyLarge!.fontSize
+                          : fonts.bodySmall!.fontSize,
+                    )),
               ),
               if ((PlatformUtils.isMobile || widget.showTrailing) &&
                   widget.trailing != null) ...[

@@ -23,7 +23,9 @@ import '/ui/page/style/fonts/view.dart';
 import '/ui/page/style/media/view.dart';
 
 class ContentScrollView extends StatelessWidget {
-  const ContentScrollView({super.key});
+  const ContentScrollView({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +36,18 @@ class ContentScrollView extends StatelessWidget {
           SliverList(
             delegate: SliverChildListDelegate(
               [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 70),
                   child: Column(
                     children: [
+                      ColorStyleView(isDarkMode: isDarkMode),
+                      FontsView(),
+                      MultimediaView(),
+                      // SizedBox(height: 200),
+                      ElementStyleTabView(isDarkMode: isDarkMode),
                       // ColorStyleView(),
                       // FontsView(),
                       // MultimediaView(),
-                      SizedBox(height: 200),
-                      ElementStyleTabView(),
-                      ColorStyleView(),
-                      FontsView(),
-                      MultimediaView(),
                     ],
                   ),
                 ),

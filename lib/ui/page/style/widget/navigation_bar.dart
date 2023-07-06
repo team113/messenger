@@ -17,11 +17,14 @@
 
 import 'package:flutter/material.dart';
 
+import 'custom_switcher.dart';
 import '/themes.dart';
 
 ///
 class StyleNavigationBar extends StatelessWidget {
-  const StyleNavigationBar({super.key});
+  const StyleNavigationBar({super.key, required this.onChanged});
+
+  final void Function(bool) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -254,6 +257,28 @@ class StyleNavigationBar extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          Column(
+            children: [
+              const Divider(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20, top: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.light_mode, color: style.colors.warningColor),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: CustomSwitcher(
+                        onChanged: onChanged,
+                      ),
+                    ),
+                    const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),

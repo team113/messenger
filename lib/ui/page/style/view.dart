@@ -21,17 +21,30 @@ import 'widget/content.dart';
 import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.style] page.
-class StyleView extends StatelessWidget {
+class StyleView extends StatefulWidget {
   const StyleView({super.key});
 
   @override
+  State<StyleView> createState() => _StyleViewState();
+}
+
+class _StyleViewState extends State<StyleView> {
+  /// Indicator whether this page is in dark mode.
+  bool isDarkMode = false;
+
+  @override
   Widget build(BuildContext context) {
-    return const SafeArea(
+    return SafeArea(
       child: Scaffold(
         body: Row(
           children: [
-            Flexible(flex: 1, child: StyleNavigationBar()),
-            Flexible(flex: 4, child: ContentScrollView()),
+            Flexible(
+              flex: 1,
+              child: StyleNavigationBar(
+                onChanged: (b) => setState(() => isDarkMode = b),
+              ),
+            ),
+            Flexible(flex: 4, child: ContentScrollView(isDarkMode: isDarkMode)),
           ],
         ),
       ),
