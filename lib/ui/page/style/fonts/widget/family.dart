@@ -20,7 +20,9 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 
 class FontFamiliesView extends StatelessWidget {
-  const FontFamiliesView({super.key});
+  const FontFamiliesView({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
@@ -29,25 +31,38 @@ class FontFamiliesView extends StatelessWidget {
     return Column(
       children: [
         FontWidget(
+          isDarkMode: isDarkMode,
           label: 'SFUI-Light',
           textStyle: fonts.displayLarge!.copyWith(fontWeight: FontWeight.w300),
         ),
         const SizedBox(height: 30),
         FontWidget(
+          isDarkMode: isDarkMode,
           label: 'SFUI-Regular',
           textStyle: fonts.displayLarge!.copyWith(
             fontWeight: FontWeight.normal,
           ),
         ),
         const SizedBox(height: 30),
-        FontWidget(label: 'SFUI-Bold', textStyle: fonts.displayLarge!),
+        FontWidget(
+          isDarkMode: isDarkMode,
+          label: 'SFUI-Bold',
+          textStyle: fonts.displayLarge!,
+        ),
       ],
     );
   }
 }
 
 class FontWidget extends StatelessWidget {
-  const FontWidget({super.key, required this.textStyle, required this.label});
+  const FontWidget({
+    super.key,
+    required this.textStyle,
+    required this.label,
+    required this.isDarkMode,
+  });
+
+  final bool isDarkMode;
 
   final String label;
 
@@ -59,16 +74,22 @@ class FontWidget extends StatelessWidget {
 
     return Stack(
       children: [
-        Container(
+        AnimatedContainer(
           height: 300,
+          duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
-            color: style.colors.onPrimary,
+            color:
+                isDarkMode ? style.colors.onBackground : style.colors.onPrimary,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
             padding: const EdgeInsets.only(left: 32),
             child: DefaultTextStyle(
-              style: textStyle,
+              style: textStyle.copyWith(
+                color: isDarkMode
+                    ? style.colors.onPrimary
+                    : style.colors.onBackground,
+              ),
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,

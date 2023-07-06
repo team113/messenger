@@ -22,18 +22,20 @@ import 'widget/family.dart';
 import 'widget/style.dart';
 
 class FontsView extends StatelessWidget {
-  const FontsView({super.key});
+  const FontsView({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         Header(label: 'Typography'),
         SmallHeader(label: 'Font'),
-        FontFamiliesView(),
+        FontFamiliesView(isDarkMode: isDarkMode),
         Divider(),
         SmallHeader(label: 'Styles'),
-        FontStyleView(),
+        FontStyleView(isDarkMode: isDarkMode),
         Divider(),
       ],
     );

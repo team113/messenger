@@ -41,8 +41,8 @@ class ContentScrollView extends StatelessWidget {
                   child: Column(
                     children: [
                       ColorStyleView(isDarkMode: isDarkMode),
-                      FontsView(),
-                      MultimediaView(),
+                      FontsView(isDarkMode: isDarkMode),
+                      MultimediaView(isDarkMode: isDarkMode),
                       // SizedBox(height: 200),
                       ElementStyleTabView(isDarkMode: isDarkMode),
                       // ColorStyleView(),

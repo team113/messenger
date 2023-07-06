@@ -21,7 +21,9 @@ import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 
 class ImagesView extends StatelessWidget {
-  const ImagesView({super.key});
+  const ImagesView({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,9 @@ class ImagesView extends StatelessWidget {
                 message: 'Dark background image',
                 child: Container(
                   decoration: BoxDecoration(
-                    color: style.colors.onPrimary,
+                    color: isDarkMode
+                        ? style.colors.onPrimary
+                        : const Color(0xFF1F3C5D),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Padding(
@@ -44,33 +48,7 @@ class ImagesView extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: SvgImage.asset(
-                        'assets/images/background_dark.svg',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 30),
-        Row(
-          children: [
-            Flexible(
-              child: Tooltip(
-                message: 'Light background image',
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1F3C5D),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: SvgImage.asset(
-                        'assets/images/background_light.svg',
+                        'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
                         fit: BoxFit.cover,
                       ),
                     ),
