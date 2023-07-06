@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
@@ -28,7 +27,7 @@ import 'widget/bottom_control_bar.dart';
 import 'widget/hit_area.dart';
 import 'widget/volume_overlay.dart';
 
-/// Desktop video controls for a [Chewie] player.
+/// Desktop video controls for a [MeeduVideoPlayer].
 class DesktopControlsView extends StatefulWidget {
   const DesktopControlsView({
     super.key,
@@ -181,7 +180,7 @@ class _DesktopControlsState extends State<DesktopControlsView>
                   controller: widget.controller,
                   volumeKey: _volumeKey,
                   barHeight: _barHeight,
-                  isOpen: _showBottomBar || _showInterface,
+                  visible: _showBottomBar || _showInterface,
                   isFullscreen: widget.isFullscreen == true,
                   onPlayPause: _playPause,
                   onFullscreen: _onExpandCollapse,

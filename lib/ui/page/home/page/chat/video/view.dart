@@ -216,7 +216,6 @@ class _VideoState extends State<Video> {
         } catch (e) {
           if (e is DioError && e.response?.statusCode == 403) {
             widget.onError?.call();
-            _cancelToken?.cancel();
           } else {
             shouldReload = true;
             rethrow;

@@ -23,7 +23,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// [Widget] which returns [Center]ed play/pause circular button.
+/// [Center]ed play/pause circular button.
 class HitArea extends StatelessWidget {
   const HitArea({
     super.key,

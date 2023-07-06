@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// [Widget] which returns the fullscreen toggling button.
+/// Fullscreen toggling button.
 class ExpandButton extends StatelessWidget {
   const ExpandButton({
     super.key,
@@ -28,7 +28,7 @@ class ExpandButton extends StatelessWidget {
     this.isFullscreen = false,
   });
 
-  /// Indicator whether this video is in fullscreen mode.
+  /// Indicator whether this [ExpandButton] is in fullscreen mode.
   final bool isFullscreen;
 
   /// Height of this [ExpandButton].

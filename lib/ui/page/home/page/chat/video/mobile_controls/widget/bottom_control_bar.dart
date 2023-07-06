@@ -23,14 +23,14 @@ import 'current_position.dart';
 import 'mute_button.dart';
 import 'progress_bar.dart';
 
-/// [AnimatedOpacity] which returns mobile design of a bottom controls bar.
+/// Mobile design of a video bottom controls bar.
 class BottomControlBar extends StatelessWidget {
   const BottomControlBar({
     super.key,
     required this.controller,
     this.barHeight,
     this.hideStuff = true,
-    this.onTap,
+    this.onMute,
     this.onDragStart,
     this.onDragEnd,
   });
@@ -44,8 +44,8 @@ class BottomControlBar extends StatelessWidget {
   /// Indicator whether user interface should be visible or not.
   final bool hideStuff;
 
-  /// Callback, called when [MuteButton] is tapped.
-  final void Function()? onTap;
+  /// Callback, called when the mute button is tapped.
+  final void Function()? onMute;
 
   /// Callback, called when progress drag started.
   final dynamic Function()? onDragStart;
@@ -88,7 +88,7 @@ class BottomControlBar extends StatelessWidget {
                         controller: controller,
                         opacity: hideStuff ? 0.0 : 1.0,
                         height: barHeight,
-                        onTap: onTap,
+                        onTap: onMute,
                       ),
                     ],
                   ),

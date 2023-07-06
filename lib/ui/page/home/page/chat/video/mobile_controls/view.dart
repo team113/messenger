@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
@@ -27,7 +26,7 @@ import '/ui/page/home/page/chat/video/mobile_controls/widget/hit_area.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
-/// Mobile video controls for a [Chewie] player.
+/// Mobile video controls for a [MeeduVideoPlayer].
 class MobileControlsView extends StatefulWidget {
   const MobileControlsView({super.key, required this.controller});
 
@@ -142,7 +141,7 @@ class _MobileControlsState extends State<MobileControlsView>
                     controller: widget.controller,
                     barHeight: _barHeight,
                     hideStuff: _hideStuff,
-                    onTap: () {
+                    onMute: () {
                       _cancelAndRestartTimer();
 
                       if (widget.controller.volume.value == 0) {

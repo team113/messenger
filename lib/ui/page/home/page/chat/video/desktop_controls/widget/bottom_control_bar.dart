@@ -29,7 +29,7 @@ import 'mute_button.dart';
 import 'play_pause_button.dart';
 import 'progress_bar.dart';
 
-/// [AnimatedSlider] which returns desktop design of a bottom controls bar.
+/// Desktop design of a video bottom controls bar.
 class BottomControlBar extends StatelessWidget {
   const BottomControlBar({
     super.key,
@@ -43,10 +43,10 @@ class BottomControlBar extends StatelessWidget {
     this.onDragEnd,
     this.onEnter,
     this.isFullscreen = false,
-    this.isOpen = true,
+    this.visible = true,
   });
 
-  /// [GlobalKey] of the volume entry.
+  /// [GlobalKey] of the volume button.
   final GlobalKey? volumeKey;
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
@@ -55,19 +55,19 @@ class BottomControlBar extends StatelessWidget {
   /// Height of this [BottomControlBar].
   final double? barHeight;
 
-  /// Indicator whether the [AnimatedSlider] should be visible or not.
-  final bool isOpen;
+  /// Indicator whether this [BottomControlBar] should be visible or not.
+  final bool visible;
 
-  /// Indicator whether this video is in fullscreen mode.
+  /// Indicator whether the video is in fullscreen mode.
   final bool isFullscreen;
 
-  /// Callback, called when [StyledPlayPauseButton] is tapped.
+  /// Callback, called when the play pause button is tapped.
   final void Function()? onPlayPause;
 
-  /// Callback, called when [MuteButton] is tapped.
+  /// Callback, called when the mute button is tapped.
   final void Function()? onMute;
 
-  /// Callback, called when [ExpandButton] is tapped.
+  /// Callback, called when the toggle fullscreen button is tapped.
   final void Function()? onFullscreen;
 
   /// Callback, called when progress drag started.
@@ -76,7 +76,7 @@ class BottomControlBar extends StatelessWidget {
   /// Callback, called when progress drag ended.
   final dynamic Function()? onDragEnd;
 
-  /// Triggered when a mouse pointer has entered this widget.
+  /// Callback, called when a mouse pointer has entered this [BottomControlBar].
   final void Function(PointerEnterEvent)? onEnter;
 
   @override
@@ -85,7 +85,7 @@ class BottomControlBar extends StatelessWidget {
 
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
-      isOpen: isOpen,
+      isOpen: visible,
       translate: false,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8, left: 32, right: 32),
@@ -119,9 +119,9 @@ class BottomControlBar extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   MuteButton(
+                    key: volumeKey,
                     controller: controller,
-                    volumeKey: volumeKey,
-                    barHeight: barHeight,
+                    height: barHeight,
                     onEnter: onEnter,
                     onTap: onMute,
                   ),

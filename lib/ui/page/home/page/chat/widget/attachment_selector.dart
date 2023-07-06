@@ -137,7 +137,7 @@ class AttachmentSourceSelector extends StatelessWidget {
   }
 }
 
-/// Custom styled [RoundFloatingButton] with an attachment.
+/// Custom styled [RoundFloatingButton].
 class _AttachmentButton extends StatelessWidget {
   const _AttachmentButton({this.text, this.child, this.onPressed});
 

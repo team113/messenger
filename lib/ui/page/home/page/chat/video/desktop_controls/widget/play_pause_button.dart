@@ -23,7 +23,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// [Widget] which returns the play/pause button.
+/// Play/pause button.
 class StyledPlayPauseButton extends StatelessWidget {
   const StyledPlayPauseButton({
     super.key,
