@@ -382,10 +382,11 @@ class ReactiveTextField extends StatelessWidget {
                     : Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                           child: Text(
                             state.error.value!,
-                            style: (this.style ?? fonts.labelMedium)!.copyWith(
+                            style: (this.style ?? fonts.labelSmall)!.copyWith(
+                              fontSize: 13,
                               color: style.colors.dangerColor,
                             ),
                           ),

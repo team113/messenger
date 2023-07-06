@@ -31,7 +31,7 @@ export 'view.dart';
 
 /// [Routes.chatDirectLink] page controller.
 class ChatDirectLinkController extends GetxController {
-  ChatDirectLinkController(String url, this._auth) {
+  ChatDirectLinkController(String url, this._auth, {this.welcome}) {
     ChatDirectLinkSlug? link;
     try {
       link = ChatDirectLinkSlug(url);
@@ -44,6 +44,8 @@ class ChatDirectLinkController extends GetxController {
 
   /// [ChatDirectLinkSlug] of this controller.
   late final Rx<ChatDirectLinkSlug?> slug;
+
+  final String? welcome;
 
   /// Authorization service used for signing up.
   final AuthService _auth;
@@ -78,7 +80,7 @@ class ChatDirectLinkController extends GetxController {
   Future<void> _useChatDirectLink() async {
     try {
       ChatId chatId = await _auth.useChatDirectLink(slug.value!);
-      router.chat(chatId);
+      router.chat(chatId, welcome: welcome);
     } on UseChatDirectLinkException catch (e) {
       if (e.code == UseChatDirectLinkErrorCode.unknownDirectLink) {
         slug.value = null;

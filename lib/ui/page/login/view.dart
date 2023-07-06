@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -182,6 +183,76 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
+            case LoginViewStage.register:
+              header = ModalPopupHeader(
+                header: Center(
+                  child: Text('Register'.l10n, style: fonts.headlineMedium),
+                ),
+                onBack: () => c.stage.value = null,
+              );
+
+              children = [
+                ReactiveTextField(
+                  state: c.email,
+                  label: 'label_email'.l10n,
+                  style: fonts.bodyMedium,
+                  treatErrorAsStatus: false,
+                ),
+                const SizedBox(height: 12),
+                ReactiveTextField(
+                  state: c.newPassword,
+                  label: 'label_password'.l10n,
+                  obscure: c.obscureNewPassword.value,
+                  style: fonts.bodyMedium,
+                  onSuffixPressed: c.obscureNewPassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgImage.asset(
+                    'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ReactiveTextField(
+                  state: c.repeatPassword,
+                  label: 'label_repeat_password'.l10n,
+                  obscure: c.obscureRepeatPassword.value,
+                  style: fonts.bodyMedium,
+                  onSuffixPressed: c.obscureRepeatPassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgImage.asset(
+                    'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Center(
+                  child: Obx(() {
+                    final bool enabled = !c.email.isEmpty.value &&
+                        c.email.error.value == null &&
+                        !c.newPassword.isEmpty.value &&
+                        c.newPassword.error.value == null &&
+                        !c.repeatPassword.isEmpty.value &&
+                        c.repeatPassword.error.value == null;
+
+                    return OutlinedRoundedButton(
+                      title: Text(
+                        'Proceed'.l10n,
+                        style: fonts.titleLarge!.copyWith(
+                          color: enabled
+                              ? style.colors.onPrimary
+                              : fonts.titleLarge!.color,
+                        ),
+                      ),
+                      onPressed: enabled ? c.repeatPassword.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                    );
+                  }),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
             default:
               header = ModalPopupHeader(
                 header: Center(
@@ -249,12 +320,78 @@ class LoginView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('LoginButton'),
-                  title: 'btn_login'.l10n,
-                  onPressed: c.signIn,
+                Obx(() {
+                  final bool enabled =
+                      !c.login.isEmpty.value && !c.password.isEmpty.value;
+
+                  return PrimaryButton(
+                    key: const Key('LoginButton'),
+                    title: 'btn_login'.l10n,
+                    onPressed: enabled ? c.signIn : null,
+                  );
+                }),
+                const SizedBox(height: 25 / 2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('OR', style: fonts.headlineSmall),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 25 / 2),
+                Center(
+                  child: OutlinedRoundedButton(
+                    title: Text(
+                      'Create account'.l10n,
+                      style: fonts.titleLarge!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
+                    ),
+                    onPressed: () => c.stage.value = LoginViewStage.register,
+                    color: style.colors.primary,
+                    maxWidth: double.infinity,
+                  ),
+                ),
+                const SizedBox(height: 25 / 2),
+
+                // const SizedBox(height: 8),
+                // Padding(
+                //   padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                //   child: Center(
+                //     child: WidgetButton(
+                //       onPressed: () {
+                //         c.recovery.clear();
+                //         c.recoveryCode.clear();
+                //         c.newPassword.clear();
+                //         c.repeatPassword.clear();
+                //         c.recovery.unchecked = c.login.text;
+                //         c.recovered.value = false;
+                //         c.stage.value = LoginViewStage.recovery;
+                //       },
+                //       child: Text(
+                //         'Создать аккаунт'.l10n,
+                //         style: fonts.bodySmall!.copyWith(
+                //           color: style.colors.primary,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 8),
               ];
               break;
           }
@@ -266,10 +403,10 @@ class LoginView extends StatelessWidget {
             fadeOutCurve: Curves.easeOut,
             sizeCurve: Curves.easeOut,
             child: Scrollbar(
+              key: Key('${c.stage.value}'),
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,
-                key: Key('${c.stage.value}'),
                 shrinkWrap: true,
                 children: [
                   header,

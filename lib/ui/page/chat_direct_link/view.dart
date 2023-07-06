@@ -26,7 +26,9 @@ import 'controller.dart';
 
 /// View of the [Routes.chatDirectLink] page.
 class ChatDirectLinkView extends StatelessWidget {
-  const ChatDirectLinkView(this._slug, {Key? key}) : super(key: key);
+  const ChatDirectLinkView(this._slug, {super.key, this.welcome});
+
+  final String? welcome;
 
   /// [String] to be parsed as a [ChatDirectLinkSlug] of this page.
   final String _slug;
@@ -34,7 +36,7 @@ class ChatDirectLinkView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: ChatDirectLinkController(_slug, Get.find()),
+      init: ChatDirectLinkController(_slug, Get.find(), welcome: welcome),
       builder: (ChatDirectLinkController c) => Scaffold(
         backgroundColor: const Color(0xFFF6F8F9),
         body: Center(

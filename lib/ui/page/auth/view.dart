@@ -90,6 +90,10 @@ class AuthView extends StatelessWidget {
                   //   color: Colors.grey,
                   // ),
                   StyledCupertinoButton(
+                    onPressed: () => _download(context),
+                    label: 'Download application',
+                  ),
+                  StyledCupertinoButton(
                     onPressed: () {
                       router.vacancy(null, push: true);
                       print(router.routes);
@@ -157,15 +161,23 @@ class AuthView extends StatelessWidget {
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
-            key: const Key('StartButton'),
+            key: const Key('RegisterButton'),
             title: Text(
-              'btn_start'.l10n,
+              'Register'.l10n,
               style: TextStyle(color: style.colors.onPrimary),
             ),
             leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
-            onPressed: c.register,
+            onPressed: () => LoginView.show(context),
             color: style.colors.primary,
           ),
+          // const SizedBox(height: 6),
+          // WidgetButton(
+          //   child: Text(
+          //     'One-time account',
+          //     style: TextStyle(color: style.colors.primary),
+          //   ),
+          // ),
+
           // const SizedBox(height: 15),
           // OutlinedRoundedButton(
           //   title: Text('Работа'.l10n),
@@ -188,6 +200,15 @@ class AuthView extends StatelessWidget {
                 SvgImage.asset('assets/icons/sign_in.svg', width: 20 * 0.7),
             onPressed: () => LoginView.show(context),
           ),
+
+          const SizedBox(height: 15),
+          OutlinedRoundedButton(
+            key: const Key('StartButton'),
+            title: Text('One-time account'.l10n),
+            leading:
+                SvgImage.asset('assets/icons/sign_in.svg', width: 20 * 0.7),
+            onPressed: c.register,
+          ),
           // const SizedBox(height: 15),
           // StyledCupertinoButton(label: 'Скачать'),
           // const SizedBox(height: 48),
@@ -195,11 +216,12 @@ class AuthView extends StatelessWidget {
           //   onPressed: () => _download(context),
           //   child: SvgImage.asset('assets/icons/download_app_store.svg'),
           // ),
-          if (true) ...[
+          if (false) ...[
             if (isWeb) const SizedBox(height: 15),
             if (isIosWeb)
               OutlinedRoundedButton(
                 title: Text('btn_download'.l10n),
+                height: 50,
                 leading: Padding(
                   padding: const EdgeInsets.only(bottom: 3 * 0.7),
                   child:
@@ -210,6 +232,7 @@ class AuthView extends StatelessWidget {
             if (isAndroidWeb)
               OutlinedRoundedButton(
                 title: Text('btn_download'.l10n),
+                height: 50,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 2 * 0.7),
                   child: SvgImage.asset('assets/icons/google.svg',
@@ -220,6 +243,7 @@ class AuthView extends StatelessWidget {
             if (isDesktopWeb)
               OutlinedRoundedButton(
                 title: Text('btn_download'.l10n),
+                height: 50,
                 leading: PlatformUtils.isMacOS
                     ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
                     : (PlatformUtils.isWindows)

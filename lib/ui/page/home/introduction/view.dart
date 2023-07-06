@@ -17,6 +17,7 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
@@ -54,6 +55,79 @@ class IntroductionView extends StatelessWidget {
           final List<Widget> children;
 
           switch (c.stage.value) {
+            case IntroductionViewStage.validate:
+              children = [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Obx(() {
+                    return Text(
+                      c.resent.value
+                          ? 'label_add_email_confirmation_sent_again'.l10n
+                          : 'label_add_email_confirmation_sent'.l10n,
+                      style: fonts.bodyMedium!.copyWith(
+                        color: style.colors.secondary,
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  state: c.emailCode,
+                  label: 'label_confirmation_code'.l10n,
+                  style: fonts.bodyMedium,
+                  treatErrorAsStatus: false,
+                  formatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+                const SizedBox(height: 25),
+                Obx(() {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedRoundedButton(
+                          key: const Key('Resend'),
+                          maxWidth: double.infinity,
+                          title: Text(
+                            c.resendEmailTimeout.value == 0
+                                ? 'label_resend'.l10n
+                                : 'label_resend_timeout'.l10nfmt(
+                                    {'timeout': c.resendEmailTimeout.value},
+                                  ),
+                            style: fonts.bodyMedium!.copyWith(
+                              color: c.resendEmailTimeout.value == 0
+                                  ? style.colors.onPrimary
+                                  : style.colors.onBackground,
+                            ),
+                          ),
+                          onPressed: c.resendEmailTimeout.value == 0
+                              ? c.resendEmail
+                              : null,
+                          color: style.colors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedRoundedButton(
+                          key: const Key('Proceed'),
+                          maxWidth: double.infinity,
+                          title: Text(
+                            'btn_proceed'.l10n,
+                            style: fonts.bodyMedium!.copyWith(
+                              color: c.emailCode.isEmpty.value
+                                  ? style.colors.onBackground
+                                  : style.colors.onPrimary,
+                            ),
+                          ),
+                          onPressed: c.emailCode.isEmpty.value
+                              ? null
+                              : c.emailCode.submit,
+                          color: style.colors.primary,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ];
+
             case IntroductionViewStage.password:
               children = [
                 const SizedBox(height: 14),
@@ -164,10 +238,10 @@ class IntroductionView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Scrollbar(
+              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,
-                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 children: [

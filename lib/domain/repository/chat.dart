@@ -298,4 +298,6 @@ abstract class RxChat implements Comparable<RxChat> {
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   });
+
+  void addWelcomeMessage(String welcome);
 }

@@ -24,7 +24,9 @@ import '/ui/widget/widget_button.dart';
 /// [WidgetButton] stylized as a rectangular shaped button meant to be used as
 /// an unblock button.
 class UnblockButton extends StatelessWidget {
-  const UnblockButton(this.onPressed, {super.key});
+  const UnblockButton(this.onPressed, {super.key, this.text});
+
+  final String? text;
 
   /// Callback, called when this [UnblockButton] is pressed.
   final void Function()? onPressed;
@@ -58,7 +60,7 @@ class UnblockButton extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'btn_unblock'.l10n,
+                  text ?? 'btn_unblock'.l10n,
                   textAlign: TextAlign.center,
                   style: fonts.bodyLarge!.copyWith(color: style.colors.primary),
                 ),

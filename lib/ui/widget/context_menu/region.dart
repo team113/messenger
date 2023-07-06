@@ -283,7 +283,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       await showDialog(
         context: context,
         barrierColor: style.colors.transparent,
-        builder: (_) {
+        builder: (context) {
           return LayoutBuilder(builder: (_, constraints) {
             double qx = 1, qy = 1;
             if (position.dx > (constraints.maxWidth) / 2) qx = -1;
@@ -293,7 +293,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             return Listener(
               onPointerUp: (d) {
                 Navigator.of(context).pop();
-                _entry?.remove();
+                // _entry?.remove();
 
                 _displayed = false;
                 if (widget.indicateOpenedMenu) {

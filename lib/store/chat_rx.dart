@@ -704,6 +704,21 @@ class HiveRxChat extends RxChat {
     await Future.wait(futures);
   }
 
+  @override
+  void addWelcomeMessage(String welcome) async {
+    final PreciseDateTime at =
+        (messages.lastOrNull?.value.at ?? PreciseDateTime.now())
+            .add(const Duration(microseconds: 1));
+
+    HiveChatMessage message = HiveChatMessage.sending(
+      chatId: chat.value.id,
+      me: members.values.firstWhereOrNull((e) => e.id != me)?.id ?? me!,
+      text: ChatMessageText(welcome),
+    );
+
+    put(message, ignoreVersion: true);
+  }
+
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
     if (chat.value.name != null) {

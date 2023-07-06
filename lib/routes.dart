@@ -170,6 +170,7 @@ class RouterState extends ChangeNotifier {
   OverlayState? overlay;
 
   bool directLink = false;
+  bool validateEmail = false;
 
   /// Reactive [AppLifecycleState].
   final Rx<AppLifecycleState> lifecycle =
@@ -457,7 +458,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         MaterialPage(
           key: ValueKey('ChatDirectLinkPage$slug'),
           name: Routes.chatDirectLink,
-          child: ChatDirectLinkView(slug),
+          child: ChatDirectLinkView(
+            slug,
+            welcome: router.arguments?['welcomeMessage'] as String?,
+          ),
         )
       ];
     } else if (_state.route.startsWith('${Routes.call}/')) {
@@ -860,6 +864,7 @@ extension RouteLinks on RouterState {
     ChatId id, {
     bool push = false,
     ChatItemId? itemId,
+    String? welcome,
   }) {
     if (push) {
       this.push('${Routes.chats}/$id');
@@ -867,7 +872,7 @@ extension RouteLinks on RouterState {
       go('${Routes.chats}/$id');
     }
 
-    arguments = {'itemId': itemId};
+    arguments = {'itemId': itemId, 'welcomeMessage': welcome};
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
@@ -901,6 +906,24 @@ extension RouteLinks on RouterState {
   void vacancy(String? id, {bool push = false}) => push
       ? this.push('${Routes.vacancy}${id == null ? '' : '/$id'}')
       : go('${Routes.vacancy}${id == null ? '' : '/$id'}');
+
+  /// Changes router location to the [Routes.chats] page.
+  ///
+  /// If [push] is `true`, then location is pushed to the router location stack.
+  void useLink(
+    String slug, {
+    bool push = false,
+    String? welcome,
+  }) {
+    tab = HomeTab.chats;
+    if (push) {
+      this.push('${Routes.chatDirectLink}/$slug');
+    } else {
+      go('${Routes.chatDirectLink}/$slug');
+    }
+
+    arguments = {'welcomeMessage': welcome};
+  }
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

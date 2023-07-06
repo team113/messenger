@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/vacancy.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
@@ -15,6 +16,7 @@ import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/util/platform_utils.dart';
 
+import 'contact/view.dart';
 import 'controller.dart';
 import 'widget/vacancy_description.dart';
 
@@ -130,7 +132,26 @@ class VacancyView extends StatelessWidget {
               children: [
                 const SizedBox(height: 4),
                 Block(
-                  title: 'Details',
+                  title: 'О проекте',
+                  children: [
+                    Paddings.basic(
+                      VacancyDescription(
+                        '''- мессенджер Gapopa;
+- фронтэнд часть с открытым исходным кодом;
+- используется GetX в качестве DI и State Management;
+- используется Navigator 2.0 (Router) в качестве навигации;
+- используется Hive в качестве локальной базы данных;
+- используется Firebase для push уведомлений;
+- используется GraphQL и Artemis для общения с бэкэндом;
+- используется Gherkin для написания E2E тестов;
+- подробнее: https://github.com/team113/messenger''',
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                ),
+                Block(
+                  title: 'Вакансия',
                   children: [
                     Paddings.basic(
                       VacancyDescription(e.description),
@@ -141,85 +162,104 @@ class VacancyView extends StatelessWidget {
                 Block(
                   title: 'Schedule an interview',
                   children: [
-                    Paddings.basic(Column(
-                      children: [
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: Text(
-                              'Интервью проводится онлайн с использованием мессенджера Gapopa. Устойчивая аудио- и видеосвязь обязательна. В процессе интервью сотрудник HR отдела будет готов ответить на Ваши вопросы, попросит Вас рассказать о себе, а также Вам может быть предложено решить техническую задачу.',
-                              style: TextStyle(
-                                color: style.colors.secondary,
-                                fontSize: 13,
+                    Paddings.basic(
+                      OutlinedRoundedButton(
+                        onPressed: () async {
+                          await VacancyContactView.show(context);
+                        },
+                        maxWidth: double.infinity,
+                        color: style.colors.primary,
+                        title: Text(
+                          'Связаться',
+                          style: TextStyle(color: style.colors.onPrimary),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (false)
+                  Block(
+                    title: 'Schedule an interview',
+                    children: [
+                      Paddings.basic(Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: Text(
+                                'Интервью проводится онлайн с использованием мессенджера Gapopa. Устойчивая аудио- и видеосвязь обязательна. В процессе интервью сотрудник HR отдела будет готов ответить на Ваши вопросы, попросит Вас рассказать о себе, а также Вам может быть предложено решить техническую задачу.',
+                                style: TextStyle(
+                                  color: style.colors.secondary,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        ReactiveTextField(state: c.email, label: 'E-mail*'),
-                        const SizedBox(height: 16),
-                        Obx(() {
-                          return FieldButton(
-                            text: c.resume.value == null
-                                ? 'Прикрепить резюме*'
-                                : '${c.resume.value!.name} ${c.resume.value!.size ~/ 1000} KB',
-                            style: TextStyle(color: style.colors.primary),
-                            onPressed: c.pick,
-                          );
-                        }),
-                        const SizedBox(height: 16),
-                        ReactiveTextField(
-                          state: c.text,
-                          hint: 'Сопроводительный текст',
-                          maxLines: 5,
-                        ),
-                        const SizedBox(height: 24),
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: Text(
-                              c.status.value.isEmpty
-                                  ? '''Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
+                          const SizedBox(height: 24),
+                          ReactiveTextField(state: c.email, label: 'E-mail*'),
+                          const SizedBox(height: 16),
+                          Obx(() {
+                            return FieldButton(
+                              text: c.resume.value == null
+                                  ? 'Прикрепить резюме*'
+                                  : '${c.resume.value!.name} ${c.resume.value!.size ~/ 1000} KB',
+                              style: TextStyle(color: style.colors.primary),
+                              onPressed: c.pick,
+                            );
+                          }),
+                          const SizedBox(height: 16),
+                          ReactiveTextField(
+                            state: c.text,
+                            hint: 'Сопроводительный текст',
+                            maxLines: 5,
+                          ),
+                          const SizedBox(height: 24),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: Text(
+                                c.status.value.isEmpty
+                                    ? '''Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
 
 • Вы не удалите пользовательские данные из приложения (браузера);
 
 • Вы не нажмёте кнопку "Выйти".
 
 Чтобы не потерять доступ к аккаунту, задайте пароль.'''
-                                  // ? 'Аккаунт создаётся автоматически. Доступ к аккаунту без пароля сохраняется в течение одного года. Чтобы не потерять доступ, задайте пароль.'
-                                  : 'Вы будете перенаправлены в чат с HR-менеджером.',
-                              style: TextStyle(
-                                color: style.colors.secondary,
-                                fontSize: 13,
+                                    // ? 'Аккаунт создаётся автоматически. Доступ к аккаунту без пароля сохраняется в течение одного года. Чтобы не потерять доступ, задайте пароль.'
+                                    : 'Вы будете перенаправлены в чат с HR-менеджером.',
+                                style: TextStyle(
+                                  color: style.colors.secondary,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Obx(() {
-                          final bool enabled =
-                              !c.email.isEmpty.value && c.resume.value != null;
+                          const SizedBox(height: 8),
+                          Obx(() {
+                            final bool enabled = !c.email.isEmpty.value &&
+                                c.resume.value != null;
 
-                          return OutlinedRoundedButton(
-                            onPressed: enabled ? c.send : null,
-                            maxWidth: double.infinity,
-                            color: style.colors.primary,
-                            title: Text(
-                              'Связаться',
-                              style: TextStyle(
-                                color: enabled
-                                    ? style.colors.onPrimary
-                                    : style.colors.onBackground,
+                            return OutlinedRoundedButton(
+                              onPressed: enabled ? c.send : null,
+                              maxWidth: double.infinity,
+                              color: style.colors.primary,
+                              title: Text(
+                                'Связаться',
+                                style: TextStyle(
+                                  color: enabled
+                                      ? style.colors.onPrimary
+                                      : style.colors.onBackground,
+                                ),
                               ),
-                            ),
-                          );
-                        }),
-                      ],
-                    )),
-                  ],
-                ),
+                            );
+                          }),
+                        ],
+                      )),
+                    ],
+                  ),
                 const SizedBox(height: 4),
               ],
             ),

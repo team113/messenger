@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/my_user.dart';
 
 import '/api/backend/schema.dart' show CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
@@ -38,11 +39,12 @@ enum LoginViewStage {
   recovery,
   recoveryCode,
   recoveryPassword,
+  register,
 }
 
 /// [GetxController] of a [LoginView].
 class LoginController extends GetxController {
-  LoginController(this._auth);
+  LoginController(this._authService);
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;
@@ -61,6 +63,21 @@ class LoginController extends GetxController {
 
   /// [TextFieldState] of a repeat password text input.
   late final TextFieldState repeatPassword;
+
+  late final TextFieldState email = TextFieldState(
+    onChanged: (s) {
+      try {
+        if (s.text.isNotEmpty) {
+          UserEmail(s.text.toLowerCase());
+        }
+
+        s.error.value = null;
+      } on FormatException {
+        s.error.value = 'err_incorrect_email'.l10n;
+      }
+    },
+    onSubmitted: (s) => password.focus.requestFocus(),
+  );
 
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
@@ -81,7 +98,7 @@ class LoginController extends GetxController {
   final Rx<LoginViewStage?> stage = Rx(null);
 
   /// Authentication service providing the authentication capabilities.
-  final AuthService _auth;
+  final AuthService _authService;
 
   /// [UserNum] that was provided in [recoverAccess] used to [validateCode] and
   /// [resetUserPassword].
@@ -100,7 +117,7 @@ class LoginController extends GetxController {
   UserLogin? _recoveryLogin;
 
   /// Current authentication status.
-  Rx<RxStatus> get authStatus => _auth.status;
+  Rx<RxStatus> get authStatus => _authService.status;
 
   @override
   void onInit() {
@@ -135,8 +152,14 @@ class LoginController extends GetxController {
       onChanged: (s) {
         s.error.value = null;
         newPassword.error.value = null;
+
+        if (s.text != newPassword.text && newPassword.isValidated) {
+          s.error.value = 'err_passwords_mismatch'.l10n;
+        }
       },
-      onSubmitted: (s) => resetUserPassword(),
+      onSubmitted: (s) => stage.value == LoginViewStage.register
+          ? register()
+          : resetUserPassword(),
     );
 
     super.onInit();
@@ -196,7 +219,7 @@ class LoginController extends GetxController {
     try {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
-      await _auth.signIn(
+      await _authService.signIn(
         UserPassword(password.text),
         login: userLogin,
         num: num,
@@ -266,7 +289,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.recoverUserPassword(
+      await _authService.recoverUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -307,7 +330,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.validateUserPasswordRecoveryCode(
+      await _authService.validateUserPasswordRecoveryCode(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -379,7 +402,7 @@ class LoginController extends GetxController {
     repeatPassword.status.value = RxStatus.loading();
 
     try {
-      await _auth.resetUserPassword(
+      await _authService.resetUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -404,5 +427,21 @@ class LoginController extends GetxController {
       newPassword.editable.value = true;
       repeatPassword.editable.value = true;
     }
+  }
+
+  Future<void> register() async {
+    await _authService.register();
+    router.validateEmail = true;
+    router.home();
+
+    while (!Get.isRegistered<MyUserService>()) {
+      await Future.delayed(const Duration(milliseconds: 20));
+    }
+
+    final MyUserService myUserService = Get.find();
+    await myUserService.addUserEmail(UserEmail(email.text));
+    await myUserService.updateUserPassword(
+      newPassword: UserPassword(repeatPassword.text),
+    );
   }
 }

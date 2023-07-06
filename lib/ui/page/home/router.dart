@@ -85,6 +85,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: ChatView(
             ChatId(id),
             itemId: router.arguments?['itemId'] as ChatItemId?,
+            welcome: router.arguments?['welcomeMessage'] as String?,
           ),
         ));
       } else if (route.startsWith('${Routes.contacts}/')) {

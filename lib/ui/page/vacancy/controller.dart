@@ -63,6 +63,18 @@ class VacancyController extends GetxController {
     }
   }
 
+  Future<void> contact() async {
+    // while (!Get.isRegistered<UserService>()) {
+    //   await Future.delayed(const Duration(milliseconds: 50));
+    // }
+
+    // final UserService userService = Get.find();
+    // final user = await userService
+    //     .get(const UserId('a3f14328-c844-4666-887f-d70127c3cb31'));
+
+    // router.chat(user!.user.value.dialog);
+  }
+
   Future<void> send() async {
     RxChat? chat;
 

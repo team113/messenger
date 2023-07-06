@@ -35,6 +35,7 @@ import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/ui/page/home/widget/animated_button.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/page/home/widget/retry_image.dart';
+import 'package:messenger/ui/page/home/widget/unblock_button.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 
@@ -68,13 +69,15 @@ import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
+  const ChatView(this.id, {super.key, this.itemId, this.welcome});
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
+
+  final String? welcome;
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -119,6 +122,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         itemId: widget.itemId,
+        welcome: widget.welcome,
       ),
       tag: widget.id.val,
       builder: (c) {
@@ -1740,6 +1744,13 @@ class _ChatViewState extends State<ChatView>
     }
 
     return Obx(() {
+      // if (c.emailNotValidated.value) {
+      //   return UnblockButton(
+      //     () {},
+      //     text: 'E-mail не верифицирован',
+      //   );
+      // }
+
       if (c.edit.value != null) {
         return Padding(
           padding: const EdgeInsets.only(left: 8, right: 8),
@@ -1757,9 +1768,10 @@ class _ChatViewState extends State<ChatView>
         mainAxisSize: MainAxisSize.min,
         children: [
           Obx(() {
-            return AnimatedSizeAndFade.showHide(
-              show: c.paidDisclaimer.value,
-              child: PaidNotification(
+            final Widget child;
+
+            if (c.paidDisclaimer.value) {
+              child = PaidNotification(
                 accepted: c.paidAccepted.value,
                 border: c.paidBorder.value
                     ? Border.all(
@@ -1776,8 +1788,34 @@ class _ChatViewState extends State<ChatView>
                   c.paidBorder.value = false;
                   c.paidAccepted.value = true;
                 },
-              ),
-            );
+              );
+            } else if (c.emailNotValidated.value) {
+              final RxUser? user = c.chat?.members.values
+                  .firstWhereOrNull((e) => e.user.value.id != c.me);
+
+              child = PaidNotification(
+                description:
+                    'Чат с пользователем ${user?.user.value.name?.val ?? user?.user.value.num.val} недоступен, т.к. Ваш E-mail не верифицирован.',
+                action: 'label_verify_email'.l10n,
+                border: c.paidBorder.value
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      )
+                    : Border.all(
+                        color: Colors.transparent,
+                        width: 2,
+                      ),
+                onPressed: () {
+                  router.profileSection.value = ProfileTab.signing;
+                  router.me(push: true);
+                },
+              );
+            } else {
+              child = const SizedBox();
+            }
+
+            return AnimatedSizeAndFade(child: child);
           }),
           Padding(
             padding: const EdgeInsets.only(left: 8, right: 8),

@@ -980,3 +980,5 @@ fcm_group_donate =
         *[other] {$userName}
     }: {$donate}G подарок
 label_donate_count = {$donate} ¤ подарок
+label_no_registration = No registration
+label_or_register = Or register

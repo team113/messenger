@@ -95,6 +95,7 @@ class ChatController extends GetxController {
     this._settingsRepository,
     this._balanceService, {
     this.itemId,
+    this.welcome,
   });
 
   /// ID of this [Chat].
@@ -105,6 +106,8 @@ class ChatController extends GetxController {
 
   /// ID of the [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
+
+  final String? welcome;
 
   /// Indicator whether the down FAB should be visible.
   final RxBool canGoDown = RxBool(false);
@@ -196,6 +199,8 @@ class ChatController extends GetxController {
 
   // final RxList<ChatItemId> visible = RxList();
   final RxMap<ChatItemId, double> visible = RxMap();
+
+  final RxBool emailNotValidated = RxBool(false);
 
   bool paid = false;
 
@@ -689,6 +694,11 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      emailNotValidated.value = chat!.chat.value.isDialog &&
+          chat!.chat.value.members.firstWhereOrNull(
+                  (e) => e.user.id != me && e.user.name?.val == 'Roman') !=
+              null;
+
       unreadMessages = chat!.chat.value.unreadCount;
 
       final ChatMessage? draft = chat!.draft.value;
@@ -1132,6 +1142,14 @@ class ChatController extends GetxController {
 
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
+      }
+
+      if (welcome != null && chat!.messages.length == 1) {
+        final ChatItem first = chat!.messages.first.value;
+        if (first is ChatInfo &&
+            first.action.kind == ChatInfoActionKind.created) {
+          chat!.addWelcomeMessage(welcome!);
+        }
       }
     }
   }

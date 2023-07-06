@@ -866,7 +866,23 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.emails.unconfirmed!,
             ),
-            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'E-mail не верифицирован. '.l10n,
+                  style: fonts.bodySmall!.copyWith(
+                    fontSize: 11,
+                    color: style.colors.dangerColor,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ]);

@@ -15,13 +15,21 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/routes.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
-import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
+import '/provider/gql/exceptions.dart'
+    show
+        ConfirmUserEmailException,
+        ResendUserEmailConfirmationException,
+        UpdateUserPasswordException;
 import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
 
@@ -29,11 +37,12 @@ import '/ui/widget/text_field.dart';
 enum IntroductionViewStage {
   password,
   success,
+  validate,
 }
 
 /// Controller of an [IntroductionView].
 class IntroductionController extends GetxController {
-  IntroductionController(this._myUser);
+  IntroductionController(this._myUserService);
 
   /// [IntroductionViewStage] currently being displayed.
   final Rx<IntroductionViewStage?> stage = Rx(null);
@@ -56,16 +65,57 @@ class IntroductionController extends GetxController {
   /// Indicator whether the [repeat]ed password should be obscured.
   final RxBool obscureRepeat = RxBool(true);
 
+  /// Indicator whether [UserEmail] confirmation code has been resent.
+  final RxBool resent = RxBool(false);
+
+  /// Timeout of a [resendEmail].
+  final RxInt resendEmailTimeout = RxInt(0);
+
+  late final TextFieldState emailCode = TextFieldState(
+    onChanged: (s) {
+      s.error.value = null;
+      s.unsubmit();
+    },
+    onSubmitted: (s) async {
+      if (s.text.isEmpty) {
+        s.error.value = 'err_wrong_recovery_code'.l10n;
+      }
+
+      if (s.error.value == null) {
+        s.editable.value = false;
+        s.status.value = RxStatus.loading();
+        try {
+          await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
+          s.clear();
+        } on FormatException {
+          s.error.value = 'err_wrong_recovery_code'.l10n;
+        } on ConfirmUserEmailException catch (e) {
+          s.error.value = e.toMessage();
+        } catch (e) {
+          s.error.value = 'err_data_transfer'.l10n;
+          s.unsubmit();
+          rethrow;
+        } finally {
+          s.editable.value = true;
+          s.status.value = RxStatus.empty();
+        }
+      }
+    },
+  );
+
   /// [MyUserService] setting the password.
-  final MyUserService _myUser;
+  final MyUserService _myUserService;
+
+  /// [Timer] decreasing the [resendEmailTimeout].
+  Timer? _resendEmailTimer;
 
   /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUser.myUser;
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
     num = TextFieldState(
-      text: _myUser.myUser.value!.num.val
+      text: _myUserService.myUser.value!.num.val
           .replaceAllMapped(RegExp(r'.{4}'), (match) => '${match.group(0)} '),
       editable: false,
     );
@@ -118,7 +168,19 @@ class IntroductionController extends GetxController {
       onSubmitted: (_) => setPassword(),
     );
 
+    if (router.validateEmail) {
+      stage.value = IntroductionViewStage.validate;
+      _setResendEmailTimer();
+    }
+
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    router.validateEmail = false;
+    _setResendEmailTimer(false);
+    super.onClose();
   }
 
   /// Validates and sets the [password] of the currently authenticated [MyUser].
@@ -143,7 +205,8 @@ class IntroductionController extends GetxController {
     password.editable.value = false;
     repeat.editable.value = false;
     try {
-      await _myUser.updateUserPassword(newPassword: UserPassword(repeat.text));
+      await _myUserService.updateUserPassword(
+          newPassword: UserPassword(repeat.text));
       stage.value = IntroductionViewStage.success;
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();
@@ -153,6 +216,42 @@ class IntroductionController extends GetxController {
     } finally {
       password.editable.value = true;
       repeat.editable.value = true;
+    }
+  }
+
+  /// Resends a [ConfirmationCode] to the specified [email].
+  Future<void> resendEmail() async {
+    try {
+      await _myUserService.resendEmail();
+      resent.value = true;
+      _setResendEmailTimer(true);
+    } on ResendUserEmailConfirmationException catch (e) {
+      emailCode.error.value = e.toMessage();
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
+  void _setResendEmailTimer([bool enabled = true]) {
+    if (enabled) {
+      resendEmailTimeout.value = 30;
+      _resendEmailTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          resendEmailTimeout.value--;
+          if (resendEmailTimeout.value <= 0) {
+            resendEmailTimeout.value = 0;
+            _resendEmailTimer?.cancel();
+            _resendEmailTimer = null;
+          }
+        },
+      );
+    } else {
+      resendEmailTimeout.value = 0;
+      _resendEmailTimer?.cancel();
+      _resendEmailTimer = null;
     }
   }
 }
