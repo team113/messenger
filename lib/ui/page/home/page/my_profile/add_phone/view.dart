@@ -196,14 +196,7 @@ class AddPhoneView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 4),
-                ModalPopupHeader(
-                  header: Center(
-                    child: Text(
-                      'label_add_phone'.l10n,
-                      style: fonts.headlineMedium,
-                    ),
-                  ),
-                ),
+                ModalPopupHeader(text: 'label_add_phone'.l10n),
                 const SizedBox(height: 13),
                 Flexible(
                   child: Padding(
