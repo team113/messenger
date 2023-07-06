@@ -474,13 +474,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
-    final HiveRxChat? chat = _chats[chatId];
-
-    if (chat != null) {
-      await chat.read(untilId);
-    } else {
-      await readUntil(chatId, untilId);
-    }
+    await _chats[chatId]?.read(untilId);
   }
 
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the

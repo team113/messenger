@@ -533,10 +533,9 @@ class OngoingCall {
                   final CallMemberId id =
                       CallMemberId(node.user.id, node.deviceId);
 
-                  // TODO: Uncomment when `ConnectionHandle.onClose` is fixed.
-                  // if (members[id]?.isConnected.value == false) {
-                  members.remove(id)?.dispose();
-                  // }
+                  if (members[id]?.isConnected.value == false) {
+                    members.remove(id)?.dispose();
+                  }
 
                   if (members.keys.none((e) => e.userId == node.user.id)) {
                     call.value?.members
@@ -1138,6 +1137,8 @@ class OngoingCall {
     });
 
     _room!.onNewConnection((conn) {
+      Log.print('(${conn.getRemoteMemberId()}) onNewConnection', 'CALL');
+
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
 
@@ -1164,9 +1165,17 @@ class OngoingCall {
         );
       }
 
-      conn.onClose(() => members.remove(id)?.dispose());
+      conn.onClose(() {
+        Log.print('(${conn.getRemoteMemberId()}) onClose', 'CALL');
+        members.remove(id)?.dispose();
+      });
 
       conn.onRemoteTrackAdded((track) async {
+        Log.print(
+          '(${conn.getRemoteMemberId()}) (${track.kind()}-${track.mediaSourceKind()}) onRemoteTrackAdded ${track.mediaDirection()} ${track.muted()}',
+          'CALL',
+        );
+
         final Track t = Track(track);
 
         if (track.mediaDirection().isEmitting) {
@@ -1187,6 +1196,11 @@ class OngoingCall {
         track.onUnmuted(() => t.isMuted.value = false);
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
+          Log.print(
+            '(${conn.getRemoteMemberId()}) (${track.kind()}-${track.mediaSourceKind()}) onMediaDirectionChanged ${track.mediaDirection()}',
+            'CALL',
+          );
+
           t.direction.value = d;
 
           switch (d) {
@@ -1212,7 +1226,14 @@ class OngoingCall {
           }
         });
 
-        track.onStopped(() => member?.tracks.remove(t..dispose()));
+        track.onStopped(() {
+          Log.print(
+            '(${conn.getRemoteMemberId()}) (${track.kind()}-${track.mediaSourceKind()}) onStopped',
+            'CALL',
+          );
+
+          member?.tracks.remove(t..dispose());
+        });
 
         switch (track.kind()) {
           case MediaKind.audio:
@@ -1438,7 +1459,13 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join('$link?token=$creds');
+    try {
+      await _room?.join('$link?token=$creds');
+    } on RpcClientException catch (e) {
+      Log.error('Joining the room failed due to: ${e.message()}');
+      rethrow;
+    }
+
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;
