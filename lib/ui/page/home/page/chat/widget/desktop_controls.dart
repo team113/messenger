@@ -107,7 +107,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// [StreamSubscription] to the [MeeduPlayerController.playerStatus] changes.
   StreamSubscription? _statusSubscription;
 
-  /// Indicator whether the video/volume progress bar is being dragged.
+  /// Indicator whether the video or volume progress bar is being dragged.
   bool _dragging = false;
 
   @override

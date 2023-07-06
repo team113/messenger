@@ -29,7 +29,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Unread chats badge on favicon. ([#403])
 - Desktop:
-    - Video support. ([#445], [#438])
+    - Video support. ([#468], [#445], [#438])
 - Mobile:
     - Video rewinding indication. ([#468], [#452])
 
