@@ -112,9 +112,12 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
         : (document['user']?['agent']?['product'] ?? 'Gapopa');
 
-    userAgentVersion = const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
+    String version = const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
-        : (document['user']?['agent']?['version'] ?? Pubspec.version);
+        : (document['user']?['agent']?['version'] ?? '');
+
+    userAgentVersion =
+        version.isNotEmpty ? version : (Pubspec.ref ?? Pubspec.version);
 
     origin = url;
 
