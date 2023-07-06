@@ -36,7 +36,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
-import 'widget/blacklist_record.dart';
+import 'widget/blocklist_record.dart';
 import 'widget/name.dart';
 import 'widget/num.dart';
 import 'widget/presence.dart';

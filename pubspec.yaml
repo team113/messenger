@@ -12,7 +12,6 @@ dependencies:
   audioplayers: ^4.0.1
   back_button_interceptor: ^6.0.2
   callkeep: ^0.3.3
-  carousel_slider: ^4.2.1
   chewie: ^1.5.0
   collection: ^1.17.0
   crypto: ^3.0.3
