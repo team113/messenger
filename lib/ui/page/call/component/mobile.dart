@@ -25,11 +25,12 @@ import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
+import '../widget/animated_cliprrect.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
-import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
+import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
@@ -42,7 +43,6 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/animated_cliprrect.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -327,34 +327,28 @@ Widget mobileCall(CallController c, BuildContext context) {
       }));
     }
 
-    // If there's any error to show, display it.
-    overlay.add(
-      Obx(() {
-        return AnimatedSwitcher(
-          duration: 200.milliseconds,
-          child: c.errorTimeout.value != 0 &&
-                  c.minimizing.isFalse &&
-                  c.minimized.isFalse
-              ? SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10, right: 10),
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: SizedBox(
-                        width: 280,
-                        child: HintWidget(
-                          text: '${c.error}.',
-                          onTap: () => c.errorTimeout.value = 0,
-                          isError: true,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              : Container(),
-        );
-      }),
-    );
+    // If there's any notifications to show, display it.
+    overlay.add(Align(
+      alignment: Alignment.topCenter,
+      child: Padding(
+        padding: EdgeInsets.only(top: 8 + context.mediaQueryPadding.top),
+        child: Obx(() {
+          if (c.notifications.isEmpty) {
+            return const SizedBox();
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: c.notifications.reversed.take(3).map((e) {
+              return CallNotificationView(
+                notification: e,
+                onClose: () => c.notifications.remove(e),
+              );
+            }).toList(),
+          );
+        }),
+      ),
+    ));
 
     Widget padding(Widget child) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),

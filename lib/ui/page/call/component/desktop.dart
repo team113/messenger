@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -30,6 +31,7 @@ import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
+import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
@@ -232,6 +234,44 @@ Widget desktopCall(CallController c, BuildContext context) {
           }
 
           return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+        }),
+
+        // Reconnection indicator.
+        Obx(() {
+          final Widget child = IgnorePointer(
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: const Color(0xA0000000),
+              padding: const EdgeInsets.all(21.0),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SpinKitDoubleBounce(
+                      color: Color(0xFFEEEEEE),
+                      size: 100 / 1.5,
+                      duration: Duration(milliseconds: 4500),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'label_reconnecting_ellipsis'.l10n,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+
+          return AnimatedOpacity(
+            opacity: c.connectionLost.isTrue ? 1 : 0,
+            duration: 200.milliseconds,
+            child: child,
+          );
         }),
 
         possibleContainer(),
@@ -813,41 +853,28 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // If there's any error to show, display it.
-        Obx(() {
-          return AnimatedSwitcher(
-            duration: 150.milliseconds,
-            child: c.errorTimeout.value != 0
-                ? Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.topCenter
-                            ? 10 + c.secondaryHeight.value
-                            : 10,
-                        right: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.centerRight
-                            ? 10 + c.secondaryWidth.value
-                            : 10,
-                      ),
-                      child: SizedBox(
-                        width: 320,
-                        child: HintWidget(
-                          text: '${c.error}.',
-                          onTap: () {
-                            c.errorTimeout.value = 0;
-                          },
-                          isError: true,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(),
-          );
-        }),
+        // If there's any notifications to show, display it.
+        Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Obx(() {
+              if (c.notifications.isEmpty) {
+                return const SizedBox();
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: c.notifications.reversed.take(3).map((e) {
+                  return CallNotificationView(
+                    notification: e,
+                    onClose: () => c.notifications.remove(e),
+                  );
+                }).toList(),
+              );
+            }),
+          ),
+        ),
 
         Obx(() {
           if (c.minimized.value && !c.fullscreen.value) {

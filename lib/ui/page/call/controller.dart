@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -171,12 +172,6 @@ class CallController extends GetxController {
   /// Timeout of a [hoveredRenderer] used to hide it.
   int hoveredRendererTimeout = 0;
 
-  /// Error happened in a call.
-  final RxString error = RxString('');
-
-  /// Timeout of a [error] being shown.
-  final RxInt errorTimeout = RxInt(0);
-
   /// Minimized view current width.
   late final RxDouble width;
 
@@ -265,6 +260,9 @@ class CallController extends GetxController {
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
 
+  /// [AudioPlayer] playing a reconnection sound.
+  final AudioPlayer _reconnectPlayer = AudioPlayer();
+
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
 
@@ -292,8 +290,8 @@ class CallController extends GetxController {
   /// Duration of UI being opened in seconds.
   static const int _uiDuration = 4;
 
-  /// Duration of an error being shown in seconds.
-  static const int _errorDuration = 6;
+  /// [Duration] of an notification being shown.
+  static const Duration _notificationDuration = Duration(seconds: 6);
 
   /// [BoxConstraints] representing the previous [size] used in [scaleSecondary]
   /// to calculate the difference.
@@ -330,6 +328,10 @@ class CallController extends GetxController {
   /// the [buttons] value.
   Worker? _settingsWorker;
 
+  /// Worker capturing any [OngoingCall.connectionLost] changes to play
+  /// reconnect sound.
+  Worker? _reconnectWorker;
+
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
   /// [fullscreen] value.
   StreamSubscription? _onFullscreenChange;
@@ -362,8 +364,15 @@ class CallController extends GetxController {
   /// Subscription for [duration] changes updating the title.
   StreamSubscription? _durationSubscription;
 
+  /// Subscription for [OngoingCall.notifications] updating the [notifications].
+  StreamSubscription? _notificationsSubscription;
+
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
+
+  /// [Timers] removing items from the [notifications] after the
+  /// [_notificationDuration].
+  final List<Timer> _notificationTimers = [];
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -384,6 +393,9 @@ class CallController extends GetxController {
 
   /// Indicates whether the current [OngoingCall] is with video or not.
   bool get withVideo => _currentCall.value.withVideo ?? false;
+
+  /// [List] of the currently active [CallNotification]s.
+  RxList<CallNotification> notifications = RxList<CallNotification>();
 
   /// Returns local audio stream enabled flag.
   Rx<LocalTrackState> get audioState => _currentCall.value.audioState;
@@ -424,6 +436,9 @@ class CallController extends GetxController {
   set showDragAndDropButtonsHint(bool value) {
     _settingsRepository.setShowDragAndDropButtonsHint(value);
   }
+
+  /// Indicated whether the connection is lost.
+  RxBool get connectionLost => _currentCall.value.connectionLost;
 
   /// Returns actual size of the call view.
   Size get size {
@@ -629,10 +644,6 @@ class CallController extends GetxController {
                     isCursorHidden.value = true;
                   }
                 }
-
-                if (errorTimeout.value > 0) {
-                  --errorTimeout.value;
-                }
               },
             );
 
@@ -675,11 +686,6 @@ class CallController extends GetxController {
           }
         }
       }
-    });
-
-    _errorsSubscription = _currentCall.value.errors.listen((e) {
-      error.value = e;
-      errorTimeout.value = _errorDuration;
     });
 
     // Constructs a list of [CallButton]s from the provided [list] of [String]s.
@@ -840,6 +846,28 @@ class CallController extends GetxController {
           break;
       }
     });
+
+    _notificationsSubscription = _currentCall.value.notifications.listen((e) {
+      notifications.add(e);
+
+      _notificationTimers.add(Timer(_notificationDuration, () {
+        notifications.remove(e);
+      }));
+    });
+
+    AudioCache.instance.loadAll(['audio/reconnect.mp3']);
+    _reconnectWorker = ever(_currentCall.value.connectionLost, (b) async {
+      if (b) {
+        await _reconnectPlayer.setReleaseMode(ReleaseMode.loop);
+        await _reconnectPlayer.play(
+          AssetSource('audio/reconnect.mp3'),
+          position: Duration.zero,
+          mode: PlayerMode.lowLatency,
+        );
+      } else {
+        await _reconnectPlayer.stop();
+      }
+    });
   }
 
   @override
@@ -855,8 +883,11 @@ class CallController extends GetxController {
     _onWindowFocus?.cancel();
     _titleSubscription?.cancel();
     _durationSubscription?.cancel();
+    _notificationsSubscription?.cancel();
     _buttonsWorker?.dispose();
     _settingsWorker?.dispose();
+    _reconnectPlayer.dispose();
+    _reconnectWorker?.dispose();
 
     secondaryEntry?.remove();
 
@@ -876,6 +907,10 @@ class CallController extends GetxController {
 
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
     _membersSubscription.cancel();
+    for (var e in _notificationTimers) {
+      e.cancel();
+    }
+    _notificationTimers.clear();
   }
 
   /// Drops the call.
