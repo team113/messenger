@@ -124,7 +124,7 @@ class _MobileControlsState extends State<MobileControls>
               ),
             ),
 
-            // Seek backward indicator.
+            // Seek forward indicator.
             Align(
               alignment: const Alignment(0.8, 0),
               child: RewindIndicator(
