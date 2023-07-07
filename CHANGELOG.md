@@ -29,7 +29,9 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Unread chats badge on favicon. ([#403])
 - Desktop:
-    - Video support. ([#445], [#438])
+    - Video support. ([#468], [#445], [#438])
+- Mobile:
+    - Video rewinding indication. ([#468], [#452])
 
 ### Changed
 
@@ -101,12 +103,14 @@ All user visible changes to this project will be documented in this file. This p
 [#440]: /../../pull/440
 [#443]: /../../pull/443
 [#445]: /../../pull/445
+[#452]: /../../issues/452
 [#453]: /../../pull/453
 [#454]: /../../pull/454
 [#456]: /../../pull/456
 [#462]: /../../pull/462
 [#463]: /../../pull/463
 [#467]: /../../pull/467
+[#468]: /../../pull/468
 
 
 
