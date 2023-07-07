@@ -249,7 +249,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       await Backoff.run(
         () async {
           try {
-            await PlatformUtils.dio.head(widget.url!);
+            await (await PlatformUtils.dio).head(widget.url!);
 
             // Reinitialize the [_controller] if an unexpected error was
             // thrown.
