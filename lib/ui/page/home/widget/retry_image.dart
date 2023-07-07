@@ -382,7 +382,7 @@ class _RetryImageState extends State<RetryImage> {
             Response? data;
 
             try {
-              data = await PlatformUtils.dio.get(
+              data = await (await PlatformUtils.dio).get(
                 widget.fallbackUrl!,
                 options: Options(responseType: ResponseType.bytes),
                 cancelToken: _fallbackToken,
@@ -442,7 +442,7 @@ class _RetryImageState extends State<RetryImage> {
             Response? data;
 
             try {
-              data = await PlatformUtils.dio.get(
+              data = await (await PlatformUtils.dio).get(
                 widget.url,
                 onReceiveProgress: (received, total) {
                   if (total > 0) {

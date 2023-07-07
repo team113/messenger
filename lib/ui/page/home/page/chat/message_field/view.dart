@@ -360,6 +360,7 @@ class MessageFieldView extends StatelessWidget {
             color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(
               duration: 400.milliseconds,
+              alignment: Alignment.bottomCenter,
               curve: Curves.ease,
               child: Container(
                 width: double.infinity,
