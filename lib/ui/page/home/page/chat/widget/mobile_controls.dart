@@ -80,7 +80,7 @@ class _MobileControlsState extends State<MobileControls>
   /// Indicator whether seek forward indicator should be showed.
   bool _showSeekForward = false;
 
-  /// Indicator whether seek forward indicator should be showed.
+  /// Indicator whether seek backward indicator should be showed.
   bool _showSeekBackward = false;
 
   @override
