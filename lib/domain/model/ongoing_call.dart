@@ -1016,7 +1016,8 @@ class OngoingCall {
   Future<void> toggleRemoteVideo() =>
       setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
 
-  /// Adds the provided [message] to the [notifications] stream as error.
+  /// Adds the provided [message] to the [notifications] stream as
+  /// [ErrorNotification].
   ///
   /// Should (and intended to) be used as a notification measure.
   void addError(String message) =>

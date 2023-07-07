@@ -242,7 +242,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             child: Container(
               width: double.infinity,
               height: double.infinity,
-              color: const Color(0xA0000000),
+              color: style.colors.onBackgroundOpacity70,
               padding: const EdgeInsets.all(21.0),
               child: Center(
                 child: Column(
@@ -256,9 +256,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                     const SizedBox(height: 16),
                     Text(
                       'label_reconnecting_ellipsis'.l10n,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 15,
-                            color: Colors.white,
+                      style: fonts.bodyMedium?.copyWith(
+                            color: style.colors.onPrimary,
                           ),
                     ),
                   ],

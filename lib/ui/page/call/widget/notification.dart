@@ -40,6 +40,8 @@ class CallNotificationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
     CallNotification notification = this.notification;
     String title = '';
 
@@ -63,9 +65,9 @@ class CallNotificationView extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(30),
-        boxShadow: const [
+        boxShadow: [
           CustomBoxShadow(
-            color: Color(0x33000000),
+            color: style.colors.onBackgroundOpacity20,
             blurRadius: 8,
             blurStyle: BlurStyle.outer,
           )
@@ -85,17 +87,11 @@ class CallNotificationView extends StatelessWidget {
             children: [
               Flexible(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    16,
-                    12,
-                    4,
-                    12,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
                   child: Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Colors.white,
+                    style: fonts.bodyMedium?.copyWith(
+                      color: style.colors.onPrimary,
                     ),
                   ),
                 ),
@@ -103,13 +99,7 @@ class CallNotificationView extends StatelessWidget {
               WidgetButton(
                 onPressed: onClose,
                 child: Container(
-                  // color: Colors.red,
-                  padding: const EdgeInsets.fromLTRB(
-                    8,
-                    12,
-                    12,
-                    12,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
                   child: SvgImage.asset(
                     'assets/icons/close.svg',
                     width: 10,
