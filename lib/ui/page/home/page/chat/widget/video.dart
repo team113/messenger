@@ -206,7 +206,7 @@ class _VideoState extends State<Video> {
     Backoff.run(
       () async {
         try {
-          await PlatformUtils.dio.head(widget.url);
+          await (await PlatformUtils.dio).head(widget.url);
           if (shouldReload) {
             // Reinitialize the [_controller] if an unexpected error was thrown.
             await _controller.setDataSource(
