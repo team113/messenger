@@ -15,34 +15,22 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-import 'dart:io';
+import 'package:universal_io/io.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
-import 'package:dio/dio.dart';
-import 'package:messenger/util/platform_utils.dart';
-
-/// Mocked [PlatformUtilsImpl] to use in the tests.
-class PlatformUtilsMock extends PlatformUtilsImpl {
-  @override
-  Future<File?> fileExists(String filename, {int? size, String? url}) async {
-    return null;
-  }
-
-  @override
-  Future<File?> download(
-    String url,
-    String filename,
-    int? size, {
-    Function(int count, int total)? onReceiveProgress,
-    CancelToken? cancelToken,
-  }) async =>
-      File('test/path');
-
-  @override
-  Future<String> get downloadsDirectory => Future.value('.temp_hive/downloads');
-
-  @override
-  void keepActive([bool active = true]) {
-    // No-op.
-  }
+/// Creates a new WebSocket connection.
+///
+/// Connects to the provided [uri] and returns a channel that can be used to
+/// communicate over the resulting socket.
+WebSocketChannel connect(
+  Uri uri, {
+  Iterable<String>? protocols,
+  HttpClient? customClient,
+}) {
+  return IOWebSocketChannel.connect(
+    uri,
+    protocols: protocols,
+    customClient: customClient,
+  );
 }

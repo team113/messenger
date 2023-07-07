@@ -15,34 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-import 'dart:io';
+import 'package:flutter/services.dart';
 
-import 'package:dio/dio.dart';
-import 'package:messenger/util/platform_utils.dart';
+/// Helper providing direct access to iOS-only features.
+class IosUtils {
+  /// [MethodChannel] to communicate with iOS via.
+  static const platform = MethodChannel('team113.flutter.dev/ios_utils');
 
-/// Mocked [PlatformUtilsImpl] to use in the tests.
-class PlatformUtilsMock extends PlatformUtilsImpl {
-  @override
-  Future<File?> fileExists(String filename, {int? size, String? url}) async {
-    return null;
-  }
-
-  @override
-  Future<File?> download(
-    String url,
-    String filename,
-    int? size, {
-    Function(int count, int total)? onReceiveProgress,
-    CancelToken? cancelToken,
-  }) async =>
-      File('test/path');
-
-  @override
-  Future<String> get downloadsDirectory => Future.value('.temp_hive/downloads');
-
-  @override
-  void keepActive([bool active = true]) {
-    // No-op.
+  /// Returns the architecture of this device.
+  static Future<String> getArchitecture() async {
+    return await platform.invokeMethod('getArchitecture');
   }
 }

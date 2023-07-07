@@ -531,6 +531,7 @@ class Style extends ThemeExtension<Style> {
 class Palette {
   Palette({
     required this.primary,
+    Color? primaryOpacity20,
     required this.primaryHighlight,
     required this.primaryHighlightShiny,
     required this.primaryHighlightShiniest,
@@ -579,7 +580,8 @@ class Palette {
     required this.dangerColor,
     required this.warningColor,
     required this.userColors,
-  })  : primaryDarkOpacity70 =
+  })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
+        primaryDarkOpacity70 =
             primaryDarkOpacity70 ?? primaryDark.withOpacity(0.70),
         primaryDarkOpacity90 =
             primaryDarkOpacity90 ?? primaryDark.withOpacity(0.90),
@@ -617,6 +619,11 @@ class Palette {
   ///
   /// Used to highlight the active interface elements.
   final Color primary;
+
+  /// 20% opacity of the [primary] color.
+  ///
+  /// Used to highlight chat messages.
+  final Color primaryOpacity20;
 
   /// Highlight [Color] of the [primary] elements.
   ///

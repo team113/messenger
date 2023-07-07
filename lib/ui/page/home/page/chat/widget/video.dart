@@ -206,7 +206,7 @@ class _VideoState extends State<Video> {
     Backoff.run(
       () async {
         try {
-          await PlatformUtils.dio.head(widget.url);
+          await (await PlatformUtils.dio).head(widget.url);
           if (shouldReload) {
             // Reinitialize the [_controller] if an unexpected error was thrown.
             await _controller.setDataSource(
@@ -216,7 +216,6 @@ class _VideoState extends State<Video> {
         } catch (e) {
           if (e is DioError && e.response?.statusCode == 403) {
             widget.onError?.call();
-            _cancelToken?.cancel();
           } else {
             shouldReload = true;
             rethrow;
