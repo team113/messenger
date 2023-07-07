@@ -27,10 +27,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
-import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
+import 'rewind_indicator.dart';
 import 'video_progress_bar.dart';
 
 /// Mobile video controls for a [Chewie] player.
@@ -91,7 +91,7 @@ class _MobileControlsState extends State<MobileControls>
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       onHover: PlatformUtils.isMobile ? null : (_) => _cancelAndRestartTimer(),
@@ -113,75 +113,26 @@ class _MobileControlsState extends State<MobileControls>
 
             // Seek backward indicator.
             Align(
-              alignment: Alignment.centerLeft,
-              child: AnimatedOpacity(
+              alignment: const Alignment(-0.8, 0),
+              child: RewindIndicator(
+                seconds: _seekBackwardDuration.inSeconds,
+                forward: false,
                 opacity:
                     _showSeekBackward && _seekBackwardDuration.inSeconds > 0
                         ? 1
                         : 0,
-                duration: 200.milliseconds,
-                child: Container(
-                  margin: EdgeInsets.only(
-                    left: MediaQuery.of(context).size.width / 12,
-                  ),
-                  width: 100,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(35),
-                    color: Colors.black.withOpacity(0.3),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.fast_rewind, color: Colors.white),
-                        Text(
-                          'label_count_seconds'.l10nfmt(
-                            {'count': _seekBackwardDuration.inSeconds},
-                          ),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ),
             ),
 
-            // Seek forward indicator.
+            // Seek backward indicator.
             Align(
-              alignment: Alignment.centerRight,
-              child: AnimatedOpacity(
+              alignment: const Alignment(0.8, 0),
+              child: RewindIndicator(
+                seconds: _seekForwardDuration.inSeconds,
+                forward: true,
                 opacity: _showSeekForward && _seekForwardDuration.inSeconds > 0
                     ? 1
                     : 0,
-                duration: 200.milliseconds,
-                child: Container(
-                  margin: EdgeInsets.only(
-                    right: MediaQuery.of(context).size.width / 12,
-                  ),
-                  width: 100,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(35),
-                    color: Colors.black.withOpacity(0.3),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.fast_forward, color: Colors.white),
-                        Text(
-                          'label_count_seconds'.l10nfmt(
-                            {'count': _seekForwardDuration.inSeconds},
-                          ),
-                          style:
-                              fonts.bodyMedium?.copyWith(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ),
             ),
 
@@ -423,7 +374,7 @@ class _MobileControlsState extends State<MobileControls>
     });
   }
 
-  /// Seeks forward for 5 second.
+  /// Seeks forward for the [MobileControls.seekDuration].
   void _seekForward() {
     if (widget.controller.position.value >= widget.controller.duration.value) {
       return;
@@ -431,9 +382,9 @@ class _MobileControlsState extends State<MobileControls>
 
     _hideSeekBackward(timeout: Duration.zero);
     _seekForwardDuration += Duration(
-      seconds: (widget.controller.duration.value.inSeconds -
-              widget.controller.position.value.inSeconds)
-          .clamp(0, MobileControls.seekDuration.inSeconds),
+      microseconds: (widget.controller.duration.value.inMicroseconds -
+              widget.controller.position.value.inMicroseconds)
+          .clamp(0, MobileControls.seekDuration.inMicroseconds),
     );
     _showSeekForward = true;
 
@@ -445,7 +396,9 @@ class _MobileControlsState extends State<MobileControls>
       _cancelAndRestartTimer();
     }
 
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
 
     _hideSeekForward();
   }
@@ -456,7 +409,10 @@ class _MobileControlsState extends State<MobileControls>
     _seekForwardTimer = Timer(
       timeout,
       () async {
-        setState(() => _showSeekForward = false);
+        if (mounted) {
+          setState(() => _showSeekForward = false);
+        }
+
         await Future.delayed(200.milliseconds);
         if (!_showSeekForward) {
           _seekForwardDuration = Duration.zero;
@@ -465,7 +421,7 @@ class _MobileControlsState extends State<MobileControls>
     );
   }
 
-  /// Seeks backward for 5 second.
+  /// Seeks backward for the [MobileControls.seekDuration].
   void _seekBackward() {
     if (widget.controller.duration.value == Duration.zero) {
       return;
@@ -473,8 +429,8 @@ class _MobileControlsState extends State<MobileControls>
 
     _hideSeekForward(timeout: Duration.zero);
     _seekBackwardDuration += Duration(
-      seconds: widget.controller.position.value.inSeconds
-          .clamp(0, MobileControls.seekDuration.inSeconds),
+      microseconds: widget.controller.position.value.inMicroseconds
+          .clamp(0, MobileControls.seekDuration.inMicroseconds),
     );
     _showSeekBackward = true;
 
@@ -486,7 +442,9 @@ class _MobileControlsState extends State<MobileControls>
       _cancelAndRestartTimer();
     }
 
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
 
     _hideSeekBackward();
   }
@@ -497,7 +455,10 @@ class _MobileControlsState extends State<MobileControls>
     _seekBackwardTimer = Timer(
       timeout,
       () async {
-        setState(() => _showSeekBackward = false);
+        if (mounted) {
+          setState(() => _showSeekBackward = false);
+        }
+
         await Future.delayed(200.milliseconds);
         if (!_showSeekBackward) {
           _seekBackwardDuration = Duration.zero;
