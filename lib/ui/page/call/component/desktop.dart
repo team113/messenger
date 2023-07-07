@@ -1223,10 +1223,7 @@ Widget _primaryView(CallController c) {
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
           itemConstraints: (DragData data) {
             final double size = (c.size.longestSide * 0.33).clamp(100, 250);
-            return BoxConstraints(
-              maxWidth: size,
-              maxHeight: size,
-            );
+            return BoxConstraints(maxWidth: size, maxHeight: size);
           },
           itemBuilder: (DragData data) {
             var participant = data.participant;
@@ -1253,9 +1250,7 @@ Widget _primaryView(CallController c) {
                 ? 1
                 : 0,
             duration: const Duration(milliseconds: 300),
-            child: DropBox(
-              withBlur: !c.minimized.value || c.fullscreen.value,
-            ),
+            child: DropBox(withBlur: !c.minimized.value || c.fullscreen.value),
           ),
         );
       }),
