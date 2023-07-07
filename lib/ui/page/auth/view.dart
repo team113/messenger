@@ -47,7 +47,7 @@ class AuthView extends StatelessWidget {
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        bool isWeb = PlatformUtils.isWeb || true;
+        bool isWeb = PlatformUtils.isWeb;
         bool isAndroidWeb = isWeb && PlatformUtils.isAndroid;
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
