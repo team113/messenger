@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 import '/themes.dart';
 
@@ -32,10 +33,11 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.gradient,
     this.elevation = 0,
     this.color,
-    this.maxWidth = 250 * 0.9,
+    this.maxWidth = 250 * 0.7,
     // this.maxWidth = 210,
     this.height = 42,
     this.shadows,
+    this.style,
   }) : super(key: key);
 
   /// Primary content of this button.
@@ -82,9 +84,79 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// [BoxShadow]s to apply to this button.
   final List<BoxShadow>? shadows;
 
+  final TextStyle? style;
+
   @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
+
+    // return Container(
+    //   alignment: Alignment.center,
+    //   constraints: BoxConstraints(
+    //     maxWidth: maxWidth,
+    //     minHeight: (height ?? 0) + 10,
+    //     maxHeight: (height ?? double.infinity) + 10,
+    //   ),
+    //   child: NeumorphicButton(
+    //     onPressed: onPressed,
+    //     style: NeumorphicStyle(
+    //       color: onPressed == null
+    //           ? style.colors.secondaryHighlight
+    //           : color ?? style.colors.onPrimary,
+    //     ),
+    //     child: Padding(
+    //       padding: const EdgeInsets.symmetric(
+    //         horizontal: 16 * 0.7,
+    //         vertical: 6 * 0.7,
+    //       ),
+    //       child: Stack(
+    //         alignment: Alignment.centerLeft,
+    //         children: [
+    //           if (leading != null)
+    //             Row(
+    //               children: [
+    //                 Expanded(child: Center(child: leading)),
+    //                 Expanded(flex: 4, child: Container()),
+    //                 Expanded(child: Container()),
+    //               ],
+    //             ),
+    //           Padding(
+    //             padding: EdgeInsets.symmetric(
+    //                 // horizontal: leading == null ? 0 : 16,
+    //                 // vertical: 8,
+    //                 ),
+    //             child: DefaultTextStyle.merge(
+    //               maxLines: 2,
+    //               overflow: TextOverflow.ellipsis,
+    //               textAlign: TextAlign.center,
+    //               style: this.style ?? fonts.titleLarge,
+    //               child: Center(
+    //                 child: Padding(
+    //                   padding: leading == null
+    //                       ? EdgeInsets.zero
+    //                       : const EdgeInsets.only(left: 10 * 0.7),
+    //                   child: Column(
+    //                     mainAxisAlignment: MainAxisAlignment.center,
+    //                     crossAxisAlignment: CrossAxisAlignment.center,
+    //                     children: [
+    //                       title ?? Container(),
+    //                       if (subtitle != null) const SizedBox(height: 1 * 0.7),
+    //                       if (subtitle != null)
+    //                         DefaultTextStyle.merge(
+    //                           style: fonts.labelSmall,
+    //                           child: subtitle!,
+    //                         ),
+    //                     ],
+    //                   ),
+    //                 ),
+    //               ),
+    //             ),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
 
     return Container(
       alignment: Alignment.center,
@@ -135,7 +207,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: fonts.titleLarge,
+                    style: this.style ?? fonts.titleLarge,
                     child: Center(
                       child: Padding(
                         padding: leading == null
@@ -150,7 +222,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                               const SizedBox(height: 1 * 0.7),
                             if (subtitle != null)
                               DefaultTextStyle.merge(
-                                style: fonts.labelSmall,
+                                style: fonts.labelMedium,
                                 child: subtitle!,
                               ),
                           ],

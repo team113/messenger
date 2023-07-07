@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
@@ -777,16 +778,18 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         onPointerHover: (_) => PlatformUtils.keepActive(),
         onPointerSignal: (_) => PlatformUtils.keepActive(),
         child: Scaffold(
-          body: Navigator(
-            key: navigatorKey,
-            pages: _pages,
-            onPopPage: (Route<dynamic> route, dynamic result) {
-              final bool success = route.didPop(result);
-              if (success) {
-                _state.pop();
-              }
-              return success;
-            },
+          body: NeumorphicTheme(
+            child: Navigator(
+              key: navigatorKey,
+              pages: _pages,
+              onPopPage: (Route<dynamic> route, dynamic result) {
+                final bool success = route.didPop(result);
+                if (success) {
+                  _state.pop();
+                }
+                return success;
+              },
+            ),
           ),
         ),
       ),
