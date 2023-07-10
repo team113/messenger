@@ -248,10 +248,10 @@ Widget desktopCall(CallController c, BuildContext context) {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SpinKitDoubleBounce(
-                      color: Color(0xFFEEEEEE),
+                    SpinKitDoubleBounce(
+                      color: style.colors.secondaryHighlightDark,
                       size: 100 / 1.5,
-                      duration: Duration(milliseconds: 4500),
+                      duration: const Duration(milliseconds: 4500),
                     ),
                     const SizedBox(height: 16),
                     Text(

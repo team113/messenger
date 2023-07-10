@@ -82,7 +82,7 @@ class CallNotificationWidget extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.transparent,
+        color: style.colors.transparent,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           CustomBoxShadow(
@@ -98,7 +98,7 @@ class CallNotificationWidget extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0x301D6AAE),
+            color: style.colors.onSecondaryOpacity20,
             borderRadius: BorderRadius.circular(30),
           ),
           child: Row(
