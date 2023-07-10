@@ -49,12 +49,12 @@ import 'tab/chats.dart';
 import 'tab/danger.dart';
 import 'tab/download.dart';
 import 'tab/language.dart';
-import 'tab/link.dart';
 import 'tab/media.dart';
 import 'tab/notifications.dart';
 import 'tab/public.dart';
 import 'tab/singing.dart';
 import 'tab/storage.dart';
+import 'widget/direct_link.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
