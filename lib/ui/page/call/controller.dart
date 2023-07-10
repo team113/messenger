@@ -250,15 +250,18 @@ class CallController extends GetxController {
   /// [relocateSecondary] method.
   double? secondaryBottomShifted;
 
-  /// Indicator whether the [relocateSecondary] is already invoked during the
-  /// current frame.
-  bool _secondaryRelocated = false;
+  /// [List] of the currently active [CallNotification]s.
+  final RxList<CallNotification> notifications = RxList<CallNotification>();
 
   /// Height of the title bar.
   static const double titleHeight = 30;
 
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
+
+  /// Indicator whether the [relocateSecondary] is already invoked during the
+  /// current frame.
+  bool _secondaryRelocated = false;
 
   /// [AudioPlayer] playing a reconnection sound.
   final AudioPlayer _reconnectPlayer = AudioPlayer();
@@ -290,7 +293,7 @@ class CallController extends GetxController {
   /// Duration of UI being opened in seconds.
   static const int _uiDuration = 4;
 
-  /// [Duration] of an notification being shown.
+  /// [Duration] to display a single [CallNotification].
   static const Duration _notificationDuration = Duration(seconds: 6);
 
   /// [BoxConstraints] representing the previous [size] used in [scaleSecondary]
@@ -370,7 +373,7 @@ class CallController extends GetxController {
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
 
-  /// [Timers] removing items from the [notifications] after the
+  /// [Timer]s removing items from the [notifications] after the
   /// [_notificationDuration].
   final List<Timer> _notificationTimers = [];
 
@@ -393,9 +396,6 @@ class CallController extends GetxController {
 
   /// Indicates whether the current [OngoingCall] is with video or not.
   bool get withVideo => _currentCall.value.withVideo ?? false;
-
-  /// [List] of the currently active [CallNotification]s.
-  RxList<CallNotification> notifications = RxList<CallNotification>();
 
   /// Returns local audio stream enabled flag.
   Rx<LocalTrackState> get audioState => _currentCall.value.audioState;
@@ -437,7 +437,8 @@ class CallController extends GetxController {
     _settingsRepository.setShowDragAndDropButtonsHint(value);
   }
 
-  /// Indicated whether the connection is lost.
+  /// Indicates whether the connection to the [OngoingCall] updates was lost and
+  /// an ongoing reconnection is happening.
   RxBool get connectionLost => _currentCall.value.connectionLost;
 
   /// Returns actual size of the call view.
@@ -849,10 +850,8 @@ class CallController extends GetxController {
 
     _notificationsSubscription = _currentCall.value.notifications.listen((e) {
       notifications.add(e);
-
-      _notificationTimers.add(Timer(_notificationDuration, () {
-        notifications.remove(e);
-      }));
+      _notificationTimers
+          .add(Timer(_notificationDuration, () => notifications.remove(e)));
     });
 
     AudioCache.instance.loadAll(['audio/reconnect.mp3']);
@@ -907,6 +906,7 @@ class CallController extends GetxController {
 
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
     _membersSubscription.cancel();
+
     for (var e in _notificationTimers) {
       e.cancel();
     }

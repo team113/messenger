@@ -441,7 +441,7 @@ label_chats = Messages
 label_clear_history = Clear history
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
-label_connection_lost = Connection with media server lost
+label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact = Contact
 label_contact_information = Contact information
@@ -575,7 +575,7 @@ label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you.
-label_microphone_changed = Microphone has been changed to {$microphone}.
+label_microphone_changed = Microphone has been changed to {$microphone}
 label_monolog_created = Chat created
 label_mute_for = { $days ->
     [0] { $hours ->

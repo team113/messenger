@@ -456,7 +456,7 @@ label_chats = Чаты
 label_clear_history = Очистить историю
 label_confirm = Подтвердить
 label_confirmation_code = Код подтверждения
-label_connection_lost = Связь с медиа сервером потеряна
+label_connection_lost = Связь с сервером потеряна
 label_connection_restored = Связь восстановлена
 label_contact = Контакт
 label_contact_information = Контактная информация
@@ -592,7 +592,7 @@ label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
-label_microphone_changed = Микрофон был изменён на {$microphone}.
+label_microphone_changed = Микрофон был изменён на {$microphone}
 label_monolog_created = Чат создан
 label_mute_for = { $days ->
     [0] { $hours ->

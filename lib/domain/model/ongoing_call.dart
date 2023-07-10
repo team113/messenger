@@ -221,14 +221,15 @@ class OngoingCall {
   /// not.
   final RxBool isRemoteVideoEnabled = RxBool(true);
 
-  /// Stream of the [CallNotification]s.
+  /// Returns a [Stream] of the [CallNotification]s.
   Stream<CallNotification> get notifications => _notifications.stream;
 
   /// Reactive map of [CallMember]s of this [OngoingCall].
   final RxObsMap<CallMemberId, CallMember> members =
       RxObsMap<CallMemberId, CallMember>();
 
-  /// Indicator whether the connection is lost.
+  /// Indicator whether the connection to the remote updates was lost and an
+  /// ongoing reconnection is happening.
   final RxBool connectionLost = RxBool(false);
 
   /// Indicator whether this [OngoingCall] is [connect]ed to the remote updates
@@ -1619,14 +1620,15 @@ class OngoingCall {
 
     if (added.output().isNotEmpty) {
       device = added.output().first;
-      _addDeviceChanged(device);
-      setOutputDevice(device.deviceId());
     } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
         (outputDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
       device = devices.output().first;
-      _addDeviceChanged(device);
+    }
+
+    if (device != null) {
+      _notifications.add(DeviceChangedNotification(device: device));
       setOutputDevice(device.deviceId());
     }
   }
@@ -1642,14 +1644,15 @@ class OngoingCall {
 
     if (added.audio().isNotEmpty) {
       device = added.audio().first;
-      _addDeviceChanged(device);
-      setAudioDevice(device.deviceId());
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
         (audioDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
       device = devices.audio().first;
-      _addDeviceChanged(device);
+    }
+
+    if (device != null) {
+      _notifications.add(DeviceChangedNotification(device: device));
       setAudioDevice(device.deviceId());
     }
   }
@@ -1673,11 +1676,6 @@ class OngoingCall {
     if (removed.any((e) => e.deviceId() == screenDevice.value)) {
       setScreenShareEnabled(false);
     }
-  }
-
-  /// Adds a [DeviceChangedNotification] to the [notifications];
-  void _addDeviceChanged(MediaDeviceDetails device) {
-    _notifications.add(DeviceChangedNotification(device: device));
   }
 }
 
@@ -1945,28 +1943,51 @@ extension DevicesList on List<MediaDeviceDetails> {
   }
 }
 
-/// Notification of an [OngoingCall].
-abstract class CallNotification {}
+/// Possible [CallNotification] kind.
+enum CallNotificationKind {
+  connectionLost,
+  connectionRestored,
+  deviceChanged,
+  error,
+}
 
-/// [CallNotification] represents a device changed event.
+/// Notification of an event happened in [OngoingCall].
+abstract class CallNotification {
+  /// Returns the [CallNotificationKind] of this [CallNotification].
+  CallNotificationKind get kind;
+}
+
+/// [CallNotification] of a device changed event.
 class DeviceChangedNotification extends CallNotification {
   DeviceChangedNotification({required this.device});
 
   /// New [MediaDeviceDetails] started to be used.
   final MediaDeviceDetails device;
+
+  @override
+  CallNotificationKind get kind => CallNotificationKind.deviceChanged;
 }
 
 // TODO: Temporary solution. Errors should be captured the other way.
-/// [CallNotification] represents an error.
+/// [CallNotification] of an error.
 class ErrorNotification extends CallNotification {
   ErrorNotification({required this.message});
 
-  /// Error message.
+  /// Message of this [ErrorNotification] describing the error happened.
   final String message;
+
+  @override
+  CallNotificationKind get kind => CallNotificationKind.error;
 }
 
-/// [CallNotification] represents a connection lost event.
-class ConnectionLostNotification extends CallNotification {}
+/// [CallNotification] of a connection lost event.
+class ConnectionLostNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.connectionLost;
+}
 
-/// [CallNotification] represents a connection restored event.
-class ConnectionRestoredNotification extends CallNotification {}
+/// [CallNotification] of a connection restored event.
+class ConnectionRestoredNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.connectionRestored;
+}

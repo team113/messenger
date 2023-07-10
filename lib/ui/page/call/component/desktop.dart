@@ -865,8 +865,8 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: c.notifications.reversed.take(3).map((e) {
-                  return CallNotificationView(
-                    notification: e,
+                  return CallNotificationWidget(
+                    e,
                     onClose: () => c.notifications.remove(e),
                   );
                 }).toList(),

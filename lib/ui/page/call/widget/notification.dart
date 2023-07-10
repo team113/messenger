@@ -28,11 +28,10 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
 /// Styled popup window showing the [notification].
-class CallNotificationView extends StatelessWidget {
-  const CallNotificationView(
-      {super.key, required this.notification, this.onClose});
+class CallNotificationWidget extends StatelessWidget {
+  const CallNotificationWidget(this.notification, {super.key, this.onClose});
 
-  /// [CallNotification] this [CallNotificationView] displaying.
+  /// [CallNotification] this [CallNotificationWidget] displays.
   final CallNotification notification;
 
   /// Callback, called when the close button is pressed.
@@ -43,22 +42,42 @@ class CallNotificationView extends StatelessWidget {
     final (style, fonts) = Theme.of(context).styles;
 
     CallNotification notification = this.notification;
-    String title = '';
+    final String title;
 
-    if (notification is DeviceChangedNotification) {
-      if (notification.device.kind() == MediaDeviceKind.AudioInput) {
-        title = 'label_microphone_changed'
-            .l10nfmt({'microphone': notification.device.label()});
-      } else if (notification.device.kind() == MediaDeviceKind.AudioOutput) {
-        title = 'label_speaker_changed'
-            .l10nfmt({'speaker': notification.device.label()});
-      }
-    } else if (notification is ErrorNotification) {
-      title = notification.message;
-    } else if (notification is ConnectionLostNotification) {
-      title = 'label_connection_lost'.l10n;
-    } else if (notification is ConnectionRestoredNotification) {
-      title = 'label_connection_restored'.l10n;
+    switch (notification.kind) {
+      case CallNotificationKind.connectionLost:
+        notification as ConnectionLostNotification;
+        title = 'label_connection_lost'.l10n;
+        break;
+
+      case CallNotificationKind.connectionRestored:
+        notification as ConnectionRestoredNotification;
+        title = 'label_connection_restored'.l10n;
+        break;
+
+      case CallNotificationKind.deviceChanged:
+        notification as DeviceChangedNotification;
+        switch (notification.device.kind()) {
+          case MediaDeviceKind.AudioInput:
+            title = 'label_microphone_changed'
+                .l10nfmt({'microphone': notification.device.label()});
+            break;
+
+          case MediaDeviceKind.AudioOutput:
+            title = 'label_speaker_changed'
+                .l10nfmt({'speaker': notification.device.label()});
+            break;
+
+          case MediaDeviceKind.VideoInput:
+            title = 'err_unknown'.l10n;
+            break;
+        }
+        break;
+
+      case CallNotificationKind.error:
+        notification as ErrorNotification;
+        title = notification.message;
+        break;
     }
 
     return Container(

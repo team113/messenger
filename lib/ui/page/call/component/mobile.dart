@@ -328,27 +328,29 @@ Widget mobileCall(CallController c, BuildContext context) {
     }
 
     // If there's any notifications to show, display it.
-    overlay.add(Align(
-      alignment: Alignment.topCenter,
-      child: Padding(
-        padding: EdgeInsets.only(top: 8 + context.mediaQueryPadding.top),
-        child: Obx(() {
-          if (c.notifications.isEmpty) {
-            return const SizedBox();
-          }
+    overlay.add(
+      Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: EdgeInsets.only(top: 8 + context.mediaQueryPadding.top),
+          child: Obx(() {
+            if (c.notifications.isEmpty) {
+              return const SizedBox();
+            }
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: c.notifications.reversed.take(3).map((e) {
-              return CallNotificationView(
-                notification: e,
-                onClose: () => c.notifications.remove(e),
-              );
-            }).toList(),
-          );
-        }),
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: c.notifications.reversed.take(3).map((e) {
+                return CallNotificationWidget(
+                  e,
+                  onClose: () => c.notifications.remove(e),
+                );
+              }).toList(),
+            );
+          }),
+        ),
       ),
-    ));
+    );
 
     Widget padding(Widget child) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
