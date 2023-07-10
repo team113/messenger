@@ -226,7 +226,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'System messages', // Подсказки и предупреждения
+                                  'System messages',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),

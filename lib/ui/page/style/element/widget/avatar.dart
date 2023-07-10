@@ -31,25 +31,82 @@ class AvatarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, _) = Theme.of(context).styles;
+    final (style, fonts) = Theme.of(context).styles;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+    return Wrap(
+      spacing: 16,
+      runSpacing: 16,
       children: [
-        Column(
+        const _AvatarColorsWidget(),
+        const _AvatarSizesWidget(),
+        Container(
+          height: 260,
+          width: 250,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            color: style.colors.onPrimary,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Center(
+                  child: Text(
+                    'AnimatedCircleAvatar',
+                    style: fonts.headlineLarge,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const _AnimatedCircleAvatar(
+                  avatar: AvatarWidget(
+                    radius: 100,
+                    title: 'John Doe',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AvatarColorsWidget extends StatelessWidget {
+  const _AvatarColorsWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Container(
+      height: 260,
+      width: 505,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        color: style.colors.onPrimary,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+        child: Column(
           children: [
-            Tooltip(
-              message: 'User avatars',
-              child: SizedBox(
-                height: 120,
-                width: 250,
+            Center(child: Text('Avatar colors', style: fonts.headlineLarge)),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 199,
+              width: 470,
+              child: Expanded(
                 child: GridView.count(
                   crossAxisCount: style.colors.userColors.length ~/ 2,
                   children: List.generate(
                     style.colors.userColors.length,
-                    (i) => AvatarWidget(
-                      title: 'John Doe',
-                      color: i,
+                    (i) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: AvatarWidget(
+                        radius: 100,
+                        title: 'John Doe',
+                        color: i,
+                      ),
                     ),
                   ),
                 ),
@@ -57,24 +114,84 @@ class AvatarView extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(width: 150),
-        const Column(
+      ),
+    );
+  }
+}
+
+class _AvatarSizesWidget extends StatelessWidget {
+  const _AvatarSizesWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Container(
+      height: 260,
+      width: 505,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        color: style.colors.onPrimary,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
           children: [
-            Tooltip(
-              message: 'Changing the avatar',
-              child: Padding(
-                padding: EdgeInsets.only(bottom: 25),
-                child: _AnimatedCircleAvatar(
-                  avatar: AvatarWidget(
-                    radius: 50,
-                    title: 'John Doe',
-                  ),
+            Center(child: Text('AvatarWidget', style: fonts.headlineLarge)),
+            const Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _StyledAvatar(
+                  message:
+                      'Radius: 100 \nUsed in: ChatInfoView, MyProfileView as AnimatedCircleAvatar',
+                  radius: 100,
                 ),
-              ),
-            ),
+                _StyledAvatar(
+                    message: 'Radius: 32 \nUsed in: CallTitle', radius: 32),
+                _StyledAvatar(
+                  message: 'Radius: 30 \nUsed in: mobileCall, ChatTile',
+                  radius: 30,
+                ),
+                _StyledAvatar(
+                    message:
+                        'Radius: 17 \nUsed in: ChatView, ChatInfoView, ChatForward, ChatItem, UserView, MenuTabView, ContactTile',
+                    radius: 17),
+                _StyledAvatar(
+                    message: 'Radius: 15 \nUsed in: HomeView', radius: 15),
+                _StyledAvatar(
+                  message:
+                      'Radius: 10 \nUsed in: ChatForward, ChatItem, RecentChat',
+                  radius: 10,
+                ),
+                _StyledAvatar(
+                    message: 'Radius: 8 \nUsed in: desktopCall', radius: 8),
+              ],
+            )
           ],
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class _StyledAvatar extends StatelessWidget {
+  const _StyledAvatar({super.key, required this.message, required this.radius});
+
+  final String message;
+
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: message,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: AvatarWidget(
+          title: 'John Doe',
+          radius: radius,
+        ),
+      ),
     );
   }
 }

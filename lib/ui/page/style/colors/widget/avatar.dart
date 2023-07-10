@@ -33,7 +33,7 @@ class AvatarColors extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
       decoration: BoxDecoration(
-        color: isDarkMode ? style.colors.onBackground : style.colors.onPrimary,
+        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
         borderRadius: BorderRadius.circular(12),
       ),
       width: MediaQuery.sizeOf(context).width,

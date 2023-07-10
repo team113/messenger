@@ -30,7 +30,7 @@ class ButtonsWidget extends StatelessWidget {
   const ButtonsWidget({super.key, required this.isDarkMode});
 
   /// Indicator whether this page is in dark mode.
- final bool isDarkMode;
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class ButtonsWidget extends StatelessWidget {
                     child: OutlinedRoundedButton(
                       color: style.colors.primary,
                       title: Text(
-                        'Default',
+                        'Proceed',
                         style: fonts.bodyMedium!.copyWith(
                           color: style.colors.onPrimary,
                         ),
@@ -68,7 +68,7 @@ class ButtonsWidget extends StatelessWidget {
                     child: OutlinedRoundedButton(
                       color: style.colors.primary,
                       title: Text(
-                        'Hovered',
+                        'Proceed',
                         style: fonts.bodyMedium!.copyWith(
                           color: style.colors.onPrimary,
                         ),
@@ -289,7 +289,7 @@ class ButtonsWidget extends StatelessWidget {
                   _ButtonCard(
                     height: 210,
                     imageHeight: 150,
-                    isHaveUnavailable: false,
+                    isHaveDisabled: false,
                     isDarkMode: isDarkMode,
                     title: 'ContextMenuButton',
                     children: [
@@ -347,7 +347,7 @@ class ButtonsWidget extends StatelessWidget {
                   _ButtonCard(
                     height: 183,
                     imageHeight: 124,
-                    isHaveUnavailable: false,
+                    isHaveDisabled: false,
                     isDarkMode: isDarkMode,
                     title: 'WidgetButton',
                     children: [
@@ -397,12 +397,12 @@ class _ButtonCard extends StatelessWidget {
     required this.children,
     this.height = 335,
     this.imageHeight = 275,
-    this.isHaveUnavailable = true,
+    this.isHaveDisabled = true,
   });
 
   final bool isDarkMode;
 
-  final bool isHaveUnavailable;
+  final bool isHaveDisabled;
 
   final String title;
 
@@ -464,7 +464,7 @@ class _ButtonCard extends StatelessWidget {
                                 style: fonts.titleMedium!.copyWith(
                                   color: isDarkMode
                                       ? style.colors.onPrimary
-                                      : style.colors.onBackground,
+                                      : const Color(0xFF1F3C5D),
                                 ),
                               ),
                               Text(
@@ -472,7 +472,7 @@ class _ButtonCard extends StatelessWidget {
                                 style: fonts.titleMedium!.copyWith(
                                   color: isDarkMode
                                       ? style.colors.onPrimary
-                                      : style.colors.onBackground,
+                                      : const Color(0xFF1F3C5D),
                                 ),
                               ),
                               Text(
@@ -480,16 +480,16 @@ class _ButtonCard extends StatelessWidget {
                                 style: fonts.titleMedium!.copyWith(
                                   color: isDarkMode
                                       ? style.colors.onPrimary
-                                      : style.colors.onBackground,
+                                      : const Color(0xFF1F3C5D),
                                 ),
                               ),
-                              if (isHaveUnavailable)
+                              if (isHaveDisabled)
                                 Text(
-                                  'Unavailable',
+                                  'Disabled',
                                   style: fonts.titleMedium!.copyWith(
                                     color: isDarkMode
                                         ? style.colors.onPrimary
-                                        : style.colors.onBackground,
+                                        : const Color(0xFF1F3C5D),
                                   ),
                                 ),
                             ],

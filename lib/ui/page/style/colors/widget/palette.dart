@@ -35,7 +35,7 @@ class PaletteWidget extends StatelessWidget {
       width: MediaQuery.sizeOf(context).width,
       duration: const Duration(milliseconds: 500),
       decoration: BoxDecoration(
-        color: isDarkMode ? style.colors.onBackground : style.colors.onPrimary,
+        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(

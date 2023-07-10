@@ -56,7 +56,7 @@ class CustomColor extends StatelessWidget {
                 color.toHex(),
                 textAlign: TextAlign.start,
                 style: fonts.bodySmall!.copyWith(
-                  color: isDarkMode ? Colors.white : Colors.black,
+                  color: isDarkMode ? Colors.white : style.colors.onBackground,
                 ),
               ),
             ],
@@ -103,7 +103,8 @@ class CustomColor extends StatelessWidget {
                   title,
                   textAlign: TextAlign.left,
                   style: fonts.labelSmall!.copyWith(
-                    color: isDarkMode ? Colors.white : Colors.black,
+                    color:
+                        isDarkMode ? Colors.white : style.colors.onBackground,
                   ),
                 ),
               ),

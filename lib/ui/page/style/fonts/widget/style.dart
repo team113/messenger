@@ -144,8 +144,7 @@ class _FontWidget extends StatelessWidget {
       height: 270,
       width: 290,
       decoration: BoxDecoration(
-        color:
-            isDarkMode ? styles.colors.onBackground : styles.colors.onPrimary,
+        color: isDarkMode ? const Color(0xFF142839) : styles.colors.onPrimary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(

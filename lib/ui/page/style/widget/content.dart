@@ -37,17 +37,17 @@ class ContentScrollView extends StatelessWidget {
             delegate: SliverChildListDelegate(
               [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 70),
+                  padding: const EdgeInsets.symmetric(horizontal: 70),
                   child: Column(
                     children: [
+                      // ColorStyleView(isDarkMode: isDarkMode),
+                      // FontsView(isDarkMode: isDarkMode),
+                      // MultimediaView(isDarkMode: isDarkMode),
+                      const SizedBox(height: 200),
+                      ElementStyleTabView(isDarkMode: isDarkMode),
                       ColorStyleView(isDarkMode: isDarkMode),
                       FontsView(isDarkMode: isDarkMode),
                       MultimediaView(isDarkMode: isDarkMode),
-                      // SizedBox(height: 200),
-                      ElementStyleTabView(isDarkMode: isDarkMode),
-                      // ColorStyleView(),
-                      // FontsView(),
-                      // MultimediaView(),
                     ],
                   ),
                 ),

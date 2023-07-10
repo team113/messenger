@@ -30,14 +30,14 @@ class ColorStyleView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 20),
-        Header(label: 'Colors palette'),
-        SmallHeader(label: 'Application colors'),
+        const SizedBox(height: 20),
+        const Header(label: 'Colors palette'),
+        const SmallHeader(label: 'Application colors'),
         PaletteWidget(isDarkMode: isDarkMode),
-        Divider(),
-        SmallHeader(label: 'Avatar colors'),
+        const Divider(),
+        const SmallHeader(label: 'Avatar colors'),
         AvatarColors(isDarkMode: isDarkMode),
-        Divider(),
+        const Divider(),
       ],
     );
   }

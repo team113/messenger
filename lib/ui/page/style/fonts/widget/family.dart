@@ -79,7 +79,7 @@ class FontWidget extends StatelessWidget {
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
             color:
-                isDarkMode ? style.colors.onBackground : style.colors.onPrimary,
+                isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
