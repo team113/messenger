@@ -25,9 +25,9 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -114,7 +114,7 @@ class ChatInfoView extends StatelessWidget {
                               ]
                             ],
                           ),
-                          _chatSubtitle(c, context),
+                          ChatSubtitle(c.chat!, c.me, withActivities: false),
                         ],
                       ),
                     ),
@@ -228,27 +228,6 @@ class ChatInfoView extends StatelessWidget {
         });
       },
     );
-  }
-
-  /// Returns a subtitle to display under the [Chat]'s title.
-  Widget _chatSubtitle(ChatInfoController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Obx(() {
-      final Rx<Chat> chat = c.chat!.chat;
-
-      if (chat.value.isGroup) {
-        final String? subtitle = chat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(
-            subtitle,
-            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-          );
-        }
-      }
-
-      return Container();
-    });
   }
 
   /// Basic [Padding] wrapper.
