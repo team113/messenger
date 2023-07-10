@@ -257,8 +257,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                     Text(
                       'label_reconnecting_ellipsis'.l10n,
                       style: fonts.bodyMedium?.copyWith(
-                            color: style.colors.onPrimary,
-                          ),
+                        color: style.colors.onPrimary,
+                      ),
                     ),
                   ],
                 ),
