@@ -125,90 +125,68 @@ class ChatInfoView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
               actions: [
-                WidgetButton(
-                  onPressed: () => router.chat(id, push: true),
-                  child: Transform.translate(
-                    offset: const Offset(0, 1),
-                    child: AnimatedButton(
-                      child: SvgImage.asset(
-                        'assets/icons/chat.svg',
-                        width: 20.12,
-                        height: 21.62,
-                      ),
+                Transform.translate(
+                  offset: const Offset(0, 1),
+                  child: AnimatedButton(
+                    onPressed: () => router.chat(id, push: true),
+                    child: SvgImage.asset(
+                      'assets/icons/chat.svg',
+                      width: 20.12,
+                      height: 21.62,
                     ),
                   ),
                 ),
                 if (c.chat!.chat.value.ongoingCall == null) ...[
                   if (!context.isMobile) ...[
                     const SizedBox(width: 28),
-                    WidgetButton(
+                    AnimatedButton(
                       onPressed: () => c.call(true),
-                      child: AnimatedButton(
-                        child: SvgImage.asset(
-                          'assets/icons/chat_video_call.svg',
-                          height: 17,
-                        ),
+                      child: SvgImage.asset(
+                        'assets/icons/chat_video_call.svg',
+                        height: 17,
                       ),
                     ),
                   ],
                   const SizedBox(width: 28),
-                  WidgetButton(
+                  AnimatedButton(
                     onPressed: () => c.call(false),
-                    child: AnimatedButton(
-                      child: SvgImage.asset(
-                        'assets/icons/chat_audio_call.svg',
-                        height: 19,
-                      ),
+                    child: SvgImage.asset(
+                      'assets/icons/chat_audio_call.svg',
+                      height: 19,
                     ),
                   ),
                 ] else ...[
                   const SizedBox(width: 14),
-                  AnimatedSwitcher(
-                    key: const Key('ActiveCallButton'),
-                    duration: 300.milliseconds,
-                    child: c.inCall
-                        ? WidgetButton(
-                            key: const Key('Drop'),
-                            onPressed: c.dropCall,
-                            child: AnimatedButton(
-                              child: Container(
-                                height: 22,
-                                width: 22,
-                                decoration: BoxDecoration(
-                                  color: style.colors.dangerColor,
-                                  shape: BoxShape.circle,
+                  AnimatedButton(
+                    key: c.inCall ? const Key('Drop') : const Key('Join'),
+                    onPressed: c.inCall ? c.dropCall : c.joinCall,
+                    child: Container(
+                      key: const Key('ActiveCallButton'),
+                      height: 22,
+                      width: 22,
+                      decoration: BoxDecoration(
+                        color: c.inCall
+                            ? style.colors.dangerColor
+                            : style.colors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: AnimatedSwitcher(
+                          duration: 300.milliseconds,
+                          child: c.inCall
+                              ? SvgImage.asset(
+                                  'assets/icons/call_end.svg',
+                                  width: 22,
+                                  height: 22,
+                                )
+                              : SvgImage.asset(
+                                  'assets/icons/audio_call_start.svg',
+                                  width: 10,
+                                  height: 10,
                                 ),
-                                child: Center(
-                                  child: SvgImage.asset(
-                                    'assets/icons/call_end.svg',
-                                    width: 22,
-                                    height: 22,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        : WidgetButton(
-                            key: const Key('Join'),
-                            onPressed: c.joinCall,
-                            child: AnimatedButton(
-                              child: Container(
-                                height: 22,
-                                width: 22,
-                                decoration: BoxDecoration(
-                                  color: style.colors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: SvgImage.asset(
-                                    'assets/icons/audio_call_start.svg',
-                                    width: 10,
-                                    height: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ],

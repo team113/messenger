@@ -221,32 +221,32 @@ class ChatsTabView extends StatelessWidget {
                       }
 
                       return AnimatedButton(
+                        key: c.searching.value
+                            ? const Key('CloseSearchButton')
+                            : const Key('SearchButton'),
+                        onPressed: c.searching.value
+                            ? () => c.closeSearch(c.groupCreating.isFalse)
+                            : () => c.startSearch(),
+                        decorator: (child) {
+                          return Container(
+                            padding: const EdgeInsets.only(left: 20, right: 6),
+                            height: double.infinity,
+                            child: child,
+                          );
+                        },
                         child: AnimatedSwitcher(
                           duration: 250.milliseconds,
-                          child: WidgetButton(
-                            key: c.searching.value
-                                ? const Key('CloseSearchButton')
-                                : const Key('SearchButton'),
-                            onPressed: c.searching.value
-                                ? () => c.closeSearch(c.groupCreating.isFalse)
-                                : () => c.startSearch(),
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.only(left: 20, right: 6),
-                              height: double.infinity,
-                              child: c.searching.value
-                                  ? Icon(
-                                      key: const Key('ArrowBack'),
-                                      Icons.arrow_back_ios_new,
-                                      size: 20,
-                                      color: style.colors.primary,
-                                    )
-                                  : SvgImage.asset(
-                                      'assets/icons/search.svg',
-                                      width: 17.77,
-                                    ),
-                            ),
-                          ),
+                          child: c.searching.value
+                              ? Icon(
+                                  key: const Key('ArrowBack'),
+                                  Icons.arrow_back_ios_new,
+                                  size: 20,
+                                  color: style.colors.primary,
+                                )
+                              : SvgImage.asset(
+                                  'assets/icons/search.svg',
+                                  width: 17.77,
+                                ),
                         ),
                       );
                     }),
@@ -277,37 +277,35 @@ class ChatsTabView extends StatelessWidget {
                         children: [
                           if (child != null)
                             AnimatedButton(
-                              child: WidgetButton(
-                                key: c.searching.value
-                                    ? const Key('CloseSearchButton')
-                                    : null,
-                                onPressed: () {
-                                  if (c.searching.value) {
-                                    if (c.search.value?.search.isEmpty.value ==
-                                        false) {
-                                      c.search.value?.search.clear();
-                                      c.search.value?.query.value = '';
-                                      c.search.value?.search.focus
-                                          .requestFocus();
-                                    }
-                                  } else if (c.selecting.value) {
-                                    c.toggleSelecting();
-                                  } else {
-                                    if (c.groupCreating.value) {
-                                      c.closeGroupCreating();
-                                    }
+                              key: c.searching.value
+                                  ? const Key('CloseSearchButton')
+                                  : null,
+                              onPressed: () {
+                                if (c.searching.value) {
+                                  if (c.search.value?.search.isEmpty.value ==
+                                      false) {
+                                    c.search.value?.search.clear();
+                                    c.search.value?.query.value = '';
+                                    c.search.value?.search.focus
+                                        .requestFocus();
                                   }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.only(
-                                      left: 12, right: 18),
-                                  height: double.infinity,
-                                  child: SizedBox(
-                                    width: 21.77,
-                                    child: AnimatedSwitcher(
-                                      duration: 250.milliseconds,
-                                      child: child,
-                                    ),
+                                } else if (c.selecting.value) {
+                                  c.toggleSelecting();
+                                } else {
+                                  if (c.groupCreating.value) {
+                                    c.closeGroupCreating();
+                                  }
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    left: 12, right: 18),
+                                height: double.infinity,
+                                child: SizedBox(
+                                  width: 21.77,
+                                  child: AnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
                                   ),
                                 ),
                               ),

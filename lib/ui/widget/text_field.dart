@@ -25,7 +25,6 @@ import 'package:get/get.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_button.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'allow_overflow.dart';
 import 'animations.dart';
@@ -179,76 +178,75 @@ class ReactiveTextField extends StatelessWidget {
       final (style, fonts) = Theme.of(context).styles;
 
       return Obx(() {
-        return WidgetButton(
+        return AnimatedButton(
+          enabled: state.approvable && state.changed.value || onSuffixPressed != null,
           onPressed: state.approvable && state.changed.value
               ? state.submit
               : onSuffixPressed,
+          decorator: (child) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: child,
+            );
+          },
           child: ElasticAnimatedSwitcher(
             child: (state.approvable ||
                     suffix != null ||
                     trailing != null ||
                     !state.status.value.isEmpty)
-                ? Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: SizedBox(
-                      height: 24,
-                      child: ElasticAnimatedSwitcher(
-                        child: state.status.value.isLoading
-                            ? SvgImage.asset(
-                                'assets/icons/timer.svg',
-                                width: 17,
-                                height: 17,
+                ? SizedBox(
+                  height: 24,
+                  child: ElasticAnimatedSwitcher(
+                    child: state.status.value.isLoading
+                        ? SvgImage.asset(
+                            'assets/icons/timer.svg',
+                            width: 17,
+                            height: 17,
+                          )
+                        : state.status.value.isSuccess
+                            ? SizedBox(
+                                key: const ValueKey('Success'),
+                                width: 24,
+                                child: Icon(
+                                  Icons.check,
+                                  size: 18,
+                                  color: style.colors.acceptAuxiliaryColor,
+                                ),
                               )
-                            : state.status.value.isSuccess
+                            : (state.error.value != null &&
+                                        treatErrorAsStatus) ||
+                                    state.status.value.isError
                                 ? SizedBox(
-                                    key: const ValueKey('Success'),
+                                    key: const ValueKey('Error'),
                                     width: 24,
                                     child: Icon(
-                                      Icons.check,
+                                      Icons.error,
                                       size: 18,
-                                      color: style.colors.acceptAuxiliaryColor,
+                                      color: style.colors.dangerColor,
                                     ),
                                   )
-                                : (state.error.value != null &&
-                                            treatErrorAsStatus) ||
-                                        state.status.value.isError
-                                    ? SizedBox(
-                                        key: const ValueKey('Error'),
-                                        width: 24,
-                                        child: Icon(
-                                          Icons.error,
-                                          size: 18,
-                                          color: style.colors.dangerColor,
+                                : (state.approvable && state.changed.value)
+                                    ? AllowOverflow(
+                                        key: const ValueKey('Approve'),
+                                        child: Text(
+                                          'btn_save'.l10n,
+                                          style:
+                                              fonts.bodySmall!.copyWith(
+                                            color: style.colors.primary,
+                                          ),
                                         ),
                                       )
-                                    : (state.approvable && state.changed.value)
-                                        ? AllowOverflow(
-                                            key: const ValueKey('Approve'),
-                                            child: AnimatedButton(
-                                              key: const Key('AnimatedButton'),
-                                              child: Text(
-                                                'btn_save'.l10n,
-                                                style:
-                                                    fonts.bodySmall!.copyWith(
-                                                  color: style.colors.primary,
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        : SizedBox(
-                                            key: const ValueKey('Icon'),
-                                            width: 24,
-                                            child: AnimatedButton(
-                                              child: suffix != null
-                                                  ? Icon(suffix)
-                                                  : trailing == null
-                                                      ? Container()
-                                                      : trailing!,
-                                            ),
-                                          ),
-                      ),
-                    ),
-                  )
+                                    : SizedBox(
+                                      key: const ValueKey('Icon'),
+                                      width: 24,
+                                      child: suffix != null
+                                          ? Icon(suffix)
+                                          : trailing == null
+                                              ? Container()
+                                              : trailing!,
+                                    ),
+                  ),
+                )
                 : const SizedBox(width: 1, height: 0),
           ),
         );

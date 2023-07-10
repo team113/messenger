@@ -46,7 +46,6 @@ import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'message_field/view.dart';
@@ -218,72 +217,56 @@ class _ChatViewState extends State<ChatView>
 
                           if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
-                              WidgetButton(
+                              AnimatedButton(
                                 onPressed: () => c.call(true),
-                                child: AnimatedButton(
-                                  child: SvgImage.asset(
-                                    'assets/icons/chat_video_call.svg',
-                                    height: 17,
-                                  ),
+                                child: SvgImage.asset(
+                                  'assets/icons/chat_video_call.svg',
+                                  height: 17,
                                 ),
                               ),
                               const SizedBox(width: 28),
-                              WidgetButton(
+                              AnimatedButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: AnimatedButton(
-                                  child: SvgImage.asset(
-                                    'assets/icons/chat_audio_call.svg',
-                                    height: 19,
-                                  ),
+                                child: SvgImage.asset(
+                                  'assets/icons/chat_audio_call.svg',
+                                  height: 19,
                                 ),
                               ),
                             ];
                           } else {
                             children = [
                               AnimatedButton(
-                                child: AnimatedSwitcher(
+                                key: c.inCall
+                                    ? const Key('Drop')
+                                    : const Key('Join'),
+                                onPressed: c.inCall ? c.dropCall : c.joinCall,
+                                child: Container(
                                   key: const Key('ActiveCallButton'),
-                                  duration: 300.milliseconds,
-                                  child: c.inCall
-                                      ? WidgetButton(
-                                          key: const Key('Drop'),
-                                          onPressed: c.dropCall,
-                                          child: Container(
-                                            height: 32,
-                                            width: 32,
-                                            decoration: BoxDecoration(
-                                              color: style.colors.dangerColor,
-                                              shape: BoxShape.circle,
+                                  height: 32,
+                                  width: 32,
+                                  decoration: BoxDecoration(
+                                    color: c.inCall
+                                        ? style.colors.dangerColor
+                                        : style.colors.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: AnimatedSwitcher(
+                                      duration: 300.milliseconds,
+                                      child: c.inCall
+                                          ? SvgImage.asset(
+                                              'assets/icons/call_end.svg',
+                                              width: 32,
+                                              height: 32,
+                                            )
+                                          : SvgImage.asset(
+                                              'assets/icons/audio_call_start.svg',
+                                              width: 15,
+                                              height: 15,
                                             ),
-                                            child: Center(
-                                              child: SvgImage.asset(
-                                                'assets/icons/call_end.svg',
-                                                width: 32,
-                                                height: 32,
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      : WidgetButton(
-                                          key: const Key('Join'),
-                                          onPressed: c.joinCall,
-                                          child: Container(
-                                            height: 32,
-                                            width: 32,
-                                            decoration: BoxDecoration(
-                                              color: style.colors.primary,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Center(
-                                              child: SvgImage.asset(
-                                                'assets/icons/audio_call_start.svg',
-                                                width: 15,
-                                                height: 15,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ];

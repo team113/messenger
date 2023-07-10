@@ -128,17 +128,15 @@ class _FieldButtonState extends State<FieldButton> {
         Positioned.fill(
           child: Align(
             alignment: Alignment.centerRight,
-            child: WidgetButton(
+            child: AnimatedButton(
               onPressed: widget.onTrailingPressed,
+              enabled: widget.onTrailingPressed != null,
               child: SizedBox(
                 width: 50,
-                height: double.infinity,
-                child: AnimatedButton(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: widget.trailing!,
-                    ),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: widget.trailing!,
                   ),
                 ),
               ),

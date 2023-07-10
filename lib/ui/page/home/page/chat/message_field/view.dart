@@ -436,7 +436,8 @@ class MessageFieldView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          WidgetButton(
+          AnimatedButton(
+            enabled: canAttach,
             onPressed: canAttach
                 ? !PlatformUtils.isMobile || PlatformUtils.isWeb
                     ? c.pickFile
@@ -455,12 +456,10 @@ class MessageFieldView extends StatelessWidget {
               width: 56,
               height: 56,
               child: Center(
-                child: AnimatedButton(
-                  child: SvgImage.asset(
-                    'assets/icons/attach.svg',
-                    height: 22,
-                    width: 22,
-                  ),
+                child: SvgImage.asset(
+                  'assets/icons/attach.svg',
+                  height: 22,
+                  width: 22,
                 ),
               ),
             ),
@@ -495,28 +494,26 @@ class MessageFieldView extends StatelessWidget {
               onLongPress: canForward ? c.forwarding.toggle : null,
               child: WidgetButton(
                 onPressed: c.field.submit,
-                child: SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: 300.milliseconds,
-                      child: c.forwarding.value
-                          ? AnimatedButton(
-                              child: SvgImage.asset(
+                child: AnimatedButton(
+                  child: SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: Center(
+                      child: AnimatedSwitcher(
+                        duration: 300.milliseconds,
+                        child: c.forwarding.value
+                            ? SvgImage.asset(
                                 'assets/icons/forward.svg',
                                 width: 26,
                                 height: 22,
-                              ),
-                            )
-                          : AnimatedButton(
-                              child: SvgImage.asset(
+                              )
+                            : SvgImage.asset(
                                 'assets/icons/send.svg',
                                 key: sendKey ?? const Key('Send'),
                                 height: 22.85,
                                 width: 25.18,
                               ),
-                            ),
+                      ),
                     ),
                   ),
                 ),

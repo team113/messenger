@@ -23,7 +23,6 @@ import '/themes.dart';
 import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
 /// Styled [ContactTile] representing the provided [RxUser] as a member of some
@@ -102,7 +101,7 @@ class MemberTile extends StatelessWidget {
           ),
           const SizedBox(width: 16),
         ],
-        WidgetButton(
+        AnimatedButton(
           onPressed: () async {
             final bool? result = await MessagePopup.alert(
               canLeave ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
@@ -125,20 +124,16 @@ class MemberTile extends StatelessWidget {
             }
           },
           child: canLeave
-              ? AnimatedButton(
-                  child: Text(
-                    'btn_leave'.l10n,
-                    style: fonts.labelLarge!.copyWith(
-                      color: style.colors.primary,
-                    ),
+              ? Text(
+                  'btn_leave'.l10n,
+                  style: fonts.labelLarge!.copyWith(
+                    color: style.colors.primary,
                   ),
                 )
-              : AnimatedButton(
-                  child: SvgImage.asset(
-                    'assets/icons/delete.svg',
-                    height: 14 * 1.5,
-                    key: const Key('DeleteMemberButton'),
-                  ),
+              : SvgImage.asset(
+                  'assets/icons/delete.svg',
+                  height: 14 * 1.5,
+                  key: const Key('DeleteMemberButton'),
                 ),
         ),
         const SizedBox(width: 6),

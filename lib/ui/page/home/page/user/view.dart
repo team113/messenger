@@ -135,16 +135,14 @@ class UserView extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 4, right: 20),
                 leading: const [StyledBackButton()],
                 actions: [
-                  WidgetButton(
+                  AnimatedButton(
                     onPressed: c.openChat,
-                    child: AnimatedButton(
-                      child: Transform.translate(
-                        offset: const Offset(0, 1),
-                        child: SvgImage.asset(
-                          'assets/icons/chat.svg',
-                          width: 20.12,
-                          height: 21.62,
-                        ),
+                    child: Transform.translate(
+                      offset: const Offset(0, 1),
+                      child: SvgImage.asset(
+                        'assets/icons/chat.svg',
+                        width: 20.12,
+                        height: 21.62,
                       ),
                     ),
                   ),
@@ -158,24 +156,20 @@ class UserView extends StatelessWidget {
                       children: [
                         if (constraints.maxWidth > 400) ...[
                           const SizedBox(width: 28),
-                          WidgetButton(
+                          AnimatedButton(
                             onPressed: () => c.call(true),
-                            child: AnimatedButton(
-                              child: SvgImage.asset(
-                                'assets/icons/chat_video_call.svg',
-                                height: 17,
-                              ),
+                            child: SvgImage.asset(
+                              'assets/icons/chat_video_call.svg',
+                              height: 17,
                             ),
                           ),
                         ],
                         const SizedBox(width: 28),
-                        WidgetButton(
+                        AnimatedButton(
                           onPressed: () => c.call(false),
-                          child: AnimatedButton(
-                            child: SvgImage.asset(
-                              'assets/icons/chat_audio_call.svg',
-                              height: 19,
-                            ),
+                          child: SvgImage.asset(
+                            'assets/icons/chat_audio_call.svg',
+                            height: 19,
                           ),
                         ),
                       ],

@@ -18,9 +18,17 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '/ui/widget/widget_button.dart';
+
 /// [Widget] animating its size on hover and clicks.
 class AnimatedButton extends StatefulWidget {
-  const AnimatedButton({super.key, required this.child});
+  const AnimatedButton({
+    super.key,
+    required this.child,
+    this.decorator = AnimatedButton._defaultWrapper,
+    this.onPressed,
+    this.enabled = true,
+  });
 
   /// Multiplier to scale the [child] on hover.
   static const double scale = 1.05;
@@ -28,8 +36,19 @@ class AnimatedButton extends StatefulWidget {
   /// Widget to animate.
   final Widget child;
 
+  /// Callback, applying non-animated decorations to the [child].
+  final Widget Function(Widget child) decorator;
+
+  /// Callback, called when the [child] is pressed.
+  final void Function()? onPressed;
+
+  /// Indicator whether the animation is enabled.
+  final bool enabled;
+
   @override
   State<AnimatedButton> createState() => _AnimatedButtonState();
+
+  static Widget _defaultWrapper(Widget child) => child;
 }
 
 /// State of the [AnimatedButton] maintaining the animation.
@@ -60,6 +79,10 @@ class _AnimatedButtonState extends State<AnimatedButton>
 
   @override
   Widget build(BuildContext context) {
+    if(!widget.enabled) {
+      return widget.decorator(widget.child);
+    }
+
     return MouseRegion(
       opaque: false,
       onEnter: (_) => setState(() => _hovered = true),
@@ -72,42 +95,47 @@ class _AnimatedButtonState extends State<AnimatedButton>
             _controller.forward();
           }
         },
-        child: AnimatedScale(
-          duration: const Duration(milliseconds: 100),
-          scale: _hovered ? AnimatedButton.scale : 1,
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (_, child) {
-              return Transform.scale(
-                scale: 1.0 -
-                    Tween<double>(begin: 0.0, end: 0.2)
-                        .animate(
-                          CurvedAnimation(
-                            parent: _controller,
-                            curve: const Interval(
-                              0.0,
-                              1.0,
-                              curve: Curves.ease,
-                            ),
-                          ),
-                        )
-                        .value +
-                    Tween<double>(begin: 0.0, end: 0.2)
-                        .animate(
-                          CurvedAnimation(
-                            parent: _controller,
-                            curve: const Interval(
-                              0.5,
-                              1.0,
-                              curve: Curves.ease,
-                            ),
-                          ),
-                        )
-                        .value,
-                child: child,
-              );
-            },
-            child: widget.child,
+        child: WidgetButton(
+          onPressed: widget.onPressed,
+          child: widget.decorator(
+            AnimatedScale(
+              duration: const Duration(milliseconds: 100),
+              scale: _hovered ? AnimatedButton.scale : 1,
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (_, child) {
+                  return Transform.scale(
+                    scale: 1.0 -
+                        Tween<double>(begin: 0.0, end: 0.2)
+                            .animate(
+                              CurvedAnimation(
+                                parent: _controller,
+                                curve: const Interval(
+                                  0.0,
+                                  1.0,
+                                  curve: Curves.ease,
+                                ),
+                              ),
+                            )
+                            .value +
+                        Tween<double>(begin: 0.0, end: 0.2)
+                            .animate(
+                              CurvedAnimation(
+                                parent: _controller,
+                                curve: const Interval(
+                                  0.5,
+                                  1.0,
+                                  curve: Curves.ease,
+                                ),
+                              ),
+                            )
+                            .value,
+                    child: child,
+                  );
+                },
+                child: widget.child,
+              ),
+            ),
           ),
         ),
       ),

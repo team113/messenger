@@ -164,62 +164,61 @@ class ContactsTabView extends StatelessWidget {
                   children: [
                     if (child != null)
                       AnimatedButton(
-                        child: WidgetButton(
-                          onPressed: () {
-                            if (c.search.value != null) {
-                              if (c.search.value?.search.isEmpty.value ==
-                                  false) {
-                                c.search.value?.search.clear();
-                                c.search.value?.query.value = '';
-                                c.search.value?.search.focus.requestFocus();
-                              }
-                            } else if (c.selecting.value) {
-                              c.toggleSelecting();
+                        onPressed: () {
+                          if (c.search.value != null) {
+                            if (c.search.value?.search.isEmpty.value ==
+                                false) {
+                              c.search.value?.search.clear();
+                              c.search.value?.query.value = '';
+                              c.search.value?.search.focus.requestFocus();
                             }
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            width: 29.69 + 12 + 18,
-                            height: double.infinity,
-                            child: Center(
-                              child: AnimatedSwitcher(
-                                duration: 250.milliseconds,
-                                child: child,
-                              ),
+                          } else if (c.selecting.value) {
+                            c.toggleSelecting();
+                          }
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: 29.69 + 12 + 18,
+                          height: double.infinity,
+                          child: Center(
+                            child: AnimatedSwitcher(
+                              duration: 250.milliseconds,
+                              child: child,
                             ),
                           ),
                         ),
                       ),
                     if (c.search.value == null && !c.selecting.value)
-                      AnimatedButton(
-                        child: ContextMenuRegion(
-                          key: const Key('ContactsMenu'),
-                          alignment: Alignment.topRight,
-                          enablePrimaryTap: true,
-                          enableSecondaryTap: false,
-                          selector: c.moreKey,
-                          margin: const EdgeInsets.only(bottom: 4, right: 0),
-                          actions: [
-                            ContextMenuButton(
-                              label: c.sortByName
-                                  ? 'label_sort_by_visit'.l10n
-                                  : 'label_sort_by_name'.l10n,
-                              onPressed: c.toggleSorting,
-                            ),
-                            ContextMenuButton(
-                              key: const Key('SelectContactsButton'),
-                              label: 'btn_select_and_delete'.l10n,
-                              onPressed: c.toggleSelecting,
-                            ),
-                          ],
-                          child: Container(
+                      ContextMenuRegion(
+                        key: const Key('ContactsMenu'),
+                        alignment: Alignment.topRight,
+                        enablePrimaryTap: true,
+                        enableSecondaryTap: false,
+                        selector: c.moreKey,
+                        margin: const EdgeInsets.only(bottom: 4, right: 0),
+                        actions: [
+                          ContextMenuButton(
+                            label: c.sortByName
+                                ? 'label_sort_by_visit'.l10n
+                                : 'label_sort_by_name'.l10n,
+                            onPressed: c.toggleSorting,
+                          ),
+                          ContextMenuButton(
+                            key: const Key('SelectContactsButton'),
+                            label: 'btn_select_and_delete'.l10n,
+                            onPressed: c.toggleSelecting,
+                          ),
+                        ],
+                        child: AnimatedButton(
+                          decorator: (child) => Container(
                             key: c.moreKey,
                             padding: const EdgeInsets.only(left: 12, right: 18),
                             height: double.infinity,
-                            child: Icon(
-                              Icons.more_vert,
-                              color: style.colors.primary,
-                            ),
+                            child: child,
+                          ),
+                          child: Icon(
+                            Icons.more_vert,
+                            color: style.colors.primary,
                           ),
                         ),
                       ),
@@ -265,31 +264,32 @@ class ContactsTabView extends StatelessWidget {
                 }
 
                 return AnimatedButton(
+                  key: c.search.value == null
+                      ? const Key('SearchButton')
+                      : const Key('CloseSearchButton'),
+                  onPressed: c.search.value == null
+                      ? () => c.toggleSearch(true)
+                      : () => c.toggleSearch(false),
+                  decorator: (child) {
+                    return Container(
+                      padding: const EdgeInsets.only(left: 20, right: 6),
+                      height: double.infinity,
+                      child: child,
+                    );
+                  },
                   child: AnimatedSwitcher(
                     duration: 250.milliseconds,
-                    child: WidgetButton(
-                      key: c.search.value == null
-                          ? const Key('SearchButton')
-                          : const Key('CloseSearchButton'),
-                      onPressed: c.search.value == null
-                          ? () => c.toggleSearch(true)
-                          : () => c.toggleSearch(false),
-                      child: Container(
-                        padding: const EdgeInsets.only(left: 20, right: 6),
-                        height: double.infinity,
-                        child: c.search.value != null
-                            ? Icon(
-                                key: const Key('ArrowBack'),
-                                Icons.arrow_back_ios_new,
-                                size: 20,
-                                color: style.colors.primary,
-                              )
-                            : SvgImage.asset(
-                                'assets/icons/search.svg',
-                                width: 17.77,
-                              ),
-                      ),
-                    ),
+                    child: c.search.value != null
+                        ? Icon(
+                            key: const Key('ArrowBack'),
+                            Icons.arrow_back_ios_new,
+                            size: 20,
+                            color: style.colors.primary,
+                          )
+                        : SvgImage.asset(
+                            'assets/icons/search.svg',
+                            width: 17.77,
+                          ),
                   ),
                 );
               }),
