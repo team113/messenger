@@ -166,8 +166,7 @@ class ContactsTabView extends StatelessWidget {
                       AnimatedButton(
                         onPressed: () {
                           if (c.search.value != null) {
-                            if (c.search.value?.search.isEmpty.value ==
-                                false) {
+                            if (c.search.value?.search.isEmpty.value == false) {
                               c.search.value?.search.clear();
                               c.search.value?.query.value = '';
                               c.search.value?.search.focus.requestFocus();

@@ -179,7 +179,8 @@ class ReactiveTextField extends StatelessWidget {
 
       return Obx(() {
         return AnimatedButton(
-          enabled: state.approvable && state.changed.value || onSuffixPressed != null,
+          enabled: state.approvable && state.changed.value ||
+              onSuffixPressed != null,
           onPressed: state.approvable && state.changed.value
               ? state.submit
               : onSuffixPressed,
@@ -195,58 +196,57 @@ class ReactiveTextField extends StatelessWidget {
                     trailing != null ||
                     !state.status.value.isEmpty)
                 ? SizedBox(
-                  height: 24,
-                  child: ElasticAnimatedSwitcher(
-                    child: state.status.value.isLoading
-                        ? SvgImage.asset(
-                            'assets/icons/timer.svg',
-                            width: 17,
-                            height: 17,
-                          )
-                        : state.status.value.isSuccess
-                            ? SizedBox(
-                                key: const ValueKey('Success'),
-                                width: 24,
-                                child: Icon(
-                                  Icons.check,
-                                  size: 18,
-                                  color: style.colors.acceptAuxiliaryColor,
-                                ),
-                              )
-                            : (state.error.value != null &&
-                                        treatErrorAsStatus) ||
-                                    state.status.value.isError
-                                ? SizedBox(
-                                    key: const ValueKey('Error'),
-                                    width: 24,
-                                    child: Icon(
-                                      Icons.error,
-                                      size: 18,
-                                      color: style.colors.dangerColor,
-                                    ),
-                                  )
-                                : (state.approvable && state.changed.value)
-                                    ? AllowOverflow(
-                                        key: const ValueKey('Approve'),
-                                        child: Text(
-                                          'btn_save'.l10n,
-                                          style:
-                                              fonts.bodySmall!.copyWith(
-                                            color: style.colors.primary,
-                                          ),
-                                        ),
-                                      )
-                                    : SizedBox(
-                                      key: const ValueKey('Icon'),
+                    height: 24,
+                    child: ElasticAnimatedSwitcher(
+                      child: state.status.value.isLoading
+                          ? SvgImage.asset(
+                              'assets/icons/timer.svg',
+                              width: 17,
+                              height: 17,
+                            )
+                          : state.status.value.isSuccess
+                              ? SizedBox(
+                                  key: const ValueKey('Success'),
+                                  width: 24,
+                                  child: Icon(
+                                    Icons.check,
+                                    size: 18,
+                                    color: style.colors.acceptAuxiliaryColor,
+                                  ),
+                                )
+                              : (state.error.value != null &&
+                                          treatErrorAsStatus) ||
+                                      state.status.value.isError
+                                  ? SizedBox(
+                                      key: const ValueKey('Error'),
                                       width: 24,
-                                      child: suffix != null
-                                          ? Icon(suffix)
-                                          : trailing == null
-                                              ? Container()
-                                              : trailing!,
-                                    ),
-                  ),
-                )
+                                      child: Icon(
+                                        Icons.error,
+                                        size: 18,
+                                        color: style.colors.dangerColor,
+                                      ),
+                                    )
+                                  : (state.approvable && state.changed.value)
+                                      ? AllowOverflow(
+                                          key: const ValueKey('Approve'),
+                                          child: Text(
+                                            'btn_save'.l10n,
+                                            style: fonts.bodySmall!.copyWith(
+                                              color: style.colors.primary,
+                                            ),
+                                          ),
+                                        )
+                                      : SizedBox(
+                                          key: const ValueKey('Icon'),
+                                          width: 24,
+                                          child: suffix != null
+                                              ? Icon(suffix)
+                                              : trailing == null
+                                                  ? Container()
+                                                  : trailing!,
+                                        ),
+                    ),
+                  )
                 : const SizedBox(width: 1, height: 0),
           ),
         );

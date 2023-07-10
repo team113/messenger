@@ -79,7 +79,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
 
   @override
   Widget build(BuildContext context) {
-    if(!widget.enabled) {
+    if (!widget.enabled) {
       return widget.decorator(widget.child);
     }
 

@@ -286,8 +286,7 @@ class ChatsTabView extends StatelessWidget {
                                       false) {
                                     c.search.value?.search.clear();
                                     c.search.value?.query.value = '';
-                                    c.search.value?.search.focus
-                                        .requestFocus();
+                                    c.search.value?.search.focus.requestFocus();
                                   }
                                 } else if (c.selecting.value) {
                                   c.toggleSelecting();
@@ -298,8 +297,8 @@ class ChatsTabView extends StatelessWidget {
                                 }
                               },
                               child: Container(
-                                padding: const EdgeInsets.only(
-                                    left: 12, right: 18),
+                                padding:
+                                    const EdgeInsets.only(left: 12, right: 18),
                                 height: double.infinity,
                                 child: SizedBox(
                                   width: 21.77,
