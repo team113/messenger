@@ -27,70 +27,100 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 
 class AvatarView extends StatelessWidget {
-  const AvatarView({super.key});
+  const AvatarView({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
     return Wrap(
       spacing: 16,
       runSpacing: 16,
       children: [
-        const _AvatarColorsWidget(),
-        const _AvatarSizesWidget(),
-        Container(
-          height: 260,
-          width: 250,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-            color: style.colors.onPrimary,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Center(
-                  child: Text(
-                    'AnimatedCircleAvatar',
-                    style: fonts.headlineLarge,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const _AnimatedCircleAvatar(
-                  avatar: AvatarWidget(
-                    radius: 100,
-                    title: 'John Doe',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        _AvatarColorsWidget(isDarkMode: isDarkMode),
+        _AnimatedCircleWidget(isDarkMode: isDarkMode),
+        _AvatarSizesWidget(isDarkMode: isDarkMode),
       ],
     );
   }
 }
 
-class _AvatarColorsWidget extends StatelessWidget {
-  const _AvatarColorsWidget({super.key});
+class _AnimatedCircleWidget extends StatelessWidget {
+  const _AnimatedCircleWidget({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      height: 260,
+      width: 250,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Center(
+              child: Text(
+                'AnimatedCircleAvatar',
+                style: fonts.headlineLarge!.copyWith(
+                  color: isDarkMode
+                      ? style.colors.onPrimary
+                      : style.colors.onBackground,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Tooltip(
+              message: 'Radius: 100 \nUsed in: ChatInfoView, MyProfileView',
+              child: _AnimatedCircleAvatar(
+                avatar: AvatarWidget(radius: 100, title: 'John Doe'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarColorsWidget extends StatelessWidget {
+  const _AvatarColorsWidget({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
+        borderRadius: BorderRadius.circular(10),
+      ),
       height: 260,
       width: 505,
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        color: style.colors.onPrimary,
-      ),
       child: Padding(
         padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
         child: Column(
           children: [
-            Center(child: Text('Avatar colors', style: fonts.headlineLarge)),
+            Center(
+              child: Text(
+                'Avatar colors',
+                style: fonts.headlineLarge!.copyWith(
+                  color: isDarkMode
+                      ? style.colors.onPrimary
+                      : style.colors.onBackground,
+                ),
+              ),
+            ),
             const SizedBox(height: 10),
             SizedBox(
               height: 199,
@@ -120,32 +150,40 @@ class _AvatarColorsWidget extends StatelessWidget {
 }
 
 class _AvatarSizesWidget extends StatelessWidget {
-  const _AvatarSizesWidget({super.key});
+  const _AvatarSizesWidget({super.key, required this.isDarkMode});
+
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    return Container(
-      height: 260,
-      width: 505,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        color: style.colors.onPrimary,
+        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
+        borderRadius: BorderRadius.circular(10),
       ),
+      height: 130,
+      width: 285,
       child: Padding(
         padding: const EdgeInsets.all(15),
         child: Column(
           children: [
-            Center(child: Text('AvatarWidget', style: fonts.headlineLarge)),
+            Center(
+              child: Text(
+                'AvatarWidget',
+                style: fonts.headlineLarge!.copyWith(
+                  color: isDarkMode
+                      ? style.colors.onPrimary
+                      : style.colors.onBackground,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
             const Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _StyledAvatar(
-                  message:
-                      'Radius: 100 \nUsed in: ChatInfoView, MyProfileView as AnimatedCircleAvatar',
-                  radius: 100,
-                ),
                 _StyledAvatar(
                     message: 'Radius: 32 \nUsed in: CallTitle', radius: 32),
                 _StyledAvatar(

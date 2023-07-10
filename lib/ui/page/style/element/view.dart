@@ -38,10 +38,10 @@ class ElementStyleTabView extends StatelessWidget {
       children: [
         const Header(label: 'Elements'),
         const SmallHeader(label: 'Avatars'),
-        const AvatarView(),
+        AvatarView(isDarkMode: isDarkMode),
         const Divider(),
         const SmallHeader(label: 'Text fields'),
-        const TextFieldWidget(),
+        TextFieldWidget(isDarkMode: isDarkMode),
         const Divider(),
         const SmallHeader(label: 'Buttons'),
         ButtonsWidget(isDarkMode: isDarkMode),
