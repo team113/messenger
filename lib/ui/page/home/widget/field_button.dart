@@ -131,15 +131,18 @@ class _FieldButtonState extends State<FieldButton> {
             child: AnimatedButton(
               onPressed: widget.onTrailingPressed,
               enabled: widget.onTrailingPressed != null,
-              child: SizedBox(
-                width: 50,
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: widget.trailing!,
+              decorator: (child) {
+                return SizedBox(
+                  width: 50,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: child,
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
+              child: widget.trailing!,
             ),
           ),
         ),

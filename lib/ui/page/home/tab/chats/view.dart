@@ -312,35 +312,38 @@ class ChatsTabView extends StatelessWidget {
                           if (!c.searching.value &&
                               !c.groupCreating.value &&
                               !c.selecting.value)
-                            AnimatedButton(
-                              child: ContextMenuRegion(
-                                key: const Key('ChatsMenu'),
-                                selector: c.moreKey,
-                                alignment: Alignment.topRight,
-                                enablePrimaryTap: true,
-                                enableSecondaryTap: false,
-                                margin:
-                                    const EdgeInsets.only(bottom: 4, right: 0),
-                                actions: [
-                                  ContextMenuButton(
-                                    label: 'btn_create_group'.l10n,
-                                    onPressed: c.startGroupCreating,
-                                  ),
-                                  ContextMenuButton(
-                                    key: const Key('SelectChatsButton'),
-                                    label: 'btn_select_and_delete'.l10n,
-                                    onPressed: c.toggleSelecting,
-                                  ),
-                                ],
-                                child: Container(
-                                  key: c.moreKey,
-                                  padding: const EdgeInsets.only(
-                                      left: 12, right: 18),
-                                  height: double.infinity,
-                                  child: Icon(
-                                    Icons.more_vert,
-                                    color: style.colors.primary,
-                                  ),
+                            ContextMenuRegion(
+                              key: const Key('ChatsMenu'),
+                              selector: c.moreKey,
+                              alignment: Alignment.topRight,
+                              enablePrimaryTap: true,
+                              enableSecondaryTap: false,
+                              margin:
+                                  const EdgeInsets.only(bottom: 4, right: 0),
+                              actions: [
+                                ContextMenuButton(
+                                  label: 'btn_create_group'.l10n,
+                                  onPressed: c.startGroupCreating,
+                                ),
+                                ContextMenuButton(
+                                  key: const Key('SelectChatsButton'),
+                                  label: 'btn_select_and_delete'.l10n,
+                                  onPressed: c.toggleSelecting,
+                                ),
+                              ],
+                              child: AnimatedButton(
+                                decorator: (child) {
+                                  return Container(
+                                    key: c.moreKey,
+                                    padding: const EdgeInsets.only(
+                                        left: 12, right: 18),
+                                    height: double.infinity,
+                                    child: child,
+                                  );
+                                },
+                                child: Icon(
+                                  Icons.more_vert,
+                                  color: style.colors.primary,
                                 ),
                               ),
                             ),

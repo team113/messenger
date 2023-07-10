@@ -25,7 +25,7 @@ class AnimatedButton extends StatefulWidget {
   const AnimatedButton({
     super.key,
     required this.child,
-    this.decorator = AnimatedButton._defaultWrapper,
+    this.decorator = AnimatedButton._defaultDecorator,
     this.onPressed,
     this.enabled = true,
   });
@@ -48,7 +48,8 @@ class AnimatedButton extends StatefulWidget {
   @override
   State<AnimatedButton> createState() => _AnimatedButtonState();
 
-  static Widget _defaultWrapper(Widget child) => child;
+  /// Decorator builder used as the default value of the [decorator].
+  static Widget _defaultDecorator(Widget child) => child;
 }
 
 /// State of the [AnimatedButton] maintaining the animation.
