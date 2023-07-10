@@ -461,6 +461,11 @@ label_contact_information = Контактная информация
 label_contacts = Контакты
 label_copied = Скопировано
 label_copy = Копировать
+label_count_seconds = {$count} { $count ->
+       [one] секунда
+       [few] секунды
+       *[other] секунд
+   }
 label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)

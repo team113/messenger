@@ -25,15 +25,20 @@ import 'package:chewie/src/helpers/utils.dart';
 import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
+import 'rewind_indicator.dart';
 import 'video_progress_bar.dart';
 
 /// Mobile video controls for a [Chewie] player.
 class MobileControls extends StatefulWidget {
   const MobileControls({Key? key, required this.controller}) : super(key: key);
+
+  /// [Duration] to seek forward or backward for.
+  static const Duration seekDuration = Duration(seconds: 5);
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
@@ -59,6 +64,24 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Indicator whether the video progress bar is being dragged.
   bool _dragging = false;
+
+  /// Overall seek forward [Duration].
+  Duration _seekForwardDuration = Duration.zero;
+
+  /// Overall seek backward [Duration].
+  Duration _seekBackwardDuration = Duration.zero;
+
+  /// [Timer] resetting the [_seekForwardDuration].
+  Timer? _seekForwardTimer;
+
+  /// [Timer] resetting the [_seekBackwardDuration].
+  Timer? _seekBackwardTimer;
+
+  /// Indicator whether seek forward indicator should be showed.
+  bool _showSeekForward = false;
+
+  /// Indicator whether seek backward indicator should be showed.
+  bool _showSeekBackward = false;
 
   @override
   void dispose() {
@@ -88,45 +111,52 @@ class _MobileControlsState extends State<MobileControls>
                   : _buildHitArea();
             }),
 
-            // Double tap to seek 10 seconds earlier.
+            // Seek backward indicator.
+            Align(
+              alignment: const Alignment(-0.8, 0),
+              child: RewindIndicator(
+                seconds: _seekBackwardDuration.inSeconds,
+                forward: false,
+                opacity:
+                    _showSeekBackward && _seekBackwardDuration.inSeconds > 0
+                        ? 1
+                        : 0,
+              ),
+            ),
+
+            // Seek forward indicator.
+            Align(
+              alignment: const Alignment(0.8, 0),
+              child: RewindIndicator(
+                seconds: _seekForwardDuration.inSeconds,
+                forward: true,
+                opacity: _showSeekForward && _seekForwardDuration.inSeconds > 0
+                    ? 1
+                    : 0,
+              ),
+            ),
+
+            // Double tap to [_seekBackward].
             Align(
               alignment: Alignment.topLeft,
               child: GestureDetector(
-                onDoubleTap: () {
-                  widget.controller.seekTo(
-                    widget.controller.position.value -
-                        const Duration(seconds: 10),
-                  );
-
-                  if (!_hideStuff) {
-                    _cancelAndRestartTimer();
-                  }
-                },
+                onDoubleTap: _seekBackward,
                 child: Container(
                   color: style.colors.transparent,
-                  width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
+                  width: MediaQuery.of(context).size.width / 4,
                   height: double.infinity,
                 ),
               ),
             ),
 
-            // Double tap to seek 10 seconds forward.
+            // Double tap to [_seekForward].
             Align(
               alignment: Alignment.topRight,
               child: GestureDetector(
-                onDoubleTap: () {
-                  widget.controller.seekTo(
-                    widget.controller.position.value +
-                        const Duration(seconds: 10),
-                  );
-
-                  if (!_hideStuff) {
-                    _cancelAndRestartTimer();
-                  }
-                },
+                onDoubleTap: _seekForward,
                 child: Container(
                   color: style.colors.transparent,
-                  width: (MediaQuery.of(context).size.width / 6).clamp(50, 250),
+                  width: MediaQuery.of(context).size.width / 4,
                   height: double.infinity,
                 ),
               ),
@@ -342,5 +372,98 @@ class _MobileControlsState extends State<MobileControls>
     _hideTimer = Timer(const Duration(seconds: 3), () {
       setState(() => _hideStuff = true);
     });
+  }
+
+  /// Seeks forward for the [MobileControls.seekDuration].
+  void _seekForward() {
+    if (widget.controller.position.value >= widget.controller.duration.value) {
+      return;
+    }
+
+    _hideSeekBackward(timeout: Duration.zero);
+    _seekForwardDuration += Duration(
+      microseconds: (widget.controller.duration.value.inMicroseconds -
+              widget.controller.position.value.inMicroseconds)
+          .clamp(0, MobileControls.seekDuration.inMicroseconds),
+    );
+    _showSeekForward = true;
+
+    widget.controller.seekTo(
+      widget.controller.position.value + MobileControls.seekDuration,
+    );
+
+    if (!_hideStuff) {
+      _cancelAndRestartTimer();
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+
+    _hideSeekForward();
+  }
+
+  /// Hides the seek forward indicator.
+  void _hideSeekForward({Duration timeout = const Duration(seconds: 1)}) {
+    _seekForwardTimer?.cancel();
+    _seekForwardTimer = Timer(
+      timeout,
+      () async {
+        if (mounted) {
+          setState(() => _showSeekForward = false);
+        }
+
+        await Future.delayed(200.milliseconds);
+        if (!_showSeekForward) {
+          _seekForwardDuration = Duration.zero;
+        }
+      },
+    );
+  }
+
+  /// Seeks backward for the [MobileControls.seekDuration].
+  void _seekBackward() {
+    if (widget.controller.duration.value == Duration.zero) {
+      return;
+    }
+
+    _hideSeekForward(timeout: Duration.zero);
+    _seekBackwardDuration += Duration(
+      microseconds: widget.controller.position.value.inMicroseconds
+          .clamp(0, MobileControls.seekDuration.inMicroseconds),
+    );
+    _showSeekBackward = true;
+
+    widget.controller.seekTo(
+      widget.controller.position.value - MobileControls.seekDuration,
+    );
+
+    if (!_hideStuff) {
+      _cancelAndRestartTimer();
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+
+    _hideSeekBackward();
+  }
+
+  /// Hides the seek backward indicator.
+  void _hideSeekBackward({Duration timeout = const Duration(seconds: 1)}) {
+    _seekBackwardTimer?.cancel();
+    _seekBackwardTimer = Timer(
+      timeout,
+      () async {
+        if (mounted) {
+          setState(() => _showSeekBackward = false);
+        }
+
+        await Future.delayed(200.milliseconds);
+        if (!_showSeekBackward) {
+          _seekBackwardDuration = Duration.zero;
+        }
+      },
+    );
   }
 }
