@@ -42,19 +42,19 @@ import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
-import 'widget/profile_tab/background.dart';
-import 'widget/profile_tab/blacklist.dart';
-import 'widget/profile_tab/calls.dart';
-import 'widget/profile_tab/chats.dart';
-import 'widget/profile_tab/danger.dart';
-import 'widget/profile_tab/download.dart';
-import 'widget/profile_tab/language.dart';
-import 'widget/profile_tab/link.dart';
-import 'widget/profile_tab/media.dart';
-import 'widget/profile_tab/notifications.dart';
-import 'widget/profile_tab/public.dart';
-import 'widget/profile_tab/singing.dart';
-import 'widget/profile_tab/storage.dart';
+import 'widget/background_preview.dart';
+import 'tab/blacklist.dart';
+import 'tab/calls.dart';
+import 'tab/chats.dart';
+import 'tab/danger.dart';
+import 'tab/download.dart';
+import 'tab/language.dart';
+import 'tab/link.dart';
+import 'tab/media.dart';
+import 'tab/notifications.dart';
+import 'tab/public.dart';
+import 'tab/singing.dart';
+import 'tab/storage.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -246,11 +246,12 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_your_direct_link'.l10n,
                           children: [
-                            ProfileLink(
-                              c.link,
-                              transitionCount:
-                                  c.myUser.value?.chatDirectLink?.usageCount,
-                            )
+                            Obx(() {
+                              return DirectLinkField(
+                                c.myUser.value?.chatDirectLink,
+                                onCreate: c.createChatDirectLink,
+                              );
+                            }),
                           ],
                         );
 
@@ -259,10 +260,10 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_background'.l10n,
                           children: [
                             Obx(() {
-                              return ProfileBackground(
+                              return BackgroundPreview(
                                 c.background.value,
-                                () => c.pickBackground(),
-                                () => c.removeBackground(),
+                                onPick: c.pickBackground,
+                                onRemove: c.removeBackground,
                               );
                             })
                           ],

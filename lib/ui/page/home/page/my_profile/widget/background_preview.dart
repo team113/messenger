@@ -24,24 +24,27 @@ import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
-/// [Container] with a background image or a default SVG image if no
-/// background is set.
-class ProfileBackground extends StatelessWidget {
-  const ProfileBackground(
-    this.background,
-    this.pickBackground,
-    this.removeBackground, {
+/// Rectangular preview of the provided [background] displaying messages above
+/// it along with manipulation buttons under the preview, if [onPick] and
+/// [onRemove] are provided.
+///
+/// Intended to be used as a [AbstractSettingsRepository.background] preview.
+class BackgroundPreview extends StatelessWidget {
+  const BackgroundPreview(
+    this.background, {
     super.key,
+    this.onPick,
+    this.onRemove,
   });
 
   /// [Uint8List] that returns the current background.
   final Uint8List? background;
 
   /// Opens an image choose popup and sets the selected file as a [background].
-  final void Function()? pickBackground;
+  final void Function()? onPick;
 
   /// Removes the currently set [background].
-  final void Function()? removeBackground;
+  final void Function()? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +54,7 @@ class ProfileBackground extends StatelessWidget {
       Column(
         children: [
           WidgetButton(
-            onPressed: pickBackground,
+            onPressed: onPick,
             child: Container(
               decoration: BoxDecoration(
                 border: style.primaryBorder,
@@ -104,15 +107,14 @@ class ProfileBackground extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Center(
+          if (onPick != null && onRemove != null) ...[
+            const SizedBox(height: 10),
+            Center(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   WidgetButton(
-                    onPressed:
-                        background == null ? pickBackground : removeBackground,
+                    onPressed: background == null ? onPick : onRemove,
                     child: Text(
                       background == null
                           ? 'btn_upload'.l10n
@@ -125,7 +127,7 @@ class ProfileBackground extends StatelessWidget {
                 ],
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
