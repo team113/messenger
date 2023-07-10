@@ -446,6 +446,10 @@ label_contact_information = Contact information
 label_contacts = Contacts
 label_copied = Copied
 label_copy = Copy
+label_count_seconds = {$count} { $count ->
+       [1] second
+       *[other] seconds
+   }
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
