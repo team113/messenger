@@ -44,7 +44,8 @@ class ResetAppHook extends Hook {
     await Get.deleteAll(force: true);
     Get.reset();
 
-    PlatformUtils.dio.interceptors.removeWhere((e) => e is DelayedInterceptor);
+    PlatformUtils.client?.interceptors
+        .removeWhere((e) => e is DelayedInterceptor);
 
     await Future.delayed(Duration.zero);
     await Hive.close();

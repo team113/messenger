@@ -183,7 +183,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  void reconnect() {}
+  Future<void> reconnect() async {}
 
   var userData = {
     'id': 'me',

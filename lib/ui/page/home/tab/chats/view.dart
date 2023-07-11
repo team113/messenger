@@ -25,7 +25,6 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
-import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -38,6 +37,8 @@ import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
@@ -172,21 +173,75 @@ class ChatsTabView extends StatelessWidget {
                   leading: [
                     Obx(() {
                       if (c.selecting.value) {
-                        return const SizedBox(width: 49.77);
+                        final bool selected = c.chats.isNotEmpty &&
+                            c.chats.where((e) {
+                              return (!e.id.isLocal ||
+                                      e.messages.isNotEmpty ||
+                                      e.chat.value.isMonolog) &&
+                                  !e.chat.value.isHidden;
+                            }).every(
+                              (e) => c.selectedChats.any((m) => m == e.id),
+                            );
+
+                        return WidgetButton(
+                          onPressed: () {
+                            if (selected) {
+                              c.selectedChats.clear();
+                            } else {
+                              final List<RxChat> chats = [];
+
+                              for (RxChat e in c.chats) {
+                                if ((!e.id.isLocal ||
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden) {
+                                  chats.add(e);
+                                }
+                              }
+
+                              for (var e in chats) {
+                                if (!c.selectedChats.contains(e.id)) {
+                                  c.selectChat(e);
+                                }
+                              }
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 20, right: 6),
+                            height: double.infinity,
+                            child: SelectedDot(
+                              selected: selected,
+                              inverted: false,
+                              outlined: !selected,
+                              size: 21,
+                            ),
+                          ),
+                        );
                       }
 
                       return AnimatedSwitcher(
                         duration: 250.milliseconds,
                         child: WidgetButton(
-                          key: const Key('SearchButton'),
-                          onPressed: c.searching.value ? null : c.startSearch,
+                          key: c.searching.value
+                              ? const Key('CloseSearchButton')
+                              : const Key('SearchButton'),
+                          onPressed: c.searching.value
+                              ? () => c.closeSearch(c.groupCreating.isFalse)
+                              : () => c.startSearch(),
                           child: Container(
-                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            padding: const EdgeInsets.only(left: 20, right: 6),
                             height: double.infinity,
-                            child: SvgImage.asset(
-                              'assets/icons/search.svg',
-                              width: 17.77,
-                            ),
+                            child: c.searching.value
+                                ? Icon(
+                                    key: const Key('ArrowBack'),
+                                    Icons.arrow_back_ios_new,
+                                    size: 20,
+                                    color: style.colors.primary,
+                                  )
+                                : SvgImage.asset(
+                                    'assets/icons/search.svg',
+                                    width: 17.77,
+                                  ),
                           ),
                         ),
                       );
@@ -194,57 +249,95 @@ class ChatsTabView extends StatelessWidget {
                   ],
                   actions: [
                     Obx(() {
-                      final Widget child;
+                      Widget? child;
 
                       if (c.searching.value) {
-                        child = SvgImage.asset(
-                          'assets/icons/close_primary.svg',
-                          key: const Key('CloseSearch'),
-                          height: 15,
-                        );
+                        if (c.search.value?.search.isEmpty.value == false) {
+                          child = SvgImage.asset(
+                            'assets/icons/search_exit.svg',
+                            key: const Key('CloseSearch'),
+                            height: 11,
+                          );
+                        }
                       } else {
-                        child = c.groupCreating.value || c.selecting.value
-                            ? SvgImage.asset(
-                                'assets/icons/close_primary.svg',
-                                key: const Key('CloseGroupSearching'),
-                                height: 15,
-                              )
-                            : SvgImage.asset(
-                                'assets/icons/group.svg',
-                                key: const Key('CreateGroup'),
-                                width: 21.77,
-                                height: 18.44,
-                              );
+                        if (c.groupCreating.value || c.selecting.value) {
+                          child = SvgImage.asset(
+                            'assets/icons/close_primary.svg',
+                            key: const Key('CloseGroupSearching'),
+                            height: 15,
+                          );
+                        }
                       }
 
-                      return WidgetButton(
-                        key: c.searching.value
-                            ? const Key('CloseSearchButton')
-                            : null,
-                        onPressed: () {
-                          if (c.searching.value) {
-                            c.closeSearch(!c.groupCreating.value);
-                          } else if (c.selecting.value) {
-                            c.toggleSelecting();
-                          } else {
-                            if (c.groupCreating.value) {
-                              c.closeGroupCreating();
-                            } else {
-                              c.startGroupCreating();
-                            }
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 12, right: 18),
-                          height: double.infinity,
-                          child: SizedBox(
-                            width: 21.77,
-                            child: AnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
+                      return Row(
+                        children: [
+                          if (child != null)
+                            WidgetButton(
+                              key: c.searching.value
+                                  ? const Key('CloseSearchButton')
+                                  : null,
+                              onPressed: () {
+                                if (c.searching.value) {
+                                  if (c.search.value?.search.isEmpty.value ==
+                                      false) {
+                                    c.search.value?.search.clear();
+                                    c.search.value?.query.value = '';
+                                    c.search.value?.search.focus.requestFocus();
+                                  }
+                                } else if (c.selecting.value) {
+                                  c.toggleSelecting();
+                                } else {
+                                  if (c.groupCreating.value) {
+                                    c.closeGroupCreating();
+                                  }
+                                }
+                              },
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.only(left: 12, right: 18),
+                                height: double.infinity,
+                                child: SizedBox(
+                                  width: 21.77,
+                                  child: AnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          if (!c.searching.value &&
+                              !c.groupCreating.value &&
+                              !c.selecting.value)
+                            ContextMenuRegion(
+                              key: const Key('ChatsMenu'),
+                              selector: c.moreKey,
+                              alignment: Alignment.topRight,
+                              enablePrimaryTap: true,
+                              margin:
+                                  const EdgeInsets.only(bottom: 4, right: 0),
+                              actions: [
+                                ContextMenuButton(
+                                  label: 'btn_create_group'.l10n,
+                                  onPressed: c.startGroupCreating,
+                                ),
+                                ContextMenuButton(
+                                  key: const Key('SelectChatsButton'),
+                                  label: 'btn_select_and_delete'.l10n,
+                                  onPressed: c.toggleSelecting,
+                                ),
+                              ],
+                              child: Container(
+                                key: c.moreKey,
+                                padding:
+                                    const EdgeInsets.only(left: 12, right: 18),
+                                height: double.infinity,
+                                child: Icon(
+                                  Icons.more_vert,
+                                  color: style.colors.primary,
+                                ),
+                              ),
+                            ),
+                        ],
                       );
                     }),
                   ],
@@ -256,7 +349,7 @@ class ChatsTabView extends StatelessWidget {
 
                   final Widget? child;
 
-                  if (c.groupCreating.value) {
+                  if (c.groupCreating.isTrue) {
                     Widget? center;
 
                     if (c.search.value?.query.isNotEmpty == true &&
@@ -519,11 +612,8 @@ class ChatsTabView extends StatelessWidget {
                   } else {
                     if (c.chats.none(
                       (e) {
-                        final bool isHidden = e.chat.value.isHidden &&
-                            !e.chat.value.isRoute(router.route, c.me);
-
                         return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                            !isHidden;
+                            !e.chat.value.isHidden;
                       },
                     )) {
                       if (c.status.value.isLoadingMore) {
@@ -555,13 +645,10 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> chats = [];
 
                             for (RxChat e in c.chats) {
-                              final bool isHidden = e.chat.value.isHidden &&
-                                  !e.chat.value.isRoute(router.route, c.me);
-
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
-                                  !isHidden) {
+                                  !e.chat.value.isHidden) {
                                 if (e.chat.value.ongoingCall != null) {
                                   calls.add(e);
                                 } else if (e.chat.value.favoritePosition !=

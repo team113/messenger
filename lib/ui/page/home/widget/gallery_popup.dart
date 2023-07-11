@@ -567,16 +567,21 @@ class _GalleryPopupState extends State<GalleryPopup>
                       node.requestFocus();
                       _toggleFullscreen();
                     },
-                    child: PlatformUtils.isWeb
-                        ? WebImage(
-                            e.link,
-                            onForbidden: e.onError,
-                          )
-                        : RetryImage(
-                            e.link,
-                            checksum: e.checksum,
-                            onForbidden: e.onError,
-                          ),
+                    child: FittedBox(
+                      fit: _isFullscreen.isTrue
+                          ? BoxFit.contain
+                          : BoxFit.scaleDown,
+                      child: PlatformUtils.isWeb
+                          ? WebImage(
+                              e.link,
+                              onForbidden: e.onError,
+                            )
+                          : RetryImage(
+                              e.link,
+                              checksum: e.checksum,
+                              onForbidden: e.onError,
+                            ),
+                    ),
                   ),
           ),
         );

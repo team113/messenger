@@ -210,6 +210,7 @@ btn_resend_message = Resend message
 btn_save = Save
 btn_save_to_gallery = Save to gallery
 btn_select = Select
+btn_select_and_delete = Select and delete
 btn_set_password = Set password
 btn_settings = Settings
 btn_share = Share
@@ -445,6 +446,10 @@ label_contact_information = Contact information
 label_contacts = Contacts
 label_copied = Copied
 label_copy = Copy
+label_count_seconds = {$count} { $count ->
+       [1] second
+       *[other] seconds
+   }
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
@@ -679,6 +684,8 @@ label_short_weekday =
     }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sort_by_name = Sort by name
+label_sort_by_visit = Sort by visit
 label_sound_and_vibrations = Sound and vibration
 label_status = Status
 label_storage = Storage

@@ -43,13 +43,25 @@ PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
 /// Helper providing platform related features.
 class PlatformUtilsImpl {
-  /// Path to the downloads directory.
-  String? _downloadDirectory;
-
   /// [Dio] client to use in queries.
   ///
   /// May be overridden to be mocked in tests.
-  Dio dio = Dio();
+  Dio? client;
+
+  /// Path to the downloads directory.
+  String? _downloadDirectory;
+
+  /// `User-Agent` header to put in the network requests.
+  String? _userAgent;
+
+  /// Returns a [Dio] client to use in queries.
+  Future<Dio> get dio async {
+    client ??= Dio(
+      BaseOptions(headers: {if (!isWeb) 'User-Agent': await userAgent}),
+    );
+
+    return client!;
+  }
 
   /// [StreamController] of the application's [_isActive] status changes.
   StreamController<bool>? _activityController;
@@ -93,6 +105,12 @@ class PlatformUtilsImpl {
   /// Indicates whether device is running on a desktop OS.
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
+
+  /// Returns a `User-Agent` header to put in the network requests.
+  Future<String> get userAgent async {
+    _userAgent ??= await WebUtils.userAgent;
+    return _userAgent!;
+  }
 
   /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
@@ -300,7 +318,7 @@ class PlatformUtilsImpl {
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
       size = size ??
-          int.parse(((await dio.head(url!)).headers['content-length']
+          int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
       String downloads = await PlatformUtils.downloadsDirectory;
@@ -393,7 +411,7 @@ class PlatformUtilsImpl {
               await Backoff.run(
                 () async {
                   try {
-                    await dio.download(
+                    await (await dio).download(
                       url,
                       file!.path,
                       onReceiveProgress: onReceiveProgress,
@@ -443,7 +461,7 @@ class PlatformUtilsImpl {
       final String path = '${temp.path}/$name';
       final File file = File(path);
       if (data == null) {
-        await dio.download(url, path);
+        await (await dio).download(url, path);
       } else {
         await file.writeAsBytes(data);
       }
@@ -462,7 +480,7 @@ class PlatformUtilsImpl {
     if (data == null) {
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
-      await dio.download(url, path);
+      await (await dio).download(url, path);
       await Share.shareXFiles([XFile(path)]);
       File(path).delete();
     } else {

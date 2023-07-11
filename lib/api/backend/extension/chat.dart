@@ -549,10 +549,10 @@ extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
       }
     } else if (node.$$typename == 'ChatForward') {
       var message = node as GetAttachments$Query$ChatItem$Node$ChatForward;
-      if (message.quote.original?.node.$$typename == 'ChatMessage') {
-        var node = message.quote.original?.node
-            as GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage;
-        attachments.addAll(node.attachments.map((e) => e.toModel()));
+      if (message.quote.$$typename == 'ChatMessageQuote') {
+        var quote = message.quote
+            as GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote;
+        attachments.addAll(quote.attachments.map((e) => e.toModel()));
       }
     }
 
@@ -570,11 +570,11 @@ extension GetAttachmentsChatMessageAttachmentConversion
 }
 
 /// Extension adding models construction from
-/// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments].
+/// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments].
 extension GetAttachmentsChatForwardAttachmentConversion
-    on GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments {
+    on GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments {
   /// Constructs a new [Attachment] from this
-  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments].
+  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments].
   Attachment toModel() => _attachment(this);
 }
 
