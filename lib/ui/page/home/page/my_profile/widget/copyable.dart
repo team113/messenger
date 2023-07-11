@@ -24,8 +24,7 @@ import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// Copyable text field that puts a [copy] of data into the clipboard on click
-/// or on context menu action.
+/// Copyable text field that puts a data into the clipboard on trailing click.
 class CopyableTextField extends StatelessWidget {
   const CopyableTextField({
     super.key,
@@ -83,7 +82,7 @@ class CopyableTextField extends StatelessWidget {
     );
   }
 
-  /// Puts a [copy] of data into the clipboard and shows a snackbar.
+  /// Puts a [TextFieldState.text] into the clipboard and shows a snackbar.
   void _copy() {
     PlatformUtils.copy(text: state.text);
     MessagePopup.success('label_copied'.l10n);
