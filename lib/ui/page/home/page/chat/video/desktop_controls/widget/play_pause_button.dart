@@ -45,21 +45,18 @@ class StyledPlayPauseButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Transform.translate(
-      offset: const Offset(0, 0),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: height,
-          color: style.colors.transparent,
-          child: RxBuilder((_) {
-            return AnimatedPlayPause(
-              size: 21,
-              playing: controller.playerStatus.playing,
-              color: style.colors.onPrimary,
-            );
-          }),
-        ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: height,
+        color: style.colors.transparent,
+        child: RxBuilder((_) {
+          return AnimatedPlayPause(
+            size: 21,
+            playing: controller.playerStatus.playing,
+            color: style.colors.onPrimary,
+          );
+        }),
       ),
     );
   }

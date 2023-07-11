@@ -22,8 +22,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
+import 'volume_bar.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/volume_bar.dart';
 
 /// [Widget] which returns [Stack]ed volume overlay.
 class VolumeOverlay extends StatelessWidget {
@@ -76,9 +76,7 @@ class VolumeOverlay extends StatelessWidget {
                         child: RotatedBox(
                           quarterTurns: 3,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: VideoVolumeBar(
                               controller,
                               colors: ChewieProgressColors(

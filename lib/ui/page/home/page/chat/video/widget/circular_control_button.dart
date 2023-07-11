@@ -15,50 +15,48 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:chewie/chewie.dart';
+// ignore_for_file: implementation_imports
+
+import 'package:chewie/src/center_play_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
-import '/ui/page/home/page/chat/widget/video_progress_bar.dart';
 import '/themes.dart';
 
-/// Custom styled [ProgressBar] of the current video progression.
-class CustomProgressBar extends StatelessWidget {
-  const CustomProgressBar({
+/// [Center]ed play/pause circular button.
+class CircularControlButton extends StatelessWidget {
+  const CircularControlButton({
     super.key,
     required this.controller,
-    this.onDragStart,
-    this.onDragEnd,
+    this.onPressed,
+    this.show = true,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Callback, called when progress drag started.
-  final dynamic Function()? onDragStart;
+  /// Indicator whether this [CircularControlButton] should be show or not.
+  final bool show;
 
-  /// Callback, called when progress drag ended.
-  final dynamic Function()? onDragEnd;
+  /// Callback, called when this [CircularControlButton] is pressed.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Expanded(
-      child: ProgressBar(
-        controller,
-        barHeight: 2,
-        handleHeight: 6,
-        drawShadow: true,
-        onDragStart: onDragStart,
-        onDragEnd: onDragEnd,
-        colors: ChewieProgressColors(
-          playedColor: style.colors.primary,
-          handleColor: style.colors.primary,
-          bufferedColor: style.colors.background.withOpacity(0.5),
-          backgroundColor: style.colors.secondary.withOpacity(0.5),
-        ),
-      ),
-    );
+    return RxBuilder((_) {
+      final bool isFinished =
+          controller.position.value >= controller.duration.value;
+
+      return CenterPlayButton(
+        backgroundColor: style.colors.onBackgroundOpacity13,
+        iconColor: style.colors.onPrimary,
+        isFinished: isFinished,
+        isPlaying: controller.playerStatus.playing,
+        show: show,
+        onPressed: onPressed,
+      );
+    });
   }
 }

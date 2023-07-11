@@ -17,20 +17,20 @@
 
 import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:messenger/ui/page/home/page/chat/video/widget/video_progress_bar.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
-import 'current_position.dart';
+import '../../widget/current_position.dart';
 import 'expand_button.dart';
 import 'mute_button.dart';
 import 'play_pause_button.dart';
-import 'progress_bar.dart';
+import 'volume_overlay.dart';
 
 /// Desktop design of a video bottom controls bar.
-class BottomControlBar extends StatelessWidget {
+class BottomControlBar extends StatefulWidget {
   const BottomControlBar({
     super.key,
     required this.controller,
@@ -41,7 +41,6 @@ class BottomControlBar extends StatelessWidget {
     this.onFullscreen,
     this.onDragStart,
     this.onDragEnd,
-    this.onEnter,
     this.isFullscreen = false,
     this.visible = true,
   });
@@ -76,8 +75,19 @@ class BottomControlBar extends StatelessWidget {
   /// Callback, called when progress drag ended.
   final dynamic Function()? onDragEnd;
 
-  /// Callback, called when a mouse pointer has entered this [BottomControlBar].
-  final void Function(PointerEnterEvent)? onEnter;
+  @override
+  State<BottomControlBar> createState() => _BottomControlBarState();
+}
+
+class _BottomControlBarState extends State<BottomControlBar> {
+  /// [OverlayEntry] of the volume popup bar.
+  OverlayEntry? _volumeEntry;
+
+  @override
+  void dispose() {
+    _volumeEntry?.remove();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +95,7 @@ class BottomControlBar extends StatelessWidget {
 
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
-      isOpen: visible,
+      isOpen: widget.visible,
       translate: false,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8, left: 32, right: 32),
@@ -105,31 +115,61 @@ class BottomControlBar extends StatelessWidget {
                 children: [
                   const SizedBox(width: 7),
                   StyledPlayPauseButton(
-                    controller: controller,
-                    height: barHeight,
-                    onTap: onPlayPause,
+                    controller: widget.controller,
+                    height: widget.barHeight,
+                    onTap: widget.onPlayPause,
                   ),
                   const SizedBox(width: 12),
-                  CurrentPosition(controller: controller),
+                  CurrentPosition(controller: widget.controller),
                   const SizedBox(width: 12),
-                  CustomProgressBar(
-                    controller: controller,
-                    onDragStart: onDragStart,
-                    onDragEnd: onDragEnd,
+                  Expanded(
+                    child: ProgressBar(
+                      widget.controller,
+                      drawShadow: false,
+                      onDragStart: widget.onDragStart,
+                      onDragEnd: widget.onDragEnd,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   MuteButton(
-                    key: volumeKey,
-                    controller: controller,
-                    height: barHeight,
-                    onEnter: onEnter,
-                    onTap: onMute,
+                    key: widget.volumeKey,
+                    controller: widget.controller,
+                    height: widget.barHeight,
+                    onEnter: (_) {
+                      if (mounted && _volumeEntry == null) {
+                        Offset offset = Offset.zero;
+                        final keyContext = widget.volumeKey?.currentContext;
+                        if (keyContext != null) {
+                          final box =
+                              keyContext.findRenderObject() as RenderBox;
+                          offset = box.localToGlobal(Offset.zero);
+                        }
+
+                        _volumeEntry = OverlayEntry(
+                          builder: (_) => VolumeOverlay(
+                            controller: widget.controller,
+                            offset: offset,
+                            onExit: (d) {
+                              if (mounted) {
+                                _volumeEntry?.remove();
+                                _volumeEntry = null;
+                                setState(() {});
+                              }
+                            },
+                          ),
+                        );
+                        Overlay.of(context, rootOverlay: true)
+                            .insert(_volumeEntry!);
+                        setState(() {});
+                      }
+                    },
+                    onTap: widget.onMute,
                   ),
                   const SizedBox(width: 12),
                   ExpandButton(
-                    isFullscreen: isFullscreen,
-                    height: barHeight,
-                    onTap: onFullscreen,
+                    isFullscreen: widget.isFullscreen,
+                    height: widget.barHeight,
+                    onTap: widget.onFullscreen,
                   ),
                   const SizedBox(width: 12),
                 ],

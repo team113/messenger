@@ -24,8 +24,7 @@ import 'package:get/get.dart';
 
 import '/ui/widget/progress_indicator.dart';
 import 'widget/bottom_control_bar.dart';
-import 'widget/hit_area.dart';
-import 'widget/volume_overlay.dart';
+import '../widget/circular_control_button.dart';
 
 /// Desktop video controls for a [MeeduVideoPlayer].
 class DesktopControlsView extends StatefulWidget {
@@ -36,10 +35,14 @@ class DesktopControlsView extends StatefulWidget {
     this.toggleFullscreen,
     this.isFullscreen,
     this.showInterfaceFor,
+    this.barHeight,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
+
+  /// Height of the bottom controls bar.
+  final double? barHeight;
 
   /// Indicator of whether this video is in fullscreen mode.
   final bool? isFullscreen;
@@ -60,9 +63,6 @@ class DesktopControlsView extends StatefulWidget {
 /// State of [DesktopControlsView], used to control a video.
 class _DesktopControlsState extends State<DesktopControlsView>
     with SingleTickerProviderStateMixin {
-  /// Height of the bottom controls bar.
-  final _barHeight = 48.0 * 1.5;
-
   /// Indicator whether user interface should be hidden or not.
   bool _hideStuff = true;
 
@@ -165,11 +165,9 @@ class _DesktopControlsState extends State<DesktopControlsView>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : HitArea(
+                  : CircularControlButton(
                       controller: widget.controller,
-                      opacity: !_dragging && !_hideStuff || _showInterface
-                          ? 1.0
-                          : 0.0,
+                      show: !_dragging && !_hideStuff || _showInterface,
                       onPressed: _playPause,
                     );
             }),
@@ -179,7 +177,7 @@ class _DesktopControlsState extends State<DesktopControlsView>
                 BottomControlBar(
                   controller: widget.controller,
                   volumeKey: _volumeKey,
-                  barHeight: _barHeight,
+                  barHeight: widget.barHeight,
                   visible: _showBottomBar || _showInterface,
                   isFullscreen: widget.isFullscreen == true,
                   onPlayPause: _playPause,
@@ -200,33 +198,6 @@ class _DesktopControlsState extends State<DesktopControlsView>
                   onDragEnd: () {
                     setState(() => _dragging = false);
                     _startHideTimer();
-                  },
-                  onEnter: (_) {
-                    if (mounted && _volumeEntry == null) {
-                      Offset offset = Offset.zero;
-                      final keyContext = _volumeKey.currentContext;
-                      if (keyContext != null) {
-                        final box = keyContext.findRenderObject() as RenderBox;
-                        offset = box.localToGlobal(Offset.zero);
-                      }
-
-                      _volumeEntry = OverlayEntry(
-                        builder: (_) => VolumeOverlay(
-                          controller: widget.controller,
-                          offset: offset,
-                          onExit: (d) {
-                            if (mounted) {
-                              _volumeEntry?.remove();
-                              _volumeEntry = null;
-                              setState(() {});
-                            }
-                          },
-                        ),
-                      );
-                      Overlay.of(context, rootOverlay: true)
-                          .insert(_volumeEntry!);
-                      setState(() {});
-                    }
                   },
                 )
               ],

@@ -17,11 +17,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:messenger/ui/page/home/page/chat/video/widget/video_progress_bar.dart';
 
+import '../../widget/current_position.dart';
 import '/themes.dart';
-import 'current_position.dart';
+
 import 'mute_button.dart';
-import 'progress_bar.dart';
 
 /// Mobile design of a video bottom controls bar.
 class BottomControlBar extends StatelessWidget {
@@ -86,7 +87,6 @@ class BottomControlBar extends StatelessWidget {
                       CurrentPosition(controller: controller),
                       MuteButton(
                         controller: controller,
-                        opacity: hideStuff ? 0.0 : 1.0,
                         height: barHeight,
                         onTap: onMute,
                       ),
@@ -96,13 +96,18 @@ class BottomControlBar extends StatelessWidget {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.only(right: 20),
-                    child: Row(children: [
-                      CustomProgressBar(
-                        controller: controller,
-                        onDragStart: onDragStart,
-                        onDragEnd: onDragEnd,
-                      )
-                    ]),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ProgressBar(
+                            controller,
+                            drawShadow: true,
+                            onDragStart: onDragStart,
+                            onDragEnd: onDragEnd,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ],

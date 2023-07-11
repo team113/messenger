@@ -19,6 +19,8 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
+import '/themes.dart';
+
 /// Draggable video progress bar.
 class ProgressBar extends StatefulWidget {
   ProgressBar(
@@ -28,8 +30,6 @@ class ProgressBar extends StatefulWidget {
     this.onDragStart,
     this.onDragUpdate,
     super.key,
-    required this.barHeight,
-    required this.handleHeight,
     required this.drawShadow,
   }) : colors = colors ?? ChewieProgressColors();
 
@@ -48,12 +48,6 @@ class ProgressBar extends StatefulWidget {
   /// Callback, called when progress drag updated.
   final Function()? onDragUpdate;
 
-  /// Height of the progress bar.
-  final double barHeight;
-
-  /// Radius of the progress handle.
-  final double handleHeight;
-
   /// Indicator whether a shadow should be drawn around this [ProgressBar].
   final bool drawShadow;
 
@@ -71,10 +65,12 @@ class _ProgressBarState extends State<ProgressBar> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     final child = Center(
       child: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.sizeOf(context).height,
+        width: MediaQuery.sizeOf(context).width,
         color: Colors.transparent,
         child: RxBuilder((_) {
           return CustomPaint(
@@ -82,9 +78,14 @@ class _ProgressBarState extends State<ProgressBar> {
               duration: widget.controller.duration.value,
               position: widget.controller.position.value,
               buffered: widget.controller.buffered.value,
-              colors: widget.colors,
-              barHeight: widget.barHeight,
-              handleHeight: widget.handleHeight,
+              colors: ChewieProgressColors(
+                playedColor: style.colors.primary,
+                handleColor: style.colors.primary,
+                bufferedColor: style.colors.background.withOpacity(0.5),
+                backgroundColor: style.colors.secondary.withOpacity(0.5),
+              ),
+              barHeight: 2,
+              handleHeight: 6,
               drawShadow: widget.drawShadow,
             ),
           );

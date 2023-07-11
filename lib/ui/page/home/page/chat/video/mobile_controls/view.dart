@@ -20,18 +20,25 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
+import '../widget/circular_control_button.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/video/mobile_controls/widget/bottom_control_bar.dart';
-import '/ui/page/home/page/chat/video/mobile_controls/widget/hit_area.dart';
+import 'widget/bottom_control_bar.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
 /// Mobile video controls for a [MeeduVideoPlayer].
 class MobileControlsView extends StatefulWidget {
-  const MobileControlsView({super.key, required this.controller});
+  const MobileControlsView({
+    super.key,
+    required this.controller,
+    this.barHeight,
+  });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
+
+  /// Height of the bottom controls bar.
+  final double? barHeight;
 
   @override
   State<StatefulWidget> createState() => _MobileControlsState();
@@ -40,9 +47,6 @@ class MobileControlsView extends StatefulWidget {
 /// State of [MobileControlsView], used to control a video.
 class _MobileControlsState extends State<MobileControlsView>
     with SingleTickerProviderStateMixin {
-  /// Height of the bottom controls bar.
-  final _barHeight = 48.0 * 1.5;
-
   /// Indicator whether user interface should be visible or not.
   bool _hideStuff = true;
 
@@ -80,7 +84,7 @@ class _MobileControlsState extends State<MobileControlsView>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : HitArea(
+                  : CircularControlButton(
                       controller: widget.controller,
                       show: !_dragging && !_hideStuff,
                       onPressed: _playPause,
@@ -139,7 +143,7 @@ class _MobileControlsState extends State<MobileControlsView>
                 children: [
                   BottomControlBar(
                     controller: widget.controller,
-                    barHeight: _barHeight,
+                    barHeight: widget.barHeight,
                     hideStuff: _hideStuff,
                     onMute: () {
                       _cancelAndRestartTimer();

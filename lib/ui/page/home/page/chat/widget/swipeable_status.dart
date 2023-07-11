@@ -79,7 +79,10 @@ class SwipeableStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
+
+    final bool isMessageComplete =
+        isSent || isDelivered || isRead || isSending || isError;
 
     if (animation == null) {
       return child;
@@ -96,29 +99,47 @@ class SwipeableStatus extends StatelessWidget {
             padding: padding,
             child: SizedBox(
               width: status ? width : width - 15,
-              child: _SwipeableWithStatus(
-                children: [
-                  if (status) ...[
-                    if (isSent || isDelivered || isRead || isSending || isError)
-                      Icon(
-                        (isRead || isDelivered)
-                            ? Icons.done_all
-                            : isSending
-                                ? Icons.access_alarm
+              child: DefaultTextStyle.merge(
+                textAlign: TextAlign.end,
+                maxLines: 1,
+                overflow: TextOverflow.visible,
+                style:
+                    fonts.labelSmall!.copyWith(color: style.colors.secondary),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  margin: const EdgeInsets.only(right: 2, left: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: style.systemMessageBorder,
+                    color: style.systemMessageColor,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (status) ...[
+                        if (isMessageComplete)
+                          Icon(
+                            (isRead || isDelivered)
+                                ? Icons.done_all
+                                : isSending
+                                    ? Icons.access_alarm
+                                    : isError
+                                        ? Icons.error_outline
+                                        : Icons.done,
+                            color: isRead
+                                ? style.colors.primary
                                 : isError
-                                    ? Icons.error_outline
-                                    : Icons.done,
-                        color: isRead
-                            ? style.colors.primary
-                            : isError
-                                ? style.colors.dangerColor
-                                : style.colors.secondary,
-                        size: 12,
-                      ),
-                    const SizedBox(width: 3),
-                  ],
-                  SelectionContainer.disabled(child: swipeable),
-                ],
+                                    ? style.colors.dangerColor
+                                    : style.colors.secondary,
+                            size: 12,
+                          ),
+                        const SizedBox(width: 3),
+                      ],
+                      SelectionContainer.disabled(child: swipeable),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -142,38 +163,4 @@ class SwipeableStatus extends StatelessWidget {
         },
         child: child,
       );
-}
-
-/// Widget which returns a [Row] of [swipeable] and a optional status.
-class _SwipeableWithStatus extends StatelessWidget {
-  const _SwipeableWithStatus({this.children = const <Widget>[]});
-
-  ///  Widgets to put inside this [_SwipeableWithStatus].
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return DefaultTextStyle.merge(
-      textAlign: TextAlign.end,
-      maxLines: 1,
-      overflow: TextOverflow.visible,
-      style: fonts.labelSmall!.copyWith(color: style.colors.secondary),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        margin: const EdgeInsets.only(right: 2, left: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: style.systemMessageBorder,
-          color: style.systemMessageColor,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: children,
-        ),
-      ),
-    );
-  }
 }
