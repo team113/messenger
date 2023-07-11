@@ -176,6 +176,40 @@ class ConfirmLogoutView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25),
+                if (!c.hasPassword.value) ...[
+                  RichText(
+                    text: TextSpan(
+                      style: fonts.titleLarge!.copyWith(
+                        color: style.colors.secondary,
+                      ),
+                      children: [
+                        TextSpan(
+                          text:
+                              'Пароль не задан. Доступ к аккаунту может быть утерян безвозвратно.'
+                                  .l10n,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                ],
+                if (c.myUser.value?.emails.confirmed.isNotEmpty != true) ...[
+                  RichText(
+                    text: TextSpan(
+                      style: fonts.titleLarge!.copyWith(
+                        color: style.colors.secondary,
+                      ),
+                      children: [
+                        TextSpan(
+                          text:
+                              'E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.'
+                                  .l10n,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                ],
                 if (c.hasPassword.value) ...[
                   OutlinedRoundedButton(
                     key: const Key('ConfirmLogoutButton'),
@@ -190,17 +224,6 @@ class ConfirmLogoutView extends StatelessWidget {
                     color: style.colors.primary,
                   ),
                 ] else ...[
-                  RichText(
-                    text: TextSpan(
-                      style: fonts.labelLarge!.copyWith(
-                        color: style.colors.secondary,
-                      ),
-                      children: [
-                        TextSpan(text: 'label_password_not_set'.l10n),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 25),
                   Row(
                     children: [
                       Expanded(

@@ -16,9 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/routes.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -212,22 +214,57 @@ class IntroductionView extends StatelessWidget {
 
             default:
               children = [
-                Text(
-                  'label_introduction_description'.l10n,
-                  style: fonts.bodyMedium,
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'label_introduction_description1'.l10n,
+                        style: fonts.bodyMedium,
+                      ),
+                      TextSpan(
+                        text: 'label_introduction_description2'.l10n,
+                        style: fonts.bodyMedium
+                            ?.copyWith(color: style.colors.primary),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.of(context).pop();
+                            router.me();
+                          },
+                      ),
+                      TextSpan(
+                        text: 'label_introduction_description3'.l10n,
+                        style: fonts.bodyMedium,
+                      ),
+                      TextSpan(
+                        text: 'label_introduction_description4'.l10n,
+                        style: fonts.bodyMedium
+                            ?.copyWith(color: style.colors.primary),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.of(context).pop();
+                            router.me();
+                          },
+                      ),
+                      TextSpan(
+                        text: 'label_introduction_description5'.l10n,
+                        style: fonts.bodyMedium,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
                   key: const Key('SetPasswordButton'),
                   maxWidth: double.infinity,
                   title: Text(
-                    'btn_set_password'.l10n,
+                    'btn_ok'.l10n,
                     style: fonts.bodyMedium!.copyWith(
                       color: style.colors.onPrimary,
                     ),
                   ),
-                  onPressed: () =>
-                      c.stage.value = IntroductionViewStage.password,
+                  onPressed: Navigator.of(context).pop,
+                  // onPressed: () =>
+                  //     c.stage.value = IntroductionViewStage.password,
                   color: style.colors.primary,
                 ),
               ];
@@ -251,7 +288,7 @@ class IntroductionView extends StatelessWidget {
                         : null,
                     header: Center(
                       child: Text(
-                        'label_account_created'.l10n,
+                        'label_one_time_account_created'.l10n,
                         style: fonts.headlineMedium,
                       ),
                     ),

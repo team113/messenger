@@ -185,7 +185,7 @@ btn_join_call = Join call
 btn_leave = Leave
 btn_leave_chat = Leave chat
 btn_leave_group = Leave group
-btn_login = Log in
+btn_login = Sign in
 btn_logout = Logout
 btn_media_settings = Media settings
 btn_message_info = Message info
@@ -645,14 +645,23 @@ label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
-label_introduction_description =
+label_introduction_description1 =
     Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
 
-        • You will not delete user data from the application (browser);
+        • You will not delete user data from the browser (application);
 
         • You will not press the "Logout" button.
 
-    In order not to lose access to your account, set a password.
+    Чтобы сохранить доступ к аккаунту, пожалуйста, в{" "}
+label_introduction_description2 = настройках
+label_introduction_description3 =
+    {" "}задайте пароль.
+
+    Чтобы иметь возможность восстановить доступ к аккаунту, пожалуйста, в{" "}
+label_introduction_description4 = настройках
+label_introduction_description5 = {" "}задайте E-mail или номер телефона.
+label_introduction_description2 = profile settings
+label_introduction_description3 = .
 label_kb = {$amount} KB
 label_language = Language
 label_language_entry = {$code}, {$name}
@@ -961,3 +970,4 @@ fcm_group_donate =
         *[other] {$userName}
     }: {$donate}G gift
 label_donate_count = {$donate} ¤ gift
+label_one_time_account_created = One-time account created

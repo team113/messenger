@@ -47,7 +47,7 @@ class AuthView extends StatelessWidget {
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        bool isWeb = PlatformUtils.isWeb;
+        bool isWeb = PlatformUtils.isWeb || true;
         bool isAndroidWeb = isWeb && PlatformUtils.isAndroid;
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
@@ -98,13 +98,16 @@ class AuthView extends StatelessWidget {
                   //     height: 257.23 * 0.23,
                   //   ),
                   // )
-                  const StyledCupertinoButton(label: 'Terms and conditions'),
                   StyledCupertinoButton(
                     onPressed: () {
                       router.vacancy(null, push: true);
                       print(router.routes);
                     },
                     label: 'Work with us',
+                  ),
+                  StyledCupertinoButton(
+                    label: 'Terms and conditions',
+                    color: style.colors.secondary,
                   ),
                 ],
               ),
@@ -168,21 +171,23 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
         ];
 
+        const double icon = 0.7;
+
         // Footer part of the page.
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
             key: const Key('RegisterButton'),
             title: Text(
-              'Sign up'.l10n,
+              'Enter'.l10n,
               style: TextStyle(color: style.colors.onPrimary),
             ),
-            subtitle: Text(
-              'or sign in'.l10n,
-              style: TextStyle(color: style.colors.onPrimary),
+            height: 53,
+            // leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
+            leading: SvgImage.asset(
+              'assets/icons/sign_in_white.svg',
+              width: 20 * 0.7,
             ),
-            height: 48,
-            leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: () => LoginView.show(context),
             color: style.colors.primary,
           ),
@@ -221,11 +226,12 @@ class AuthView extends StatelessWidget {
           OutlinedRoundedButton(
             key: const Key('StartButton'),
             title: Text('One-time'.l10n),
-            subtitle: const Text('account'),
+            subtitle: Text('account'.l10n),
             // style: fonts.labelMedium,
-            height: 48,
-            leading:
-                SvgImage.asset('assets/icons/sign_in.svg', width: 20 * 0.7),
+            height: 53,
+            leading: SvgImage.asset('assets/icons/one-time.svg', width: 25.328),
+            // leading:
+            //     SvgImage.asset('assets/icons/sign_in.svg', width: 20 * 0.7),
             onPressed: c.register,
           ),
           // const SizedBox(height: 15),
@@ -246,46 +252,63 @@ class AuthView extends StatelessWidget {
           // const StyledCupertinoButton(label: 'Terms and conditions'),
           if (true) ...[
             if (isWeb) const SizedBox(height: 15),
+            //   OutlinedRoundedButton(
+            //     title: const Text('Download'),
+            //     // subtitle: const Text('application'),
+            //     height: 53,
+            //     leading: Padding(
+            //       padding: const EdgeInsets.only(bottom: 3 * 0.7),
+            //       child: SvgImage.asset(
+            //         'assets/icons/download_cloud.svg',
+            //         width: 34.93,
+            //         height: 22.79,
+            //       ),
+            //     ),
+            //     onPressed: () => _download(context),
+            //   ),
+            // ],
             if (isIosWeb)
               OutlinedRoundedButton(
-                title: Text('Download'),
-                subtitle: const Text('application'),
-                height: 48,
+                title: const Text('Download'),
+                // subtitle: const Text('application'),
+                height: 53,
                 leading: Padding(
                   padding: const EdgeInsets.only(bottom: 3 * 0.7),
-                  child:
-                      SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7),
+                  child: SvgImage.asset('assets/icons/apple.svg',
+                      width: 22 * icon),
                 ),
                 onPressed: () => _download(context),
               ),
             if (isAndroidWeb)
               OutlinedRoundedButton(
                 title: Text('btn_download'.l10n),
-                subtitle: const Text('application'),
-                height: 48,
+                // subtitle: const Text('application'),
+                height: 53,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 2 * 0.7),
-                  child: SvgImage.asset('assets/icons/google.svg',
-                      width: 22 * 0.7),
+                  child: SvgImage.asset(
+                    'assets/icons/google.svg',
+                    width: 22 * icon,
+                  ),
                 ),
                 onPressed: () => _download(context),
               ),
             if (isDesktopWeb)
               OutlinedRoundedButton(
                 title: Text('btn_download'.l10n),
-                subtitle: const Text('application'),
-                height: 48,
+                // subtitle: const Text('application'),
+                height: 53,
                 leading: PlatformUtils.isMacOS
-                    ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
+                    ? SvgImage.asset('assets/icons/apple.svg', width: 22 * icon)
                     : (PlatformUtils.isWindows)
                         ? SvgImage.asset(
                             'assets/icons/windows.svg',
-                            width: 22 * 0.7,
+                            width: 22 * icon,
                           )
                         : (PlatformUtils.isLinux)
                             ? SvgImage.asset(
                                 'assets/icons/linux.svg',
-                                width: 22 * 0.7,
+                                width: 22 * icon,
                               )
                             : null,
                 onPressed: () => _download(context),

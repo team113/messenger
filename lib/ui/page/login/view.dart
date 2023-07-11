@@ -33,7 +33,7 @@ import 'widget/primary_button.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
-  const LoginView({Key? key}) : super(key: key);
+  const LoginView({super.key});
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
@@ -186,7 +186,7 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.register:
               header = ModalPopupHeader(
                 header: Center(
-                  child: Text('Register'.l10n, style: fonts.headlineMedium),
+                  child: Text('Sign up'.l10n, style: fonts.headlineMedium),
                 ),
                 onBack: () => c.stage.value = null,
               );
@@ -224,7 +224,7 @@ class LoginView extends StatelessWidget {
                     width: 17.07,
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 25),
                 Center(
                   child: Obx(() {
                     final bool enabled = !c.email.isEmpty.value &&
@@ -356,7 +356,7 @@ class LoginView extends StatelessWidget {
                 Center(
                   child: OutlinedRoundedButton(
                     title: Text(
-                      'Create account'.l10n,
+                      'Sign up'.l10n,
                       style: fonts.titleLarge!.copyWith(
                         color: style.colors.onPrimary,
                       ),

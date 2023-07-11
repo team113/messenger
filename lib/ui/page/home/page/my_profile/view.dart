@@ -898,6 +898,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.emails.confirmed.isNotEmpty == true
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
+          border: c.myUser.value?.emails.confirmed.isEmpty == true &&
+                  c.myUser.value?.emails.unconfirmed == null
+              ? style.colors.dangerColor
+              : null,
           onPressed: () => AddEmailView.show(context),
           style: fonts.titleMedium!.copyWith(color: style.colors.primary),
         ),
@@ -1051,6 +1055,10 @@ Widget _phones(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
+          border: c.myUser.value?.emails.confirmed.isEmpty == true &&
+                  c.myUser.value?.emails.unconfirmed == null
+              ? style.colors.dangerColor
+              : null,
           style: fonts.titleMedium!.copyWith(color: style.colors.primary),
         ),
       );
@@ -1082,10 +1090,14 @@ Widget _password(BuildContext context, MyProfileController c) {
               ? 'btn_change_password'.l10n
               : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
+          border: c.myUser.value?.hasPassword != true
+              ? style.colors.dangerColor
+              : null,
           style: fonts.titleMedium!.copyWith(
-            color: c.myUser.value?.hasPassword != true
-                ? style.colors.dangerColor
-                : style.colors.primary,
+            color: style.colors.primary,
+            // color: c.myUser.value?.hasPassword != true
+            //     ? style.colors.dangerColor
+            //     : style.colors.primary,
           ),
         ),
       ),

@@ -72,7 +72,7 @@ class FieldButton extends StatefulWidget {
   /// [TextStyle] of the [text].
   final TextStyle? style;
 
-  final Border? border;
+  final Color? border;
 
   final String? prefixText;
   final TextStyle? prefixStyle;
@@ -105,29 +105,32 @@ class _FieldButtonState extends State<FieldButton> {
         behavior: HitTestBehavior.deferToChild,
         onPressed: widget.onPressed,
         child: IgnorePointer(
-          child: ReactiveTextField(
-            textAlign: widget.textAlign,
-            state: TextFieldState(text: widget.text, editable: false),
-            label: widget.label,
-            maxLines: widget.maxLines,
-            trailing: AnimatedScale(
-              key: _key,
-              duration: const Duration(milliseconds: 100),
-              scale: _hovered ? 1.05 : 1,
-              child: Transform.translate(
-                offset: const Offset(0, 1),
-                child: widget.trailing,
+          child: Theme(
+            data: _theme(context),
+            child: ReactiveTextField(
+              textAlign: widget.textAlign,
+              state: TextFieldState(text: widget.text, editable: false),
+              label: widget.label,
+              maxLines: widget.maxLines,
+              trailing: AnimatedScale(
+                key: _key,
+                duration: const Duration(milliseconds: 100),
+                scale: _hovered ? 1.05 : 1,
+                child: Transform.translate(
+                  offset: const Offset(0, 1),
+                  child: widget.trailing,
+                ),
               ),
+              prefixStyle: widget.prefixStyle,
+              prefixText: widget.prefixText,
+              floatingLabelBehavior: widget.floatingLabelBehavior,
+              hint: widget.hint,
+              prefix: widget.prefix,
+              style: widget.style,
+              fillColor: _hovered && widget.onPressed != null
+                  ? style.colors.onPrimary.darken(0.03)
+                  : style.colors.onPrimary,
             ),
-            prefixStyle: widget.prefixStyle,
-            prefixText: widget.prefixText,
-            floatingLabelBehavior: widget.floatingLabelBehavior,
-            hint: widget.hint,
-            prefix: widget.prefix,
-            style: widget.style,
-            fillColor: _hovered && widget.onPressed != null
-                ? style.colors.onPrimary.darken(0.03)
-                : style.colors.onPrimary,
           ),
         ),
       ),
@@ -151,6 +154,44 @@ class _FieldButtonState extends State<FieldButton> {
           ),
         ),
       ],
+    );
+  }
+
+  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
+  ThemeData _theme(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    if (widget.border == null) {
+      return Theme.of(context);
+    }
+
+    final OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(25),
+      borderSide: BorderSide(color: widget.border ?? Colors.white),
+    );
+
+    return Theme.of(context).copyWith(
+      shadowColor: style.colors.onBackgroundOpacity27,
+      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
+      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+            border: border,
+            errorBorder: border,
+            enabledBorder: border,
+            focusedBorder: border,
+            disabledBorder: border,
+            focusedErrorBorder: border,
+            focusColor: style.colors.onPrimary,
+            fillColor: style.colors.onPrimary,
+            hoverColor: style.colors.transparent,
+            filled: true,
+            isDense: true,
+            contentPadding: EdgeInsets.fromLTRB(
+              15,
+              PlatformUtils.isDesktop ? 30 : 23,
+              15,
+              0,
+            ),
+          ),
     );
   }
 }

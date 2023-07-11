@@ -41,7 +41,7 @@ class StyledCupertinoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
 
     final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
       fontSize: 15,
