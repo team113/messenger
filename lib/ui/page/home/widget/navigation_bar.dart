@@ -22,8 +22,8 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/widget/animated_button.dart';
 import '/util/platform_utils.dart';
-import 'animated_button.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatelessWidget {

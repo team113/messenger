@@ -253,7 +253,7 @@ err_data_transfer =
     Data transfer error. Please, check your network connection.
 err_dialog = Can't perfom this action in a dialog
 err_dimensions_too_big = Dimensions too big
-err_email_occupied = Email address is already occupied
+err_email_occupied = Specified E-mail is linked to another account. Please, annulate the previous verification.
 err_incorrect_chat_name = Incorrect name
 err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.

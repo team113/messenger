@@ -30,13 +30,13 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
-import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -336,7 +336,9 @@ class ChatsTabView extends StatelessWidget {
                                   return Container(
                                     key: c.moreKey,
                                     padding: const EdgeInsets.only(
-                                        left: 12, right: 18),
+                                      left: 12,
+                                      right: 18,
+                                    ),
                                     height: double.infinity,
                                     child: child,
                                   );

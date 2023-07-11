@@ -20,10 +20,10 @@ import 'package:flutter/material.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
+import 'animated_button.dart';
+import 'svg/svg.dart';
 
 /// Styled [ContactTile] representing the provided [RxUser] as a member of some
 /// [Chat] or [OngoingCall].

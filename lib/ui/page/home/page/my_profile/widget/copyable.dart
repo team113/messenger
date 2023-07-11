@@ -73,10 +73,7 @@ class CopyableTextField extends StatelessWidget {
           child: ContextMenuRegion(
             enabled: (copy ?? state.text).isNotEmpty,
             actions: [
-              ContextMenuButton(
-                label: 'label_copy'.l10n,
-                onPressed: _copy,
-              ),
+              ContextMenuButton(label: 'label_copy'.l10n, onPressed: _copy),
             ],
             child: ReactiveTextField(
               prefix: leading,

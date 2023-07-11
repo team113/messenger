@@ -18,7 +18,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '/ui/widget/widget_button.dart';
+import 'widget_button.dart';
 
 /// [Widget] animating its size on hover and clicks.
 class AnimatedButton extends StatefulWidget {
@@ -48,7 +48,9 @@ class AnimatedButton extends StatefulWidget {
   @override
   State<AnimatedButton> createState() => _AnimatedButtonState();
 
-  /// Decorator builder used as the default value of the [decorator].
+  /// Returns the [child].
+  ///
+  /// Intended to be used as a default of the [decorator].
   static Widget _defaultDecorator(Widget child) => child;
 }
 

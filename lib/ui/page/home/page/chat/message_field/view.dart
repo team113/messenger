@@ -41,12 +41,12 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import '/ui/page/home/widget/animated_button.dart';
 import 'controller.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].

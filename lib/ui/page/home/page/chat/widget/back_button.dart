@@ -18,7 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/animated_button.dart';
+import '/ui/widget/animated_button.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {

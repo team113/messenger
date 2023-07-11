@@ -24,9 +24,9 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/animated_button.dart';
 import '/util/platform_utils.dart';
 import 'allow_overflow.dart';
+import 'animated_button.dart';
 import 'animations.dart';
 import 'svg/svg.dart';
 

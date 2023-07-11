@@ -18,8 +18,8 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/animated_button.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
