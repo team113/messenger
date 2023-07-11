@@ -282,55 +282,6 @@ class ReactiveTextField extends StatelessWidget {
                   : PlatformUtils.isIOS
                       ? CupertinoTextSelectionControls()
                       : null,
-              contextMenuBuilder: (_, fieldState) {
-                context.mediaQuery.size.width;
-                final double dx =
-                    fieldState.contextMenuAnchors.primaryAnchor.dx;
-                final double dy =
-                    fieldState.contextMenuAnchors.primaryAnchor.dy;
-                double qx = 0, qy = 0;
-                if (dx > (context.mediaQuery.size.width) - 70) qx = -1;
-                if (dy > (context.mediaQuery.size.height) - 70) qy = -1;
-                final Offset offset = Offset(qx, qy);
-
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Positioned(
-                      left: fieldState.contextMenuAnchors.primaryAnchor.dx,
-                      top: fieldState.contextMenuAnchors.primaryAnchor.dy,
-                      child: FractionalTranslation(
-                        translation: offset,
-                        child: ContextMenu(actions: [
-                          ContextMenuButton(
-                            label: 'label_copy'.l10n,
-                            onPressed: () {
-                              fieldState.contextMenuAnchors.primaryAnchor;
-
-                              if (fieldState.copyEnabled) {
-                                fieldState.copySelection(
-                                  SelectionChangedCause.toolbar,
-                                );
-                              } else {
-                                PlatformUtils.copy(text: state.controller.text);
-                                fieldState.hideToolbar();
-                              }
-                            },
-                          ),
-                          if (fieldState.pasteEnabled)
-                            ContextMenuButton(
-                              label: 'label_paste'.l10n,
-                              onPressed: () async {
-                                await fieldState
-                                    .pasteText(SelectionChangedCause.toolbar);
-                              },
-                            ),
-                        ]),
-                      ),
-                    )
-                  ],
-                );
-              },
               controller: state.controller,
               style: this.style,
               focusNode: state.focus,
@@ -385,6 +336,55 @@ class ReactiveTextField extends StatelessWidget {
               maxLines: maxLines,
               textInputAction: textInputAction,
               maxLength: maxLength,
+              contextMenuBuilder: (_, fieldState) {
+                context.mediaQuery.size.width;
+                final double dx =
+                    fieldState.contextMenuAnchors.primaryAnchor.dx;
+                final double dy =
+                    fieldState.contextMenuAnchors.primaryAnchor.dy;
+                double qx = 0, qy = 0;
+                if (dx > (context.mediaQuery.size.width) - 70) qx = -1;
+                if (dy > (context.mediaQuery.size.height) - 70) qy = -1;
+                final Offset offset = Offset(qx, qy);
+
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned(
+                      left: fieldState.contextMenuAnchors.primaryAnchor.dx,
+                      top: fieldState.contextMenuAnchors.primaryAnchor.dy,
+                      child: FractionalTranslation(
+                        translation: offset,
+                        child: ContextMenu(actions: [
+                          ContextMenuButton(
+                            label: 'label_copy'.l10n,
+                            onPressed: () {
+                              fieldState.contextMenuAnchors.primaryAnchor;
+
+                              if (fieldState.copyEnabled) {
+                                fieldState.copySelection(
+                                  SelectionChangedCause.toolbar,
+                                );
+                              } else {
+                                PlatformUtils.copy(text: state.controller.text);
+                                fieldState.hideToolbar();
+                              }
+                            },
+                          ),
+                          if (fieldState.pasteEnabled)
+                            ContextMenuButton(
+                              label: 'label_paste'.l10n,
+                              onPressed: () async {
+                                await fieldState
+                                    .pasteText(SelectionChangedCause.toolbar);
+                              },
+                            ),
+                        ]),
+                      ),
+                    )
+                  ],
+                );
+              },
             ),
 
             // Displays an error, if any.
