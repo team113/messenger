@@ -234,7 +234,11 @@ class UserView extends StatelessWidget {
                       ),
                       Block(
                         title: 'label_contact_information'.l10n,
-                        children: [Paddings.basic(UserNumCopyable(c.user!.user.value.num))],
+                        children: [
+                          Paddings.basic(
+                            UserNumCopyable(c.user!.user.value.num),
+                          )
+                        ],
                       ),
                       Block(
                         title: 'label_actions'.l10n,
