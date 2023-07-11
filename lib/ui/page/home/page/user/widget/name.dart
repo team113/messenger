@@ -40,7 +40,6 @@ class UserNameCopyable extends StatelessWidget {
         key: const Key('NameField'),
         state: TextFieldState(text: name?.val ?? num.val, editable: false),
         label: 'label_name'.l10n,
-        copy: name?.val ?? num.val,
       ),
     );
   }

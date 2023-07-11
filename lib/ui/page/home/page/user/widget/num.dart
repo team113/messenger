@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
 /// [CopyableTextField] representation of the provided [UserNum].
@@ -28,23 +27,22 @@ class UserNumCopyable extends StatelessWidget {
   const UserNumCopyable(this.num, {super.key});
 
   /// [UserNum] to display.
-  final UserNum num;
+  final UserNum? num;
 
   @override
   Widget build(BuildContext context) {
-    return Paddings.basic(
-      CopyableTextField(
-        key: const Key('UserNum'),
-        state: TextFieldState(
-          text: num.val.replaceAllMapped(
-            RegExp(r'.{4}'),
-            (match) => '${match.group(0)}${'space'.l10n}',
-          ),
-          editable: false,
-        ),
-        label: 'label_num'.l10n,
-        copy: num.val,
+    return CopyableTextField(
+      key: const Key('UserNum'),
+      state: TextFieldState(
+        text: num?.val
+            .replaceAllMapped(
+              RegExp(r'.{4}'),
+              (match) => '${match.group(0)}${'space'.l10n}',
+            )
+            .trim(),
+        editable: false,
       ),
+      label: 'label_num'.l10n,
     );
   }
 }

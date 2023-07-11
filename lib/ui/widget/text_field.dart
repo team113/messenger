@@ -21,6 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '/ui/widget/context_menu/menu.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -178,23 +179,25 @@ class ReactiveTextField extends StatelessWidget {
       final (style, fonts) = Theme.of(context).styles;
 
       return Obx(() {
+        bool hasSuffix = state.approvable ||
+            suffix != null ||
+            trailing != null ||
+            !state.status.value.isEmpty;
+
         return AnimatedButton(
-          enabled: state.approvable && state.changed.value ||
-              onSuffixPressed != null,
           onPressed: state.approvable && state.changed.value
               ? state.submit
               : onSuffixPressed,
           decorator: (child) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: child,
-            );
+            return hasSuffix
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: child,
+                  )
+                : child;
           },
           child: ElasticAnimatedSwitcher(
-            child: (state.approvable ||
-                    suffix != null ||
-                    trailing != null ||
-                    !state.status.value.isEmpty)
+            child: hasSuffix
                 ? SizedBox(
                     height: 24,
                     child: ElasticAnimatedSwitcher(
@@ -241,9 +244,7 @@ class ReactiveTextField extends StatelessWidget {
                                           width: 24,
                                           child: suffix != null
                                               ? Icon(suffix)
-                                              : trailing == null
-                                                  ? Container()
-                                                  : trailing!,
+                                              : trailing,
                                         ),
                     ),
                   )
@@ -281,10 +282,55 @@ class ReactiveTextField extends StatelessWidget {
                   : PlatformUtils.isIOS
                       ? CupertinoTextSelectionControls()
                       : null,
-              // TODO: Implement custom [contextMenuBuilder].
-              contextMenuBuilder: null,
-              canRequestFocus:
-                  PlatformUtils.isMobile ? true : state.editable.value,
+              contextMenuBuilder: (_, fieldState) {
+                context.mediaQuery.size.width;
+                final double dx =
+                    fieldState.contextMenuAnchors.primaryAnchor.dx;
+                final double dy =
+                    fieldState.contextMenuAnchors.primaryAnchor.dy;
+                double qx = 0, qy = 0;
+                if (dx > (context.mediaQuery.size.width) - 70) qx = -1;
+                if (dy > (context.mediaQuery.size.height) - 70) qy = -1;
+                final Offset offset = Offset(qx, qy);
+
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned(
+                      left: fieldState.contextMenuAnchors.primaryAnchor.dx,
+                      top: fieldState.contextMenuAnchors.primaryAnchor.dy,
+                      child: FractionalTranslation(
+                        translation: offset,
+                        child: ContextMenu(actions: [
+                          ContextMenuButton(
+                            label: 'label_copy'.l10n,
+                            onPressed: () {
+                              fieldState.contextMenuAnchors.primaryAnchor;
+
+                              if (fieldState.copyEnabled) {
+                                fieldState.copySelection(
+                                  SelectionChangedCause.toolbar,
+                                );
+                              } else {
+                                PlatformUtils.copy(text: state.controller.text);
+                                fieldState.hideToolbar();
+                              }
+                            },
+                          ),
+                          if (fieldState.pasteEnabled)
+                            ContextMenuButton(
+                              label: 'label_paste'.l10n,
+                              onPressed: () async {
+                                await fieldState
+                                    .pasteText(SelectionChangedCause.toolbar);
+                              },
+                            ),
+                        ]),
+                      ),
+                    )
+                  ],
+                );
+              },
               controller: state.controller,
               style: this.style,
               focusNode: state.focus,
@@ -317,7 +363,6 @@ class ReactiveTextField extends StatelessWidget {
                 fillColor: fillColor ?? style.colors.onPrimary,
                 filled: filled ?? true,
                 contentPadding: contentPadding,
-                suffixIconConstraints: null,
                 suffixIcon: dense == true ? null : buildSuffix(),
                 icon: icon == null
                     ? null

@@ -163,12 +163,15 @@ class UserId extends NewType<String> {
 class UserNum extends NewType<String> {
   const UserNum._(String val) : super(val);
 
-  UserNum(String val) : super(val) {
+  factory UserNum(String val) {
+    val = val.replaceAll(' ', '');
     if (val.length != 16) {
       throw const FormatException('Must be 16 characters long');
     } else if (!val.isNumericOnly) {
       throw const FormatException('Must be numeric only');
     }
+
+    return UserNum._(val);
   }
 
   /// Creates an object without any validation.

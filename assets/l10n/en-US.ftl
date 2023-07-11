@@ -624,6 +624,7 @@ label_password_not_set_info = No password has been set for your account. Consequ
 
     • if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
 label_password_set = Password has been set.
+label_paste = Paste
 label_personalization = Personalization
 label_phone = Phone
 label_phone_confirmation_code_was_send =
