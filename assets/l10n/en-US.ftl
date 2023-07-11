@@ -676,16 +676,6 @@ label_service_reconnecting = Service is reconnecting...
 label_set_new_password = Set a new password to log into your account
 label_set_password = Set password
 label_settings = Settings
-label_short_weekday =
-    {$weekday ->
-        [1] Mon
-        [2] Tue
-        [3] Wed
-        [4] Thu
-        [5] Fri
-        [6] Sat
-        *[other] Sun
-    }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
 label_sort_by_name = Sort by name

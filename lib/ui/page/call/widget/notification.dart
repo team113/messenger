@@ -27,7 +27,7 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
-/// Styled popup window showing the [notification].
+/// [CallNotification] visual representation.
 class CallNotificationWidget extends StatelessWidget {
   const CallNotificationWidget(this.notification, {super.key, this.onClose});
 

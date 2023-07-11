@@ -327,7 +327,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       }));
     }
 
-    // If there's any notifications to show, display it.
+    // If there's any notifications to show, display them.
     overlay.add(
       Align(
         alignment: Alignment.topCenter,

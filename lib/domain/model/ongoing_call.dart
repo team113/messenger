@@ -1961,7 +1961,7 @@ abstract class CallNotification {
 class DeviceChangedNotification extends CallNotification {
   DeviceChangedNotification({required this.device});
 
-  /// New [MediaDeviceDetails] started to be used.
+  /// [MediaDeviceDetails] of the device changed.
   final MediaDeviceDetails device;
 
   @override

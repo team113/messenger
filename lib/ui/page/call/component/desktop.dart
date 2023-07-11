@@ -852,7 +852,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // If there's any notifications to show, display it.
+        // If there's any notifications to show, display them.
         Align(
           alignment: Alignment.topCenter,
           child: Padding(

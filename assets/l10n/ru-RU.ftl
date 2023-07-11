@@ -697,22 +697,12 @@ label_service_reconnecting = Сервис переподключается...
 label_set_new_password = Задайте новый пароль для входа в аккаунт
 label_set_password = Задать пароль
 label_settings = Настройки
-label_short_weekday =
-    {$weekday ->
-        [1] пн
-        [2] вт
-        [3] ср
-        [4] чт
-        [5] пт
-        [6] сб
-        *[other] вс
-    }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
-label_speaker_changed = Динамик был изменен на {$speaker}
+label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
 label_subtitle_participants = участников
