@@ -32,6 +32,8 @@ class VolumeOverlay extends StatelessWidget {
     required this.controller,
     this.offset = Offset.zero,
     this.onExit,
+    this.onDragStart,
+    this.onDragEnd,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
@@ -39,6 +41,12 @@ class VolumeOverlay extends StatelessWidget {
 
   /// [Offset] to apply to this [VolumeOverlay].
   final Offset offset;
+
+  ///
+  final dynamic Function()? onDragStart;
+
+  ///
+  final dynamic Function()? onDragEnd;
 
   /// Triggered when a mouse pointer has exited this widget when the widget
   /// is still mounted.
@@ -55,6 +63,11 @@ class VolumeOverlay extends StatelessWidget {
           bottom: 10,
           child: MouseRegion(
             opaque: false,
+            //  onEnter: (d) {
+            //       if (mounted) {
+            //         setState(() => _showBottomBar = true);
+            //       }
+            //     },
             onExit: onExit,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -77,15 +90,20 @@ class VolumeOverlay extends StatelessWidget {
                           quarterTurns: 3,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: VideoVolumeBar(
-                              controller,
-                              colors: ChewieProgressColors(
-                                playedColor: style.colors.primary,
-                                handleColor: style.colors.primary,
-                                bufferedColor:
-                                    style.colors.background.withOpacity(0.5),
-                                backgroundColor:
-                                    style.colors.secondary.withOpacity(0.5),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: VideoVolumeBar(
+                                controller,
+                                onDragStart: onDragStart,
+                                onDragEnd: onDragEnd,
+                                colors: ChewieProgressColors(
+                                  playedColor: style.colors.primary,
+                                  handleColor: style.colors.primary,
+                                  bufferedColor:
+                                      style.colors.background.withOpacity(0.5),
+                                  backgroundColor:
+                                      style.colors.secondary.withOpacity(0.5),
+                                ),
                               ),
                             ),
                           ),

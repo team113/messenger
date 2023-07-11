@@ -191,6 +191,11 @@ class _DesktopControlsState extends State<DesktopControlsView>
                       widget.controller.setVolume(0.0);
                     }
                   },
+                  onEnter: (d) {
+                    if (mounted) {
+                      setState(() => _showBottomBar = true);
+                    }
+                  },
                   onDragStart: () {
                     setState(() => _dragging = true);
                     _hideTimer?.cancel();
@@ -198,6 +203,16 @@ class _DesktopControlsState extends State<DesktopControlsView>
                   onDragEnd: () {
                     setState(() => _dragging = false);
                     _startHideTimer();
+                  },
+                  onDragStart2: () {
+                    setState(() => _dragging = true);
+                  },
+                  onDragEnd2: () {
+                    if (!_showBottomBar) {
+                      _volumeEntry?.remove();
+                      _volumeEntry = null;
+                    }
+                    setState(() => _dragging = false);
                   },
                 )
               ],

@@ -20,9 +20,8 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:messenger/ui/page/home/page/chat/video/widget/video_progress_bar.dart';
 
 import '../../widget/current_position.dart';
+import '../../widget/mute_button.dart';
 import '/themes.dart';
-
-import 'mute_button.dart';
 
 /// Mobile design of a video bottom controls bar.
 class BottomControlBar extends StatelessWidget {
@@ -88,6 +87,11 @@ class BottomControlBar extends StatelessWidget {
                       MuteButton(
                         controller: controller,
                         height: barHeight,
+                        margin: const EdgeInsets.only(right: 12.0),
+                        padding: const EdgeInsets.only(
+                          left: 8.0,
+                          right: 8.0,
+                        ),
                         onTap: onMute,
                       ),
                     ],

@@ -20,13 +20,15 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// [Widget] which returns a mute/unmute button with a volume overlay above it.
+/// Mute/unmute button with a volume overlay above it.
 class MuteButton extends StatelessWidget {
   const MuteButton({
     super.key,
     required this.controller,
     this.height,
     this.onTap,
+    this.padding,
+    this.margin,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
@@ -34,6 +36,10 @@ class MuteButton extends StatelessWidget {
 
   /// Height of this [MuteButton].
   final double? height;
+
+  final EdgeInsetsGeometry? padding;
+
+  final EdgeInsetsGeometry? margin;
 
   /// Callback, called when this [MuteButton] is tapped.
   final void Function()? onTap;
@@ -44,14 +50,11 @@ class MuteButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: height,
-        margin: const EdgeInsets.only(right: 12.0),
-        padding: const EdgeInsets.only(
-          left: 8.0,
-          right: 8.0,
-        ),
-        child: Center(
+      child: ClipRect(
+        child: Container(
+          height: height,
+          padding: padding,
+          margin: margin,
           child: RxBuilder((_) {
             return Icon(
               controller.volume.value > 0 ? Icons.volume_up : Icons.volume_off,

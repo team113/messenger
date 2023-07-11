@@ -17,6 +17,7 @@
 
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:messenger/ui/page/home/page/chat/video/widget/video_progress_bar.dart';
@@ -25,7 +26,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '../../widget/current_position.dart';
 import 'expand_button.dart';
-import 'mute_button.dart';
+import '../../widget/mute_button.dart';
 import 'play_pause_button.dart';
 import 'volume_overlay.dart';
 
@@ -43,6 +44,9 @@ class BottomControlBar extends StatefulWidget {
     this.onDragEnd,
     this.isFullscreen = false,
     this.visible = true,
+    required this.onDragStart2,
+    required this.onDragEnd2,
+    required this.onEnter,
   });
 
   /// [GlobalKey] of the volume button.
@@ -69,11 +73,20 @@ class BottomControlBar extends StatefulWidget {
   /// Callback, called when the toggle fullscreen button is tapped.
   final void Function()? onFullscreen;
 
+  ///
+  final void Function(PointerEnterEvent)? onEnter;
+
   /// Callback, called when progress drag started.
   final dynamic Function()? onDragStart;
 
   /// Callback, called when progress drag ended.
   final dynamic Function()? onDragEnd;
+
+  /// Callback, called when progress drag started.
+  final dynamic Function()? onDragStart2;
+
+  /// Callback, called when progress drag ended.
+  final dynamic Function()? onDragEnd2;
 
   @override
   State<BottomControlBar> createState() => _BottomControlBarState();
@@ -131,10 +144,7 @@ class _BottomControlBarState extends State<BottomControlBar> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  MuteButton(
-                    key: widget.volumeKey,
-                    controller: widget.controller,
-                    height: widget.barHeight,
+                  MouseRegion(
                     onEnter: (_) {
                       if (mounted && _volumeEntry == null) {
                         Offset offset = Offset.zero;
@@ -149,6 +159,8 @@ class _BottomControlBarState extends State<BottomControlBar> {
                           builder: (_) => VolumeOverlay(
                             controller: widget.controller,
                             offset: offset,
+                            onDragStart: widget.onDragStart2,
+                            onDragEnd: widget.onDragEnd2,
                             onExit: (d) {
                               if (mounted) {
                                 _volumeEntry?.remove();
@@ -163,7 +175,12 @@ class _BottomControlBarState extends State<BottomControlBar> {
                         setState(() {});
                       }
                     },
-                    onTap: widget.onMute,
+                    child: MuteButton(
+                      key: widget.volumeKey,
+                      controller: widget.controller,
+                      height: widget.barHeight,
+                      onTap: widget.onMute,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   ExpandButton(
