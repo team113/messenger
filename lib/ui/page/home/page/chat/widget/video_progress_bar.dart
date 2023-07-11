@@ -19,6 +19,8 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
+import '/themes.dart';
+
 /// Draggable video progress bar.
 class ProgressBar extends StatefulWidget {
   ProgressBar(
@@ -72,11 +74,13 @@ class _ProgressBarState extends State<ProgressBar> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     final child = Center(
       child: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        color: Colors.transparent,
+        color: style.colors.transparent,
         child: RxBuilder((_) {
           return MouseRegion(
             cursor: SystemMouseCursors.click,
