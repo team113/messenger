@@ -89,9 +89,6 @@ class MyProfileController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// Worker to react on [myUser] changes.
-  Worker? _myUserWorker;
-
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
@@ -161,7 +158,6 @@ class MyProfileController extends GetxController {
 
   @override
   void onClose() {
-    _myUserWorker?.dispose();
     _profileWorker?.dispose();
     _devicesSubscription?.cancel();
     super.onClose();
@@ -293,17 +289,22 @@ class MyProfileController extends GetxController {
     await _myUserService.createChatDirectLink(slug);
   }
 
+  /// Updates [MyUser.name] field for the authenticated [MyUser].
   ///
+  /// If [name] is null, then resets [MyUser.name] field.
   Future<void> updateUserName(UserName? name) async {
     await _myUserService.updateUserName(name);
   }
 
-  ///
+  /// Updates or resets the [MyUser.status] field of the authenticated
+  /// [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) async {
     await _myUserService.updateUserStatus(status);
   }
 
+  /// Updates [MyUser.login] field for the authenticated [MyUser].
   ///
+  /// Throws [UpdateUserLoginException].
   Future<void> updateUserLogin(UserLogin login) async {
     await _myUserService.updateUserLogin(login);
   }

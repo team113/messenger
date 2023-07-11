@@ -23,7 +23,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
+import '/provider/gql/exceptions.dart' show UpdateUserLoginException;
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/add_email/controller.dart';
 import '/ui/page/home/page/my_profile/add_phone/controller.dart';
@@ -292,7 +292,7 @@ class EmailsColumn extends StatelessWidget {
                 PlatformUtils.copy(text: e.val);
                 MessagePopup.success('label_copied'.l10n);
               },
-              onTrailingPressed: () => onTrailingPressed,
+              onTrailingPressed: onTrailingPressed,
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
                 offset: const Offset(0, -1),

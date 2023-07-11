@@ -175,6 +175,7 @@ class StatusFieldButton extends StatefulWidget {
 
 /// State of an [StatusFieldButton] maintaining the [_state].
 class _StatusFieldButtonState extends State<StatusFieldButton> {
+  /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.status?.val ?? '',
     approvable: true,
