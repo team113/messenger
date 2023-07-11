@@ -32,7 +32,7 @@ import 'package:window_manager/window_manager.dart';
 import '/config.dart';
 import '/routes.dart';
 import 'backoff.dart';
-import 'cache.dart';
+import 'cache_utils.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -391,8 +391,8 @@ class PlatformUtilsImpl {
           );
 
           Uint8List? data;
-          if (checksum != null && CacheUtil.exists(checksum)) {
-            data = await CacheUtil.get(checksum: checksum);
+          if (checksum != null && CacheUtils.exists(checksum)) {
+            data = await CacheUtils.get(checksum: checksum);
           }
 
           if (file == null) {
@@ -453,8 +453,8 @@ class PlatformUtilsImpl {
   }) async {
     if (isMobile && !isWeb) {
       Uint8List? data;
-      if (checksum != null && CacheUtil.exists(checksum)) {
-        data = await CacheUtil.get(checksum: checksum);
+      if (checksum != null && CacheUtils.exists(checksum)) {
+        data = await CacheUtils.get(checksum: checksum);
       }
 
       final Directory temp = await getTemporaryDirectory();
@@ -473,8 +473,8 @@ class PlatformUtilsImpl {
   /// Downloads a file from the provided [url] and opens [Share] dialog with it.
   Future<void> share(String url, String name, {String? checksum}) async {
     Uint8List? data;
-    if (checksum != null && CacheUtil.exists(checksum)) {
-      data = await CacheUtil.get(checksum: checksum);
+    if (checksum != null && CacheUtils.exists(checksum)) {
+      data = await CacheUtils.get(checksum: checksum);
     }
 
     if (data == null) {

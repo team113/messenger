@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/model/cache_info.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -34,13 +35,14 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/cache.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
@@ -50,7 +52,7 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(this._myUserService, this._settingsRepo);
+  MyProfileController(this._myUserService, this._settingsRepo, this._cacheRepo);
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
@@ -105,6 +107,9 @@ class MyProfileController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
+  /// TODO: Remove?
+  final AbstractCacheRepository _cacheRepo;
+
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
 
@@ -141,6 +146,9 @@ class MyProfileController extends GetxController {
 
   /// Returns the [User]s blacklisted by the authenticated [MyUser].
   RxList<RxUser> get blacklist => _myUserService.blacklist;
+
+  /// Returns the current [CacheInfo] value.
+  Rx<CacheInfo?> get cacheInfo => _cacheRepo.cacheInfo;
 
   @override
   void onInit() {
@@ -527,6 +535,12 @@ class MyProfileController extends GetxController {
   /// Sets the [ApplicationSettings.loadImages] value.
   Future<void> setLoadImages(bool enabled) =>
       _settingsRepo.setLoadImages(enabled);
+
+  /// Deletes the cache used by the application.
+  Future<void> clearCache() async {
+    // TODO: Should clear the [CacheUtils] as well.
+    await _cacheRepo.clear();
+  }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
   /// with the provided [id].

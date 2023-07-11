@@ -42,6 +42,7 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/cache_utils.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -70,7 +71,7 @@ class MyProfileView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find()),
+      init: MyProfileController(Get.find(), Get.find(), Get.find()),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -1350,38 +1351,89 @@ Widget _storage(BuildContext context, MyProfileController c) {
 
   return Obx(() {
     return _dense(
-      Stack(
-        alignment: Alignment.centerRight,
+      Column(
         children: [
-          IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: 'label_load_images'.l10n,
-                editable: false,
-              ),
-              style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
-            ),
-          ),
-          Align(
+          Stack(
             alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Transform.scale(
-                scale: 0.7,
-                transformHitTests: false,
-                child: Theme(
-                  data: ThemeData(platform: TargetPlatform.macOS),
-                  child: Switch.adaptive(
-                    activeColor: style.colors.primary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: c.settings.value?.loadImages == true,
-                    onChanged:
-                        c.settings.value == null ? null : c.setLoadImages,
+            children: [
+              IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(
+                    text: 'label_load_images'.l10n,
+                    editable: false,
+                  ),
+                  style:
+                      fonts.bodyMedium!.copyWith(color: style.colors.secondary),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: Transform.scale(
+                    scale: 0.7,
+                    transformHitTests: false,
+                    child: Theme(
+                      data: ThemeData(platform: TargetPlatform.macOS),
+                      child: Switch.adaptive(
+                        activeColor: style.colors.primary,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        value: c.settings.value?.loadImages == true,
+                        onChanged:
+                            c.settings.value == null ? null : c.setLoadImages,
+                      ),
+                    ),
                   ),
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 21.0),
+              child: Text(
+                'Cache'.l10n,
+                style:
+                    fonts.titleMedium!.copyWith(color: style.colors.secondary),
+              ),
             ),
           ),
+          if (!PlatformUtils.isWeb) ...[
+            const SizedBox(height: 8),
+            Obx(() {
+              final int size = c.cacheInfo.value?.size ?? 0;
+              const int max = CacheUtilsImpl.maxSize;
+
+              return Column(
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      LinearProgressIndicator(
+                        value: size / max,
+                        minHeight: 32,
+                        color: style.colors.primary,
+                        backgroundColor: style.colors.background,
+                      ),
+                      Text(
+                        '${size ~/ 1024} KB / ${max ~/ 1024} KB',
+                        style: fonts.labelSmall,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  FieldButton(
+                    onPressed: c.clearCache,
+                    text: 'Clear cache',
+                    style: fonts.titleMedium!
+                        .copyWith(color: style.colors.primary),
+                  ),
+                ],
+              );
+            }),
+          ],
         ],
       ),
     );

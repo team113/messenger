@@ -24,7 +24,7 @@ import '/domain/model/attachment.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/cache.dart';
+import '/util/cache_utils.dart';
 
 /// Visual representation of a media [Attachment].
 class MediaAttachment extends StatefulWidget {
@@ -72,7 +72,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       final Uint8List? bytes =
           (oldWidget.attachment as LocalAttachment).file.bytes.value;
       if (bytes != null && size == bytes.length) {
-        CacheUtil.save(bytes);
+        CacheUtils.save(bytes);
       }
     }
 

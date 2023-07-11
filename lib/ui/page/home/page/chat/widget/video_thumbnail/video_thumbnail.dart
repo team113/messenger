@@ -27,7 +27,7 @@ import 'package:path_provider/path_provider.dart';
 import '/themes.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/util/backoff.dart';
-import '/util/cache.dart';
+import '/util/cache_utils.dart';
 import '/util/platform_utils.dart';
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
@@ -214,8 +214,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     Uint8List? bytes = widget.bytes;
     if (bytes == null &&
         widget.checksum != null &&
-        CacheUtil.exists(widget.checksum!)) {
-      bytes = await CacheUtil.get(checksum: widget.checksum!);
+        CacheUtils.exists(widget.checksum!)) {
+      bytes = await CacheUtils.get(checksum: widget.checksum!);
     }
 
     final DataSource source;

@@ -32,16 +32,16 @@ import '/domain/service/disposable_service.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
-/// Global variable to access [CacheUtilImpl].
+/// Global variable to access [CacheUtilsImpl].
 ///
 /// May be reassigned to mock specific functionally.
 // ignore: non_constant_identifier_names
-CacheUtilImpl CacheUtil = CacheUtilImpl();
+CacheUtilsImpl CacheUtils = CacheUtilsImpl();
 
 /// Service maintaining downloading and caching.
-class CacheUtilImpl extends DisposableService {
+class CacheUtilsImpl extends DisposableService {
   /// Maximum allowed size of the [cacheDirectory] in bytes.
-  int maxSize = 1024 * 1024 * 1024; // 1 Gb
+  static const int maxSize = 1024 * 1024 * 1024; // 1 Gb
 
   /// Size of all files in the [cacheDirectory] in bytes.
   final RxInt cacheSize = RxInt(0);
@@ -67,7 +67,7 @@ class CacheUtilImpl extends DisposableService {
     return _cacheDirectory!;
   }
 
-  /// Initializes this [CacheUtilImpl].
+  /// Initializes this [CacheUtilsImpl].
   Future<void> init(AbstractCacheRepository cacheRepository) async {
     _cacheRepository = cacheRepository;
     cacheSize.value = cacheRepository.cacheInfo.value?.size ?? 0;
@@ -135,7 +135,7 @@ class CacheUtilImpl extends DisposableService {
             Response? data;
 
             try {
-              data = await PlatformUtils.dio.get(
+              data = await (await PlatformUtils.dio).get(
                 url,
                 options: Options(responseType: ResponseType.bytes),
                 cancelToken: cancelToken,
@@ -240,7 +240,7 @@ class CacheUtilImpl extends DisposableService {
                 break;
               }
             }
-          } catch (_, __) {
+          } catch (_) {
             // No-op.
           }
         }

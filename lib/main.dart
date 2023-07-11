@@ -55,7 +55,7 @@ import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
 import 'ui/worker/window.dart';
-import 'util/cache.dart';
+import 'util/cache_utils.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -118,8 +118,9 @@ Future<void> main() async {
     await L10n.init();
 
     if (!PlatformUtils.isWeb) {
-      Get.put<AbstractCacheRepository>(CacheRepository(Get.find()));
-      CacheUtil.init(Get.find());
+      AbstractCacheRepository cacheRepository =
+          Get.put<AbstractCacheRepository>(CacheRepository(Get.find()));
+      CacheUtils.init(cacheRepository);
     }
 
     Get.put(BackgroundWorker(Get.find()));
