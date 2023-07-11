@@ -25,8 +25,8 @@ import '/ui/page/home/widget/paddings.dart';
 
 /// Title with [FieldButton] that toggles the display of chat timestamps
 /// between a timeline format and an in-message format.
-class ProfileChats extends StatelessWidget {
-  const ProfileChats({super.key, this.isTimeline = true});
+class ChatsFieldButton extends StatelessWidget {
+  const ChatsFieldButton({super.key, this.isTimeline = true});
 
   /// Indicator whether timestamp labels should be displayed as a timeline.
   final bool isTimeline;

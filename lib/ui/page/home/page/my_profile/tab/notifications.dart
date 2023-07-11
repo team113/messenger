@@ -24,8 +24,8 @@ import '/ui/widget/text_field.dart';
 
 /// Label with [Switch.adaptive] that toggles the user's notification
 /// settings.
-class ProfileNotifications extends StatelessWidget {
-  const ProfileNotifications({
+class NotificationSwitch extends StatelessWidget {
+  const NotificationSwitch({
     super.key,
     this.isMuted = false,
     this.onChanged,

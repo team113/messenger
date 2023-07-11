@@ -134,7 +134,7 @@ class BackgroundPreview extends StatelessWidget {
   }
 }
 
-/// Message-styled widget for [ProfileBackground].
+/// Message-styled widget.
 class _MessageWidget extends StatelessWidget {
   const _MessageWidget({
     this.text,

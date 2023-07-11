@@ -26,8 +26,8 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
 /// Custom-styled [FieldButton] that toggles the language.
-class ProfileLanguage extends StatelessWidget {
-  const ProfileLanguage({super.key});
+class LanguageFieldButton extends StatelessWidget {
+  const LanguageFieldButton({super.key});
 
   @override
   Widget build(BuildContext context) {

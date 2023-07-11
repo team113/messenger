@@ -184,7 +184,11 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                             const SizedBox(height: 10),
-                            ProfileName(c.name, isHide: c.login.text.isEmpty),
+                            NameField(
+                              c.myUser.value?.name,
+                              isHide: c.login.text.isEmpty,
+                              onCreate: c.updateUserName,
+                            ),
                             ProfilePresence(
                               text: c.myUser.value?.presence.localizedString(),
                               backgroundColor:
@@ -274,7 +278,7 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_chats'.l10n,
                           children: [
                             Obx(() {
-                              return ProfileChats(
+                              return ChatsFieldButton(
                                 isTimeline: c.settings.value!.timelineEnabled,
                               );
                             }),
@@ -290,7 +294,7 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_calls'.l10n,
                           children: [
                             Obx(
-                              () => ProfileCall(
+                              () => CallFieldButton(
                                 enablePopups: c.settings.value?.enablePopups,
                               ),
                             )
@@ -306,7 +310,7 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_media'.l10n,
                           children: [
                             Obx(() {
-                              return ProfileMedia(
+                              return MediaFieldButtons(
                                 videoText: (c.devices.video().firstWhereOrNull(
                                                 (e) =>
                                                     e.deviceId() ==
@@ -375,7 +379,7 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_audio_notifications'.l10n,
                           children: [
                             Obx(() {
-                              return ProfileNotifications(
+                              return NotificationSwitch(
                                 isMuted: c.myUser.value?.muted == null,
                                 onChanged:
                                     c.isMuting.value ? null : c.toggleMute,
@@ -402,13 +406,13 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.language:
                         return Block(
                           title: 'label_language'.l10n,
-                          children: const [ProfileLanguage()],
+                          children: const [LanguageFieldButton()],
                         );
 
                       case ProfileTab.blacklist:
                         return Block(
                           title: 'label_blocked_users'.l10n,
-                          children: [ProfileBlockedUsers(c.blacklist)],
+                          children: [BlacklistField(c.blacklist)],
                         );
 
                       case ProfileTab.download:
@@ -418,14 +422,14 @@ class MyProfileView extends StatelessWidget {
 
                         return Block(
                           title: 'label_download_application'.l10n,
-                          children: const [ProfileDownloads()],
+                          children: const [DownloadColumn()],
                         );
 
                       case ProfileTab.danger:
                         return Block(
                           title: 'label_danger_zone'.l10n,
                           children: [
-                            ProfileDanger(() => _deleteAccount(c, context)),
+                            DangerFieldButton(() => _deleteAccount(c, context)),
                           ],
                         );
 

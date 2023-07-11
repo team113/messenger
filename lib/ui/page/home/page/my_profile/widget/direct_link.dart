@@ -152,10 +152,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             children: [
               RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: fonts.labelSmall,
                   children: [
                     TextSpan(
                       text: 'label_transition_count'.l10nfmt({
@@ -168,8 +165,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: fonts.labelSmall!
-                          .copyWith(color: style.colors.primary),
+                      style: fonts.labelSmall!.copyWith(
+                        color: style.colors.primary,
+                      ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () => LinkDetailsView.show(context),
                     ),

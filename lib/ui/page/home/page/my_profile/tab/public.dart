@@ -15,8 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../../../../domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
@@ -28,32 +32,94 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] to display editable [name].
-class ProfileName extends StatelessWidget {
-  const ProfileName(this.name, {super.key, this.isHide = false});
+class NameField extends StatefulWidget {
+  const NameField(this.name, {super.key, this.isHide = false, this.onCreate});
 
-  /// Reactive state of this [ReactiveTextField].
-  final TextFieldState name;
+  // /// Reactive state of this [ReactiveTextField].
+  // final TextFieldState name;
+  final UserName? name;
+
+  /// TODO
+  final FutureOr<void> Function(UserName? name)? onCreate;
 
   /// Indicator whether `onSuffixPressed` and `trailing` should be
   /// enabled or not.
   final bool isHide;
 
   @override
+  State<NameField> createState() => _NameFieldState();
+}
+
+class _NameFieldState extends State<NameField> {
+  late final TextFieldState _state = TextFieldState(
+    text: widget.name?.val,
+    approvable: true,
+    onChanged: (s) async {
+      s.error.value = null;
+      try {
+        if (s.text.isNotEmpty) {
+          UserName(s.text);
+        }
+      } on FormatException catch (_) {
+        s.error.value = 'err_incorrect_input'.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      s.error.value = null;
+      try {
+        if (s.text.isNotEmpty) {
+          UserName(s.text);
+        }
+      } on FormatException catch (_) {
+        s.error.value = 'err_incorrect_input'.l10n;
+      }
+
+      if (s.error.value == null) {
+        s.editable.value = false;
+        s.status.value = RxStatus.loading();
+        try {
+          await widget.onCreate?.call(
+            s.text.isNotEmpty ? UserName(s.text) : null,
+          );
+          s.status.value = RxStatus.empty();
+        } catch (e) {
+          s.error.value = 'err_data_transfer'.l10n;
+          s.status.value = RxStatus.empty();
+          rethrow;
+        } finally {
+          s.editable.value = true;
+        }
+      }
+    },
+  );
+
+  @override
+  void didUpdateWidget(NameField oldWidget) {
+    if (!_state.focus.hasFocus &&
+        !_state.changed.value &&
+        _state.editable.value) {
+      _state.unchecked = widget.name?.val;
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Paddings.basic(
       ReactiveTextField(
         key: const Key('NameField'),
-        state: name,
+        state: _state,
         label: 'label_name'.l10n,
         hint: 'label_name_hint'.l10n,
         filled: true,
-        onSuffixPressed: isHide
+        onSuffixPressed: widget.isHide
             ? null
             : () {
-                PlatformUtils.copy(text: name.text);
+                PlatformUtils.copy(text: _state.text);
                 MessagePopup.success('label_copied'.l10n);
               },
-        trailing: isHide
+        trailing: widget.isHide
             ? null
             : Transform.translate(
                 offset: const Offset(0, -1),

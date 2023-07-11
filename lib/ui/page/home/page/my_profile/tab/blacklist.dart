@@ -24,8 +24,8 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
 /// Custom-styled FieldButton with [blacklist]ed users.
-class ProfileBlockedUsers extends StatelessWidget {
-  const ProfileBlockedUsers(this.blacklist, {super.key});
+class BlacklistField extends StatelessWidget {
+  const BlacklistField(this.blacklist, {super.key});
 
   /// [List] of blacklisted users.
   final List blacklist;

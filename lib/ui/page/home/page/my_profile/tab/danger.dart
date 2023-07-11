@@ -24,10 +24,10 @@ import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Custom-styled [FieldButton] to display dangerous actions.
-class ProfileDanger extends StatelessWidget {
-  const ProfileDanger(this.onPressed, {super.key});
+class DangerFieldButton extends StatelessWidget {
+  const DangerFieldButton(this.onPressed, {super.key});
 
-  /// Callback, called when this [ProfileDanger] is pressed.
+  /// Callback, called when this [DangerFieldButton] is pressed.
   final void Function()? onPressed;
 
   @override

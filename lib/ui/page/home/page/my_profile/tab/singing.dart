@@ -231,10 +231,7 @@ class ProfileEmails extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: fonts.labelSmall,
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
@@ -405,10 +402,7 @@ class ProfilePhones extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: fonts.labelSmall,
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,

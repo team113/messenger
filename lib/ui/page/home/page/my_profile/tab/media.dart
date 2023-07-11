@@ -24,8 +24,8 @@ import '/ui/page/home/widget/paddings.dart';
 
 /// Column of [FieldButton]s that displays buttons for toggling
 /// media-related options
-class ProfileMedia extends StatelessWidget {
-  const ProfileMedia({
+class MediaFieldButtons extends StatelessWidget {
+  const MediaFieldButtons({
     super.key,
     this.videoSwitch,
     this.microphoneSwitch,

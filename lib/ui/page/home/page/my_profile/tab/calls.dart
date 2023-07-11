@@ -25,8 +25,8 @@ import '/ui/page/home/widget/paddings.dart';
 
 /// Custom-styled [FieldButton] for opening calls either in a separate window
 /// or inside the application.
-class ProfileCall extends StatelessWidget {
-  const ProfileCall({super.key, this.enablePopups});
+class CallFieldButton extends StatelessWidget {
+  const CallFieldButton({super.key, this.enablePopups});
 
   /// Indicator whether calls will be opened in a separate window or
   /// within the app.

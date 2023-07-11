@@ -73,9 +73,6 @@ class MyProfileController extends GetxController {
   /// [ScrollablePositionedList].
   int listInitIndex = 0;
 
-  /// [MyUser.name]'s field state.
-  late final TextFieldState name;
-
   /// [MyUser.num]'s copyable state.
   late final TextFieldState num;
 
@@ -101,9 +98,6 @@ class MyProfileController extends GetxController {
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [name] field.
-  Timer? _nameTimer;
 
   /// [Timer] to set the `RxStatus.empty` status of the [login] field.
   Timer? _loginTimer;
@@ -181,57 +175,10 @@ class MyProfileController extends GetxController {
     _myUserWorker = ever(
       _myUserService.myUser,
       (MyUser? v) {
-        if (!name.focus.hasFocus &&
-            !name.changed.value &&
-            name.editable.value) {
-          name.unchecked = v?.name?.val;
-        }
         if (!login.focus.hasFocus &&
             !login.changed.value &&
             login.editable.value) {
           login.unchecked = v?.login?.val;
-        }
-      },
-    );
-
-    name = TextFieldState(
-      text: myUser.value?.name?.val,
-      approvable: true,
-      onChanged: (s) async {
-        s.error.value = null;
-        try {
-          if (s.text.isNotEmpty) {
-            UserName(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        s.error.value = null;
-        try {
-          if (s.text.isNotEmpty) {
-            UserName(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          _nameTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService
-                .updateUserName(s.text.isNotEmpty ? UserName(s.text) : null);
-            s.status.value = RxStatus.empty();
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
         }
       },
     );
@@ -471,6 +418,13 @@ class MyProfileController extends GetxController {
   /// (if any).
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
     await _myUserService.createChatDirectLink(slug);
+  }
+
+  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
+  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
+  /// (if any).
+  Future<void> updateUserName(UserName? name) async {
+    await _myUserService.updateUserName(name);
   }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]

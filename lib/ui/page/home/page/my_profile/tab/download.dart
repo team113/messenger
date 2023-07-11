@@ -21,8 +21,8 @@ import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
 /// [List] of custom-styled [DownloadButton]s.
-class ProfileDownloads extends StatelessWidget {
-  const ProfileDownloads({super.key});
+class DownloadColumn extends StatelessWidget {
+  const DownloadColumn({super.key});
 
   @override
   Widget build(BuildContext context) {
