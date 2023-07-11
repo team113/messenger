@@ -186,15 +186,17 @@ class MyProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             NameField(
                               c.myUser.value?.name,
-                              isHide: c.login.text.isEmpty,
                               onCreate: c.updateUserName,
                             ),
-                            ProfilePresence(
+                            PresenceFieldButton(
                               text: c.myUser.value?.presence.localizedString(),
                               backgroundColor:
                                   c.myUser.value?.presence.getColor(),
                             ),
-                            ProfileStatus(c.status),
+                            StatusFieldButton(
+                              c.myUser.value?.status,
+                              onCreate: c.updateUserStatus,
+                            ),
                           ],
                         );
 
@@ -202,15 +204,13 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_login_options'.l10n,
                           children: [
-                            ProfileNum(c.num, copy: c.myUser.value?.num.val),
-                            ProfileLogin(
-                              c.login,
-                              hint: c.myUser.value?.login == null
-                                  ? 'label_login_hint'.l10n
-                                  : c.myUser.value?.login?.val,
+                            CopyableNumField(c.myUser.value?.num),
+                            ReactiveLoginField(
+                              c.myUser.value?.login,
+                              onCreate: c.updateUserLogin,
                             ),
                             const SizedBox(height: 10),
-                            ProfileEmails(
+                            EmailsColumn(
                               confirmedEmails: c.myUser.value?.emails.confirmed,
                               text: c.myUser.value?.emails.unconfirmed?.val,
                               hasUnconfirmed:
@@ -225,7 +225,7 @@ class MyProfileView extends StatelessWidget {
                                 email: c.myUser.value?.emails.unconfirmed!,
                               ),
                             ),
-                            ProfilePhones(
+                            PhonesColumn(
                               confirmedPhones: c.myUser.value?.phones.confirmed,
                               text: c.myUser.value?.phones.unconfirmed?.val,
                               hasUnconfirmed:
@@ -294,7 +294,7 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_calls'.l10n,
                           children: [
                             Obx(
-                              () => CallFieldButton(
+                              () => CallsFieldButton(
                                 enablePopups: c.settings.value?.enablePopups,
                               ),
                             )

@@ -23,7 +23,10 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 
 /// Column of [FieldButton]s that displays buttons for toggling
-/// media-related options
+/// media-related options.
+///
+/// Intended to be used as a [AbstractSettingsRepository.mediaSettings]
+/// preview.
 class MediaFieldButtons extends StatelessWidget {
   const MediaFieldButtons({
     super.key,

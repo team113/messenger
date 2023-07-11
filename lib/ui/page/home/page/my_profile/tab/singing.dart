@@ -15,11 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/add_email/controller.dart';
 import '/ui/page/home/page/my_profile/add_phone/controller.dart';
@@ -34,14 +38,26 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Custom-styled [CopyableTextField] to display copyable [num].
-class ProfileNum extends StatelessWidget {
-  const ProfileNum(this.num, {super.key, this.copy});
+class CopyableNumField extends StatefulWidget {
+  const CopyableNumField(this.num, {super.key});
 
-  /// Reactive state of this [ReactiveTextField].
-  final TextFieldState num;
+  /// Unique number of an [User].
+  final UserNum? num;
 
-  /// Data to put into the clipboard.
-  final String? copy;
+  @override
+  State<CopyableNumField> createState() => _CopyableNumFieldState();
+}
+
+/// State of an [CopyableNumField] maintaining the [_state].
+class _CopyableNumFieldState extends State<CopyableNumField> {
+  /// State of the [ReactiveTextField].
+  late final TextFieldState _state = TextFieldState(
+    text: widget.num?.val.replaceAllMapped(
+      RegExp(r'.{4}'),
+      (match) => '${match.group(0)} ',
+    ),
+    editable: false,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +67,9 @@ class ProfileNum extends StatelessWidget {
         children: [
           CopyableTextField(
             key: const Key('NumCopyable'),
-            state: num,
+            state: _state,
             label: 'label_num'.l10n,
-            copy: copy,
+            copy: widget.num?.val,
           ),
           const SizedBox(height: 10),
         ],
@@ -63,14 +79,71 @@ class ProfileNum extends StatelessWidget {
 }
 
 /// [ReactiveTextField] with label to display user login.
-class ProfileLogin extends StatelessWidget {
-  const ProfileLogin(this.login, {super.key, this.hint});
+class ReactiveLoginField extends StatefulWidget {
+  const ReactiveLoginField(this.login, {super.key, this.onCreate});
 
-  /// Reactive state of the [ReactiveTextField].
-  final TextFieldState login;
+  /// Unique login of an [User].
+  final UserLogin? login;
 
-  /// Optional hint of the [ReactiveTextField].
-  final String? hint;
+  /// Callback, called when a `UserLogin` is spotted.
+  final FutureOr<void> Function(UserLogin login)? onCreate;
+
+  @override
+  State<ReactiveLoginField> createState() => _ReactiveLoginFieldState();
+}
+
+/// State of an [ReactiveLoginField] maintaining the [_state].
+class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
+  /// State of the [ReactiveTextField].
+  late final TextFieldState _state = TextFieldState(
+    text: widget.login?.val,
+    approvable: true,
+    onChanged: (s) async {
+      s.error.value = null;
+
+      if (s.text.isEmpty) {
+        s.unchecked = widget.login?.val ?? '';
+        s.status.value = RxStatus.empty();
+        return;
+      }
+
+      try {
+        UserLogin(s.text.toLowerCase());
+      } on FormatException catch (_) {
+        s.error.value = 'err_incorrect_login_input'.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      if (s.error.value == null) {
+        s.editable.value = false;
+        s.status.value = RxStatus.loading();
+        try {
+          await widget.onCreate?.call(UserLogin(s.text.toLowerCase()));
+          s.status.value = RxStatus.success();
+        } on UpdateUserLoginException catch (e) {
+          s.error.value = e.toMessage();
+          s.status.value = RxStatus.empty();
+        } catch (e) {
+          s.error.value = 'err_data_transfer'.l10n;
+          s.status.value = RxStatus.empty();
+          rethrow;
+        } finally {
+          s.editable.value = true;
+        }
+      }
+    },
+  );
+
+  @override
+  void didUpdateWidget(ReactiveLoginField oldWidget) {
+    if (!_state.focus.hasFocus &&
+        !_state.changed.value &&
+        _state.editable.value) {
+      _state.unchecked = widget.login?.val;
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,14 +156,14 @@ class ProfileLogin extends StatelessWidget {
         children: [
           ReactiveTextField(
             key: const Key('LoginField'),
-            state: login,
-            onSuffixPressed: login.text.isEmpty
+            state: _state,
+            onSuffixPressed: _state.text.isEmpty
                 ? null
                 : () {
-                    PlatformUtils.copy(text: login.text);
+                    PlatformUtils.copy(text: _state.text);
                     MessagePopup.success('label_copied'.l10n);
                   },
-            trailing: login.text.isEmpty
+            trailing: _state.text.isEmpty
                 ? null
                 : Transform.translate(
                     offset: const Offset(0, -1),
@@ -101,7 +174,9 @@ class ProfileLogin extends StatelessWidget {
                     ),
                   ),
             label: 'label_login'.l10n,
-            hint: hint,
+            hint: widget.login == null
+                ? 'label_login_hint'.l10n
+                : widget.login?.val,
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
@@ -172,8 +247,8 @@ class ProfileLogin extends StatelessWidget {
 }
 
 /// [Column] with addable list of user emails.
-class ProfileEmails extends StatelessWidget {
-  const ProfileEmails({
+class EmailsColumn extends StatelessWidget {
+  const EmailsColumn({
     super.key,
     this.text,
     this.confirmedEmails,
@@ -343,8 +418,8 @@ class ProfileEmails extends StatelessWidget {
 }
 
 /// [Column] with addable list of user phones.
-class ProfilePhones extends StatelessWidget {
-  const ProfilePhones({
+class PhonesColumn extends StatelessWidget {
+  const PhonesColumn({
     super.key,
     this.confirmedPhones,
     this.text,

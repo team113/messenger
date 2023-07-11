@@ -28,11 +28,11 @@ import '/ui/widget/text_field.dart';
 /// another items.
 class ReactiveDropdown<T> extends StatelessWidget {
   const ReactiveDropdown({
-    Key? key,
+    super.key,
     required this.state,
     this.icon,
     this.label,
-  }) : super(key: key);
+  });
 
   /// Reactive state of this [ReactiveDropdown].
   final DropdownFieldState<T> state;

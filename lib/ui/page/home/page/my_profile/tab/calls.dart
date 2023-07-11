@@ -16,8 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/l10n/l10n.dart';
 
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/call_window_switch/controller.dart';
 import '/ui/page/home/widget/field_button.dart';
@@ -25,8 +25,8 @@ import '/ui/page/home/widget/paddings.dart';
 
 /// Custom-styled [FieldButton] for opening calls either in a separate window
 /// or inside the application.
-class CallFieldButton extends StatelessWidget {
-  const CallFieldButton({super.key, this.enablePopups});
+class CallsFieldButton extends StatelessWidget {
+  const CallsFieldButton({super.key, this.enablePopups});
 
   /// Indicator whether calls will be opened in a separate window or
   /// within the app.

@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../domain/model/user.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
@@ -33,24 +33,21 @@ import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] to display editable [name].
 class NameField extends StatefulWidget {
-  const NameField(this.name, {super.key, this.isHide = false, this.onCreate});
+  const NameField(this.name, {super.key, this.onCreate});
 
-  // /// Reactive state of this [ReactiveTextField].
-  // final TextFieldState name;
+  /// Name of an [User].
   final UserName? name;
 
-  /// TODO
+  /// Callback, called when a `UserName` is spotted.
   final FutureOr<void> Function(UserName? name)? onCreate;
-
-  /// Indicator whether `onSuffixPressed` and `trailing` should be
-  /// enabled or not.
-  final bool isHide;
 
   @override
   State<NameField> createState() => _NameFieldState();
 }
 
+/// State of an [NameField] maintaining the [_state].
 class _NameFieldState extends State<NameField> {
+  /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.name?.val,
     approvable: true,
@@ -113,13 +110,13 @@ class _NameFieldState extends State<NameField> {
         label: 'label_name'.l10n,
         hint: 'label_name_hint'.l10n,
         filled: true,
-        onSuffixPressed: widget.isHide
+        onSuffixPressed: _state.text.isEmpty
             ? null
             : () {
                 PlatformUtils.copy(text: _state.text);
                 MessagePopup.success('label_copied'.l10n);
               },
-        trailing: widget.isHide
+        trailing: _state.text.isEmpty
             ? null
             : Transform.translate(
                 offset: const Offset(0, -1),
@@ -134,13 +131,13 @@ class _NameFieldState extends State<NameField> {
 }
 
 /// Custom-styled [FieldButton] to display user presence.
-class ProfilePresence extends StatelessWidget {
-  const ProfilePresence({super.key, this.text, this.backgroundColor});
+class PresenceFieldButton extends StatelessWidget {
+  const PresenceFieldButton({super.key, this.text, this.backgroundColor});
 
-  /// Optional label of this [ProfilePresence].
+  /// Optional label of this [PresenceFieldButton].
   final String? text;
 
-  /// [Color] to fill the circle with [CircleAvatar].
+  /// [Color] to fill the circle.
   final Color? backgroundColor;
 
   @override
@@ -163,11 +160,62 @@ class ProfilePresence extends StatelessWidget {
 }
 
 /// Custom-styled [ReactiveTextField] to display editable [status].
-class ProfileStatus extends StatelessWidget {
-  const ProfileStatus(this.status, {super.key});
+class StatusFieldButton extends StatefulWidget {
+  const StatusFieldButton(this.status, {super.key, required this.onCreate});
 
-  /// Reactive state of this [ReactiveTextField].
-  final TextFieldState status;
+  /// Status of an [User].
+  final UserTextStatus? status;
+
+  /// Callback, called when a `UserTextStatus` is spotted.
+  final Future<void> Function(UserTextStatus? status) onCreate;
+
+  @override
+  State<StatusFieldButton> createState() => _StatusFieldButtonState();
+}
+
+/// State of an [StatusFieldButton] maintaining the [_state].
+class _StatusFieldButtonState extends State<StatusFieldButton> {
+  late final TextFieldState _state = TextFieldState(
+    text: widget.status?.val ?? '',
+    approvable: true,
+    onChanged: (s) {
+      s.error.value = null;
+
+      try {
+        if (s.text.isNotEmpty) {
+          UserTextStatus(s.text);
+        }
+      } on FormatException catch (_) {
+        s.error.value = 'err_incorrect_input'.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      try {
+        if (s.text.isNotEmpty) {
+          UserTextStatus(s.text);
+        }
+      } on FormatException catch (_) {
+        s.error.value = 'err_incorrect_input'.l10n;
+      }
+
+      if (s.error.value == null) {
+        s.editable.value = false;
+        s.status.value = RxStatus.loading();
+        try {
+          widget.onCreate.call(
+            s.text.isNotEmpty ? UserTextStatus(s.text) : null,
+          );
+          s.status.value = RxStatus.success();
+        } catch (e) {
+          s.error.value = 'err_data_transfer'.l10n;
+          s.status.value = RxStatus.empty();
+          rethrow;
+        } finally {
+          s.editable.value = true;
+        }
+      }
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -176,17 +224,17 @@ class ProfileStatus extends StatelessWidget {
     return Paddings.basic(
       ReactiveTextField(
         key: const Key('StatusField'),
-        state: status,
+        state: _state,
         label: 'label_status'.l10n,
         filled: true,
         maxLength: 25,
-        onSuffixPressed: status.text.isEmpty
+        onSuffixPressed: _state.text.isEmpty
             ? null
             : () {
-                PlatformUtils.copy(text: status.text);
+                PlatformUtils.copy(text: _state.text);
                 MessagePopup.success('label_copied'.l10n);
               },
-        trailing: status.text.isEmpty
+        trailing: _state.text.isEmpty
             ? null
             : Transform.translate(
                 offset: const Offset(0, -1),

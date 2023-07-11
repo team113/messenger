@@ -46,15 +46,16 @@ class DirectLinkField extends StatefulWidget {
   /// Reactive state of the [ReactiveTextField].
   final ChatDirectLink? link;
 
-  /// TODO
+  /// Callback, called when a `ChatDirectLinkSlug` is spotted.
   final FutureOr<void> Function(ChatDirectLinkSlug)? onCreate;
 
   @override
   State<DirectLinkField> createState() => _DirectLinkFieldState();
 }
 
-/// TODO
+/// State of an [DirectLinkField] maintaining the [_state].
 class _DirectLinkFieldState extends State<DirectLinkField> {
+  /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.link?.slug.val ?? ChatDirectLinkSlug.generate(10).val,
     approvable: true,
