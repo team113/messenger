@@ -92,10 +92,7 @@ class _SwitcherCard extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 15),
-          Text(
-            title,
-            style: fonts.headlineLarge,
-          ),
+          Text(title, style: fonts.headlineLarge),
           const SizedBox(height: 7),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

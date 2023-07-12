@@ -21,9 +21,8 @@ import '/ui/page/style/widget/header.dart';
 import 'widget/avatar.dart';
 import 'widget/button.dart';
 import 'widget/navigation.dart';
-import 'widget/pop_up.dart';
+import 'widget/containment.dart';
 import 'widget/switcher.dart';
-import 'widget/system_message.dart';
 import 'widget/text_field.dart';
 
 /// Elements tab view of the [Routes.style] page.
@@ -46,14 +45,11 @@ class ElementStyleTabView extends StatelessWidget {
         const SmallHeader(label: 'Buttons'),
         ButtonsWidget(isDarkMode: isDarkMode),
         const Divider(),
-        const SmallHeader(label: 'System messages'),
-        const SystemMessageWidget(),
-        const Divider(),
         const SmallHeader(label: 'Switchers'),
         SwitcherWidget(isDarkMode: isDarkMode),
         const Divider(),
-        const SmallHeader(label: 'Pop-ups'),
-        const PopUpWidget(),
+        const SmallHeader(label: 'Containment'),
+        const ContainmentWidget(),
         const Divider(),
         const SmallHeader(label: 'Navigation'),
         const NavigationWidget(),

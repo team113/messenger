@@ -226,14 +226,6 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'System messages',
-                                  style: fonts.labelLarge!.copyWith(
-                                    color: const Color(0xFF1F3C5D),
-                                  ),
-                                ),
-                              ),
-                              ListTile(
-                                title: Text(
                                   'Switchers',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
@@ -242,7 +234,7 @@ class StyleNavigationBar extends StatelessWidget {
                               ),
                               ListTile(
                                 title: Text(
-                                  'Pop-ups',
+                                  'Containment',
                                   style: fonts.labelLarge!.copyWith(
                                     color: const Color(0xFF1F3C5D),
                                   ),
