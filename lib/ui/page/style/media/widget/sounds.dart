@@ -70,6 +70,17 @@ class SoundsWidget extends StatelessWidget {
                 ),
                 Obx(
                   () => _MediaCard(
+                    title: 'reconnect.mp3',
+                    subtitle: 'Call reconnection',
+                    child: _PlayPauseButton(
+                      isPlaying: c.isPlayingMap['reconnect.mp3']!,
+                      onPlay: () => c.play('reconnect.mp3'),
+                      onStop: () => c.stop('reconnect.mp3'),
+                    ),
+                  ),
+                ),
+                Obx(
+                  () => _MediaCard(
                     title: 'message_sent.mp3',
                     subtitle: 'Sended message',
                     child: _PlayPauseButton(

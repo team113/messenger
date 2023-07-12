@@ -82,6 +82,7 @@ class StyleController extends GetxController {
     'chinese.mp3': false,
     'chinese-web.mp3': false,
     'ringing.mp3': false,
+    'reconnect.mp3': false,
     'message_sent.mp3': false,
     'notification.mp3': false,
     'pop.mp3': false,
