@@ -50,7 +50,7 @@ class ElementStyleTabView extends StatelessWidget {
         const SystemMessageWidget(),
         const Divider(),
         const SmallHeader(label: 'Switchers'),
-        const SwitcherWidget(),
+        SwitcherWidget(isDarkMode: isDarkMode),
         const Divider(),
         const SmallHeader(label: 'Pop-ups'),
         const PopUpWidget(),
