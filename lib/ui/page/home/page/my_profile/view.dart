@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/switch_field.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/domain/model/my_user.dart';
@@ -50,10 +51,8 @@ import 'tab/danger.dart';
 import 'tab/download.dart';
 import 'tab/language.dart';
 import 'tab/media.dart';
-import 'tab/notifications.dart';
 import 'tab/public.dart';
 import 'tab/singing.dart';
-import 'tab/storage.dart';
 import 'widget/direct_link.dart';
 
 /// View of the [Routes.me] page.
@@ -379,8 +378,15 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_audio_notifications'.l10n,
                           children: [
                             Obx(() {
-                              return NotificationSwitch(
-                                isMuted: c.myUser.value?.muted == null,
+                              final bool isMuted =
+                                  c.myUser.value?.muted == null;
+
+                              return SwitchField(
+                                text: (isMuted
+                                        ? 'label_enabled'
+                                        : 'label_disabled')
+                                    .l10n,
+                                value: isMuted,
                                 onChanged:
                                     c.isMuting.value ? null : c.toggleMute,
                               );
@@ -393,7 +399,8 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_storage'.l10n,
                           children: [
                             Obx(() {
-                              return ProfileStorage(
+                              return SwitchField(
+                                text: 'label_load_images'.l10n,
                                 value: c.settings.value?.loadImages == true,
                                 onChanged: c.settings.value == null
                                     ? null

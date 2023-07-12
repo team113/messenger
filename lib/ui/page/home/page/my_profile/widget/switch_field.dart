@@ -17,22 +17,24 @@
 
 import 'package:flutter/material.dart';
 
-import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// Label with [Switch.adaptive] that toggles the user's notification
-/// settings.
-class NotificationSwitch extends StatelessWidget {
-  const NotificationSwitch({
+/// Custom-styled [ReactiveTextField] with [Switch.adaptive].
+class SwitchField extends StatelessWidget {
+  const SwitchField({
     super.key,
-    this.isMuted = false,
+    this.text,
+    this.value = false,
     this.onChanged,
   });
 
-  /// Indicator whether the notifications are muted or not.
-  final bool isMuted;
+  /// Text of the [ReactiveTextField].
+  final String? text;
+
+  /// Indicator whether this switch is `on` or `off`.
+  final bool value;
 
   /// Callback, called when the user toggles the switch `on` or `off`.
   final void Function(bool)? onChanged;
@@ -47,10 +49,7 @@ class NotificationSwitch extends StatelessWidget {
         children: [
           IgnorePointer(
             child: ReactiveTextField(
-              state: TextFieldState(
-                text: (isMuted ? 'label_enabled' : 'label_disabled').l10n,
-                editable: false,
-              ),
+              state: TextFieldState(text: text, editable: false),
               style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
             ),
           ),
@@ -66,7 +65,7 @@ class NotificationSwitch extends StatelessWidget {
                   child: Switch.adaptive(
                     activeColor: style.colors.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: isMuted,
+                    value: value,
                     onChanged: onChanged,
                   ),
                 ),
