@@ -26,18 +26,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/paddings.dart';
@@ -48,16 +45,19 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'message_field/view.dart';
+import 'message_field/controller.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
+import 'widget/chat_subtitle.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
+import 'widget/time_label.dart';
+import 'widget/unread_label.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
+  const ChatView(this.id, {super.key, this.itemId});
 
   /// ID of this [Chat].
   final ChatId id;
@@ -108,6 +108,7 @@ class _ChatViewState extends State<ChatView>
         itemId: widget.itemId,
       ),
       tag: widget.id.val,
+      global: !Get.isRegistered<ChatController>(tag: widget.id.val),
       builder: (c) {
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.
@@ -195,7 +196,7 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    if (!isMonolog) _chatSubtitle(c),
+                                    if (!isMonolog) ChatSubtitle(c.chat!, c.me),
                                   ],
                                 ),
                               ),
@@ -793,10 +794,14 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
-        child: _timeLabel(element.id.at.val, c, i),
+        child: TimeLabelWidget(
+          element.id.at.val,
+          animation: _animation,
+          opacity: c.stickyIndex.value == i && c.showSticky.value ? 1 : 0,
+        ),
       );
     } else if (element is UnreadMessagesElement) {
-      return SelectionContainer.disabled(child: _unreadLabel(context, c));
+      return SelectionContainer.disabled(child: UnreadLabel(c.unreadMessages));
     } else if (element is LoaderElement) {
       return Obx(() {
         final Widget child;
@@ -833,202 +838,6 @@ class _ChatViewState extends State<ChatView>
     }
 
     return const SizedBox();
-  }
-
-  /// Returns a header subtitle of the [Chat].
-  Widget _chatSubtitle(ChatController c) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Obx(() {
-      Rx<Chat> chat = c.chat!.chat;
-
-      if (chat.value.ongoingCall != null) {
-        final subtitle = StringBuffer();
-        if (!context.isMobile) {
-          subtitle.write(
-              '${'label_call_active'.l10n}${'space_vertical_space'.l10n}');
-        }
-
-        final Set<UserId> actualMembers =
-            chat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
-        subtitle.write(
-          'label_a_of_b'.l10nfmt(
-            {'a': actualMembers.length, 'b': c.chat!.members.length},
-          ),
-        );
-
-        if (c.duration.value != null) {
-          subtitle.write(
-            '${'space_vertical_space'.l10n}${c.duration.value?.hhMmSs()}',
-          );
-        }
-
-        return Text(
-          subtitle.toString(),
-          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-        );
-      }
-
-      bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
-      if (isTyping) {
-        if (c.chat?.chat.value.isGroup == false) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'label_typing'.l10n,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
-              ),
-              const SizedBox(width: 3),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 3),
-                child: AnimatedTyping(),
-              ),
-            ],
-          );
-        }
-
-        Iterable<String> typings = c.chat!.typingUsers
-            .where((e) => e.id != c.me)
-            .map((e) => e.name?.val ?? e.num.val);
-
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Flexible(
-              child: Text(
-                typings.join('comma_space'.l10n),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
-              ),
-            ),
-            const SizedBox(width: 3),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 3),
-              child: AnimatedTyping(),
-            ),
-          ],
-        );
-      }
-
-      if (chat.value.isGroup) {
-        final String? subtitle = chat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(
-            subtitle,
-            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-          );
-        }
-      } else if (chat.value.isDialog) {
-        final ChatMember? partner =
-            chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
-        if (partner != null) {
-          return Row(
-            children: [
-              if (c.chat?.chat.value.muted != null) ...[
-                SvgImage.asset(
-                  'assets/icons/muted_dark.svg',
-                  width: 19.99 * 0.6,
-                  height: 15 * 0.6,
-                ),
-                const SizedBox(width: 5),
-              ],
-              Flexible(
-                child: FutureBuilder<RxUser?>(
-                  future: c.getUser(partner.user.id),
-                  builder: (_, snapshot) {
-                    if (snapshot.data != null) {
-                      return Obx(() {
-                        final String? subtitle = c.chat!.chat.value
-                            .getSubtitle(partner: snapshot.data!.user.value);
-
-                        final UserTextStatus? status =
-                            snapshot.data!.user.value.status;
-
-                        if (status != null || subtitle != null) {
-                          final StringBuffer buffer =
-                              StringBuffer(status ?? '');
-
-                          if (status != null && subtitle != null) {
-                            buffer.write('space_vertical_space'.l10n);
-                          }
-
-                          buffer.write(subtitle ?? '');
-
-                          return Text(
-                            buffer.toString(),
-                            style: fonts.bodySmall!.copyWith(
-                              color: style.colors.secondary,
-                            ),
-                          );
-                        }
-
-                        return const SizedBox();
-                      });
-                    }
-
-                    return const SizedBox();
-                  },
-                ),
-              ),
-            ],
-          );
-        }
-      }
-
-      return const SizedBox();
-    });
-  }
-
-  /// Returns a centered [time] label.
-  Widget _timeLabel(DateTime time, ChatController c, int i) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: SwipeableStatus(
-        animation: _animation,
-        padding: const EdgeInsets.only(right: 8),
-        crossAxisAlignment: CrossAxisAlignment.center,
-        swipeable: Padding(
-          padding: const EdgeInsets.only(right: 4),
-          child: Text(DateFormat('dd.MM.yy').format(time)),
-        ),
-        child: Obx(() {
-          return AnimatedOpacity(
-            key: Key('$i$time'),
-            opacity: c.stickyIndex.value == i
-                ? c.showSticky.isTrue
-                    ? 1
-                    : 0
-                : 1,
-            duration: const Duration(milliseconds: 250),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: style.systemMessageBorder,
-                  color: style.systemMessageColor,
-                ),
-                child: Text(
-                  time.toRelative(),
-                  style: fonts.bodySmall!.copyWith(
-                    color: style.colors.secondary,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
   }
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
@@ -1074,71 +883,6 @@ class _ChatViewState extends State<ChatView>
       c.isHorizontalScroll.value = false;
       c.horizontalScrollTimer.value = null;
     });
-  }
-
-  /// Builds a visual representation of an [UnreadMessagesElement].
-  Widget _unreadLabel(BuildContext context, ChatController c) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: style.systemMessageBorder,
-        color: style.systemMessageColor,
-      ),
-      child: Center(
-        child: Text(
-          'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
-          style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-        ),
-      ),
-    );
-  }
-}
-
-/// Extension adding an ability to get text represented [DateTime] relative to
-/// [DateTime.now].
-extension DateTimeToRelative on DateTime {
-  /// Returns relative to [now] text representation.
-  ///
-  /// [DateTime.now] is used if [now] is `null`.
-  String toRelative([DateTime? now]) {
-    DateTime local = isUtc ? toLocal() : this;
-    DateTime relative = now ?? DateTime.now();
-    int days = relative.julianDayNumber() - local.julianDayNumber();
-
-    int months = 0;
-    if (days >= 28) {
-      months =
-          relative.month + relative.year * 12 - local.month - local.year * 12;
-      if (relative.day < local.day) {
-        months--;
-      }
-    }
-
-    return 'label_ago_date'.l10nfmt({
-      'years': months ~/ 12,
-      'months': months,
-      'weeks': days ~/ 7,
-      'days': days,
-    });
-  }
-
-  /// Returns a Julian day number of this [DateTime].
-  int julianDayNumber() {
-    final int c0 = ((month - 3) / 12).floor();
-    final int x4 = year + c0;
-    final int x3 = (x4 / 100).floor();
-    final int x2 = x4 % 100;
-    final int x1 = month - (12 * c0) - 3;
-    return ((146097 * x3) / 4).floor() +
-        ((36525 * x2) / 100).floor() +
-        (((153 * x1) + 2) / 5).floor() +
-        day +
-        1721119;
   }
 }
 

@@ -28,12 +28,14 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
+import 'package:messenger/config.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
@@ -111,9 +113,8 @@ external bool _isPopup;
 @JS('document.hasFocus')
 external bool _hasFocus();
 
-/// Helper providing direct access to browser-only features.
-///
-/// Does nothing on desktop or mobile.
+/// Helper providing access to features having different implementations in
+/// browser and on native platforms.
 class WebUtils {
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
@@ -500,7 +501,7 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
-    final Response response = await PlatformUtils.dio.head(url);
+    final Response response = await (await PlatformUtils.dio).head(url);
     if (response.statusCode != 200) {
       throw Exception('Cannot download file');
     }
@@ -577,6 +578,13 @@ class WebUtils {
   /// Deletes the loader element.
   static void deleteLoader() {
     html.document.getElementById('loader')?.remove();
+  }
+
+  /// Returns the `User-Agent` header to put in the network queries.
+  static Future<String> get userAgent async {
+    final info = await DeviceInfoPlugin().webBrowserInfo;
+    return info.userAgent ??
+        '${Config.userAgentProduct}/${Config.userAgentVersion}';
   }
 }
 

@@ -175,9 +175,6 @@ class ChatController extends GetxController {
   /// Used to hide it when no scrolling is happening.
   final RxBool showSticky = RxBool(false);
 
-  /// Duration of a [Chat.ongoingCall].
-  final Rx<Duration?> duration = Rx(null);
-
   /// Indicator whether the [_bottomLoader] should be displayed.
   final RxBool bottomLoader = RxBool(false);
 
@@ -232,9 +229,6 @@ class ChatController extends GetxController {
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
-
-  /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
-  Timer? _durationTimer;
 
   /// [Timer] for resetting the [showSticky].
   Timer? _stickyTimer;
@@ -389,7 +383,6 @@ class ChatController extends GetxController {
     _typingSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
-    _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
     _bottomLoaderStartTimer?.cancel();
@@ -403,7 +396,6 @@ class ChatController extends GetxController {
 
     _audioPlayer?.dispose();
     _audioPlayer = null;
-    AudioCache.instance.clear('audio/message_sent.mp3');
 
     if (chat?.chat.value.isDialog == true) {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
@@ -757,44 +749,11 @@ class ChatController extends GetxController {
         }
       });
 
-      // Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
-      // changes.
-      ChatItemId? previousCall;
-
-      // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
-      // from the stored [previousCall].
-      void updateTimer(Chat chat) {
-        if (previousCall != chat.ongoingCall?.id) {
-          previousCall = chat.ongoingCall?.id;
-
-          duration.value = null;
-          _durationTimer?.cancel();
-          _durationTimer = null;
-
-          if (chat.ongoingCall != null) {
-            _durationTimer = Timer.periodic(
-              const Duration(seconds: 1),
-              (_) {
-                if (chat.ongoingCall!.conversationStartedAt != null) {
-                  duration.value = DateTime.now().difference(
-                    chat.ongoingCall!.conversationStartedAt!.val,
-                  );
-                }
-              },
-            );
-          }
-        }
-      }
-
-      updateTimer(chat!.chat.value);
-
       _chatWorker = ever(chat!.chat, (Chat e) {
         if (e.id != id) {
           WebUtils.replaceState(id.val, e.id.val);
           id = e.id;
         }
-
-        updateTimer(e);
       });
 
       listController.sliverController.onPaintItemPositionsCallback =
@@ -1219,7 +1178,6 @@ class ChatController extends GetxController {
     await runZonedGuarded(
       () async {
         _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
-        await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
       },
       (e, _) {
         if (e is MissingPluginException) {
