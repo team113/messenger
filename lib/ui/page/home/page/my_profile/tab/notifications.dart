@@ -62,9 +62,7 @@ class NotificationSwitch extends StatelessWidget {
                 scale: 0.7,
                 transformHitTests: false,
                 child: Theme(
-                  data: ThemeData(
-                    platform: TargetPlatform.macOS,
-                  ),
+                  data: ThemeData(platform: TargetPlatform.macOS),
                   child: Switch.adaptive(
                     activeColor: style.colors.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

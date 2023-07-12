@@ -149,10 +149,7 @@ class PresenceFieldButton extends StatelessWidget {
         onPressed: () => StatusView.show(context, expanded: false),
         hint: 'label_presence'.l10n,
         text: text,
-        trailing: CircleAvatar(
-          backgroundColor: backgroundColor,
-          radius: 7,
-        ),
+        trailing: CircleAvatar(backgroundColor: backgroundColor, radius: 7),
         style: fonts.titleMedium!.copyWith(color: style.colors.primary),
       ),
     );
