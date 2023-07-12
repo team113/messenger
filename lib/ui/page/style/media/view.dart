@@ -29,19 +29,22 @@ class MultimediaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Header(label: 'Multimedia'),
-        const SmallHeader(label: 'Images'),
-        ImagesView(isDarkMode: isDarkMode),
-        const Divider(),
-        const SmallHeader(label: 'Animation'),
-        const AnimationStyleWidget(),
-        const Divider(),
-        const SmallHeader(label: 'Sound'),
-        const SoundsWidget(),
-        const Divider(),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        children: [
+          const Header(label: 'Multimedia'),
+          const SmallHeader(label: 'Images'),
+          ImagesView(isDarkMode: isDarkMode),
+          const Divider(),
+          const SmallHeader(label: 'Animation'),
+          const AnimationStyleWidget(),
+          const Divider(),
+          const SmallHeader(label: 'Sound'),
+          const SoundsWidget(),
+          const Divider(),
+        ],
+      ),
     );
   }
 }

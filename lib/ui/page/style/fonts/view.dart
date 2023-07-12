@@ -28,16 +28,19 @@ class FontsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Header(label: 'Typography'),
-        const SmallHeader(label: 'Font'),
-        FontFamiliesView(isDarkMode: isDarkMode),
-        const Divider(),
-        const SmallHeader(label: 'Styles'),
-        FontStyleView(isDarkMode: isDarkMode),
-        const Divider(),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        children: [
+          const Header(label: 'Typography'),
+          const SmallHeader(label: 'Font'),
+          FontFamiliesView(isDarkMode: isDarkMode),
+          const Divider(),
+          const SmallHeader(label: 'Styles'),
+          FontStyleView(isDarkMode: isDarkMode),
+          const Divider(),
+        ],
+      ),
     );
   }
 }
