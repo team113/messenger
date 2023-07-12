@@ -128,6 +128,7 @@ enum ProfileTab {
   download,
   danger,
   vacancies,
+  styles,
   logout,
 }
 

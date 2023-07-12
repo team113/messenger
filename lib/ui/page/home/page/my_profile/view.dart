@@ -461,6 +461,9 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.vacancies:
                         return const SizedBox();
 
+                      case ProfileTab.styles:
+                        return const SizedBox();
+
                       case ProfileTab.logout:
                         return const SizedBox();
                     }

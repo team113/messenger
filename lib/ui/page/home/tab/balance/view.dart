@@ -128,7 +128,7 @@ class BalanceTabView extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   ModalPopupHeader(
-                                    alwaysClose: true,
+                                    close: true,
                                     onClose: c.hintDismissed.toggle,
                                     header: Center(
                                       child: Text(

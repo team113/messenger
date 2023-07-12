@@ -265,9 +265,8 @@ class CallController extends GetxController {
   /// [relocateSecondary] method.
   double? secondaryBottomShifted;
 
-  /// Indicator whether the [relocateSecondary] is already invoked during the
-  /// current frame.
-  bool _secondaryRelocated = false;
+  /// [List] of the currently active [CallNotification]s.
+  final RxList<CallNotification> notifications = RxList<CallNotification>();
 
   /// Height of the title bar.
   static const double titleHeight = 30;
@@ -275,8 +274,12 @@ class CallController extends GetxController {
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
 
+  /// Indicator whether the [relocateSecondary] is already invoked during the
+  /// current frame.
+  bool _secondaryRelocated = false;
+
+  /// [AudioPlayer] playing a reconnection sound.
   final AudioPlayer _reconnectPlayer = AudioPlayer();
-  Worker? _reconnectWorker;
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -305,8 +308,8 @@ class CallController extends GetxController {
   /// Duration of UI being opened in seconds.
   static const int _uiDuration = 4;
 
-  /// Duration of an error being shown in seconds.
-  static const int _errorDuration = 6;
+  /// [Duration] to display a single [CallNotification].
+  static const Duration _notificationDuration = Duration(seconds: 6);
 
   /// [BoxConstraints] representing the previous [size] used in [scaleSecondary]
   /// to calculate the difference.
@@ -349,6 +352,10 @@ class CallController extends GetxController {
   /// the [buttons] value.
   Worker? _settingsWorker;
 
+  /// Worker capturing any [OngoingCall.connectionLost] changes to play
+  /// reconnect sound.
+  Worker? _reconnectWorker;
+
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
   /// [fullscreen] value.
   StreamSubscription? _onFullscreenChange;
@@ -381,8 +388,15 @@ class CallController extends GetxController {
   /// Subscription for [duration] changes updating the title.
   StreamSubscription? _durationSubscription;
 
+  /// Subscription for [OngoingCall.notifications] updating the [notifications].
+  StreamSubscription? _notificationsSubscription;
+
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
+
+  /// [Timer]s removing items from the [notifications] after the
+  /// [_notificationDuration].
+  final List<Timer> _notificationTimers = [];
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -403,16 +417,6 @@ class CallController extends GetxController {
 
   /// Indicates whether the current [OngoingCall] is with video or not.
   bool get withVideo => _currentCall.value.withVideo ?? false;
-
-  RxList<MediaDeviceDetails> get devices => _currentCall.value.devices;
-  RxList<CallNotification> get deviceChanges =>
-      _currentCall.value.deviceChanges;
-
-  void addNotification({MediaDeviceDetails? device, int? score}) =>
-      _currentCall.value.addNotification(device: device, score: score);
-
-  void removeNotification(CallNotification notification) =>
-      _currentCall.value.removeNotification(notification);
 
   /// Returns local audio stream enabled flag.
   Rx<LocalTrackState> get audioState => _currentCall.value.audioState;
@@ -454,6 +458,8 @@ class CallController extends GetxController {
     _settingsRepository.setShowDragAndDropButtonsHint(value);
   }
 
+  /// Indicates whether the connection to the [OngoingCall] updates was lost and
+  /// an ongoing reconnection is happening.
   RxBool get connectionLost => _currentCall.value.connectionLost;
 
   /// Returns actual size of the call view.
@@ -668,10 +674,6 @@ class CallController extends GetxController {
                     isCursorHidden.value = true;
                   }
                 }
-
-                if (errorTimeout.value > 0) {
-                  --errorTimeout.value;
-                }
               },
             );
 
@@ -714,11 +716,6 @@ class CallController extends GetxController {
           }
         }
       }
-    });
-
-    _errorsSubscription = _currentCall.value.errors.listen((e) {
-      error.value = e;
-      errorTimeout.value = _errorDuration;
     });
 
     // Constructs a list of [CallButton]s from the provided [list] of [String]s.
@@ -893,19 +890,25 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.updated:
-          if (e.key != e.oldKey && e.oldKey != null) {
-            for (var m in [
-              ..._findParticipants(e.oldKey!, MediaSourceKind.Device),
-              ..._findParticipants(e.oldKey!, MediaSourceKind.Display),
-            ]) {
-              m.member = e.value!;
-              print('member is now ${e.value?.id}');
-            }
-          }
+          // if (e.key != e.oldKey && e.oldKey != null) {
+          //   for (var m in [
+          //     ..._findParticipants(e.oldKey!, MediaSourceKind.Device),
+          //     ..._findParticipants(e.oldKey!, MediaSourceKind.Display),
+          //   ]) {
+          //     m.member = e.value!;
+          //     print('member is now ${e.value?.id}');
+          //   }
+          // }
 
           _insureCorrectGrouping();
           break;
       }
+    });
+
+    _notificationsSubscription = _currentCall.value.notifications.listen((e) {
+      notifications.add(e);
+      _notificationTimers
+          .add(Timer(_notificationDuration, () => notifications.remove(e)));
     });
 
     AudioCache.instance.loadAll(['audio/reconnect.mp3']);
@@ -936,9 +939,11 @@ class CallController extends GetxController {
     _onWindowFocus?.cancel();
     _titleSubscription?.cancel();
     _durationSubscription?.cancel();
+    _notificationsSubscription?.cancel();
     _buttonsWorker?.dispose();
     _settingsWorker?.dispose();
     _reconnectPlayer.dispose();
+    _reconnectWorker?.dispose();
 
     secondaryEntry?.remove();
 
@@ -958,6 +963,11 @@ class CallController extends GetxController {
 
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
     _membersSubscription.cancel();
+
+    for (var e in _notificationTimers) {
+      e.cancel();
+    }
+    _notificationTimers.clear();
   }
 
   /// Drops the call.
@@ -2180,7 +2190,7 @@ class Participant {
         audio = Rx(audio);
 
   /// [CallMember] this [Participant] represents.
-  CallMember member;
+  final CallMember member;
 
   /// [User] this [Participant] represents.
   final Rx<RxUser?> user;

@@ -131,14 +131,18 @@ abstract class ModalPopup {
 class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     super.key,
+    this.text,
     this.onBack,
     this.onClose,
     this.header,
-    this.alwaysClose = false,
+    this.close = false,
   });
 
   /// [Widget] to put as a title of this [ModalPopupHeader].
   final Widget? header;
+
+  /// Text to display as a title of this [ModalPopupHeader].
+  final String? text;
 
   /// Callback, called when a back button is pressed.
   ///
@@ -146,11 +150,12 @@ class ModalPopupHeader extends StatelessWidget {
   final void Function()? onBack;
   final void Function()? onClose;
 
-  final bool alwaysClose;
+  /// Indicator whether a close button should be displayed.
+  final bool close;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
@@ -170,18 +175,21 @@ class ModalPopupHeader extends StatelessWidget {
             )
           else
             const SizedBox(width: 40),
-          if (header != null) Expanded(child: header!) else const Spacer(),
-          if (alwaysClose || !context.isMobile)
+          if (header != null)
+            Expanded(child: header!)
+          else if (text != null)
+            Expanded(
+              child: Center(child: Text(text!, style: fonts.headlineMedium)),
+            )
+          else
+            const Spacer(),
+          if (context.isMobile && close)
             WidgetButton(
               key: const Key('CloseButton'),
               onPressed: onClose ?? Navigator.of(context).pop,
               child: Padding(
                 padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.close,
-                  size: 18,
-                  color: style.colors.primary,
-                ),
+                child: Icon(Icons.close, size: 18, color: style.colors.primary),
               ),
             )
           else

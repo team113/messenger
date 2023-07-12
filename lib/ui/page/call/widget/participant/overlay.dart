@@ -53,12 +53,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       bool isMuted;
 
-      if (participant.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.Display ||
+          participant.member.isDialing.isTrue) {
         isMuted = false;
       } else {
         isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
@@ -102,13 +103,10 @@ class ParticipantOverlayWidget extends StatelessWidget {
       if (participant.member.quality.value <= 1) {
         additionally.add(
           Padding(
-            padding: const EdgeInsets.only(left: 3, right: 3),
-            child: Transform.translate(
-              offset: const Offset(-1, 0),
-              child: SvgImage.asset(
-                'assets/icons/signal_level5.svg',
-                height: 15.5,
-              ),
+            padding: const EdgeInsets.only(left: 2, right: 3),
+            child: SvgImage.asset(
+              'assets/icons/low_signal_level.svg',
+              height: 15.5,
             ),
           ),
         );
@@ -122,7 +120,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         if (isVideoDisabled) {
           additionally.add(
             Padding(
-              padding: const EdgeInsets.only(left: 3, right: 3),
+              padding: const EdgeInsets.only(left: 4, right: 4),
               child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
@@ -132,7 +130,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         } else {
           additionally.add(
             Padding(
-              padding: const EdgeInsets.only(left: 3, right: 3),
+              padding: const EdgeInsets.only(left: 4, right: 4),
               child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
@@ -141,9 +139,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           );
         }
       } else if (isVideoDisabled) {
-        // if (additionally.isNotEmpty) {
-        //   additionally.add(const SizedBox(width: 4));
-        // }
+        if (additionally.isNotEmpty) {
+          additionally.add(const SizedBox(width: 4));
+        }
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 5, right: 5),
@@ -162,11 +160,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.user.value?.user.value.name?.val ??
               participant.user.value?.user.value.num.val ??
               'dot'.l10n * 3,
-          style: context.theme.outlinedButtonTheme.style!.textStyle!
-              .resolve({MaterialState.disabled})!.copyWith(
-            fontSize: 15,
-            color: style.colors.onPrimary,
-          ),
+          style: fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

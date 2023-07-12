@@ -54,12 +54,7 @@ class ConfirmLogoutView extends StatelessWidget {
             case ConfirmLogoutViewStage.password:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = null,
-                header: Center(
-                  child: Text(
-                    'btn_set_password'.l10n,
-                    style: fonts.headlineMedium,
-                  ),
-                ),
+                text: 'btn_set_password'.l10n,
               );
 
               children = [
@@ -110,14 +105,7 @@ class ConfirmLogoutView extends StatelessWidget {
               break;
 
             case ConfirmLogoutViewStage.success:
-              header = ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'btn_set_password'.l10n,
-                    style: fonts.headlineMedium,
-                  ),
-                ),
-              );
+              header = ModalPopupHeader(text: 'btn_set_password'.l10n);
 
               children = [
                 Text(
@@ -145,11 +133,7 @@ class ConfirmLogoutView extends StatelessWidget {
               break;
 
             default:
-              header = ModalPopupHeader(
-                header: Center(
-                  child: Text('btn_logout'.l10n, style: fonts.headlineMedium),
-                ),
-              );
+              header = ModalPopupHeader(text: 'btn_logout'.l10n);
 
               children = [
                 Center(

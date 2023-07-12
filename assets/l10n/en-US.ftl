@@ -547,11 +547,17 @@ label_chats = Chats
 label_clear_history = Clear history
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
+label_connection_lost = Connection lost
+label_connection_restored = Connection restored
 label_contact = Contact
 label_contact_information = Contact information
 label_contacts = Contacts
 label_copied = Copied
 label_copy = Copy
+label_count_seconds = {$count} { $count ->
+       [1] second
+       *[other] seconds
+   }
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
@@ -685,6 +691,7 @@ label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_microphone_changed = Microphone has been changed to {$microphone}
 label_monolog_created = Chat created
 label_mute_for = { $days ->
     [0] { $hours ->
@@ -754,6 +761,7 @@ label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
 label_recent = Recent
+label_reconnecting_ellipsis = Reconnecting...
 label_recover_account = Access recovery
 label_recover_account_description = Specify your Gapopa ID, login, E-mail or phone number.
 label_recovery_code = Recovery code
@@ -796,7 +804,10 @@ label_short_weekday =
     }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sort_by_name = Sort by name
+label_sort_by_visit = Sort by visit
 label_sound_and_vibrations = Sound and vibration
+label_speaker_changed = Speaker has been changed to {$speaker}
 label_status = Status
 label_storage = Storage
 label_subtitle_participants = participants

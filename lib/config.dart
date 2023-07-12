@@ -22,6 +22,7 @@ import 'package:toml/toml.dart';
 
 import '/util/log.dart';
 import '/util/platform_utils.dart';
+import 'pubspec.g.dart';
 
 /// Configuration of this application.
 class Config {
@@ -61,11 +62,17 @@ class Config {
   /// Intended to be used in E2E testing.
   static bool disableInfiniteAnimations = false;
 
+  /// Product identifier of `User-Agent` header to put in network queries.
+  static String userAgentProduct = '';
+
+  /// Version identifier of `User-Agent` header to put in network queries.
+  static String userAgentVersion = '';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
+  /// - default values;
   /// - compile-time environment variables;
-  /// - bundled configuration file (`conf.toml`);
-  /// - default values.
+  /// - bundled configuration file (`conf.toml`).
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
     Map<String, dynamic> document =
@@ -109,6 +116,17 @@ class Config {
         : (document['fcm']?['vapidKey'] ??
             'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
 
+    userAgentProduct = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
+        ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
+        : (document['user']?['agent']?['product'] ?? 'Gapopa');
+
+    String version = const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
+        ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
+        : (document['user']?['agent']?['version'] ?? '');
+
+    userAgentVersion =
+        version.isNotEmpty ? version : (Pubspec.ref ?? Pubspec.version);
+
     origin = url;
 
     // Change default values to browser's location on web platform.
@@ -148,7 +166,7 @@ class Config {
     // configuration.
     if (confRemote) {
       try {
-        final response = await PlatformUtils.dio
+        final response = await (await PlatformUtils.dio)
             .fetch(RequestOptions(path: '$url:$port/conf.toml'));
         if (response.statusCode == 200) {
           Map<String, dynamic> remote =
@@ -165,6 +183,10 @@ class Config {
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
+            userAgentProduct =
+                remote['user']?['agent']?['product'] ?? userAgentProduct;
+            userAgentVersion =
+                remote['user']?['agent']?['version'] ?? userAgentVersion;
             origin = url;
           }
         }

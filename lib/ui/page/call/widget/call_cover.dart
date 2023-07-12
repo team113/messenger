@@ -40,7 +40,7 @@ class CallCoverWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Stack(
       children: [
@@ -83,12 +83,13 @@ class CallCoverWidget extends StatelessWidget {
                 child: Text(
                   title ?? '??',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontSize: (15 * constraints.biggest.shortestSide / 100)
-                            .clamp(15, 108),
-                        color: style.colors.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: fonts.titleSmall!.copyWith(
+                    fontSize: (fonts.titleSmall!.fontSize! *
+                            constraints.biggest.shortestSide /
+                            100)
+                        .clamp(15, 108),
+                    color: style.colors.onPrimary,
+                  ),
 
                   // Disable the accessibility size settings for this [Text].
                   textScaleFactor: 1,

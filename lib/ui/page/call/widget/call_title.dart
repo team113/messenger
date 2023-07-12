@@ -66,7 +66,7 @@ class CallTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return DefaultTextStyle.merge(
       maxLines: 1,
@@ -88,11 +88,7 @@ class CallTitle extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title ?? ('dot'.l10n * 3),
-            style: context.textTheme.headlineMedium?.copyWith(
-              color: style.colors.onPrimary,
-              fontSize: 27,
-              fontWeight: FontWeight.bold,
-            ),
+            style: fonts.displayLarge!.copyWith(color: style.colors.onPrimary),
           ),
           if (state != null) const SizedBox(height: 10),
           if (state != null)
@@ -116,9 +112,8 @@ class CallTitle extends StatelessWidget {
                   if (withDots) const SizedBox(width: 13),
                   Text(
                     state!,
-                    style: context.textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      // color: paid ? const Color(0xFFB68AD1) : Colors.white,
+                    style: fonts.headlineMedium!.copyWith(
+                      color: style.colors.onPrimary,
                     ),
                   ),
                   if (withDots) const AnimatedDots(),

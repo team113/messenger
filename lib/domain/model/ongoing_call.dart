@@ -23,7 +23,6 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:uuid/uuid.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
@@ -222,15 +221,16 @@ class OngoingCall {
   /// not.
   final RxBool isRemoteVideoEnabled = RxBool(true);
 
-  // TODO: Temporary solution. Errors should be captured the other way.
-  /// Temporary stream of the errors happening in this [OngoingCall].
-  Stream<String> get errors => _errors.stream;
+  /// Returns a [Stream] of the [CallNotification]s.
+  Stream<CallNotification> get notifications => _notifications.stream;
 
   /// Reactive map of [CallMember]s of this [OngoingCall].
   final RxObsMap<CallMemberId, CallMember> members =
       RxObsMap<CallMemberId, CallMember>();
 
-  final RxList<CallNotification> deviceChanges = RxList();
+  /// Indicator whether the connection to the remote updates was lost and an
+  /// ongoing reconnection is happening.
+  final RxBool connectionLost = RxBool(false);
 
   /// Indicator whether this [OngoingCall] is [connect]ed to the remote updates
   /// or not.
@@ -273,9 +273,9 @@ class OngoingCall {
   /// [connect]ed events following these invokes.
   final List<bool> _handToggles = [];
 
-  // TODO: Temporary solution. Errors should be captured the other way.
-  /// Temporary [StreamController] of the [errors].
-  final StreamController<String> _errors = StreamController.broadcast();
+  /// [StreamController] of the [notifications].
+  final StreamController<CallNotification> _notifications =
+      StreamController.broadcast();
 
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
@@ -398,7 +398,7 @@ class OngoingCall {
 
     // Adds a [CallMember] identified by its [userId], if none is in the
     // [members] already.
-    void addRedialing(UserId userId) {
+    void addDialing(UserId userId) {
       final CallMemberId id = CallMemberId(userId, null);
 
       if (members.values.none((e) => e.id.userId == id.userId)) {
@@ -410,7 +410,7 @@ class OngoingCall {
                   ?.handRaised ??
               false,
           isConnected: false,
-          isRedialing: true,
+          isDialing: true,
         );
       }
     }
@@ -456,7 +456,7 @@ class OngoingCall {
               final ChatMembersDialed? dialed = node.call.dialed;
               if (dialed is ChatMembersDialedConcrete) {
                 for (var m in dialed.members) {
-                  addRedialing(m.user.id);
+                  addDialing(m.user.id);
                 }
               }
 
@@ -474,7 +474,7 @@ class OngoingCall {
                       e.user.id != me.id.userId &&
                       dialed.answeredMembers
                           .none((a) => a.user.id == e.user.id))) {
-                    addRedialing(m.user.id);
+                    addDialing(m.user.id);
                   }
                 }
 
@@ -482,7 +482,7 @@ class OngoingCall {
                 _membersSubscription = v?.members.changes.listen((event) {
                   switch (event.op) {
                     case OperationKind.added:
-                      addRedialing(event.key!);
+                      addDialing(event.key!);
                       break;
 
                     case OperationKind.removed:
@@ -561,7 +561,7 @@ class OngoingCall {
                   final CallMember? redialed = members[redialedId];
                   if (redialed != null) {
                     redialed.id = id;
-                    redialed.isRedialing.value = false;
+                    redialed.isDialing.value = false;
                     members.move(redialedId, id);
                   }
 
@@ -646,7 +646,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.redialed:
                   var node = event as EventChatCallMemberRedialed;
-                  addRedialing(node.user.id);
+                  addDialing(node.user.id);
                   break;
 
                 case ChatCallEventKind.answerTimeoutPassed:
@@ -744,12 +744,12 @@ class OngoingCall {
           } on LocalMediaInitException catch (e) {
             screenShareState.value = LocalTrackState.disabled;
             if (!e.message().contains('Permission denied')) {
-              _errors.add('enableScreenShare() call failed with $e');
+              addError('enableScreenShare() call failed with $e');
               rethrow;
             }
           } catch (e) {
             screenShareState.value = LocalTrackState.disabled;
-            _errors.add('enableScreenShare() call failed with $e');
+            addError('enableScreenShare() call failed with $e');
             rethrow;
           }
         }
@@ -767,7 +767,7 @@ class OngoingCall {
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } catch (e) {
-            _errors.add('disableScreenShare() call failed with $e');
+            addError('disableScreenShare() call failed with $e');
             screenShareState.value = LocalTrackState.enabled;
             rethrow;
           }
@@ -807,12 +807,12 @@ class OngoingCall {
           } on LocalMediaInitException catch (e) {
             audioState.value = LocalTrackState.disabled;
             if (!e.message().contains('Permission denied')) {
-              _errors.add('unmuteAudio() call failed due to ${e.message()}');
+              addError('unmuteAudio() call failed due to ${e.message()}');
               rethrow;
             }
           } catch (e) {
             audioState.value = LocalTrackState.disabled;
-            _errors.add('unmuteAudio() call failed with $e');
+            addError('unmuteAudio() call failed with $e');
             rethrow;
           }
         }
@@ -829,7 +829,7 @@ class OngoingCall {
             // No-op.
           } catch (e) {
             audioState.value = LocalTrackState.enabled;
-            _errors.add('muteAudio() call failed with $e');
+            addError('muteAudio() call failed with $e');
             rethrow;
           }
         }
@@ -860,11 +860,11 @@ class OngoingCall {
           } on LocalMediaInitException catch (e) {
             videoState.value = LocalTrackState.disabled;
             if (!e.message().contains('Permission denied')) {
-              _errors.add('enableVideo() call failed with $e');
+              addError('enableVideo() call failed with $e');
               rethrow;
             }
           } catch (e) {
-            _errors.add('enableVideo() call failed with $e');
+            addError('enableVideo() call failed with $e');
             videoState.value = LocalTrackState.disabled;
             rethrow;
           }
@@ -882,7 +882,7 @@ class OngoingCall {
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } catch (e) {
-            _errors.add('disableVideo() call failed with $e');
+            addError('disableVideo() call failed with $e');
             videoState.value = LocalTrackState.enabled;
             rethrow;
           }
@@ -917,7 +917,7 @@ class OngoingCall {
         displays.value = await MediaUtils.enumerateDisplays();
       }
     } on EnumerateDevicesException catch (e) {
-      _errors.add('Failed to enumerate devices: $e');
+      addError('Failed to enumerate devices: $e');
       rethrow;
     }
   }
@@ -1023,10 +1023,12 @@ class OngoingCall {
   Future<void> toggleRemoteVideo() =>
       setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
 
-  /// Adds the provided [message] to the [errors] stream.
+  /// Adds the provided [message] to the [notifications] stream as
+  /// [ErrorNotification].
   ///
   /// Should (and intended to) be used as a notification measure.
-  void addError(String message) => _errors.add(message);
+  void addError(String message) =>
+      _notifications.add(ErrorNotification(message: message));
 
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
@@ -1070,8 +1072,6 @@ class OngoingCall {
     return settings;
   }
 
-  final RxBool connectionLost = RxBool(false);
-
   /// Initializes the [_room].
   void _initRoom() {
     _room = MediaUtils.jason!.initRoom();
@@ -1082,14 +1082,14 @@ class OngoingCall {
         try {
           switch (e.kind()) {
             case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
-              _errors.add('Failed to acquire local audio: $e');
+              addError('Failed to acquire local audio: $e');
               await _room?.disableAudio();
               _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
               audioState.value = LocalTrackState.disabled;
               break;
 
             case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
-              _errors.add('Failed to acquire local video: $e');
+              addError('Failed to acquire local video: $e');
               await setVideoEnabled(false);
               break;
 
@@ -1098,7 +1098,7 @@ class OngoingCall {
                 break;
               }
 
-              _errors.add('Failed to initiate screen capture: $e');
+              addError('Failed to initiate screen capture: $e');
               await setScreenShareEnabled(false);
               break;
 
@@ -1107,7 +1107,7 @@ class OngoingCall {
                 break;
               }
 
-              _errors.add('Failed to get media: $e');
+              addError('Failed to get media: $e');
 
               await _room?.disableAudio();
               _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
@@ -1124,7 +1124,7 @@ class OngoingCall {
               return;
           }
         } catch (e) {
-          _errors.add('$e');
+          addError('$e');
         }
       }
     });
@@ -1132,12 +1132,12 @@ class OngoingCall {
     _room!.onConnectionLoss((e) async {
       Log.print('onConnectionLoss', 'CALL');
 
-      if (!connectionLost.value) {
+      if (connectionLost.isFalse) {
         connectionLost.value = true;
 
-        // _errors.add('Connection with media server lost $e');
+        _notifications.add(ConnectionLostNotification());
         await e.reconnectWithBackoff(500, 2, 5000);
-        // _errors.add('Connection restored'); // for notification
+        _notifications.add(ConnectionRestoredNotification());
 
         connectionLost.value = false;
       }
@@ -1150,7 +1150,7 @@ class OngoingCall {
       final CallMemberId redialedId = CallMemberId(id.userId, null);
 
       final CallMember? redialed = members[redialedId];
-      if (redialed?.isRedialing.value == true) {
+      if (redialed?.isDialing.value == true) {
         members.move(redialedId, id);
       }
 
@@ -1160,7 +1160,7 @@ class OngoingCall {
         member.id = id;
         member._connection = conn;
         member.isConnected.value = true;
-        member.isRedialing.value = false;
+        member.isDialing.value = false;
       } else {
         members[id] = CallMember(
           id,
@@ -1260,16 +1260,8 @@ class OngoingCall {
         }
       });
 
-      Future.delayed(3.seconds, () {
-        member?.quality.value = 2;
-      });
-
       conn.onQualityScoreUpdate((p0) {
         member?.quality.value = p0;
-        // if (p0 <= 1) {
-        //   addNotification(score: p0);
-        // }
-
         Log.print(
           'onQualityScoreUpdate with ${conn.getRemoteMemberId()}: $p0',
           'CALL',
@@ -1403,7 +1395,7 @@ class OngoingCall {
         audioState.value = LocalTrackState.disabled;
         videoState.value = LocalTrackState.disabled;
         screenShareState.value = LocalTrackState.disabled;
-        _errors.add('initLocalTracks() call failed with $e');
+        addError('initLocalTracks() call failed with $e');
       }
 
       // Add the local tracks asynchronously.
@@ -1443,11 +1435,11 @@ class OngoingCall {
         // [_room] is allowed to be in a detached state there as the call might
         // has already ended.
         if (!e.toString().contains('detached')) {
-          _errors.add('setLocalMediaSettings() failed: $e');
+          addError('setLocalMediaSettings() failed: $e');
           rethrow;
         }
       } catch (e) {
-        _errors.add('setLocalMediaSettings() failed: $e');
+        addError('setLocalMediaSettings() failed: $e');
         rethrow;
       }
     });
@@ -1475,7 +1467,7 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join('${link.val}?token=$creds');
+    await _room?.join('$link?token=$creds');
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;
@@ -1657,42 +1649,21 @@ class OngoingCall {
     List<MediaDeviceDetails> added = const [],
     List<MediaDeviceDetails> removed = const [],
   ]) {
+    MediaDeviceDetails? device;
+
     if (added.output().isNotEmpty) {
-      addNotification(device: added.output().first);
-      setOutputDevice(added.output().first.deviceId());
+      device = added.output().first;
     } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
         (outputDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
-      addNotification(device: devices.output().first);
-      setOutputDevice(devices.output().first.deviceId());
-    }
-  }
-
-  final Map<String, Timer> _deviceTimers = {};
-
-  void addNotification({MediaDeviceDetails? device, int? score}) {
-    if (score != null) {
-      final member =
-          members.values.firstWhereOrNull((e) => e.id.userId != _me.userId);
-
-      if (member != null) {
-        member.quality.value = member.quality.value == 1 ? 4 : 1;
-      }
-      return;
+      device = devices.output().first;
     }
 
-    final notification = CallNotification(device: device, score: score);
-    deviceChanges.add(notification);
-
-    _deviceTimers[notification.id] = Timer(const Duration(seconds: 5), () {
-      deviceChanges.remove(notification);
-    });
-  }
-
-  void removeNotification(CallNotification notification) {
-    deviceChanges.remove(notification);
-    _deviceTimers.remove(notification.id)?.cancel();
+    if (device != null) {
+      _notifications.add(DeviceChangedNotification(device: device));
+      setOutputDevice(device.deviceId());
+    }
   }
 
   /// Picks the [audioDevice] based on the provided [previous], [added] and
@@ -1702,15 +1673,20 @@ class OngoingCall {
     List<MediaDeviceDetails> added = const [],
     List<MediaDeviceDetails> removed = const [],
   ]) {
+    MediaDeviceDetails? device;
+
     if (added.audio().isNotEmpty) {
-      addNotification(device: added.audio().first);
-      setAudioDevice(added.audio().first.deviceId());
+      device = added.audio().first;
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
         (audioDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
-      addNotification(device: devices.audio().first);
-      setAudioDevice(devices.audio().first.deviceId());
+      device = devices.audio().first;
+    }
+
+    if (device != null) {
+      _notifications.add(DeviceChangedNotification(device: device));
+      setAudioDevice(device.deviceId());
     }
   }
 
@@ -1845,20 +1821,20 @@ class CallMember {
     this._connection, {
     bool isHandRaised = false,
     bool isConnected = false,
-    bool isRedialing = false,
+    bool isDialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
-        isRedialing = RxBool(isRedialing),
+        isDialing = RxBool(isDialing),
         owner = MediaOwnerKind.remote;
 
   CallMember.me(
     this.id, {
     bool isHandRaised = false,
     bool isConnected = false,
-    bool isRedialing = false,
+    bool isDialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
-        isRedialing = RxBool(isRedialing),
+        isDialing = RxBool(isDialing),
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
@@ -1876,9 +1852,10 @@ class CallMember {
   /// Indicator whether this [CallMember] is connected to the media server.
   final RxBool isConnected;
 
-  /// Indicator whether this [CallMember] is redialing.
-  final RxBool isRedialing;
+  /// Indicator whether this [CallMember] is dialing.
+  final RxBool isDialing;
 
+  /// Signal quality of this [CallMember] ranging from 1 to 4.
   final RxInt quality = RxInt(4);
 
   /// [ConnectionHandle] of this [CallMember].
@@ -1999,10 +1976,51 @@ extension DevicesList on List<MediaDeviceDetails> {
   }
 }
 
-class CallNotification {
-  CallNotification({this.device, this.score});
+/// Possible [CallNotification] kind.
+enum CallNotificationKind {
+  connectionLost,
+  connectionRestored,
+  deviceChanged,
+  error,
+}
 
-  late final String id = const Uuid().v4();
-  final MediaDeviceDetails? device;
-  final int? score;
+/// Notification of an event happened in [OngoingCall].
+abstract class CallNotification {
+  /// Returns the [CallNotificationKind] of this [CallNotification].
+  CallNotificationKind get kind;
+}
+
+/// [CallNotification] of a device changed event.
+class DeviceChangedNotification extends CallNotification {
+  DeviceChangedNotification({required this.device});
+
+  /// [MediaDeviceDetails] of the device changed.
+  final MediaDeviceDetails device;
+
+  @override
+  CallNotificationKind get kind => CallNotificationKind.deviceChanged;
+}
+
+// TODO: Temporary solution. Errors should be captured the other way.
+/// [CallNotification] of an error.
+class ErrorNotification extends CallNotification {
+  ErrorNotification({required this.message});
+
+  /// Message of this [ErrorNotification] describing the error happened.
+  final String message;
+
+  @override
+  CallNotificationKind get kind => CallNotificationKind.error;
+}
+
+/// [CallNotification] of a connection lost event.
+class ConnectionLostNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.connectionLost;
+}
+
+/// [CallNotification] of a connection restored event.
+class ConnectionRestoredNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.connectionRestored;
 }

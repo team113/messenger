@@ -178,8 +178,16 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
           OutlinedRoundedButton(
             key: const Key('RegisterButton'),
+            // title: Text(
+            //   'Enter'.l10n,
+            //   style: TextStyle(color: style.colors.onPrimary),
+            // ),
             title: Text(
-              'Enter'.l10n,
+              'Sign up'.l10n,
+              style: TextStyle(color: style.colors.onPrimary),
+            ),
+            subtitle: Text(
+              'or sign in'.l10n,
               style: TextStyle(color: style.colors.onPrimary),
             ),
             height: 53,

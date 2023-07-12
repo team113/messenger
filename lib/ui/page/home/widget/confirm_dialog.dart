@@ -169,11 +169,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ModalPopupHeader(
-          header: Center(
-            child: Text(widget.title, style: fonts.headlineMedium),
-          ),
-        ),
+        ModalPopupHeader(text: widget.title),
         const SizedBox(height: 12),
         ...widget.additional.map((e) {
           return Padding(padding: ModalPopup.padding(context), child: e);

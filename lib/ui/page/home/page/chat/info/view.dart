@@ -29,12 +29,13 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/member_tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -58,6 +59,7 @@ class ChatInfoView extends StatelessWidget {
       key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
       tag: id.val,
+      global: !Get.isRegistered<ChatInfoController>(tag: id.val),
       builder: (c) {
         return Obx(() {
           if (c.status.value.isLoading) {
@@ -113,7 +115,7 @@ class ChatInfoView extends StatelessWidget {
                               ]
                             ],
                           ),
-                          _chatSubtitle(c, context),
+                          ChatSubtitle(c.chat!, c.me, withActivities: false),
                         ],
                       ),
                     ),
@@ -276,7 +278,7 @@ class ChatInfoView extends StatelessWidget {
   /// Returns a [Chat.avatar] visual representation along with its manipulation
   /// buttons.
   Widget _avatar(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Column(
       children: [
@@ -336,21 +338,22 @@ class ChatInfoView extends StatelessWidget {
               onPressed: c.pickAvatar,
               child: Text(
                 'btn_upload'.l10n,
-                style: TextStyle(color: style.colors.primary, fontSize: 11),
+                style: fonts.bodySmall!.copyWith(color: style.colors.primary),
               ),
             ),
             if (c.chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
-                style:
-                    TextStyle(color: style.colors.onBackground, fontSize: 11),
+                style: fonts.bodySmall!.copyWith(
+                  color: style.colors.onBackground,
+                ),
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
                 onPressed: c.deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
-                  style: TextStyle(color: style.colors.primary, fontSize: 11),
+                  style: fonts.bodySmall!.copyWith(color: style.colors.primary),
                 ),
               ),
             ],
@@ -393,7 +396,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a [Chat.directLink] editable field.
   Widget _link(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       return Column(
@@ -431,10 +434,6 @@ class ChatInfoView extends StatelessWidget {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.normal,
-                    ),
                     children: [
                       TextSpan(
                         text: 'label_transition_count'.l10nfmt({
@@ -442,11 +441,13 @@ class ChatInfoView extends StatelessWidget {
                                   c.chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
-                        style: TextStyle(color: style.colors.secondary),
+                        style: fonts.labelSmall!.copyWith(
+                          color: style.colors.secondary,
+                        ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: TextStyle(
+                        style: fonts.labelSmall!.copyWith(
                           color: style.colors.primary,
                         ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
@@ -495,83 +496,17 @@ class ChatInfoView extends StatelessWidget {
                     .any((u) => u.user.id == e.id) ==
                 true;
 
-            return ContactTile(
+            return MemberTile(
               user: e,
-              darken: 0.05,
-              dense: true,
+              canLeave: e.id == c.me,
+              inCall: e.id == c.me || c.chat?.chat.value.ongoingCall == null
+                  ? null
+                  : inCall,
               onTap: () => router.user(e.id, push: true),
-              trailing: [
-                if (e.id != c.me && c.chat?.chat.value.ongoingCall != null) ...[
-                  if (inCall)
-                    WidgetButton(
-                      key: const Key('Drop'),
-                      onPressed: () => c.removeChatCallMember(e.id),
-                      child: AnimatedButton(
-                        child: Container(
-                          height: 22,
-                          width: 22,
-                          decoration: BoxDecoration(
-                            color: style.colors.dangerColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: SvgImage.asset(
-                              'assets/icons/call_end.svg',
-                              width: 22,
-                              height: 22,
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    AnimatedButton(
-                      child: Material(
-                        color: style.colors.primary,
-                        type: MaterialType.circle,
-                        child: InkWell(
-                          onTap: () => c.redialChatCallMember(e.id),
-                          borderRadius: BorderRadius.circular(60),
-                          child: SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: Center(
-                              child: SvgImage.asset(
-                                'assets/icons/audio_call_start.svg',
-                                width: 10,
-                                height: 10,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(width: 12),
-                ],
-                if (e.id == c.me)
-                  AnimatedButton(
-                    child: WidgetButton(
-                      onPressed: () => _removeChatMember(c, context, e),
-                      child: Text(
-                        'btn_leave'.l10n,
-                        style: TextStyle(
-                            color: style.colors.primary, fontSize: 15),
-                      ),
-                    ),
-                  )
-                else
-                  AnimatedButton(
-                    child: WidgetButton(
-                      key: const Key('DeleteMemberButton'),
-                      onPressed: () => _removeChatMember(c, context, e),
-                      child: SvgImage.asset(
-                        'assets/icons/delete.svg',
-                        height: 14 * 1.5,
-                      ),
-                    ),
-                  ),
-                const SizedBox(width: 6),
-              ],
+              onCall: inCall
+                  ? () => c.removeChatCallMember(e.id)
+                  : () => c.redialChatCallMember(e.id),
+              onKick: () => c.removeChatMember(e.id),
             );
           }),
         ],
@@ -703,35 +638,6 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
-  /// Opens a confirmation popup removing the provided [user].
-  Future<void> _removeChatMember(
-    ChatInfoController c,
-    BuildContext context,
-    RxUser user,
-  ) async {
-    final style = Theme.of(context).style;
-
-    if (c.me == user.id) {
-      await _leaveGroup(c, context);
-    } else {
-      final bool? result = await MessagePopup.alert(
-        'label_remove_member'.l10n,
-        description: [
-          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-          TextSpan(
-            text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: TextStyle(color: style.colors.onBackground),
-          ),
-          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-        ],
-      );
-
-      if (result == true) {
-        await c.removeChatMember(user.id);
-      }
-    }
-  }
-
   /// Opens a confirmation popup leaving this [Chat].
   Future<void> _leaveGroup(ChatInfoController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
@@ -746,16 +652,13 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
-    final style = Theme.of(context).style;
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: TextStyle(color: style.colors.onBackground),
-        ),
+        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
@@ -767,16 +670,13 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
-    final style = Theme.of(context).style;
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: TextStyle(color: style.colors.onBackground),
-        ),
+        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
     );
@@ -832,7 +732,7 @@ class _BigButtonState extends State<BigButton> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return MouseRegion(
       opaque: false,
@@ -863,10 +763,8 @@ class _BigButtonState extends State<BigButton> {
                       child: DefaultTextStyle(
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 15,
+                        style: fonts.bodyMedium!.copyWith(
                           color: style.colors.primary,
-                          fontWeight: FontWeight.w300,
                         ),
                         child: widget.title,
                       ),

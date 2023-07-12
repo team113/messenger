@@ -55,13 +55,8 @@ class BlacklistView extends StatelessWidget {
             children: [
               const SizedBox(height: 4),
               ModalPopupHeader(
-                header: Center(
-                  child: Text(
+                text:
                     'label_users_count'.l10nfmt({'count': c.blacklist.length}),
-                    style: fonts.headlineMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
               ),
               const SizedBox(height: 4),
               if (c.blacklist.isEmpty)

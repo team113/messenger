@@ -32,6 +32,7 @@ import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
+import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
@@ -59,7 +60,7 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
-  final style = Theme.of(context).style;
+  final (style, fonts) = Theme.of(context).styles;
 
   return LayoutBuilder(
     builder: (context, constraints) {
@@ -236,44 +237,41 @@ Widget desktopCall(CallController c, BuildContext context) {
           return AnimatedSwitcher(duration: 200.milliseconds, child: child);
         }),
 
-        // Dim the primary view in a non-active call.
+        // Reconnection indicator.
         Obx(() {
-          final Widget child;
-
-          if (!c.connectionLost.value) {
-            child = const SizedBox();
-          } else {
-            child = IgnorePointer(
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: const Color(0xA0000000),
-                padding: const EdgeInsets.all(21.0),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SpinKitDoubleBounce(
-                        color: Color(0xFFEEEEEE),
-                        size: 100 / 1.5,
-                        duration: Duration(milliseconds: 4500),
+          final Widget child = IgnorePointer(
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: style.colors.onBackgroundOpacity70,
+              padding: const EdgeInsets.all(21.0),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SpinKitDoubleBounce(
+                      color: style.colors.secondaryHighlightDark,
+                      size: 100 / 1.5,
+                      duration: const Duration(milliseconds: 4500),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'label_reconnecting_ellipsis'.l10n,
+                      style: fonts.bodyMedium?.copyWith(
+                        color: style.colors.onPrimary,
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Reconnecting...',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 15,
-                              color: Colors.white,
-                            ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            );
-          }
+            ),
+          );
 
-          return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+          return AnimatedOpacity(
+            opacity: c.connectionLost.isTrue ? 1 : 0,
+            duration: 200.milliseconds,
+            child: child,
+          );
         }),
 
         possibleContainer(),
@@ -529,8 +527,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: TextStyle(
-                                          fontSize: 11,
+                                        style: fonts.labelSmall!.copyWith(
                                           color: style.colors.onPrimary,
                                         ),
                                         textAlign: TextAlign.center,
@@ -744,8 +741,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 ? 'label_call_title_paid'
                                 : 'label_call_title')
                             .l10nfmt(c.titleArguments),
-                        style: context.textTheme.bodyLarge?.copyWith(
-                          fontSize: 13,
+                        style: fonts.labelMedium!.copyWith(
                           color: style.colors.onPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -861,49 +857,28 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
+        // If there's any notifications to show, display them.
         Align(
           alignment: Alignment.topCenter,
           child: Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: _devices(c),
+            child: Obx(() {
+              if (c.notifications.isEmpty) {
+                return const SizedBox();
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: c.notifications.reversed.take(3).map((e) {
+                  return CallNotificationWidget(
+                    e,
+                    onClose: () => c.notifications.remove(e),
+                  );
+                }).toList(),
+              );
+            }),
           ),
         ),
-
-        // If there's any error to show, display it.
-        Obx(() {
-          return AnimatedSwitcher(
-            duration: 150.milliseconds,
-            child: c.errorTimeout.value != 0
-                ? Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.topCenter
-                            ? 10 + c.secondaryHeight.value
-                            : 10,
-                        right: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.centerRight
-                            ? 10 + c.secondaryWidth.value
-                            : 10,
-                      ),
-                      child: SizedBox(
-                        width: 320,
-                        child: HintWidget(
-                          text: '${c.error}.',
-                          onTap: () {
-                            c.errorTimeout.value = 0;
-                          },
-                          isError: true,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(),
-          );
-        }),
 
         Obx(() {
           if (c.minimized.value && !c.fullscreen.value) {
@@ -916,7 +891,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
       // Combines all the stackable content into [Scaffold].
       Widget scaffold = Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: style.colors.onBackground,
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -948,9 +923,6 @@ Widget desktopCall(CallController c, BuildContext context) {
         ),
       );
 
-      // c.relocateSecondary();
-      // c.applySecondaryConstraints();
-
       if (c.minimized.value && !c.fullscreen.value) {
         // Applies constraints on every rebuild.
         // This includes the screen size changes.
@@ -968,13 +940,8 @@ Widget desktopCall(CallController c, BuildContext context) {
             cursor: cursor,
             child: Scaler(
               key: key,
-              // onDragStart: (_) {
-              //   c.secondaryScaled.value = true;
-              //   c.secondaryBottomShifted = null;
-              // },
               onDragUpdate: onDrag,
               onDragEnd: (_) {
-                // c.secondaryScaled.value = false;
                 c.updateSecondaryAttach();
               },
               width: width ?? Scaler.size,
@@ -1183,7 +1150,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final style = Theme.of(context).style;
+      final (style, fonts) = Theme.of(context).styles;
 
       return Container(
         key: const ValueKey('TitleBar'),
@@ -1225,8 +1192,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                                   ? 'label_call_title_paid'
                                   : 'label_call_title')
                               .l10nfmt(c.titleArguments),
-                          style: context.textTheme.bodyLarge?.copyWith(
-                            fontSize: 13,
+                          style: fonts.labelMedium!.copyWith(
                             color: style.colors.onPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -1266,110 +1232,9 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       );
     });
 
-Widget _devices(CallController c) {
-  return Obx(() {
-    if (c.deviceChanges.isEmpty) {
-      return const SizedBox();
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: c.deviceChanges.reversed.take(3).mapIndexed((i, e) {
-        final String title;
-
-        if (e.device != null) {
-          if (e.device!.kind() == MediaDeviceKind.AudioInput) {
-            title = 'Микрофон был изменён на ${e.device!.label()}';
-          } else if (e.device!.kind() == MediaDeviceKind.AudioOutput) {
-            title = 'Cпикер был изменён на ${e.device!.label()}';
-          } else {
-            title = 'Камера была изменёна на ${e.device!.label()}';
-          }
-        } else {
-          title = 'Низкая скорость интернет-соединения с Вашим корреспондентом';
-        }
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: const [
-              CustomBoxShadow(
-                color: Color(0x33000000),
-                blurRadius: 8,
-                blurStyle: BlurStyle.outer,
-              )
-            ],
-          ),
-          margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-          child: ConditionalBackdropFilter(
-            borderRadius: BorderRadius.circular(30),
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0x301D6AAE),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              // padding: const EdgeInsets.symmetric(
-              //   vertical: 12,
-              //   horizontal: 12,
-              // ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        16,
-                        12,
-                        4,
-                        12,
-                      ),
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // const SizedBox(width: 8),
-                  ListenerButton(
-                    onPressed: () {
-                      // c.deviceChanges.removeAt(i);
-                      // c.deviceChanges.refresh();
-                      c.removeNotification(e);
-                    },
-                    child: Container(
-                      // color: Colors.red,
-                      padding: const EdgeInsets.fromLTRB(
-                        8,
-                        12,
-                        12,
-                        12,
-                      ),
-                      child: SvgImage.asset(
-                        'assets/icons/close.svg',
-                        width: 10,
-                        height: 10,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                ],
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  });
-}
-
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
+  final style = Theme.of(router.context!).style;
 
   return Obx(() {
     void onDragEnded(_DragData d) {
@@ -1535,7 +1400,7 @@ Widget _primaryView(CallController c) {
                               onPressed: () =>
                                   c.toggleAudioEnabled(participant),
                             ),
-                          if (participant.member.isRedialing.isFalse)
+                          if (participant.member.isDialing.isFalse)
                             ContextMenuButton(
                               label: 'btn_call_remove_participant'.l10n,
                               onPressed: () => c.removeChatCallMember(
@@ -1641,7 +1506,7 @@ Widget _primaryView(CallController c) {
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
-  final style = Theme.of(context).style;
+  final (style, fonts) = Theme.of(context).styles;
 
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
@@ -1709,13 +1574,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
               child: Scaler(
                 key: key,
-                // onDragStart: (_) {
-                //   c.secondaryBottomShifted = null;
-                //   c.secondaryScaled.value = true;
-                // },
                 onDragUpdate: onDrag,
                 onDragEnd: (_) {
-                  // c.secondaryScaled.value = false;
                   c.updateSecondaryAttach();
                 },
                 width: width ?? Scaler.size,
@@ -2088,7 +1948,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     onPressed: () =>
                                         c.toggleAudioEnabled(participant),
                                   ),
-                                if (participant.member.isRedialing.isFalse)
+                                if (participant.member.isDialing.isFalse)
                                   ContextMenuButton(
                                     label: 'btn_call_remove_participant'.l10n,
                                     onPressed: () => c.removeChatCallMember(
@@ -2245,7 +2105,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: TextStyle(
+                                        style: fonts.labelMedium!.copyWith(
                                           color: style.colors.onPrimary,
                                         ),
                                         maxLines: 1,
@@ -2447,7 +2307,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
 /// [DragTarget] of an empty [_secondaryView].
 Widget _secondaryTarget(CallController c) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
+  final style = Theme.of(router.context!).style;
 
   return Obx(() {
     Axis secondaryAxis =

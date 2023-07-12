@@ -198,9 +198,6 @@ class _HomeViewState extends State<HomeView> {
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('BalanceButton'),
-                                // child: RmbDetector(
-                                //   onPressed: () =>
-                                //       BalanceMoreView.show(context),
                                 child: ContextMenuRegion(
                                   selector: c.balanceKey,
                                   alignment: Alignment.bottomLeft,
@@ -374,12 +371,13 @@ class _HomeViewState extends State<HomeView> {
                                     return AnimatedSwitcher(
                                       key: c.chatsKey,
                                       duration: 200.milliseconds,
-                                      layoutBuilder: (child, previous) {
+                                      layoutBuilder: (current, previous) {
                                         return Stack(
                                           alignment: Alignment.center,
                                           children: [
-                                            ...previous,
-                                            if (child != null) child,
+                                            if (previous.isNotEmpty)
+                                              previous.first,
+                                            if (current != null) current,
                                           ],
                                         );
                                       },

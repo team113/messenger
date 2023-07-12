@@ -108,40 +108,43 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
-    Widget button = ConditionalBackdropFilter(
-      condition: !WebUtils.isSafari && widget.withBlur,
-      borderRadius: BorderRadius.circular(60),
-      child: Material(
-        key: _key,
-        elevation: 0,
-        color: widget.color,
-        type: MaterialType.circle,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(60),
-          onHover: widget.hint != null
-              ? (b) {
-                  if (b) {
-                    _populateOverlay();
-                  } else {
-                    _hintEntry?.remove();
-                    _hintEntry = null;
+    Widget button = Container(
+      color: style.colors.transparent,
+      child: ConditionalBackdropFilter(
+        condition: !WebUtils.isSafari && widget.withBlur,
+        borderRadius: BorderRadius.circular(60),
+        child: Material(
+          key: _key,
+          elevation: 0,
+          color: widget.color,
+          type: MaterialType.circle,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(60),
+            onHover: widget.hint != null
+                ? (b) {
+                    if (b) {
+                      _populateOverlay();
+                    } else {
+                      _hintEntry?.remove();
+                      _hintEntry = null;
+                    }
                   }
-                }
-              : null,
-          onTap: widget.onPressed,
-          child: widget.child ??
-              SizedBox(
-                width: max(widget.assetWidth, 60),
-                height: max(widget.assetWidth, 60),
-                child: Center(
-                  child: SvgImage.asset(
-                    'assets/icons/${widget.asset}.svg',
-                    width: widget.assetWidth,
+                : null,
+            onTap: widget.onPressed,
+            child: widget.child ??
+                SizedBox(
+                  width: max(widget.assetWidth, 60),
+                  height: max(widget.assetWidth, 60),
+                  child: Center(
+                    child: SvgImage.asset(
+                      'assets/icons/${widget.asset}.svg',
+                      width: widget.assetWidth,
+                    ),
                   ),
                 ),
-              ),
+          ),
         ),
       ),
     );
@@ -168,11 +171,8 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 widget.text!,
                 textAlign: TextAlign.center,
                 style: widget.style ??
-                    context.textTheme.bodySmall?.copyWith(
-                      color: widget.inverted
-                          ? style.colors.onBackground
-                          : style.colors.onPrimary,
-                      fontSize: 13,
+                    fonts.headlineSmall!.copyWith(
+                      color: style.colors.onPrimary,
                     ),
                 maxLines: 2,
               ),
@@ -209,7 +209,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
         firstLayout = false;
       }
 
-      final style = Theme.of(context).style;
+      final (style, fonts) = Theme.of(context).styles;
 
       return IgnorePointer(
         child: Stack(
@@ -225,9 +225,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   child: Text(
                     widget.hint!,
                     textAlign: TextAlign.center,
-                    style: context.theme.outlinedButtonTheme.style!.textStyle!
-                        .resolve({MaterialState.disabled})!.copyWith(
-                      fontSize: 13,
+                    style: fonts.headlineSmall!.copyWith(
                       color: style.colors.onPrimary,
                       shadows: [
                         Shadow(blurRadius: 6, color: style.colors.onBackground),

@@ -72,7 +72,6 @@ class _AnimatedButtonState extends State<AnimatedButton>
           _controller.reset();
           _controller.forward();
         },
-        onPointerUp: (_) {},
         child: AnimatedScale(
           duration: const Duration(milliseconds: 100),
           scale: _hovered ? (1 + 0.05 * widget.modifier) : 1,

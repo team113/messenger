@@ -198,35 +198,28 @@ class OutlinedRoundedButton extends StatelessWidget {
                       Expanded(child: Container()),
                     ],
                   ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      // horizontal: leading == null ? 0 : 16,
-                      // vertical: 8,
-                      ),
-                  child: DefaultTextStyle.merge(
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: this.style ?? fonts.titleLarge,
-                    child: Center(
-                      child: Padding(
-                        padding: leading == null
-                            ? EdgeInsets.zero
-                            : const EdgeInsets.only(left: 10 * 0.7),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            title ?? Container(),
-                            if (subtitle != null)
-                              const SizedBox(height: 1 * 0.7),
-                            if (subtitle != null)
-                              DefaultTextStyle.merge(
-                                style: fonts.labelMedium,
-                                child: subtitle!,
-                              ),
-                          ],
-                        ),
+                DefaultTextStyle.merge(
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: this.style ?? fonts.titleLarge,
+                  child: Center(
+                    child: Padding(
+                      padding: leading == null
+                          ? EdgeInsets.zero
+                          : const EdgeInsets.only(left: 10 * 0.7),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          title ?? Container(),
+                          if (subtitle != null) const SizedBox(height: 1 * 0.7),
+                          if (subtitle != null)
+                            DefaultTextStyle.merge(
+                              style: fonts.labelMedium,
+                              child: subtitle!,
+                            ),
+                        ],
                       ),
                     ),
                   ),

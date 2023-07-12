@@ -62,7 +62,7 @@ abstract class CallButton {
     double assetWidth = 60,
     BoxBorder? border,
   }) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return RoundFloatingButton(
       asset: asset,
@@ -90,8 +90,8 @@ class ReconnectButton extends CallButton {
       asset: 'more',
       hinted: hinted,
       onPressed: () {
-        c.addNotification(score: 2);
-        c.addNotification(device: c.devices.audio().first);
+        // c.addNotification(score: 2);
+        // c.addNotification(device: c.devices.audio().first);
       },
       // onPressed: c.connectionLost.toggle,
     );
@@ -304,7 +304,7 @@ class AcceptAudioButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _common(
       asset: expanded ? 'audio_call_start' : 'audio_call',
@@ -333,7 +333,7 @@ class AcceptVideoButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _common(
       asset: 'video_on',
@@ -358,7 +358,7 @@ class DeclineButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _common(
       asset: 'call_end',
@@ -380,7 +380,7 @@ class DropButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _common(
       asset: 'call_end',
@@ -400,7 +400,7 @@ class CancelButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool blur = false}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _common(
       asset: 'call_end',
@@ -424,7 +424,7 @@ class EndCallButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return _common(
       asset: 'call_end',
@@ -479,7 +479,7 @@ class SwitchButton extends CallButton {
 /// Returns a [Column] consisting of the [child] with the provided
 /// [description].
 Widget withDescription(Widget child, Widget description) {
-  final Style style = Theme.of(router.context!).extension<Style>()!;
+  final (style, fonts) = Theme.of(router.context!).styles;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -487,7 +487,7 @@ Widget withDescription(Widget child, Widget description) {
       child,
       const SizedBox(height: 6),
       DefaultTextStyle(
-        style: TextStyle(fontSize: 11, color: style.colors.onPrimary),
+        style: fonts.bodySmall!.copyWith(color: style.colors.onPrimary),
         textAlign: TextAlign.center,
         maxLines: 2,
         child: description,
