@@ -120,7 +120,7 @@ Future<void> main() async {
     if (!PlatformUtils.isWeb) {
       AbstractCacheRepository cacheRepository =
           Get.put<AbstractCacheRepository>(CacheRepository(Get.find()));
-      CacheUtils.init(cacheRepository);
+      CacheUtils.init(cacheRepository.cacheInfo.value, cacheRepository.update);
     }
 
     Get.put(BackgroundWorker(Get.find()));

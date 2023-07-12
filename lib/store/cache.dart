@@ -69,6 +69,5 @@ class CacheRepository extends DisposableInterface
   }
 
   @override
-  Future<void> update(int filesCount, int size) =>
-      _cacheLocal.setCountAndSize(filesCount, size);
+  Future<void> update(CacheInfo cacheInfo) => _cacheLocal.update(cacheInfo);
 }

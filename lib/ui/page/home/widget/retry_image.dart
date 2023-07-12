@@ -367,8 +367,6 @@ class _RetryImageState extends State<RetryImage> {
       cancelToken: _fallbackToken,
       onForbidden: () async {
         widget.onForbidden?.call();
-        _cancelToken.cancel();
-        _fallbackToken.cancel();
       },
     );
 
@@ -399,8 +397,6 @@ class _RetryImageState extends State<RetryImage> {
       cancelToken: _cancelToken,
       onForbidden: () async {
         widget.onForbidden?.call();
-        _cancelToken.cancel();
-        _fallbackToken.cancel();
       },
     );
 

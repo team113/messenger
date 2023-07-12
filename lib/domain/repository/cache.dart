@@ -27,6 +27,6 @@ abstract class AbstractCacheRepository {
   /// Clears the stored [CacheInfo].
   Future<void> clear();
 
-  /// Sets the [CacheInfo.filesCount] and [CacheInfo.size] values.
-  Future<void> update(int filesCount, int size);
+  /// Sets the [CacheInfo] value.
+  Future<void> update(CacheInfo cacheInfo);
 }

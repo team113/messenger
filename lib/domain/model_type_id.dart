@@ -120,4 +120,5 @@ class ModelTypeId {
   static const blacklistRecord = 97;
   static const rect = 98;
   static const cacheInfo = 99;
+  static const file = 100;
 }

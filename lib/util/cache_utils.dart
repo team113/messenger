@@ -27,7 +27,7 @@ import 'package:get/get.dart' hide Response;
 import 'package:mutex/mutex.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '/domain/repository/cache.dart';
+import '/domain/model/cache_info.dart';
 import '/domain/service/disposable_service.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
@@ -46,11 +46,11 @@ class CacheUtilsImpl extends DisposableService {
   /// Size of all files in the [cacheDirectory] in bytes.
   final RxInt cacheSize = RxInt(0);
 
-  /// Cache info repository, used to retrieve the stored [CacheInfo].
-  AbstractCacheRepository? _cacheRepository;
-
   /// [File]s stored in the [cacheDirectory].
   final List<File> _files = [];
+
+  /// Callback, called when cache is updated.
+  late void Function(CacheInfo) _onUpdate;
 
   /// Path to the cache directory.
   Directory? _cacheDirectory;
@@ -68,32 +68,43 @@ class CacheUtilsImpl extends DisposableService {
   }
 
   /// Initializes this [CacheUtilsImpl].
-  Future<void> init(AbstractCacheRepository cacheRepository) async {
-    _cacheRepository = cacheRepository;
-    cacheSize.value = cacheRepository.cacheInfo.value?.size ?? 0;
+  Future<void> init(
+    CacheInfo? cacheInfo,
+    void Function(CacheInfo) onUpdate,
+  ) async {
+    cacheSize.value = cacheInfo?.size ?? 0;
+    _files.addAll(cacheInfo?.files ?? []);
+    _onUpdate = onUpdate;
 
     try {
       final Directory cache = await cacheDirectory;
 
-      _cacheSubscription = cache.list(recursive: true).listen(
-        (FileSystemEntity file) async {
-          if (file is File) {
-            _files.add(file);
-          }
-        },
-        onDone: () async {
-          if (_files.length !=
-              (cacheRepository.cacheInfo.value?.filesCount ?? 0)) {
-            cacheSize.value = await _calculateCacheSize();
-            cacheRepository.update(_files.length, cacheSize.value);
+      if (cacheInfo?.modified != (await cache.stat()).modified) {
+        _files.clear();
+        cacheSize.value = 0;
+
+        _cacheSubscription = cache.list(recursive: true).listen(
+          (FileSystemEntity file) async {
+            if (file is File) {
+              _files.add(file);
+              cacheSize.value += (await file.stat()).size;
+            }
+          },
+          onDone: () async {
+            _onUpdate(
+              CacheInfo(
+                files: _files,
+                size: cacheSize.value,
+                modified: (await cache.stat()).modified,
+              ),
+            );
             _optimizeCache();
-          } else {
-            _optimizeCache();
-          }
-          _cacheSubscription?.cancel();
-          _cacheSubscription = null;
-        },
-      );
+
+            _cacheSubscription?.cancel();
+            _cacheSubscription = null;
+          },
+        );
+      }
     } on MissingPluginException {
       // No-op.
     }
@@ -130,7 +141,7 @@ class CacheUtilsImpl extends DisposableService {
       }
 
       if (url != null) {
-        final Uint8List data = await Backoff.run(
+        final Uint8List? data = await Backoff.run(
           () async {
             Response? data;
 
@@ -144,6 +155,7 @@ class CacheUtilsImpl extends DisposableService {
             } on DioError catch (e) {
               if (e.response?.statusCode == 403) {
                 await onForbidden?.call();
+                return null;
               }
             }
 
@@ -156,7 +168,9 @@ class CacheUtilsImpl extends DisposableService {
           cancelToken,
         );
 
-        save(data, checksum);
+        if (data != null) {
+          save(data, checksum);
+        }
 
         return data;
       } else {
@@ -179,7 +193,13 @@ class CacheUtilsImpl extends DisposableService {
       _files.add(file);
       _optimizeCache();
 
-      _cacheRepository?.update(_files.length, cacheSize.value);
+      _onUpdate(
+        CacheInfo(
+          files: _files,
+          size: cacheSize.value,
+          modified: (await cache.stat()).modified,
+        ),
+      );
     }
   }
 
@@ -188,17 +208,6 @@ class CacheUtilsImpl extends DisposableService {
   bool exists(String checksum) {
     return FIFOCache.exists(checksum) ||
         _files.any((e) => e.path.endsWith(checksum));
-  }
-
-  /// Calculates size of the cache.
-  Future<int> _calculateCacheSize() async {
-    int size = 0;
-
-    for (var file in _files) {
-      size += (await file.stat()).size;
-    }
-
-    return size;
   }
 
   /// Deletes files from the [cacheDirectory] if it occupies more then
@@ -228,8 +237,8 @@ class CacheUtilsImpl extends DisposableService {
         int deleted = 0;
         for (var file in files) {
           try {
-            final FileStat stat = filesInfo[file]!;
-            if (stat.type != FileSystemEntityType.notFound) {
+            final FileStat? stat = filesInfo[file];
+            if (stat != null && stat.type != FileSystemEntityType.notFound) {
               final int fileSize = stat.size;
               await file.delete();
               deleted += fileSize;
@@ -245,7 +254,15 @@ class CacheUtilsImpl extends DisposableService {
           }
         }
 
-        _cacheRepository?.update(_files.length, cacheSize.value);
+        final Directory cache = await cacheDirectory;
+
+        _onUpdate(
+          CacheInfo(
+            files: _files,
+            size: cacheSize.value,
+            modified: (await cache.stat()).modified,
+          ),
+        );
       }
     });
   }

@@ -31,18 +31,12 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
   @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(CacheInfoAdapter());
+    Hive.maybeRegisterAdapter(FileAdapter());
   }
 
   /// Returns the stored [CacheInfo] from [Hive].
   CacheInfo? get cacheInfo => getSafe(0);
 
-  /// Stores a new [CacheInfo.filesCount] and [CacheInfo.size] values to
-  /// [Hive].
-  Future<void> setCountAndSize(int filesCount, int size) {
-    CacheInfo info = (box.get(0) ?? CacheInfo());
-    info.filesCount = filesCount;
-    info.size = size;
-
-    return putSafe(0, info);
-  }
+  /// Stores a new [CacheInfo] value to [Hive].
+  Future<void> update(CacheInfo cacheInfo) => putSafe(0, cacheInfo);
 }
