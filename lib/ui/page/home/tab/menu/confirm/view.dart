@@ -139,7 +139,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 Center(
                   child: RichText(
                     text: TextSpan(
-                      style: fonts.titleLarge!.copyWith(
+                      style: fonts.labelLarge!.copyWith(
                         color: style.colors.secondary,
                       ),
                       children: [
