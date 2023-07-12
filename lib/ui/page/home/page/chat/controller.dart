@@ -28,6 +28,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/log.dart';
 
 import '/api/backend/schema.dart' hide ChatItemQuoteInput;
 import '/domain/model/application_settings.dart';
@@ -180,8 +181,13 @@ class ChatController extends GetxController {
   /// Position will be keeping only when `scrollOffset` >= [keepPositionOffset].
   final Rx<double> keepPositionOffset = Rx(50);
 
+  // TODO(review): shouldn't [Pagination] control that?
   /// Indicator whether a previous page of [RxChat.messages] is loading.
   bool _isPrevPageLoading = false;
+
+  // TODO(review): shouldn't [Pagination] control that?
+  /// Indicator whether a next page of [RxChat.messages] is loading.
+  bool _isNextPageLoading = false;
 
   /// Indicator whether the [LoaderElement]s should be displayed.
   final RxBool showLoader = RxBool(true);
@@ -321,6 +327,16 @@ class ChatController extends GetxController {
   /// Indicates whether a next page of the [elements] is exists.
   RxBool get hasNext => chat!.hasNext;
 
+  /// Indicates whether the [listController] is scrolled to its bottom.
+  bool get _atBottom =>
+      listController.hasClients && listController.position.pixels < 100;
+
+  /// Indicates whether the [listController] is scrolled to its top.
+  bool get _atTop =>
+      listController.hasClients &&
+      listController.position.pixels <
+          listController.position.maxScrollExtent - 100;
+
   @override
   void onInit() {
     send = MessageFieldController(
@@ -399,8 +415,7 @@ class ChatController extends GetxController {
   void onReady() {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
-    _ignorePositionChanges = true;
-    _fetchChat().whenComplete(() => _ignorePositionChanges = false);
+    _fetchChat();
     _initAudio();
     super.onReady();
   }
@@ -568,6 +583,8 @@ class ChatController extends GetxController {
 
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
+    _ignorePositionChanges = true;
+
     status.value = RxStatus.loading();
     chat = await _chatService.get(id);
     if (chat == null) {
@@ -875,6 +892,9 @@ class ChatController extends GetxController {
         _messageInitializedWorker = ever(chat!.status, (RxStatus status) async {
           if (_messageInitializedWorker != null) {
             if (status.isSuccess) {
+              _messageInitializedWorker?.dispose();
+              _messageInitializedWorker = null;
+
               await Future.delayed(Duration.zero);
 
               if (!this.status.value.isSuccess) {
@@ -885,27 +905,6 @@ class ChatController extends GetxController {
               var result = _calculateListViewIndex();
               initIndex = result.index;
               initOffset = result.offset;
-
-              if (!status.isLoadingMore) {
-                _messageInitializedWorker?.dispose();
-                _messageInitializedWorker = null;
-
-                if (_bottomLoader != null) {
-                  showLoader.value = false;
-
-                  _bottomLoaderEndTimer =
-                      Timer(const Duration(milliseconds: 300), () {
-                    if (_bottomLoader != null) {
-                      elements.remove(_bottomLoader!.id);
-                      _bottomLoader = null;
-                    }
-                    showLoader.value = true;
-                    this.status.value = RxStatus.success();
-                  });
-                } else {
-                  this.status.value = RxStatus.success();
-                }
-              }
             }
           }
         });
@@ -934,6 +933,8 @@ class ChatController extends GetxController {
         },
       );
 
+      await chat!.around();
+
       // Required in order for [Hive.boxEvents] to add the messages.
       await Future.delayed(Duration.zero);
 
@@ -952,36 +953,9 @@ class ChatController extends GetxController {
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
       }
-
-      // TODO(review): docs
-      void ensureScrollable() {
-        SchedulerBinding.instance.addPostFrameCallback((_) async {
-          for (int i = 0; i < 10 && !listController.hasClients; i++) {
-            await Future.delayed(10.milliseconds);
-          }
-
-          if (listController.hasClients &&
-              listController.position.maxScrollExtent == 0 &&
-              (hasNext.isTrue || hasPrevious.isTrue)) {
-            await _loadNextPage();
-            await _loadPreviousPage();
-            ensureScrollable();
-          }
-        });
-      }
-
-      if (status.value.isSuccess && !status.value.isLoadingMore) {
-        ensureScrollable();
-      } else {
-        _statusWorker = ever(status, (e) {
-          if (e.isSuccess && !e.isLoadingMore) {
-            ensureScrollable();
-            _statusWorker?.dispose();
-            _statusWorker = null;
-          }
-        });
-      }
     }
+
+    _ignorePositionChanges = false;
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
@@ -1282,31 +1256,32 @@ class ChatController extends GetxController {
   /// Loads next page of the [RxChat.messages] based on the
   /// [FlutterListViewController.position] value.
   Future<void> _loadNextPage() async {
-    if (hasNext.isTrue &&
-        listController.position.pixels >
-            listController.position.maxScrollExtent -
-                (MediaQuery.of(router.context!).size.height * 2 + 200)) {
+    if (hasNext.isTrue && !_isNextPageLoading && _atBottom) {
+      Log.print('Fetch next page', 'ChatController');
+
+      _isNextPageLoading = true;
       if (_topLoader == null) {
         _topLoader = LoaderElement.top();
         elements[_topLoader!.id] = _topLoader!;
       }
 
-      await chat!.fetchNext();
+      await chat!.next();
 
       if (hasNext.isFalse) {
         elements.remove(_topLoader?.id);
         _topLoader = null;
       }
+
+      _isNextPageLoading = false;
     }
   }
 
   /// Loads previous page of the [RxChat.messages] based on the
   /// [FlutterListViewController.position] value.
   Future<void> _loadPreviousPage() async {
-    if (hasPrevious.isTrue &&
-        !_isPrevPageLoading &&
-        listController.position.pixels <
-            MediaQuery.of(router.context!).size.height * 2 + 200) {
+    if (hasPrevious.isTrue && !_isPrevPageLoading && _atTop) {
+      Log.print('Fetch previous page', 'ChatController');
+
       keepPositionOffset.value = 0;
       _isPrevPageLoading = true;
 
@@ -1318,23 +1293,12 @@ class ChatController extends GetxController {
           LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
       elements[_bottomLoader!.id] = _bottomLoader!;
 
-      await chat!.fetchPrevious();
+      await chat!.previous();
 
-      final double offset = listController.position.pixels;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (offset < loadingHeight) {
-          listController.jumpTo(
-            listController.position.pixels -
-                (loadingHeight + lastItemBottomOffset),
-          );
-        }
+      if (hasPrevious.isFalse) {
         elements.remove(_bottomLoader?.id);
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          keepPositionOffset.value = 50;
-          _isPrevPageLoading = false;
-        });
-      });
+        _bottomLoader = null;
+      }
     }
   }
 
@@ -1360,17 +1324,20 @@ class ChatController extends GetxController {
   /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the
   /// [RxChat.messages] list.
   void _determineLastRead() {
-    _firstUnreadItem = chat!.firstUnreadItem;
+    if (chat?.unreadCount.value != 0) {
+      PreciseDateTime? at = chat!.chat.value.lastReads
+          .firstWhereOrNull((e) => e.memberId == me)
+          ?.at;
 
-    if (_firstUnreadItem != null) {
-      if (_unreadElement != null) {
-        elements.remove(_unreadElement!.id);
+      if (at != null) {
+        if (_unreadElement != null) {
+          elements.remove(_unreadElement!.id);
+        }
+
+        at = at.subtract(const Duration(microseconds: 1));
+        _unreadElement = UnreadMessagesElement(at);
+        elements[_unreadElement!.id] = _unreadElement!;
       }
-
-      PreciseDateTime at = _firstUnreadItem!.value.at;
-      at = at.subtract(const Duration(microseconds: 1));
-      _unreadElement = UnreadMessagesElement(at);
-      elements[_unreadElement!.id] = _unreadElement!;
     }
   }
 

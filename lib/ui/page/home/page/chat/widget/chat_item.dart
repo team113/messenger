@@ -785,38 +785,32 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       context,
       (menu, constraints) {
         final List<Widget> children = [
-          if (msg.repliesTo.isNotEmpty) ...[
-            ...msg.repliesTo.mapIndexed((i, e) {
-              return SelectionContainer.disabled(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  decoration: BoxDecoration(
-                    color: e.author == widget.me
-                        ? _isRead || !_fromMe
-                            ? const Color(0xFFDBEAFD)
-                            : const Color(0xFFE6F1FE)
-                        : _isRead || !_fromMe
-                            ? const Color(0xFFF9F9F9)
-                            : const Color(0xFFFFFFFF),
-                    borderRadius: i == 0
-                        ? const BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            topRight: Radius.circular(15),
-                          )
-                        : BorderRadius.zero,
-                  ),
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: _isRead || !_fromMe ? 1 : 0.55,
-                    child: WidgetButton(
-                      onPressed:
-                          menu ? null : () => widget.onRepliedTap?.call(e),
-                      child: _repliedMessage(e, constraints),
+          if (!_fromMe &&
+              widget.chat.value?.isGroup == true &&
+              widget.avatar) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
+                    child: SelectionText.rich(
+                      TextSpan(
+                        text: widget.user?.user.value.name?.val ??
+                            widget.user?.user.value.num.val ??
+                            'dot'.l10n * 3,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () => router.user(_author, push: true),
+                      ),
+                      selectable: PlatformUtils.isDesktop || menu,
+                      onSelecting: widget.onSelecting,
+                      onChanged: (a) => _selection = a,
+                      style: fonts.bodyLarge!.copyWith(color: color),
                     ),
                   ),
                 ),
-              );
-            }),
+              ],
+            ),
             const SizedBox(height: 4),
           ] else
             SizedBox(height: msg.repliesTo.isNotEmpty || media.isEmpty ? 6 : 0),

@@ -19,12 +19,9 @@ import 'dart:async';
 
 import '/store/pagination.dart';
 
-/// [PageProvider] fetching items from the remote.
+/// [PageProvider] fetching items from the remote in a GraphQL style.
 class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
-  GraphQlPageProvider({
-    required this.fetch,
-    this.startFromEnd = false,
-  });
+  GraphQlPageProvider({required this.fetch});
 
   /// Callback fetching items from the remote.
   final Future<Page<U, T>> Function({
@@ -34,28 +31,18 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
     T? after,
   }) fetch;
 
-  /// Indicator whether fetching should be started from the end if no cursor
-  /// provided.
-  bool startFromEnd;
-
   @override
   FutureOr<Page<U, T>> around(U? item, T? cursor, int count) async {
     final int half = count ~/ 2;
 
-    return await fetch(
+    final Page<U, T> page = await fetch(
       after: cursor,
-      first: cursor == null
-          ? startFromEnd
-              ? null
-              : count
-          : half,
+      last: cursor == null ? null : half,
       before: cursor,
-      last: cursor == null
-          ? startFromEnd
-              ? count
-              : null
-          : half,
+      first: cursor == null ? null : half,
     );
+
+    return page.reversed();
   }
 
   @override
@@ -64,7 +51,9 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
       return null;
     }
 
-    return await fetch(after: cursor, first: count);
+    final Page<U, T> page = await fetch(before: cursor, last: count);
+
+    return page.reversed();
   }
 
   @override
@@ -73,7 +62,9 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
       return null;
     }
 
-    return await fetch(before: cursor, last: count);
+    final Page<U, T> page = await fetch(after: cursor, first: count);
+
+    return page.reversed();
   }
 
   @override

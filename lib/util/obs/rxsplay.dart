@@ -102,10 +102,7 @@ class RxSplayTreeMap<K, V>
 
   @override
   V? remove(Object? key) {
-    V? result = super.remove(key);
-    if (result != null) {
-      _changes.add(MapChangeNotification<K, V>.removed(key as K?, result));
-    }
+    V? result = _value.remove(key);
     refresh();
     return result;
   }

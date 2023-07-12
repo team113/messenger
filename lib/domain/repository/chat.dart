@@ -258,14 +258,14 @@ abstract class RxChat implements Comparable<RxChat> {
               .isBlacklisted !=
           null;
 
-  /// First [ChatItem] unread by the authenticated [MyUser].
-  Rx<ChatItem>? get firstUnreadItem;
+  /// Fetches the initial [messages] page around the provided [item], if any.
+  Future<void> around({ChatItem? item});
 
   /// Fetches the next [messages] page.
-  Future<void> fetchNext();
+  Future<void> next();
 
   /// Fetches the previous [messages] page.
-  Future<void> fetchPrevious();
+  Future<void> previous();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

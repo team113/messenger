@@ -15,7 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-/// Info about a fetched paginated page.
+/// Info of a [Page] in [Pagination].
+///
+/// Represents a [GraphQL Cursor Connections Specification][1] page info
+/// structure.
+///
+/// [1]: https://relay.dev/graphql/connections.htm
 class PageInfo<K> {
   PageInfo({
     this.hasNext = false,
@@ -24,15 +29,15 @@ class PageInfo<K> {
     this.endCursor,
   });
 
-  /// Indicator whether a next page is exist.
+  /// Indicator whether the next [Page] exists.
   bool hasNext;
 
-  /// Indicator whether a previous page is exist.
+  /// Indicator whether the previous [Page] exists.
   bool hasPrevious;
 
-  /// Cursor of the first item in page this [PageInfo] about.
+  /// Cursor of the first item in the [Page] this [PageInfo] is about.
   K? startCursor;
 
-  /// Cursor of the last item in page this [PageInfo] about.
+  /// Cursor of the last item in the [Page] this [PageInfo] is about.
   K? endCursor;
 }

@@ -32,7 +32,7 @@ void main() async {
 
     void console() {
       print(
-        '[${pagination.items.values}] (${pagination.info.value.startCursor} to ${pagination.info.value.endCursor})',
+        '[${pagination.items.values}] (${pagination.startCursor} to ${pagination.endCursor})',
       );
     }
 
@@ -46,7 +46,7 @@ void main() async {
     console();
 
     print(
-      'hasPrevious: ${pagination.info.value.hasPrevious}, hasNext: ${pagination.info.value.hasNext}',
+      'hasPrevious: ${pagination.hasPrevious.value}, hasNext: ${pagination.hasNext.value}',
     );
   });
 }

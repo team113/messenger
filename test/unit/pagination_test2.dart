@@ -18,7 +18,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/extension/chat.dart';
-import 'package:messenger/api/backend/schema.dart' show GetMessages$Query;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -33,7 +32,7 @@ import 'package:messenger/config.dart';
 void main() async {
   test('Parsing UserPhone successfully', () async {
     await Config.init();
-    const ChatId chatId = ChatId('8bbf02de-2b43-4a97-94b2-dcb57883d922');
+    const ChatId chatId = ChatId('99404e9a-e2e5-4b29-bd76-fff11dfc3796');
 
     final GraphQlProvider graphQlProvider = GraphQlProvider();
     final response = await graphQlProvider.signIn(
@@ -81,7 +80,7 @@ void main() async {
           return '${(m.value as ChatMessage).text}';
         }
         return '$m';
-      })} (${pagination.info.value.startCursor} to ${pagination.info.value.endCursor})');
+      })} (${pagination.startCursor} to ${pagination.endCursor})');
       // print(
       //   pagination.pages.map(
       //     (e) => '[${e.edges.map((m) {
@@ -103,8 +102,11 @@ void main() async {
     await pagination.previous();
     console();
 
+    await pagination.next();
+    console();
+
     print(
-      'hasPrevious: ${pagination.info.value.hasPrevious}, hasNext: ${pagination.info.value.hasNext}',
+      'hasPrevious: ${pagination.hasPrevious.value}, hasNext: ${pagination.hasNext.value}',
     );
   });
 }

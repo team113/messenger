@@ -623,93 +623,53 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           opacity: _isRead || !_fromMe ? 1 : 0.55,
           child: WidgetButton(
             onPressed: menu ? null : () => widget.onForwardedTap?.call(quote),
-            child: FutureBuilder<RxUser?>(
-              future: widget.getUser?.call(quote.author),
-              builder: (context, snapshot) {
-                Color color = snapshot.data?.user.value.id == widget.me
-                    ? Theme.of(context).colorScheme.secondary
-                    : style.colors.userColors[
-                        (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                            style.colors.userColors.length];
-
-                return Row(
+            child: Stack(
+              children: [
+                Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(width: 12),
                     Flexible(
                       child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(width: 2, color: color),
+                        margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                        child: IntrinsicWidth(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: content,
                           ),
-                        ),
-                        margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Transform.scale(
-                                  scaleX: -1,
-                                  child:
-                                      Icon(Icons.reply, size: 17, color: color),
-                                ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: SelectionText(
-                                    snapshot.data?.user.value.name?.val ??
-                                        snapshot.data?.user.value.num.val ??
-                                        'dot'.l10n * 3,
-                                    selectable: PlatformUtils.isDesktop || menu,
-                                    onChanged: (a) => _selection = a,
-                                    onSelecting: widget.onSelecting,
-                                    style:
-                                        fonts.bodyLarge?.copyWith(color: color),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (content.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              ...content,
-                            ],
-                          ],
                         ),
                       ),
                     ),
-                    Positioned(
-                      right: timeInBubble ? 6 : 8,
-                      bottom: 4,
-                      child: timeInBubble
-                          ? ConditionalBackdropFilter(
+                  ],
+                ),
+                Positioned(
+                  right: timeInBubble ? 6 : 8,
+                  bottom: 4,
+                  child: timeInBubble
+                      ? ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 4, right: 4),
+                            decoration: BoxDecoration(
+                              color: style.colors.onBackgroundOpacity27,
                               borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.only(left: 4, right: 4),
-                                decoration: BoxDecoration(
-                                  color: style.colors.onBackgroundOpacity27,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: MessageTimestamp(
-                                  at: quote.at,
-                                  date: true,
-                                  fontSize: 12,
-                                  inverted: true,
-                                ),
-                              ),
-                            )
-                          : MessageTimestamp(
+                            ),
+                            child: MessageTimestamp(
                               at: quote.at,
                               date: true,
-                              fontSize: 12,
+                              fontSize: fonts.labelSmall!.fontSize,
+                              inverted: true,
                             ),
-                    )
-                  ],
-                );
-              },
+                          ),
+                        )
+                      : MessageTimestamp(
+                          at: quote.at,
+                          date: true,
+                          fontSize: fonts.labelSmall!.fontSize,
+                        ),
+                )
+              ],
             ),
           ),
         ),

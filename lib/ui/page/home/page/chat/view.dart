@@ -394,20 +394,21 @@ class _ChatViewState extends State<ChatView>
                                   (context, i) => _listElement(context, c, i),
                                   // ignore: invalid_use_of_protected_member
                                   childCount: c.elements.value.length,
+                                  stickyAtTailer: true,
                                   keepPosition: true,
-                                  keepPositionOffset:
-                                      c.keepPositionOffset.value,
+                                  keepPositionOffset: c.active.isTrue
+                                      ? c.keepPositionOffset.value
+                                      : 1,
                                   onItemKey: (i) => c.elements.values
                                       .elementAt(i)
                                       .id
                                       .toString(),
                                   onItemSticky: (i) => c.elements.values
                                       .elementAt(i) is DateTimeElement,
-                                  stickyAtTailer: true,
                                   initIndex: c.initIndex,
                                   initOffset: c.initOffset,
-                                  initOffsetBasedOnBottom: true,
-                                  disableCacheItems: true,
+                                  initOffsetBasedOnBottom: false,
+                                  disableCacheItems: kDebugMode ? true : false,
                                 ),
                               );
 
@@ -620,6 +621,7 @@ class _ChatViewState extends State<ChatView>
                 user: u.data,
                 getUser: c.getUser,
                 animation: _animation,
+                timestamp: c.settings.value?.timelineEnabled != true,
                 onHide: () => c.hideChatItem(e.value),
                 onDelete: () => c.deleteMessage(e.value),
                 onReply: () {
@@ -629,7 +631,13 @@ class _ChatViewState extends State<ChatView>
                     c.send.replied.insert(0, e.value);
                   }
                 },
-                onCopy: c.copyText,
+                onCopy: (text) {
+                  if (c.selection.value?.plainText.isNotEmpty == true) {
+                    c.copyText(c.selection.value!.plainText);
+                  } else {
+                    c.copyText(text);
+                  }
+                },
                 onRepliedTap: (q) async {
                   if (q.original != null) {
                     await c.animateTo(q.original!.id);
@@ -683,6 +691,7 @@ class _ChatViewState extends State<ChatView>
                 user: u.data,
                 getUser: c.getUser,
                 animation: _animation,
+                timestamp: c.settings.value?.timelineEnabled != true,
                 onHide: () async {
                   final List<Future> futures = [];
 
@@ -720,19 +729,26 @@ class _ChatViewState extends State<ChatView>
 
                     if (element.note.value != null) {
                       c.send.replied.removeWhere(
-                          (i) => i.id == element.note.value!.value.id);
+                        (i) => i.id == element.note.value!.value.id,
+                      );
                     }
                   } else {
-                    for (Rx<ChatItem> e in element.forwards.reversed) {
-                      c.send.replied.insert(0, e.value);
-                    }
-
                     if (element.note.value != null) {
                       c.send.replied.insert(0, element.note.value!.value);
                     }
+
+                    for (Rx<ChatItem> e in element.forwards) {
+                      c.send.replied.insert(0, e.value);
+                    }
                   }
                 },
-                onCopy: c.copyText,
+                onCopy: (text) {
+                  if (c.selection.value?.plainText.isNotEmpty == true) {
+                    c.copyText(c.selection.value!.plainText);
+                  } else {
+                    c.copyText(text);
+                  }
+                },
                 onGallery: c.calculateGallery,
                 onEdit: () => c.editMessage(element.note.value!.value),
                 onDrag: (d) => c.isItemDragged.value = d,
@@ -785,10 +801,10 @@ class _ChatViewState extends State<ChatView>
                 padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tight(const Size.square(40)),
-                  child: const Center(
+                  child: Center(
                     child: ColoredBox(
-                      color: Colors.transparent,
-                      child: CustomProgressIndicator(),
+                      color: style.colors.transparent,
+                      child: const CustomProgressIndicator(),
                     ),
                   ),
                 ),

@@ -138,7 +138,7 @@ class ChatForwardController extends GetxController {
               return _chatService.forwardChatItems(
                 from,
                 e.chat.value.id,
-                send.quotes.reversed.toList(),
+                quotes,
                 text: text,
                 attachments: attachments,
               );
@@ -149,7 +149,7 @@ class ChatForwardController extends GetxController {
               return _chatService.forwardChatItems(
                 from,
                 dialog,
-                send.quotes.reversed.toList(),
+                quotes,
                 text: text,
                 attachments: attachments,
               );
@@ -160,7 +160,7 @@ class ChatForwardController extends GetxController {
               return _chatService.forwardChatItems(
                 from,
                 dialog,
-                send.quotes.reversed.toList(),
+                quotes,
                 text: text,
                 attachments: attachments,
               );

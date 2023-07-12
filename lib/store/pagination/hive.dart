@@ -34,17 +34,16 @@ class HivePageProvider<U, T> implements PageProvider<U, T> {
     this.reversed = false,
   });
 
-  /// Callback returning key of an item.
+  /// Callback, called when a key of the provided [item] is required.
   final dynamic Function(U item) getKey;
 
-  /// Callback returning cursor of an item.
+  /// Callback, called when a cursor of the provided [item] is required.
   final T? Function(U? item) getCursor;
 
-  /// Indicator whether fetching should be started from the end if no item
-  /// provided.
+  /// Indicator whether fetching should start from the end.
   bool reversed;
 
-  /// [HiveLazyProvider] items fetching from.
+  /// [HiveLazyProvider] to fetch the items from.
   HiveLazyProvider _hiveProvider;
 
   @override

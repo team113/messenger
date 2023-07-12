@@ -840,7 +840,7 @@ class ChatRepository extends DisposableInterface
 
     return Page(
       RxList(query.chat!.items.edges.map((e) => e.toHive()).toList()),
-      query.chat!.items.pageInfo.toModel((cursor) => ChatItemsCursor(cursor)),
+      query.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c)),
     );
   }
 
@@ -969,7 +969,8 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
     if (id.isLocal) {
-      await _chats[id]?.clear();
+      // TODO(review): it's pagination should be cleared
+      // await _chats[id]?.clear();
       return;
     }
 

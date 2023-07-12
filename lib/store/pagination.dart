@@ -17,7 +17,9 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
+import 'package:messenger/util/log.dart';
 
 import '/util/obs/obs.dart';
 import 'model/page_info.dart';
@@ -26,18 +28,18 @@ import 'model/page_info.dart';
 /// key identifying those items and their [C] cursor.
 class Pagination<T, K, C> {
   Pagination({
-    this.perPage = 10,
+    this.perPage = 20,
     required this.provider,
     required this.onKey,
   });
 
-  /// Size of a page to fetch.
+  /// Items per [Page] to fetch.
   final int perPage;
 
-  /// List of the elements fetched from the [provider].
+  /// List of the items fetched from the [provider].
   final RxSplayTreeMap<K, T> items = RxSplayTreeMap();
 
-  /// [PageProvider] providing the [elements].
+  /// [PageProvider] providing the [items].
   final PageProvider<T, C> provider;
 
   /// Reactive [RxStatus] of the [items].
@@ -60,45 +62,64 @@ class Pagination<T, K, C> {
   /// is required.
   final K Function(T) onKey;
 
-  C? _startCursor;
-  C? _endCursor;
+  /// Cursor of the first item in the [items] list.
+  @visibleForTesting
+  C? startCursor;
 
-  /// Returns stream of record of changes of the [elements].
+  /// Cursor of the last item in the [items] list.
+  @visibleForTesting
+  C? endCursor;
+
+  /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
   /// Resets this [Pagination] to its initial state.
   void clear() {
+    Log.print('clear()', 'Pagination');
     status.value = RxStatus.empty();
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
-    _startCursor = null;
-    _endCursor = null;
+    startCursor = null;
+    endCursor = null;
   }
 
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) async {
+    Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
     clear();
 
     status.value = RxStatus.loading();
 
     final Page<T, C>? page = await provider.around(item, cursor, perPage);
+    Log.print(
+      'around(item: $item, cursor: $cursor)... \n'
+          '\tFetched ${page?.edges.length} items\n'
+          '\tstartCursor: ${page?.info.startCursor}\n'
+          '\tendCursor: ${page?.info.endCursor}\n'
+          '\thasPrevious: ${page?.info.hasPrevious}\n'
+          '\thasNext: ${page?.info.hasNext}',
+      'Pagination',
+    );
 
     for (var e in page?.edges ?? []) {
       items[onKey(e)] = e;
     }
 
-    _startCursor = page?.info.startCursor;
-    _endCursor = page?.info.endCursor;
+    startCursor = page?.info.startCursor;
+    endCursor = page?.info.endCursor;
     hasNext.value = page?.info.hasNext ?? true;
     hasPrevious.value = page?.info.hasPrevious ?? true;
     status.value = RxStatus.success();
+    Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
   }
 
   /// Fetches a next page of the [items].
   FutureOr<void> next() async {
+    Log.print('next()...', 'Pagination');
+
     if (items.isEmpty) {
       return around();
     }
@@ -106,8 +127,10 @@ class Pagination<T, K, C> {
     status.value = RxStatus.loadingMore();
 
     if (hasNext.value) {
+      await Future.delayed(const Duration(seconds: 2));
       final Page<T, C>? page =
-          await provider.after(items[items.lastKey()], _endCursor, perPage);
+          await provider.after(items[items.lastKey()], endCursor, perPage);
+      Log.print('next()... fetched ${page?.edges.length} items', 'Pagination');
 
       if (page?.info.startCursor != null) {
         for (var e in page?.edges ?? []) {
@@ -115,14 +138,16 @@ class Pagination<T, K, C> {
         }
       }
 
-      _endCursor = page?.info.endCursor ?? _endCursor;
+      endCursor = page?.info.endCursor ?? endCursor;
       hasNext.value = page?.info.hasNext ?? hasNext.value;
       status.value = RxStatus.success();
+      Log.print('next()... done', 'Pagination');
     }
   }
 
   /// Fetches a previous page of the [items].
   FutureOr<void> previous() async {
+    Log.print('previous()...', 'Pagination');
     if (items.isEmpty) {
       return around();
     }
@@ -130,8 +155,13 @@ class Pagination<T, K, C> {
     status.value = RxStatus.loadingMore();
 
     if (hasPrevious.value) {
+      await Future.delayed(const Duration(seconds: 2));
       final Page<T, C>? page =
-          await provider.before(items[items.firstKey()], _startCursor, perPage);
+          await provider.before(items[items.firstKey()], startCursor, perPage);
+      Log.print(
+        'previous()... fetched ${page?.edges.length} items',
+        'Pagination',
+      );
 
       if (page?.info.endCursor != null) {
         for (var e in page?.edges ?? []) {
@@ -139,14 +169,16 @@ class Pagination<T, K, C> {
         }
       }
 
-      _startCursor = page?.info.startCursor ?? _startCursor;
+      startCursor = page?.info.startCursor ?? startCursor;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       status.value = RxStatus.success();
+      Log.print('previous()... done', 'Pagination');
     }
   }
 
   /// Adds the provided [item] to the [items].
   Future<void> put(T item) async {
+    Log.print('put($item)', 'Pagination');
     items[onKey(item)] = item;
     await provider.add(item);
   }
@@ -171,6 +203,20 @@ class Page<T, C> {
 
   /// [PageInfo] of this [Page].
   PageInfo<C> info;
+
+  Page<T, C> reversed({bool info = true, bool edges = false}) {
+    return Page(
+      RxList.from(edges ? this.edges.reversed : this.edges),
+      info
+          ? PageInfo(
+              hasNext: this.info.hasPrevious,
+              hasPrevious: this.info.hasNext,
+              startCursor: this.info.endCursor,
+              endCursor: this.info.startCursor,
+            )
+          : this.info,
+    );
+  }
 }
 
 /// Base class for fetching items with pagination.
