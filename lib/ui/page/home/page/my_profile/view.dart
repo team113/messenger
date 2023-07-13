@@ -590,7 +590,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
   return Obx(() {
     final List<Widget> widgets = [];
 
-    for (UserPhone e in [...c.myUser.value?.phones.confirmed ?? []]) {
+    for (UserPhone e in c.myUser.value?.phones.confirmed ?? []) {
       widgets.add(
         Column(
           key: const Key('ConfirmedPhone'),
