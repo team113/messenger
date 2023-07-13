@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/outlined_rounded_button.dart';
-import '/util/message_popup.dart';
 import 'colors/view.dart';
 import 'fonts/view.dart';
 import 'widget/custom_switcher.dart';
@@ -78,86 +77,50 @@ class _StyleViewState extends State<StyleView> {
 
                                 final bool inverted = selectedTab == tab;
 
-                                Widget card({
-                                  required String title,
-                                  required IconData? icon,
-                                  void Function()? onPressed,
-                                }) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 5,
-                                    ),
-                                    child: OutlinedRoundedButton(
-                                      color: inverted
-                                          ? const Color(0xFF1F3C5D)
-                                          : const Color(0xFFFFFFFF),
-                                      onPressed: onPressed ??
-                                          () {
-                                            selectedTab = tab;
-                                            setState(() {});
-                                          },
-                                      title: Row(
-                                        children: [
-                                          Icon(
-                                            icon,
-                                            color: inverted
-                                                ? const Color(0xFFFFFFFF)
-                                                : const Color(0xFF1F3C5D),
-                                          ),
-                                          const SizedBox(width: 7),
-                                          Text(
-                                            title,
-                                            style:
-                                                fonts.headlineLarge!.copyWith(
-                                              color: inverted
-                                                  ? const Color(0xFFFFFFFF)
-                                                  : const Color(0xFF1F3C5D),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }
-
                                 switch (tab) {
                                   case StyleTab.colors:
-                                    return card(
+                                    return _StyleTabCard(
                                       title: 'Color palette',
                                       icon: Icons.format_paint_rounded,
+                                      inverted: inverted,
+                                      onPressed: () {
+                                        selectedTab = tab;
+                                        setState(() {});
+                                      },
                                     );
 
                                   case StyleTab.typography:
-                                    return card(
-                                      icon: Icons.text_fields_rounded,
+                                    return _StyleTabCard(
                                       title: 'Typography',
+                                      icon: Icons.text_fields_rounded,
+                                      inverted: inverted,
+                                      onPressed: () {
+                                        selectedTab = tab;
+                                        setState(() {});
+                                      },
                                     );
 
                                   case StyleTab.multimedia:
-                                    return card(
-                                      icon: Icons.play_lesson_rounded,
+                                    _StyleTabCard(
                                       title: 'Multimedia',
+                                      icon: Icons.play_lesson_rounded,
+                                      inverted: inverted,
                                       onPressed: () {
                                         // TODO: Implement Multimedia page.
-                                        MessagePopup.error(
-                                          'Not implemented yet',
-                                        );
                                       },
                                     );
 
                                   case StyleTab.elements:
-                                    return card(
-                                      icon: Icons.widgets_rounded,
+                                    _StyleTabCard(
                                       title: 'Elements',
+                                      icon: Icons.widgets_rounded,
+                                      inverted: inverted,
                                       onPressed: () {
                                         // TODO: Implement Elements page.
-                                        MessagePopup.error(
-                                          'Not implemented yet',
-                                        );
                                       },
                                     );
                                 }
+                                return null;
                               }),
                         ],
                       ),
@@ -222,6 +185,61 @@ class _StyleViewState extends State<StyleView> {
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Styled [OutlinedRoundedButton] used for [Routes.style] pages.
+class _StyleTabCard extends StatelessWidget {
+  const _StyleTabCard({
+    this.title,
+    this.icon,
+    this.onPressed,
+    this.inverted = false,
+  });
+
+  /// Title of this [_StyleTabCard].
+  final String? title;
+
+  /// Icon of this [_StyleTabCard].
+  final IconData? icon;
+
+  /// Indicator whether this [_StyleTabCard] should have its colors
+  /// inverted.
+  final bool inverted;
+
+  /// Callback, called when this [_StyleTabCard] is pressed.
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final fonts = Theme.of(context).fonts;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: OutlinedRoundedButton(
+        color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
+        onPressed: onPressed,
+        title: Row(
+          children: [
+            Icon(
+              icon,
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF1F3C5D),
+            ),
+            const SizedBox(width: 7),
+            if (title != null)
+              Text(
+                title!,
+                style: fonts.headlineLarge!.copyWith(
+                  color: inverted
+                      ? const Color(0xFFFFFFFF)
+                      : const Color(0xFF1F3C5D),
+                ),
+              ),
           ],
         ),
       ),
