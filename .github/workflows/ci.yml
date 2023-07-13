@@ -167,6 +167,12 @@ jobs:
 
       - run: make flutter.pub
 
+      # Authorize `git` in order for `PubspecBuilder` and its `git describe` to
+      # work.
+      - run: |
+          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --local user.name 'github-actions[bot]'
+
       - run: make flutter.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'web' }}
       - run: make flutter.build platform=${{ matrix.platform }}
