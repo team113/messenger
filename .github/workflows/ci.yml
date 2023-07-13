@@ -357,7 +357,7 @@ jobs:
       - uses: nanasess/setup-chromedriver@v1
       - run: |
           chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage |
-          grep -v ':INFO:CONSOLE(52564)] "dart.developer.log [object Object]", source: http://localhost:50000/dart_sdk.js (52564)' &
+          grep -v ':INFO:CONSOLE(52564)] ' &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
 
       # Grant permissions to `.cache/` dir created in the previous step, since
