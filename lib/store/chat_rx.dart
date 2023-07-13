@@ -715,9 +715,9 @@ class HiveRxChat extends RxChat {
             for (var a in nested.attachments.whereType<FileAttachment>()) {
               a.init();
             }
-            }
-      }
           }
+        }
+      }
     }
   }
 
@@ -900,7 +900,7 @@ class HiveRxChat extends RxChat {
 
   /// Re-fetches the [Attachment]s of the specified [item] to be up-to-date.
   Future<void> _updateAttachments(ChatItem item) async {
-    HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
+    HiveChatItem? stored = await get(item.id, key: item.key);
     if (stored != null) {
       List<Attachment> response = await _chatRepository.attachments(stored);
 
