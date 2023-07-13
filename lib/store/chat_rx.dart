@@ -969,15 +969,14 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.itemTextEdited:
               event as EventChatItemTextEdited;
               await _guard.protect(
-                () => Future.sync(() {
-                  // TODO: Implement `ChatItemId` to timestamp lookup table.
+                () async {
                   var message = _local.messages
                       .firstWhereOrNull((e) => e.value.id == event.itemId);
                   if (message != null) {
                     (message.value as ChatMessage).text = event.text;
                     message.save();
                   }
-                }),
+                },
               );
               break;
 
