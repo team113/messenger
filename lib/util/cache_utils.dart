@@ -111,6 +111,7 @@ class CacheUtilsImpl {
         if (await file.exists()) {
           final Uint8List bytes = await file.readAsBytes();
           if (sha256.convert(bytes).toString() == checksum) {
+            FIFOCache.set(checksum, bytes);
             return bytes;
           }
         }
@@ -194,22 +195,22 @@ class CacheUtilsImpl {
 
     List<Future> futures = [];
     for (var file in files) {
-      try {
-        futures.add(
-          Future(
-            () async {
+      futures.add(
+        Future(
+          () async {
+            try {
               final FileStat stat = await file.stat();
               await file.delete();
               cacheSize.value -= stat.size;
               _files.remove(file);
-            },
-          ),
-        );
-      } catch (_) {
-        // No-op.
-      }
+            } catch (_) {
+              // No-op.
+            }
+          },
+        ),
+      );
     }
-    Future.wait(futures);
+    await Future.wait(futures);
 
     _updateInfo();
   }
