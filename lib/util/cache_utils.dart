@@ -28,7 +28,6 @@ import 'package:mutex/mutex.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '/domain/model/cache_info.dart';
-import '/domain/service/disposable_service.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
@@ -39,9 +38,9 @@ import '/util/platform_utils.dart';
 CacheUtilsImpl CacheUtils = CacheUtilsImpl();
 
 /// Service maintaining downloading and caching.
-class CacheUtilsImpl extends DisposableService {
+class CacheUtilsImpl {
   /// Maximum allowed size of the [cacheDirectory] in bytes.
-  static const int maxSize = 1024 * 1024 * 1024; // 1 Gb
+  final int maxSize = 1024 * 1024 * 1024; // 1 GB
 
   /// Size of all files in the [cacheDirectory] in bytes.
   final RxInt cacheSize = RxInt(0);
@@ -67,7 +66,7 @@ class CacheUtilsImpl extends DisposableService {
     return _cacheDirectory!;
   }
 
-  /// Initializes this [CacheUtilsImpl].
+  /// Initializes this [CacheUtilsImpl] with initial [cacheInfo].
   Future<void> init(
     CacheInfo? cacheInfo,
     void Function(CacheInfo) onUpdate,
@@ -80,30 +79,7 @@ class CacheUtilsImpl extends DisposableService {
       final Directory cache = await cacheDirectory;
 
       if (cacheInfo?.modified != (await cache.stat()).modified) {
-        _files.clear();
-        cacheSize.value = 0;
-
-        _cacheSubscription = cache.list(recursive: true).listen(
-          (FileSystemEntity file) async {
-            if (file is File) {
-              _files.add(file);
-              cacheSize.value += (await file.stat()).size;
-            }
-          },
-          onDone: () async {
-            _onUpdate(
-              CacheInfo(
-                files: _files,
-                size: cacheSize.value,
-                modified: (await cache.stat()).modified,
-              ),
-            );
-            _optimizeCache();
-
-            _cacheSubscription?.cancel();
-            _cacheSubscription = null;
-          },
-        );
+        _updateInfo();
       }
     } on MissingPluginException {
       // No-op.
@@ -187,19 +163,21 @@ class CacheUtilsImpl extends DisposableService {
     if (!PlatformUtils.isWeb) {
       final Directory cache = await cacheDirectory;
       final File file = File('${cache.path}/$checksum');
-      await file.writeAsBytes(data);
+      if (!(await file.exists())) {
+        await file.writeAsBytes(data);
 
-      cacheSize.value += data.length;
-      _files.add(file);
-      _optimizeCache();
+        cacheSize.value += data.length;
+        _files.add(file);
+        _optimizeCache();
 
-      _onUpdate(
-        CacheInfo(
-          files: _files,
-          size: cacheSize.value,
-          modified: (await cache.stat()).modified,
-        ),
-      );
+        _onUpdate(
+          CacheInfo(
+            files: _files,
+            size: cacheSize.value,
+            modified: (await cache.stat()).modified,
+          ),
+        );
+      }
     }
   }
 
@@ -208,6 +186,64 @@ class CacheUtilsImpl extends DisposableService {
   bool exists(String checksum) {
     return FIFOCache.exists(checksum) ||
         _files.any((e) => e.path.endsWith(checksum));
+  }
+
+  /// Clears the [cacheDirectory].
+  Future<void> clear() async {
+    final List<FileSystemEntity> files = _files.toList();
+
+    List<Future> futures = [];
+    for (var file in files) {
+      try {
+        futures.add(
+          Future(
+            () async {
+              final FileStat stat = await file.stat();
+              await file.delete();
+              cacheSize.value -= stat.size;
+              _files.remove(file);
+            },
+          ),
+        );
+      } catch (_) {
+        // No-op.
+      }
+    }
+    Future.wait(futures);
+
+    _updateInfo();
+  }
+
+  /// Updates the [cacheSize] and [_files].
+  void _updateInfo() async {
+    final Directory cache = await cacheDirectory;
+
+    _files.clear();
+    cacheSize.value = 0;
+
+    _cacheSubscription?.cancel();
+    _cacheSubscription = cache.list(recursive: true).listen(
+      (FileSystemEntity file) async {
+        if (file is File) {
+          _files.add(file);
+          FileStat stat = await file.stat();
+          cacheSize.value += stat.size;
+        }
+      },
+      onDone: () async {
+        _onUpdate(
+          CacheInfo(
+            files: _files,
+            size: cacheSize.value,
+            modified: (await cache.stat()).modified,
+          ),
+        );
+        _optimizeCache();
+
+        _cacheSubscription?.cancel();
+        _cacheSubscription = null;
+      },
+    );
   }
 
   /// Deletes files from the [cacheDirectory] if it occupies more then

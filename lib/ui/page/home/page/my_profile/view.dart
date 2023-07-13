@@ -71,7 +71,7 @@ class MyProfileView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find(), Get.find()),
+      init: MyProfileController(Get.find(), Get.find()),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -1403,8 +1403,8 @@ Widget _storage(BuildContext context, MyProfileController c) {
           if (!PlatformUtils.isWeb) ...[
             const SizedBox(height: 8),
             Obx(() {
-              final int size = c.cacheInfo.value?.size ?? 0;
-              const int max = CacheUtilsImpl.maxSize;
+              final int size = CacheUtils.cacheSize.value;
+              final int max = CacheUtils.maxSize;
 
               return Column(
                 children: [

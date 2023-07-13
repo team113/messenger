@@ -51,9 +51,6 @@ class CacheRepository extends DisposableInterface
     super.onClose();
   }
 
-  @override
-  Future<void> clear() => _cacheLocal.clear();
-
   /// Initializes [CacheInfoHiveProvider.boxEvents] subscription.
   Future<void> _initCacheSubscription() async {
     _cacheSubscription = StreamIterator(_cacheLocal.boxEvents);

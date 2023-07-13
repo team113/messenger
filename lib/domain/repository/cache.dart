@@ -24,9 +24,6 @@ abstract class AbstractCacheRepository {
   /// Returns the stored [CacheInfo].
   Rx<CacheInfo?> get cacheInfo;
 
-  /// Clears the stored [CacheInfo].
-  Future<void> clear();
-
   /// Sets the [CacheInfo] value.
   Future<void> update(CacheInfo cacheInfo);
 }
