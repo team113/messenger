@@ -197,6 +197,7 @@ btn_participants = Участники
 btn_participants_desc =
     Список
     участников
+btn_paste = Вставить
 btn_personalize = Персонализация
 btn_proceed = Продолжить
 btn_remove = Удалить
@@ -647,7 +648,6 @@ label_password_not_set_info = Для Вашего аккаунта не зада
 
     • в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файлов cookie.
 label_password_set = Пароль задан.
-label_paste = Вставить
 label_personalization = Персонализация
 label_phone = Телефон
 label_phone_confirmation_code_was_send =

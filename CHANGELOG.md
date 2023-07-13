@@ -27,7 +27,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Low signal icons. ([#454])
         - Device changed notifications. ([#472])
-    - Icons animation. ([#470])
+    - Clickable icons animating on hovers and clicks. ([#470])
 - Web:
     - Unread chats badge on favicon. ([#403])
 - Desktop:

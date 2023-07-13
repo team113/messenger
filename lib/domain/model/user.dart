@@ -165,6 +165,7 @@ class UserNum extends NewType<String> {
 
   factory UserNum(String val) {
     val = val.replaceAll(' ', '');
+
     if (val.length != 16) {
       throw const FormatException('Must be 16 characters long');
     } else if (!val.isNumericOnly) {

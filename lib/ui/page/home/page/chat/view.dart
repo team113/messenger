@@ -235,38 +235,58 @@ class _ChatViewState extends State<ChatView>
                               ),
                             ];
                           } else {
+                            final Widget child;
+
+                            if (c.inCall) {
+                              child = Container(
+                                key: const Key('Drop'),
+                                height: 32,
+                                width: 32,
+                                decoration: BoxDecoration(
+                                  color: style.colors.dangerColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgImage.asset(
+                                    'assets/icons/call_end.svg',
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              child = Container(
+                                key: const Key('Join'),
+                                height: 32,
+                                width: 32,
+                                decoration: BoxDecoration(
+                                  color: style.colors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgImage.asset(
+                                    'assets/icons/audio_call_start.svg',
+                                    width: 15,
+                                    height: 15,
+                                  ),
+                                ),
+                              );
+                            }
+
                             children = [
                               AnimatedButton(
-                                key: c.inCall
-                                    ? const Key('Drop')
-                                    : const Key('Join'),
+                                key: const Key('ActiveCallButton'),
                                 onPressed: c.inCall ? c.dropCall : c.joinCall,
-                                child: Container(
-                                  key: const Key('ActiveCallButton'),
-                                  height: 32,
-                                  width: 32,
-                                  decoration: BoxDecoration(
-                                    color: c.inCall
-                                        ? style.colors.dangerColor
-                                        : style.colors.primary,
-                                    shape: BoxShape.circle,
+                                child: AnimatedSwitcher(
+                                  duration: 300.milliseconds,
+                                  layoutBuilder: (current, previous) => Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      if (previous.isNotEmpty) previous.first,
+                                      if (current != null) current,
+                                    ],
                                   ),
-                                  child: Center(
-                                    child: AnimatedSwitcher(
-                                      duration: 300.milliseconds,
-                                      child: c.inCall
-                                          ? SvgImage.asset(
-                                              'assets/icons/call_end.svg',
-                                              width: 32,
-                                              height: 32,
-                                            )
-                                          : SvgImage.asset(
-                                              'assets/icons/audio_call_start.svg',
-                                              width: 15,
-                                              height: 15,
-                                            ),
-                                    ),
-                                  ),
+                                  child: child,
                                 ),
                               ),
                             ];

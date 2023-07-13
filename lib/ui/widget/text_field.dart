@@ -21,10 +21,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '/ui/widget/context_menu/menu.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'allow_overflow.dart';
 import 'animated_button.dart';
@@ -179,7 +180,7 @@ class ReactiveTextField extends StatelessWidget {
       final (style, fonts) = Theme.of(context).styles;
 
       return Obx(() {
-        bool hasSuffix = state.approvable ||
+        final bool hasSuffix = state.approvable ||
             suffix != null ||
             trailing != null ||
             !state.status.value.isEmpty;
@@ -189,12 +190,14 @@ class ReactiveTextField extends StatelessWidget {
               ? state.submit
               : onSuffixPressed,
           decorator: (child) {
-            return hasSuffix
-                ? Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: child,
-                  )
-                : child;
+            if (!hasSuffix) {
+              return child;
+            }
+
+            return Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: child,
+            );
           },
           child: ElasticAnimatedSwitcher(
             child: hasSuffix
@@ -298,17 +301,15 @@ class ReactiveTextField extends StatelessWidget {
                 isDense: dense ?? PlatformUtils.isMobile,
                 focusedBorder: state.editable.value
                     ? null
-                    : OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: style.colors.secondaryHighlightDarkest,
-                        ),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(100),
-                        ),
-                      ),
+                    : Theme.of(context).inputDecorationTheme.border,
                 floatingLabelStyle: state.editable.value
                     ? null
-                    : TextStyle(color: style.colors.secondaryHighlightDarkest),
+                    : Theme.of(context)
+                        .inputDecorationTheme
+                        .floatingLabelStyle!
+                        .copyWith(
+                          color: style.colors.secondaryHighlightDarkest,
+                        ),
                 prefixText: prefixText,
                 prefix: prefix,
                 fillColor: fillColor ?? style.colors.onPrimary,
@@ -336,12 +337,10 @@ class ReactiveTextField extends StatelessWidget {
               maxLines: maxLines,
               textInputAction: textInputAction,
               maxLength: maxLength,
-              contextMenuBuilder: (_, fieldState) {
-                context.mediaQuery.size.width;
-                final double dx =
-                    fieldState.contextMenuAnchors.primaryAnchor.dx;
-                final double dy =
-                    fieldState.contextMenuAnchors.primaryAnchor.dy;
+              contextMenuBuilder: (_, field) {
+                final double dx = field.contextMenuAnchors.primaryAnchor.dx;
+                final double dy = field.contextMenuAnchors.primaryAnchor.dy;
+
                 double qx = 0, qy = 0;
                 if (dx > (context.mediaQuery.size.width) - 70) qx = -1;
                 if (dy > (context.mediaQuery.size.height) - 70) qy = -1;
@@ -351,35 +350,37 @@ class ReactiveTextField extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     Positioned(
-                      left: fieldState.contextMenuAnchors.primaryAnchor.dx,
-                      top: fieldState.contextMenuAnchors.primaryAnchor.dy,
+                      left: field.contextMenuAnchors.primaryAnchor.dx,
+                      top: field.contextMenuAnchors.primaryAnchor.dy,
                       child: FractionalTranslation(
                         translation: offset,
-                        child: ContextMenu(actions: [
-                          ContextMenuButton(
-                            label: 'label_copy'.l10n,
-                            onPressed: () {
-                              fieldState.contextMenuAnchors.primaryAnchor;
-
-                              if (fieldState.copyEnabled) {
-                                fieldState.copySelection(
-                                  SelectionChangedCause.toolbar,
-                                );
-                              } else {
-                                PlatformUtils.copy(text: state.controller.text);
-                                fieldState.hideToolbar();
-                              }
-                            },
-                          ),
-                          if (fieldState.pasteEnabled)
+                        child: ContextMenu(
+                          actions: [
                             ContextMenuButton(
-                              label: 'label_paste'.l10n,
-                              onPressed: () async {
-                                await fieldState
-                                    .pasteText(SelectionChangedCause.toolbar);
+                              label: 'btn_copy'.l10n,
+                              onPressed: () {
+                                if (field.copyEnabled) {
+                                  field.copySelection(
+                                    SelectionChangedCause.toolbar,
+                                  );
+                                } else {
+                                  PlatformUtils.copy(
+                                    text: state.controller.text,
+                                  );
+                                  field.hideToolbar();
+                                }
+
+                                MessagePopup.success('label_copied'.l10n);
                               },
                             ),
-                        ]),
+                            if (field.pasteEnabled)
+                              ContextMenuButton(
+                                label: 'btn_paste'.l10n,
+                                onPressed: () => field
+                                    .pasteText(SelectionChangedCause.toolbar),
+                              ),
+                          ],
+                        ),
                       ),
                     )
                   ],
@@ -397,10 +398,10 @@ class ReactiveTextField extends StatelessWidget {
                     : Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                           child: Text(
                             state.error.value!,
-                            style: (this.style ?? fonts.labelMedium)!.copyWith(
+                            style: fonts.labelMedium!.copyWith(
                               color: style.colors.dangerColor,
                             ),
                           ),
