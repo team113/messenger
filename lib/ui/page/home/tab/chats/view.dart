@@ -36,6 +36,7 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -219,30 +220,33 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
 
-                      return AnimatedSwitcher(
-                        duration: 250.milliseconds,
-                        child: WidgetButton(
-                          key: c.searching.value
-                              ? const Key('CloseSearchButton')
-                              : const Key('SearchButton'),
-                          onPressed: c.searching.value
-                              ? () => c.closeSearch(c.groupCreating.isFalse)
-                              : () => c.startSearch(),
-                          child: Container(
+                      return AnimatedButton(
+                        key: c.searching.value
+                            ? const Key('CloseSearchButton')
+                            : const Key('SearchButton'),
+                        onPressed: c.searching.value
+                            ? () => c.closeSearch(c.groupCreating.isFalse)
+                            : () => c.startSearch(),
+                        decorator: (child) {
+                          return Container(
                             padding: const EdgeInsets.only(left: 20, right: 6),
                             height: double.infinity,
-                            child: c.searching.value
-                                ? Icon(
-                                    key: const Key('ArrowBack'),
-                                    Icons.arrow_back_ios_new,
-                                    size: 20,
-                                    color: style.colors.primary,
-                                  )
-                                : SvgImage.asset(
-                                    'assets/icons/search.svg',
-                                    width: 17.77,
-                                  ),
-                          ),
+                            child: child,
+                          );
+                        },
+                        child: AnimatedSwitcher(
+                          duration: 250.milliseconds,
+                          child: c.searching.value
+                              ? Icon(
+                                  key: const Key('ArrowBack'),
+                                  Icons.arrow_back_ios_new,
+                                  size: 20,
+                                  color: style.colors.primary,
+                                )
+                              : SvgImage.asset(
+                                  'assets/icons/search.svg',
+                                  width: 17.77,
+                                ),
                         ),
                       );
                     }),
@@ -272,7 +276,7 @@ class ChatsTabView extends StatelessWidget {
                       return Row(
                         children: [
                           if (child != null)
-                            WidgetButton(
+                            AnimatedButton(
                               key: c.searching.value
                                   ? const Key('CloseSearchButton')
                                   : null,
@@ -313,6 +317,7 @@ class ChatsTabView extends StatelessWidget {
                               selector: c.moreKey,
                               alignment: Alignment.topRight,
                               enablePrimaryTap: true,
+                              enableSecondaryTap: false,
                               margin:
                                   const EdgeInsets.only(bottom: 4, right: 0),
                               actions: [
@@ -326,11 +331,18 @@ class ChatsTabView extends StatelessWidget {
                                   onPressed: c.toggleSelecting,
                                 ),
                               ],
-                              child: Container(
-                                key: c.moreKey,
-                                padding:
-                                    const EdgeInsets.only(left: 12, right: 18),
-                                height: double.infinity,
+                              child: AnimatedButton(
+                                decorator: (child) {
+                                  return Container(
+                                    key: c.moreKey,
+                                    padding: const EdgeInsets.only(
+                                      left: 12,
+                                      right: 18,
+                                    ),
+                                    height: double.infinity,
+                                    child: child,
+                                  );
+                                },
                                 child: Icon(
                                   Icons.more_vert,
                                   color: style.colors.primary,

@@ -31,6 +31,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/user/widget/num.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -58,7 +59,6 @@ import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
 import 'timeline_switch/view.dart';
-import 'widget/copyable.dart';
 import 'widget/download_button.dart';
 
 /// View of the [Routes.me] page.
@@ -392,12 +392,7 @@ Widget _num(MyProfileController c) => _padding(
       Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CopyableTextField(
-            key: const Key('NumCopyable'),
-            state: c.num,
-            label: 'label_num'.l10n,
-            copy: c.myUser.value?.num.val,
-          ),
+          UserNumCopyable(c.myUser.value?.num),
           const SizedBox(height: 10),
         ],
       ),
