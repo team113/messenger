@@ -490,7 +490,7 @@ Future<void> _deletePhone(
     'label_delete_phone_number'.l10n,
     description: [
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
-      TextSpan(text: phone!.val, style: fonts.labelLarge),
+      TextSpan(text: phone?.val, style: fonts.labelLarge),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
   );

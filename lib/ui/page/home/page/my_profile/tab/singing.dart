@@ -574,7 +574,7 @@ class PhonesColumn extends StatelessWidget {
           text: confirmedPhones?.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: fonts.titleMedium?.copyWith(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
