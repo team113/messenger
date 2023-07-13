@@ -43,7 +43,7 @@ class _StyleViewState extends State<StyleView> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final fonts = Theme.of(context).fonts;
 
     return SafeArea(
       child: Scaffold(
@@ -52,7 +52,7 @@ class _StyleViewState extends State<StyleView> {
             Flexible(
               flex: 1,
               child: Container(
-                color: style.colors.onPrimary,
+                color: const Color(0xFFFFFFFF),
                 child: Column(
                   children: [
                     Expanded(
@@ -76,9 +76,7 @@ class _StyleViewState extends State<StyleView> {
                               itemBuilder: (context, i) {
                                 final StyleTab tab = StyleTab.values[i];
 
-                                final bool inverted =
-                                    tab == router.styleSection.value &&
-                                        router.route == Routes.style;
+                                final bool inverted = selectedTab == tab;
 
                                 Widget card({
                                   required String title,
@@ -97,14 +95,6 @@ class _StyleViewState extends State<StyleView> {
                                       onPressed: onPressed ??
                                           () {
                                             selectedTab = tab;
-
-                                            if (router.styleSection.value ==
-                                                tab) {
-                                              router.styleSection.refresh();
-                                            } else {
-                                              router.styleSection.value = tab;
-                                            }
-                                            router.me();
                                             setState(() {});
                                           },
                                       title: Row(
