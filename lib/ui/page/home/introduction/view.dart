@@ -196,7 +196,6 @@ class IntroductionView extends StatelessWidget {
                             key: const Key('NumCopyable'),
                             state: c.num,
                             label: 'label_num'.l10n,
-                            copy: c.myUser.value?.num.val,
                             style: fonts.headlineMedium,
                           ),
                   ),

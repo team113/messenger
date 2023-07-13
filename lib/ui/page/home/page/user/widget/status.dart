@@ -37,7 +37,6 @@ class UserStatusCopyable extends StatelessWidget {
         key: const Key('StatusField'),
         state: TextFieldState(text: status.val),
         label: 'label_status'.l10n,
-        copy: status.val,
       ),
     );
   }
