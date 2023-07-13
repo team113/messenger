@@ -306,8 +306,8 @@ class ReactiveTextField extends StatelessWidget {
                     ? null
                     : Theme.of(context)
                         .inputDecorationTheme
-                        .floatingLabelStyle!
-                        .copyWith(
+                        .floatingLabelStyle
+                        ?.copyWith(
                           color: style.colors.secondaryHighlightDarkest,
                         ),
                 prefixText: prefixText,
@@ -328,7 +328,7 @@ class ReactiveTextField extends StatelessWidget {
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: fonts.bodyLarge!.copyWith(fontSize: 0),
+                errorStyle: fonts.bodyLarge?.copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -400,8 +400,8 @@ class ReactiveTextField extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                           child: Text(
-                            state.error.value!,
-                            style: fonts.labelMedium!.copyWith(
+                            state.error.value ?? '',
+                            style: fonts.labelMedium?.copyWith(
                               color: style.colors.dangerColor,
                             ),
                           ),
