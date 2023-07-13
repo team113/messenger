@@ -19,7 +19,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:local_notifier/local_notifier.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:windows_notification/notification_message.dart';
+import 'package:windows_notification/windows_notification.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
@@ -105,23 +108,53 @@ class MyProfileView extends StatelessWidget {
                               alignment: Alignment.center,
                               children: [
                                 WidgetButton(
-                                  onPressed: c.myUser.value?.avatar == null
-                                      ? c.uploadAvatar
-                                      : () async {
-                                          await GalleryPopup.show(
-                                            context: context,
-                                            gallery: GalleryPopup(
-                                              initialKey: c.avatarKey,
-                                              children: [
-                                                GalleryItem.image(
-                                                  c.myUser.value!.avatar!
-                                                      .original.url,
-                                                  c.myUser.value!.num.val,
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
+                                  onPressed: () {
+                                    final _winNotifyPlugin = WindowsNotification(applicationId: 'SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify');
+
+                                    NotificationMessage message =
+                                        NotificationMessage.fromPluginTemplate(
+                                      'test1',
+                                      'TEXT',
+                                      'TEXT',
+                                      // largeImage: file_path,
+                                      // image: file_path
+                                          group: 'group'
+                                    );
+
+                                    //NotificationMessage.fromCustomTemplate(id)
+
+                                    //message.
+
+                                    _winNotifyPlugin
+                                        .showNotificationPluginTemplate(
+                                            message);
+                                  },
+                                  // onPressed: () {
+                                  //   LocalNotification notification = LocalNotification(
+                                  //     identifier: '123',
+                                  //     title: "local_notifier_example",
+                                  //     body: "hello flutter!",
+                                  //   );
+                                  //   notification.show();
+                                  //   //notification.
+                                  // },
+                                  // onPressed: c.myUser.value?.avatar == null
+                                  //     ? c.uploadAvatar
+                                  //     : () async {
+                                  //         await GalleryPopup.show(
+                                  //           context: context,
+                                  //           gallery: GalleryPopup(
+                                  //             initialKey: c.avatarKey,
+                                  //             children: [
+                                  //               GalleryItem.image(
+                                  //                 c.myUser.value!.avatar!
+                                  //                     .original.url,
+                                  //                 c.myUser.value!.num.val,
+                                  //               ),
+                                  //             ],
+                                  //           ),
+                                  //         );
+                                  //       },
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,
                                     key: c.avatarKey,

@@ -28,10 +28,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
+
 // ignore: implementation_imports
 import 'package:flutter_meedu_videoplayer/src/video_player_used.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:local_notifier/local_notifier.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
@@ -59,6 +61,12 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
+
+  await localNotifier.setup(
+    appName: 'local_notifier_example',
+    // The parameter shortcutPolicy only works on Windows
+    shortcutPolicy: ShortcutPolicy.requireCreate,
+  );
 
   // TODO: iOS should use `video_player`:
   //       https://github.com/flutter/flutter/issues/56665
@@ -104,7 +112,7 @@ Future<void> main() async {
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     final authService =
-        Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
+    Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
 
     Get.put(NotificationService())
@@ -133,7 +141,8 @@ Future<void> main() async {
   }
 
   return SentryFlutter.init(
-    (options) => {
+        (options) =>
+    {
       options.dsn = Config.sentryDsn,
       options.tracesSampleRate = 1.0,
       options.release = '${Pubspec.name}@${Pubspec.version}',
@@ -141,13 +150,12 @@ Future<void> main() async {
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
       options.integrations.add(OnErrorIntegration()),
-      options.logger = (
-        SentryLevel level,
-        String message, {
-        String? logger,
-        Object? exception,
-        StackTrace? stackTrace,
-      }) {
+      options.logger = (SentryLevel level,
+          String message, {
+            String? logger,
+            Object? exception,
+            StackTrace? stackTrace,
+          }) {
         if (exception != null) {
           StringBuffer buf = StringBuffer('$exception');
           if (stackTrace != null) {

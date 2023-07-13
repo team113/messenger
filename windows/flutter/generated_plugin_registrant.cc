@@ -11,6 +11,7 @@
 #include <desktop_drop/desktop_drop_plugin.h>
 #include <flutter_meedu_videoplayer/flutter_meedu_videoplayer_plugin_c_api.h>
 #include <fullscreen_window/fullscreen_window_plugin_c_api.h>
+#include <local_notifier/local_notifier_plugin.h>
 #include <medea_flutter_webrtc/medea_flutter_webrtc_plugin_c_api.h>
 #include <medea_jason/medea_jason_plugin.h>
 #include <media_kit_libs_windows_video/media_kit_libs_windows_video_plugin_c_api.h>
@@ -23,6 +24,7 @@
 #include <share_plus/share_plus_windows_plugin_c_api.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 #include <window_manager/window_manager_plugin.h>
+#include <windows_notification/windows_notification_plugin_c_api.h>
 #include <windows_taskbar/windows_taskbar_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
@@ -36,6 +38,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("FlutterMeeduVideoplayerPluginCApi"));
   FullscreenWindowPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FullscreenWindowPluginCApi"));
+  LocalNotifierPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("LocalNotifierPlugin"));
   MedeaFlutterWebrtcPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MedeaFlutterWebrtcPluginCApi"));
   MedeaJasonPluginRegisterWithRegistrar(
@@ -60,6 +64,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("UrlLauncherWindows"));
   WindowManagerPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("WindowManagerPlugin"));
+  WindowsNotificationPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("WindowsNotificationPluginCApi"));
   WindowsTaskbarPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("WindowsTaskbarPlugin"));
 }

@@ -981,6 +981,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  local_notifier:
+    dependency: "direct main"
+    description:
+      name: local_notifier
+      sha256: cc855aa6362c8840e3d3b35b1c3b058a3a8becdb2b03d5a9aa3f3a1e861f0a03
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.5"
   logging:
     dependency: transitive
     description:
@@ -2068,6 +2076,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.2"
+  windows_notification:
+    dependency: "direct main"
+    description:
+      name: windows_notification
+      sha256: "700427a38dc1814d67faa96a5d65d62abc4d233c3f6d37fd5b47eab1196ebb70"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   windows_taskbar:
     dependency: "direct main"
     description:
