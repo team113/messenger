@@ -1418,7 +1418,10 @@ Widget _storage(BuildContext context, MyProfileController c) {
                         backgroundColor: style.colors.background,
                       ),
                       Text(
-                        '${size ~/ 1024} KB / ${max ~/ 1024} KB',
+                        'label_gb_slash_gb'.l10nfmt({
+                          'value1': size / GB,
+                          'value2': max ~/ GB,
+                        }),
                         style: fonts.labelSmall,
                       ),
                     ],
@@ -1426,7 +1429,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                   const SizedBox(height: 8),
                   FieldButton(
                     onPressed: c.clearCache,
-                    text: 'Clear cache',
+                    text: 'btn_clear_cache'.l10n,
                     style: fonts.titleMedium!
                         .copyWith(color: style.colors.primary),
                   ),

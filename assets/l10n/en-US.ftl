@@ -154,6 +154,7 @@ btn_call_video_on_desc =
 btn_change = Change
 btn_change_avatar = Change avatar
 btn_change_password = Change password
+btn_clear_cache = Clear cache
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
@@ -521,6 +522,7 @@ label_forwarded_messages = {$count ->
    *[other] Пересланные сообщения
 }
 label_gallery = Gallery
+label_gb_slash_gb = { NUMBER($value1, minimumIntegerDigits: 1, maximumFractionDigits: 2) } GB / { NUMBER($value2, minimumIntegerDigits: 1, maximumFractionDigits: 0) } GB
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}

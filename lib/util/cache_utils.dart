@@ -37,10 +37,14 @@ import '/util/platform_utils.dart';
 // ignore: non_constant_identifier_names
 CacheUtilsImpl CacheUtils = CacheUtilsImpl();
 
+/// One gigabyte in bytes.
+// ignore: constant_identifier_names
+const int GB = 1024 * 1024 * 1024;
+
 /// Service maintaining downloading and caching.
 class CacheUtilsImpl {
   /// Maximum allowed size of the [cacheDirectory] in bytes.
-  final int maxSize = 1024 * 1024 * 1024; // 1 GB
+  final int maxSize = GB;
 
   /// Size of all files in the [cacheDirectory] in bytes.
   final RxInt cacheSize = RxInt(0);
