@@ -16,11 +16,16 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/switch_field.dart';
+import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../../../widget/svg/svg.dart';
+import '../../widget/confirm_dialog.dart';
+import '../../widget/field_button.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -209,36 +214,8 @@ class MyProfileView extends StatelessWidget {
                               onCreate: c.updateUserLogin,
                             ),
                             const SizedBox(height: 10),
-                            EmailsColumn(
-                              confirmedEmails: c.myUser.value?.emails.confirmed,
-                              text: c.myUser.value?.emails.unconfirmed?.val,
-                              hasUnconfirmed:
-                                  c.myUser.value?.emails.unconfirmed != null,
-                              onTrailingPressed: () => _deleteEmail(
-                                c,
-                                context,
-                                c.myUser.value!.emails.unconfirmed!,
-                              ),
-                              onPressed: () => AddEmailView.show(
-                                context,
-                                email: c.myUser.value?.emails.unconfirmed!,
-                              ),
-                            ),
-                            PhonesColumn(
-                              confirmedPhones: c.myUser.value?.phones.confirmed,
-                              text: c.myUser.value?.phones.unconfirmed?.val,
-                              hasUnconfirmed:
-                                  c.myUser.value?.phones.unconfirmed != null,
-                              onPressed: () => AddPhoneView.show(
-                                context,
-                                phone: c.myUser.value?.phones.unconfirmed,
-                              ),
-                              onTrailingPressed: () => _deletePhone(
-                                c,
-                                context,
-                                c.myUser.value?.phones.unconfirmed,
-                              ),
-                            ),
+                            _emails(c, context),
+                            _phones(c, context),
                             ProfilePassword(
                               hasPassword: c.myUser.value!.hasPassword,
                             ),
@@ -452,6 +429,310 @@ class MyProfileView extends StatelessWidget {
       },
     );
   }
+}
+
+/// Returns addable list of [MyUser.emails].
+Widget _emails(MyProfileController c, BuildContext context) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Obx(() {
+    final List<Widget> widgets = [];
+
+    for (UserEmail e in c.myUser.value?.emails.confirmed ?? []) {
+      widgets.add(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FieldButton(
+              key: const Key('ConfirmedEmail'),
+              text: e.val,
+              hint: 'label_email'.l10n,
+              onPressed: () {
+                PlatformUtils.copy(text: e.val);
+                MessagePopup.success('label_copied'.l10n);
+              },
+              onTrailingPressed: () => _deleteEmail(c, context, e),
+              trailing: Transform.translate(
+                key: const Key('DeleteEmail'),
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'label_email_visible'.l10n,
+                      style: fonts.bodySmall!.copyWith(
+                        color: style.colors.secondary,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+                      style: fonts.bodySmall!.copyWith(
+                        color: style.colors.primary,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await ConfirmDialog.show(
+                            context,
+                            title: 'label_email'.l10n,
+                            additional: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'label_visible_to'.l10n,
+                                  style: fonts.headlineMedium,
+                                ),
+                              ),
+                            ],
+                            label: 'label_confirm'.l10n,
+                            initial: 2,
+                            variants: [
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('label_all'.l10n),
+                              ),
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('label_my_contacts'.l10n),
+                              ),
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('label_nobody'.l10n),
+                              ),
+                            ],
+                          );
+                        },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    if (c.myUser.value?.emails.unconfirmed != null) {
+      widgets.addAll([
+        Theme(
+          data: Theme.of(context).copyWith(
+            inputDecorationTheme:
+                Theme.of(context).inputDecorationTheme.copyWith(
+                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
+                        color: style.colors.primary,
+                      ),
+                    ),
+          ),
+          child: FieldButton(
+            key: const Key('UnconfirmedEmail'),
+            text: c.myUser.value!.emails.unconfirmed!.val,
+            hint: 'label_verify_email'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              ),
+            ),
+            onPressed: () => AddEmailView.show(
+              context,
+              email: c.myUser.value!.emails.unconfirmed!,
+            ),
+            onTrailingPressed: () => _deleteEmail(
+              c,
+              context,
+              c.myUser.value!.emails.unconfirmed!,
+            ),
+            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+          ),
+        ),
+      ]);
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    if (c.myUser.value?.emails.unconfirmed == null) {
+      widgets.add(
+        FieldButton(
+          key: c.myUser.value?.emails.confirmed.isNotEmpty == true
+              ? const Key('AddAdditionalEmail')
+              : const Key('AddEmail'),
+          text: c.myUser.value?.emails.confirmed.isNotEmpty == true
+              ? 'label_add_additional_email'.l10n
+              : 'label_add_email'.l10n,
+          onPressed: () => AddEmailView.show(context),
+          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
+    );
+  });
+}
+
+/// Returns addable list of [MyUser.emails].
+Widget _phones(MyProfileController c, BuildContext context) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Obx(() {
+    final List<Widget> widgets = [];
+
+    for (UserPhone e in [...c.myUser.value?.phones.confirmed ?? []]) {
+      widgets.add(
+        Column(
+          key: const Key('ConfirmedPhone'),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FieldButton(
+              text: e.val,
+              hint: 'label_phone_number'.l10n,
+              trailing: Transform.translate(
+                key: const Key('DeletePhone'),
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                ),
+              ),
+              onPressed: () {
+                PlatformUtils.copy(text: e.val);
+                MessagePopup.success('label_copied'.l10n);
+              },
+              onTrailingPressed: () => _deletePhone(c, context, e),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'label_phone_visible'.l10n,
+                      style: fonts.bodySmall!.copyWith(
+                        color: style.colors.secondary,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+                      style: fonts.bodySmall!.copyWith(
+                        color: style.colors.primary,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await ConfirmDialog.show(
+                            context,
+                            title: 'label_phone'.l10n,
+                            additional: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'label_visible_to'.l10n,
+                                  style: fonts.headlineMedium,
+                                ),
+                              ),
+                            ],
+                            label: 'label_confirm'.l10n,
+                            initial: 2,
+                            variants: [
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('label_all'.l10n),
+                              ),
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('label_my_contacts'.l10n),
+                              ),
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('label_nobody'.l10n),
+                              ),
+                            ],
+                          );
+                        },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    if (c.myUser.value?.phones.unconfirmed != null) {
+      widgets.addAll([
+        Theme(
+          data: Theme.of(context).copyWith(
+            inputDecorationTheme:
+                Theme.of(context).inputDecorationTheme.copyWith(
+                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
+                        color: style.colors.primary,
+                      ),
+                    ),
+          ),
+          child: FieldButton(
+            key: const Key('UnconfirmedPhone'),
+            text: c.myUser.value!.phones.unconfirmed!.val,
+            hint: 'label_verify_number'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              ),
+            ),
+            onPressed: () => AddPhoneView.show(
+              context,
+              phone: c.myUser.value!.phones.unconfirmed!,
+            ),
+            onTrailingPressed: () => _deletePhone(
+              c,
+              context,
+              c.myUser.value!.phones.unconfirmed!,
+            ),
+            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+          ),
+        ),
+      ]);
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    if (c.myUser.value?.phones.unconfirmed == null) {
+      widgets.add(
+        FieldButton(
+          key: c.myUser.value?.phones.confirmed.isNotEmpty == true
+              ? const Key('AddAdditionalPhone')
+              : const Key('AddPhone'),
+          onPressed: () => AddPhoneView.show(context),
+          text: c.myUser.value?.phones.confirmed.isNotEmpty == true
+              ? 'label_add_additional_number'.l10n
+              : 'label_add_number'.l10n,
+          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
+    );
+  });
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the
