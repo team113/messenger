@@ -231,12 +231,12 @@ class MyProfileView extends StatelessWidget {
                                   c.myUser.value?.phones.unconfirmed != null,
                               onPressed: () => AddPhoneView.show(
                                 context,
-                                phone: c.myUser.value?.phones.unconfirmed!,
+                                phone: c.myUser.value?.phones.unconfirmed,
                               ),
                               onTrailingPressed: () => _deletePhone(
                                 c,
                                 context,
-                                c.myUser.value!.phones.unconfirmed!,
+                                c.myUser.value?.phones.unconfirmed,
                               ),
                             ),
                             ProfilePassword(
@@ -482,7 +482,7 @@ Future<void> _deleteEmail(
 Future<void> _deletePhone(
   MyProfileController c,
   BuildContext context,
-  UserPhone phone,
+  UserPhone? phone,
 ) async {
   final fonts = Theme.of(context).fonts;
 
@@ -490,7 +490,7 @@ Future<void> _deletePhone(
     'label_delete_phone_number'.l10n,
     description: [
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
-      TextSpan(text: phone.val, style: fonts.labelLarge),
+      TextSpan(text: phone!.val, style: fonts.labelLarge),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
   );
