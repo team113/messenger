@@ -16,39 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-/// Underlined caption text with padding.
-class Caption extends StatelessWidget {
-  const Caption(
-    this.caption, {
-    Key? key,
-    this.color,
-  }) : super(key: key);
-
-  /// Message to display.
-  final String caption;
-
-  /// Color of the message.
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 60, 0, 10),
-        child: SelectableText(
-          caption,
-          style: context.theme.textTheme.bodyLarge!.copyWith(
-            color: color,
-            decoration: TextDecoration.underline,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 /// Adds the ability to get HEX value of the color.
 extension HexColor on Color {

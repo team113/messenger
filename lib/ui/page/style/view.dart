@@ -16,34 +16,219 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/util/message_popup.dart';
 
-import 'tab/color.dart';
-import 'tab/text.dart';
-import 'tab/element.dart';
+import '../../../routes.dart';
+import '../../widget/outlined_rounded_button.dart';
+import 'colors/view.dart';
+import 'fonts/view.dart';
+import 'widget/custom_switcher.dart';
 
 /// View of the [Routes.style] page.
-class StyleView extends StatelessWidget {
-  const StyleView({Key? key}) : super(key: key);
+class StyleView extends StatefulWidget {
+  const StyleView({super.key});
+
+  @override
+  State<StyleView> createState() => _StyleViewState();
+}
+
+///
+class _StyleViewState extends State<StyleView> {
+  /// Indicator whether this page is in dark mode.
+  bool isDarkMode = false;
+
+  ///
+  StyleTab selectedTab = StyleTab.colors;
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
+    final (style, fonts) = Theme.of(context).styles;
+
+    return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: const TabBar(
-            tabs: [
-              Tab(text: 'Шрифты'),
-              Tab(text: 'Цвета'),
-              Tab(text: 'Графика'),
-            ],
-          ),
-        ),
-        body: const TabBarView(
+        body: Row(
           children: [
-            FontStyleTabView(),
-            ColorStyleTabView(),
-            ElementStyleTabView(),
+            Flexible(
+              flex: 1,
+              child: Container(
+                color: style.colors.onPrimary,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: CustomScrollView(
+                        slivers: [
+                          SliverAppBar(
+                            expandedHeight: 70,
+                            leadingWidth: double.infinity,
+                            flexibleSpace: FlexibleSpaceBar(
+                              title: Text(
+                                'Style by Gapopa',
+                                style: fonts.headlineLarge!.copyWith(
+                                  color: const Color(0xFF1F3C5D),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SliverList.builder(
+                              itemCount: StyleTab.values.length,
+                              itemBuilder: (context, i) {
+                                final StyleTab tab = StyleTab.values[i];
+
+                                final bool inverted =
+                                    tab == router.styleSection.value &&
+                                        router.route == Routes.style;
+
+                                Widget card({
+                                  required String title,
+                                  required IconData? icon,
+                                  void Function()? onPressed,
+                                }) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    child: OutlinedRoundedButton(
+                                      color: inverted
+                                          ? const Color(0xFF1F3C5D)
+                                          : style.colors.onPrimary,
+                                      onPressed: onPressed ??
+                                          () {
+                                            selectedTab = tab;
+
+                                            if (router.styleSection.value ==
+                                                tab) {
+                                              router.styleSection.refresh();
+                                            } else {
+                                              router.styleSection.value = tab;
+                                            }
+                                            router.me();
+                                            setState(() {});
+                                          },
+                                      title: Row(
+                                        children: [
+                                          Icon(
+                                            icon,
+                                            color: inverted
+                                                ? style.colors.onPrimary
+                                                : const Color(0xFF1F3C5D),
+                                          ),
+                                          const SizedBox(width: 7),
+                                          Text(
+                                            title,
+                                            style:
+                                                fonts.headlineLarge!.copyWith(
+                                              color: inverted
+                                                  ? style.colors.onPrimary
+                                                  : const Color(0xFF1F3C5D),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                switch (tab) {
+                                  case StyleTab.colors:
+                                    return card(
+                                      title: 'Color palette',
+                                      icon: Icons.format_paint_rounded,
+                                    );
+
+                                  case StyleTab.typography:
+                                    return card(
+                                      icon: Icons.text_fields_rounded,
+                                      title: 'Typography',
+                                    );
+
+                                  case StyleTab.multimedia:
+                                    return card(
+                                      icon: Icons.play_lesson_rounded,
+                                      title: 'Multimedia',
+                                      onPressed: () {
+                                        // TODO: Implement Multimedia page.
+                                        MessagePopup.error(
+                                          'Not implemented yet',
+                                        );
+                                      },
+                                    );
+
+                                  case StyleTab.elements:
+                                    return card(
+                                      icon: Icons.widgets_rounded,
+                                      title: 'Elements',
+                                      onPressed: () {
+                                        // TODO: Implement Elements page.
+                                        MessagePopup.error(
+                                          'Not implemented yet',
+                                        );
+                                      },
+                                    );
+                                }
+                              }),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        const Divider(),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20, top: 10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.light_mode,
+                                  color: style.colors.warningColor),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: CustomSwitcher(
+                                  onChanged: (b) => setState(
+                                    () => isDarkMode = b,
+                                  ),
+                                ),
+                              ),
+                              const Icon(
+                                Icons.dark_mode,
+                                color: Color(0xFF1F3C5D),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Flexible(
+              flex: 4,
+              child: Container(
+                color: const Color(0xFFF5F5F5),
+                child: CustomScrollView(
+                  slivers: [
+                    SliverList(
+                      delegate: SliverChildListDelegate([
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 70),
+                          child: Column(
+                            children: [
+                              if (selectedTab == StyleTab.colors)
+                                ColorStyleView(isDarkMode: isDarkMode),
+                              if (selectedTab == StyleTab.typography)
+                                FontsView(isDarkMode: isDarkMode),
+                            ],
+                          ),
+                        ),
+                      ]),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
