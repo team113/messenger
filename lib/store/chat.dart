@@ -520,7 +520,7 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? chat = _chats[message.chatId];
 
     if (message.status.value != SendingStatus.sent) {
-      chat?.remove(message.id, message.timestamp);
+      chat?.remove(message.id, message.key);
     } else {
       Rx<ChatItem>? item =
           chat?.messages.firstWhereOrNull((e) => e.value.id == message.id);
@@ -532,7 +532,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatMessage(message.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.timestamp);
+          chat?.remove(item.value.id, item.value.key);
         }
       } catch (_) {
         if (item != null) {
@@ -565,7 +565,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatForward(forward.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.timestamp);
+          chat?.remove(item.value.id, item.value.key);
         }
       } catch (_) {
         if (item != null) {
@@ -595,7 +595,7 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.hideChatItem(id);
 
       if (item != null) {
-        chat?.remove(item.value.id, item.value.timestamp);
+        chat?.remove(item.value.id, item.value.key);
       }
     } catch (_) {
       if (item != null) {
@@ -1195,7 +1195,7 @@ class ChatRepository extends DisposableInterface
           HiveRxChat entry =
               HiveRxChat(this, _chatLocal, _draftLocal, event.value);
           _chats[chatId] = entry;
-          entry.init();
+          await entry.init();
           entry.subscribe();
         } else {
           if (chat.chat.value.isMonolog) {
@@ -1349,7 +1349,7 @@ class ChatRepository extends DisposableInterface
       if (entry == null) {
         entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
         _chats[data.chat.value.id] = entry;
-        entry.init();
+        await entry.init();
         entry.subscribe();
       }
     } else {

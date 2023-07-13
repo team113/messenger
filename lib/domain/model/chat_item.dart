@@ -39,7 +39,8 @@ abstract class ChatItem {
     this.at, {
     SendingStatus? status,
   }) : status = Rx(
-            status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent));
+          status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent),
+        );
 
   /// Unique ID of this [ChatItem].
   @HiveField(0)
@@ -60,9 +61,10 @@ abstract class ChatItem {
   /// [SendingStatus] of this [ChatItem].
   final Rx<SendingStatus> status;
 
-  /// Returns number of microseconds since the "Unix epoch" till
-  /// [PreciseDateTime] when this [ChatItem] was posted.
-  String get timestamp => at.microsecondsSinceEpoch.toString();
+  /// Returns combined from [at] and [id] unique identifier of this [ChatItem].
+  ///
+  /// Meant to be used as a key sorted by posting [DateTime] of this [ChatItem].
+  String get key => '${at.microsecondsSinceEpoch}_$id';
 }
 
 /// Message in a [Chat].

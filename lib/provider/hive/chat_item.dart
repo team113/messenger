@@ -87,13 +87,13 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
   Iterable<HiveChatItem> get messages => valuesSafe;
 
   /// Puts the provided [ChatItem] to [Hive].
-  Future<void> put(HiveChatItem item) => putSafe(item.value.timestamp, item);
+  Future<void> put(HiveChatItem item) => putSafe(item.value.key, item);
 
   /// Returns a [ChatItem] from [Hive] by its [timestamp].
-  HiveChatItem? get(String timestamp) => getSafe(timestamp);
+  HiveChatItem? get(String key) => getSafe(key);
 
   /// Removes a [ChatItem] from [Hive] by the provided [timestamp].
-  Future<void> remove(String timestamp) => deleteSafe(timestamp);
+  Future<void> remove(String key) => deleteSafe(key);
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].
