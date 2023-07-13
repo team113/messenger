@@ -98,7 +98,7 @@ class _CustomSwitcherState extends State<CustomSwitcher>
                   height: 22.0,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white,
+                    color: Color(0xFFFFFFFF),
                   ),
                 ),
               ],

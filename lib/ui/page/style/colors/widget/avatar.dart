@@ -29,12 +29,12 @@ class AvatarColors extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, _) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
+        color: isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
       ),
       width: MediaQuery.sizeOf(context).width,

@@ -61,8 +61,9 @@ class SmallHeader extends StatelessWidget {
         if (label != null)
           Text(
             label!,
-            style:
-                fonts.headlineLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+            style: fonts.headlineLarge!.copyWith(
+              color: const Color(0xFF1F3C5D),
+            ),
           ),
       ],
     );

@@ -38,7 +38,7 @@ class _StyleViewState extends State<StyleView> {
   /// Indicator whether this page is in dark mode.
   bool isDarkMode = false;
 
-  ///
+  /// Initial and current [StyleTab] page.
   StyleTab selectedTab = StyleTab.colors;
 
   @override
