@@ -158,6 +158,10 @@ class OutlinedRoundedButton extends StatelessWidget {
     //   ),
     // );
 
+    final BorderRadius borderRadius = BorderRadius.circular(
+      15 * 0.7 * ((height ?? 42) / 42),
+    );
+
     return Container(
       alignment: Alignment.center,
       constraints: BoxConstraints(
@@ -171,14 +175,14 @@ class OutlinedRoundedButton extends StatelessWidget {
             ? style.colors.secondaryHighlight
             : color ?? style.colors.onPrimary,
         gradient: gradient,
-        borderRadius: BorderRadius.circular(15 * 0.7),
+        borderRadius: borderRadius,
       ),
       child: Material(
         color: style.colors.transparent,
         elevation: elevation,
-        borderRadius: BorderRadius.circular(15 * 0.7),
+        borderRadius: borderRadius,
         child: InkWell(
-          borderRadius: BorderRadius.circular(15 * 0.7),
+          borderRadius: borderRadius,
           onTap: onPressed,
           onLongPress: onLongPress,
           hoverColor: style.colors.secondary.withOpacity(0.02),

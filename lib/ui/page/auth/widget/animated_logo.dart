@@ -44,7 +44,7 @@ class AnimatedLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     return SvgImage.asset(
       svgAsset,
-      height: 190 * 0.75,
+      height: 190 * 0.75 + 25,
       fit: BoxFit.contain,
       placeholderBuilder: (context) {
         return const Center(child: CustomProgressIndicator());

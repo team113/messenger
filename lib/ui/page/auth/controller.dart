@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart' show GlobalKey;
 import 'package:get/get.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:rive/rive.dart';
 
 import '/domain/service/auth.dart';
@@ -35,7 +36,9 @@ class AuthController extends GetxController {
   final AuthService _auth;
 
   /// Current logo's animation frame.
-  RxInt logoFrame = RxInt(0);
+  final RxInt logoFrame = RxInt(0);
+
+  final RxInt system = RxInt(0);
 
   /// [SMITrigger] triggering the blinking animation.
   SMITrigger? blink;
@@ -48,6 +51,25 @@ class AuthController extends GetxController {
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  @override
+  void onInit() {
+    system.value = (PlatformUtils.isIOS || PlatformUtils.isMacOS)
+        ? 0
+        : PlatformUtils.isAndroid
+            ? 1
+            : PlatformUtils.isLinux
+                ? 2
+                : 3;
+    super.onInit();
+  }
+
+  void systemUp() {
+    system.value++;
+    if (system.value > 3) {
+      system.value = 0;
+    }
+  }
 
   @override
   void onClose() {

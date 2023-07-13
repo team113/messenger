@@ -16,9 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -37,7 +40,10 @@ class LoginView extends StatelessWidget {
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const LoginView());
+    return ModalPopup.show(
+      context: context,
+      child: const LoginView(),
+    );
   }
 
   @override
@@ -55,7 +61,7 @@ class LoginView extends StatelessWidget {
           switch (c.stage.value) {
             case LoginViewStage.recovery:
               header = ModalPopupHeader(
-                onBack: () => c.stage.value = null,
+                onBack: () => c.stage.value = LoginViewStage.signIn,
                 text: 'label_recover_account'.l10n,
               );
 
@@ -86,7 +92,7 @@ class LoginView extends StatelessWidget {
 
             case LoginViewStage.recoveryCode:
               header = ModalPopupHeader(
-                onBack: () => c.stage.value = null,
+                onBack: () => c.stage.value = LoginViewStage.signIn,
                 text: 'label_recover_account'.l10n,
               );
 
@@ -118,7 +124,7 @@ class LoginView extends StatelessWidget {
 
             case LoginViewStage.recoveryPassword:
               header = ModalPopupHeader(
-                onBack: () => c.stage.value = null,
+                onBack: () => c.stage.value = LoginViewStage.signIn,
                 text: 'label_recover_account'.l10n,
               );
 
@@ -168,46 +174,43 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
-            case LoginViewStage.register:
-              header = ModalPopupHeader(
-                text: 'Sign up',
-                onBack: () => c.stage.value = null,
-              );
+            case LoginViewStage.signUp:
+              header = const ModalPopupHeader(text: 'Sign up');
 
               children = [
                 ReactiveTextField(
                   state: c.email,
-                  label: 'label_email'.l10n,
+                  label: 'E-mail or phone'.l10n,
                   style: fonts.bodyMedium,
                   treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 12),
-                ReactiveTextField(
-                  state: c.newPassword,
-                  label: 'label_password'.l10n,
-                  obscure: c.obscureNewPassword.value,
-                  style: fonts.bodyMedium,
-                  onSuffixPressed: c.obscureNewPassword.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ReactiveTextField(
-                  state: c.repeatPassword,
-                  label: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeatPassword.value,
-                  style: fonts.bodyMedium,
-                  onSuffixPressed: c.obscureRepeatPassword.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
-                  ),
-                ),
-                const SizedBox(height: 25),
+                // ReactiveTextField(
+                //   state: c.newPassword,
+                //   label: 'label_password'.l10n,
+                //   obscure: c.obscureNewPassword.value,
+                //   style: fonts.bodyMedium,
+                //   onSuffixPressed: c.obscureNewPassword.toggle,
+                //   treatErrorAsStatus: false,
+                //   trailing: SvgImage.asset(
+                //     'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
+                //     width: 17.07,
+                //   ),
+                // ),
+                // const SizedBox(height: 12),
+                // ReactiveTextField(
+                //   state: c.repeatPassword,
+                //   label: 'label_repeat_password'.l10n,
+                //   obscure: c.obscureRepeatPassword.value,
+                //   style: fonts.bodyMedium,
+                //   onSuffixPressed: c.obscureRepeatPassword.toggle,
+                //   treatErrorAsStatus: false,
+                //   trailing: SvgImage.asset(
+                //     'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
+                //     width: 17.07,
+                //   ),
+                // ),
+                // const SizedBox(height: 25),
                 Center(
                   child: Obx(() {
                     final bool enabled = !c.email.isEmpty.value &&
@@ -219,7 +222,7 @@ class LoginView extends StatelessWidget {
 
                     return OutlinedRoundedButton(
                       title: Text(
-                        'Proceed'.l10n,
+                        'Sign up'.l10n,
                         style: fonts.titleLarge!.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
@@ -232,12 +235,165 @@ class LoginView extends StatelessWidget {
                     );
                   }),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 25 / 2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('OR', style: fonts.headlineSmall),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25 / 2),
+                Center(
+                  child: OutlinedRoundedButton(
+                    title: Text(
+                      'Sign up with Apple'.l10n,
+                      style: fonts.titleLarge!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
+                    ),
+                    onPressed: () {},
+                    color: style.colors.primary,
+                    maxWidth: double.infinity,
+                    leading:
+                        SvgImage.asset('assets/icons/apple6.svg', height: 18),
+                  ),
+                ),
+                const SizedBox(height: 25 / 2),
+                Center(
+                  child: OutlinedRoundedButton(
+                    title: Text(
+                      'Sign up with Google'.l10n,
+                      style: fonts.titleLarge!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
+                    ),
+                    onPressed: () {},
+                    color: style.colors.primary,
+                    maxWidth: double.infinity,
+                    leading:
+                        SvgImage.asset('assets/icons/google4.svg', height: 18),
+                  ),
+                ),
+                const SizedBox(height: 25 / 2),
+                Center(
+                  child: OutlinedRoundedButton(
+                    title: Text(
+                      'Sign up with GitHub'.l10n,
+                      style: fonts.titleLarge!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
+                    ),
+                    onPressed: () {},
+                    color: style.colors.primary,
+                    maxWidth: double.infinity,
+                    leading:
+                        SvgImage.asset('assets/icons/google4.svg', height: 18),
+                  ),
+                ),
+                // const SizedBox(height: 25),
+                // const SizedBox(height: 25 / 2),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: Container(
+                //         height: 1,
+                //         width: double.infinity,
+                //         color: style.colors.secondaryHighlight,
+                //       ),
+                //     ),
+                //     const SizedBox(width: 8),
+                //     Text('OR', style: fonts.headlineSmall),
+                //     const SizedBox(width: 8),
+                //     Expanded(
+                //       child: Container(
+                //         height: 1,
+                //         width: double.infinity,
+                //         color: style.colors.secondaryHighlight,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 25),
+                // Center(
+                //   child: OutlinedRoundedButton(
+                //     title: Text(
+                //       'Sign in'.l10n,
+                //       style: fonts.titleLarge!.copyWith(
+                //         color: style.colors.onPrimary,
+                //       ),
+                //     ),
+                //     onPressed: () {},
+                //     color: style.colors.primary,
+                //     maxWidth: double.infinity,
+                //   ),
+                // ),
+                const SizedBox(height: 25 / 2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('OR', style: fonts.headlineSmall),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25 / 2),
+                Center(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Already have an account? '.l10n,
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.secondary,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'Sign in.'.l10n,
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.primary,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap =
+                                () => c.stage.value = LoginViewStage.signIn,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // const SizedBox(height: 16),
               ];
               break;
 
-            default:
-              header = ModalPopupHeader(text: 'label_entrance'.l10n);
+            case LoginViewStage.signIn:
+              header = ModalPopupHeader(text: 'Sign in'.l10n);
 
               children = [
                 if (c.recovered.value)
@@ -287,7 +443,7 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style: fonts.bodySmall!.copyWith(
+                          style: fonts.bodyMedium!.copyWith(
                             color: style.colors.primary,
                           ),
                         ),
@@ -295,17 +451,45 @@ class LoginView extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 25),
+                const SizedBox(height: 25 / 2),
+
                 Obx(() {
                   final bool enabled =
                       !c.login.isEmpty.value && !c.password.isEmpty.value;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
-                    title: 'btn_login'.l10n,
+                    title: 'Sign in'.l10n,
                     onPressed: enabled ? c.signIn : null,
                   );
+
+                  return FieldButton(
+                    text: 'Sign in',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: style.colors.primary),
+                    onPressed: enabled ? c.signIn : null,
+                  );
+
+                  // return Center(
+                  //   child: OutlinedRoundedButton(
+                  //     title: Text(
+                  //       'Sign in'.l10n,
+                  //       style: fonts.titleLarge!.copyWith(
+                  //         color: style.colors.onPrimary,
+                  //       ),
+                  //     ),
+                  //     onPressed: () {},
+                  //     color: style.colors.primary,
+                  //     maxWidth: double.infinity,
+                  //     // leading: Padding(
+                  //     //   padding: const EdgeInsets.only(bottom: 2),
+                  //     //   child:
+                  //     //       SvgImage.asset('assets/icons/apple.svg', width: 22),
+                  //     // ),
+                  //   ),
+                  // );
                 }),
+
                 const SizedBox(height: 25 / 2),
                 Row(
                   children: [
@@ -332,17 +516,126 @@ class LoginView extends StatelessWidget {
                 Center(
                   child: OutlinedRoundedButton(
                     title: Text(
-                      'Sign up'.l10n,
+                      'Sign in with Apple'.l10n,
                       style: fonts.titleLarge!.copyWith(
                         color: style.colors.onPrimary,
                       ),
                     ),
-                    onPressed: () => c.stage.value = LoginViewStage.register,
+                    onPressed: () {},
                     color: style.colors.primary,
                     maxWidth: double.infinity,
+                    leading:
+                        SvgImage.asset('assets/icons/apple6.svg', height: 18),
                   ),
                 ),
                 const SizedBox(height: 25 / 2),
+                Center(
+                  child: OutlinedRoundedButton(
+                    title: Text(
+                      'Sign in with Google'.l10n,
+                      style: fonts.titleLarge!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
+                    ),
+                    onPressed: () {},
+                    color: style.colors.primary,
+                    maxWidth: double.infinity,
+                    leading:
+                        SvgImage.asset('assets/icons/google4.svg', height: 18),
+                  ),
+                ),
+                const SizedBox(height: 25 / 2),
+                Center(
+                  child: OutlinedRoundedButton(
+                    title: Text(
+                      'Sign in with GitHub'.l10n,
+                      style: fonts.titleLarge!.copyWith(
+                        color: style.colors.onPrimary,
+                      ),
+                    ),
+                    onPressed: () {},
+                    color: style.colors.primary,
+                    maxWidth: double.infinity,
+                    leading:
+                        SvgImage.asset('assets/icons/google4.svg', height: 18),
+                  ),
+                ),
+                const SizedBox(height: 25 / 2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('OR', style: fonts.headlineSmall),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25 / 2),
+                Center(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Don\'t have an account? '.l10n,
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.secondary,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'Sign up.'.l10n,
+                          style: fonts.bodyMedium!.copyWith(
+                            color: style.colors.primary,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap =
+                                () => c.stage.value = LoginViewStage.signUp,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Center(
+                //   child: WidgetButton(
+                //     onPressed: () => c.stage.value = LoginViewStage.signUp,
+                //     child: Text(
+                //       'Sign up'.l10n,
+                //       style: fonts.bodySmall!.copyWith(
+                //         color: style.colors.primary,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 16),
+                // Center(
+                //   child: OutlinedRoundedButton(
+                //     title: Text(
+                //       'Get in with Apple'.l10n,
+                //       style: fonts.titleLarge!.copyWith(
+                //         color: style.colors.onPrimary,
+                //       ),
+                //     ),
+                //     onPressed: () {},
+                //     color: style.colors.primary,
+                //     maxWidth: double.infinity,
+                //     // leading: Padding(
+                //     //   padding: const EdgeInsets.only(bottom: 2),
+                //     //   child:
+                //     //       SvgImage.asset('assets/icons/apple.svg', width: 22),
+                //     // ),
+                //   ),
+                // ),
 
                 // const SizedBox(height: 8),
                 // Padding(
@@ -381,15 +674,29 @@ class LoginView extends StatelessWidget {
             child: Scrollbar(
               key: Key('${c.stage.value}'),
               controller: c.scrollController,
-              child: ListView(
-                controller: c.scrollController,
-                shrinkWrap: true,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  header,
-                  const SizedBox(height: 12),
-                  ...children.map((e) =>
-                      Padding(padding: ModalPopup.padding(context), child: e)),
-                  const SizedBox(height: 12),
+                  Flexible(
+                    child: ListView(
+                      controller: c.scrollController,
+                      shrinkWrap: true,
+                      children: [
+                        header,
+                        const SizedBox(height: 12),
+                        ...children.map((e) => Padding(
+                            padding: ModalPopup.padding(context), child: e)),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                  ),
+                  // if (c.stage.value == LoginViewStage.signIn &&
+                  //     !context.isNarrow)
+                  //   Container(
+                  //     width: 400,
+                  //     height: 400,
+                  //     color: Colors.red,
+                  // ),
                 ],
               ),
             ),

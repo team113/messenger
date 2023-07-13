@@ -108,6 +108,7 @@ class _FieldButtonState extends State<FieldButton> {
           child: Theme(
             data: _theme(context),
             child: ReactiveTextField(
+              withTrailing: widget.trailing != null,
               textAlign: widget.textAlign,
               state: TextFieldState(text: widget.text, editable: false),
               label: widget.label,

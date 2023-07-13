@@ -39,7 +39,8 @@ enum LoginViewStage {
   recovery,
   recoveryCode,
   recoveryPassword,
-  register,
+  signIn,
+  signUp,
 }
 
 /// [GetxController] of a [LoginView].
@@ -95,7 +96,7 @@ class LoginController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
   /// [LoginViewStage] currently being displayed.
-  final Rx<LoginViewStage?> stage = Rx(null);
+  final Rx<LoginViewStage> stage = Rx(LoginViewStage.signUp);
 
   /// Authentication service providing the authentication capabilities.
   final AuthService _authService;
@@ -157,7 +158,7 @@ class LoginController extends GetxController {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
-      onSubmitted: (s) => stage.value == LoginViewStage.register
+      onSubmitted: (s) => stage.value == LoginViewStage.signUp
           ? register()
           : resetUserPassword(),
     );
@@ -412,7 +413,7 @@ class LoginController extends GetxController {
       );
 
       recovered.value = true;
-      stage.value = null;
+      stage.value = LoginViewStage.signIn;
     } on FormatException {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {

@@ -135,7 +135,7 @@ class ModalPopupHeader extends StatelessWidget {
     this.onBack,
     this.onClose,
     this.header,
-    this.close = false,
+    this.close = true,
   });
 
   /// [Widget] to put as a title of this [ModalPopupHeader].
@@ -183,7 +183,7 @@ class ModalPopupHeader extends StatelessWidget {
             )
           else
             const Spacer(),
-          if (context.isMobile && close)
+          if (!context.isMobile || close)
             WidgetButton(
               key: const Key('CloseButton'),
               onPressed: onClose ?? Navigator.of(context).pop,

@@ -22,8 +22,8 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/widget/animated_button.dart';
 import '/util/platform_utils.dart';
-import 'animated_button.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatelessWidget {
@@ -52,7 +52,11 @@ class CustomNavigationBar extends StatelessWidget {
     final (style, fonts) = Theme.of(context).styles;
 
     // [AnimatedOpacity] boilerplate.
-    Widget tab({required Widget child, bool selected = false}) {
+    Widget tab({
+      required Widget child,
+      required void Function() onPressed,
+      bool selected = false,
+    }) {
       return AnimatedScale(
         duration: const Duration(milliseconds: 150),
         curve: Curves.bounceInOut,
@@ -60,7 +64,7 @@ class CustomNavigationBar extends StatelessWidget {
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 150),
           opacity: selected ? 1 : 0.7,
-          child: AnimatedButton(child: child),
+          child: AnimatedButton(onPressed: onPressed, child: child),
         ),
       );
     }
@@ -105,54 +109,46 @@ class CustomNavigationBar extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (b.child != null)
-                            InkResponse(
-                              hoverColor: style.colors.transparent,
-                              highlightColor: style.colors.transparent,
-                              splashColor: style.colors.transparent,
-                              onTap: () {
-                                onTap?.call(i);
-                                b.onPressed?.call();
-                              },
+                            tab(
+                              selected: currentIndex == i,
+                              onPressed: () => onTap?.call(i),
                               child: Container(
                                 width: 80,
                                 color: style.colors.transparent,
                                 child: Center(
-                                  child: tab(
-                                    selected: currentIndex == i,
-                                    child: Badge(
-                                      largeSize: 15,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 0,
-                                        horizontal: 4.4,
-                                      ),
-                                      offset: const Offset(2, -4),
-                                      label: b.badge == null
-                                          ? null
-                                          : Transform.translate(
-                                              offset: PlatformUtils.isWeb
-                                                  ? Offset(
-                                                      0,
-                                                      PlatformUtils.isIOS
-                                                          ? 0
-                                                          : 0.25,
-                                                    )
-                                                  : PlatformUtils.isDesktop
-                                                      ? const Offset(-0.1, -0.2)
-                                                      : Offset.zero,
-                                              child: Text(
-                                                b.badge!,
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                      textStyle: fonts.bodySmall!.copyWith(
-                                        color: style.colors.onPrimary,
-                                        fontSize: 9,
-                                      ),
-                                      backgroundColor: b.badgeColor ??
-                                          style.colors.dangerColor,
-                                      isLabelVisible: b.badge != null,
-                                      child: b.child!,
+                                  child: Badge(
+                                    largeSize: 15,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 0,
+                                      horizontal: 4.4,
                                     ),
+                                    offset: const Offset(2, -4),
+                                    label: b.badge == null
+                                        ? null
+                                        : Transform.translate(
+                                            offset: PlatformUtils.isWeb
+                                                ? Offset(
+                                                    0,
+                                                    PlatformUtils.isIOS
+                                                        ? 0
+                                                        : 0.25,
+                                                  )
+                                                : PlatformUtils.isDesktop
+                                                    ? const Offset(-0.1, -0.2)
+                                                    : Offset.zero,
+                                            child: Text(
+                                              b.badge!,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                    textStyle: fonts.bodySmall!.copyWith(
+                                      color: style.colors.onPrimary,
+                                      fontSize: 9,
+                                    ),
+                                    backgroundColor: b.badgeColor ??
+                                        style.colors.dangerColor,
+                                    isLabelVisible: b.badge != null,
+                                    child: b.child!,
                                   ),
                                 ),
                               ),
