@@ -67,7 +67,6 @@ class _CopyableNumFieldState extends State<CopyableNumField> {
             key: const Key('NumCopyable'),
             state: _state,
             label: 'label_num'.l10n,
-            copy: widget.num?.val,
           ),
           const SizedBox(height: 10),
         ],
