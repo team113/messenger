@@ -26,6 +26,8 @@ All user visible changes to this project will be documented in this file. This p
         - Multiple contacts selection. ([#361], [#348])
     - Media panel:
         - Low signal icons. ([#454])
+        - Device changed notifications. ([#472])
+    - Clickable icons animating on hovers and clicks. ([#470])
 - Web:
     - Unread chats badge on favicon. ([#403])
 - Desktop:
@@ -111,6 +113,8 @@ All user visible changes to this project will be documented in this file. This p
 [#463]: /../../pull/463
 [#467]: /../../pull/467
 [#468]: /../../pull/468
+[#470]: /../../pull/470
+[#472]: /../../pull/472
 
 
 
