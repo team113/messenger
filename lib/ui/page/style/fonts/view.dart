@@ -21,9 +21,11 @@ import '../widget/headers.dart';
 import 'widget/family.dart';
 import 'widget/style.dart';
 
+/// View of the [StyleTab.typography] page.
 class FontsView extends StatelessWidget {
   const FontsView({super.key, required this.isDarkMode});
 
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
   @override
@@ -34,10 +36,10 @@ class FontsView extends StatelessWidget {
         children: [
           const Header(label: 'Typography'),
           const SmallHeader(label: 'Font'),
-          FontFamiliesView(isDarkMode: isDarkMode),
+          FontFamiliesWidget(isDarkMode),
           const Divider(),
           const SmallHeader(label: 'Styles'),
-          FontStyleView(isDarkMode: isDarkMode),
+          FontStyleWidget(isDarkMode),
           const Divider(),
         ],
       ),

@@ -20,11 +20,11 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import 'color.dart';
 
-///
+/// Palette of application colors.
 class PaletteWidget extends StatelessWidget {
-  const PaletteWidget({super.key, this.isDarkMode = false});
+  const PaletteWidget(this.isDarkMode, {super.key});
 
-  /// Indicator whether this page is in dark mode.
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
   @override
@@ -35,7 +35,7 @@ class PaletteWidget extends StatelessWidget {
       width: MediaQuery.sizeOf(context).width,
       duration: const Duration(milliseconds: 400),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
+        color: isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(

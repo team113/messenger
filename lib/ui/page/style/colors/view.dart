@@ -21,11 +21,11 @@ import '../widget/headers.dart';
 import 'widget/avatar.dart';
 import 'widget/palette.dart';
 
-/// Colors view of the [Routes.style] page.
+/// View of the [StyleTab.colors] page.
 class ColorStyleView extends StatelessWidget {
-  const ColorStyleView({super.key, required this.isDarkMode});
+  const ColorStyleView(this.isDarkMode, {super.key});
 
-  ///
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
   @override
@@ -36,10 +36,10 @@ class ColorStyleView extends StatelessWidget {
         children: [
           const Header(label: 'Colors palette'),
           const SmallHeader(label: 'Application colors'),
-          PaletteWidget(isDarkMode: isDarkMode),
+          PaletteWidget(isDarkMode),
           const Divider(),
           const SmallHeader(label: 'Avatar colors'),
-          AvatarColors(isDarkMode: isDarkMode),
+          AvatarColors(isDarkMode),
           const Divider(),
         ],
       ),

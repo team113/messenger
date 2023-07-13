@@ -21,24 +21,27 @@ import 'package:flutter/services.dart';
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
-import '/util/to_hex_extension.dart';
 
-///
+/// Stylized [Container] of the provided [color].
 class ColorWidget extends StatelessWidget {
   const ColorWidget(
     this.isDarkMode,
     this.color, {
     super.key,
-    this.subtitle = '',
-    this.title = '',
+    this.title,
+    this.subtitle,
   });
 
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
+  /// Color to display.
   final Color color;
 
-  final String title;
+  /// Optional title of this [ColorWidget].
+  final String? title;
 
+  /// Optional subtitle of this [ColorWidget].
   final String? subtitle;
 
   @override
@@ -57,7 +60,9 @@ class ColorWidget extends StatelessWidget {
                 color.toHex(),
                 textAlign: TextAlign.start,
                 style: fonts.bodySmall!.copyWith(
-                  color: isDarkMode ? Colors.white : style.colors.onBackground,
+                  color: isDarkMode
+                      ? const Color(0xFFFFFFFF)
+                      : const Color(0xFF000000),
                 ),
               ),
             ],
@@ -65,7 +70,7 @@ class ColorWidget extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Tooltip(
-          message: subtitle,
+          message: subtitle ?? '',
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: WidgetButton(
@@ -99,16 +104,18 @@ class ColorWidget extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 17),
-              Expanded(
-                child: Text(
-                  title,
-                  textAlign: TextAlign.left,
-                  style: fonts.labelSmall!.copyWith(
-                    color:
-                        isDarkMode ? Colors.white : style.colors.onBackground,
+              if (title != null)
+                Expanded(
+                  child: Text(
+                    title!,
+                    textAlign: TextAlign.left,
+                    style: fonts.labelSmall!.copyWith(
+                      color: isDarkMode
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

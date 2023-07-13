@@ -19,11 +19,11 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-///
-class FontStyleView extends StatelessWidget {
-  const FontStyleView({super.key, required this.isDarkMode});
+/// Wrap with [_FontStyleContainer]s.
+class FontStyleWidget extends StatelessWidget {
+  const FontStyleWidget(this.isDarkMode, {super.key});
 
-  ///
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
   @override
@@ -35,83 +35,83 @@ class FontStyleView extends StatelessWidget {
       spacing: 16,
       runSpacing: 16,
       children: [
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'displayLarge',
           style: fonts.displayLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'displayMedium',
           style: fonts.displayMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'displaySmall',
           style: fonts.displaySmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'headlineLarge',
           style: fonts.headlineLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'headlineMedium',
           style: fonts.headlineMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'headlineSmall',
           style: fonts.headlineSmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'titleLarge',
           style: fonts.titleLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'titleMedium',
           style: fonts.titleMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'titleSmall',
           style: fonts.titleSmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'labelLarge',
           style: fonts.labelLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'labelMedium',
           style: fonts.labelMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'labelSmall',
           style: fonts.labelSmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'bodyLarge',
           style: fonts.bodyLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'bodyMedium',
           style: fonts.bodyMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'bodySmall',
           style: fonts.bodySmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontStyleContainer(
+          isDarkMode,
           label: 'linkStyle',
           style: style.linkStyle,
           color: 'Blue',
@@ -121,32 +121,37 @@ class FontStyleView extends StatelessWidget {
   }
 }
 
-class _FontWidget extends StatelessWidget {
-  const _FontWidget({
-    required this.isDarkMode,
-    required this.label,
+/// [AnimatedContainer] which represents [Text] with a specific [style].
+class _FontStyleContainer extends StatelessWidget {
+  const _FontStyleContainer(
+    this.isDarkMode, {
+    this.label,
     required this.style,
     this.color = 'Black',
   });
 
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
-  final String label;
+  /// Label of this [_FontStyleContainer].
+  final String? label;
 
+  /// Description that represents the color of the [style].
   final String color;
 
+  /// TextStyle defining the font style for this [_FontStyleContainer].
   final TextStyle style;
 
   @override
   Widget build(BuildContext context) {
-    final (styles, fonts) = Theme.of(context).styles;
+    final fonts = Theme.of(context).fonts;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       height: 270,
       width: 290,
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : styles.colors.onPrimary,
+        color: isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
@@ -155,18 +160,19 @@ class _FontWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 32),
-            Center(
-              child: Text(
-                label,
-                style: style.copyWith(
-                  color: isDarkMode
-                      ? styles.colors.onPrimary
-                      : styles.colors.onBackground,
+            if (label != null)
+              Center(
+                child: Text(
+                  label!,
+                  style: style.copyWith(
+                    color: isDarkMode
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 24),
-            Divider(color: isDarkMode ? styles.colors.onPrimary : null),
+            Divider(color: isDarkMode ? const Color(0xFFFFFFFF) : null),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -174,8 +180,8 @@ class _FontWidget extends StatelessWidget {
                 DefaultTextStyle(
                   style: fonts.bodySmall!.copyWith(
                     color: isDarkMode
-                        ? styles.colors.onPrimary
-                        : styles.colors.secondary,
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF888888),
                   ),
                   child: SizedBox(
                     height: 130,
@@ -191,7 +197,7 @@ class _FontWidget extends StatelessWidget {
                                 indent: 10,
                                 endIndent: 10,
                                 color:
-                                    isDarkMode ? styles.colors.onPrimary : null,
+                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
                               ),
                             ),
                           ],
@@ -205,7 +211,7 @@ class _FontWidget extends StatelessWidget {
                                 indent: 10,
                                 endIndent: 10,
                                 color:
-                                    isDarkMode ? styles.colors.onPrimary : null,
+                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
                               ),
                             ),
                           ],
@@ -215,12 +221,13 @@ class _FontWidget extends StatelessWidget {
                           children: [
                             const Text('Style'),
                             Expanded(
-                                child: Divider(
-                              indent: 10,
-                              endIndent: 10,
-                              color:
-                                  isDarkMode ? styles.colors.onPrimary : null,
-                            )),
+                              child: Divider(
+                                indent: 10,
+                                endIndent: 10,
+                                color:
+                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 10),
@@ -228,12 +235,13 @@ class _FontWidget extends StatelessWidget {
                           children: [
                             const Text('Color'),
                             Expanded(
-                                child: Divider(
-                              indent: 10,
-                              endIndent: 10,
-                              color:
-                                  isDarkMode ? styles.colors.onPrimary : null,
-                            )),
+                              child: Divider(
+                                indent: 10,
+                                endIndent: 10,
+                                color:
+                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 10),
@@ -241,12 +249,13 @@ class _FontWidget extends StatelessWidget {
                           children: [
                             const Text('Letter spacing'),
                             Expanded(
-                                child: Divider(
-                              indent: 10,
-                              endIndent: 10,
-                              color:
-                                  isDarkMode ? styles.colors.onPrimary : null,
-                            )),
+                              child: Divider(
+                                indent: 10,
+                                endIndent: 10,
+                                color:
+                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -256,8 +265,8 @@ class _FontWidget extends StatelessWidget {
                 DefaultTextStyle(
                   style: fonts.bodyMedium!.copyWith(
                     color: isDarkMode
-                        ? styles.colors.onPrimary
-                        : styles.colors.onBackground,
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -287,6 +296,7 @@ class _FontWidget extends StatelessWidget {
     );
   }
 
+  /// Returns the corresponding [fontWeight] name as a string.
   String _getFontWeightName(FontWeight? fontWeight) {
     String fontWeightStyle = '';
 

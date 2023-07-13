@@ -16,29 +16,28 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
-///
+/// Custom switch button.
 class CustomSwitcher extends StatefulWidget {
   const CustomSwitcher({super.key, this.onChanged});
 
-//// Called when the user toggles the switch on or off.
+  /// Called when the user toggles the switch on or off.
   final ValueChanged<bool>? onChanged;
 
   @override
   State<CustomSwitcher> createState() => _CustomSwitcherState();
 }
 
-///
+/// State of an [CustomSwitcher] used to animate its child.
 class _CustomSwitcherState extends State<CustomSwitcher>
     with SingleTickerProviderStateMixin {
   /// [AnimationController] of this [CustomSwitcher].
   late AnimationController _animationController;
 
-  ///
+  /// Animation for this [CustomSwitcher].
   late Animation<double> _animation;
 
-  ///
+  /// Current value of this [CustomSwitcher].
   bool _value = false;
 
   @override
@@ -73,8 +72,6 @@ class _CustomSwitcherState extends State<CustomSwitcher>
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return GestureDetector(
       onTap: _toggleValue,
       child: Container(
@@ -82,7 +79,7 @@ class _CustomSwitcherState extends State<CustomSwitcher>
         height: 30,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: _value ? const Color(0xFF1F3C5D) : Colors.orange[300],
+          color: _value ? const Color(0xFF1F3C5D) : const Color(0xFFFFB74D),
         ),
         child: Padding(
           padding: const EdgeInsets.all(4),
@@ -99,9 +96,9 @@ class _CustomSwitcherState extends State<CustomSwitcher>
                 Container(
                   width: 22.0,
                   height: 22.0,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: style.colors.onPrimary,
+                    color: Colors.white,
                   ),
                 ),
               ],

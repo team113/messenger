@@ -19,11 +19,11 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-///
-class FontFamiliesView extends StatelessWidget {
-  const FontFamiliesView({super.key, required this.isDarkMode});
+/// Column of application font families.
+class FontFamiliesWidget extends StatelessWidget {
+  const FontFamiliesWidget(this.isDarkMode, {super.key});
 
-  ///
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
   @override
@@ -32,22 +32,22 @@ class FontFamiliesView extends StatelessWidget {
 
     return Column(
       children: [
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        _FontFamilyContainer(
+          isDarkMode,
           label: 'SFUI-Light',
           textStyle: fonts.displayLarge!.copyWith(fontWeight: FontWeight.w300),
         ),
-        const SizedBox(height: 30),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        const SizedBox(height: 20),
+        _FontFamilyContainer(
+          isDarkMode,
           label: 'SFUI-Regular',
           textStyle: fonts.displayLarge!.copyWith(
             fontWeight: FontWeight.normal,
           ),
         ),
-        const SizedBox(height: 30),
-        _FontWidget(
-          isDarkMode: isDarkMode,
+        const SizedBox(height: 20),
+        _FontFamilyContainer(
+          isDarkMode,
           label: 'SFUI-Bold',
           textStyle: fonts.displayLarge!,
         ),
@@ -56,23 +56,26 @@ class FontFamiliesView extends StatelessWidget {
   }
 }
 
-///
-class _FontWidget extends StatelessWidget {
-  const _FontWidget({
+/// [AnimatedContainer] that displays a specific font family.
+class _FontFamilyContainer extends StatelessWidget {
+  const _FontFamilyContainer(
+    this.isDarkMode, {
     required this.textStyle,
-    required this.label,
-    required this.isDarkMode,
+    this.label,
   });
 
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
-  final String label;
+  /// Label of this [_FontFamilyContainer].
+  final String? label;
 
+  /// Text style of this [_FontFamilyContainer].
   final TextStyle textStyle;
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final fonts = Theme.of(context).fonts;
 
     return Stack(
       children: [
@@ -81,7 +84,7 @@ class _FontWidget extends StatelessWidget {
           duration: const Duration(milliseconds: 400),
           decoration: BoxDecoration(
             color:
-                isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
+                isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
@@ -89,8 +92,8 @@ class _FontWidget extends StatelessWidget {
             child: DefaultTextStyle(
               style: textStyle.copyWith(
                 color: isDarkMode
-                    ? style.colors.onPrimary
-                    : style.colors.onBackground,
+                    ? const Color(0xFFFFFFFF)
+                    : const Color(0xFF000000),
               ),
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -115,17 +118,18 @@ class _FontWidget extends StatelessWidget {
             ),
           ),
         ),
-        Positioned(
-          right: 20,
-          bottom: 0,
-          child: Text(
-            label,
-            style: fonts.displayLarge!.copyWith(
-              color: const Color(0xFFF5F5F5),
-              fontSize: 55,
+        if (label != null)
+          Positioned(
+            right: 20,
+            bottom: 0,
+            child: Text(
+              label!,
+              style: fonts.displayLarge!.copyWith(
+                color: const Color(0xFFF5F5F5),
+                fontSize: 55,
+              ),
             ),
           ),
-        ),
       ],
     );
   }

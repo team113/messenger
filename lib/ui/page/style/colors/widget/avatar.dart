@@ -20,11 +20,11 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import 'color.dart';
 
-///
+/// [Wrap] of avatar colors.
 class AvatarColors extends StatelessWidget {
-  const AvatarColors({super.key, required this.isDarkMode});
+  const AvatarColors(this.isDarkMode, {super.key});
 
-  ///
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
   @override

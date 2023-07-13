@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/util/message_popup.dart';
 
+import '/themes.dart';
+import '/util/message_popup.dart';
 import '../../../routes.dart';
 import '../../widget/outlined_rounded_button.dart';
 import 'colors/view.dart';
@@ -33,7 +33,7 @@ class StyleView extends StatefulWidget {
   State<StyleView> createState() => _StyleViewState();
 }
 
-///
+/// State of an [StyleView] maintaining the [isDarkMode] and [selectedTab].
 class _StyleViewState extends State<StyleView> {
   /// Indicator whether this page is in dark mode.
   bool isDarkMode = false;
@@ -59,11 +59,12 @@ class _StyleViewState extends State<StyleView> {
                       child: CustomScrollView(
                         slivers: [
                           SliverAppBar(
-                            expandedHeight: 70,
+                            expandedHeight: 75,
                             leadingWidth: double.infinity,
                             flexibleSpace: FlexibleSpaceBar(
                               title: Text(
                                 'Style by Gapopa',
+                                textAlign: TextAlign.center,
                                 style: fonts.headlineLarge!.copyWith(
                                   color: const Color(0xFF1F3C5D),
                                 ),
@@ -92,7 +93,7 @@ class _StyleViewState extends State<StyleView> {
                                     child: OutlinedRoundedButton(
                                       color: inverted
                                           ? const Color(0xFF1F3C5D)
-                                          : style.colors.onPrimary,
+                                          : const Color(0xFFFFFFFF),
                                       onPressed: onPressed ??
                                           () {
                                             selectedTab = tab;
@@ -111,7 +112,7 @@ class _StyleViewState extends State<StyleView> {
                                           Icon(
                                             icon,
                                             color: inverted
-                                                ? style.colors.onPrimary
+                                                ? const Color(0xFFFFFFFF)
                                                 : const Color(0xFF1F3C5D),
                                           ),
                                           const SizedBox(width: 7),
@@ -120,7 +121,7 @@ class _StyleViewState extends State<StyleView> {
                                             style:
                                                 fonts.headlineLarge!.copyWith(
                                               color: inverted
-                                                  ? style.colors.onPrimary
+                                                  ? const Color(0xFFFFFFFF)
                                                   : const Color(0xFF1F3C5D),
                                             ),
                                           ),
@@ -180,8 +181,10 @@ class _StyleViewState extends State<StyleView> {
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.light_mode,
-                                  color: style.colors.warningColor),
+                              const Icon(
+                                Icons.light_mode,
+                                color: Color(0xFFFFB74D),
+                              ),
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 10),
@@ -217,7 +220,7 @@ class _StyleViewState extends State<StyleView> {
                           child: Column(
                             children: [
                               if (selectedTab == StyleTab.colors)
-                                ColorStyleView(isDarkMode: isDarkMode),
+                                ColorStyleView(isDarkMode),
                               if (selectedTab == StyleTab.typography)
                                 FontsView(isDarkMode: isDarkMode),
                             ],

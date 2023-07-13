@@ -19,12 +19,12 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-///
+/// Header-styled [Text].
 class Header extends StatelessWidget {
-  const Header({super.key, this.label = ''});
+  const Header({super.key, this.label});
 
-  ///
-  final String label;
+  /// Label of this [Header].
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -33,21 +33,22 @@ class Header extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: fonts.displayLarge!.copyWith(color: const Color(0xFF1F3C5D)),
-        ),
+        if (label != null)
+          Text(
+            label!,
+            style: fonts.displayLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+          ),
       ],
     );
   }
 }
 
-///
+/// Small header-styled [Text].
 class SmallHeader extends StatelessWidget {
-  const SmallHeader({super.key, this.label = ''});
+  const SmallHeader({super.key, this.label});
 
-  ///
-  final String label;
+  /// Label of this [SmallHeader].
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +58,12 @@ class SmallHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const SizedBox(height: 50),
-        Text(
-          label,
-          style: fonts.headlineLarge!.copyWith(color: const Color(0xFF1F3C5D)),
-        ),
+        if (label != null)
+          Text(
+            label!,
+            style:
+                fonts.headlineLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+          ),
       ],
     );
   }
