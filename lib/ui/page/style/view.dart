@@ -17,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 
+import '/routes.dart';
 import '/themes.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/util/message_popup.dart';
-import '../../../routes.dart';
-import '../../widget/outlined_rounded_button.dart';
 import 'colors/view.dart';
 import 'fonts/view.dart';
 import 'widget/custom_switcher.dart';

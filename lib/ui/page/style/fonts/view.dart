@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../widget/headers.dart';
+import '/ui/page/style/widget/headers.dart';
 import 'widget/family.dart';
 import 'widget/style.dart';
 
