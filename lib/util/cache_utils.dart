@@ -103,7 +103,7 @@ class CacheUtilsImpl {
       return FIFOCache.get(checksum);
     }
 
-    return Future.sync(() async {
+    return Future(() async {
       if (checksum != null && !PlatformUtils.isWeb) {
         final Directory cache = await cacheDirectory;
         final File file = File('${cache.path}/$checksum');
