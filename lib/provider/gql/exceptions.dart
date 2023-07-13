@@ -817,7 +817,7 @@ class ConfirmUserEmailException
       case ConfirmUserEmailErrorCode.artemisUnknown:
         return 'err_data_transfer'.l10n;
       case ConfirmUserEmailErrorCode.occupied:
-        return 'err_wrong_recovery_code'.l10n;
+        return 'err_email_occupied'.l10n;
       case ConfirmUserEmailErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }

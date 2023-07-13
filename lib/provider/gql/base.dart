@@ -21,6 +21,7 @@ import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show DioError, Options, Response;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
+import 'package:universal_io/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '/config.dart';
@@ -29,6 +30,9 @@ import '/store/model/version.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'exceptions.dart';
+import 'websocket/interface.dart'
+    if (dart.library.io) 'websocket/io.dart'
+    if (dart.library.html) 'websocket/web.dart' as websocket;
 
 /// Base GraphQl provider.
 class GraphQlProviderBase {
@@ -52,7 +56,7 @@ class GraphQlProviderBase {
   set token(AccessToken? value) => _client.token = value;
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
-  void reconnect() => _client.reconnect();
+  Future<void> reconnect() => _client.reconnect();
 
   /// Disconnects the [client] and disposes the connection.
   void disconnect() => _client.disconnect();
@@ -129,7 +133,7 @@ class GraphQlClient {
       if (_client != null && _currentToken == token) {
         return _client!;
       } else {
-        _client = _newClient();
+        _client = await _newClient();
         _currentToken = token;
         return _client!;
       }
@@ -139,8 +143,10 @@ class GraphQlClient {
   /// Resolves a single query according to the [QueryOptions] specified and
   /// returns a [Future] which resolves with the [QueryResult] or throws an
   /// [Exception].
-  Future<QueryResult> query(QueryOptions options,
-          [Exception Function(Map<String, dynamic>)? handleException]) =>
+  Future<QueryResult> query(
+    QueryOptions options, [
+    Exception Function(Map<String, dynamic>)? handleException,
+  ]) =>
       _middleware(() async {
         QueryResult result =
             await (await client).query(options).timeout(timeout);
@@ -161,7 +167,7 @@ class GraphQlClient {
   }) async {
     if (raw) {
       QueryResult result =
-          await _newClient(true).mutate(options).timeout(timeout);
+          await (await _newClient(true)).mutate(options).timeout(timeout);
       GraphQlProviderExceptions.fire(result, onException);
       return result;
     } else {
@@ -195,7 +201,7 @@ class GraphQlClient {
         authorized.headers!['Authorization'] = 'Bearer $token';
 
         try {
-          return await PlatformUtils.dio.post<T>(
+          return await (await PlatformUtils.dio).post<T>(
             '${Config.url}:${Config.port}${Config.graphql}',
             data: data,
             options: authorized,
@@ -215,9 +221,9 @@ class GraphQlClient {
       });
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
-  void reconnect() {
+  Future<void> reconnect() async {
     if (_client == null || _currentToken != token) {
-      _client = _newClient();
+      _client = await _newClient();
       _currentToken = token;
     }
   }
@@ -291,12 +297,12 @@ class GraphQlClient {
     // Try to reconnect again in [_reconnectPeriodMillis].
     _backoffTimer = Timer(
       Duration(milliseconds: _reconnectPeriodMillis),
-      () {
+      () async {
         if (_reconnectPeriodMillis == 0) {
           _reconnectPeriodMillis = minReconnectPeriodMillis ~/ 2;
         }
 
-        _client = _newClient();
+        _client = await _newClient();
 
         // Populate the [_checkConnectionTimer] to check if any connection was
         // established and attempt to reconnect again if not.
@@ -310,17 +316,28 @@ class GraphQlClient {
   }
 
   /// Populates the [_wsLink] with a new [WebSocketLink].
-  void _newWebSocket() {
+  Future<void> _newWebSocket() async {
     _wsLink = WebSocketLink(
       Config.ws,
       config: SocketClientConfig(
         initialPayload: {'ticket': token?.val},
+        headers: {
+          if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
+        },
         autoReconnect: false,
         delayBetweenReconnectionAttempts: null,
         inactivityTimeout: const Duration(seconds: 15),
         connectFn: (Uri uri, Iterable<String>? protocols) async {
-          var socket =
-              WebSocketChannel.connect(uri, protocols: protocols).forGraphQL();
+          var socket = websocket
+              .connect(
+                uri,
+                protocols: protocols,
+                customClient: PlatformUtils.isWeb
+                    ? null
+                    : (HttpClient()..userAgent = await PlatformUtils.userAgent),
+              )
+              .forGraphQL();
+
           socket.stream = socket.stream.handleError((_, __) => false);
 
           _channelSubscription = socket.stream.listen(
@@ -362,8 +379,13 @@ class GraphQlClient {
   }
 
   /// Creates a new [GraphQLClient].
-  GraphQLClient _newClient([bool raw = false]) {
-    final httpLink = HttpLink('${Config.url}:${Config.port}${Config.graphql}');
+  Future<GraphQLClient> _newClient([bool raw = false]) async {
+    final httpLink = HttpLink(
+      '${Config.url}:${Config.port}${Config.graphql}',
+      defaultHeaders: {
+        if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
+      },
+    );
     final AuthLink authLink = AuthLink(getToken: () => 'Bearer $token');
     final Link httpAuthLink =
         token != null ? authLink.concat(httpLink) : httpLink;
@@ -375,7 +397,7 @@ class GraphQlClient {
 
       // WebSocket connection is meaningful only if the token is provided.
       if (token != null) {
-        _newWebSocket();
+        await _newWebSocket();
         link = Link.split(
           (request) => request.isSubscription,
           _wsLink!,

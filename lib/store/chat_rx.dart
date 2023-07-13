@@ -155,6 +155,9 @@ class HiveRxChat extends RxChat {
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
 
+  /// [Mutex]es guarding synchronized access to the [updateAttachments].
+  final Map<ChatItemId, Mutex> _attachmentGuards = {};
+
   /// [CancelToken] for cancelling the [Pagination.around] query.
   final CancelToken _aroundToken = CancelToken();
 
@@ -390,53 +393,24 @@ class HiveRxChat extends RxChat {
       return;
     }
 
-    final HiveChatItem? stored = await get(item.id, key: item.key);
-    if (stored != null) {
-      List<Attachment> response = await _chatRepository.attachments(stored);
-
-      void replace(Attachment a) {
-        Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
-        if (fetched != null) {
-          a.original = fetched.original;
-          if (a is ImageAttachment && fetched is ImageAttachment) {
-            a.big = fetched.big;
-            a.medium = fetched.medium;
-            a.small = fetched.small;
-          }
-        }
-      }
-
-      final List<Attachment> all = [];
-
-      if (item is ChatMessage) {
-        all.addAll(item.attachments);
-        for (ChatItemQuote replied in item.repliesTo) {
-          if (replied is ChatMessageQuote) {
-            all.addAll(replied.attachments);
-          }
-        }
-      } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
-        if (nested is ChatMessageQuote) {
-          all.addAll(nested.attachments);
-
-          if (nested.original != null) {
-            for (ChatItemQuote replied
-                in (nested.original as ChatMessage).repliesTo) {
-              if (replied is ChatMessageQuote) {
-                all.addAll(replied.attachments);
-              }
-            }
-          }
-        }
-      }
-
-      for (Attachment a in all) {
-        replace(a);
-      }
-
-      put(stored, ignoreVersion: true);
+    Mutex? mutex = _attachmentGuards[item.id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _attachmentGuards[item.id] = mutex;
     }
+
+    final bool isLocked = mutex.isLocked;
+    await mutex.protect(() async {
+      if (isLocked) {
+        // Mutex has been already locked when tried to obtain it, thus the
+        // [Attachment]s of the [item] were already updated, so no action is
+        // required.
+        return;
+      }
+
+      await _updateAttachments(item);
+      _attachmentGuards.remove(item.id);
+    });
   }
 
   /// Marks this [RxChat] as read until the provided [ChatItem] for the
@@ -741,7 +715,66 @@ class HiveRxChat extends RxChat {
             for (var a in nested.attachments.whereType<FileAttachment>()) {
               a.init();
             }
+            }
+      }
           }
+    }
+  }
+
+  /// Removes all [ChatItem]s from the [messages].
+  Future<void> clear() => _local.clear();
+
+  @override
+  int compareTo(RxChat other) {
+    if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall == null) {
+      return -1;
+    } else if (chat.value.ongoingCall == null &&
+        other.chat.value.ongoingCall != null) {
+      return 1;
+    } else if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall != null) {
+      return chat.value.ongoingCall!.at
+          .compareTo(other.chat.value.ongoingCall!.at);
+    }
+
+    if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition == null) {
+      return -1;
+    } else if (chat.value.favoritePosition == null &&
+        other.chat.value.favoritePosition != null) {
+      return 1;
+    } else if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition != null) {
+      return chat.value.favoritePosition!
+          .compareTo(other.chat.value.favoritePosition!);
+    }
+
+    if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
+      return 1;
+    } else if (!chat.value.id.isLocalWith(me) &&
+        other.chat.value.id.isLocalWith(me)) {
+      return -1;
+    }
+
+    return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
+  }
+
+  /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
+  Future<void> _initAttachments() async {
+    final List<Future> futures = [];
+
+    for (ChatItem item in messages.map((e) => e.value)) {
+      if (item is ChatMessage) {
+        futures.addAll(
+          item.attachments.whereType<FileAttachment>().map((e) => e.init()),
+        );
+      } else if (item is ChatForward) {
+        ChatItemQuote nested = item.quote;
+        if (nested is ChatMessageQuote) {
+          futures.addAll(
+            nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
+          );
         }
       }
 
@@ -863,6 +896,57 @@ class HiveRxChat extends RxChat {
         .lastWhereOrNull((e) => e.value is! ChatInfo && e.value.at <= at)
         ?.value
         .at;
+  }
+
+  /// Re-fetches the [Attachment]s of the specified [item] to be up-to-date.
+  Future<void> _updateAttachments(ChatItem item) async {
+    HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
+    if (stored != null) {
+      List<Attachment> response = await _chatRepository.attachments(stored);
+
+      void replace(Attachment a) {
+        Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
+        if (fetched != null) {
+          a.original = fetched.original;
+          if (a is ImageAttachment && fetched is ImageAttachment) {
+            a.big = fetched.big;
+            a.medium = fetched.medium;
+            a.small = fetched.small;
+          }
+        }
+      }
+
+      final List<Attachment> all = [];
+
+      if (item is ChatMessage) {
+        all.addAll(item.attachments);
+        for (ChatItemQuote replied in item.repliesTo) {
+          if (replied is ChatMessageQuote) {
+            all.addAll(replied.attachments);
+          }
+        }
+      } else if (item is ChatForward) {
+        ChatItemQuote nested = item.quote;
+        if (nested is ChatMessageQuote) {
+          all.addAll(nested.attachments);
+
+          if (nested.original != null) {
+            for (ChatItemQuote replied
+                in (nested.original as ChatMessage).repliesTo) {
+              if (replied is ChatMessageQuote) {
+                all.addAll(replied.attachments);
+              }
+            }
+          }
+        }
+      }
+
+      for (Attachment a in all) {
+        replace(a);
+      }
+
+      put(stored, ignoreVersion: true);
+    }
   }
 
   /// Initializes [ChatItemHiveProvider.boxEvents] subscription.
@@ -1291,42 +1375,6 @@ class HiveRxChat extends RxChat {
         }
         break;
     }
-  }
-
-  @override
-  int compareTo(RxChat other) {
-    if (chat.value.ongoingCall != null &&
-        other.chat.value.ongoingCall == null) {
-      return -1;
-    } else if (chat.value.ongoingCall == null &&
-        other.chat.value.ongoingCall != null) {
-      return 1;
-    } else if (chat.value.ongoingCall != null &&
-        other.chat.value.ongoingCall != null) {
-      return chat.value.ongoingCall!.at
-          .compareTo(other.chat.value.ongoingCall!.at);
-    }
-
-    if (chat.value.favoritePosition != null &&
-        other.chat.value.favoritePosition == null) {
-      return -1;
-    } else if (chat.value.favoritePosition == null &&
-        other.chat.value.favoritePosition != null) {
-      return 1;
-    } else if (chat.value.favoritePosition != null &&
-        other.chat.value.favoritePosition != null) {
-      return chat.value.favoritePosition!
-          .compareTo(other.chat.value.favoritePosition!);
-    }
-
-    if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
-      return 1;
-    } else if (!chat.value.id.isLocalWith(me) &&
-        other.chat.value.id.isLocalWith(me)) {
-      return -1;
-    }
-
-    return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
   }
 }
 

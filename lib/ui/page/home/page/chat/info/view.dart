@@ -25,14 +25,15 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/member_tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -57,6 +58,7 @@ class ChatInfoView extends StatelessWidget {
       key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
       tag: id.val,
+      global: !Get.isRegistered<ChatInfoController>(tag: id.val),
       builder: (c) {
         return Obx(() {
           if (c.status.value.isLoading) {
@@ -112,7 +114,7 @@ class ChatInfoView extends StatelessWidget {
                               ]
                             ],
                           ),
-                          _chatSubtitle(c, context),
+                          ChatSubtitle(c.chat!, c.me, withActivities: false),
                         ],
                       ),
                     ),
@@ -123,10 +125,10 @@ class ChatInfoView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
               actions: [
-                WidgetButton(
-                  onPressed: () => router.chat(id, push: true),
-                  child: Transform.translate(
-                    offset: const Offset(0, 1),
+                Transform.translate(
+                  offset: const Offset(0, 1),
+                  child: AnimatedButton(
+                    onPressed: () => router.chat(id, push: true),
                     child: SvgImage.asset(
                       'assets/icons/chat.svg',
                       width: 20.12,
@@ -137,7 +139,7 @@ class ChatInfoView extends StatelessWidget {
                 if (c.chat!.chat.value.ongoingCall == null) ...[
                   if (!context.isMobile) ...[
                     const SizedBox(width: 28),
-                    WidgetButton(
+                    AnimatedButton(
                       onPressed: () => c.call(true),
                       child: SvgImage.asset(
                         'assets/icons/chat_video_call.svg',
@@ -146,7 +148,7 @@ class ChatInfoView extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(width: 28),
-                  WidgetButton(
+                  AnimatedButton(
                     onPressed: () => c.call(false),
                     child: SvgImage.asset(
                       'assets/icons/chat_audio_call.svg',
@@ -155,48 +157,36 @@ class ChatInfoView extends StatelessWidget {
                   ),
                 ] else ...[
                   const SizedBox(width: 14),
-                  AnimatedSwitcher(
-                    key: const Key('ActiveCallButton'),
-                    duration: 300.milliseconds,
-                    child: c.inCall
-                        ? WidgetButton(
-                            key: const Key('Drop'),
-                            onPressed: c.dropCall,
-                            child: Container(
-                              height: 22,
-                              width: 22,
-                              decoration: BoxDecoration(
-                                color: style.colors.dangerColor,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: SvgImage.asset(
+                  AnimatedButton(
+                    key: c.inCall ? const Key('Drop') : const Key('Join'),
+                    onPressed: c.inCall ? c.dropCall : c.joinCall,
+                    child: Container(
+                      key: const Key('ActiveCallButton'),
+                      height: 22,
+                      width: 22,
+                      decoration: BoxDecoration(
+                        color: c.inCall
+                            ? style.colors.dangerColor
+                            : style.colors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: AnimatedSwitcher(
+                          duration: 300.milliseconds,
+                          child: c.inCall
+                              ? SvgImage.asset(
                                   'assets/icons/call_end.svg',
                                   width: 22,
                                   height: 22,
-                                ),
-                              ),
-                            ),
-                          )
-                        : WidgetButton(
-                            key: const Key('Join'),
-                            onPressed: c.joinCall,
-                            child: Container(
-                              height: 22,
-                              width: 22,
-                              decoration: BoxDecoration(
-                                color: style.colors.primary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: SvgImage.asset(
+                                )
+                              : SvgImage.asset(
                                   'assets/icons/audio_call_start.svg',
                                   width: 10,
                                   height: 10,
                                 ),
-                              ),
-                            ),
-                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ],
@@ -238,27 +228,6 @@ class ChatInfoView extends StatelessWidget {
         });
       },
     );
-  }
-
-  /// Returns a subtitle to display under the [Chat]'s title.
-  Widget _chatSubtitle(ChatInfoController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Obx(() {
-      final Rx<Chat> chat = c.chat!.chat;
-
-      if (chat.value.isGroup) {
-        final String? subtitle = chat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(
-            subtitle,
-            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-          );
-        }
-      }
-
-      return Container();
-    });
   }
 
   /// Basic [Padding] wrapper.

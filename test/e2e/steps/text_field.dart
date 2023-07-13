@@ -84,16 +84,14 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
         break;
 
       case CopyableTextField:
-        text = (widget as CopyableTextField).copy;
+        text = (widget as CopyableTextField).state.controller.text;
         break;
 
       default:
         throw ArgumentError('Nothing to copy from ${widget.runtimeType}.');
     }
 
-    if (text != null) {
-      context.world.clipboard = ClipboardData(text: text);
-    }
+    context.world.clipboard = ClipboardData(text: text);
   },
 );
 

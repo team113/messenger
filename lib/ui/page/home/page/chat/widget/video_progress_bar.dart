@@ -19,6 +19,8 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
+import '/themes.dart';
+
 /// Draggable video progress bar.
 class ProgressBar extends StatefulWidget {
   ProgressBar(
@@ -72,21 +74,28 @@ class _ProgressBarState extends State<ProgressBar> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     final child = Center(
       child: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        color: Colors.transparent,
+        color: style.colors.transparent,
         child: RxBuilder((_) {
-          return CustomPaint(
-            painter: _ProgressBarPainter(
-              duration: widget.controller.duration.value,
-              position: widget.controller.position.value,
-              buffered: widget.controller.buffered.value,
-              colors: widget.colors,
-              barHeight: widget.barHeight,
-              handleHeight: widget.handleHeight,
-              drawShadow: widget.drawShadow,
+          return MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: CustomPaint(
+              painter: _ProgressBarPainter(
+                duration: widget.controller.duration.value,
+                position: _latestDraggableOffset != null
+                    ? _relativePosition(_latestDraggableOffset!)
+                    : widget.controller.position.value,
+                buffered: widget.controller.buffered.value,
+                colors: widget.colors,
+                barHeight: widget.barHeight,
+                handleHeight: widget.handleHeight,
+                drawShadow: widget.drawShadow,
+              ),
             ),
           );
         }),
@@ -120,7 +129,7 @@ class _ProgressBarState extends State<ProgressBar> {
         }
 
         if (_latestDraggableOffset != null) {
-          _seekToRelativePosition(_latestDraggableOffset!);
+          widget.controller.seekTo(_relativePosition(_latestDraggableOffset!));
           _latestDraggableOffset = null;
         }
 
@@ -130,19 +139,18 @@ class _ProgressBarState extends State<ProgressBar> {
         if (!widget.controller.dataStatus.loaded) {
           return;
         }
-        _seekToRelativePosition(details.globalPosition);
+        widget.controller.seekTo(_relativePosition(details.globalPosition));
       },
       child: child,
     );
   }
 
-  /// Transforms the provided [globalPosition] into relative and sets the
-  /// progress.
-  void _seekToRelativePosition(Offset globalPosition) {
+  /// Transforms the provided [globalPosition] into relative [Duration].
+  Duration _relativePosition(Offset globalPosition) {
     final box = context.findRenderObject()! as RenderBox;
     final Offset tapPos = box.globalToLocal(globalPosition);
     final double relative = tapPos.dx / box.size.width;
-    widget.controller.seekTo(widget.controller.duration.value * relative);
+    return widget.controller.duration.value * relative;
   }
 }
 

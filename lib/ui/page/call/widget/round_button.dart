@@ -107,38 +107,41 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    Widget button = ConditionalBackdropFilter(
-      condition: !WebUtils.isSafari && widget.withBlur,
-      borderRadius: BorderRadius.circular(60),
-      child: Material(
-        key: _key,
-        elevation: 0,
-        color: widget.color,
-        type: MaterialType.circle,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(60),
-          onHover: widget.hint != null
-              ? (b) {
-                  if (b) {
-                    _populateOverlay();
-                  } else {
-                    _hintEntry?.remove();
-                    _hintEntry = null;
+    Widget button = Container(
+      color: style.colors.transparent,
+      child: ConditionalBackdropFilter(
+        condition: !WebUtils.isSafari && widget.withBlur,
+        borderRadius: BorderRadius.circular(60),
+        child: Material(
+          key: _key,
+          elevation: 0,
+          color: widget.color,
+          type: MaterialType.circle,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(60),
+            onHover: widget.hint != null
+                ? (b) {
+                    if (b) {
+                      _populateOverlay();
+                    } else {
+                      _hintEntry?.remove();
+                      _hintEntry = null;
+                    }
                   }
-                }
-              : null,
-          onTap: widget.onPressed,
-          child: widget.child ??
-              SizedBox(
-                width: max(widget.assetWidth, 60),
-                height: max(widget.assetWidth, 60),
-                child: Center(
-                  child: SvgImage.asset(
-                    'assets/icons/${widget.asset}.svg',
-                    width: widget.assetWidth,
+                : null,
+            onTap: widget.onPressed,
+            child: widget.child ??
+                SizedBox(
+                  width: max(widget.assetWidth, 60),
+                  height: max(widget.assetWidth, 60),
+                  child: Center(
+                    child: SvgImage.asset(
+                      'assets/icons/${widget.asset}.svg',
+                      width: widget.assetWidth,
+                    ),
                   ),
                 ),
-              ),
+          ),
         ),
       ),
     );
