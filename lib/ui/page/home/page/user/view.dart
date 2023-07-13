@@ -30,6 +30,7 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -134,7 +135,7 @@ class UserView extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 4, right: 20),
                 leading: const [StyledBackButton()],
                 actions: [
-                  WidgetButton(
+                  AnimatedButton(
                     onPressed: c.openChat,
                     child: Transform.translate(
                       offset: const Offset(0, 1),
@@ -155,7 +156,7 @@ class UserView extends StatelessWidget {
                       children: [
                         if (constraints.maxWidth > 400) ...[
                           const SizedBox(width: 28),
-                          WidgetButton(
+                          AnimatedButton(
                             onPressed: () => c.call(true),
                             child: SvgImage.asset(
                               'assets/icons/chat_video_call.svg',
@@ -164,7 +165,7 @@ class UserView extends StatelessWidget {
                           ),
                         ],
                         const SizedBox(width: 28),
-                        WidgetButton(
+                        AnimatedButton(
                           onPressed: () => c.call(false),
                           child: SvgImage.asset(
                             'assets/icons/chat_audio_call.svg',
@@ -233,7 +234,11 @@ class UserView extends StatelessWidget {
                       ),
                       Block(
                         title: 'label_contact_information'.l10n,
-                        children: [UserNumCopyable(c.user!.user.value.num)],
+                        children: [
+                          Paddings.basic(
+                            UserNumCopyable(c.user!.user.value.num),
+                          )
+                        ],
                       ),
                       Block(
                         title: 'label_actions'.l10n,

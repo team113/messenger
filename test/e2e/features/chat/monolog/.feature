@@ -50,6 +50,7 @@ Feature: Monolog
     And I scroll `ChatInfoScrollable` until `HideChatButton` is present
     And I tap `HideChatButton` button
     And I tap `Proceed` button
+    And I pause for 1 second
     Then I wait until `ChatMonolog` is absent
     And monolog is indeed remote
 
