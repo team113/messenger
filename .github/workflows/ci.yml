@@ -133,6 +133,10 @@ jobs:
               ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Unshallow the repository in order for `PubspecBuilder` and its
+          # `git describe` to work.
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -166,13 +170,6 @@ jobs:
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
       - run: make flutter.pub
-
-      # Authorize `git` in order for `PubspecBuilder` and its `git describe` to
-      # work.
-      - run: |
-          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
-          git config --local user.name 'github-actions[bot]'
-          git fetch --prune --tags
 
       - run: make flutter.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'web' }}
