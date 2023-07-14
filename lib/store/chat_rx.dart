@@ -505,7 +505,7 @@ class HiveRxChat extends RxChat {
           return;
         }
 
-        HiveChatItem? saved = _local.get(item.value.key);
+        final HiveChatItem? saved = _local.get(item.value.key);
         if (saved == null) {
           _local.put(item);
         } else if (saved.ver < item.ver || ignoreVersion) {
@@ -516,15 +516,15 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> remove(ChatItemId itemId, [String? key]) {
+  Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) {
     return _guard.protect(
       () => Future.sync(() {
         if (!_local.isReady) {
           return;
         }
 
-        key ??=
-            messages.firstWhereOrNull((e) => e.value.id == itemId)?.value.key;
+        key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
+
         if (key != null) {
           _local.remove(key!);
 
@@ -550,13 +550,13 @@ class HiveRxChat extends RxChat {
   ///
   /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [messages] list.
-  Future<HiveChatItem?> get(ChatItemId id, {String? key}) async {
+  Future<HiveChatItem?> get(ChatItemId id, {ChatItemKey? key}) async {
     return _guard.protect(() async {
       if (!_local.isReady) {
         return null;
       }
 
-      key ??= messages.firstWhereOrNull((e) => e.value.id == id)?.value.key;
+      key ??= _local.keys.firstWhereOrNull((e) => e.id == id);
 
       if (key != null) {
         return _local.get(key!);
@@ -778,7 +778,7 @@ class HiveRxChat extends RxChat {
 
   /// Re-fetches the [Attachment]s of the specified [item] to be up-to-date.
   Future<void> _updateAttachments(ChatItem item) async {
-    HiveChatItem? stored = await get(item.id, key: item.key);
+    final HiveChatItem? stored = await get(item.id, key: item.key);
     if (stored != null) {
       List<Attachment> response = await _chatRepository.attachments(stored);
 
@@ -831,8 +831,9 @@ class HiveRxChat extends RxChat {
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_local.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
-      int i = messages.indexWhere((e) => e.value.key == event.key);
+      final BoxEvent event = _localSubscription!.current;
+      final int i =
+          messages.indexWhere((e) => e.value.key.toString() == event.key);
       if (event.deleted) {
         if (i != -1) {
           messages.removeAt(i);
@@ -855,7 +856,7 @@ class HiveRxChat extends RxChat {
         }
 
         if (i == -1) {
-          Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
+          final Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
           messages.insertAfter(
             item,
             (e) => item.value.key.compareTo(e.value.key) == 1,
@@ -968,16 +969,11 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.itemTextEdited:
               event as EventChatItemTextEdited;
-              await _guard.protect(
-                () async {
-                  var message = _local.messages
-                      .firstWhereOrNull((e) => e.value.id == event.itemId);
-                  if (message != null) {
-                    (message.value as ChatMessage).text = event.text;
-                    message.save();
-                  }
-                },
-              );
+              final message = await get(event.itemId);
+              if (message != null) {
+                (message.value as ChatMessage).text = event.text;
+                message.save();
+              }
               break;
 
             case ChatEventKind.callStarted:
@@ -990,7 +986,7 @@ class HiveRxChat extends RxChat {
               chatEntity.value.ongoingCall = event.call;
               _chatRepository.addCall(event.call);
 
-              var message = await get(event.call.id, key: event.call.key);
+              final message = await get(event.call.id, key: event.call.key);
 
               if (message != null) {
                 event.call.at = message.value.at;
@@ -1022,7 +1018,7 @@ class HiveRxChat extends RxChat {
                 _chatRepository.endCall(event.call.chatId);
               }
 
-              var message = await get(event.call.id, key: event.call.key);
+              final message = await get(event.call.id, key: event.call.key);
 
               if (message != null) {
                 event.call.at = message.value.at;
@@ -1064,7 +1060,7 @@ class HiveRxChat extends RxChat {
 
                   if (chatEntity.value.ongoingCall != null) {
                     final call = chatEntity.value.ongoingCall!;
-                    var message = await get(call.id, key: call.key);
+                    final message = await get(call.id, key: call.key);
 
                     if (message != null) {
                       call.at = message.value.at;

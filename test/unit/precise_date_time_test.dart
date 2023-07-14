@@ -100,5 +100,15 @@ void main() async {
     expect(val7.val.second, 35);
     expect(val7.val.millisecond, 477);
     expect(val7.microsecond, 0);
+
+    var val8 = PreciseDateTime.fromMicrosecondsSinceEpoch(1640902500040001);
+    expect(val8.val.year, 2021);
+    expect(val8.val.month, 12);
+    expect(val8.val.day, 31);
+    expect(val8.val.hour, 1);
+    expect(val8.val.minute, 15);
+    expect(val8.val.second, 0);
+    expect(val8.val.millisecond, 40);
+    expect(val8.microsecond, 1);
   });
 }
