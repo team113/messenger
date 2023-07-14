@@ -531,7 +531,10 @@ type ChatAvatar {
   """
   big: ImageFile!
 
-  """`CropArea` applied to the original image to create this `ChatAvatar`."""
+  """
+  `CropArea` applied to the `original` `ImageFile` for creating this
+  `ChatAvatar`.
+  """
   crop: CropArea
 
   """
@@ -1296,9 +1299,9 @@ input ChatItemQuoteInput {
   IDs of the `ChatItem`'s `Attachment`s to be forwarded.
 
   - `null` means all the `ChatItem`'s `Attachment`s will be forwarded, if
-    any.
+  any.
   - `[]` (empty list) means no `Attachment`s, only the text will be
-    forwarded.
+  forwarded.
   """
   attachments: [AttachmentId!]
 
@@ -2254,7 +2257,11 @@ type EventBlocklistRecordRemoved implements BlocklistEvent {
   user: User!
 }
 
-"""Event of an answer timeout being reached in a `ChatCall`."""
+"""
+Event of an answer timeout being reached in a `ChatCall`.
+
+Not emitted for `ChatCall`s in `Chat`-monologs.
+"""
 type EventChatCallAnswerTimeoutPassed implements ChatCallEvent & ChatEvent {
   """`DateTime` when the answer timeout in the `ChatCall` was reached."""
   at: DateTime!
@@ -3032,27 +3039,6 @@ type EventUserAvatarUpdated implements UserEvent {
   userId: UserId!
 }
 
-"""Event of a `UserBio` being deleted."""
-type EventUserBioDeleted implements UserEvent {
-  """`DateTime` when the `UserBio` was deleted."""
-  at: DateTime!
-
-  """ID of the `User` whose `UserBio` was deleted."""
-  userId: UserId!
-}
-
-"""Event of a `UserBio` being updated."""
-type EventUserBioUpdated implements UserEvent {
-  """`DateTime` when the `UserBio` was updated."""
-  at: DateTime!
-
-  """New `UserBio`."""
-  bio: UserBio!
-
-  """ID of the `User` whose `UserBio` was updated."""
-  userId: UserId!
-}
-
 """Event of a `UserCallCover` being deleted."""
 type EventUserCallCoverDeleted implements UserEvent {
   """`DateTime` when the `UserCallCover` was deleted."""
@@ -3146,37 +3132,6 @@ type EventUserEmailDeleted {
   email: UserEmail!
 
   """ID of the `User` whose email address was deleted."""
-  userId: UserId!
-}
-
-"""Event of a `User`'s `GalleryItem` being added."""
-type EventUserGalleryItemAdded implements UserEvent {
-  """`DateTime` when the `GalleryItem` was added to the `User`'s gallery."""
-  at: DateTime!
-
-  """Added `GalleryItem`."""
-  galleryItem: GalleryItem!
-
-  """
-  ID of the `User` whose gallery was updated with the added `GalleryItem`.
-  """
-  userId: UserId!
-}
-
-"""Event of a `User`'s `GalleryItem` being deleted."""
-type EventUserGalleryItemDeleted implements UserEvent {
-  """
-  `DateTime` when the `GalleryItem` was deleted from the `User`'s gallery.
-  """
-  at: DateTime!
-
-  """ID of the deleted `GalleryItem`."""
-  galleryItemId: GalleryItemId!
-
-  """
-  ID of the `User` whose gallery was updated with the deleted
-  `GalleryItem`.
-  """
   userId: UserId!
 }
 
@@ -3691,27 +3646,6 @@ enum ForwardChatItemsErrorCode {
 
 """Result of performing `Mutation.forwardChatItems`."""
 union ForwardChatItemsResult = ChatEventsVersioned | ForwardChatItemsError
-
-"""Item in a `User`'s gallery."""
-type GalleryItem {
-  """`DateTime` when this `GalleryItem` was added."""
-  addedAt: DateTime!
-
-  """Unique ID of this `GalleryItem`."""
-  id: GalleryItemId!
-
-  """Original `ImageFile` representing this `GalleryItem`."""
-  original: ImageFile!
-
-  """
-  `square` view `ImageFile` of this `GalleryItem`, square-cropped to its
-  minimum dimension (either width or height), and scaled to `85px`x`85px`.
-  """
-  square: ImageFile!
-}
-
-"""Type of a `GalleryItem`'s ID."""
-scalar GalleryItemId
 
 """Error of performing `Mutation.hideChat`."""
 type HideChatError {
@@ -4711,29 +4645,6 @@ type Mutation {
   ): MyUserEventsVersioned
 
   """
-  Removes the specified `GalleryItem` from the authenticated `MyUser`'s
-  gallery.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  Only the following `MyUserEvent` may be produced on success:
-  - `EventUserGalleryItemDeleted`.
-
-  ## Idempotent
-
-  Succeeds as no-op (and returns no `MyUserEvent`) if the specified
-  `GalleryItem` was deleted already (or if it never existed).
-  """
-  deleteUserGalleryItem(
-    """ID of the gallery item to delete."""
-    id: GalleryItemId!
-  ): MyUserEventsVersioned
-
-  """
   Deletes the provided `phone` number from the `MyUser.phones` field of
   the authenticated `MyUser`.
 
@@ -4974,23 +4885,23 @@ type Mutation {
 
   The best-effort `ChatCall` lifecycle on a client side should look like:
   1. Initiate (start or join) a `ChatCall` via `Mutation.startChatCall` or
-     `Mutation.joinChatCall`.
+  `Mutation.joinChatCall`.
   2. Make a `Subscription.chatCallEvents` using the `deviceId` from the
-     previous step.
+  previous step.
   3. Once an `EventChatCallRoomReady` is emitted (or in case a
-     `ChatCall.joinLink` is present already in the initial `ChatCall`
-     returned by the `Subscription.chatCallEvents` from the previous
-     step), establish a WebSocket connection with a media server using the
-     emitted `joinLink`.
+  `ChatCall.joinLink` is present already in the initial `ChatCall`
+  returned by the `Subscription.chatCallEvents` from the previous
+  step), establish a WebSocket connection with a media server using the
+  emitted `joinLink`.
   4. Whenever an `EventChatCallRoomReady` is emitted again, reestablish a
-     WebSocket connection with a media server forcefully, using the new
-     emitted `joinLink`, even if the previous one is healthy.
+  WebSocket connection with a media server forcefully, using the new
+  emitted `joinLink`, even if the previous one is healthy.
   5. Finish or leave the ongoing `ChatCall` via executing
-     `Mutation.leaveChatCall` first, then dropping the
-     `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
-     connection with a media server. Do not try to reconnect if the media
-     server drops it earlier, after execution of the
-     `Mutation.leaveChatCall`.
+  `Mutation.leaveChatCall` first, then dropping the
+  `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
+  connection with a media server. Do not try to reconnect if the media
+  server drops it earlier, after execution of the
+  `Mutation.leaveChatCall`.
 
   ## Authentication
 
@@ -5050,9 +4961,9 @@ type Mutation {
   Succeeds as no-op (and returns no `ChatEvent`) when:
   - There is no ongoing `ChatCall` in the specified `Chat` at the moment.
   - The authenticated `MyUser` is not a member of the specified `Chat`
-    already.
+  already.
   - The authenticated `MyUser` is not a member of the ongoing `ChatCall`
-    already.
+  already.
   """
   leaveChatCall(
     """ID of the `Chat` to leave the ongoing `ChatCall` of."""
@@ -5506,23 +5417,23 @@ type Mutation {
 
   The best-effort `ChatCall` lifecycle on a client side should look like:
   1. Initiate (start or join) a `ChatCall` via `Mutation.startChatCall` or
-     `Mutation.joinChatCall`.
+  `Mutation.joinChatCall`.
   2. Make a `Subscription.chatCallEvents` using the `deviceId` from the
-     previous step.
+  previous step.
   3. Once an `EventChatCallRoomReady` is emitted (or in case a
-     `ChatCall.joinLink` is present already in the initial `ChatCall`
-     returned by the `Subscription.chatCallEvents` from the previous
-     step), establish a WebSocket connection with a media server using the
-     emitted `joinLink`.
+  `ChatCall.joinLink` is present already in the initial `ChatCall`
+  returned by the `Subscription.chatCallEvents` from the previous
+  step), establish a WebSocket connection with a media server using the
+  emitted `joinLink`.
   4. Whenever an `EventChatCallRoomReady` is emitted again, reestablish a
-     WebSocket connection with a media server forcefully, using the new
-     emitted `joinLink`, even if the previous one is healthy.
+  WebSocket connection with a media server forcefully, using the new
+  emitted `joinLink`, even if the previous one is healthy.
   5. Finish or leave the ongoing `ChatCall` via executing
-     `Mutation.leaveChatCall` first, then dropping the
-     `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
-     connection with a media server. Do not try to reconnect if the media
-     server drops it earlier, after execution of the
-     `Mutation.leaveChatCall`.
+  `Mutation.leaveChatCall` first, then dropping the
+  `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
+  connection with a media server. Do not try to reconnect if the media
+  server drops it earlier, after execution of the
+  `Mutation.leaveChatCall`.
 
   ## Authentication
 
@@ -5867,9 +5778,9 @@ type Mutation {
     chatId: ChatId!
 
     """
-    Optional area to crop the provided `file`.
+    Optional area to crop the provided image file.
 
-    Only makes sense if the `file` argument is specified.
+    Only makes sense if the image file is provided.
     """
     crop: CropAreaInput
   ): UpdateChatAvatarResult
@@ -5901,8 +5812,15 @@ type Mutation {
   ): UpdateChatContactNameResult
 
   """
-  Updates or resets the `MyUser.avatar` field with the provided
-  `GalleryItem` from the gallery of the authenticated `MyUser`.
+  Updates or resets the `MyUser.avatar` field with the provided image
+  file.
+
+  HTTP request for this mutation must be
+  `Content-Type: multipart/form-data` containing the uploaded file and the
+  `file` argument itself must be `null`, otherwise this mutation will
+  fail.
+
+  See [GraphQL multipart request specification][1] for details.
 
   ## Authentication
 
@@ -5911,33 +5829,52 @@ type Mutation {
   ## Result
 
   One of the following `MyUserEvent`s may be produced on success:
-  - `EventUserAvatarUpdated` (if `id` argument is specified);
-  - `EventUserAvatarDeleted` (if `id` argument is absent or is `null`).
+  - `EventUserAvatarUpdated` (if image `file` is provided);
+  - `EventUserAvatarDeleted` (if image `file` is not provided).
 
   ## Idempotent
 
   Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
-  `MyUser` uses the provided `GalleryItem` with the same `crop` area as
-  his `avatar` already.
+  `MyUser` uses the specified image `file` already as his `avatar` with
+  the same `crop` area.
+
+  [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
   """
   updateUserAvatar(
     """
-    ID of the `GalleryItem` to be set as `avatar`.
+    File to use as a `UserAvatar`.
 
-    If absent or is `null` then the `MyUser.avatar` field will be reset.
+    Not really used and must be always specified as `null`. For schema declaration only.
+
+    Real file must be sent as `Content-Type: multipart/form-data` along.
+    See [GraphQL multipart request specification][1] for details.
+
+    Maximum allowed uploaded file's size is 15 MiB.
+
+    Maximum allowed uploaded image's dimensions are 32767x32767.
+
+    [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
     """
-    id: GalleryItemId
+    file: Upload
 
     """
-    Optional area to crop the provided `GalleryItem`.
+    Optional area to crop the uploaded image.
 
-    Only makes sense if `id` argument is specified.
+    Only makes sense if the image file is provided.
     """
     crop: CropAreaInput
   ): UpdateUserAvatarResult
 
   """
-  Updates or resets the `MyUser.bio` field of the authenticated `MyUser`.
+  Updates or resets the `MyUser.callCover` field with the provided image
+  file.
+
+  HTTP request for this mutation must be
+  `Content-Type: multipart/form-data` containing the uploaded file and the
+  `file` argument itself must be `null`, otherwise this mutation will
+  fail.
+
+  See [GraphQL multipart request specification][1] for details.
 
   ## Authentication
 
@@ -5946,55 +5883,38 @@ type Mutation {
   ## Result
 
   One of the following `MyUserEvent`s may be produced on success:
-  - `EventUserBioUpdated` (if `bio` argument is specified);
-  - `EventUserBioDeleted` (if `bio` argument is absent or is `null`).
+  - `EventUserCallCoverUpdated` (if image file is provided);
+  - `EventUserCallCoverDeleted` (if image file is not provided).
 
   ## Idempotent
 
   Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
-  `MyUser` uses the provided `bio` already.
-  """
-  updateUserBio(
-    """
-    Bio to update `MyUser` with.
+  `MyUser` uses the specified image `file` already as his `callCover` with
+  the same `crop` area.
 
-    If absent or is `null` then the `MyUser.bio` field will be reset.
-    """
-    bio: UserBio
-  ): MyUserEventsVersioned
-
-  """
-  Updates or resets the `MyUser.callCover` field with the provided
-  `GalleryItem` from the gallery of the authenticated `MyUser`.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  One of the following `MyUserEvent`s may be produced on success:
-  - `EventUserCallCoverUpdated` (if `id` argument is specified);
-  - `EventUserCallCoverDeleted` (if `id` argument is absent or is `null`).
-
-  ## Idempotent
-
-  Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
-  `MyUser` uses the provided `GalleryItem` with the same `crop` area as
-  his `callCover` already.
+  [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
   """
   updateUserCallCover(
     """
-    ID of the `GalleryItem` to be set as `callCover`.
+    File to use as a `UserCallCover`.
 
-    If absent or is `null` then the `MyUser.callCover` field will be reset.
+    Not really used and must be always specified as `null`. For schema declaration only.
+
+    Real file must be sent as `Content-Type: multipart/form-data` along.
+    See [GraphQL multipart request specification][1] for details.
+
+    Maximum allowed uploaded file's size is 15 MiB.
+
+    Maximum allowed uploaded image's dimensions are 32767x32767.
+
+    [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
     """
-    id: GalleryItemId
+    file: Upload
 
     """
-    Optional area to crop the provided `GalleryItem`.
+    Optional area to crop the uploaded image.
 
-    Only makes sense if `id` argument is specified.
+    Only makes sense if the image file is provided.
     """
     crop: CropAreaInput
   ): UpdateUserCallCoverResult
@@ -6149,52 +6069,11 @@ type Mutation {
   """
   uploadAttachment(
     """
-    Attachment to be uploaded.
+    File to be uploaded as an `Attachment`.
 
     Not really used and must be always specified as `null`. For schema declaration only.
 
-    Real attachment data must be sent as `Content-Type: multipart/form-data`
-    along.See [GraphQL multipart request specification][1] for details.
-
-    Maximum allowed uploaded file's size is 15 MiB.
-
-    [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
-    """
-    attachment: Upload
-  ): UploadAttachmentResult!
-
-  """
-  Adds a new `GalleryItem` to the gallery of the authenticated `MyUser`.
-
-  HTTP request for this mutation must be
-  `Content-Type: multipart/form-data` containing the uploaded file and the
-  `file` argument itself must be `null`, otherwise this mutation will
-  fail.
-
-  See [GraphQL multipart request specification][1] for details.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  Only the following `MyUserEvent` is always produced on success:
-  - `EventUserGalleryItemAdded`.
-
-  ## Non-idempotent
-
-  Each time adds a new unique `GalleryItem`.
-
-  [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
-  """
-  uploadUserGalleryItem(
-    """
-    File to use as a `GalleryItem`.
-
-    Not really used and must be always specified as `null`. For schema declaration only.
-
-    Real file must be sent as `Content-Type: multipart/form-data` along.
+    Real attachment data must be sent as `Content-Type: multipart/form-data` along.
     See [GraphQL multipart request specification][1] for details.
 
     Maximum allowed uploaded file's size is 15 MiB.
@@ -6204,7 +6083,7 @@ type Mutation {
     [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
     """
     file: Upload
-  ): UploadUserGalleryItemResult!
+  ): UploadAttachmentResult!
 
   """
   Uses the specified `ChatDirectLink` by the authenticated `MyUser`,
@@ -6222,7 +6101,7 @@ type Mutation {
   Only the following `ChatEvent` may be produced on success for the
   `Chat`-group:
   - `EventChatItemPosted` (`ChatInfo` with either `ChatInfoActionCreated`
-    or `ChatInfoActionMemberAdded`).
+  or `ChatInfoActionMemberAdded`).
 
   ## Idempotent
 
@@ -6318,9 +6197,6 @@ type MyUser {
   """
   avatar: UserAvatar
 
-  """Arbitrary descriptive information about this `MyUser`."""
-  bio: UserBio
-
   """
   Returns `User`s blocked by this `MyUser` as `BlocklistRecord`s.
 
@@ -6373,44 +6249,6 @@ type MyUser {
 
   """List of email addresses of this `MyUser`."""
   emails: UserEmails!
-
-  """
-  `GalleryItem`s of this `MyUser`.
-
-  ## Sorting
-
-  Returned `GalleryItem`s are sorted primarily by their creation
-  `DateTime`, and secondary by their IDs (if the creation `DateTime` is
-  the same), in descending order.
-
-  ## Pagination
-
-  It's allowed to specify both `first` and `last` counts at the same time,
-  provided that `after` and `before` cursors are equal. In such case the
-  returned page will include the `GalleryItem` pointed by the cursor and
-  the requested count of `GalleryItem`s preceding and following it.
-
-  If it's desired to receive the `GalleryItem`, pointed by the cursor,
-  without querying in both directions, one can specify `first` or `last`
-  count as `0`.
-  """
-  gallery(
-    """
-    Cursor indicating the `GalleryItemEdge` position to return next `GalleryItem`s after.
-    """
-    after: UserGalleryItemsCursor
-
-    """
-    Cursor indicating the `GalleryItemEdge` position to return prior `GalleryItem`s before.
-    """
-    before: UserGalleryItemsCursor
-
-    """Number of next `GalleryItem`s to return."""
-    first: Int
-
-    """Number of prior `GalleryItem`s to return."""
-    last: Int
-  ): UserGalleryItemsConnection!
 
   """
   Indicator whether this `MyUser` has a password.
@@ -6504,7 +6342,7 @@ type MyUser {
 }
 
 """Events happening with `MyUser`."""
-union MyUserEvent = EventBlocklistRecordAdded | EventBlocklistRecordRemoved | EventUserAvatarDeleted | EventUserAvatarUpdated | EventUserBioDeleted | EventUserBioUpdated | EventUserCallCoverDeleted | EventUserCallCoverUpdated | EventUserCameOffline | EventUserCameOnline | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserEmailAdded | EventUserEmailConfirmed | EventUserEmailDeleted | EventUserGalleryItemAdded | EventUserGalleryItemDeleted | EventUserLoginUpdated | EventUserMuted | EventUserNameDeleted | EventUserNameUpdated | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneConfirmed | EventUserPhoneDeleted | EventUserPresenceUpdated | EventUserStatusDeleted | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated
+union MyUserEvent = EventBlocklistRecordAdded | EventBlocklistRecordRemoved | EventUserAvatarDeleted | EventUserAvatarUpdated | EventUserCallCoverDeleted | EventUserCallCoverUpdated | EventUserCameOffline | EventUserCameOnline | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserEmailAdded | EventUserEmailConfirmed | EventUserEmailDeleted | EventUserLoginUpdated | EventUserMuted | EventUserNameDeleted | EventUserNameUpdated | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneConfirmed | EventUserPhoneDeleted | EventUserPresenceUpdated | EventUserStatusDeleted | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated
 
 """Events emitted by `Subscription.myUserEvents`."""
 union MyUserEvents = MyUser | MyUserEventsVersioned | SubscriptionInitialized
@@ -6900,7 +6738,7 @@ type Query {
   Query returns `null` when:
   - No `User` exists with the specified `userId`.
   - No dialog `Chat` exists between the specified `User` and the
-    authenticated `MyUser`.
+  authenticated `MyUser`.
   """
   dialog(
     """ID of the `User` to return a dialog `Chat` with."""
@@ -7007,7 +6845,7 @@ type Query {
 
   A `ChatCall` is considered incoming when:
   - it's not yet answered or declined (or the authenticated `MyUser` has
-    been redialed after it was answered or declined);
+  been redialed after it was answered or declined);
   - its `Chat` is not muted by the authenticated `MyUser`;
   - its initiator is not the authenticated `MyUser`.
 
@@ -7021,9 +6859,9 @@ type Query {
   A `ChatCall` is removed from this list when:
   - it has been finished;
   - `MyUser` executes `Mutation.joinChatCall` or
-    `Mutation.declineChatCall` on it;
+  `Mutation.declineChatCall` on it;
   - `MyUser` executes `Mutation.toggleChatMute` on its `Chat` (or
-    `Mutation.toggleMyUserMute` on himself).
+  `Mutation.toggleMyUserMute` on himself).
 
   Executing `Mutation.toggleMyUserMute` with `mute` argument (muting)
   makes this list always empty until the consecutive execution of
@@ -7085,7 +6923,7 @@ type Query {
 
   Query returns empty list when:
   - The specified `User` is not linked to any `ChatContact`s of the
-    authenticated `MyUser`.
+  authenticated `MyUser`.
   """
   linkedChatContacts(
     """ID of the `User` returned `ChatContacts` should be linked to."""
@@ -7214,12 +7052,12 @@ type Query {
 
   Returned `ChatContact`s are sorted depending on the provided arguments:
   - If one of the `email`/`phone` arguments is specified, then returned
-    `ChatContact`s are sorted by their `name`s (by IDs if the `name` is
-    the same) in ascending order.
+  `ChatContact`s are sorted by their `name`s (by IDs if the `name` is
+  the same) in ascending order.
   - If the `name` argument is specified, then returned `ChatContact`s are
-    sorted primarily by the [Levenshtein distance][0] of their `name`s,
-    and secondary by their IDs (if the [Levenshtein distance][0] is the
-    same), in descending order.
+  sorted primarily by the [Levenshtein distance][0] of their `name`s,
+  and secondary by their IDs (if the [Levenshtein distance][0] is the
+  same), in descending order.
 
   ## Pagination
 
@@ -7279,11 +7117,11 @@ type Query {
 
   Returned `User`s are sorted depending on the provided arguments:
   - If one of the `num`/`login`/`direct_link` arguments is specified, then
-    an exact `User` is returned.
+  an exact `User` is returned.
   - If the `name` argument is specified, then returned `User`s are sorted
-    primarily by the [Levenshtein distance][0] of their `name`s, and
-    secondary by their IDs (if the [Levenshtein distance][0] is the same),
-    in descending order.
+  primarily by the [Levenshtein distance][0] of their `name`s, and
+  secondary by their IDs (if the [Levenshtein distance][0] is the same),
+  in descending order.
 
   ## Pagination
 
@@ -7902,17 +7740,17 @@ type Subscription {
   Completes without re-subscription necessity when:
   - The `ChatCall` is finished (`EventChatCallFinished` is emitted).
   - The authenticated `MyUser` is no longer a member of the `ChatCall`
-    (`EventChatCallMemberLeft` is emitted for the the authenticated
-    `MyUser`).
+  (`EventChatCallMemberLeft` is emitted for the the authenticated
+  `MyUser`).
   - The `ChatCall` is not found or the authenticated `MyUser` doesn't
-    participate in it from the specified `MyUser`'s device (emits nothing,
-    completes immediately after being established).
+  participate in it from the specified `MyUser`'s device (emits nothing,
+  completes immediately after being established).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   chatCallEvents(
     """
@@ -7957,10 +7795,10 @@ type Subscription {
   may become stale, so this subscription will return `STALE_VERSION` error
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.chatContacts` (or
-    `Query.favoriteChatContacts`);
+  `Query.favoriteChatContacts`);
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `ChatContact`s list).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `ChatContact`s list).
 
   ## Completion
 
@@ -7970,7 +7808,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
 
   ## Idempotency
 
@@ -8023,10 +7861,10 @@ type Subscription {
   may become stale, so this subscription will return `STALE_VERSION` error
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.chat` (or
-    `Query.recentChats`);
+  `Query.recentChats`);
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `Chat`).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `Chat`).
 
   ## Completion
 
@@ -8034,19 +7872,19 @@ type Subscription {
 
   Completes without re-subscription necessity when:
   - The `Chat` does not exist (emits nothing, completes immediately after
-    being established).
+  being established).
   - The authenticated `MyUser` is not a member of the `Chat` at the moment
-    of subscribing (emits nothing, completes immediately after being
-    established).
+  of subscribing (emits nothing, completes immediately after being
+  established).
   - The authenticated `MyUser` is no longer a member of the `Chat` (emits
-    an `EventChatItemPosted` of a `ChatInfo` with
-    `ChatInfoActionMemberRemoved` and completes).
+  an `EventChatItemPosted` of a `ChatInfo` with
+  `ChatInfoActionMemberRemoved` and completes).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   chatEvents(
     """ID of the `Chat` to subscribe onto."""
@@ -8092,8 +7930,8 @@ type Subscription {
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.favoriteChats`;
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `FavoriteChatsList`).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `FavoriteChatsList`).
 
   ## Completion
 
@@ -8103,7 +7941,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
 
   ## Idempotency
 
@@ -8167,7 +8005,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   incomingChatCallsTopEvents(
     """
@@ -8207,7 +8045,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   keepOnline: SubscriptionInitialized!
 
@@ -8244,7 +8082,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   keepTyping(
     """ID of the `Chat` to type in."""
@@ -8281,8 +8119,8 @@ type Subscription {
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.myUser`;
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `MyUser`).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `MyUser`).
 
   ## Completion
 
@@ -8290,13 +8128,13 @@ type Subscription {
 
   Completes without re-subscription necessity when:
   - The authenticated `MyUser` is deleted (emits `EventUserDeleted` and
-    completes).
+  completes).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
 
   ## Idempotency
 
@@ -8353,7 +8191,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   recentChatsTopEvents(
     """
@@ -8408,8 +8246,8 @@ type Subscription {
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.user`;
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `User`).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `User`).
 
   ## Completion
 
@@ -8417,15 +8255,15 @@ type Subscription {
 
   Completes without re-subscription necessity when:
   - The specified `User` is deleted (emits `EventUserDeleted` and
-    completes).
+  completes).
   - The specified `User` doesn't exist (emits nothing, completes
-    immediately after being established).
+  immediately after being established).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
 
   ## Idempotency
 
@@ -8677,7 +8515,7 @@ enum UpdateChatAvatarErrorCode {
   INVALID_CROP_POINTS
 
   """
-  Uploaded file cannot be decoded as an image or a video.
+  Uploaded file cannot be decoded as an image.
 
   Status code: 400 Bad Request.
   """
@@ -8764,11 +8602,32 @@ enum UpdateUserAvatarErrorCode {
   INVALID_CROP_POINTS
 
   """
-  `GalleryItem` with the provided ID doesn't exist in the gallery of the authenticated `MyUser`.
+  Uploaded file cannot be decoded as an image.
 
-  Status code: 404 Not Found.
+  Status code: 400 Bad Request.
   """
-  UNKNOWN_GALLERY_ITEM
+  MALFORMED
+
+  """
+  Uploaded file has unsupported MIME type.
+
+  Status code: 400 Bad Request.
+  """
+  UNSUPPORTED_FORMAT
+
+  """
+  Uploaded file is too big in size.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_SIZE
+
+  """
+  Uploaded image has too big dimensions.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_DIMENSIONS
 }
 
 """Result of performing `Mutation.updateUserAvatar`."""
@@ -8797,11 +8656,32 @@ enum UpdateUserCallCoverErrorCode {
   INVALID_CROP_POINTS
 
   """
-  `GalleryItem` with the provided ID doesn't exist in the gallery of the authenticated `MyUser`.
+  Uploaded file cannot be decoded as an image.
 
-  Status code: 404 Not Found.
+  Status code: 400 Bad Request.
   """
-  UNKNOWN_GALLERY_ITEM
+  MALFORMED
+
+  """
+  Uploaded file has unsupported MIME type.
+
+  Status code: 400 Bad Request.
+  """
+  UNSUPPORTED_FORMAT
+
+  """
+  Uploaded file is too big in size.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_SIZE
+
+  """
+  Uploaded image has too big dimensions.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_DIMENSIONS
 }
 
 """Result of performing `Mutation.updateUserCallCover`."""
@@ -8873,18 +8753,25 @@ enum UploadAttachmentErrorCode {
   NO_FILENAME
 
   """
-  Uploaded attachment is too big in size.
+  Uploaded file is too big in size.
 
   Status code: 400 Bad Request.
   """
   TOO_BIG_SIZE
 
   """
-  Uploaded file attachment is malformed.
+  Uploaded image cannot be decoded as an image.
 
   Status code: 400 Bad Request.
   """
   MALFORMED
+
+  """
+  Uploaded image has too big dimensions.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_DIMENSIONS
 }
 
 """Result of a successful performing `Mutation.uploadAttachment`."""
@@ -8895,46 +8782,6 @@ type UploadAttachmentOk {
 
 """Result of performing `Mutation.uploadAttachment`."""
 union UploadAttachmentResult = UploadAttachmentError | UploadAttachmentOk
-
-"""Error of performing `Mutation.uploadUserGalleryItem`."""
-type UploadUserGalleryItemError {
-  """Code indicating why this error has happened."""
-  code: UploadUserGalleryItemErrorCode!
-}
-
-"""Possible error codes of performing `Mutation.uploadUserGalleryItem`."""
-enum UploadUserGalleryItemErrorCode {
-  """
-  Uploaded file cannot be decoded as an image or a video.
-
-  Status code: 400 Bad Request.
-  """
-  MALFORMED
-
-  """
-  Uploaded file has unsupported MIME type.
-
-  Status code: 400 Bad Request.
-  """
-  UNSUPPORTED_FORMAT
-
-  """
-  Uploaded file is too big in size.
-
-  Status code: 400 Bad Request.
-  """
-  TOO_BIG_SIZE
-
-  """
-  Uploaded image has too big dimensions.
-
-  Status code: 400 Bad Request.
-  """
-  TOO_BIG_DIMENSIONS
-}
-
-"""Result of performing `Mutation.uploadUserGalleryItem`."""
-union UploadUserGalleryItemResult = MyUserEventsVersioned | UploadUserGalleryItemError
 
 """Error of performing `Mutation.useChatDirectLink`."""
 type UseChatDirectLinkError {
@@ -8968,7 +8815,7 @@ type UseChatDirectLinkOk {
   The only `ChatEvent` which may be produced by performing
   `Mutation.useChatDirectLink`:
   - `EventChatItemPosted` (`ChatInfo` with either `ChatInfoActionCreated`
-    or `ChatInfoActionMemberAdded`).
+  or `ChatInfoActionMemberAdded`).
 
   `null` means no-op due to idempotency.
   """
@@ -8986,9 +8833,6 @@ type User {
   `avatar` is an image helping to identify a `User` visually.
   """
   avatar: UserAvatar
-
-  """Arbitrary descriptive information about this `User`."""
-  bio: UserBio
 
   """
   Call cover of this `User`.
@@ -9014,44 +8858,6 @@ type User {
   considered in the `User.ver` field.
   """
   dialog: Chat
-
-  """
-  `GalleryItem`s of this `User`.
-
-  ## Sorting
-
-  Returned `GalleryItem`s are sorted primarily by their creation
-  `DateTime`, and secondary by their IDs (if the creation `DateTime` is
-  the same), in descending order.
-
-  ## Pagination
-
-  It's allowed to specify both `first` and `last` counts at the same time,
-  provided that `after` and `before` cursors are equal. In such case the
-  returned page will include the `GalleryItem` pointed by the cursor and
-  the requested count of `GalleryItem`s preceding and following it.
-
-  If it's desired to receive the `GalleryItem`, pointed by the cursor,
-  without querying in both directions, one can specify `first` or `last`
-  count as `0`.
-  """
-  gallery(
-    """
-    Cursor indicating the `GalleryItemEdge` position to return next `GalleryItem`s after.
-    """
-    after: UserGalleryItemsCursor
-
-    """
-    Cursor indicating the `GalleryItemEdge` position to return prior `GalleryItem`s before.
-    """
-    before: UserGalleryItemsCursor
-
-    """Number of next `GalleryItem`s to return."""
-    first: Int
-
-    """Number of prior `GalleryItem`s to return."""
-    last: Int
-  ): UserGalleryItemsConnection!
 
   """
   Unique ID of this `User`.
@@ -9138,7 +8944,10 @@ type UserAvatar {
   """
   big: ImageFile!
 
-  """`CropArea` applied to the `GalleryItem` to create this `UserAvatar`."""
+  """
+  `CropArea` applied to the `original` `ImageFile` for creating this
+  `UserAvatar`.
+  """
   crop: CropArea
 
   """
@@ -9146,13 +8955,6 @@ type UserAvatar {
   `original` dimensions.
   """
   full: ImageFile!
-
-  """
-  `GalleryItem` this `UserAvatar` was created from.
-
-  Once the returned `GalleryItem` gets deleted, this field becomes `null`.
-  """
-  galleryItem: GalleryItem
 
   """
   `medium` view `ImageFile` of this `UserAvatar`, square-cropped to its
@@ -9171,19 +8973,11 @@ type UserAvatar {
   small: ImageFile!
 }
 
-"""
-Type of a `User`'s bio.
-
-Its values are always considered to be non-empty, and meet the following
-requirements:
-- be at least 1 and maximum 300 characters long.
-"""
-scalar UserBio
-
 """Call cover of a `User`."""
 type UserCallCover {
   """
-  `CropArea` applied to the `GalleryItem` to create this `UserCallCover`.
+  `CropArea` applied to the `original` `ImageFile` for creating this
+  `UserCallCover`.
   """
   crop: CropArea
 
@@ -9192,13 +8986,6 @@ type UserCallCover {
   `original` dimensions.
   """
   full: ImageFile!
-
-  """
-  `GalleryItem` this `UserCallCover` was created from.
-
-  Once the returned `GalleryItem` gets deleted, this field becomes `null`.
-  """
-  galleryItem: GalleryItem
 
   """Original `ImageFile` representing this `UserCallCover`."""
   original: ImageFile!
@@ -9277,62 +9064,6 @@ type UserEventsVersioned {
   tracking state's actuality.
   """
   ver: UserVersion!
-}
-
-"""
-[Connection] with `User`'s `GalleryItem`s.
-
-[Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-"""
-type UserGalleryItemsConnection {
-  """
-  List of `GalleryItem` [Edges] in this [Connection].
-
-  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-  [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
-  """
-  edges: [UserGalleryItemsEdge!]!
-
-  """
-  List of `GalleryItem`s in this [Connection].
-
-  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-  """
-  nodes: [GalleryItem!]!
-
-  """
-  [PageInfo] of this [Connection].
-
-  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-  [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
-  """
-  pageInfo: PageInfo!
-}
-
-"""Cursor of `User`'s `GalleryItem`s."""
-scalar UserGalleryItemsCursor
-
-"""
-[Edge] with a `User`'s `GalleryItem`.
-
-[Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
-"""
-type UserGalleryItemsEdge {
-  """
-  [Cursor] of this [Edge].
-
-  [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
-  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
-  """
-  cursor: UserGalleryItemsCursor!
-
-  """
-  `GalleryItem` [Node] at the end of this [Edge].
-
-  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
-  [Node]: https://tinyurl.com/gql-relay#sec-Node
-  """
-  node: GalleryItem!
 }
 
 """Type of a `User`'s ID."""
