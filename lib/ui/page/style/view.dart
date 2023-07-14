@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -101,26 +102,31 @@ class _StyleViewState extends State<StyleView> {
                                     );
 
                                   case StyleTab.multimedia:
-                                    _StyleTabCard(
+                                    return _StyleTabCard(
                                       title: 'Multimedia',
                                       icon: Icons.play_lesson_rounded,
                                       inverted: inverted,
                                       onPressed: () {
                                         // TODO: Implement Multimedia page.
+                                        MessagePopup.error(
+                                          'Not implemented yet',
+                                        );
                                       },
                                     );
 
                                   case StyleTab.elements:
-                                    _StyleTabCard(
+                                    return _StyleTabCard(
                                       title: 'Elements',
                                       icon: Icons.widgets_rounded,
                                       inverted: inverted,
                                       onPressed: () {
                                         // TODO: Implement Elements page.
+                                        MessagePopup.error(
+                                          'Not implemented yet',
+                                        );
                                       },
                                     );
                                 }
-                                return null;
                               }),
                         ],
                       ),
