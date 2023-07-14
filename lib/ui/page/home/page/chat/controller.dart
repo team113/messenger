@@ -173,7 +173,7 @@ class ChatController extends GetxController {
   /// Indicator whether sticky header should be visible or not.
   ///
   /// Used to hide it when no scrolling is happening.
-  final RxBool showSticky = RxBool(false);
+  final RxBool showSticky = RxBool(true);
 
   /// Indicator whether the [_bottomLoader] should be displayed.
   final RxBool bottomLoader = RxBool(false);

@@ -30,13 +30,13 @@ late CacheServiceImpl CacheService;
 
 /// Service maintaining caching.
 class CacheServiceImpl {
-  CacheServiceImpl(this.cacheRepository);
+  CacheServiceImpl(this._cacheRepository);
 
   /// [AbstractCacheRepository] maintaining the cache.
-  AbstractCacheRepository cacheRepository; // TODO
+  final AbstractCacheRepository _cacheRepository;
 
   /// Returns the [CacheInfo].
-  Rx<CacheInfo?> get cacheInfo => cacheRepository.cacheInfo;
+  Rx<CacheInfo?> get cacheInfo => _cacheRepository.cacheInfo;
 
   /// Gets a file data from cache by the provided [checksum] or downloads by the
   /// provided [url].
@@ -49,7 +49,7 @@ class CacheServiceImpl {
     CancelToken? cancelToken,
     Future<void> Function()? onForbidden,
   }) =>
-      cacheRepository.get(
+      _cacheRepository.get(
         url: url,
         checksum: checksum,
         onReceiveProgress: onReceiveProgress,
@@ -59,12 +59,12 @@ class CacheServiceImpl {
 
   /// Saves the provided [data] to the cache.
   Future<void> save(Uint8List data, [String? checksum]) =>
-      cacheRepository.save(data, checksum);
+      _cacheRepository.save(data, checksum);
 
   /// Returns indicator whether data with the provided [checksum] exists in the
   /// cache.
-  bool exists(String checksum) => cacheRepository.exists(checksum);
+  bool exists(String checksum) => _cacheRepository.exists(checksum);
 
   /// Clears the cache.
-  Future<void> clear() => cacheRepository.clear();
+  Future<void> clear() => _cacheRepository.clear();
 }

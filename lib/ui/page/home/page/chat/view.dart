@@ -804,11 +804,13 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
-        child: TimeLabelWidget(
-          element.id.at.val,
-          animation: _animation,
-          opacity: c.stickyIndex.value == i && c.showSticky.value ? 1 : 0,
-        ),
+        child: Obx(() {
+          return TimeLabelWidget(
+            element.id.at.val,
+            animation: _animation,
+            opacity: c.stickyIndex.value == i && c.showSticky.isFalse ? 0 : 1,
+          );
+        }),
       );
     } else if (element is UnreadMessagesElement) {
       return SelectionContainer.disabled(child: UnreadLabel(c.unreadMessages));
