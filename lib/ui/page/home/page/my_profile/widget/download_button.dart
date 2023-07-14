@@ -36,10 +36,14 @@ class DownloadButton extends StatelessWidget {
     this.height,
     required this.title,
     this.link,
+    this.color,
   });
 
   /// Asset to display as a prefix to this [DownloadButton].
   final String? asset;
+
+  /// Color of this [DownloadButton].
+  final Color? color;
 
   /// Width of the [asset].
   final double? width;
@@ -58,6 +62,7 @@ class DownloadButton extends StatelessWidget {
     final (style, fonts) = Theme.of(context).styles;
 
     return FieldButton(
+      color: color,
       text: 'space'.l10n * 4 + title,
       textAlign: TextAlign.center,
       onPressed: link == null

@@ -19,8 +19,8 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-class NavigationWidget extends StatelessWidget {
-  const NavigationWidget({super.key});
+class SystemMessagesWidget extends StatelessWidget {
+  const SystemMessagesWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

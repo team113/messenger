@@ -25,6 +25,7 @@ import '../../../../../util/message_popup.dart';
 import '../../../../widget/svg/svg.dart';
 import '../../../../widget/text_field.dart';
 import '../../../../widget/widget_button.dart';
+import '../../../home/widget/sharable.dart';
 import '/themes.dart';
 
 class TextFieldWidget extends StatelessWidget {
@@ -128,22 +129,48 @@ class TextFieldWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              _CopyableTextFieldCard(
-                isHaveError: false,
-                isDarkMode: isDarkMode,
-                title: 'CopyableTextField',
+              Column(
                 children: [
-                  SizedBox(
-                    width: 320,
-                    height: 51,
-                    child: CopyableTextField(
-                      state: TextFieldState(
-                        text: '8642 4348 7885 5329',
-                        editable: false,
+                  _CopyableTextFieldCard(
+                    isHaveError: false,
+                    isDarkMode: isDarkMode,
+                    title: 'CopyableTextField',
+                    children: [
+                      SizedBox(
+                        width: 320,
+                        height: 51,
+                        child: CopyableTextField(
+                          state: TextFieldState(
+                            text: '8642 4348 7885 5329',
+                            editable: false,
+                          ),
+                          label: 'Gapopa ID',
+                        ),
                       ),
-                      label: 'Gapopa ID',
-                    ),
+                    ],
                   ),
+                  const SizedBox(height: 16),
+                  _SharableFieldCard(
+                    isDarkMode: isDarkMode,
+                    title: 'SharableField',
+                    children: [
+                      SizedBox(
+                        width: 320,
+                        height: 51,
+                        child: SharableTextField(
+                          text: '8642 4348 7885 5329',
+                          label: 'Gapopa ID',
+                          share: 'Gapopa ID: 8642 4348 7885 5329',
+                          trailing: SvgImage.asset(
+                            'assets/icons/share.svg',
+                            width: 18,
+                          ),
+                          style: fonts.bodyMedium,
+                          onTap: () {},
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ],
@@ -204,8 +231,6 @@ class _ReactiveTextFieldCard extends StatelessWidget {
     required this.isDarkMode,
     required this.title,
     required this.children,
-    this.height = 520,
-    this.imageHeight = 455,
   });
 
   final bool isDarkMode;
@@ -214,16 +239,12 @@ class _ReactiveTextFieldCard extends StatelessWidget {
 
   final List<Widget> children;
 
-  final double height;
-
-  final double imageHeight;
-
   @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
     return Container(
-      height: height,
+      height: 520,
       width: 490,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -239,7 +260,7 @@ class _ReactiveTextFieldCard extends StatelessWidget {
             children: [
               SizedBox(
                 width: 490,
-                height: imageHeight,
+                height: 455,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Stack(
@@ -330,8 +351,6 @@ class _CopyableTextFieldCard extends StatelessWidget {
     required this.isDarkMode,
     required this.title,
     required this.children,
-    this.height = 150,
-    this.imageHeight = 85,
     this.isHaveError = true,
   });
 
@@ -343,16 +362,12 @@ class _CopyableTextFieldCard extends StatelessWidget {
 
   final List<Widget> children;
 
-  final double height;
-
-  final double imageHeight;
-
   @override
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
     return Container(
-      height: height,
+      height: 150,
       width: 490,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -371,7 +386,7 @@ class _CopyableTextFieldCard extends StatelessWidget {
             children: [
               SizedBox(
                 width: 490,
-                height: imageHeight,
+                height: 85,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Stack(
@@ -411,6 +426,94 @@ class _CopyableTextFieldCard extends StatelessWidget {
                                         : const Color(0xFF1F3C5D),
                                   ),
                                 ),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: children,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _SharableFieldCard extends StatelessWidget {
+  const _SharableFieldCard({
+    required this.isDarkMode,
+    required this.title,
+    required this.children,
+  });
+
+  final bool isDarkMode;
+
+  final String title;
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Container(
+      height: 150,
+      width: 490,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        color: style.colors.onPrimary,
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 15),
+          Text(
+            title,
+            style: fonts.headlineLarge,
+          ),
+          const SizedBox(height: 7),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 490,
+                height: 85,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: Stack(
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.sizeOf(context).width,
+                        child: ClipRRect(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
+                          child: SvgImage.asset(
+                            'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Default',
+                                style: fonts.titleMedium!.copyWith(
+                                  color: isDarkMode
+                                      ? style.colors.onPrimary
+                                      : const Color(0xFF1F3C5D),
+                                ),
+                              ),
                             ],
                           ),
                           Column(

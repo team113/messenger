@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/style/element/widget/system_messages.dart';
 
 import '/ui/page/style/widget/header.dart';
 import 'widget/avatar.dart';
@@ -52,6 +53,9 @@ class ElementStyleTabView extends StatelessWidget {
           const Divider(),
           const SmallHeader(label: 'Containment'),
           const ContainmentWidget(),
+          const Divider(),
+          const SmallHeader(label: 'System messages'),
+          const SystemMessagesWidget(),
           const Divider(),
           const SmallHeader(label: 'Navigation'),
           const NavigationWidget(),

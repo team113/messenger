@@ -28,10 +28,14 @@ class RectangleButton extends StatelessWidget {
     this.onPressed,
     required this.label,
     this.trailingColor,
+    this.color,
   });
 
   /// Label of this [RectangleButton].
   final String label;
+
+  ///
+  final Color? color;
 
   /// Indicator whether this [RectangleButton] is selected, meaning an
   /// [Icons.check] should be displayed in a trailing.
@@ -49,8 +53,10 @@ class RectangleButton extends StatelessWidget {
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color:
-          selected ? style.colors.primary : style.colors.onPrimary.darken(0.05),
+      color: color ??
+          (selected
+              ? style.colors.primary
+              : style.colors.onPrimary.darken(0.05)),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: selected ? null : onPressed,

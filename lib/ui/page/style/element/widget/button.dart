@@ -16,8 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
+import 'package:messenger/ui/page/home/tab/chats/widget/rectangular_call_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
+import '../../../home/widget/rectangle_button.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -47,6 +50,12 @@ class ButtonsWidget extends StatelessWidget {
               _ButtonCard(
                 isDarkMode: isDarkMode,
                 title: 'OutlinedRoundedButton',
+                labels: const [
+                  Text('Default'),
+                  Text('Hovered'),
+                  Text('Pressed'),
+                  Text('Unavailable'),
+                ],
                 children: [
                   SizedBox(
                     width: 300,
@@ -108,6 +117,12 @@ class ButtonsWidget extends StatelessWidget {
               _ButtonCard(
                 isDarkMode: isDarkMode,
                 title: 'FieldButton',
+                labels: const [
+                  Text('Default'),
+                  Text('Hovered'),
+                  Text('Pressed'),
+                  Text('Unavailable'),
+                ],
                 children: [
                   SizedBox(
                     width: 320,
@@ -157,6 +172,12 @@ class ButtonsWidget extends StatelessWidget {
                 ],
               ),
               _ButtonCard(
+                labels: const [
+                  Text('Default'),
+                  Text('Hovered'),
+                  Text('Pressed'),
+                  Text('Unavailable'),
+                ],
                 isDarkMode: isDarkMode,
                 title: 'OutlinedRoundedButton (2)',
                 children: [
@@ -196,6 +217,12 @@ class ButtonsWidget extends StatelessWidget {
                 ],
               ),
               _ButtonCard(
+                labels: const [
+                  Text('Default'),
+                  Text('Hovered'),
+                  Text('Pressed'),
+                  Text('Unavailable'),
+                ],
                 isDarkMode: isDarkMode,
                 title: 'ShadowedRoundedButton',
                 children: [
@@ -239,9 +266,14 @@ class ButtonsWidget extends StatelessWidget {
               ),
               _ButtonCard(
                 height: 410,
-                imageHeight: 350,
                 isDarkMode: isDarkMode,
                 title: 'MenuButton',
+                labels: const [
+                  Text('Default'),
+                  Text('Hovered'),
+                  Text('Selected'),
+                  Text('Unavailable'),
+                ],
                 children: [
                   SizedBox(
                     width: 330,
@@ -288,10 +320,13 @@ class ButtonsWidget extends StatelessWidget {
                 children: [
                   _ButtonCard(
                     height: 210,
-                    imageHeight: 150,
-                    isHaveDisabled: false,
                     isDarkMode: isDarkMode,
                     title: 'ContextMenuButton',
+                    labels: const [
+                      Text('Default'),
+                      Text('Hovered'),
+                      Text('Pressed'),
+                    ],
                     children: [
                       Container(
                         height: 40,
@@ -346,10 +381,13 @@ class ButtonsWidget extends StatelessWidget {
                   const SizedBox(height: 16),
                   _ButtonCard(
                     height: 183,
-                    imageHeight: 124,
-                    isHaveDisabled: false,
                     isDarkMode: isDarkMode,
                     title: 'WidgetButton',
+                    labels: const [
+                      Text('Default'),
+                      Text('Hovered'),
+                      Text('Pressed'),
+                    ],
                     children: [
                       WidgetButton(
                         child: Text(
@@ -382,6 +420,116 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              _ButtonCard(
+                height: 360,
+                labels: const [
+                  Text('Default'),
+                  Text('Hovered'),
+                  Text('Selected'),
+                  Text('Unavailable'),
+                ],
+                isDarkMode: isDarkMode,
+                title: 'RectangleButton',
+                children: [
+                  SizedBox(
+                    width: 300,
+                    height: 70,
+                    child: RectangleButton(
+                      label: 'Display calls in a separate window.',
+                      selected: false,
+                      onPressed: () {},
+                    ),
+                  ),
+                  SizedBox(
+                    width: 300,
+                    height: 70,
+                    child: RectangleButton(
+                      color: const Color(0xFFE9E9E9),
+                      label: 'Display calls in a separate window.',
+                      selected: false,
+                      onPressed: () {},
+                    ),
+                  ),
+                  SizedBox(
+                    width: 300,
+                    height: 70,
+                    child: RectangleButton(
+                      label: 'Display calls in a separate window.',
+                      selected: true,
+                      onPressed: () {},
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 300,
+                    height: 70,
+                    child: RectangleButton(
+                      label: 'Display calls in a separate window.',
+                      selected: false,
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  _ButtonCard(
+                    height: 184,
+                    labels: const [Text('Default'), Text('Hovered')],
+                    isDarkMode: isDarkMode,
+                    title: 'DownloadButton',
+                    children: const [
+                      SizedBox(
+                        width: 320,
+                        height: 52,
+                        child: DownloadButton(
+                          asset: 'apple',
+                          width: 23,
+                          height: 29,
+                          title: 'macOS',
+                          link: 'messenger-macos.zip',
+                        ),
+                      ),
+                      SizedBox(
+                        width: 320,
+                        height: 52,
+                        child: DownloadButton(
+                          color: Color(0xFFF7F7F7),
+                          asset: 'apple',
+                          width: 23,
+                          height: 29,
+                          title: 'macOS',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _ButtonCard(
+                    height: 160,
+                    labels: const [Text('Default'), Text('Inverted')],
+                    isDarkMode: isDarkMode,
+                    title: 'RectangularCallButton',
+                    children: [
+                      SizedBox(
+                        width: 85,
+                        height: 30,
+                        child: RectangularCallButton(
+                          isActive: false,
+                          at: DateTime.now(),
+                          onPressed: () {},
+                        ),
+                      ),
+                      SizedBox(
+                        width: 85,
+                        height: 30,
+                        child: RectangularCallButton(
+                          isActive: true,
+                          at: DateTime.now(),
+                          onPressed: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -395,22 +543,19 @@ class _ButtonCard extends StatelessWidget {
     required this.isDarkMode,
     required this.title,
     required this.children,
+    required this.labels,
     this.height = 335,
-    this.imageHeight = 275,
-    this.isHaveDisabled = true,
   });
 
   final bool isDarkMode;
-
-  final bool isHaveDisabled;
 
   final String title;
 
   final List<Widget> children;
 
-  final double height;
+  final List<Widget> labels;
 
-  final double imageHeight;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -436,7 +581,7 @@ class _ButtonCard extends StatelessWidget {
             children: [
               SizedBox(
                 width: 490,
-                height: imageHeight,
+                height: height - 60,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Stack(
@@ -455,44 +600,17 @@ class _ButtonCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Default',
-                                style: fonts.titleMedium!.copyWith(
-                                  color: isDarkMode
-                                      ? style.colors.onPrimary
-                                      : const Color(0xFF1F3C5D),
-                                ),
-                              ),
-                              Text(
-                                'Hovered',
-                                style: fonts.titleMedium!.copyWith(
-                                  color: isDarkMode
-                                      ? style.colors.onPrimary
-                                      : const Color(0xFF1F3C5D),
-                                ),
-                              ),
-                              Text(
-                                'Pressed',
-                                style: fonts.titleMedium!.copyWith(
-                                  color: isDarkMode
-                                      ? style.colors.onPrimary
-                                      : const Color(0xFF1F3C5D),
-                                ),
-                              ),
-                              if (isHaveDisabled)
-                                Text(
-                                  'Disabled',
-                                  style: fonts.titleMedium!.copyWith(
-                                    color: isDarkMode
-                                        ? style.colors.onPrimary
-                                        : const Color(0xFF1F3C5D),
-                                  ),
-                                ),
-                            ],
+                          DefaultTextStyle(
+                            style: fonts.titleMedium!.copyWith(
+                              color: isDarkMode
+                                  ? style.colors.onPrimary
+                                  : const Color(0xFF1F3C5D),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: labels,
+                            ),
                           ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,

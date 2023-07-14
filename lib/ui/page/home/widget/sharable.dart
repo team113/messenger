@@ -29,7 +29,7 @@ import '/util/platform_utils.dart';
 /// Sharable field opening a [Share] modal with the provided [share] content.
 class SharableTextField extends StatelessWidget {
   SharableTextField({
-    Key? key,
+    super.key,
     required String? text,
     this.share,
     this.icon,
@@ -37,7 +37,8 @@ class SharableTextField extends StatelessWidget {
     this.style,
     this.trailing,
     this.leading,
-  }) : super(key: key) {
+    this.onTap,
+  }) {
     state = TextFieldState(text: text, editable: false);
   }
 
@@ -62,6 +63,9 @@ class SharableTextField extends StatelessWidget {
   /// [TextStyle] of this [SharableTextField].
   final TextStyle? style;
 
+  /// Callback, called when this [SharableTextField] is tapped.
+  final void Function()? onTap;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -85,8 +89,10 @@ class SharableTextField extends StatelessWidget {
             ],
             child: InkWell(
               borderRadius: BorderRadius.circular(25),
-              onTap:
-                  (share ?? state.text).isEmpty ? null : () => _share(context),
+              onTap: onTap ??
+                  ((share ?? state.text).isEmpty
+                      ? null
+                      : () => _share(context)),
               child: IgnorePointer(
                 child: ReactiveTextField(
                   prefix: leading,
