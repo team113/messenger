@@ -75,9 +75,6 @@ class MyProfileController extends GetxController {
   /// [MyUser.name]'s field state.
   late final TextFieldState name;
 
-  /// [MyUser.num]'s copyable state.
-  late final TextFieldState num;
-
   /// [MyUser.chatDirectLink]'s copyable state.
   late final TextFieldState link;
 
@@ -244,14 +241,6 @@ class MyProfileController extends GetxController {
           }
         }
       },
-    );
-
-    num = TextFieldState(
-      text: myUser.value?.num.val.replaceAllMapped(
-        RegExp(r'.{4}'),
-        (match) => '${match.group(0)} ',
-      ),
-      editable: false,
     );
 
     link = TextFieldState(

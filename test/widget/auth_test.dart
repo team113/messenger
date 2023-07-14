@@ -177,7 +177,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Future<void> Function(AuthorizationException)? authExceptionHandler;
 
   @override
-  void reconnect() {}
+  Future<void> reconnect() async {}
 
   var userData = {
     'id': 'me',

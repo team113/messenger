@@ -15,11 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-export 'list.dart';
-export 'map.dart';
-export 'rxlist.dart';
-export 'rxmap.dart';
-export 'rxsplay.dart';
+import 'package:flutter/services.dart';
 
-/// Possible operation kinds changing an observable iterable.
-enum OperationKind { added, removed, updated }
+/// Helper providing direct access to iOS-only features.
+class IosUtils {
+  /// [MethodChannel] to communicate with iOS via.
+  static const platform = MethodChannel('team113.flutter.dev/ios_utils');
+
+  /// Returns the architecture of this device.
+  static Future<String> getArchitecture() async {
+    return await platform.invokeMethod('getArchitecture');
+  }
+}

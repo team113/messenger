@@ -17,29 +17,34 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/widget/paddings.dart';
-import '/ui/widget/text_field.dart';
+import '/themes.dart';
 
-/// [CopyableTextField] representation of the provided [UserName] or [UserNum].
-class UserNameCopyable extends StatelessWidget {
-  const UserNameCopyable(this.name, this.num, {super.key});
+/// [Container] displaying the provided [count] as an unread messages label.
+class UnreadLabel extends StatelessWidget {
+  const UnreadLabel(this.count, {super.key});
 
-  /// [UserName] to display.
-  final UserName? name;
-
-  /// [UserNum] to display, if [name] is `null`.
-  final UserNum num;
+  /// Count to display in this [UnreadLabel].
+  final int count;
 
   @override
   Widget build(BuildContext context) {
-    return Paddings.basic(
-      CopyableTextField(
-        key: const Key('NameField'),
-        state: TextFieldState(text: name?.val ?? num.val, editable: false),
-        label: 'label_name'.l10n,
+    final style = Theme.of(context).style;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: style.systemMessageBorder,
+        color: style.systemMessageColor,
+      ),
+      child: Center(
+        child: Text(
+          'label_unread_messages'.l10nfmt({'quantity': count}),
+          style: style.systemMessageStyle,
+        ),
       ),
     );
   }

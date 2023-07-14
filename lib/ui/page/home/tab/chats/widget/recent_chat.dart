@@ -286,7 +286,57 @@ class RecentChatTile extends StatelessWidget {
 
       ChatMessage? draft = rxChat.draft.value;
 
-      if (draft != null && !selected) {
+      if (typings.isNotEmpty) {
+        if (!rxChat.chat.value.isGroup) {
+          subtitle = [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'label_typing'.l10n,
+                  style: fonts.labelMedium!.copyWith(
+                    color: inverted
+                        ? style.colors.onPrimary
+                        : style.colors.primary,
+                  ),
+                ),
+                const SizedBox(width: 3),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: AnimatedTyping(inverted: inverted),
+                ),
+              ],
+            ),
+          ];
+        } else {
+          subtitle = [
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Text(
+                      typings.join('comma_space'.l10n),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: fonts.labelMedium!.copyWith(
+                        color: inverted
+                            ? style.colors.onPrimary
+                            : style.colors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: AnimatedTyping(inverted: inverted),
+                  ),
+                ],
+              ),
+            )
+          ];
+        }
+      } else if (draft != null && !selected && rxChat.unreadCount.value == 0) {
         final StringBuffer desc = StringBuffer();
 
         if (draft.text != null) {
@@ -345,56 +395,6 @@ class RecentChatTile extends StatelessWidget {
               ),
             ),
         ];
-      } else if (typings.isNotEmpty) {
-        if (!rxChat.chat.value.isGroup) {
-          subtitle = [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'label_typing'.l10n,
-                  style: fonts.labelMedium!.copyWith(
-                    color: inverted
-                        ? style.colors.onPrimary
-                        : style.colors.primary,
-                  ),
-                ),
-                const SizedBox(width: 3),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: AnimatedTyping(inverted: inverted),
-                ),
-              ],
-            ),
-          ];
-        } else {
-          subtitle = [
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Text(
-                      typings.join('comma_space'.l10n),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: fonts.labelMedium!.copyWith(
-                        color: inverted
-                            ? style.colors.onPrimary
-                            : style.colors.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 3),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: AnimatedTyping(inverted: inverted),
-                  ),
-                ],
-              ),
-            )
-          ];
-        }
       } else if (item != null) {
         if (item is ChatCall) {
           Widget widget = Padding(

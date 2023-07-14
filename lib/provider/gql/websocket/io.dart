@@ -15,11 +15,22 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-export 'list.dart';
-export 'map.dart';
-export 'rxlist.dart';
-export 'rxmap.dart';
-export 'rxsplay.dart';
+import 'package:universal_io/io.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
-/// Possible operation kinds changing an observable iterable.
-enum OperationKind { added, removed, updated }
+/// Creates a new WebSocket connection.
+///
+/// Connects to the provided [uri] and returns a channel that can be used to
+/// communicate over the resulting socket.
+WebSocketChannel connect(
+  Uri uri, {
+  Iterable<String>? protocols,
+  HttpClient? customClient,
+}) {
+  return IOWebSocketChannel.connect(
+    uri,
+    protocols: protocols,
+    customClient: customClient,
+  );
+}
