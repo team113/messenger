@@ -760,38 +760,6 @@ class HiveRxChat extends RxChat {
     return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
   }
 
-  /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
-  Future<void> _initAttachments() async {
-    final List<Future> futures = [];
-
-    for (ChatItem item in messages.map((e) => e.value)) {
-      if (item is ChatMessage) {
-        futures.addAll(
-          item.attachments.whereType<FileAttachment>().map((e) => e.init()),
-        );
-      } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
-        if (nested is ChatMessageQuote) {
-          futures.addAll(
-            nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
-          );
-        }
-      }
-
-      int i = messages.indexWhere((e) => e.value.id == item.id);
-      if (i == -1) {
-        Rx<ChatItem> rxItem = Rx<ChatItem>(item);
-        messages.insertAfter(
-          rxItem,
-          (e) => rxItem.value.at.compareTo(e.value.at) == 1,
-        );
-      } else {
-        messages[i].value = item;
-        messages[i].refresh();
-      }
-    }
-  }
-
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
     if (chat.value.name != null) {

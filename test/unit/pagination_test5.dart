@@ -46,7 +46,7 @@ void main() async {
     );
     graphQlProvider.token = response.session.token;
 
-    final Pagination<HiveChatItem, ChatItemsCursor, String> pagination =
+    final Pagination<HiveChatItem, String, ChatItemsCursor> pagination =
         Pagination(
       perPage: 4,
       onKey: (e) => e.value.key,
@@ -64,7 +64,7 @@ void main() async {
               q.chat!.items.pageInfo.toModel((e) => ChatItemsCursor(e));
           return Page(
             RxList(q.chat!.items.edges.map((e) => e.toHive()).toList()),
-            info: PageInfo<ChatItemsCursor>(
+            PageInfo<ChatItemsCursor>(
               hasNext: info.hasNext,
               hasPrevious: info.hasPrevious,
               startCursor: info.startCursor,
@@ -77,7 +77,7 @@ void main() async {
 
     void console() {
       print(
-        '[${pagination.elements.values.map((m) {
+        '[${pagination.items.values.map((m) {
           if (m is HiveChatMessage) {
             return '${(m.value as ChatMessage).text}';
           }

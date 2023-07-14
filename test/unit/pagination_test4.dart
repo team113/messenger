@@ -32,7 +32,7 @@ void main() async {
 
     void console() {
       print(
-        '${pagination.hasPrevious} [${pagination.elements.values}] ${pagination.hasNext}',
+        '${pagination.hasPrevious} [${pagination.items.values}] ${pagination.hasNext}',
       );
     }
 
@@ -66,7 +66,7 @@ class _ListPageProvider implements PageProvider<int, int> {
   final List<int> _items = List.generate(50, (i) => i);
 
   @override
-  FutureOr<Rx<Page<int, int>>> around(int? item, int? cursor, int count) {
+  FutureOr<Page<int, int>> around(int? item, int? cursor, int count) {
     final int half = count ~/ 2;
 
     cursor ??= half;
@@ -81,15 +81,15 @@ class _ListPageProvider implements PageProvider<int, int> {
       after = _items.length - cursor;
     }
 
-    return Rx(Page(
+    return Page(
       RxList(_items.skip(cursor - before).take(before + after).toList()),
-      info: PageInfo<int>(
+      PageInfo<int>(
         hasPrevious: cursor - before > 0,
         hasNext: cursor + after < _items.length,
         startCursor: cursor - before,
         endCursor: cursor + after - 1,
       ),
-    ));
+    );
   }
 
   @override
@@ -102,7 +102,7 @@ class _ListPageProvider implements PageProvider<int, int> {
 
     return Page(
       RxList(_items.skip(cursor).take(count).toList()),
-      info: PageInfo<int>(
+      PageInfo<int>(
         hasPrevious: cursor > 0,
         hasNext: cursor + count < _items.length,
         startCursor: cursor,
@@ -121,12 +121,18 @@ class _ListPageProvider implements PageProvider<int, int> {
 
     return Page(
       RxList(_items.skip(cursor - count).take(count).toList()),
-      info: PageInfo<int>(
+      PageInfo<int>(
         hasPrevious: cursor - count > 0,
         hasNext: cursor < _items.length,
         startCursor: cursor - count,
         endCursor: cursor - 1,
       ),
     );
+  }
+
+  @override
+  Future<void> add(int item) {
+    // TODO: implement add
+    throw UnimplementedError();
   }
 }
