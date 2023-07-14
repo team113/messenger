@@ -219,7 +219,7 @@ class CacheUtilsImpl {
     _updateInfo();
   }
 
-  /// Updates the [cacheSize] and [_files].
+  /// Updates the [cacheSize] and [_files] values.
   void _updateInfo() async {
     final Directory cache = await cacheDirectory;
 

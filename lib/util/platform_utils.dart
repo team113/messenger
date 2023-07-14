@@ -390,12 +390,12 @@ class PlatformUtilsImpl {
             cancelToken,
           );
 
-          Uint8List? data;
-          if (checksum != null && CacheUtils.exists(checksum)) {
-            data = await CacheUtils.get(checksum: checksum);
-          }
-
           if (file == null) {
+            Uint8List? data;
+            if (checksum != null && CacheUtils.exists(checksum)) {
+              data = await CacheUtils.get(checksum: checksum);
+            }
+
             final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
             final String path = await downloadsDirectory;
