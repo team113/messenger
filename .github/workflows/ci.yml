@@ -133,6 +133,10 @@ jobs:
               ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Unshallow the repository in order for `PubspecBuilder` and its
+          # `git describe` to work.
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -352,10 +356,21 @@ jobs:
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
       # passed to the `chromedriver` does.
+      #
+      # Use `grep` to remove the meaningless logs from the output.
       - uses: nanasess/setup-chromedriver@v1
       - run: |
-          chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
+          chromedriver --port=4444 --enable-chrome-logs \
+                       --disable-dev-shm-usage \
+                       2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+        env:
+          OMIT: |
+            [
+              ":INFO:CONSOLE\\(52564\\)] ",
+              "\"Got object store box in database",
+              "\\[CONFIG\\]: Remote configuration fetch failed"
+            ]
 
       # Grant permissions to `.cache/` dir created in the previous step, since
       # `hashFile` may fail: https://github.com/actions/runner/issues/449
