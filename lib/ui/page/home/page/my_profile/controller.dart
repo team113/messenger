@@ -36,13 +36,13 @@ import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/cache.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/text_field.dart';
-import '/util/cache_utils.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -520,7 +520,7 @@ class MyProfileController extends GetxController {
 
   /// Deletes the cache used by the application.
   Future<void> clearCache() async {
-    await CacheUtils.clear();
+    await CacheService.clear();
   }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]

@@ -16,39 +16,55 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
-import '../model/cache_info.dart';
+import '/domain/model/cache_info.dart';
+import '/domain/repository/cache.dart';
 
-/// Application cache repository interface.
-abstract class AbstractCacheRepository {
-  /// Returns the stored [CacheInfo].
-  Rx<CacheInfo?> get cacheInfo;
+/// Global variable to access [CacheServiceImpl].
+// ignore: non_constant_identifier_names
+late CacheServiceImpl CacheService;
+
+/// Service maintaining caching.
+class CacheServiceImpl {
+  CacheServiceImpl(this.cacheRepository);
+
+  /// [AbstractCacheRepository] maintaining the cache.
+  AbstractCacheRepository cacheRepository; // TODO
+
+  /// Returns the [CacheInfo].
+  Rx<CacheInfo?> get cacheInfo => cacheRepository.cacheInfo;
 
   /// Gets a file data from cache by the provided [checksum] or downloads by the
   /// provided [url].
   ///
   /// At least one of [url] or [checksum] arguments must be provided.
-  ///
-  /// Retries itself using exponential backoff algorithm on a failure.
   FutureOr<Uint8List?> get({
     String? url,
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
     Future<void> Function()? onForbidden,
-  });
+  }) =>
+      cacheRepository.get(
+        url: url,
+        checksum: checksum,
+        onReceiveProgress: onReceiveProgress,
+        cancelToken: cancelToken,
+        onForbidden: onForbidden,
+      );
 
   /// Saves the provided [data] to the cache.
-  Future<void> save(Uint8List data, [String? checksum]);
+  Future<void> save(Uint8List data, [String? checksum]) =>
+      cacheRepository.save(data, checksum);
 
   /// Returns indicator whether data with the provided [checksum] exists in the
   /// cache.
-  bool exists(String checksum);
+  bool exists(String checksum) => cacheRepository.exists(checksum);
 
   /// Clears the cache.
-  Future<void> clear();
+  Future<void> clear() => cacheRepository.clear();
 }

@@ -23,6 +23,10 @@ import '../model_type_id.dart';
 
 part 'cache_info.g.dart';
 
+/// One gigabyte in bytes.
+// ignore: constant_identifier_names
+const int GB = 1024 * 1024 * 1024;
+
 /// Info about the cache.
 @HiveType(typeId: ModelTypeId.cacheInfo)
 class CacheInfo extends HiveObject {
@@ -30,6 +34,7 @@ class CacheInfo extends HiveObject {
     this.files = const [],
     this.size = 0,
     this.modified,
+    this.maxSize = GB,
   });
 
   /// [File]s stored in the cache.
@@ -43,6 +48,10 @@ class CacheInfo extends HiveObject {
   /// [DateTime] of the last cache modification.
   @HiveField(2)
   DateTime? modified;
+
+  /// Max size of all [files] stored in the cache.
+  @HiveField(3)
+  int maxSize;
 }
 
 /// [Hive] adapter for a [File].

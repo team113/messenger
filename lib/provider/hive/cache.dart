@@ -35,8 +35,8 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
   }
 
   /// Returns the stored [CacheInfo] from [Hive].
-  CacheInfo? get cacheInfo => getSafe(0);
+  CacheInfo get cacheInfo => getSafe(0) ?? CacheInfo();
 
   /// Stores a new [CacheInfo] value to [Hive].
-  Future<void> update(CacheInfo cacheInfo) => putSafe(0, cacheInfo);
+  Future<void> set(CacheInfo cacheInfo) => putSafe(0, cacheInfo);
 }
