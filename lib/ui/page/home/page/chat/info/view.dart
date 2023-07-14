@@ -18,7 +18,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/widget/animated_button.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -35,6 +34,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/member_tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -126,90 +126,68 @@ class ChatInfoView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
               actions: [
-                WidgetButton(
-                  onPressed: () => router.chat(id, push: true),
-                  child: Transform.translate(
-                    offset: const Offset(0, 1),
-                    child: AnimatedButton(
-                      child: SvgImage.asset(
-                        'assets/icons/chat.svg',
-                        width: 20.12,
-                        height: 21.62,
-                      ),
+                Transform.translate(
+                  offset: const Offset(0, 1),
+                  child: AnimatedButton(
+                    onPressed: () => router.chat(id, push: true),
+                    child: SvgImage.asset(
+                      'assets/icons/chat.svg',
+                      width: 20.12,
+                      height: 21.62,
                     ),
                   ),
                 ),
                 if (c.chat!.chat.value.ongoingCall == null) ...[
                   if (!context.isMobile) ...[
                     const SizedBox(width: 28),
-                    WidgetButton(
+                    AnimatedButton(
                       onPressed: () => c.call(true),
-                      child: AnimatedButton(
-                        child: SvgImage.asset(
-                          'assets/icons/chat_video_call.svg',
-                          height: 17,
-                        ),
+                      child: SvgImage.asset(
+                        'assets/icons/chat_video_call.svg',
+                        height: 17,
                       ),
                     ),
                   ],
                   const SizedBox(width: 28),
-                  WidgetButton(
+                  AnimatedButton(
                     onPressed: () => c.call(false),
-                    child: AnimatedButton(
-                      child: SvgImage.asset(
-                        'assets/icons/chat_audio_call.svg',
-                        height: 19,
-                      ),
+                    child: SvgImage.asset(
+                      'assets/icons/chat_audio_call.svg',
+                      height: 19,
                     ),
                   ),
                 ] else ...[
                   const SizedBox(width: 14),
-                  AnimatedSwitcher(
-                    key: const Key('ActiveCallButton'),
-                    duration: 300.milliseconds,
-                    child: c.inCall
-                        ? WidgetButton(
-                            key: const Key('Drop'),
-                            onPressed: c.dropCall,
-                            child: AnimatedButton(
-                              child: Container(
-                                height: 22,
-                                width: 22,
-                                decoration: BoxDecoration(
-                                  color: style.colors.dangerColor,
-                                  shape: BoxShape.circle,
+                  AnimatedButton(
+                    key: c.inCall ? const Key('Drop') : const Key('Join'),
+                    onPressed: c.inCall ? c.dropCall : c.joinCall,
+                    child: Container(
+                      key: const Key('ActiveCallButton'),
+                      height: 22,
+                      width: 22,
+                      decoration: BoxDecoration(
+                        color: c.inCall
+                            ? style.colors.dangerColor
+                            : style.colors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: AnimatedSwitcher(
+                          duration: 300.milliseconds,
+                          child: c.inCall
+                              ? SvgImage.asset(
+                                  'assets/icons/call_end.svg',
+                                  width: 22,
+                                  height: 22,
+                                )
+                              : SvgImage.asset(
+                                  'assets/icons/audio_call_start.svg',
+                                  width: 10,
+                                  height: 10,
                                 ),
-                                child: Center(
-                                  child: SvgImage.asset(
-                                    'assets/icons/call_end.svg',
-                                    width: 22,
-                                    height: 22,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        : WidgetButton(
-                            key: const Key('Join'),
-                            onPressed: c.joinCall,
-                            child: AnimatedButton(
-                              child: Container(
-                                height: 22,
-                                width: 22,
-                                decoration: BoxDecoration(
-                                  color: style.colors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: SvgImage.asset(
-                                    'assets/icons/audio_call_start.svg',
-                                    width: 10,
-                                    height: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ],
@@ -251,24 +229,6 @@ class ChatInfoView extends StatelessWidget {
         });
       },
     );
-  }
-
-  /// Returns a subtitle to display under the [Chat]'s title.
-  Widget _chatSubtitle(ChatInfoController c, BuildContext context) {
-    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
-
-    return Obx(() {
-      final Rx<Chat> chat = c.chat!.chat;
-
-      if (chat.value.isGroup) {
-        final String? subtitle = chat.value.getSubtitle();
-        if (subtitle != null) {
-          return Text(subtitle, style: style);
-        }
-      }
-
-      return Container();
-    });
   }
 
   /// Basic [Padding] wrapper.
@@ -691,16 +651,13 @@ class ChatInfoView extends StatelessWidget {
     ChatInfoController c,
     BuildContext context,
   ) async {
-    final style = Theme.of(context).style;
+    final fonts = Theme.of(context).fonts;
 
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: TextStyle(color: style.colors.onBackground),
-        ),
+        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],
     );

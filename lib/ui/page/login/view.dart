@@ -180,7 +180,7 @@ class LoginView extends StatelessWidget {
               children = [
                 ReactiveTextField(
                   state: c.email,
-                  label: 'E-mail or phone'.l10n,
+                  label: 'E-mail or phone number'.l10n,
                   style: fonts.bodyMedium,
                   treatErrorAsStatus: false,
                 ),

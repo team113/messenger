@@ -312,7 +312,7 @@ class HiveRxChat extends RxChat {
         if (item.value.status.value == SendingStatus.sent) {
           int i = items.indexWhere((e) => e.value.id == item.value.id);
           if (i == -1) {
-            _local.remove(item.value.timestamp);
+            _local.remove(item.value.key);
           }
         }
       }
@@ -482,7 +482,7 @@ class HiveRxChat extends RxChat {
           as EventChatItemPosted?;
 
       if (event != null && event.item is HiveChatMessage) {
-        remove(message.value.id, message.value.timestamp);
+        remove(message.value.id, message.value.key);
         _pending.remove(message.value);
         message = event.item as HiveChatMessage;
       }
@@ -505,41 +505,28 @@ class HiveRxChat extends RxChat {
           return;
         }
 
-        HiveChatItem? saved = _local.get(item.value.timestamp);
+        final HiveChatItem? saved = _local.get(item.value.key);
         if (saved == null) {
           _local.put(item);
-        } else {
-          if (saved.value.id.val != item.value.id.val) {
-            // TODO: Sort items by their [DateTime] and their [ID]s (if the
-            //       posting [DateTime] is the same).
-            // If there's collision, then decrease timestamp with 1 millisecond
-            // offset and save this item again.
-            item.value.at =
-                item.value.at.subtract(const Duration(milliseconds: 1));
-            put(item);
-          } else if (saved.ver < item.ver || ignoreVersion) {
-            _local.put(item);
-          }
+        } else if (saved.ver < item.ver || ignoreVersion) {
+          _local.put(item);
         }
       }),
     );
   }
 
   @override
-  Future<void> remove(ChatItemId itemId, [String? timestamp]) {
+  Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) {
     return _guard.protect(
       () => Future.sync(() {
         if (!_local.isReady) {
           return;
         }
 
-        // TODO: Implement `ChatItemId` to timestamp lookup table.
-        timestamp ??= messages
-            .firstWhereOrNull((e) => e.value.id == itemId)
-            ?.value
-            .timestamp;
-        if (timestamp != null) {
-          _local.remove(timestamp!);
+        key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
+
+        if (key != null) {
+          _local.remove(key!);
 
           HiveChat? chatEntity = _chatLocal.get(id);
           if (chatEntity?.value.lastItem?.id == itemId) {
@@ -548,7 +535,7 @@ class HiveRxChat extends RxChat {
             chatEntity!.value.lastItem = lastItem?.value;
             if (lastItem != null) {
               chatEntity.lastItemCursor =
-                  _local.get(lastItem.value.timestamp)?.cursor;
+                  _local.get(lastItem.value.key)?.cursor;
             } else {
               chatEntity.lastItemCursor = null;
             }
@@ -561,43 +548,22 @@ class HiveRxChat extends RxChat {
 
   /// Returns a stored [HiveChatItem] identified by the provided [id], if any.
   ///
-  /// Optionally, a [timestamp] may be specified, otherwise it will be fetched
+  /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [messages] list.
-  Future<HiveChatItem?> get(ChatItemId id, {String? timestamp}) async {
-    return _guard.protect(
-      () => Future.sync(() {
-        if (!_local.isReady) {
-          return null;
-        }
+  Future<HiveChatItem?> get(ChatItemId id, {ChatItemKey? key}) async {
+    return _guard.protect(() async {
+      if (!_local.isReady) {
+        return null;
+      }
 
-        timestamp ??=
-            messages.firstWhereOrNull((e) => e.value.id == id)?.value.timestamp;
+      key ??= _local.keys.firstWhereOrNull((e) => e.id == id);
 
-        HiveChatItem? result;
-        if (timestamp != null) {
-          while (true) {
-            var saved = _local.get(timestamp!);
-            if (saved == null) {
-              result = null;
-              break;
-            } else {
-              if (saved.value.id == id) {
-                result = saved;
-                break;
-              } else {
-                timestamp =
-                    DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp!))
-                        .subtract(const Duration(milliseconds: 1))
-                        .millisecondsSinceEpoch
-                        .toString();
-              }
-            }
-          }
-        }
+      if (key != null) {
+        return _local.get(key!);
+      }
 
-        return result;
-      }),
-    );
+      return null;
+    });
   }
 
   /// Recalculates the [reads] to represent the actual [messages].
@@ -706,10 +672,6 @@ class HiveRxChat extends RxChat {
 
   @override
   void addWelcomeMessage(String welcome) async {
-    final PreciseDateTime at =
-        (messages.lastOrNull?.value.at ?? PreciseDateTime.now())
-            .add(const Duration(microseconds: 1));
-
     HiveChatMessage message = HiveChatMessage.sending(
       chatId: chat.value.id,
       me: members.values.firstWhereOrNull((e) => e.id != me)?.id ?? me!,
@@ -827,7 +789,7 @@ class HiveRxChat extends RxChat {
 
   /// Re-fetches the [Attachment]s of the specified [item] to be up-to-date.
   Future<void> _updateAttachments(ChatItem item) async {
-    HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
+    final HiveChatItem? stored = await get(item.id, key: item.key);
     if (stored != null) {
       List<Attachment> response = await _chatRepository.attachments(stored);
 
@@ -880,8 +842,9 @@ class HiveRxChat extends RxChat {
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_local.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
-      int i = messages.indexWhere((e) => e.value.timestamp == event.key);
+      final BoxEvent event = _localSubscription!.current;
+      final int i =
+          messages.indexWhere((e) => e.value.key.toString() == event.key);
       if (event.deleted) {
         if (i != -1) {
           messages.removeAt(i);
@@ -904,10 +867,10 @@ class HiveRxChat extends RxChat {
         }
 
         if (i == -1) {
-          Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
+          final Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
           messages.insertAfter(
             item,
-            (e) => item.value.at.compareTo(e.value.at) == 1,
+            (e) => item.value.key.compareTo(e.value.key) == 1,
           );
         } else {
           messages[i].value = event.value.value;
@@ -1017,17 +980,11 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.itemTextEdited:
               event as EventChatItemTextEdited;
-              await _guard.protect(
-                () => Future.sync(() {
-                  // TODO: Implement `ChatItemId` to timestamp lookup table.
-                  var message = _local.messages
-                      .firstWhereOrNull((e) => e.value.id == event.itemId);
-                  if (message != null) {
-                    (message.value as ChatMessage).text = event.text;
-                    message.save();
-                  }
-                }),
-              );
+              final message = await get(event.itemId);
+              if (message != null) {
+                (message.value as ChatMessage).text = event.text;
+                message.save();
+              }
               break;
 
             case ChatEventKind.callStarted:
@@ -1040,8 +997,7 @@ class HiveRxChat extends RxChat {
               chatEntity.value.ongoingCall = event.call;
               _chatRepository.addCall(event.call);
 
-              var message =
-                  await get(event.call.id, timestamp: event.call.timestamp);
+              final message = await get(event.call.id, key: event.call.key);
 
               if (message != null) {
                 event.call.at = message.value.at;
@@ -1073,8 +1029,7 @@ class HiveRxChat extends RxChat {
                 _chatRepository.endCall(event.call.chatId);
               }
 
-              var message =
-                  await get(event.call.id, timestamp: event.call.timestamp);
+              final message = await get(event.call.id, key: event.call.key);
 
               if (message != null) {
                 event.call.at = message.value.at;
@@ -1116,7 +1071,7 @@ class HiveRxChat extends RxChat {
 
                   if (chatEntity.value.ongoingCall != null) {
                     final call = chatEntity.value.ongoingCall!;
-                    var message = await get(call.id, timestamp: call.timestamp);
+                    final message = await get(call.id, key: call.key);
 
                     if (message != null) {
                       call.at = message.value.at;
@@ -1201,12 +1156,8 @@ class HiveRxChat extends RxChat {
                 // one is found in the [_pending] messages, and this message
                 // is not yet added to the store, then remove the [pending].
                 if (pending != null &&
-                    await get(
-                          item.value.id,
-                          timestamp: item.value.timestamp,
-                        ) ==
-                        null) {
-                  remove(pending.id, pending.timestamp);
+                    await get(item.value.id, key: item.value.key) == null) {
+                  remove(pending.id, pending.key);
                   _pending.remove(pending);
                 }
               }

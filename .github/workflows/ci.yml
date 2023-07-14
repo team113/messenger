@@ -133,6 +133,10 @@ jobs:
               ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Unshallow the repository in order for `PubspecBuilder` and its
+          # `git describe` to work.
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -280,6 +284,14 @@ jobs:
              || matrix.platform == 'macos'
              || matrix.platform == 'windows' }}
 
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
       - run: make flutter.pub
 
       - run: make flutter.build platform=${{ matrix.platform }}
@@ -288,7 +300,8 @@ jobs:
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
-                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}'
+                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name

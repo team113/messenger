@@ -198,6 +198,7 @@ btn_participants = Participants
 btn_participants_desc =
     Call
     participants
+btn_paste = Paste
 btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove

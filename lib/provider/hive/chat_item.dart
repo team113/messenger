@@ -83,17 +83,22 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
   }
 
+  /// Returns a list of [ChatItemKey]s stored in the [Hive].
+  Iterable<ChatItemKey> get keys =>
+      keysSafe.map((e) => ChatItemKey.fromString(e));
+
   /// Returns a list of [ChatItem]s from [Hive].
   Iterable<HiveChatItem> get messages => valuesSafe;
 
   /// Puts the provided [ChatItem] to [Hive].
-  Future<void> put(HiveChatItem item) => putSafe(item.value.timestamp, item);
+  Future<void> put(HiveChatItem item) =>
+      putSafe(item.value.key.toString(), item);
 
-  /// Returns a [ChatItem] from [Hive] by its [timestamp].
-  HiveChatItem? get(String timestamp) => getSafe(timestamp);
+  /// Returns a [ChatItem] from [Hive] by its [key].
+  HiveChatItem? get(ChatItemKey key) => getSafe(key.toString());
 
-  /// Removes a [ChatItem] from [Hive] by the provided [timestamp].
-  Future<void> remove(String timestamp) => deleteSafe(timestamp);
+  /// Removes a [ChatItem] from [Hive] by the provided [key].
+  Future<void> remove(ChatItemKey key) => deleteSafe(key.toString());
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].

@@ -326,10 +326,21 @@ class ReactiveTextField extends StatelessWidget {
               onSubmitted: (s) => state.submit(),
               inputFormatters: formatters,
               readOnly: readOnly || (!enabled || !state.editable.value),
-              enabled: enabled && state.editable.value,
+              enabled: enabled,
               decoration: InputDecoration(
                 floatingLabelBehavior: floatingLabelBehavior,
                 isDense: dense ?? PlatformUtils.isMobile,
+                focusedBorder: state.editable.value
+                    ? null
+                    : Theme.of(context).inputDecorationTheme.border,
+                floatingLabelStyle: state.editable.value
+                    ? null
+                    : Theme.of(context)
+                        .inputDecorationTheme
+                        .floatingLabelStyle
+                        ?.copyWith(
+                          color: style.colors.secondaryHighlightDarkest,
+                        ),
                 prefixText: prefixText,
                 suffixText: suffixText,
                 prefixStyle: prefixStyle,
@@ -338,13 +349,7 @@ class ReactiveTextField extends StatelessWidget {
                 prefixIconColor: prefixIconColor,
                 fillColor: fillColor ?? style.colors.onPrimary,
                 filled: filled ?? true,
-                // fillColor: filled == false ? Colors.transparent : null,
                 contentPadding: contentPadding,
-                suffixIconConstraints: null,
-
-                // suffixIconConstraints: suffix == null && trailing == null
-                //     ? const BoxConstraints(maxWidth: 44)
-                //     : null,
                 suffixIcon:
                     dense == true || !withTrailing ? null : buildSuffix(),
                 icon: icon == null
@@ -354,15 +359,11 @@ class ReactiveTextField extends StatelessWidget {
                         child: Icon(icon),
                       ),
                 labelText: label,
-                // hintStyle: style?.copyWith(color: Color(0xFFC6C6C6)),
                 hintStyle: this.style?.copyWith(
-                      // color: Theme.of(context).colorScheme.secondary,
-                      // color: const Color(0xFFC6C6C6),
                       color: Theme.of(context)
                           .inputDecorationTheme
                           .hintStyle
                           ?.color,
-                      // color: const Color(0xFFC4C4C4),
                     ),
                 hintText: hint,
                 hintMaxLines: 1,
@@ -552,7 +553,7 @@ class TextFieldState extends ReactiveFieldState {
   }
 
   /// [Duration] to debounce the [onChanged] calls with.
-  static const Duration debounce = Duration(milliseconds: 500);
+  static const Duration debounce = Duration(seconds: 2);
 
   /// Callback, called when the [text] has finished changing.
   ///

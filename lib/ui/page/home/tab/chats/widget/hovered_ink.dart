@@ -26,7 +26,7 @@ import '/ui/page/home/widget/avatar.dart';
 /// [InkResponse.hoverColor].
 class InkWellWithHover extends StatefulWidget {
   const InkWellWithHover({
-    Key? key,
+    super.key,
     this.selected = false,
     this.selectedColor,
     this.selectedHoverColor,
@@ -40,7 +40,7 @@ class InkWellWithHover extends StatefulWidget {
     this.outlined = false,
     this.onHover,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// Indicator whether this [InkWellWithHover] is selected.
   final bool selected;
@@ -90,12 +90,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
-    // final style = Theme.of(context).style;
-
-    // final border = OutlineInputBorder(
-    //   borderRadius: widget.borderRadius ?? BorderRadius.zero,
-    //   borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
-    // );
+    final style = Theme.of(context).style;
 
     return ClipPath(
       clipper:
@@ -135,18 +130,14 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                         width: widget.borderRadius?.topLeft.y ?? 10,
                         height: widget.borderRadius?.topLeft.y ?? 10,
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .extension<Style>()!
-                              .cardHoveredBorder
-                              .top
-                              .color
-                              .darken(0.1),
+                          color:
+                              style.colors.primaryHighlightShiniest.darken(0.1),
                           borderRadius: const BorderRadius.only(
                             bottomRight: Radius.circular(4),
                           ),
-                          boxShadow: const [
+                          boxShadow: [
                             CustomBoxShadow(
-                              color: Color(0xFFC0C0C0),
+                              color: style.colors.secondaryHighlightDarkest,
                               blurStyle: BlurStyle.outer,
                               blurRadius: 4,
                             ),

@@ -39,7 +39,8 @@ abstract class ChatItem {
     this.at, {
     SendingStatus? status,
   }) : status = Rx(
-            status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent));
+          status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent),
+        );
 
   /// Unique ID of this [ChatItem].
   @HiveField(0)
@@ -60,9 +61,10 @@ abstract class ChatItem {
   /// [SendingStatus] of this [ChatItem].
   final Rx<SendingStatus> status;
 
-  /// Returns number of microseconds since the "Unix epoch" till
-  /// [PreciseDateTime] when this [ChatItem] was posted.
-  String get timestamp => at.microsecondsSinceEpoch.toString();
+  /// Returns combined [at] and [id] unique identifier of this [ChatItem].
+  ///
+  /// Meant to be used as a key sorted by posting [DateTime] of this [ChatItem].
+  ChatItemKey get key => ChatItemKey(id, at);
 }
 
 /// Message in a [Chat].
@@ -196,4 +198,42 @@ class ChatMessageText extends NewType<String> {
 
     return chunks.map((e) => ChatMessageText(e)).toList();
   }
+}
+
+/// Combined [at] and [id] unique identifier of a [ChatItem].
+class ChatItemKey implements Comparable<ChatItemKey> {
+  const ChatItemKey(this.id, this.at);
+
+  /// Constructs a [ChatItemKey] from the provided [String].
+  factory ChatItemKey.fromString(String value) {
+    final List<String> split = value.split('_');
+
+    if (split.length != 2) {
+      throw const FormatException('Invalid format');
+    }
+
+    return ChatItemKey(
+      ChatItemId(split[1]),
+      PreciseDateTime.fromMicrosecondsSinceEpoch(int.parse(split[0])),
+    );
+  }
+
+  /// [ChatItemId] part of this [ChatItemKey].
+  final ChatItemId id;
+
+  /// [PreciseDateTime] part of this [ChatItemKey].
+  final PreciseDateTime at;
+
+  @override
+  String toString() => '${at.microsecondsSinceEpoch}_$id';
+
+  @override
+  bool operator ==(Object other) =>
+      other is ChatItemKey && id == other.id && at == other.at;
+
+  @override
+  int compareTo(ChatItemKey other) => toString().compareTo(other.toString());
+
+  @override
+  int get hashCode => Object.hash(id, at);
 }

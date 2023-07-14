@@ -119,6 +119,7 @@ class ChatsTabController extends GetxController {
     Timer(2.seconds, () => fetching.value = null),
   );
 
+  /// [GlobalKey] of the more button.
   final GlobalKey moreKey = GlobalKey();
 
   /// [Chat]s service used to update the [chats].
@@ -462,8 +463,6 @@ class ChatsTabController extends GetxController {
     _toggleSearch();
     router.navigation.value = false;
     search.value?.populate();
-
-    // searching.value = true;
   }
 
   /// Disables and disposes the group creating.

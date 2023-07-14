@@ -237,8 +237,6 @@ class ChatController extends GetxController {
     // allowPinnedHiding.value = false;
   }
 
-  LoaderElement? _topLoader;
-
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -330,6 +328,13 @@ class ChatController extends GetxController {
 
   /// Currently displayed bottom [LoaderElement] in the [elements] list.
   LoaderElement? _bottomLoader;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 2);
+
+  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
+  /// passed.
+  Timer? _highlightTimer;
 
   /// [Timer] adding the [_bottomLoader] to the [elements] list.
   Timer? _bottomLoaderStartTimer;
@@ -1183,7 +1188,7 @@ class ChatController extends GetxController {
   Future<void> animateTo(
     ChatItemId id, {
     bool offsetBasedOnBottom = true,
-    double offset = 25,
+    double offset = 50,
   }) async {
     int index = elements.values.toList().indexWhere((e) {
       return e.id.id == id ||
@@ -1209,14 +1214,6 @@ class ChatController extends GetxController {
         initIndex = index;
       }
     }
-  }
-
-  Timer? _highlightTimer;
-  Future<void> _highlight(int index) async {
-    highlight.value = index;
-
-    _highlightTimer?.cancel();
-    _highlightTimer = Timer(2.seconds, () => highlight.value = null);
   }
 
   /// Animates [listController] to the last [ChatItem] in the [RxChat.messages]
@@ -1374,6 +1371,14 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Highlights the item with the provided [index].
+  Future<void> _highlight(int index) async {
+    highlight.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
+  }
+
   /// Plays the message sent sound.
   void _playMessageSent() {
     runZonedGuarded(
@@ -1452,7 +1457,6 @@ class ChatController extends GetxController {
     await runZonedGuarded(
       () async {
         _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
-        await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
       },
       (e, _) {
         if (e is MissingPluginException) {
@@ -1493,14 +1497,16 @@ class ChatController extends GetxController {
   }
 
   /// Calculates a [_ListViewIndexCalculationResult] of a [FlutterListView].
-  _ListViewIndexCalculationResult _calculateListViewIndex(
-      [bool fixMotion = true]) {
+  _ListViewIndexCalculationResult _calculateListViewIndex([
+    bool fixMotion = true,
+  ]) {
     int index = 0;
     double offset = 0;
 
     if (itemId != null) {
       int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
+        _highlight(i);
         index = i;
         offset = (MediaQuery.of(router.context!).size.height) / 3;
       }

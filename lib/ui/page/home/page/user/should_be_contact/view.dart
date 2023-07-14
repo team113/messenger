@@ -1057,7 +1057,6 @@ class UserView extends StatelessWidget {
           key: const Key('StatusField'),
           state: TextFieldState(text: status.val),
           label: 'Status'.l10n,
-          copy: status.val,
         ),
       );
     });
@@ -1106,7 +1105,6 @@ class UserView extends StatelessWidget {
               ),
             ),
             label: 'label_num'.l10n,
-            copy: c.user!.user.value.num.val,
           ),
           // const SizedBox(height: 4),
           // RichText(

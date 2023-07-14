@@ -34,7 +34,7 @@ class DataAttachment extends StatefulWidget {
   final Attachment attachment;
 
   /// Callback, called when this [DataAttachment] is pressed.
-  final void Function(Attachment)? onPressed;
+  final void Function()? onPressed;
 
   @override
   State<DataAttachment> createState() => _DataAttachmentState();
@@ -47,25 +47,23 @@ class _DataAttachmentState extends State<DataAttachment> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
     final Attachment e = widget.attachment;
 
     return Obx(() {
+      final (style, fonts) = Theme.of(context).styles;
+
       Widget leading = Container();
-      // RxDouble? value;
 
       if (e is FileAttachment) {
         switch (e.downloadStatus.value) {
           case DownloadStatus.inProgress:
-            // value = e.progress;
             leading = InkWell(
               key: const Key('CancelDownloading'),
               onTap: e.cancelDownload,
               child: Container(
                 key: const Key('Downloading'),
-                width: 34 * 0.75,
-                height: 34 * 0.75,
+                width: 29,
+                height: 29,
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
@@ -89,7 +87,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                 ),
                 child: Center(
                   child: SvgImage.asset(
-                    'assets/icons/cancel1.svg',
+                    'assets/icons/cancel.svg',
                     width: 9,
                     height: 9,
                   ),
@@ -101,8 +99,8 @@ class _DataAttachmentState extends State<DataAttachment> {
           case DownloadStatus.isFinished:
             leading = Container(
               key: const Key('Downloaded'),
-              height: 34 * 0.75,
-              width: 34 * 0.75,
+              height: 29,
+              width: 29,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: style.colors.primary,
@@ -111,9 +109,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                 child: Transform.translate(
                   offset: const Offset(0.3, -0.5),
                   child: SvgImage.asset(
-                    'assets/icons/file1.svg',
-                    width: 8.8,
-                    height: 11,
+                    'assets/icons/file.svg',
+                    height: 12.5,
                   ),
                 ),
               ),
@@ -124,13 +121,12 @@ class _DataAttachmentState extends State<DataAttachment> {
             leading = AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               key: const Key('Download'),
-              height: 34 * 0.75,
-              width: 34 * 0.75,
+              height: 29,
+              width: 29,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _hovered
-                    ? style.colors.backgroundAuxiliaryLighter
-                    : style.colors.transparent,
+                color:
+                    _hovered ? style.colors.backgroundAuxiliaryLighter : null,
                 border: Border.all(
                   width: 2,
                   color: style.colors.primary,
@@ -140,7 +136,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                 key: const Key('Sent'),
                 child: Center(
                   child: SvgImage.asset(
-                    'assets/icons/arrow_down2.svg',
+                    'assets/icons/arrow_down.svg',
                     width: 9.12,
                     height: 10.39,
                   ),
@@ -154,7 +150,7 @@ class _DataAttachmentState extends State<DataAttachment> {
           case SendingStatus.sending:
             leading = SizedBox.square(
               key: const Key('Sending'),
-              dimension: 18,
+              dimension: 29,
               child: CircularProgressIndicator(
                 value: e.progress.value,
                 backgroundColor: style.colors.onPrimary,
@@ -167,7 +163,7 @@ class _DataAttachmentState extends State<DataAttachment> {
             leading = Icon(
               Icons.check_circle,
               key: const Key('Sent'),
-              size: 18,
+              size: 29,
               color: style.colors.acceptAuxiliaryColor,
             );
             break;
@@ -176,7 +172,7 @@ class _DataAttachmentState extends State<DataAttachment> {
             leading = Icon(
               Icons.error_outline,
               key: const Key('Error'),
-              size: 18,
+              size: 29,
               color: style.colors.dangerColor,
             );
             break;
@@ -188,12 +184,12 @@ class _DataAttachmentState extends State<DataAttachment> {
         onExit: (_) => setState(() => _hovered = false),
         child: Padding(
           key: Key('File_${e.id}'),
-          padding: const EdgeInsets.fromLTRB(8, 3, 8, 3),
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
           child: WidgetButton(
-            onPressed: () => widget.onPressed?.call(e),
+            onPressed: widget.onPressed,
             child: Row(
               children: [
-                const SizedBox(width: 8 * 0.75),
+                const SizedBox(width: 6),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: AnimatedSwitcher(
@@ -202,7 +198,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                     child: leading,
                   ),
                 ),
-                const SizedBox(width: 12 * 0.75),
+                const SizedBox(width: 9),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,8 +234,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                             }),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: style.systemMessageStyle.copyWith(
-                              fontSize: 11,
+                            style: fonts.headlineSmall!.copyWith(
                               color: style.colors.secondary,
                             ),
                           ),

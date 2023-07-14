@@ -199,6 +199,7 @@ btn_participants = Участники
 btn_participants_desc =
     Список
     участников
+btn_paste = Вставить
 btn_personalize = Персонализация
 btn_proceed = Продолжить
 btn_remove = Удалить

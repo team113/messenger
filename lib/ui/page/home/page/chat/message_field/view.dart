@@ -520,10 +520,6 @@ class MessageFieldView extends StatelessWidget {
     final (style, fonts) = Theme.of(context).styles;
 
     return LayoutBuilder(builder: (context, constraints) {
-      // final int buttons = ((constraints.maxWidth - 220) / 50).floor() + 1;
-      // final bool displayInRow = buttons >= c.buttons.length;
-      // final bool displayInRow = true;
-
       return Container(
         key: c.globalKey,
         constraints: const BoxConstraints(minHeight: 56),
@@ -532,7 +528,6 @@ class MessageFieldView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // const SizedBox(width: 26 / 2 - 3),
             WidgetButton(
               onPressed: canAttach
                   ? () {
@@ -544,23 +539,8 @@ class MessageFieldView extends StatelessWidget {
                       }
                     }
                   : null,
-              // onPressed: canAttach
-              //     ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-              //         ? c.pickFile
-              //         : () async {
-              //             c.field.focus.unfocus();
-              //             await AttachmentSourceSelector.show(
-              //               context,
-              //               onPickFile: c.pickFile,
-              //               onTakePhoto: c.pickImageFromCamera,
-              //               onPickMedia: c.pickMedia,
-              //               onTakeVideo: c.pickVideoFromCamera,
-              //             );
-              //           }
-              //     : null,
               child: AnimatedButton(
                 child: SizedBox(
-                  // color: Colors.yellow,
                   width: 50,
                   height: 56,
                   child: Center(
@@ -574,13 +554,6 @@ class MessageFieldView extends StatelessWidget {
                           height: 22,
                           width: 22,
                         ),
-                      );
-
-                      return RiveAsset(
-                        'assets/icons/more5.riv',
-                        width: 30,
-                        height: 30,
-                        pushed: c.moreOpened.value,
                       );
                     }),
                   ),
@@ -630,22 +603,9 @@ class MessageFieldView extends StatelessWidget {
                 return const SizedBox();
               }
 
-              // int total = c.buttons.length;
-              // if (constraints.maxWidth - 160 < 70 * c.buttons.length) {
-              //   total = ((constraints.maxWidth - 220) / 70).floor() + 1;
-              // }
-
-              // return WrapButtons(
-              //   constraints,
-              //   buttons: c.buttons,
-              // );
-
               int take = c.buttons.length;
-              // // print(
-              // // '${constraints.maxWidth} - 220 < 36 * c.buttons.length : ${constraints.maxWidth - 220 < 36 * c.buttons.length}');
               if (constraints.maxWidth - 160 < 50 * c.buttons.length) {
                 take = ((constraints.maxWidth - 160) / 50).round();
-                // print(3 * constraints.maxWidth / (36 * c.buttons.length));
               }
 
               take = max(take, 0);
@@ -654,13 +614,7 @@ class MessageFieldView extends StatelessWidget {
 
               SchedulerBinding.instance.addPostFrameCallback((_) {
                 c.canPin.value = c.buttons.length < total;
-                // print('${c.canPin} ${c.buttons.length} ${total}');
               });
-
-              // double coef = 1;
-              // if (constraints.maxWidth - 45 < 70 * c.buttons.length) {
-              //   coef = 1 / (80 * c.buttons.length / constraints.maxWidth);
-              // }
 
               final bool sendable = !c.field.isEmpty.value ||
                   c.attachments.isNotEmpty ||

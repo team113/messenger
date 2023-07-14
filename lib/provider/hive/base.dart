@@ -51,6 +51,14 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   @protected
   String get boxName;
 
+  /// Exception-safe wrapper for [Box.keys] returning all the keys in the [box].
+  Iterable<dynamic> get keysSafe {
+    if (_isReady && _box.isOpen) {
+      return box.keys;
+    }
+    return [];
+  }
+
   /// Exception-safe wrapper for [Box.values] returning all the values in the
   /// [box].
   Iterable<T> get valuesSafe {

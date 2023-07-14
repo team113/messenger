@@ -113,7 +113,6 @@ class TransactionView extends StatelessWidget {
                       CopyableTextField(
                         label: 'Number',
                         state: TextFieldState(text: e.id),
-                        copy: e.id,
                         maxLines: null,
                       ),
                     ),
@@ -435,16 +434,16 @@ class TransactionView extends StatelessWidget {
                           ),
                           filename: 'resume.pdf',
                         ),
-                        onPressed: (e) async {
-                          if (e is FileAttachment) {
-                            if (e.isDownloading) {
-                              e.cancelDownload();
-                            } else {
-                              if (await e.open() == false) {
-                                await e.download();
-                              }
-                            }
-                          }
+                        onPressed: () async {
+                          // if (e is FileAttachment) {
+                          //   if (e.isDownloading) {
+                          //     e.cancelDownload();
+                          //   } else {
+                          //     if (await e.open() == false) {
+                          //       await e.download();
+                          //     }
+                          //   }
+                          // }
                         },
                       ),
 

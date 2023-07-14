@@ -33,7 +33,8 @@ import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
-import 'package:messenger/ui/page/home/widget/animated_button.dart';
+import 'package:messenger/ui/page/home/page/user/widget/num.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../chat/message_field/view.dart';
@@ -84,11 +85,12 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find(), Get.find()),
+      global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
@@ -98,13 +100,11 @@ class MyProfileView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
               actions: [
-                WidgetButton(
+                AnimatedButton(
                   onPressed: () {},
-                  child: AnimatedButton(
-                    child: SvgImage.asset(
-                      'assets/icons/search.svg',
-                      width: 17.77,
-                    ),
+                  child: SvgImage.asset(
+                    'assets/icons/search.svg',
+                    width: 17.77,
                   ),
                 ),
               ],
@@ -191,28 +191,23 @@ class MyProfileView extends StatelessWidget {
                                     onPressed: c.uploadAvatar,
                                     child: Text(
                                       'btn_upload'.l10n,
-                                      style: TextStyle(
+                                      style: fonts.labelSmall!.copyWith(
                                         color: style.colors.primary,
-                                        fontSize: 11,
                                       ),
                                     ),
                                   ),
                                   if (c.myUser.value?.avatar != null) ...[
                                     Text(
                                       'space_or_space'.l10n,
-                                      style: TextStyle(
-                                        color: style.colors.onBackground,
-                                        fontSize: 11,
-                                      ),
+                                      style: fonts.bodySmall,
                                     ),
                                     WidgetButton(
                                       key: const Key('DeleteAvatar'),
                                       onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
-                                        style: TextStyle(
+                                        style: fonts.bodySmall!.copyWith(
                                           color: style.colors.primary,
-                                          fontSize: 11,
                                         ),
                                       ),
                                     ),
@@ -223,7 +218,7 @@ class MyProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             _name(c),
                             _presence(c, context),
-                            _status(c),
+                            _status(c, context),
                           ],
                         );
 
@@ -515,7 +510,9 @@ Widget _name(MyProfileController c) {
 }
 
 /// Returns [MyUser.status] editable field.
-Widget _status(MyProfileController c) {
+Widget _status(MyProfileController c, BuildContext context) {
+  final fonts = Theme.of(context).fonts;
+
   return _padding(
     ReactiveTextField(
       key: const Key('StatusField'),
@@ -538,13 +535,14 @@ Widget _status(MyProfileController c) {
                 child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
+      style: fonts.titleMedium,
     ),
   );
 }
 
 /// Returns [WidgetButton] displaying the [MyUser.presence].
 Widget _presence(MyProfileController c, BuildContext context) {
-  final style = Theme.of(context).style;
+  final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
     final Presence? presence = c.myUser.value?.presence;
@@ -556,7 +554,7 @@ Widget _presence(MyProfileController c, BuildContext context) {
         text: presence?.localizedString(),
         trailing:
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: TextStyle(color: style.colors.primary),
+        style: fonts.titleMedium!.copyWith(color: style.colors.primary),
       ),
     );
   });
@@ -567,12 +565,7 @@ Widget _num(MyProfileController c) => _padding(
       Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CopyableTextField(
-            key: const Key('NumCopyable'),
-            state: c.num,
-            label: 'label_num'.l10n,
-            copy: c.myUser.value?.num.val,
-          ),
+          UserNumCopyable(c.myUser.value?.num),
           const SizedBox(height: 10),
         ],
       ),
@@ -580,7 +573,7 @@ Widget _num(MyProfileController c) => _padding(
 
 /// Returns [MyUser.chatDirectLink] editable field.
 Widget _link(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
+  final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
     return Column(
@@ -617,10 +610,6 @@ Widget _link(BuildContext context, MyProfileController c) {
             children: [
               RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
                   children: [
                     TextSpan(
                       text: 'label_transition_count'.l10nfmt({
@@ -628,11 +617,15 @@ Widget _link(BuildContext context, MyProfileController c) {
                                 c.myUser.value?.chatDirectLink?.usageCount ?? 0
                           }) +
                           'dot_space'.l10n,
-                      style: TextStyle(color: style.colors.secondary),
+                      style: fonts.labelSmall!.copyWith(
+                        color: style.colors.secondary,
+                      ),
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: TextStyle(color: style.colors.primary),
+                      style: fonts.labelSmall!.copyWith(
+                        color: style.colors.primary,
+                      ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await LinkDetailsView.show(context);

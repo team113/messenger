@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -126,7 +127,7 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
-  final Future<RxUser?> Function(UserId userId)? getUser;
+  final FutureOr<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of these [forwards] is triggered.
   final void Function()? onHide;
@@ -419,14 +420,19 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
         timeInBubble = text == null && media.isNotEmpty && files.isEmpty;
 
+        final FutureOr<RxUser?>? user = widget.getUser?.call(quote.author);
+
         content = [
           FutureBuilder<RxUser?>(
-            future: widget.getUser?.call(quote.author),
+            future: user is Future<RxUser?> ? user : null,
             builder: (context, snapshot) {
-              final Color color = snapshot.data?.user.value.id == widget.me
+              final RxUser? data =
+                  snapshot.data ?? (user is RxUser? ? user : null);
+
+              final Color color = data?.user.value.id == widget.me
                   ? style.colors.primary
                   : style.colors.userColors[
-                      (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                      (data?.user.value.num.val.sum() ?? 3) %
                           style.colors.userColors.length];
 
               return Column(
@@ -441,8 +447,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           ),
                           child: SelectionText.rich(
                             TextSpan(
-                              text: snapshot.data?.user.value.name?.val ??
-                                  snapshot.data?.user.value.num.val ??
+                              text: data?.user.value.name?.val ??
+                                  data?.user.value.num.val ??
                                   'dot'.l10n * 3,
                               recognizer: TapGestureRecognizer()
                                 ..onTap =
@@ -897,14 +903,19 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
 
+        final FutureOr<RxUser?>? member = widget.getUser?.call(m.memberId);
+
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: FutureBuilder<RxUser?>(
-              future: widget.getUser?.call(m.memberId),
+              future: member is Future<RxUser?> ? member : null,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                final RxUser? data =
+                    snapshot.data ?? (member is RxUser? ? member : null);
+
+                if (data != null) {
+                  return AvatarWidget.fromRxUser(data, radius: 10);
                 }
                 return AvatarWidget.fromUser(user, radius: 10);
               },
