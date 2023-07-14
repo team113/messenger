@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -59,6 +60,87 @@ class LoginView extends StatelessWidget {
           final List<Widget> children;
 
           switch (c.stage.value) {
+            case LoginViewStage.noPassword:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signIn,
+                text: 'Sign in without password'.l10n,
+              );
+
+              children = [
+                // const SizedBox(height: 12),
+                Text(
+                  'label_recover_account_description'.l10n,
+                  style: fonts.labelLarge!.copyWith(
+                    color: style.colors.secondary,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('RecoveryField'),
+                  state: c.login,
+                  label: 'E-mail or phone number'.l10n,
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  title: 'btn_proceed'.l10n,
+                  onPressed:
+                      c.login.isEmpty.value ? null : c.signInWithoutPassword,
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.noPasswordCode:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signIn,
+                text: 'Sign in without password'.l10n,
+              );
+
+              children = [
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'label_sign_in_code_sent1'.l10n,
+                        style: fonts.labelLarge!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      ),
+                      TextSpan(
+                        text: c.login.text,
+                        style: fonts.labelLarge!.copyWith(
+                          color: style.colors.onBackground,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'label_sign_in_code_sent2'.l10n,
+                        style: fonts.labelLarge!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('RecoveryCodeField'),
+                  state: c.recoveryCode,
+                  label: 'label_confirmation_code'.l10n,
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  title: 'btn_proceed'.l10n,
+                  onPressed: c.recoveryCode.isEmpty.value
+                      ? null
+                      : c.recoveryCode.submit,
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
             case LoginViewStage.recovery:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signIn,
@@ -77,7 +159,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('RecoveryField'),
                   state: c.recovery,
-                  label: 'label_sign_in_input'.l10n,
+                  label: 'E-mail or phone number'.l10n,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
@@ -185,40 +267,10 @@ class LoginView extends StatelessWidget {
                   treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 12),
-                // ReactiveTextField(
-                //   state: c.newPassword,
-                //   label: 'label_password'.l10n,
-                //   obscure: c.obscureNewPassword.value,
-                //   style: fonts.bodyMedium,
-                //   onSuffixPressed: c.obscureNewPassword.toggle,
-                //   treatErrorAsStatus: false,
-                //   trailing: SvgImage.asset(
-                //     'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
-                //     width: 17.07,
-                //   ),
-                // ),
-                // const SizedBox(height: 12),
-                // ReactiveTextField(
-                //   state: c.repeatPassword,
-                //   label: 'label_repeat_password'.l10n,
-                //   obscure: c.obscureRepeatPassword.value,
-                //   style: fonts.bodyMedium,
-                //   onSuffixPressed: c.obscureRepeatPassword.toggle,
-                //   treatErrorAsStatus: false,
-                //   trailing: SvgImage.asset(
-                //     'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
-                //     width: 17.07,
-                //   ),
-                // ),
-                // const SizedBox(height: 25),
                 Center(
                   child: Obx(() {
-                    final bool enabled = !c.email.isEmpty.value &&
-                        c.email.error.value == null &&
-                        !c.newPassword.isEmpty.value &&
-                        c.newPassword.error.value == null &&
-                        !c.repeatPassword.isEmpty.value &&
-                        c.repeatPassword.error.value == null;
+                    final bool enabled =
+                        !c.email.isEmpty.value && c.email.error.value == null;
 
                     return OutlinedRoundedButton(
                       title: Text(
@@ -258,90 +310,28 @@ class LoginView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 25 / 2),
-                Center(
-                  child: OutlinedRoundedButton(
-                    title: Text(
-                      'Sign up with Apple'.l10n,
-                      style: fonts.titleLarge!.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
-                    ),
-                    onPressed: () {},
-                    color: style.colors.primary,
-                    maxWidth: double.infinity,
-                    leading:
-                        SvgImage.asset('assets/icons/apple6.svg', height: 18),
-                  ),
+                _signButton(
+                  context,
+                  text: 'Sign up with Apple'.l10n,
+                  asset: 'apple',
+                  assetWidth: 18.24,
+                  assetHeight: 23,
                 ),
                 const SizedBox(height: 25 / 2),
-                Center(
-                  child: OutlinedRoundedButton(
-                    title: Text(
-                      'Sign up with Google'.l10n,
-                      style: fonts.titleLarge!.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
-                    ),
-                    onPressed: () {},
-                    color: style.colors.primary,
-                    maxWidth: double.infinity,
-                    leading:
-                        SvgImage.asset('assets/icons/google4.svg', height: 18),
-                  ),
+                _signButton(
+                  context,
+                  text: 'Sign up with Google'.l10n,
+                  asset: 'google_logo',
+                  assetHeight: 20,
                 ),
                 const SizedBox(height: 25 / 2),
-                Center(
-                  child: OutlinedRoundedButton(
-                    title: Text(
-                      'Sign up with GitHub'.l10n,
-                      style: fonts.titleLarge!.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
-                    ),
-                    onPressed: () {},
-                    color: style.colors.primary,
-                    maxWidth: double.infinity,
-                    leading:
-                        SvgImage.asset('assets/icons/google4.svg', height: 18),
-                  ),
+                _signButton(
+                  context,
+                  text: 'Sign up with GitHub'.l10n,
+                  asset: 'github',
+                  assetHeight: 19.99,
+                  assetWidth: 20,
                 ),
-                // const SizedBox(height: 25),
-                // const SizedBox(height: 25 / 2),
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: Container(
-                //         height: 1,
-                //         width: double.infinity,
-                //         color: style.colors.secondaryHighlight,
-                //       ),
-                //     ),
-                //     const SizedBox(width: 8),
-                //     Text('OR', style: fonts.headlineSmall),
-                //     const SizedBox(width: 8),
-                //     Expanded(
-                //       child: Container(
-                //         height: 1,
-                //         width: double.infinity,
-                //         color: style.colors.secondaryHighlight,
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                // const SizedBox(height: 25),
-                // Center(
-                //   child: OutlinedRoundedButton(
-                //     title: Text(
-                //       'Sign in'.l10n,
-                //       style: fonts.titleLarge!.copyWith(
-                //         color: style.colors.onPrimary,
-                //       ),
-                //     ),
-                //     onPressed: () {},
-                //     color: style.colors.primary,
-                //     maxWidth: double.infinity,
-                //   ),
-                // ),
                 const SizedBox(height: 25 / 2),
                 Row(
                   children: [
@@ -433,16 +423,14 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
                       child: WidgetButton(
                         onPressed: () {
-                          c.recovery.clear();
-                          c.recoveryCode.clear();
-                          c.newPassword.clear();
-                          c.repeatPassword.clear();
-                          c.recovery.unchecked = c.login.text;
-                          c.recovered.value = false;
-                          c.stage.value = LoginViewStage.recovery;
+                          if (c.isEmailOrPhone(c.login.text)) {
+                            c.signInWithoutPassword();
+                          } else {
+                            c.stage.value = LoginViewStage.noPassword;
+                          }
                         },
                         child: Text(
-                          'btn_forgot_password'.l10n,
+                          'Sign in without password'.l10n,
                           style: fonts.bodyMedium!.copyWith(
                             color: style.colors.primary,
                           ),
@@ -452,7 +440,6 @@ class LoginView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 25 / 2),
-
                 Obx(() {
                   final bool enabled =
                       !c.login.isEmpty.value && !c.password.isEmpty.value;
@@ -489,7 +476,6 @@ class LoginView extends StatelessWidget {
                   //   ),
                   // );
                 }),
-
                 const SizedBox(height: 25 / 2),
                 Row(
                   children: [
@@ -512,53 +498,44 @@ class LoginView extends StatelessWidget {
                     ),
                   ],
                 ),
+
+                // Center(
+                //   child: OutlinedRoundedButton(
+                //     title: Text(
+                //       'Sign in with Apple'.l10n,
+                //       style: fonts.titleLarge!.copyWith(
+                //         color: style.colors.onPrimary,
+                //       ),
+                //     ),
+                //     onPressed: () {},
+                //     color: style.colors.primary,
+                //     maxWidth: double.infinity,
+                //     leading:
+                //         SvgImage.asset('assets/icons/apple6.svg', height: 18),
+                //   ),
+                // ),
                 const SizedBox(height: 25 / 2),
-                Center(
-                  child: OutlinedRoundedButton(
-                    title: Text(
-                      'Sign in with Apple'.l10n,
-                      style: fonts.titleLarge!.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
-                    ),
-                    onPressed: () {},
-                    color: style.colors.primary,
-                    maxWidth: double.infinity,
-                    leading:
-                        SvgImage.asset('assets/icons/apple6.svg', height: 18),
-                  ),
+                _signButton(
+                  context,
+                  text: 'Sign in with Apple'.l10n,
+                  asset: 'apple',
+                  assetWidth: 18.24,
+                  assetHeight: 23,
                 ),
                 const SizedBox(height: 25 / 2),
-                Center(
-                  child: OutlinedRoundedButton(
-                    title: Text(
-                      'Sign in with Google'.l10n,
-                      style: fonts.titleLarge!.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
-                    ),
-                    onPressed: () {},
-                    color: style.colors.primary,
-                    maxWidth: double.infinity,
-                    leading:
-                        SvgImage.asset('assets/icons/google4.svg', height: 18),
-                  ),
+                _signButton(
+                  context,
+                  text: 'Sign in with Google'.l10n,
+                  asset: 'google_logo',
+                  assetHeight: 20,
                 ),
                 const SizedBox(height: 25 / 2),
-                Center(
-                  child: OutlinedRoundedButton(
-                    title: Text(
-                      'Sign in with GitHub'.l10n,
-                      style: fonts.titleLarge!.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
-                    ),
-                    onPressed: () {},
-                    color: style.colors.primary,
-                    maxWidth: double.infinity,
-                    leading:
-                        SvgImage.asset('assets/icons/google4.svg', height: 18),
-                  ),
+                _signButton(
+                  context,
+                  text: 'Sign in with GitHub'.l10n,
+                  asset: 'github',
+                  assetHeight: 19.99,
+                  assetWidth: 20,
                 ),
                 const SizedBox(height: 25 / 2),
                 Row(
@@ -606,61 +583,6 @@ class LoginView extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Center(
-                //   child: WidgetButton(
-                //     onPressed: () => c.stage.value = LoginViewStage.signUp,
-                //     child: Text(
-                //       'Sign up'.l10n,
-                //       style: fonts.bodySmall!.copyWith(
-                //         color: style.colors.primary,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 16),
-                // Center(
-                //   child: OutlinedRoundedButton(
-                //     title: Text(
-                //       'Get in with Apple'.l10n,
-                //       style: fonts.titleLarge!.copyWith(
-                //         color: style.colors.onPrimary,
-                //       ),
-                //     ),
-                //     onPressed: () {},
-                //     color: style.colors.primary,
-                //     maxWidth: double.infinity,
-                //     // leading: Padding(
-                //     //   padding: const EdgeInsets.only(bottom: 2),
-                //     //   child:
-                //     //       SvgImage.asset('assets/icons/apple.svg', width: 22),
-                //     // ),
-                //   ),
-                // ),
-
-                // const SizedBox(height: 8),
-                // Padding(
-                //   padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-                //   child: Center(
-                //     child: WidgetButton(
-                //       onPressed: () {
-                //         c.recovery.clear();
-                //         c.recoveryCode.clear();
-                //         c.newPassword.clear();
-                //         c.repeatPassword.clear();
-                //         c.recovery.unchecked = c.login.text;
-                //         c.recovered.value = false;
-                //         c.stage.value = LoginViewStage.recovery;
-                //       },
-                //       child: Text(
-                //         'Создать аккаунт'.l10n,
-                //         style: fonts.bodySmall!.copyWith(
-                //           color: style.colors.primary,
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 8),
               ];
               break;
           }
@@ -703,6 +625,33 @@ class LoginView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+
+  Widget _signButton(
+    BuildContext context, {
+    String text = '',
+    String asset = '',
+    double assetWidth = 20,
+    double assetHeight = 20,
+    EdgeInsets padding = EdgeInsets.zero,
+  }) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return Center(
+      child: PrefixButton(
+        text: text,
+        style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+        onPressed: () {},
+        prefix: Padding(
+          padding: const EdgeInsets.only(left: 24, bottom: 4).add(padding),
+          child: SvgImage.asset(
+            'assets/icons/$asset.svg',
+            width: assetWidth,
+            height: assetHeight,
+          ),
+        ),
+      ),
     );
   }
 }

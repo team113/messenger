@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="b" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.22 22.78">
+  <defs>
+    <style>
+      .d {
+        stroke-width: 1.7px;
+      }
+
+      .d, .e, .f, .g {
+        stroke: #63b4ff;
+        stroke-miterlimit: 10;
+      }
+
+      .d, .g {
+        fill: none;
+        stroke-linecap: round;
+      }
+
+      .e, .f {
+        fill: #63b4ff;
+      }
+
+      .f {
+        stroke-width: .6px;
+      }
+
+      .g {
+        stroke-width: 2px;
+      }
+    </style>
+  </defs>
+  <g id="c" data-name="Layer 1">
+    <path class="g" d="m21.78,11.39c0-5.74-4.65-10.39-10.39-10.39S1,5.65,1,11.39s4.65,10.39,10.39,10.39"/>
+    <path class="e" d="m23.64,11.97l-1.66,1.82c-.11.11-.28.11-.39,0l-1.66-1.82c-.17-.17-.05-.47.19-.47h3.33c.24,0,.37.3.19.47Z"/>
+    <path class="d" d="m14.31,21.62c.34-.05.6-.12.91-.23"/>
+    <path class="d" d="m17.56,20.52c.31-.15.5-.26.78-.46"/>
+    <path class="d" d="m20.21,18.5c.24-.29.38-.46.62-.75"/>
+    <path class="f" d="m8.94,9.24v-.73c0-.07.03-.14.09-.18l2.42-1.74s.08-.04.13-.04h.88c.12,0,.22.1.22.22v9.23c0,.12-.1.22-.22.22h-.72c-.12,0-.22-.1-.22-.22v-7.74c0-.18-.21-.29-.35-.18l-1.88,1.34c-.15.11-.35,0-.35-.18Z"/>
+  </g>
+</svg>

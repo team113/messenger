@@ -41,6 +41,8 @@ enum LoginViewStage {
   recoveryPassword,
   signIn,
   signUp,
+  noPassword,
+  noPasswordCode,
 }
 
 /// [GetxController] of a [LoginView].
@@ -444,5 +446,26 @@ class LoginController extends GetxController {
     await myUserService.updateUserPassword(
       newPassword: UserPassword(repeatPassword.text),
     );
+  }
+
+  Future<void> signInWithoutPassword() async {
+    stage.value = LoginViewStage.noPasswordCode;
+    recoveryCode.clear();
+  }
+
+  Future<void> signInWithCode(String code) async {}
+
+  bool isEmailOrPhone(String text) {
+    try {
+      UserEmail(text);
+      return true;
+    } catch (_) {
+      try {
+        UserPhone(text);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
   }
 }
