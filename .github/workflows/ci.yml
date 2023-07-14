@@ -365,10 +365,11 @@ jobs:
                        2> >(grep -v -E '${{ env.OMIT }}') &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
         env:
-          OMIT: ${{ join([
-                      ':INFO:CONSOLE\(52564\)] ',
-                      '"Got object store box in database',
-                      '\[CONFIG\]: Remote configuration fetch failed'], '|') }}
+          OMIT: ${{ join(fromJson('[
+                      ":INFO:CONSOLE\\(52564\\)] ",
+                      "\"Got object store box in database",
+                      "\\[CONFIG\\]: Remote configuration fetch failed"
+                    ]'), "|") }}
 
       # Grant permissions to `.cache/` dir created in the previous step, since
       # `hashFile` may fail: https://github.com/actions/runner/issues/449
