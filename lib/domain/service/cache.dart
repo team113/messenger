@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get.dart';
 
 import '/domain/model/cache_info.dart';
 import '/domain/repository/cache.dart';

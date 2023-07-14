@@ -1415,8 +1415,8 @@ Widget _storage(BuildContext context, MyProfileController c) {
                       ),
                       Text(
                         'label_gb_slash_gb'.l10nfmt({
-                          'value1': size / GB,
-                          'value2': max ~/ GB,
+                          'a': size / GB,
+                          'b': max ~/ GB,
                         }),
                         style: fonts.labelSmall,
                       ),

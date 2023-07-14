@@ -523,7 +523,7 @@ label_forwarded_messages = {$count ->
    *[other] Пересланные сообщения
 }
 label_gallery = Gallery
-label_gb_slash_gb = { NUMBER($value1, minimumIntegerDigits: 1, maximumFractionDigits: 2) } GB / { NUMBER($value2, minimumIntegerDigits: 1, maximumFractionDigits: 0) } GB
+label_gb_slash_gb = { NUMBER($a, minimumIntegerDigits: 1, maximumFractionDigits: 2) } GB / { NUMBER($b, minimumIntegerDigits: 1, maximumFractionDigits: 0) } GB
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
