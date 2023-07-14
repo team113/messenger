@@ -53,9 +53,6 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
   String get boxName => 'messages_$id';
 
   @override
-  Iterable<dynamic> get keys => super.keys.toList().reversed;
-
-  @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(BlacklistReasonAdapter());
@@ -111,21 +108,22 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
 
   /// Returns a list of [ChatItemKey]s stored in the [Hive].
   Iterable<ChatItemKey> get keys =>
-      keysSafe.map((e) => ChatItemKey.fromString(e));
+      keysSafe.map((e) => ChatItemKey.fromString(e)); // TODO: reversed?
 
   /// Returns a list of [ChatItem]s from [Hive].
   Future<Iterable<HiveChatItem>> get messages => valuesSafe;
 
   /// Puts the provided [ChatItem] to [Hive].
-  Future<void> put(HiveChatItem item) => putSafe(item.value.key.toString(), item);
+  Future<void> put(HiveChatItem item) =>
+      putSafe(item.value.key.toString(), item);
 
   /// Adds the provided [ChatItem] to [Hive].
   ///
   /// [ChatItem] will be added if it is within the bounds of the stored items.
   Future<void> add(HiveChatItem item) async {
     if (box.keys.isNotEmpty &&
-        (box.keys.first as String).compareTo(item.value.key) == 1 &&
-        (box.keys.last as String).compareTo(item.value.key) == -1) {
+        (box.keys.first as String).compareTo(item.value.key.toString()) == 1 &&
+        (box.keys.last as String).compareTo(item.value.key.toString()) == -1) {
       await put(item);
     }
   }

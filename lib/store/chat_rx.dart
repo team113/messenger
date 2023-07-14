@@ -114,7 +114,7 @@ class HiveRxChat extends RxChat {
   ChatItemHiveProvider _local;
 
   /// [Pagination] loading [messages] with pagination.
-  late final Pagination<HiveChatItem, String, ChatItemsCursor> _pagination;
+  late final Pagination<HiveChatItem, ChatItemKey, ChatItemsCursor> _pagination;
 
   /// Guard used to guarantee synchronous access to the [_local] storage.
   final Mutex _guard = Mutex();
@@ -249,7 +249,7 @@ class HiveRxChat extends RxChat {
       }
     });
 
-    _pagination = Pagination<HiveChatItem, String, ChatItemsCursor>(
+    _pagination = Pagination<HiveChatItem, ChatItemKey, ChatItemsCursor>(
       onKey: (e) => e.value.key,
       provider: GraphQlPageProvider(
         fetch: ({after, before, first, last}) => _chatRepository.messages(
@@ -637,7 +637,7 @@ class HiveRxChat extends RxChat {
   ///
   /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [_local] store.
-  Future<HiveChatItem?> get(ChatItemId itemId, {String? key}) async {
+  Future<HiveChatItem?> get(ChatItemId itemId, {ChatItemKey? key}) async {
     return await _guard.protect(() async {
       if (!_local.isReady) {
         return null;

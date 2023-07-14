@@ -159,12 +159,6 @@ class RxObsList<E> extends ListMixin<E>
   }
 
   @override
-  void insert(int index, E element) {
-    _value.insert(index, element);
-    refresh();
-  }
-
-  @override
   Iterable<E> get reversed => value.reversed;
 
   @override

@@ -178,8 +178,13 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   @protected
   String get boxName;
 
-  /// Returns the [LazyBox.keys] of this [HiveLazyProvider].
-  Iterable<dynamic> get keys => _box.keys;
+  /// Exception-safe wrapper for [Box.keys] returning all the keys in the [box].
+  Iterable<dynamic> get keysSafe {
+    if (_isReady && _box.isOpen) {
+      return box.keys;
+    }
+    return [];
+  }
 
   /// Exception-safe wrapper for [Box.values] returning all the values in the
   /// [_box].
