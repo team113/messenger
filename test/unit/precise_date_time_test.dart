@@ -104,8 +104,8 @@ void main() async {
     var val8 = PreciseDateTime.fromMicrosecondsSinceEpoch(1640902500040001);
     expect(val8.val.year, 2021);
     expect(val8.val.month, 12);
-    expect(val8.val.day, 31);
-    expect(val8.val.hour, 1);
+    expect(val8.val.day, 30);
+    expect(val8.val.hour, 22);
     expect(val8.val.minute, 15);
     expect(val8.val.second, 0);
     expect(val8.val.millisecond, 40);
