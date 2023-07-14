@@ -63,7 +63,6 @@ import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'forward/view.dart';
