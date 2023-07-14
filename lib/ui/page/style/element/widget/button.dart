@@ -50,12 +50,7 @@ class ButtonsWidget extends StatelessWidget {
               _ButtonCard(
                 isDarkMode: isDarkMode,
                 title: 'OutlinedRoundedButton',
-                labels: const [
-                  Text('Default'),
-                  Text('Hovered'),
-                  Text('Pressed'),
-                  Text('Unavailable'),
-                ],
+                labels: const ['Default', 'Hovered', 'Pressed', 'Unavailable'],
                 children: [
                   SizedBox(
                     width: 300,
@@ -117,12 +112,7 @@ class ButtonsWidget extends StatelessWidget {
               _ButtonCard(
                 isDarkMode: isDarkMode,
                 title: 'FieldButton',
-                labels: const [
-                  Text('Default'),
-                  Text('Hovered'),
-                  Text('Pressed'),
-                  Text('Unavailable'),
-                ],
+                labels: const ['Default', 'Hovered', 'Pressed', 'Unavailable'],
                 children: [
                   SizedBox(
                     width: 320,
@@ -172,12 +162,7 @@ class ButtonsWidget extends StatelessWidget {
                 ],
               ),
               _ButtonCard(
-                labels: const [
-                  Text('Default'),
-                  Text('Hovered'),
-                  Text('Pressed'),
-                  Text('Unavailable'),
-                ],
+                labels: const ['Default', 'Hovered', 'Pressed', 'Unavailable'],
                 isDarkMode: isDarkMode,
                 title: 'OutlinedRoundedButton (2)',
                 children: [
@@ -217,12 +202,7 @@ class ButtonsWidget extends StatelessWidget {
                 ],
               ),
               _ButtonCard(
-                labels: const [
-                  Text('Default'),
-                  Text('Hovered'),
-                  Text('Pressed'),
-                  Text('Unavailable'),
-                ],
+                labels: const ['Default', 'Hovered', 'Pressed', 'Unavailable'],
                 isDarkMode: isDarkMode,
                 title: 'ShadowedRoundedButton',
                 children: [
@@ -268,12 +248,7 @@ class ButtonsWidget extends StatelessWidget {
                 height: 410,
                 isDarkMode: isDarkMode,
                 title: 'MenuButton',
-                labels: const [
-                  Text('Default'),
-                  Text('Hovered'),
-                  Text('Selected'),
-                  Text('Unavailable'),
-                ],
+                labels: const ['Default', 'Hovered', 'Selected', 'Unavailable'],
                 children: [
                   SizedBox(
                     width: 330,
@@ -322,11 +297,7 @@ class ButtonsWidget extends StatelessWidget {
                     height: 210,
                     isDarkMode: isDarkMode,
                     title: 'ContextMenuButton',
-                    labels: const [
-                      Text('Default'),
-                      Text('Hovered'),
-                      Text('Pressed'),
-                    ],
+                    labels: const ['Default', 'Hovered', 'Pressed'],
                     children: [
                       Container(
                         height: 40,
@@ -383,11 +354,7 @@ class ButtonsWidget extends StatelessWidget {
                     height: 183,
                     isDarkMode: isDarkMode,
                     title: 'WidgetButton',
-                    labels: const [
-                      Text('Default'),
-                      Text('Hovered'),
-                      Text('Pressed'),
-                    ],
+                    labels: const ['Default', 'Hovered', 'Pressed'],
                     children: [
                       WidgetButton(
                         child: Text(
@@ -422,12 +389,7 @@ class ButtonsWidget extends StatelessWidget {
               ),
               _ButtonCard(
                 height: 360,
-                labels: const [
-                  Text('Default'),
-                  Text('Hovered'),
-                  Text('Selected'),
-                  Text('Unavailable'),
-                ],
+                labels: const ['Default', 'Hovered', 'Selected', 'Unavailable'],
                 isDarkMode: isDarkMode,
                 title: 'RectangleButton',
                 children: [
@@ -473,7 +435,7 @@ class ButtonsWidget extends StatelessWidget {
                 children: [
                   _ButtonCard(
                     height: 184,
-                    labels: const [Text('Default'), Text('Hovered')],
+                    labels: const ['Default', 'Hovered'],
                     isDarkMode: isDarkMode,
                     title: 'DownloadButton',
                     children: const [
@@ -504,7 +466,7 @@ class ButtonsWidget extends StatelessWidget {
                   const SizedBox(height: 16),
                   _ButtonCard(
                     height: 160,
-                    labels: const [Text('Default'), Text('Inverted')],
+                    labels: const ['Default', 'Inverted'],
                     isDarkMode: isDarkMode,
                     title: 'RectangularCallButton',
                     children: [
@@ -543,7 +505,7 @@ class _ButtonCard extends StatelessWidget {
     required this.isDarkMode,
     required this.title,
     required this.children,
-    required this.labels,
+    this.labels,
     this.height = 335,
   });
 
@@ -553,7 +515,7 @@ class _ButtonCard extends StatelessWidget {
 
   final List<Widget> children;
 
-  final List<Widget> labels;
+  final List<String>? labels;
 
   final double height;
 
@@ -600,18 +562,23 @@ class _ButtonCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          DefaultTextStyle(
-                            style: fonts.titleMedium!.copyWith(
-                              color: isDarkMode
-                                  ? style.colors.onPrimary
-                                  : const Color(0xFF1F3C5D),
+                          if (labels != null)
+                            DefaultTextStyle(
+                              style: fonts.titleMedium!.copyWith(
+                                color: isDarkMode
+                                    ? style.colors.onPrimary
+                                    : const Color(0xFF1F3C5D),
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: List.generate(
+                                  labels!.length,
+                                  (i) => Text(labels![i]),
+                                ),
+                              ),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: labels,
-                            ),
-                          ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: children,

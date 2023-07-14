@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/tab/chats/widget/unread_counter.dart';
 
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
@@ -27,7 +28,7 @@ class ImagesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final (style, _) = Theme.of(context).styles;
 
     return Column(
       children: [
@@ -81,7 +82,7 @@ class ImagesView extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 30),
+            const SizedBox(width: 16),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -100,7 +101,7 @@ class ImagesView extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 Tooltip(
                   message: 'Unread message counter icons',
                   child: Container(
@@ -113,28 +114,15 @@ class ImagesView extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(10),
                       child: Wrap(
+                        runAlignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         spacing: 3,
                         runSpacing: 3,
                         alignment: WrapAlignment.center,
-                        children: List.generate(16, (index) {
+                        children: List.generate(20, (index) {
                           final int number = index + 1;
 
-                          return SizedBox(
-                            height: 25,
-                            width: 25,
-                            child: Material(
-                              type: MaterialType.circle,
-                              color: style.colors.dangerColor,
-                              child: Center(
-                                child: Text(
-                                  number.toString(),
-                                  style: fonts.headlineSmall!.copyWith(
-                                    color: style.colors.onPrimary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
+                          return UnreadCounter(number);
                         }),
                       ),
                     ),
