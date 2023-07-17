@@ -102,10 +102,6 @@ void main() async {
     }
   };
 
-  var chatContacts = {
-    'chatContacts': {'nodes': [], 'ver': '0'}
-  };
-
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
 
@@ -216,10 +212,6 @@ void main() async {
       last: null,
       before: null,
     )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
-
-    when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
-      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
-    );
 
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));

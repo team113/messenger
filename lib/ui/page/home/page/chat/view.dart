@@ -813,7 +813,7 @@ class _ChatViewState extends State<ChatView>
             child: Center(
               key: const ValueKey(1),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+                padding: const EdgeInsets.only(top: 12),
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tight(const Size.square(40)),
                   child: Center(
@@ -833,10 +833,15 @@ class _ChatViewState extends State<ChatView>
           );
         }
 
-        return AnimatedSizeAndFade(
-          fadeDuration: const Duration(milliseconds: 200),
-          sizeDuration: const Duration(milliseconds: 200),
-          child: child,
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: isLast ? ChatController.lastItemBottomOffset : 0,
+          ),
+          child: AnimatedSizeAndFade(
+            fadeDuration: const Duration(milliseconds: 200),
+            sizeDuration: const Duration(milliseconds: 200),
+            child: child,
+          ),
         );
       });
     }

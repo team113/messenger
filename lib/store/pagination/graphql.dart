@@ -21,7 +21,10 @@ import '/store/pagination.dart';
 
 /// [PageProvider] fetching items from the remote in a GraphQL style.
 class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
-  GraphQlPageProvider({required this.fetch});
+  GraphQlPageProvider({required this.fetch, this.reversed = false});
+
+  /// Indicator whether this [GraphQlPageProvider] is reversed.
+  final bool reversed;
 
   /// Callback fetching items from the remote.
   final Future<Page<U, T>> Function({
@@ -42,7 +45,7 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
       first: cursor == null ? null : half,
     );
 
-    return page.reversed();
+    return reversed ? page.reversed() : page;
   }
 
   @override
@@ -51,9 +54,14 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
       return null;
     }
 
-    final Page<U, T> page = await fetch(before: cursor, last: count);
+    final Page<U, T> page;
+    if(reversed) {
+      page = await fetch(before: cursor, last: count);
+    } else {
+      page = await fetch(after: cursor, first: count);
+    }
 
-    return page.reversed();
+    return reversed ? page.reversed() : page;
   }
 
   @override
@@ -62,13 +70,19 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
       return null;
     }
 
-    final Page<U, T> page = await fetch(after: cursor, first: count);
+    final Page<U, T> page;
+    if(reversed) {
+      page = await fetch(after: cursor, first: count);
+    } else {
+      page = await fetch(before: cursor, last: count);
+    }
 
-    return page.reversed();
+
+    return reversed ? page.reversed() : page;
   }
 
   @override
-  Future<void> add(U item) async {
+  Future<void> put(U item) async {
     // No-op.
   }
 }

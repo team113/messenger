@@ -740,7 +740,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Future<GetChat$Query> getChat(ChatId id) async {
-    return GetChat$Query.fromJson(chatsQuery);
+    return GetChat$Query.fromJson({'chat': chatData});
   }
 
   Map<String, dynamic> userData = {

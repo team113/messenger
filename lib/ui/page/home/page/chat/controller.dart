@@ -330,7 +330,7 @@ class ChatController extends GetxController {
   /// Indicates whether the [listController] is scrolled to its top.
   bool get _atTop =>
       listController.hasClients &&
-      listController.position.pixels <
+      listController.position.pixels >
           listController.position.maxScrollExtent - 100;
 
   @override
@@ -911,6 +911,20 @@ class ChatController extends GetxController {
         _scrollToLastRead();
       }
 
+      status.value = RxStatus.success();
+
+      if (_bottomLoader != null) {
+        showLoader.value = false;
+
+        _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
+          if (_bottomLoader != null) {
+            elements.remove(_bottomLoader!.id);
+            _bottomLoader = null;
+            showLoader.value = true;
+          }
+        });
+      }
+
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
       }
@@ -1206,9 +1220,7 @@ class ChatController extends GetxController {
 
   /// Loads next and previous page of the [RxChat.messages].
   void _loadMessages() async {
-    if (listController.hasClients &&
-        !_ignorePositionChanges &&
-        status.value.isSuccess) {
+    if (!_ignorePositionChanges && status.value.isSuccess) {
       _loadNextPage();
       _loadPreviousPage();
     }
@@ -1221,16 +1233,18 @@ class ChatController extends GetxController {
       Log.print('Fetch next page', 'ChatController');
 
       _isNextPageLoading = true;
-      if (_topLoader == null) {
-        _topLoader = LoaderElement.top();
-        elements[_topLoader!.id] = _topLoader!;
+      if (_bottomLoader != null) {
+        elements.remove(_bottomLoader!.id);
       }
+
+      _bottomLoader =
+          LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
 
       await chat!.next();
 
       if (hasNext.isFalse) {
-        elements.remove(_topLoader?.id);
-        _topLoader = null;
+        elements.remove(_bottomLoader?.id);
+        _bottomLoader = null;
       }
 
       _isNextPageLoading = false;
@@ -1246,19 +1260,20 @@ class ChatController extends GetxController {
       keepPositionOffset.value = 0;
       _isPrevPageLoading = true;
 
-      if (_bottomLoader != null) {
-        elements.remove(_bottomLoader!.id);
+      if (_topLoader == null) {
+        _topLoader = LoaderElement.top();
+        elements[_topLoader!.id] = _topLoader!;
       }
 
-      _bottomLoader =
-          LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
-      elements[_bottomLoader!.id] = _bottomLoader!;
+      elements[_topLoader!.id] = _topLoader!;
 
       await chat!.previous();
 
+      _isPrevPageLoading = false;
+
       if (hasPrevious.isFalse) {
-        elements.remove(_bottomLoader?.id);
-        _bottomLoader = null;
+        elements.remove(_topLoader?.id);
+        _topLoader = null;
       }
     }
   }
@@ -1285,16 +1300,15 @@ class ChatController extends GetxController {
   /// [RxChat.messages] list.
   void _determineLastRead() {
     if (chat?.unreadCount.value != 0) {
-      PreciseDateTime? at = chat!.chat.value.lastReads
-          .firstWhereOrNull((e) => e.memberId == me)
-          ?.at;
+      _firstUnreadItem = chat?.firstUnreadItem;
 
-      if (at != null) {
+      if (_firstUnreadItem != null) {
         if (_unreadElement != null) {
           elements.remove(_unreadElement!.id);
         }
 
-        at = at.subtract(const Duration(microseconds: 1));
+        PreciseDateTime? at = _firstUnreadItem!.value.at
+            .subtract(const Duration(microseconds: 1));
         _unreadElement = UnreadMessagesElement(at);
         elements[_unreadElement!.id] = _unreadElement!;
       }
@@ -1508,7 +1522,7 @@ class LoaderElement extends ListElement {
   LoaderElement.top()
       : super(
           ListElementId(
-            PreciseDateTime.fromMillisecondsSinceEpoch(0),
+            PreciseDateTime.fromMicrosecondsSinceEpoch(0),
             const ChatItemId('0'),
           ),
         );

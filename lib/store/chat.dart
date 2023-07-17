@@ -388,15 +388,6 @@ class ChatRepository extends DisposableInterface
     }
   }
 
-  /// Puts the provided [item] to [Hive].
-  Future<void> putChatItem(HiveChatItem item) async {
-    HiveRxChat? entry =
-        _chats[item.value.chatId] ?? (await get(item.value.chatId));
-    if (entry != null) {
-      await entry.put(item);
-    }
-  }
-
   @override
   Future<void> renameChat(ChatId id, ChatName? name) async {
     if (id.isLocalWith(me)) {
@@ -969,8 +960,7 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
     if (id.isLocal) {
-      // TODO(review): it's pagination should be cleared
-      // await _chats[id]?.clear();
+      _chats[id]?.clear();
       return;
     }
 
@@ -1212,7 +1202,7 @@ class ChatRepository extends DisposableInterface
           HiveRxChat entry =
               HiveRxChat(this, _chatLocal, _draftLocal, event.value);
           _chats[chatId] = entry;
-          await entry.init();
+          entry.init();
           entry.subscribe();
         } else {
           if (chat.chat.value.isMonolog) {
@@ -1366,7 +1356,7 @@ class ChatRepository extends DisposableInterface
       if (entry == null) {
         entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
         _chats[data.chat.value.id] = entry;
-        await entry.init();
+        entry.init();
         entry.subscribe();
       }
     } else {
@@ -1377,7 +1367,7 @@ class ChatRepository extends DisposableInterface
       if (data.lastItem != null) data.lastItem!,
       if (data.lastReadItem != null) data.lastReadItem!,
     ]) {
-      entry.add(item);
+      entry.put(item);
     }
 
     return entry;

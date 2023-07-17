@@ -131,7 +131,7 @@ class _ListPageProvider implements PageProvider<int, int> {
   }
 
   @override
-  Future<void> add(int item) {
+  Future<void> put(int item) {
     // TODO: implement add
     throw UnimplementedError();
   }

@@ -57,6 +57,14 @@ class PreciseDateTime extends NewType<DateTime>
   @override
   int compareTo(PreciseDateTime other) => val.compareTo(other.val);
 
+  @override
+  int get hashCode => val.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is PreciseDateTime &&
+          microsecondsSinceEpoch == other.microsecondsSinceEpoch;
+
   /// Returns `true` if this [PreciseDateTime] occurs before [other].
   ///
   /// The comparison is independent of whether the time is in UTC or in the
@@ -138,25 +146,6 @@ class PreciseDateTime extends NewType<DateTime>
   /// final now = PreciseDateTime.now();
   /// ```
   static PreciseDateTime now() => PreciseDateTime(DateTime.now());
-
-  /// Constructs a new [PreciseDateTime] instance from the given
-  /// [millisecondsSinceEpoch].
-  ///
-  /// ```dart
-  /// final newYearsDay =
-  ///    PreciseDateTime.fromMillisecondsSinceEpoch(1640979000000, isUtc: true);
-  /// print(newYearsDay); // 2022-01-01 10:00:00.000Z
-  /// ```
-  static PreciseDateTime fromMillisecondsSinceEpoch(
-    int millisecondsSinceEpoch, {
-    bool isUtc = false,
-  }) =>
-      PreciseDateTime(
-        DateTime.fromMillisecondsSinceEpoch(
-          millisecondsSinceEpoch,
-          isUtc: isUtc,
-        ),
-      );
 
   /// Returns this [PreciseDateTime] value in the UTC time zone.
   PreciseDateTime toUtc() => PreciseDateTime(val.toUtc());

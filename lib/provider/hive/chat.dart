@@ -97,7 +97,6 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
-    Hive.maybeRegisterAdapter(RecentChatsCursorAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
     Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
@@ -123,9 +122,8 @@ class HiveChat extends HiveObject {
     this.value,
     this.ver,
     this.lastItemCursor,
-    this.lastReadItemCursor, {
-    this.cursor,
-  });
+    this.lastReadItemCursor,
+  );
 
   /// Persisted [Chat] model.
   @HiveField(0)
@@ -145,8 +143,4 @@ class HiveChat extends HiveObject {
   /// Cursor of a [Chat.lastReadItem].
   @HiveField(3)
   ChatItemsCursor? lastReadItemCursor;
-
-  /// Cursor of the [value].
-  @HiveField(4)
-  RecentChatsCursor? cursor;
 }

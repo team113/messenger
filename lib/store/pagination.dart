@@ -180,7 +180,12 @@ class Pagination<T, K, C> {
   Future<void> put(T item) async {
     Log.print('put($item)', 'Pagination');
     items[onKey(item)] = item;
-    await provider.add(item);
+    await provider.put(item);
+  }
+
+  /// Removes the item with the provided [key] from the [items].
+  void remove(K key) {
+    items.remove(key);
   }
 }
 
@@ -233,5 +238,5 @@ abstract class PageProvider<T, K> {
   FutureOr<Page<T, K>?> before(T? item, K? cursor, int count);
 
   /// Adds the provided [item] to the [Page] it belongs to.
-  Future<void> add(T item);
+  Future<void> put(T item);
 }

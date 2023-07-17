@@ -99,10 +99,6 @@ void main() async {
     }
   };
 
-  var chatContacts = {
-    'chatContacts': {'nodes': [], 'ver': '0'}
-  };
-
   var blacklist = {
     'edges': [],
     'pageInfo': {
@@ -128,10 +124,6 @@ void main() async {
       .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((_) => const Stream.empty());
-
-  when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
-    (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
-  );
 
   when(graphQlProvider.getUser(any))
       .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));

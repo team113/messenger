@@ -108,7 +108,7 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
 
   /// Returns a list of [ChatItemKey]s stored in the [Hive].
   Iterable<ChatItemKey> get keys =>
-      keysSafe.map((e) => ChatItemKey.fromString(e)); // TODO: reversed?
+      keysSafe.map((e) => ChatItemKey.fromString(e));
 
   /// Returns a list of [ChatItem]s from [Hive].
   Future<Iterable<HiveChatItem>> get messages => valuesSafe;
@@ -116,17 +116,6 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
   /// Puts the provided [ChatItem] to [Hive].
   Future<void> put(HiveChatItem item) =>
       putSafe(item.value.key.toString(), item);
-
-  /// Adds the provided [ChatItem] to [Hive].
-  ///
-  /// [ChatItem] will be added if it is within the bounds of the stored items.
-  Future<void> add(HiveChatItem item) async {
-    if (box.keys.isNotEmpty &&
-        (box.keys.first as String).compareTo(item.value.key.toString()) == 1 &&
-        (box.keys.last as String).compareTo(item.value.key.toString()) == -1) {
-      await put(item);
-    }
-  }
 
   /// Returns a [ChatItem] from [Hive] by its [key].
   Future<HiveChatItem?> get(ChatItemKey key) => getSafe(key.toString());
