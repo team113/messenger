@@ -29,13 +29,6 @@ fragment UserEventsVersioned on UserEventsVersioned {
             }
             at
         }
-        ... on EventUserBioDeleted {
-            at
-        }
-        ... on EventUserBioUpdated {
-            bio
-            at
-        }
         ... on EventUserCallCoverDeleted {
             at
         }
@@ -56,17 +49,6 @@ fragment UserEventsVersioned on UserEventsVersioned {
             at
         }
         ... on EventUserNameDeleted {
-            at
-        }
-        ... on EventUserGalleryItemAdded {
-            galleryItem {
-                __typename
-                ...GalleryItem
-            }
-            at
-        }
-        ... on EventUserGalleryItemDeleted {
-            galleryItemId
             at
         }
         ... on EventUserNameUpdated {

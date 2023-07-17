@@ -19,7 +19,6 @@ fragment User on User {
     id
     num
     name
-    bio
     avatar {
         __typename
         ...UserAvatar
@@ -27,12 +26,6 @@ fragment User on User {
     callCover {
         __typename
         ...UserCallCover
-    }
-    gallery {
-        nodes {
-            __typename
-            ...GalleryItem
-        }
     }
     mutualContactsCount
     online {

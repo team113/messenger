@@ -25,7 +25,6 @@ import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/gallery_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
@@ -133,33 +132,6 @@ mixin UserGraphQlMixin {
       ),
     );
     return UpdateUserName$Mutation.fromJson(res.data!).updateUserName;
-  }
-
-  /// Updates [MyUser.bio] field for the authenticated [MyUser].
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserBioUpdated] (if [bio] argument is specified);
-  /// - [EventUserBioDeleted] (if [bio] argument is absent or is `null`).
-  ///
-  /// ### Idempotent
-  ///
-  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [bio] already.
-  Future<MyUserEventsVersionedMixin?> updateUserBio(UserBio? bio) async {
-    final variables = UpdateUserBioArguments(bio: bio);
-    QueryResult res = await client.mutate(
-      MutationOptions(
-        document: UpdateUserBioMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-    );
-    return UpdateUserBio$Mutation.fromJson(res.data!).updateUserBio;
   }
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
@@ -793,8 +765,12 @@ mixin UserGraphQlMixin {
         .deleteChatDirectLink as MyUserEventsVersionedMixin?;
   }
 
-  /// Updates or resets the [MyUser.avatar] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated MyUser.
+  /// Updates or resets the [MyUser.avatar] field with the provided image
+  /// [file].
+  ///
+  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
+  /// containing the uploaded file and the file argument itself must be `null`,
+  /// otherwise this mutation will fail.
   ///
   /// ### Authentication
   ///
@@ -803,33 +779,75 @@ mixin UserGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserAvatarUpdated] (if [id] argument is specified);
-  /// - [EventUserAvatarDeleted] (if [id] argument is absent or is `null`).
+  /// - [EventUserAvatarUpdated] (if image [file] is provided);
+  /// - [EventUserAvatarDeleted] (if image [file] is not provided).
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [GalleryItem] with the same crop area as
-  /// his avatar already.
+  /// [MyUser] uses the specified image [file] already as his avatar with the
+  /// same crop area.
   Future<MyUserEventsVersionedMixin?> updateUserAvatar(
-      GalleryItemId? id, CropAreaInput? crop) async {
-    final variables = UpdateUserAvatarArguments(id: id, crop: crop);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'UpdateUserAvatar',
-        document: UpdateUserAvatarMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => UpdateUserAvatarException(
-          UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
-              as UpdateUserAvatarErrorCode),
+    dio.MultipartFile? file,
+    CropAreaInput? crop, {
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    final variables = UpdateUserAvatarArguments(file: null, crop: crop);
+    final query = MutationOptions(
+      operationName: 'UpdateUserAvatar',
+      document: UpdateUserAvatarMutation(variables: variables).document,
+      variables: variables.toJson(),
     );
-    return (UpdateUserAvatar$Mutation.fromJson(result.data!).updateUserAvatar
-        as MyUserEventsVersionedMixin?);
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    try {
+      var response = await client.post(
+        file == null
+            ? encodedBody
+            : dio.FormData.fromMap({
+                'operations': encodedBody,
+                'map': '{ "file": ["variables.upload"] }',
+                'file': file,
+              }),
+        options: file == null
+            ? null
+            : dio.Options(contentType: 'multipart/form-data'),
+        onSendProgress: onSendProgress,
+        onException: (data) => UpdateUserAvatarException(
+          (UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
+                  as UpdateUserAvatar$Mutation$UpdateUserAvatar$UpdateUserAvatarError)
+              .code,
+        ),
+      );
+
+      if (response.data['data'] == null) {
+        throw GraphQlException(
+          [GraphQLError(message: response.data.toString())],
+        );
+      }
+
+      return (UpdateUserAvatar$Mutation.fromJson(response.data['data'])
+          .updateUserAvatar as MyUserEventsVersionedMixin?);
+    } on dio.DioError catch (e) {
+      if (e.response?.statusCode == 413) {
+        throw const UpdateUserAvatarException(
+          UpdateUserAvatarErrorCode.tooBigSize,
+        );
+      }
+
+      rethrow;
+    }
   }
 
-  /// Updates or resets the [MyUser.callCover] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
+  /// Updates or resets the [MyUser.callCover] field with the provided image
+  /// [file].
+  ///
+  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
+  /// containing the uploaded file and the file argument itself must be `null`,
+  /// otherwise this mutation will fail.
   ///
   /// ### Authentication
   ///
@@ -838,29 +856,67 @@ mixin UserGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserCallCoverUpdated] (if [id] argument is specified);
-  /// - [EventUserCallCoverDeleted] (if [id] argument is absent or is `null`).
+  /// - [EventUserCallCoverUpdated] (if image [file] is provided);
+  /// - [EventUserCallCoverDeleted] (if image [file] is not provided).
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [GalleryItem] with the same crop area as his
-  /// callCover already.
+  /// [MyUser] uses the specified image [file] already as his callCover with the
+  /// same crop area.
   Future<MyUserEventsVersionedMixin?> updateUserCallCover(
-      GalleryItemId? id, CropAreaInput? crop) async {
-    final variables = UpdateUserCallCoverArguments(id: id, crop: crop);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'UpdateUserCallCover',
-        document: UpdateUserCallCoverMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => UpdateUserCallCoverException(
-          UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
-              as UpdateUserCallCoverErrorCode),
+    dio.MultipartFile? file,
+    CropAreaInput? crop, {
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    final variables = UpdateUserCallCoverArguments(file: null, crop: crop);
+    final query = MutationOptions(
+      operationName: 'UpdateUserCallCover',
+      document: UpdateUserCallCoverMutation(variables: variables).document,
+      variables: variables.toJson(),
     );
-    return (UpdateUserCallCover$Mutation.fromJson(result.data!)
-        .updateUserCallCover as MyUserEventsVersionedMixin?);
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    try {
+      var response = await client.post(
+        file == null
+            ? encodedBody
+            : dio.FormData.fromMap({
+                'operations': encodedBody,
+                'map': '{ "file": ["variables.upload"] }',
+                'file': file,
+              }),
+        options: file == null
+            ? null
+            : dio.Options(contentType: 'multipart/form-data'),
+        onSendProgress: onSendProgress,
+        onException: (data) => UpdateUserCallCoverException(
+          (UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
+                  as UpdateUserCallCover$Mutation$UpdateUserCallCover$UpdateUserCallCoverError)
+              .code,
+        ),
+      );
+
+      if (response.data['data'] == null) {
+        throw GraphQlException(
+          [GraphQLError(message: response.data.toString())],
+        );
+      }
+
+      return (UpdateUserCallCover$Mutation.fromJson(response.data['data'])
+          .updateUserCallCover as MyUserEventsVersionedMixin?);
+    } on dio.DioError catch (e) {
+      if (e.response?.statusCode == 413) {
+        throw const UpdateUserCallCoverException(
+          UpdateUserCallCoverErrorCode.tooBigSize,
+        );
+      }
+
+      rethrow;
+    }
   }
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser]. Overrides
@@ -903,95 +959,6 @@ mixin UserGraphQlMixin {
     );
     return (ToggleMyUserMute$Mutation.fromJson(result.data!).toggleMyUserMute
         as MyUserEventsVersionedMixin?);
-  }
-
-  /// Adds a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  ///
-  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
-  /// containing the uploaded file and the file argument itself must be `null`,
-  /// otherwise this mutation will fail.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] is always produced on success:
-  /// - [EventUserGalleryItemAdded].
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Each time adds a new unique [GalleryItem].
-  Future<MyUserEventsVersionedMixin?> uploadUserGalleryItem(
-    dio.MultipartFile? galleryItem, {
-    void Function(int count, int total)? onSendProgress,
-  }) async {
-    final variables = UploadUserGalleryItemArguments(upload: null);
-    final query = MutationOptions(
-      operationName: 'UploadUserGalleryItem',
-      document: UploadUserGalleryItemMutation(variables: variables).document,
-      variables: variables.toJson(),
-    );
-
-    final request = query.asRequest;
-    final body = const RequestSerializer().serializeRequest(request);
-    final encodedBody = json.encode(body);
-
-    try {
-      var response = await client.post(
-        dio.FormData.fromMap({
-          'operations': encodedBody,
-          'map': '{ "file": ["variables.upload"] }',
-          'file': galleryItem,
-        }),
-        options: dio.Options(contentType: 'multipart/form-data'),
-        onSendProgress: onSendProgress,
-        onException: (data) => UploadUserGalleryItemException(
-            (UploadUserGalleryItem$Mutation.fromJson(data).uploadUserGalleryItem
-                    as UploadUserGalleryItem$Mutation$UploadUserGalleryItem$UploadUserGalleryItemError)
-                .code),
-      );
-
-      return (UploadUserGalleryItem$Mutation.fromJson(response.data['data'])
-          .uploadUserGalleryItem as MyUserEventsVersionedMixin?);
-    } on dio.DioError catch (e) {
-      if (e.response?.statusCode == 413) {
-        throw const UploadUserGalleryItemException(
-          UploadUserGalleryItemErrorCode.tooBigSize,
-        );
-      }
-
-      rethrow;
-    }
-  }
-
-  /// Removes the specified [GalleryItem] from the authenticated [MyUser]'s
-  /// gallery.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] may be produced on success:
-  /// - [EventUserGalleryItemDeleted].
-  ///
-  /// ### Idempotent
-  ///
-  /// Succeeds as no-op (and returns no [MyUserEvent]) if the specified
-  /// [GalleryItem] was deleted already (or if it never existed).
-  Future<MyUserEventsVersionedMixin?> deleteUserGalleryItem(
-      GalleryItemId id) async {
-    final variables = DeleteUserGalleryItemArguments(id: id);
-    final QueryResult result = await client.mutate(MutationOptions(
-      operationName: 'DeleteUserGalleryItem',
-      document: DeleteUserGalleryItemMutation(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return DeleteUserGalleryItem$Mutation.fromJson(result.data!)
-        .deleteUserGalleryItem;
   }
 
   /// Keeps the authenticated [MyUser] online while subscribed.

@@ -165,18 +165,6 @@ targets:
                 name: FavoriteChatsListVersion
                 imports:
                  - "package:messenger/store/model/chat.dart"
-            - graphql_type: GalleryItemId
-              custom_parser_import: "package:messenger/api/backend/graphql/parsers/gallery.dart"
-              dart_type:
-                name: GalleryItemId
-                imports:
-                  - "package:messenger/domain/model/gallery_item.dart"
-            - graphql_type: ImageGalleryItem
-              custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
-              dart_type:
-                name: ImageGalleryItem
-                imports:
-                  - "package:messenger/domain/model/image_gallery_item.dart"
             - graphql_type: IncomingChatCallsCursor
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/call.dart"
               dart_type:
@@ -218,13 +206,7 @@ targets:
               dart_type:
                 name: MultipartFile
                 imports:
-                  - "package:http/http.dart"
-            - graphql_type: UserBio
-              custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
-              dart_type:
-                name: UserBio
-                imports:
-                  - "package:messenger/domain/model/user.dart"
+                  - "package:dio/dio.dart"
             - graphql_type: UserEmail
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
               dart_type:

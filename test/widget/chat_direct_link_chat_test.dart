@@ -45,7 +45,6 @@ import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -89,7 +88,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -143,9 +141,6 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -287,8 +282,8 @@ void main() async {
       ]),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
@@ -319,7 +314,7 @@ void main() async {
     AbstractContactRepository contactRepository = ContactRepository(
       graphQlProvider,
       contactProvider,
-      UserRepository(graphQlProvider, userProvider, galleryItemProvider),
+      UserRepository(graphQlProvider, userProvider),
       sessionProvider,
     );
 
@@ -362,7 +357,6 @@ void main() async {
     await Get.deleteAll(force: true);
   });
 
-  await galleryItemProvider.clear();
   await contactProvider.clear();
   await userProvider.clear();
   await chatProvider.clear();

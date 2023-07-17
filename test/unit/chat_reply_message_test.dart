@@ -36,7 +36,6 @@ import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -60,8 +59,6 @@ void main() async {
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
@@ -99,7 +96,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -175,10 +171,6 @@ void main() async {
                     'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
                     'num': '1234123412341234',
                     'isDeleted': false,
-                    'gallery': {
-                      'nodes': [],
-                      'edges': [],
-                    },
                     'mutualContactsCount': 0,
                     'isBlocked': {
                       'ver': '0',
@@ -195,10 +187,6 @@ void main() async {
                         'id': 'me',
                         'num': '1234123412341234',
                         'isDeleted': false,
-                        'gallery': {
-                          'nodes': [],
-                          'edges': [],
-                        },
                         'mutualContactsCount': 0,
                         'isBlocked': {
                           'ver': '0',
@@ -233,8 +221,8 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -314,8 +302,8 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,

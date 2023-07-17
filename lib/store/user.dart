@@ -25,13 +25,11 @@ import 'package:mutex/mutex.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/gallery_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/gallery_item.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
@@ -45,7 +43,6 @@ class UserRepository implements AbstractUserRepository {
   UserRepository(
     this._graphQlProvider,
     this._userLocal,
-    this._galleryItemLocal,
   );
 
   /// Callback, called when a [RxChat] with the provided [ChatId] is required
@@ -59,9 +56,6 @@ class UserRepository implements AbstractUserRepository {
 
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
-
-  /// [GalleryItem] local [Hive] storage.
-  final GalleryItemHiveProvider _galleryItemLocal;
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
@@ -196,10 +190,6 @@ class UserRepository implements AbstractUserRepository {
 
   /// Puts the provided [user] into the local [Hive] storage.
   void put(HiveUser user, {bool ignoreVersion = false}) {
-    List<GalleryItem> gallery = user.value.gallery ?? [];
-    for (GalleryItem item in gallery) {
-      _galleryItemLocal.put(item);
-    }
     _putUser(user, ignoreVersion: ignoreVersion);
   }
 
@@ -318,12 +308,6 @@ class UserRepository implements AbstractUserRepository {
         node.avatar.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventUserBioDeleted') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
-      return EventUserBioDeleted(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserBioUpdated') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
-      return EventUserBioUpdated(node.userId, node.bio, node.at);
     } else if (e.$$typename == 'EventUserCallCoverDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
       return EventUserCallCoverDeleted(node.userId, node.at);
@@ -346,21 +330,6 @@ class UserRepository implements AbstractUserRepository {
     } else if (e.$$typename == 'EventUserNameDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserNameDeleted;
       return EventUserNameDeleted(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserGalleryItemAdded') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
-      return EventUserGalleryItemAdded(
-        node.userId,
-        node.galleryItem.toModel(),
-        node.at,
-      );
-    } else if (e.$$typename == 'EventUserGalleryItemDeleted') {
-      var node =
-          e as UserEventsVersionedMixin$Events$EventUserGalleryItemDeleted;
-      return EventUserGalleryItemDeleted(
-        node.userId,
-        node.galleryItemId,
-        node.at,
-      );
     } else if (e.$$typename == 'EventUserNameUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name, node.at);

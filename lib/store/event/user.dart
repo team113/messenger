@@ -17,7 +17,6 @@
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
-import '/domain/model/gallery_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
@@ -30,14 +29,10 @@ import 'my_user.dart';
 enum UserEventKind {
   avatarDeleted,
   avatarUpdated,
-  bioDeleted,
-  bioUpdated,
   callCoverDeleted,
   callCoverUpdated,
   cameOffline,
   cameOnline,
-  galleryItemAdded,
-  galleryItemDeleted,
   nameDeleted,
   nameUpdated,
   presenceUpdated,
@@ -192,31 +187,6 @@ class EventUserAvatarUpdated extends UserEvent {
   UserEventKind get kind => UserEventKind.avatarUpdated;
 }
 
-/// Event of an [UserBio] being deleted.
-class EventUserBioDeleted extends UserEvent {
-  const EventUserBioDeleted(super.userId, this.at);
-
-  /// [PreciseDateTime] when the [UserBio] was deleted.
-  final PreciseDateTime at;
-
-  @override
-  UserEventKind get kind => UserEventKind.bioDeleted;
-}
-
-/// Event of an [UserBio] being updated.
-class EventUserBioUpdated extends UserEvent {
-  const EventUserBioUpdated(super.userId, this.bio, this.at);
-
-  /// New [UserBio].
-  final UserBio bio;
-
-  /// [PreciseDateTime] when the [UserBio] was updated.
-  final PreciseDateTime at;
-
-  @override
-  UserEventKind get kind => UserEventKind.bioUpdated;
-}
-
 /// Event of an [UserCallCover] being deleted.
 class EventUserCallCoverDeleted extends UserEvent {
   const EventUserCallCoverDeleted(super.userId, this.at);
@@ -295,36 +265,6 @@ class EventUserNameUpdated extends UserEvent {
 
   @override
   UserEventKind get kind => UserEventKind.nameUpdated;
-}
-
-/// Event of an [User]'s `GalleryItem` being added.
-class EventUserGalleryItemAdded extends UserEvent {
-  const EventUserGalleryItemAdded(super.userId, this.galleryItem, this.at);
-
-  /// Added [GalleryItem].
-  final GalleryItem galleryItem;
-
-  /// [PreciseDateTime] when the `GalleryItem` was added to the [User]'s
-  /// gallery.
-  final PreciseDateTime at;
-
-  @override
-  UserEventKind get kind => UserEventKind.galleryItemAdded;
-}
-
-/// Event of an [User]'s `GalleryItem` being deleted.
-class EventUserGalleryItemDeleted extends UserEvent {
-  const EventUserGalleryItemDeleted(super.userId, this.galleryItemId, this.at);
-
-  /// ID of the deleted `GalleryItem`.
-  final GalleryItemId galleryItemId;
-
-  /// [PreciseDateTime] when the `GalleryItem` was deleted from the [User]'s
-  /// gallery.
-  final PreciseDateTime at;
-
-  @override
-  UserEventKind get kind => UserEventKind.galleryItemDeleted;
 }
 
 /// Event of an [User]'s [Presence] being updated.

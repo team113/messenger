@@ -20,7 +20,6 @@ import 'package:hive/hive.dart';
 import '../model_type_id.dart';
 import 'crop_area.dart';
 import 'file.dart';
-import 'gallery_item.dart';
 
 part 'avatar.g.dart';
 
@@ -71,7 +70,6 @@ abstract class Avatar {
 @HiveType(typeId: ModelTypeId.userAvatar)
 class UserAvatar extends Avatar {
   UserAvatar({
-    this.galleryItem,
     required super.full,
     required super.big,
     required super.medium,
@@ -79,10 +77,6 @@ class UserAvatar extends Avatar {
     required super.original,
     super.crop,
   });
-
-  /// [GalleryItem] this [UserAvatar] was created from.
-  @HiveField(6)
-  final GalleryItem? galleryItem;
 }
 
 /// [Avatar] of a [Chat].

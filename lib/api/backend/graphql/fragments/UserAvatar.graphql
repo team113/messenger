@@ -16,10 +16,6 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 fragment UserAvatar on UserAvatar {
-    galleryItem {
-        __typename
-        ...GalleryItem
-    }
     crop {
         topLeft {
             x

@@ -18,7 +18,6 @@
 import '../model/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
-import '/domain/model/gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -30,8 +29,6 @@ import '/provider/hive/user.dart';
 enum MyUserEventKind {
   avatarDeleted,
   avatarUpdated,
-  bioDeleted,
-  bioUpdated,
   blocklistRecordAdded,
   blocklistRecordRemoved,
   callCoverDeleted,
@@ -44,8 +41,6 @@ enum MyUserEventKind {
   emailAdded,
   emailConfirmed,
   emailDeleted,
-  galleryItemAdded,
-  galleryItemDeleted,
   loginUpdated,
   nameDeleted,
   nameUpdated,
@@ -100,25 +95,6 @@ class EventUserAvatarUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.avatarUpdated;
-}
-
-/// Event of an [UserBio] being deleted.
-class EventUserBioDeleted extends MyUserEvent {
-  const EventUserBioDeleted(super.userId);
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.bioDeleted;
-}
-
-/// Event of an [UserBio] being updated.
-class EventUserBioUpdated extends MyUserEvent {
-  const EventUserBioUpdated(super.userId, this.bio);
-
-  /// New [UserBio].
-  final UserBio bio;
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.bioUpdated;
 }
 
 /// Event of an [UserCallCover] being deleted.
@@ -214,28 +190,6 @@ class EventUserEmailDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.emailDeleted;
-}
-
-/// Event of an [MyUser]'s `GalleryItem` being added.
-class EventUserGalleryItemAdded extends MyUserEvent {
-  const EventUserGalleryItemAdded(super.userId, this.galleryItem);
-
-  /// Added [GalleryItem].
-  final GalleryItem galleryItem;
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.galleryItemAdded;
-}
-
-/// Event of an [MyUser]'s `GalleryItem` being deleted.
-class EventUserGalleryItemDeleted extends MyUserEvent {
-  const EventUserGalleryItemDeleted(super.userId, this.galleryItemId);
-
-  /// ID of the deleted `GalleryItem`.
-  final GalleryItemId galleryItemId;
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.galleryItemDeleted;
 }
 
 /// Event of an [UserLogin] being updated.

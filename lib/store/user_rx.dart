@@ -129,15 +129,6 @@ class HiveRxUser extends RxUser {
               userEntity.value.avatar = event.avatar;
               break;
 
-            case UserEventKind.bioDeleted:
-              userEntity.value.bio = null;
-              break;
-
-            case UserEventKind.bioUpdated:
-              event as EventUserBioUpdated;
-              userEntity.value.bio = event.bio;
-              break;
-
             case UserEventKind.cameOffline:
               event as EventUserCameOffline;
               userEntity.value.online = false;
@@ -155,18 +146,6 @@ class HiveRxUser extends RxUser {
             case UserEventKind.callCoverUpdated:
               event as EventUserCallCoverUpdated;
               userEntity.value.callCover = event.callCover;
-              break;
-
-            case UserEventKind.galleryItemAdded:
-              event as EventUserGalleryItemAdded;
-              userEntity.value.gallery ??= [];
-              userEntity.value.gallery?.insert(0, event.galleryItem);
-              break;
-
-            case UserEventKind.galleryItemDeleted:
-              event as EventUserGalleryItemDeleted;
-              userEntity.value.gallery
-                  ?.removeWhere((item) => item.id == event.galleryItemId);
               break;
 
             case UserEventKind.nameDeleted:

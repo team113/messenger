@@ -18,7 +18,6 @@
 import '../schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
-import '/domain/model/gallery_item.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/user.dart';
@@ -31,10 +30,8 @@ extension UserConversion on UserMixin {
         id,
         this.num,
         name: name,
-        bio: bio,
         avatar: avatar?.toModel(),
         callCover: callCover?.toModel(),
-        gallery: gallery.nodes.map((e) => e.toModel()).toList(),
         mutualContactsCount: mutualContactsCount,
         online: online?.$$typename == 'UserOnline',
         lastSeenAt: online?.$$typename == 'UserOffline'
@@ -63,24 +60,12 @@ extension BlocklistRecordConversion on UserMixin$IsBlocked$Record {
       );
 }
 
-/// Extension adding models construction from a [GalleryItemMixin].
-extension GalleryItemConversion on GalleryItemMixin {
-  /// Constructs a new [GalleryItem] from this [GalleryItemMixin].
-  GalleryItem toModel() => GalleryItem(
-        addedAt: addedAt,
-        id: id,
-        original: original.toModel(),
-        square: square.toModel(),
-      );
-}
-
 /// Extension adding models construction from an [UserAvatarMixin].
 extension UserAvatarConversion on UserAvatarMixin {
   /// Constructs a new [UserAvatar] from this [UserAvatarMixin].
   UserAvatar toModel() => UserAvatar(
         full: full.toModel(),
         original: original.toModel(),
-        galleryItem: galleryItem?.toModel(),
         big: big.toModel(),
         medium: medium.toModel(),
         small: small.toModel(),
@@ -104,7 +89,6 @@ extension UserAvatarConversion on UserAvatarMixin {
 extension UserCallCoverConversion on UserCallCoverMixin {
   /// Constructs a new [UserCallCover] from this [UserCallCoverMixin].
   UserCallCover toModel() => UserCallCover(
-        galleryItem: galleryItem?.toModel(),
         full: full.toModel(),
         original: original.toModel(),
         vertical: vertical.toModel(),

@@ -45,7 +45,6 @@ import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -89,7 +88,6 @@ void main() async {
           'lastDelivery': '1970-01-01T00:00:00+00:00',
           'lastItem': null,
           'lastReadItem': null,
-          'gallery': {'nodes': []},
           'unreadCount': 0,
           'totalCount': 0,
           'ongoingCall': null,
@@ -138,9 +136,6 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.clear();
   await contactProvider.init();
@@ -261,7 +256,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
+        UserRepository(graphQlProvider, userProvider);
     Get.put(UserService(userRepository));
 
     Get.put(
@@ -281,7 +276,6 @@ void main() async {
       graphQlProvider,
       myUserProvider,
       blacklistedUsersProvider,
-      galleryItemProvider,
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));

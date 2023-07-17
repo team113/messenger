@@ -467,6 +467,8 @@ class UploadAttachmentException
         return 'err_no_filename'.l10n;
       case UploadAttachmentErrorCode.tooBigSize:
         return 'err_size_too_big'.l10n;
+      case UploadAttachmentErrorCode.tooBigDimensions:
+        return 'err_dimensions_too_big'.l10n;
       case UploadAttachmentErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1130,8 +1132,14 @@ class UpdateUserAvatarException
         return 'err_invalid_crop_coordinates'.l10n;
       case UpdateUserAvatarErrorCode.invalidCropPoints:
         return 'err_invalid_crop_points'.l10n;
-      case UpdateUserAvatarErrorCode.unknownGalleryItem:
-        return 'err_unknown_gallery_item'.l10n;
+      case UpdateUserAvatarErrorCode.malformed:
+        return 'err_uploaded_file_malformed'.l10n;
+      case UpdateUserAvatarErrorCode.unsupportedFormat:
+        return 'err_unsupported_format'.l10n;
+      case UpdateUserAvatarErrorCode.tooBigSize:
+        return 'err_size_too_big'.l10n;
+      case UpdateUserAvatarErrorCode.tooBigDimensions:
+        return 'err_dimensions_too_big'.l10n;
       case UpdateUserAvatarErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1157,8 +1165,14 @@ class UpdateUserCallCoverException
         return 'err_invalid_crop_coordinates'.l10n;
       case UpdateUserCallCoverErrorCode.invalidCropPoints:
         return 'err_invalid_crop_points'.l10n;
-      case UpdateUserCallCoverErrorCode.unknownGalleryItem:
-        return 'err_unknown_gallery_item'.l10n;
+      case UpdateUserCallCoverErrorCode.malformed:
+        return 'err_uploaded_file_malformed'.l10n;
+      case UpdateUserCallCoverErrorCode.unsupportedFormat:
+        return 'err_unsupported_format'.l10n;
+      case UpdateUserCallCoverErrorCode.tooBigSize:
+        return 'err_size_too_big'.l10n;
+      case UpdateUserCallCoverErrorCode.tooBigDimensions:
+        return 'err_dimensions_too_big'.l10n;
       case UpdateUserCallCoverErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1184,35 +1198,6 @@ class ToggleMyUserMuteException
         return 'err_too_short'.l10n;
       case ToggleMyUserMuteErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-    }
-  }
-}
-
-/// Exception of `Mutation.uploadUserGalleryItem` described in the [code].
-class UploadUserGalleryItemException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const UploadUserGalleryItemException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final UploadUserGalleryItemErrorCode code;
-
-  @override
-  String toString() => 'UploadUserGalleryItemException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case UploadUserGalleryItemErrorCode.malformed:
-        return 'err_uploaded_file_malformed'.l10n;
-      case UploadUserGalleryItemErrorCode.unsupportedFormat:
-        return 'err_unsupported_format'.l10n;
-      case UploadUserGalleryItemErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case UploadUserGalleryItemErrorCode.tooBigSize:
-        return 'err_size_too_big'.l10n;
-      case UploadUserGalleryItemErrorCode.tooBigDimensions:
-        return 'err_dimensions_too_big'.l10n;
     }
   }
 }

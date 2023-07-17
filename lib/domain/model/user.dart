@@ -26,7 +26,6 @@ import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 import 'avatar.dart';
 import 'chat.dart';
-import 'gallery_item.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user_call_cover.dart';
 
@@ -39,10 +38,8 @@ class User extends HiveObject {
     this.id,
     this.num, {
     this.name,
-    this.bio,
     this.avatar,
     this.callCover,
-    this.gallery,
     this.mutualContactsCount = 0,
     this.online = false,
     this.presenceIndex,
@@ -79,39 +76,31 @@ class User extends HiveObject {
   /// It can be either first name, or last name of an [User], both of them, or
   /// even some nickname. [User] is free to choose how exactly he should be
   /// displayed for other [User]s.
-  @HiveField(3)
+  @HiveField(2)
   UserName? name;
 
-  /// Arbitrary descriptive information about this [User].
-  @HiveField(4)
-  UserBio? bio;
-
   /// Avatar of this [User].
-  @HiveField(5)
+  @HiveField(3)
   UserAvatar? avatar;
 
   /// Call cover of this [User].
   ///
   /// [callCover] is an image helping to identify an [User] visually in
   /// [UserCallCover]s.
-  @HiveField(6)
+  @HiveField(4)
   UserCallCover? callCover;
-
-  /// [GalleryItem]s of this [User] ordered by their adding time.
-  @HiveField(7)
-  List<GalleryItem>? gallery;
 
   /// Number of mutual [ChatContact]s that this [User] has with the
   /// authenticated [MyUser].
-  @HiveField(8)
+  @HiveField(5)
   int mutualContactsCount;
 
   /// Online state of this [User].
-  @HiveField(9)
+  @HiveField(6)
   bool online;
 
   /// Presence of this [User].
-  @HiveField(10)
+  @HiveField(7)
   int? presenceIndex;
 
   Presence? get presence =>
@@ -121,23 +110,23 @@ class User extends HiveObject {
   }
 
   /// Custom text status of this [User].
-  @HiveField(11)
+  @HiveField(8)
   UserTextStatus? status;
 
   /// Indicator whether this [User] is deleted.
-  @HiveField(12)
+  @HiveField(9)
   bool isDeleted;
 
   /// Dialog [Chat] between this [User] and the authenticated [MyUser].
-  @HiveField(13)
+  @HiveField(10)
   ChatId? _dialog;
 
   /// Indicator whether this [User] is blocked by the authenticated [MyUser].
-  @HiveField(14)
+  @HiveField(11)
   BlocklistRecord? isBlocked;
 
   /// [PreciseDateTime] when this [User] was seen online last time.
-  @HiveField(17)
+  @HiveField(12)
   PreciseDateTime? lastSeenAt;
 
   /// Returns [ChatId] of the [Chat]-dialog with this [User].
@@ -219,23 +208,6 @@ class UserName extends NewType<String> {
 
   /// Regular expression for basic [UserName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
-}
-
-/// Arbitrary descriptive information about an [User].
-@HiveType(typeId: ModelTypeId.userBio)
-class UserBio extends NewType<String> {
-  const UserBio._(String val) : super(val);
-
-  UserBio(String val) : super(val) {
-    if (val.isEmpty) {
-      throw const FormatException('Must not be empty');
-    } else if (val.length > 300) {
-      throw const FormatException('Must contain no more than 300 characters');
-    }
-  }
-
-  /// Creates an object without any validation.
-  const factory UserBio.unchecked(String val) = UserBio._;
 }
 
 /// Password of an [User].

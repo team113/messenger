@@ -21,7 +21,6 @@ import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
-import '/domain/model/gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -48,9 +47,7 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Hive.maybeRegisterAdapter(ChatDirectLinkSlugAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkVersionAdapter());
     Hive.maybeRegisterAdapter(CropPointAdapter());
-    Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveMyUserAdapter());
-    Hive.maybeRegisterAdapter(GalleryItemAdapter());
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(MyUserAdapter());
     Hive.maybeRegisterAdapter(MyUserEmailsAdapter());
@@ -60,7 +57,6 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
-    Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserCallCoverAdapter());
     Hive.maybeRegisterAdapter(UserEmailAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());

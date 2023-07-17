@@ -30,15 +30,6 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             }
             at
         }
-        ... on EventUserBioDeleted {
-            userId
-            at
-        }
-        ... on EventUserBioUpdated {
-            userId
-            bio
-            at
-        }
         ... on EventBlocklistRecordAdded {
             user {
                 __typename
@@ -93,19 +84,6 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
         ... on EventUserEmailDeleted {
             userId
             email
-            at
-        }
-        ... on EventUserGalleryItemAdded {
-            userId
-            galleryItem {
-                __typename
-                ...GalleryItem
-            }
-            at
-        }
-        ... on EventUserGalleryItemDeleted {
-            userId
-            galleryItemId
             at
         }
         ... on EventUserLoginUpdated {

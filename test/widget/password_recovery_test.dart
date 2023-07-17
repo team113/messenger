@@ -28,7 +28,6 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -61,8 +60,6 @@ void main() async {
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
   var userProvider = UserHiveProvider();
@@ -80,7 +77,6 @@ void main() async {
   testWidgets('LoginView successfully recovers account access',
       (WidgetTester tester) async {
     Get.put(myUserProvider);
-    Get.put(galleryItemProvider);
     Get.put(contactProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
