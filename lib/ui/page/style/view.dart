@@ -16,15 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/style/widget/custom_switcher.dart';
 
-import '../../../routes.dart';
-import '../../widget/outlined_rounded_button.dart';
+import '/routes.dart';
+import '/themes.dart';
+import '/ui/page/style/element/view.dart';
+import '/ui/page/style/media/view.dart';
+import '/ui/page/style/widget/style_card.dart';
 import 'colors/view.dart';
-import 'element/view.dart';
 import 'fonts/view.dart';
-import 'media/view.dart';
+import 'widget/custom_switcher.dart';
 
 /// View of the [Routes.style] page.
 class StyleView extends StatefulWidget {
@@ -34,16 +34,17 @@ class StyleView extends StatefulWidget {
   State<StyleView> createState() => _StyleViewState();
 }
 
+/// State of an [StyleView] maintaining the [isDarkMode] and [selectedTab].
 class _StyleViewState extends State<StyleView> {
   /// Indicator whether this page is in dark mode.
   bool isDarkMode = false;
 
-  ///
+  /// Initial and current [StyleTab] page.
   StyleTab selectedTab = StyleTab.colors;
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final fonts = Theme.of(context).fonts;
 
     return SafeArea(
       child: Scaffold(
@@ -52,18 +53,19 @@ class _StyleViewState extends State<StyleView> {
             Flexible(
               flex: 1,
               child: Container(
-                color: style.colors.onPrimary,
+                color: const Color(0xFFFFFFFF),
                 child: Column(
                   children: [
                     Expanded(
                       child: CustomScrollView(
                         slivers: [
                           SliverAppBar(
-                            expandedHeight: 80,
+                            expandedHeight: 75,
                             leadingWidth: double.infinity,
                             flexibleSpace: FlexibleSpaceBar(
                               title: Text(
                                 'Style by Gapopa',
+                                textAlign: TextAlign.center,
                                 style: fonts.headlineLarge!.copyWith(
                                   color: const Color(0xFF1F3C5D),
                                 ),
@@ -75,80 +77,51 @@ class _StyleViewState extends State<StyleView> {
                               itemBuilder: (context, i) {
                                 final StyleTab tab = StyleTab.values[i];
 
-                                final bool inverted =
-                                    tab == router.styleSection.value &&
-                                        router.route == Routes.style;
-
-                                Widget card({
-                                  required String title,
-                                  required IconData? icon,
-                                }) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 15,
-                                      vertical: 5,
-                                    ),
-                                    child: OutlinedRoundedButton(
-                                      color: inverted
-                                          ? const Color(0xFF1F3C5D)
-                                          : style.colors.onPrimary,
-                                      onPressed: () {
-                                        selectedTab = tab;
-
-                                        if (router.styleSection.value == tab) {
-                                          router.styleSection.refresh();
-                                        } else {
-                                          router.styleSection.value = tab;
-                                        }
-                                        router.me();
-                                        setState(() {});
-                                      },
-                                      title: Row(
-                                        children: [
-                                          Icon(
-                                            icon,
-                                            color: inverted
-                                                ? style.colors.onPrimary
-                                                : const Color(0xFF1F3C5D),
-                                          ),
-                                          const SizedBox(width: 7),
-                                          Text(
-                                            title,
-                                            style:
-                                                fonts.headlineLarge!.copyWith(
-                                              color: inverted
-                                                  ? style.colors.onPrimary
-                                                  : const Color(0xFF1F3C5D),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }
+                                final bool inverted = selectedTab == tab;
 
                                 switch (tab) {
                                   case StyleTab.colors:
-                                    return card(
+                                    return StyleCard(
                                       title: 'Color palette',
                                       icon: Icons.format_paint_rounded,
+                                      inverted: inverted,
+                                      onPressed: () {
+                                        selectedTab = tab;
+                                        setState(() {});
+                                      },
                                     );
 
                                   case StyleTab.typography:
-                                    return card(
-                                        icon: Icons.text_fields_rounded,
-                                        title: 'Typography');
+                                    return StyleCard(
+                                      title: 'Typography',
+                                      icon: Icons.text_fields_rounded,
+                                      inverted: inverted,
+                                      onPressed: () {
+                                        selectedTab = tab;
+                                        setState(() {});
+                                      },
+                                    );
 
                                   case StyleTab.multimedia:
-                                    return card(
-                                      icon: Icons.play_lesson_rounded,
+                                    return StyleCard(
                                       title: 'Multimedia',
+                                      icon: Icons.play_lesson_rounded,
+                                      inverted: inverted,
+                                      onPressed: () {
+                                        selectedTab = tab;
+                                        setState(() {});
+                                      },
                                     );
 
                                   case StyleTab.elements:
-                                    return card(
-                                      icon: Icons.widgets_rounded,
+                                    return StyleCard(
                                       title: 'Elements',
+                                      icon: Icons.widgets_rounded,
+                                      inverted: inverted,
+                                      onPressed: () {
+                                        selectedTab = tab;
+                                        setState(() {});
+                                      },
                                     );
                                 }
                               }),
@@ -164,18 +137,23 @@ class _StyleViewState extends State<StyleView> {
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.light_mode,
-                                  color: style.colors.warningColor),
+                              const Icon(
+                                Icons.light_mode,
+                                color: Color(0xFFFFB74D),
+                              ),
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 10),
                                 child: CustomSwitcher(
-                                  onChanged: (b) =>
-                                      setState(() => isDarkMode = b),
+                                  onChanged: (b) => setState(
+                                    () => isDarkMode = b,
+                                  ),
                                 ),
                               ),
-                              const Icon(Icons.dark_mode,
-                                  color: Color(0xFF1F3C5D)),
+                              const Icon(
+                                Icons.dark_mode,
+                                color: Color(0xFF1F3C5D),
+                              ),
                             ],
                           ),
                         ),

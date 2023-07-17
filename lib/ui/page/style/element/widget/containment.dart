@@ -20,6 +20,7 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
 import '../../../../../util/message_popup.dart';
+import '../../../home/page/chat/widget/attachment_selector.dart';
 import '../../../home/page/my_profile/link_details/view.dart';
 import '/themes.dart';
 
@@ -64,6 +65,17 @@ class ContainmentWidget extends StatelessWidget {
               ],
             ),
           ),
+          _PopUpCard(
+            title: 'AttachmentSourceSelector',
+            message: 'Choosing a source to pick an [Attachment] from.',
+            onPressed: () => AttachmentSourceSelector.show(
+              context,
+              onPickFile: () {},
+              onPickMedia: () {},
+              onTakePhoto: () {},
+              onTakeVideo: () {},
+            ),
+          ),
         ],
       ),
     );
@@ -89,7 +101,7 @@ class _PopUpCard extends StatelessWidget {
 
     return Container(
       height: 120,
-      width: 300,
+      width: 320,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(10)),
         color: style.colors.onPrimary,
@@ -109,7 +121,7 @@ class _PopUpCard extends StatelessWidget {
             ],
           ),
           SizedBox(
-            width: 220,
+            width: 240,
             child: OutlinedRoundedButton(
               color: style.colors.primary,
               title: Text(

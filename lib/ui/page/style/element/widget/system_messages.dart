@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../call/widget/hint.dart';
 import '/themes.dart';
 
 class SystemMessagesWidget extends StatelessWidget {
@@ -26,12 +27,20 @@ class SystemMessagesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, _) = Theme.of(context).styles;
 
-    return Container(
-      height: 300,
-      decoration: BoxDecoration(
-        color: style.colors.onPrimary,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return Row(
+      children: [
+        Container(
+          width: 290,
+          decoration: BoxDecoration(
+            color: style.colors.onPrimary,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const HintWidget(
+            text:
+                'Add and remove elements of the control panel by drag-and-drop.',
+          ),
+        ),
+      ],
     );
   }
 }
