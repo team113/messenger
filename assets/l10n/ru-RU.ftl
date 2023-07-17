@@ -420,6 +420,7 @@ label_biography = Биография
 label_biography_hint = Несколько слов о Вас
 label_block = Заблокировать
 label_blocked_users = Заблокированные пользователи
+label_cache = Кэш
 label_cache_and_downloads = Кэш и загрузки
 label_call_active = Активный звонок
 label_call_calling = Звоним

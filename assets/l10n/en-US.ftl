@@ -405,6 +405,7 @@ label_biography = Biography
 label_biography_hint = Write about yourself
 label_block = Block
 label_blocked_users = Blocked users
+label_cache = Cache
 label_cache_and_downloads = Cache and downloads
 label_call_active = Active call
 label_call_calling = Calling

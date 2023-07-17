@@ -1390,7 +1390,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
             child: Padding(
               padding: const EdgeInsets.only(left: 21.0),
               child: Text(
-                'Cache'.l10n,
+                'label_cache'.l10n,
                 style:
                     fonts.titleMedium!.copyWith(color: style.colors.secondary),
               ),
