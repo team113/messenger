@@ -29,22 +29,22 @@ fragment ChatAvatar on ChatAvatar {
     }
     full {
         __typename
-        ...File
+        ...ImageFile
     }
     big {
         __typename
-        ...File
+        ...ImageFile
     }
     medium {
         __typename
-        ...File
+        ...ImageFile
     }
     small {
         __typename
-        ...File
+        ...ImageFile
     }
     original {
         __typename
-        ...File
+        ...ImageFile
     }
 }

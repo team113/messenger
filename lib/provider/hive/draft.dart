@@ -25,8 +25,6 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -72,19 +70,18 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
     Hive.maybeRegisterAdapter(ChatVersionAdapter());
     Hive.maybeRegisterAdapter(CropAreaAdapter());
     Hive.maybeRegisterAdapter(FileAttachmentAdapter());
-    Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveChatCallAdapter());
     Hive.maybeRegisterAdapter(HiveChatForwardAdapter());
     Hive.maybeRegisterAdapter(HiveChatInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
+    Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
+    Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
-    Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
   }
 

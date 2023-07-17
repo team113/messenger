@@ -39,13 +39,12 @@ import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
-import 'provider/hive/blacklist.dart';
+import 'provider/hive/blocklist.dart';
 import 'provider/hive/call_rect.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/draft.dart';
-import 'provider/hive/gallery_item.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
@@ -108,7 +107,7 @@ enum ProfileTab {
   notifications,
   storage,
   language,
-  blacklist,
+  blocklist,
   download,
   danger,
   logout,
@@ -426,9 +425,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               await Future.wait([
                 deps.put(MyUserHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
-                deps.put(GalleryItemHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
-                deps.put(BlacklistHiveProvider()).init(userId: me),
+                deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
@@ -454,11 +452,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               await deps.put(SettingsWorker(settingsRepository)).init();
 
               GraphQlProvider graphQlProvider = Get.find();
-              UserRepository userRepository = UserRepository(
-                graphQlProvider,
-                Get.find(),
-                Get.find(),
-              );
+              UserRepository userRepository =
+                  UserRepository(graphQlProvider, Get.find());
               deps.put<AbstractUserRepository>(userRepository);
               AbstractCallRepository callRepository =
                   deps.put<AbstractCallRepository>(
@@ -501,7 +496,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   graphQlProvider,
                   Get.find(),
                   Get.find(),
-                  Get.find(),
                   userRepository,
                 ),
               );
@@ -539,9 +533,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             await Future.wait([
               deps.put(MyUserHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
-              deps.put(GalleryItemHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
-              deps.put(BlacklistHiveProvider()).init(userId: me),
+              deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
@@ -567,11 +560,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             await deps.put(SettingsWorker(settingsRepository)).init();
 
             GraphQlProvider graphQlProvider = Get.find();
-            UserRepository userRepository = UserRepository(
-              graphQlProvider,
-              Get.find(),
-              Get.find(),
-            );
+            UserRepository userRepository =
+                UserRepository(graphQlProvider, Get.find());
             deps.put<AbstractUserRepository>(userRepository);
             CallRepository callRepository = CallRepository(
               graphQlProvider,
@@ -610,7 +600,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
                 graphQlProvider,
-                Get.find(),
                 Get.find(),
                 Get.find(),
                 userRepository,
