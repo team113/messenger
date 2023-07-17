@@ -216,7 +216,7 @@ class MyProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             _emails(c, context),
                             _phones(c, context),
-                            ProfilePassword(
+                            PasswordField(
                               hasPassword: c.myUser.value!.hasPassword,
                             ),
                           ],

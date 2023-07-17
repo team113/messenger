@@ -244,8 +244,8 @@ class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
 }
 
 /// Custom-styled [FieldButton] for changing or setting the user password.
-class ProfilePassword extends StatelessWidget {
-  const ProfilePassword({super.key, this.hasPassword = false});
+class PasswordField extends StatelessWidget {
+  const PasswordField({super.key, this.hasPassword = false});
 
   /// Indicator whether user has a password.
   final bool hasPassword;

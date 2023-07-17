@@ -261,6 +261,36 @@ class MyProfileController extends GetxController {
   Future<void> setLoadImages(bool enabled) =>
       _settingsRepo.setLoadImages(enabled);
 
+  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
+  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
+  /// (if any).
+  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
+    await _myUserService.createChatDirectLink(slug);
+  }
+
+  /// Updates [MyUser.name] field for the authenticated [MyUser].
+  ///
+  /// If [name] is null, then resets [MyUser.name] field.
+  Future<void> updateUserName(UserName? name) async {
+    await _myUserService.updateUserName(name);
+  }
+
+  /// Updates or resets the [MyUser.status] field of the authenticated
+  /// [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    await _myUserService.updateUserStatus(status);
+  }
+
+  /// Updates [MyUser.login] field for the authenticated [MyUser].
+  ///
+  /// Throws [UpdateUserLoginException].
+  Future<void> updateUserLogin(UserLogin login) async {
+    await _myUserService.updateUserLogin(login);
+  }
+
+  /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
+  /// with the provided [id].
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
   /// If [file] is `null`, then deletes the [MyUser.avatar] and
