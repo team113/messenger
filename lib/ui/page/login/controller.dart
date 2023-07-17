@@ -18,6 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
@@ -26,6 +28,8 @@ import '/domain/service/auth.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
+        AddUserEmailException,
+        ConfirmUserEmailException,
         ConnectionException,
         CreateSessionException,
         RecoverUserPasswordException,
@@ -40,9 +44,13 @@ enum LoginViewStage {
   recoveryCode,
   recoveryPassword,
   signIn,
+  signInWithPassword,
+  signInWithCode,
+  signInWithQr,
   signUp,
   noPassword,
   noPasswordCode,
+  code,
 }
 
 /// [GetxController] of a [LoginView].
@@ -79,7 +87,49 @@ class LoginController extends GetxController {
         s.error.value = 'err_incorrect_email'.l10n;
       }
     },
-    onSubmitted: (s) => password.focus.requestFocus(),
+    onSubmitted: (s) async {
+      try {
+        await _authService.register();
+
+        final GraphQlProvider graphQlProvider = Get.find();
+        await graphQlProvider.addUserEmail(UserEmail(email.text));
+      } on AddUserEmailException catch (e) {
+        s.error.value = e.toMessage();
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+        s.unsubmit();
+      }
+
+      stage.value = LoginViewStage.code;
+      // await _authService.register();
+
+      // router.validateEmail = true;
+      // router.home();
+
+      // while (!Get.isRegistered<MyUserService>()) {
+      //   await Future.delayed(const Duration(milliseconds: 20));
+      // }
+
+      // final MyUserService myUserService = Get.find();
+      // await myUserService.addUserEmail(UserEmail(email.text));
+    },
+  );
+
+  late final TextFieldState emailCode = TextFieldState(
+    onChanged: (s) => s.error.value = null,
+    onSubmitted: (s) async {
+      try {
+        final GraphQlProvider graphQlProvider = Get.find();
+        await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
+        router.noIntroduction = true;
+        router.home();
+      } on ConfirmUserEmailException catch (e) {
+        s.error.value = e.toMessage();
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+        s.unsubmit();
+      }
+    },
   );
 
   /// Indicator whether the [password] should be obscured.

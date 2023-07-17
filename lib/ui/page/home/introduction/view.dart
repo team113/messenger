@@ -288,7 +288,9 @@ class IntroductionView extends StatelessWidget {
                         : null,
                     header: Center(
                       child: Text(
-                        'label_one_time_account_created'.l10n,
+                        router.validateEmail
+                            ? 'Account created'.l10n
+                            : 'label_one_time_account_created'.l10n,
                         style: fonts.headlineMedium,
                       ),
                     ),

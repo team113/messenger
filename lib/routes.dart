@@ -173,6 +173,7 @@ class RouterState extends ChangeNotifier {
 
   bool directLink = false;
   bool validateEmail = false;
+  bool noIntroduction = false;
 
   /// Reactive [AppLifecycleState].
   final Rx<AppLifecycleState> lifecycle =

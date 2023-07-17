@@ -23,6 +23,7 @@ import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.da
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -87,7 +88,7 @@ class LoginView extends StatelessWidget {
                   onPressed:
                       c.login.isEmpty.value ? null : c.signInWithoutPassword,
                 ),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
               ];
               break;
 
@@ -137,7 +138,7 @@ class LoginView extends StatelessWidget {
                       ? null
                       : c.recoveryCode.submit,
                 ),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
               ];
               break;
 
@@ -168,7 +169,7 @@ class LoginView extends StatelessWidget {
                   onPressed:
                       c.recovery.isEmpty.value ? null : c.recovery.submit,
                 ),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
               ];
               break;
 
@@ -200,7 +201,7 @@ class LoginView extends StatelessWidget {
                       ? null
                       : c.recoveryCode.submit,
                 ),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
               ];
               break;
 
@@ -252,7 +253,62 @@ class LoginView extends StatelessWidget {
                       ? null
                       : c.resetUserPassword,
                 ),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.code:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signUp,
+                text: 'Sign up'.l10n,
+              );
+
+              children = [
+                // Text(
+                //   'label_recovery_code_sent'.l10n,
+                //   style: fonts.labelLarge!.copyWith(
+                //     color: style.colors.secondary,
+                //   ),
+                // ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'label_sign_in_code_sent1'.l10n,
+                        style: fonts.labelLarge!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      ),
+                      TextSpan(
+                        text: c.email.text,
+                        style: fonts.labelLarge!.copyWith(
+                          color: style.colors.onBackground,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'label_sign_in_code_sent2'.l10n,
+                        style: fonts.labelLarge!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('EmailCodeField'),
+                  state: c.emailCode,
+                  label: 'label_confirmation_code'.l10n,
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  title: 'btn_proceed'.l10n,
+                  onPressed:
+                      c.emailCode.isEmpty.value ? null : c.emailCode.submit,
+                ),
+                // const SizedBox(height: 16),
               ];
               break;
 
@@ -281,7 +337,7 @@ class LoginView extends StatelessWidget {
                               : fonts.titleLarge!.color,
                         ),
                       ),
-                      onPressed: enabled ? c.repeatPassword.submit : null,
+                      onPressed: enabled ? c.email.submit : null,
                       color: style.colors.primary,
                       maxWidth: double.infinity,
                     );
@@ -382,20 +438,82 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
-            case LoginViewStage.signIn:
-              header = ModalPopupHeader(text: 'Sign in'.l10n);
+            case LoginViewStage.signInWithQr:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signIn,
+                text: 'Sign in'.l10n,
+              );
 
               children = [
-                if (c.recovered.value)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 10),
-                    child: Text(
-                      'label_password_changed'.l10n,
-                      style: fonts.labelLarge!.copyWith(
-                        color: style.colors.secondary,
-                      ),
-                    ),
+                // const SizedBox(height: 12),
+                Text(
+                  'Scan the displayed QR code to sign in.'.l10n,
+                  style: fonts.labelLarge!.copyWith(
+                    color: style.colors.secondary,
                   ),
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: QrImageView(
+                    data: 'https://flutter.dev/',
+                    version: QrVersions.auto,
+                    size: 300.0,
+                  ),
+                ),
+                // ReactiveTextField(
+                //   key: const Key('RecoveryField'),
+                //   state: c.login,
+                //   label: 'E-mail or phone number'.l10n,
+                // ),
+                // const SizedBox(height: 25),
+                // PrimaryButton(
+                //   key: const Key('Proceed'),
+                //   title: 'btn_proceed'.l10n,
+                //   onPressed:
+                //       c.login.isEmpty.value ? null : c.signInWithoutPassword,
+                // ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.signInWithCode:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signIn,
+                text: 'Sign in'.l10n,
+              );
+
+              children = [
+                // const SizedBox(height: 12),
+                Text(
+                  'label_recover_account_description'.l10n,
+                  style: fonts.labelLarge!.copyWith(
+                    color: style.colors.secondary,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('RecoveryField'),
+                  state: c.login,
+                  label: 'E-mail or phone number'.l10n,
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  title: 'btn_proceed'.l10n,
+                  onPressed:
+                      c.login.isEmpty.value ? null : c.signInWithoutPassword,
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.signInWithPassword:
+              header = ModalPopupHeader(
+                text: 'Sign in'.l10n,
+                onBack: () => c.stage.value = LoginViewStage.signIn,
+              );
+
+              children = [
                 const SizedBox(height: 12),
                 ReactiveTextField(
                   key: const Key('UsernameField'),
@@ -423,14 +541,15 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
                       child: WidgetButton(
                         onPressed: () {
-                          if (c.isEmailOrPhone(c.login.text)) {
-                            c.signInWithoutPassword();
-                          } else {
-                            c.stage.value = LoginViewStage.noPassword;
-                          }
+                          c.stage.value = LoginViewStage.recovery;
+                          // if (c.isEmailOrPhone(c.login.text)) {
+                          //   c.signInWithoutPassword();
+                          // } else {
+                          //   c.stage.value = LoginViewStage.noPassword;
+                          // }
                         },
                         child: Text(
-                          'Sign in without password'.l10n,
+                          'btn_forgot_password'.l10n,
                           style: fonts.bodyMedium!.copyWith(
                             color: style.colors.primary,
                           ),
@@ -449,71 +568,45 @@ class LoginView extends StatelessWidget {
                     title: 'Sign in'.l10n,
                     onPressed: enabled ? c.signIn : null,
                   );
-
-                  return FieldButton(
-                    text: 'Sign in',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: style.colors.primary),
-                    onPressed: enabled ? c.signIn : null,
-                  );
-
-                  // return Center(
-                  //   child: OutlinedRoundedButton(
-                  //     title: Text(
-                  //       'Sign in'.l10n,
-                  //       style: fonts.titleLarge!.copyWith(
-                  //         color: style.colors.onPrimary,
-                  //       ),
-                  //     ),
-                  //     onPressed: () {},
-                  //     color: style.colors.primary,
-                  //     maxWidth: double.infinity,
-                  //     // leading: Padding(
-                  //     //   padding: const EdgeInsets.only(bottom: 2),
-                  //     //   child:
-                  //     //       SvgImage.asset('assets/icons/apple.svg', width: 22),
-                  //     // ),
-                  //   ),
-                  // );
                 }),
-                const SizedBox(height: 25 / 2),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('OR', style: fonts.headlineSmall),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                  ],
-                ),
+              ];
+              break;
 
-                // Center(
-                //   child: OutlinedRoundedButton(
-                //     title: Text(
-                //       'Sign in with Apple'.l10n,
-                //       style: fonts.titleLarge!.copyWith(
-                //         color: style.colors.onPrimary,
-                //       ),
-                //     ),
-                //     onPressed: () {},
-                //     color: style.colors.primary,
-                //     maxWidth: double.infinity,
-                //     leading:
-                //         SvgImage.asset('assets/icons/apple6.svg', height: 18),
-                //   ),
-                // ),
+            case LoginViewStage.signIn:
+              header = ModalPopupHeader(text: 'Sign in'.l10n);
+
+              children = [
+                _signButton(
+                  context,
+                  text: 'Sign in with password'.l10n,
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signInWithPassword,
+                  leading: Icon(
+                    Icons.key,
+                    color: style.colors.primary,
+                  ),
+                ),
+                const SizedBox(height: 25 / 2),
+                _signButton(
+                  context,
+                  text: 'Sign in with one-time code'.l10n,
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signInWithCode,
+                  leading: Icon(
+                    Icons.pin,
+                    color: style.colors.primary,
+                  ),
+                ),
+                const SizedBox(height: 25 / 2),
+                _signButton(
+                  context,
+                  text: 'Sign in with QR code'.l10n,
+                  onPressed: () => c.stage.value = LoginViewStage.signInWithQr,
+                  leading: Icon(
+                    Icons.qr_code_2,
+                    color: style.colors.primary,
+                  ),
+                ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
@@ -631,10 +724,12 @@ class LoginView extends StatelessWidget {
   Widget _signButton(
     BuildContext context, {
     String text = '',
+    Widget? leading,
     String asset = '',
     double assetWidth = 20,
     double assetHeight = 20,
     EdgeInsets padding = EdgeInsets.zero,
+    void Function()? onPressed,
   }) {
     final (style, fonts) = Theme.of(context).styles;
 
@@ -642,14 +737,15 @@ class LoginView extends StatelessWidget {
       child: PrefixButton(
         text: text,
         style: fonts.titleMedium!.copyWith(color: style.colors.primary),
-        onPressed: () {},
+        onPressed: onPressed ?? () {},
         prefix: Padding(
           padding: const EdgeInsets.only(left: 24, bottom: 4).add(padding),
-          child: SvgImage.asset(
-            'assets/icons/$asset.svg',
-            width: assetWidth,
-            height: assetHeight,
-          ),
+          child: leading ??
+              SvgImage.asset(
+                'assets/icons/$asset.svg',
+                width: assetWidth,
+                height: assetHeight,
+              ),
         ),
       ),
     );
