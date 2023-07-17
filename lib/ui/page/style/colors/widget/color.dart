@@ -75,7 +75,7 @@ class ColorWidget extends StatelessWidget {
               ),
               if (hint != null)
                 Tooltip(
-                  message: hint ?? '',
+                  message: hint,
                   child: Icon(
                     Icons.info_outline,
                     size: 13,
@@ -83,7 +83,7 @@ class ColorWidget extends StatelessWidget {
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF000000),
                   ),
-                )
+                ),
             ],
           ),
         ),

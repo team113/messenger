@@ -114,9 +114,6 @@ enum ProfileTab {
   logout,
 }
 
-/// List of [Routes.style] page sections.
-enum StyleTab { colors, typography, multimedia, elements }
-
 /// Application's router state.
 ///
 /// Any change requires [notifyListeners] to be invoked in order for the router

@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/l10n/l10n.dart';
 import '/themes.dart';
 
 /// Column of [_CustomFont]s.
@@ -31,7 +32,7 @@ class FontColumnWidget extends StatelessWidget {
     final fonts = Theme.of(context).fonts;
 
     return AnimatedContainer(
-      height: 750,
+      height: 755,
       duration: const Duration(milliseconds: 400),
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
@@ -119,12 +120,16 @@ class FontColumnWidget extends StatelessWidget {
               ),
             ],
           ),
+          const Column(
+            children: [],
+          ),
         ],
       ),
     );
   }
 }
 
+///
 class _CustomFont extends StatelessWidget {
   const _CustomFont(
     this.isDarkMode, {
@@ -132,24 +137,64 @@ class _CustomFont extends StatelessWidget {
     this.style,
   });
 
+  ///
   final bool isDarkMode;
 
+  ///
   final String title;
 
+  ///
   final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
+    final fonts = Theme.of(context).fonts;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 15,
-      ),
-      child: Text(
-        title,
-        style: style?.copyWith(
-          color: isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+      child: Row(
+        children: [
+          Column(
+            children: [
+              SizedBox(
+                width: 180,
+                child: Text(
+                  title,
+                  style: style!.copyWith(
+                    color: isDarkMode
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Size: ${style!.fontSize}',
+                    style: fonts.titleMedium?.copyWith(
+                      color: isDarkMode
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000),
+                    ),
+                  ),
+                  Text('space_vertical_space'.l10n),
+                  Text(
+                    'Font weight: ${style!.fontWeight?.value}',
+                    style: fonts.titleMedium?.copyWith(
+                      color: isDarkMode
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          )
+        ],
       ),
     );
   }
