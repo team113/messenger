@@ -58,17 +58,17 @@ class CallNotificationWidget extends StatelessWidget {
       case CallNotificationKind.deviceChanged:
         notification as DeviceChangedNotification;
         switch (notification.device.kind()) {
-          case MediaDeviceKind.AudioInput:
+          case MediaDeviceKind.audioInput:
             title = 'label_microphone_changed'
                 .l10nfmt({'microphone': notification.device.label()});
             break;
 
-          case MediaDeviceKind.AudioOutput:
+          case MediaDeviceKind.audioOutput:
             title = 'label_speaker_changed'
                 .l10nfmt({'speaker': notification.device.label()});
             break;
 
-          case MediaDeviceKind.VideoInput:
+          case MediaDeviceKind.videoInput:
             title = 'err_unknown'.l10n;
             break;
         }

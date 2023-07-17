@@ -31,7 +31,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
-import '/provider/hive/gallery_item.dart';
 import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
@@ -439,9 +438,6 @@ class ContactRepository implements AbstractContactRepository {
   // TODO: Contacts list can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ [HiveChatContact]s from the remote.
-  ///
-  /// Saves all [ChatContact.users] to the [UserHiveProvider] and whole
-  /// [User.gallery] to the [GalleryItemHiveProvider].
   Future<HashMap<ChatContactId, HiveChatContact>> _chatContacts() async {
     const maxInt = 120;
     Contacts$Query$ChatContacts query =

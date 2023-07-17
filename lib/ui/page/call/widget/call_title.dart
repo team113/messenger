@@ -27,7 +27,7 @@ import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// [AvatarWidget] with caption and subtitle texts used to display
-/// [ChatCall.caller] and [OngoingCall] state.
+/// [ChatCall.author] and [OngoingCall] state.
 class CallTitle extends StatelessWidget {
   const CallTitle(
     this.me, {
