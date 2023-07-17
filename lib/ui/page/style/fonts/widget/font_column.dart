@@ -129,7 +129,7 @@ class FontColumnWidget extends StatelessWidget {
   }
 }
 
-///
+/// Custom-styled [Text] with information.
 class _CustomFont extends StatelessWidget {
   const _CustomFont(
     this.isDarkMode, {
@@ -137,13 +137,13 @@ class _CustomFont extends StatelessWidget {
     this.style,
   });
 
-  ///
+  /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
 
-  ///
-  final String title;
+  /// Title of this [_CustomFont].
+  final String? title;
 
-  ///
+  /// TextStyle of this [_CustomFont].
   final TextStyle? style;
 
   @override
@@ -156,17 +156,18 @@ class _CustomFont extends StatelessWidget {
         children: [
           Column(
             children: [
-              SizedBox(
-                width: 180,
-                child: Text(
-                  title,
-                  style: style!.copyWith(
-                    color: isDarkMode
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
+              if (title != null)
+                SizedBox(
+                  width: 180,
+                  child: Text(
+                    title!,
+                    style: style!.copyWith(
+                      color: isDarkMode
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           Column(
@@ -181,7 +182,14 @@ class _CustomFont extends StatelessWidget {
                           : const Color(0xFF000000),
                     ),
                   ),
-                  Text('space_vertical_space'.l10n),
+                  Text(
+                    'space_vertical_space'.l10n,
+                    style: fonts.titleMedium?.copyWith(
+                      color: isDarkMode
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000),
+                    ),
+                  ),
                   Text(
                     'Font weight: ${style!.fontWeight?.value}',
                     style: fonts.titleMedium?.copyWith(
