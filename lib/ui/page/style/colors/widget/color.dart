@@ -46,7 +46,7 @@ class ColorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final fonts = Theme.of(context).fonts;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -84,15 +84,6 @@ class ColorWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: color,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    if (!isDarkMode)
-                      BoxShadow(
-                        color: style.colors.secondary.withOpacity(0.2),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: const Offset(0, 3),
-                      ),
-                  ],
                 ),
               ),
             ),
