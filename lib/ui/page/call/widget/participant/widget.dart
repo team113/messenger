@@ -24,6 +24,7 @@ import '../../controller.dart';
 import '../call_cover.dart';
 import '../raised_hand.dart';
 import '../video_view.dart';
+import '/config.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -137,11 +138,13 @@ class ParticipantWidget extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(21.0),
                   child: Center(
-                    child: SpinKitDoubleBounce(
-                      color: style.colors.secondaryHighlight,
-                      size: 100 / 1.5,
-                      duration: const Duration(milliseconds: 4500),
-                    ),
+                    child: Config.disableInfiniteAnimations
+                        ? const CustomProgressIndicator(size: 64)
+                        : SpinKitDoubleBounce(
+                            color: style.colors.secondaryHighlight,
+                            size: 100 / 1.5,
+                            duration: const Duration(milliseconds: 4500),
+                          ),
                   ),
                 ),
               );
