@@ -16,8 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/style/fonts/widget/font_column.dart';
 
+import '/ui/page/style/fonts/widget/font_column.dart';
 import '/ui/page/style/widget/headers.dart';
 import 'widget/family.dart';
 import 'widget/style.dart';

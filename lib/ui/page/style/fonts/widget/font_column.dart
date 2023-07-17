@@ -120,9 +120,6 @@ class FontColumnWidget extends StatelessWidget {
               ),
             ],
           ),
-          const Column(
-            children: [],
-          ),
         ],
       ),
     );
@@ -133,7 +130,7 @@ class FontColumnWidget extends StatelessWidget {
 class _CustomFont extends StatelessWidget {
   const _CustomFont(
     this.isDarkMode, {
-    required this.title,
+    this.title,
     this.style,
   });
 
