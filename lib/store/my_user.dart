@@ -23,18 +23,18 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/domain/model/avatar.dart';
-import 'package:messenger/domain/model/user_call_cover.dart';
 
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
@@ -52,7 +52,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   MyUserRepository(
     this._graphQlProvider,
     this._myUserLocal,
-    this._blacklistLocal,
+    this._blocklistLocal,
     this._userRepo,
   );
 
@@ -69,7 +69,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   final MyUserHiveProvider _myUserLocal;
 
   /// Blacklisted [User]s local [Hive] storage.
-  final BlocklistHiveProvider _blacklistLocal;
+  final BlocklistHiveProvider _blocklistLocal;
 
   /// [User]s repository, used to put the fetched [MyUser] into it.
   final UserRepository _userRepo;
@@ -78,7 +78,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   StreamIterator<BoxEvent>? _localSubscription;
 
   /// [BlocklistHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _blacklistSubscription;
+  StreamIterator<BoxEvent>? _blocklistSubscription;
 
   /// [_myUserRemoteEvents] subscription.
   ///
@@ -109,29 +109,29 @@ class MyUserRepository implements AbstractMyUserRepository {
     _initKeepOnlineSubscription();
     _initBlacklistSubscription();
 
-    if (!_blacklistLocal.isEmpty) {
+    if (!_blocklistLocal.isEmpty) {
       final List<RxUser?> users =
-          await Future.wait(_blacklistLocal.blocked.map(_userRepo.get));
+          await Future.wait(_blocklistLocal.blocked.map(_userRepo.get));
       blacklist.addAll(users.whereNotNull());
     }
 
     final List<HiveUser> blacklisted = await _fetchBlocklist();
 
-    for (UserId c in _blacklistLocal.blocked) {
+    for (UserId c in _blocklistLocal.blocked) {
       if (blacklisted.none((e) => e.value.id == c)) {
-        _blacklistLocal.remove(c);
+        _blocklistLocal.remove(c);
       }
     }
 
     for (HiveUser c in blacklisted) {
-      _blacklistLocal.put(c.value.id);
+      _blocklistLocal.put(c.value.id);
     }
   }
 
   @override
   void dispose() {
     _localSubscription?.cancel();
-    _blacklistSubscription?.cancel();
+    _blocklistSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
   }
@@ -524,9 +524,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [BlocklistHiveProvider.boxEvents] subscription.
   Future<void> _initBlacklistSubscription() async {
-    _blacklistSubscription = StreamIterator(_blacklistLocal.boxEvents);
-    while (await _blacklistSubscription!.moveNext()) {
-      BoxEvent event = _blacklistSubscription!.current;
+    _blocklistSubscription = StreamIterator(_blocklistLocal.boxEvents);
+    while (await _blocklistSubscription!.moveNext()) {
+      final BoxEvent event = _blocklistSubscription!.current;
       if (event.deleted) {
         blacklist.removeWhere((e) => e.user.value.id.val == event.key);
       } else {
@@ -751,12 +751,12 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.blocklistRecordAdded:
           event as EventBlocklistRecordAdded;
-          _blacklistLocal.put(event.user.value.id);
+          _blocklistLocal.put(event.user.value.id);
           break;
 
         case MyUserEventKind.blocklistRecordRemoved:
           event as EventBlocklistRecordRemoved;
-          _blacklistLocal.remove(event.user.value.id);
+          _blocklistLocal.remove(event.user.value.id);
           break;
       }
     }

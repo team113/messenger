@@ -496,10 +496,9 @@ class MyProfileController extends GetxController {
   Future<void> setLoadImages(bool enabled) =>
       _settingsRepo.setLoadImages(enabled);
 
-  /// Updates [MyUser.avatar] and [MyUser.callCover] with an [GalleryItem]
-  /// with the provided [id].
+  /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
-  /// If [id] is `null`, then deletes the [MyUser.avatar] and
+  /// If [file] is `null`, then deletes the [MyUser.avatar] and
   /// [MyUser.callCover].
   Future<void> _updateAvatar(NativeFile? file) async {
     try {

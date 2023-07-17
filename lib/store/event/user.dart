@@ -23,7 +23,7 @@ import '/domain/model/user.dart';
 import '/provider/hive/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
-import 'my_user.dart';
+import 'my_user.dart' show BlocklistEvent;
 
 /// Possible kinds of [UserEvent].
 enum UserEventKind {

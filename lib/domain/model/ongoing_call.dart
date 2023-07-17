@@ -1142,7 +1142,7 @@ class OngoingCall {
     });
 
     _room!.onNewConnection((conn) {
-      Log.print('(${conn.getRemoteMemberId()}) onNewConnection', 'CALL');
+      Log.print('onNewConnection', 'CALL');
 
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
@@ -1171,13 +1171,13 @@ class OngoingCall {
       }
 
       conn.onClose(() {
-        Log.print('(${conn.getRemoteMemberId()}) onClose', 'CALL');
+        Log.print('onClose', 'CALL');
         members.remove(id)?.dispose();
       });
 
       conn.onRemoteTrackAdded((track) async {
         Log.print(
-          '(${conn.getRemoteMemberId()}) (${track.kind()}-${track.mediaSourceKind()}) onRemoteTrackAdded ${track.mediaDirection()} ${track.muted()}',
+          'onRemoteTrackAdded ${track.kind()}-${track.mediaSourceKind()}, ${track.mediaDirection()}',
           'CALL',
         );
 
@@ -1202,7 +1202,7 @@ class OngoingCall {
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
           Log.print(
-            '(${conn.getRemoteMemberId()}) (${track.kind()}-${track.mediaSourceKind()}) onMediaDirectionChanged ${track.mediaDirection()}',
+            'onMediaDirectionChanged ${track.kind()}-${track.mediaSourceKind()} ${track.mediaDirection()}',
             'CALL',
           );
 
@@ -1233,7 +1233,7 @@ class OngoingCall {
 
         track.onStopped(() {
           Log.print(
-            '(${conn.getRemoteMemberId()}) (${track.kind()}-${track.mediaSourceKind()}) onStopped',
+            'onStopped ${track.kind()}-${track.mediaSourceKind()}',
             'CALL',
           );
 
