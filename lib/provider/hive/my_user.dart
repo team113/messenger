@@ -48,14 +48,14 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Hive.maybeRegisterAdapter(ChatDirectLinkVersionAdapter());
     Hive.maybeRegisterAdapter(CropPointAdapter());
     Hive.maybeRegisterAdapter(HiveMyUserAdapter());
+    Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(MyUserAdapter());
     Hive.maybeRegisterAdapter(MyUserEmailsAdapter());
     Hive.maybeRegisterAdapter(MyUserPhonesAdapter());
     Hive.maybeRegisterAdapter(MyUserVersionAdapter());
-    Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(PlainFileAdapter());
-    Hive.maybeRegisterAdapter(ImageFileAdapter());
+    Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
     Hive.maybeRegisterAdapter(UserCallCoverAdapter());
     Hive.maybeRegisterAdapter(UserEmailAdapter());
