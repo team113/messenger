@@ -8,6 +8,8 @@ PODS:
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
+  - device_info_plus (0.0.1):
+    - Flutter
   - DKImagePickerController/Core (4.3.4):
     - DKImagePickerController/ImageDataManager
     - DKImagePickerController/Resource
@@ -59,11 +61,11 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - libyuv-iOS (1.0.2)
-  - medea_flutter_webrtc (0.8.2):
+  - medea_flutter_webrtc (0.8.3-dev):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 112.0.5615.165)
     - libyuv-iOS
-  - medea_jason (0.3.0-dev):
+  - medea_jason (0.4.0):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -119,6 +121,7 @@ DEPENDENCIES:
   - auto_orientation (from `.symlinks/plugins/auto_orientation/ios`)
   - callkeep (from `.symlinks/plugins/callkeep/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_app_badger (from `.symlinks/plugins/flutter_app_badger/ios`)
@@ -170,6 +173,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/callkeep/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
@@ -234,6 +239,7 @@ SPEC CHECKSUMS:
   auto_orientation: 102ed811a5938d52c86520ddd7ecd3a126b5d39d
   callkeep: 6b21abbd46786a36e482190816db99b391ada1e3
   connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
+  device_info_plus: 7545d84d8d1b896cb16a4ff98c19f07ec4b298ea
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: ce3938a0df3cc1ef404671531facef740d03f920
@@ -247,8 +253,8 @@ SPEC CHECKSUMS:
   instrumentisto-libwebrtc-bin: f780c8c0bfb3d4df2279c678fa6b3971917af3bf
   integration_test: 13825b8a9334a850581300559b8839134b124670
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
-  medea_flutter_webrtc: 3b18686832c51cd46bf794e4e3ec94551a6dd664
-  medea_jason: 1088dc4572d2b14026ce84d44af0e7757dccc891
+  medea_flutter_webrtc: ba8933d74f0b720684dd1b619b963b6e70633d23
+  medea_jason: 05d8174fd71ee885e68e40a50816d609d971f7b5
   media_kit_libs_ios_video: 96259eccffaa309b63a7ee610c2c7786a3b335e5
   media_kit_native_event_loop: 9f9eb778d0d806ab9486eff7513f7f90f07d50f8
   media_kit_video: c6ae801433b484912087b519b45f1beac97b960b

@@ -172,7 +172,6 @@ class MessageFieldController extends GetxController {
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
-    clear();
     super.onClose();
   }
 
@@ -183,6 +182,7 @@ class MessageFieldController extends GetxController {
     forwarding.value = false;
     field.clear();
     field.unsubmit();
+    onChanged?.call();
   }
 
   /// Returns an [User] from [UserService] by the provided [id].

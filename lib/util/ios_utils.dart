@@ -15,15 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:flutter/services.dart';
 
-import '../model_type_id.dart';
-import '/util/new_type.dart';
+/// Helper providing direct access to iOS-only features.
+class IosUtils {
+  /// [MethodChannel] to communicate with iOS via.
+  static const platform = MethodChannel('team113.flutter.dev/ios_utils');
 
-part 'gallery_item.g.dart';
-
-/// Unique ID of a `GalleryItem`.
-@HiveType(typeId: ModelTypeId.galleryItemId)
-class GalleryItemId extends NewType<String> {
-  const GalleryItemId(String val) : super(val);
+  /// Returns the architecture of this device.
+  static Future<String> getArchitecture() async {
+    return await platform.invokeMethod('getArchitecture');
+  }
 }

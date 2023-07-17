@@ -41,6 +41,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -360,6 +361,7 @@ class MessageFieldView extends StatelessWidget {
             color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(
               duration: 400.milliseconds,
+              alignment: Alignment.bottomCenter,
               curve: Curves.ease,
               child: Container(
                 width: double.infinity,
@@ -434,7 +436,8 @@ class MessageFieldView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          WidgetButton(
+          AnimatedButton(
+            enabled: canAttach,
             onPressed: canAttach
                 ? !PlatformUtils.isMobile || PlatformUtils.isWeb
                     ? c.pickFile
@@ -491,24 +494,26 @@ class MessageFieldView extends StatelessWidget {
               onLongPress: canForward ? c.forwarding.toggle : null,
               child: WidgetButton(
                 onPressed: c.field.submit,
-                child: SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: 300.milliseconds,
-                      child: c.forwarding.value
-                          ? SvgImage.asset(
-                              'assets/icons/forward.svg',
-                              width: 26,
-                              height: 22,
-                            )
-                          : SvgImage.asset(
-                              'assets/icons/send.svg',
-                              key: sendKey ?? const Key('Send'),
-                              height: 22.85,
-                              width: 25.18,
-                            ),
+                child: AnimatedButton(
+                  child: SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: Center(
+                      child: AnimatedSwitcher(
+                        duration: 300.milliseconds,
+                        child: c.forwarding.value
+                            ? SvgImage.asset(
+                                'assets/icons/forward.svg',
+                                width: 26,
+                                height: 22,
+                              )
+                            : SvgImage.asset(
+                                'assets/icons/send.svg',
+                                key: sendKey ?? const Key('Send'),
+                                height: 22.85,
+                                width: 25.18,
+                              ),
+                      ),
                     ),
                   ),
                 ),
@@ -781,7 +786,7 @@ class MessageFieldView extends StatelessWidget {
   }) {
     final (style, fonts) = Theme.of(context).styles;
 
-    final bool fromMe = item.authorId == c.me;
+    final bool fromMe = item.author.id == c.me;
 
     Widget? content;
     final List<Widget> additional = [];
@@ -849,7 +854,7 @@ class MessageFieldView extends StatelessWidget {
               .localizedString();
         }
       } else {
-        title = item.authorId == c.me
+        title = item.author.id == c.me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
@@ -939,7 +944,7 @@ class MessageFieldView extends StatelessWidget {
       );
     } else {
       expanded = FutureBuilder<RxUser?>(
-        future: c.getUser(item.authorId),
+        future: c.getUser(item.author.id),
         builder: (context, snapshot) {
           final Color color = snapshot.data?.user.value.id == c.me
               ? style.colors.primary
@@ -1004,34 +1009,36 @@ class MessageFieldView extends StatelessWidget {
             Obx(() {
               final Widget child;
 
-              if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
-                child = WidgetButton(
-                  key: const Key('CancelReplyButton'),
-                  onPressed: onClose,
+              child = WidgetButton(
+                key: const Key('CancelReplyButton'),
+                onPressed: onClose,
+                child: Container(
+                  width: 15,
+                  height: 15,
+                  margin: const EdgeInsets.only(right: 4, top: 4),
                   child: Container(
-                    width: 15,
-                    height: 15,
-                    margin: const EdgeInsets.only(right: 4, top: 4),
-                    child: Container(
-                      key: const Key('Close'),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: style.cardColor,
-                      ),
-                      alignment: Alignment.center,
-                      child: SvgImage.asset(
-                        'assets/icons/close_primary.svg',
-                        width: 7,
-                        height: 7,
-                      ),
+                    key: const Key('Close'),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.cardColor,
+                    ),
+                    alignment: Alignment.center,
+                    child: SvgImage.asset(
+                      'assets/icons/close_primary.svg',
+                      width: 7,
+                      height: 7,
                     ),
                   ),
-                );
-              } else {
-                child = const SizedBox();
-              }
+                ),
+              );
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return AnimatedOpacity(
+                duration: 200.milliseconds,
+                opacity: c.hoveredReply.value == item || PlatformUtils.isMobile
+                    ? 1
+                    : 0,
+                child: child,
+              );
             }),
           ],
         ),

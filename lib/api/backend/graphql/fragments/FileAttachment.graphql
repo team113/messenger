@@ -19,7 +19,7 @@ fragment FileAttachment on FileAttachment {
     id
     original {
         __typename
-        ...File
+        ...PlainFile
     }
     filename
 }

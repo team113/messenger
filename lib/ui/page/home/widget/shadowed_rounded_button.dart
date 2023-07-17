@@ -17,37 +17,41 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
-import '/ui/page/home/widget/paddings.dart';
-import '/ui/widget/text_field.dart';
+import '/themes.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 
-/// Visual representation of the provided [BlacklistRecord].
-class BlacklistRecordWidget extends StatelessWidget {
-  const BlacklistRecordWidget(this.record, {super.key});
+/// [OutlinedRoundedButton] with [CustomBoxShadow].
+class ShadowedRoundedButton extends StatelessWidget {
+  const ShadowedRoundedButton({
+    super.key,
+    this.child,
+    this.color,
+    this.onPressed,
+  });
 
-  /// [BlacklistRecord] to display.
-  final BlacklistRecord record;
+  /// Primary content of this button.
+  final Widget? child;
+
+  /// Background color of this button.
+  final Color? color;
+
+  /// Callback, called when this button is tapped or activated other way.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Paddings.basic(
-          ReactiveTextField(
-            state: TextFieldState(text: record.at.toString()),
-            label: 'label_date'.l10n,
-            enabled: false,
-          ),
+    final style = Theme.of(context).style;
+
+    return OutlinedRoundedButton(
+      title: child,
+      onPressed: onPressed,
+      color: color,
+      shadows: [
+        CustomBoxShadow(
+          blurRadius: 8,
+          color: style.colors.onBackgroundOpacity13,
+          blurStyle: BlurStyle.outer,
         ),
-        if (record.reason != null)
-          Paddings.basic(
-            ReactiveTextField(
-              state: TextFieldState(text: record.reason?.val),
-              label: 'label_reason'.l10n,
-              enabled: false,
-            ),
-          ),
       ],
     );
   }

@@ -194,7 +194,7 @@ class ChatService extends DisposableService {
     Chat? chat = chats[item.chatId]?.chat.value;
 
     if (item is ChatMessage) {
-      if (item.authorId != me) {
+      if (item.author.id != me) {
         throw const DeleteChatMessageException(
           DeleteChatMessageErrorCode.notAuthor,
         );
@@ -206,7 +206,7 @@ class ChatService extends DisposableService {
 
       await _chatRepository.deleteChatMessage(item);
     } else if (item is ChatForward) {
-      if (item.authorId != me) {
+      if (item.author.id != me) {
         throw const DeleteChatForwardException(
           DeleteChatForwardErrorCode.notAuthor,
         );

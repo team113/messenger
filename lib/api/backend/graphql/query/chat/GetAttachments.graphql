@@ -50,19 +50,15 @@ query GetAttachments($id: ChatItemId!) {
             }
             ... on ChatForward {
                 quote {
-                    original {
-                        node {
+                    __typename
+                    ... on ChatMessageQuote {
+                        attachments {
                             __typename
-                            ... on ChatMessage {
-                                attachments {
-                                    __typename
-                                    ... on ImageAttachment {
-                                        ...ImageAttachment
-                                    }
-                                    ... on FileAttachment {
-                                        ...FileAttachment
-                                    }
-                                }
+                            ... on ImageAttachment {
+                                ...ImageAttachment
+                            }
+                            ... on FileAttachment {
+                                ...FileAttachment
                             }
                         }
                     }

@@ -529,6 +529,7 @@ class Style extends ThemeExtension<Style> {
 class Palette {
   Palette({
     required this.primary,
+    Color? primaryOpacity20,
     required this.primaryHighlight,
     required this.primaryHighlightShiny,
     required this.primaryHighlightShiniest,
@@ -564,6 +565,7 @@ class Palette {
     Color? onBackgroundOpacity27,
     Color? onBackgroundOpacity40,
     Color? onBackgroundOpacity50,
+    Color? onBackgroundOpacity70,
     required this.transparent,
     required this.acceptColor,
     required this.acceptAuxiliaryColor,
@@ -571,7 +573,8 @@ class Palette {
     required this.dangerColor,
     required this.warningColor,
     required this.userColors,
-  })  : onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
+  })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
+        onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
         onPrimaryOpacity95 = onPrimaryOpacity95 ?? onPrimary.withOpacity(0.95),
@@ -597,12 +600,19 @@ class Palette {
         onBackgroundOpacity40 =
             onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
         onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50);
+            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
+        onBackgroundOpacity70 =
+            onBackgroundOpacity70 ?? onBackground.withOpacity(0.70);
 
   /// Primary [Color] of the application.
   ///
   /// Used to highlight the active interface elements.
   final Color primary;
+
+  /// 20% opacity of the [primary] color.
+  ///
+  /// Used to highlight chat messages.
+  final Color primaryOpacity20;
 
   /// [Color] for elements to put above the [primary] color.
   ///
@@ -730,6 +740,11 @@ class Palette {
 
   /// [Color] for elements to put above the [background] color.
   final Color onBackground;
+
+  /// 70% opacity of the [onBackground] color.
+  ///
+  /// Used to darken inactive interface elements.
+  final Color onBackgroundOpacity70;
 
   /// 50% opacity of the [onBackground] color.
   ///

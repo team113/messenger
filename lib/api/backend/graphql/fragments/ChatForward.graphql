@@ -18,7 +18,10 @@
 fragment ChatForward on ChatForward {
     id
     chatId
-    authorId
+    author {
+        __typename
+        ...User
+    }
     at
     ver
     quote {

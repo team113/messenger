@@ -197,6 +197,7 @@ btn_participants = Участники
 btn_participants_desc =
     Список
     участников
+btn_paste = Вставить
 btn_personalize = Персонализация
 btn_proceed = Продолжить
 btn_remove = Удалить
@@ -210,6 +211,7 @@ btn_resend_message = Повторить отправку
 btn_save = Сохранить
 btn_save_to_gallery = Сохранить в галерею
 btn_select = Выбрать
+btn_select_and_delete = Выбрать и удалить
 btn_set_password = Задать пароль
 btn_settings = Настройки
 btn_share = Поделиться
@@ -413,8 +415,6 @@ label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}обновил аватар
 label_away = отошёл
 label_background = Бэкграунд
-label_biography = Биография
-label_biography_hint = Несколько слов о Вас
 label_block = Заблокировать
 label_blocked_users = Заблокированные пользователи
 label_cache_and_downloads = Кэш и загрузки
@@ -455,11 +455,18 @@ label_chats = Чаты
 label_clear_history = Очистить историю
 label_confirm = Подтвердить
 label_confirmation_code = Код подтверждения
+label_connection_lost = Связь с сервером потеряна
+label_connection_restored = Связь восстановлена
 label_contact = Контакт
 label_contact_information = Контактная информация
 label_contacts = Контакты
 label_copied = Скопировано
 label_copy = Копировать
+label_count_seconds = {$count} { $count ->
+       [one] секунда
+       [few] секунды
+       *[other] секунд
+   }
 label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)
@@ -584,6 +591,7 @@ label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
+label_microphone_changed = Микрофон был изменён на {$microphone}
 label_monolog_created = Чат создан
 label_mute_for = { $days ->
     [0] { $hours ->
@@ -656,6 +664,7 @@ label_read_at = Прочитано: {$date}
 label_read_by = Прочитано
 label_reason = Причина
 label_recent = Недавние
+label_reconnecting_ellipsis = Переподключение...
 label_recover_account = Восстановление доступа
 label_recover_account_description = Укажите Ваш Gapopa ID, логин, E-mail или номер телефона.
 label_recovery_code = Код восстановления
@@ -687,19 +696,12 @@ label_service_reconnecting = Сервис переподключается...
 label_set_new_password = Задайте новый пароль для входа в аккаунт
 label_set_password = Задать пароль
 label_settings = Настройки
-label_short_weekday =
-    {$weekday ->
-        [1] пн
-        [2] вт
-        [3] ср
-        [4] чт
-        [5] пт
-        [6] сб
-        *[other] вс
-    }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_sort_by_name = Cортировать по имени
+label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
+label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
 label_subtitle_participants = участников
