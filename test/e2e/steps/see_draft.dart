@@ -38,16 +38,18 @@ final StepDefinitionGeneric seeDraftInDialog =
   (text, user, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    final ChatId dialog = context.world.sessions[user.name]!.dialog!;
+    await context.world.appDriver.waitUntil(() async {
+      final ChatId dialog = context.world.sessions[user.name]!.dialog!;
 
-    final Finder finder = context.world.appDriver.findByDescendant(
-      context.world.appDriver.findBy('Chat_$dialog', FindType.key),
-      context.world.appDriver.findBy('Draft', FindType.key),
-      firstMatchOnly: true,
-    );
-    expect(await context.world.appDriver.isPresent(finder), true);
+      final Finder finder = context.world.appDriver.findByDescendant(
+        context.world.appDriver.findBy('Chat_$dialog', FindType.key),
+        context.world.appDriver.findBy('Draft', FindType.key),
+        firstMatchOnly: true,
+      );
+      expect(await context.world.appDriver.isPresent(finder), true);
 
-    final RxChat? chat = Get.find<ChatService>().chats[dialog];
-    expect((chat!.draft.value as ChatMessage).text?.val, text);
+      final RxChat? chat = Get.find<ChatService>().chats[dialog];
+      return (chat?.draft.value as ChatMessage).text?.val == text;
+    });
   },
 );
