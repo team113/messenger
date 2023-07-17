@@ -36,7 +36,6 @@ import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -50,7 +49,7 @@ import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'my_profile_gallery_test.mocks.dart';
+import 'chat_avatar_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
@@ -60,17 +59,15 @@ void main() async {
     'id': '6a9e0b6e-61ab-43cb-a8d4-dabaf065e5a3',
     'num': '7461878581615099',
     'name': 'user',
-    'bio': null,
     'avatar': null,
     'callCover': null,
-    'gallery': {'nodes': []},
     'mutualContactsCount': 0,
     'online': {'__typename': 'UserOnline'},
     'presence': 'PRESENT',
     'status': null,
     'isDeleted': false,
     'dialog': null,
-    'isBlacklisted': {'blacklisted': false, 'ver': '1'},
+    'isBlocked': {'blacklisted': false, 'ver': '1'},
     'ver': '2'
   };
 
@@ -88,9 +85,6 @@ void main() async {
   var userHiveProvider = UserHiveProvider();
   await userHiveProvider.init();
   await userHiveProvider.clear();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
   var draftProvider = DraftHiveProvider();
@@ -108,7 +102,6 @@ void main() async {
   await monologProvider.init();
 
   Get.put(myUserProvider);
-  Get.put(galleryItemProvider);
   Get.put(userHiveProvider);
   Get.put(chatHiveProvider);
   Get.put(sessionProvider);
@@ -182,11 +175,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(
-      graphQlProvider,
-      userHiveProvider,
-      galleryItemProvider,
-    );
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userHiveProvider);
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -275,11 +265,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(
-      graphQlProvider,
-      userHiveProvider,
-      galleryItemProvider,
-    );
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userHiveProvider);
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,

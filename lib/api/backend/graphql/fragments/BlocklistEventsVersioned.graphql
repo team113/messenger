@@ -15,9 +15,17 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation UpdateUserBio($bio: UserBio) {
-    updateUserBio(bio: $bio) {
+fragment BlocklistEventsVersioned on BlocklistEventsVersioned {
+    events {
         __typename
-        ...MyUserEventsVersioned
+        user {
+            ...User
+            __typename
+        }
+        at
+        ... on EventBlocklistRecordAdded {
+            reason
+        }
     }
+    myVer: ver
 }

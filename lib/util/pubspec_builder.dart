@@ -66,7 +66,7 @@ class PubspecBuilder implements Builder {
       } else {
         // ignore: avoid_print
         print(
-          '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}',
+          '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
         );
 
         buffer.write('  static const String? ref = null;\n');

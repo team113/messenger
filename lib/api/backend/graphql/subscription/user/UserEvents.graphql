@@ -27,10 +27,10 @@ subscription UserEvents($id: UserId!, $ver: UserVersion) {
         ... on UserEventsVersioned {
             ...UserEventsVersioned
         }
-        ... on BlacklistEventsVersioned {
-            ...BlacklistEventsVersioned
+        ... on BlocklistEventsVersioned {
+            ...BlocklistEventsVersioned
         }
-        ... on IsBlacklisted {
+        ... on IsBlocked {
             record {
                 reason
                 at

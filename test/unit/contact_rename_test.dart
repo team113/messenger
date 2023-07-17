@@ -28,7 +28,6 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/contact.dart';
@@ -45,8 +44,6 @@ void main() async {
   var sessionData = Get.put(SessionDataHiveProvider());
   await sessionData.init();
   await sessionData.clear();
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
   var userHiveProvider = Get.put(UserHiveProvider());
   await userHiveProvider.init();
   var contactProvider = Get.put(ContactHiveProvider());
@@ -99,8 +96,7 @@ void main() async {
   };
 
   Future<ContactService> init(GraphQlProvider graphQlProvider) async {
-    UserRepository userRepo =
-        UserRepository(graphQlProvider, userHiveProvider, galleryItemProvider);
+    UserRepository userRepo = UserRepository(graphQlProvider, userHiveProvider);
 
     AbstractContactRepository contactRepository =
         Get.put<AbstractContactRepository>(

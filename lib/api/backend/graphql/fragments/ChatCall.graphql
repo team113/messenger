@@ -18,7 +18,10 @@
 fragment ChatCall on ChatCall {
     id
     chatId
-    authorId
+    author {
+        __typename
+        ...User
+    }
     dialed {
         __typename
         ... on ChatMembersDialedAll {
@@ -41,10 +44,6 @@ fragment ChatCall on ChatCall {
         }
     }
     at
-    caller {
-        __typename
-        ...User
-    }
     conversationStartedAt
     finishReason
     finishedAt

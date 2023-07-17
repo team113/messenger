@@ -474,13 +474,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
-    final HiveRxChat? chat = _chats[chatId];
-
-    if (chat != null) {
-      await chat.read(untilId);
-    } else {
-      await readUntil(chatId, untilId);
-    }
+    await _chats[chatId]?.read(untilId);
   }
 
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
@@ -520,7 +514,7 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? chat = _chats[message.chatId];
 
     if (message.status.value != SendingStatus.sent) {
-      chat?.remove(message.id, message.timestamp);
+      chat?.remove(message.id, message.key);
     } else {
       Rx<ChatItem>? item =
           chat?.messages.firstWhereOrNull((e) => e.value.id == message.id);
@@ -532,7 +526,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatMessage(message.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.timestamp);
+          chat?.remove(item.value.id, item.value.key);
         }
       } catch (_) {
         if (item != null) {
@@ -565,7 +559,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatForward(forward.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.timestamp);
+          chat?.remove(item.value.id, item.value.key);
         }
       } catch (_) {
         if (item != null) {
@@ -595,7 +589,7 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.hideChatItem(id);
 
       if (item != null) {
-        chat?.remove(item.value.id, item.value.timestamp);
+        chat?.remove(item.value.id, item.value.key);
       }
     } catch (_) {
       if (item != null) {
@@ -1166,6 +1160,15 @@ class ChatRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatUnfavorited') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
       return EventChatUnfavorited(e.chatId, node.at);
+    } else if (e.$$typename == 'EventChatCallConversationStarted') {
+      var node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallConversationStarted;
+      return EventChatCallConversationStarted(
+        e.chatId,
+        node.callId,
+        node.at,
+        node.call.toModel(),
+      );
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }

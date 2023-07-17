@@ -393,7 +393,7 @@ class MyProfileView extends StatelessWidget {
                           children: const [LanguageFieldButton()],
                         );
 
-                      case ProfileTab.blacklist:
+                      case ProfileTab.blocklist:
                         return Block(
                           title: 'label_blocked_users'.l10n,
                           children: [BlacklistField(c.blacklist)],

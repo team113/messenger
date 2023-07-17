@@ -25,27 +25,24 @@ import 'package:mutex/mutex.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/gallery_item.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/user_rx.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
-    show BlacklistEvent, EventBlacklistRecordAdded, EventBlacklistRecordRemoved;
+    show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
 
 /// Implementation of an [AbstractUserRepository].
 class UserRepository implements AbstractUserRepository {
   UserRepository(
     this._graphQlProvider,
     this._userLocal,
-    this._galleryItemLocal,
   );
 
   /// Callback, called when a [RxChat] with the provided [ChatId] is required
@@ -59,9 +56,6 @@ class UserRepository implements AbstractUserRepository {
 
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
-
-  /// [ImageGalleryItem] local [Hive] storage.
-  final GalleryItemHiveProvider _galleryItemLocal;
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
@@ -140,12 +134,13 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> blacklistUser(UserId id, BlacklistReason? reason) async {
+  Future<void> blockUser(UserId id, BlocklistReason? reason) async {
     final RxUser? user = _users[id];
-    final BlacklistRecord? record = user?.user.value.isBlacklisted;
+    final BlocklistRecord? record = user?.user.value.isBlocked;
 
-    if (user?.user.value.isBlacklisted == null) {
-      user?.user.value.isBlacklisted = BlacklistRecord(
+    if (user?.user.value.isBlocked == null) {
+      user?.user.value.isBlocked = BlocklistRecord(
+        userId: id,
         reason: reason,
         at: PreciseDateTime.now(),
       );
@@ -153,10 +148,10 @@ class UserRepository implements AbstractUserRepository {
     }
 
     try {
-      await _graphQlProvider.blacklistUser(id, reason);
+      await _graphQlProvider.blockUser(id, reason);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != record) {
-        user.user.value.isBlacklisted = record ?? user.user.value.isBlacklisted;
+      if (user != null && user.user.value.isBlocked != record) {
+        user.user.value.isBlocked = record ?? user.user.value.isBlocked;
         user.user.refresh();
       }
       rethrow;
@@ -164,20 +159,20 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> unblacklistUser(UserId id) async {
+  Future<void> unblockUser(UserId id) async {
     final RxUser? user = _users[id];
-    final BlacklistRecord? record = user?.user.value.isBlacklisted;
+    final BlocklistRecord? record = user?.user.value.isBlocked;
 
-    if (user?.user.value.isBlacklisted != null) {
-      user?.user.value.isBlacklisted = null;
+    if (user?.user.value.isBlocked != null) {
+      user?.user.value.isBlocked = null;
       user?.user.refresh();
     }
 
     try {
-      await _graphQlProvider.unblacklistUser(id);
+      await _graphQlProvider.unblockUser(id);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != record) {
-        user.user.value.isBlacklisted = record ?? user.user.value.isBlacklisted;
+      if (user != null && user.user.value.isBlocked != record) {
+        user.user.value.isBlocked = record ?? user.user.value.isBlocked;
         user.user.refresh();
       }
       rethrow;
@@ -195,10 +190,6 @@ class UserRepository implements AbstractUserRepository {
 
   /// Puts the provided [user] into the local [Hive] storage.
   void put(HiveUser user, {bool ignoreVersion = false}) {
-    List<ImageGalleryItem> gallery = user.value.gallery ?? [];
-    for (ImageGalleryItem item in gallery) {
-      _galleryItemLocal.put(item);
-    }
     _putUser(user, ignoreVersion: ignoreVersion);
   }
 
@@ -218,18 +209,19 @@ class UserRepository implements AbstractUserRepository {
           mixin.events.map((e) => _userEvent(e)).toList(),
           mixin.ver,
         ));
-      } else if (events.$$typename == 'BlacklistEventsVersioned') {
-        var mixin = events as BlacklistEventsVersionedMixin;
-        yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
-          mixin.events.map((e) => _blacklistEvent(e)).toList(),
+      } else if (events.$$typename == 'BlocklistEventsVersioned') {
+        var mixin = events as BlocklistEventsVersionedMixin;
+        yield UserEventsBlocklistEventsEvent(BlocklistEventsVersioned(
+          mixin.events.map((e) => _blocklistEvent(e)).toList(),
           mixin.myVer,
         ));
-      } else if (events.$$typename == 'IsBlacklisted') {
-        var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
-        yield UserEventsIsBlacklisted(
+      } else if (events.$$typename == 'isBlocked') {
+        var node = events as UserEvents$Subscription$UserEvents$IsBlocked;
+        yield UserEventsIsBlocked(
           node.record == null
               ? null
-              : BlacklistRecord(
+              : BlocklistRecord(
+                  userId: id,
                   reason: node.record!.reason,
                   at: node.record!.at,
                 ),
@@ -316,12 +308,6 @@ class UserRepository implements AbstractUserRepository {
         node.avatar.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventUserBioDeleted') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
-      return EventUserBioDeleted(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserBioUpdated') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
-      return EventUserBioUpdated(node.userId, node.bio, node.at);
     } else if (e.$$typename == 'EventUserCallCoverDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
       return EventUserCallCoverDeleted(node.userId, node.at);
@@ -344,21 +330,6 @@ class UserRepository implements AbstractUserRepository {
     } else if (e.$$typename == 'EventUserNameDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserNameDeleted;
       return EventUserNameDeleted(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserGalleryItemAdded') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
-      return EventUserGalleryItemAdded(
-        node.userId,
-        node.galleryItem.toModel(),
-        node.at,
-      );
-    } else if (e.$$typename == 'EventUserGalleryItemDeleted') {
-      var node =
-          e as UserEventsVersionedMixin$Events$EventUserGalleryItemDeleted;
-      return EventUserGalleryItemDeleted(
-        node.userId,
-        node.galleryItemId,
-        node.at,
-      );
     } else if (e.$$typename == 'EventUserNameUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name, node.at);
@@ -376,23 +347,21 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
-  /// Constructs a [BlacklistEvent] from the
-  /// [BlacklistEventsVersionedMixin$Events].
-  BlacklistEvent _blacklistEvent(BlacklistEventsVersionedMixin$Events e) {
-    if (e.$$typename == 'EventBlacklistRecordAdded') {
-      return EventBlacklistRecordAdded(
-        e.userId,
+  /// Constructs a [BlocklistEvent] from the
+  /// [BlocklistEventsVersionedMixin$Events].
+  BlocklistEvent _blocklistEvent(BlocklistEventsVersionedMixin$Events e) {
+    if (e.$$typename == 'EventBlocklistRecordAdded') {
+      var node =
+          e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
+      return EventBlocklistRecordAdded(
         e.user.toHive(),
         e.at,
+        node.reason,
       );
-    } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
-      return EventBlacklistRecordRemoved(
-        e.userId,
-        e.user.toHive(),
-        e.at,
-      );
+    } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
+      return EventBlocklistRecordRemoved(e.user.toHive(), e.at);
     } else {
-      throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
+      throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
     }
   }
 }
