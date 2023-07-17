@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/themes.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
 /// Stylized [Container] of the provided [color].
@@ -28,8 +27,8 @@ class ColorWidget extends StatelessWidget {
     this.isDarkMode,
     this.color, {
     super.key,
-    this.title,
     this.subtitle,
+    this.hint,
   });
 
   /// Indicator whether the dark mode is enabled or not.
@@ -38,11 +37,11 @@ class ColorWidget extends StatelessWidget {
   /// Color to display.
   final Color color;
 
-  /// Optional title of this [ColorWidget].
-  final String? title;
-
   /// Optional subtitle of this [ColorWidget].
   final String? subtitle;
+
+  /// Optional hint of this [ColorWidget].
+  final String? hint;
 
   @override
   Widget build(BuildContext context) {
@@ -54,38 +53,49 @@ class ColorWidget extends StatelessWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 150),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              const SizedBox(width: 17),
-              Text(
-                color.toHex(),
-                textAlign: TextAlign.start,
-                style: fonts.bodySmall!.copyWith(
-                  color: isDarkMode
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF000000),
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: color.toHex()));
+                    MessagePopup.success('Color hash code is copied');
+                  },
+                  child: Text(
+                    color.toHex(),
+                    textAlign: TextAlign.start,
+                    style: fonts.bodySmall!.copyWith(
+                      color: isDarkMode
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000),
+                    ),
+                  ),
                 ),
               ),
+              if (hint != null)
+                Tooltip(
+                  message: hint ?? '',
+                  child: Icon(
+                    Icons.info_outline,
+                    size: 13,
+                    color: isDarkMode
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
+                  ),
+                )
             ],
           ),
         ),
         const SizedBox(height: 8),
-        Tooltip(
-          message: subtitle ?? '',
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: WidgetButton(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: color.toHex()));
-                MessagePopup.success('Copied');
-              },
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
@@ -95,15 +105,26 @@ class ColorWidget extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 17),
-              if (title != null)
+              if (subtitle != null)
                 Expanded(
-                  child: Text(
-                    title!,
-                    textAlign: TextAlign.left,
-                    style: fonts.labelSmall!.copyWith(
-                      color: isDarkMode
-                          ? const Color(0xFFFFFFFF)
-                          : const Color(0xFF000000),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: subtitle!));
+                        MessagePopup.success(
+                          'Technical name of the color is copied',
+                        );
+                      },
+                      child: Text(
+                        subtitle!,
+                        textAlign: TextAlign.left,
+                        style: fonts.labelSmall!.copyWith(
+                          color: isDarkMode
+                              ? const Color(0xFFFFFFFF)
+                              : const Color(0xFF000000),
+                        ),
+                      ),
                     ),
                   ),
                 ),

@@ -56,7 +56,6 @@ import 'store/contact.dart';
 import 'store/my_user.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
-import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
@@ -96,9 +95,6 @@ class Routes {
 /// List of [Routes.home] page tabs.
 enum HomeTab { contacts, chats, menu }
 
-/// List of [Routes.style] page sections.
-enum StyleTab { colors, typography, multimedia, elements }
-
 /// List of [Routes.me] page sections.
 enum ProfileTab {
   public,
@@ -116,6 +112,9 @@ enum ProfileTab {
   danger,
   logout,
 }
+
+/// List of [Routes.style] page sections.
+enum StyleTab { colors, typography, multimedia, elements }
 
 /// Application's router state.
 ///
@@ -654,9 +653,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       ));
     } else {
       pages.add(const MaterialPage(
-        key: ValueKey('AuthPage'),
-        name: Routes.auth,
-        child: AuthView(),
+        // key: ValueKey('AuthPage'),
+        // name: Routes.auth,
+        // child: AuthView(),
+        name: Routes.style,
+        child: StyleView(),
       ));
     }
 

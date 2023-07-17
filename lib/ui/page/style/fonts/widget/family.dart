@@ -80,22 +80,35 @@ class _FontFamilyContainer extends StatelessWidget {
     return Stack(
       children: [
         AnimatedContainer(
-          height: 300,
+          height: 230,
           duration: const Duration(milliseconds: 400),
           decoration: BoxDecoration(
             color:
                 isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 32),
-            child: DefaultTextStyle(
-              style: textStyle.copyWith(
-                color: isDarkMode
-                    ? const Color(0xFFFFFFFF)
-                    : const Color(0xFF000000),
+        ),
+        if (label != null)
+          Positioned(
+            right: 20,
+            bottom: 10,
+            child: Text(
+              label!,
+              style: fonts.displayLarge!.copyWith(
+                color: const Color(0xFFF5F5F5),
+                fontSize: 55,
               ),
-              child: const Column(
+            ),
+          ),
+        DefaultTextStyle(
+          style: textStyle.copyWith(
+            color:
+                isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+          ),
+          child: const Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(left: 32, top: 25),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -109,27 +122,20 @@ class _FontFamilyContainer extends StatelessWidget {
                       children: [
                         Text('1234567890'),
                         SizedBox(width: 50),
-                        Text('_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*')
+                        Flexible(
+                          child: Text(
+                            '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
+                            softWrap: true,
+                          ),
+                        )
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
           ),
         ),
-        if (label != null)
-          Positioned(
-            right: 20,
-            bottom: 0,
-            child: Text(
-              label!,
-              style: fonts.displayLarge!.copyWith(
-                color: const Color(0xFFF5F5F5),
-                fontSize: 55,
-              ),
-            ),
-          ),
       ],
     );
   }

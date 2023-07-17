@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/style/fonts/widget/font_column.dart';
 
 import '/ui/page/style/widget/headers.dart';
 import 'widget/family.dart';
@@ -23,7 +24,7 @@ import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.
 class FontsView extends StatelessWidget {
-  const FontsView({super.key, required this.isDarkMode});
+  const FontsView(this.isDarkMode, {super.key});
 
   /// Indicator whether the dark mode is enabled or not.
   final bool isDarkMode;
@@ -35,8 +36,11 @@ class FontsView extends StatelessWidget {
       child: Column(
         children: [
           const Header(label: 'Typography'),
-          const SmallHeader(label: 'Font'),
+          const SmallHeader(label: 'Font families'),
           FontFamiliesWidget(isDarkMode),
+          const Divider(),
+          const SmallHeader(label: 'Font'),
+          FontColumnWidget(isDarkMode),
           const Divider(),
           const SmallHeader(label: 'Styles'),
           FontStyleWidget(isDarkMode),
