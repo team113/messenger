@@ -83,10 +83,6 @@ class UserController extends GetxController {
   /// authenticated [MyUser].
   late final RxBool inContacts;
 
-  /// Index of the currently displayed [GalleryItem] in the [User.gallery]
-  /// list.
-  final RxInt galleryIndex = RxInt(0);
-
   /// [TextFieldState] for blacklisting reason.
   final TextFieldState reason = TextFieldState();
 
