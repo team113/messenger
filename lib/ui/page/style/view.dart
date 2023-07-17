@@ -77,7 +77,9 @@ class StyleView extends StatelessWidget {
                                         case StyleTab.colors:
                                           return StyleCard(
                                             title: 'Color palette',
-                                            icon: Icons.format_paint_rounded,
+                                            icon: inverted
+                                                ? Icons.format_paint
+                                                : Icons.format_paint_outlined,
                                             inverted: inverted,
                                             onPressed: () => c.toggleTab(tab),
                                           );
@@ -85,7 +87,9 @@ class StyleView extends StatelessWidget {
                                         case StyleTab.typography:
                                           return StyleCard(
                                             title: 'Typography',
-                                            icon: Icons.text_fields_rounded,
+                                            icon: inverted
+                                                ? Icons.text_snippet
+                                                : Icons.text_snippet_outlined,
                                             inverted: inverted,
                                             onPressed: () => c.toggleTab(tab),
                                           );
@@ -93,7 +97,9 @@ class StyleView extends StatelessWidget {
                                         case StyleTab.multimedia:
                                           return StyleCard(
                                             title: 'Multimedia',
-                                            icon: Icons.play_lesson_rounded,
+                                            icon: inverted
+                                                ? Icons.play_lesson
+                                                : Icons.play_lesson_outlined,
                                             inverted: inverted,
                                             onPressed: () {
                                               // TODO: Implement Multimedia page.
@@ -106,7 +112,9 @@ class StyleView extends StatelessWidget {
                                         case StyleTab.elements:
                                           return StyleCard(
                                             title: 'Elements',
-                                            icon: Icons.widgets_rounded,
+                                            icon: inverted
+                                                ? Icons.widgets
+                                                : Icons.widgets_outlined,
                                             inverted: inverted,
                                             onPressed: () {
                                               // TODO: Implement Elements page.
@@ -158,7 +166,7 @@ class StyleView extends StatelessWidget {
                     ),
                   ),
                   Flexible(
-                    flex: 4,
+                    flex: 5,
                     child: Container(
                       color: const Color(0xFFF5F5F5),
                       child: CustomScrollView(

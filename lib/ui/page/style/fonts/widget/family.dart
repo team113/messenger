@@ -96,7 +96,7 @@ class _FontFamilyContainer extends StatelessWidget {
               label!,
               style: fonts.displayLarge!.copyWith(
                 color: const Color(0xFFF5F5F5),
-                fontSize: 55,
+                fontSize: 40,
               ),
             ),
           ),

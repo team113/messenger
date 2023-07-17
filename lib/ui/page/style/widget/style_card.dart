@@ -61,12 +61,15 @@ class StyleCard extends StatelessWidget {
             ),
             const SizedBox(width: 7),
             if (title != null)
-              Text(
-                title!,
-                style: fonts.headlineLarge!.copyWith(
-                  color: inverted
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF1F3C5D),
+              Flexible(
+                child: Text(
+                  title!,
+                  overflow: TextOverflow.ellipsis,
+                  style: fonts.headlineLarge!.copyWith(
+                    color: inverted
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF1F3C5D),
+                  ),
                 ),
               ),
           ],
