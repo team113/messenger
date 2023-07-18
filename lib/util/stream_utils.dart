@@ -23,15 +23,18 @@ import 'package:async/async.dart';
 extension StreamQueueExtension on StreamQueue {
   /// Executes this [StreamQueue] in an async loop invoking the provided
   /// [onEvent] on every [T] event happening.
-  Future<void> execute<T>(FutureOr<void> Function(T) onEvent) async {
+  Future<void> execute<T>(
+    FutureOr<void> Function(T) onEvent, {
+    Future<void> Function(Object e)? onError,
+  }) async {
     try {
       while (await hasNext) {
         T? event;
 
         try {
           event = await next;
-        } catch (_) {
-          // No-op.
+        } catch (e) {
+          await onError?.call(e);
         }
 
         if (event != null) {

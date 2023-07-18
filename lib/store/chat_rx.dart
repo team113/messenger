@@ -39,7 +39,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show ConnectionException, PostChatMessageException;
+    show ConnectionException, PostChatMessageException, StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
@@ -211,7 +211,7 @@ class HiveRxChat extends RxChat {
     return _guard.protect(() async {
       await _local.init(userId: me);
       if (!_local.isEmpty) {
-        for (HiveChatItem i in _local.messages) {
+        for (HiveChatItem i in await _local.messages) {
           messages.add(Rx<ChatItem>(i.value));
         }
 
@@ -308,7 +308,7 @@ class HiveRxChat extends RxChat {
     List<HiveChatItem> items = await _chatRepository.messages(chat.value.id);
 
     return _guard.protect(() async {
-      for (HiveChatItem item in _local.messages) {
+      for (Rx<ChatItem> item in messages) {
         if (item.value.status.value == SendingStatus.sent) {
           int i = items.indexWhere((e) => e.value.id == item.value.id);
           if (i == -1) {
@@ -500,25 +500,25 @@ class HiveRxChat extends RxChat {
   /// Puts the provided [item] to [Hive].
   Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) {
     return _guard.protect(
-      () => Future.sync(() {
+      () async {
         if (!_local.isReady) {
           return;
         }
 
-        final HiveChatItem? saved = _local.get(item.value.key);
+        final HiveChatItem? saved = await _local.get(item.value.key);
         if (saved == null) {
           _local.put(item);
         } else if (saved.ver < item.ver || ignoreVersion) {
           _local.put(item);
         }
-      }),
+      },
     );
   }
 
   @override
   Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) {
     return _guard.protect(
-      () => Future.sync(() {
+      () async {
         if (!_local.isReady) {
           return;
         }
@@ -535,14 +535,14 @@ class HiveRxChat extends RxChat {
             chatEntity!.value.lastItem = lastItem?.value;
             if (lastItem != null) {
               chatEntity.lastItemCursor =
-                  _local.get(lastItem.value.key)?.cursor;
+                  (await _local.get(lastItem.value.key))?.cursor;
             } else {
               chatEntity.lastItemCursor = null;
             }
             chatEntity.save();
           }
         }
-      }),
+      },
     );
   }
 
@@ -593,7 +593,7 @@ class HiveRxChat extends RxChat {
       subscribe();
       _localSubscription?.cancel();
 
-      final List<HiveChatItem> saved = _local.messages.toList();
+      final Iterable<HiveChatItem> saved = await _local.messages;
       await _local.clear();
       _local.close();
 
@@ -877,7 +877,17 @@ class HiveRxChat extends RxChat {
     _remoteSubscription = StreamQueue(
       _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
     );
-    await _remoteSubscription!.execute(_chatEvent);
+
+    await _remoteSubscription!.execute(
+      _chatEvent,
+      onError: (e) async {
+        if (e is StaleVersionException) {
+          await _local.clear();
+
+          await fetchMessages();
+        }
+      },
+    );
 
     _remoteSubscriptionInitialized = false;
   }
@@ -1108,6 +1118,19 @@ class HiveRxChat extends RxChat {
                   reads.add(LastChatRead(event.byUser.id, at));
                 } else {
                   read.at = at;
+                }
+
+                if (event.byUser.id == me) {
+                  final key = _local.keys.lastWhereOrNull(
+                        (e) => e.at == at,
+                  );
+                  if (key != null) {
+                    final HiveChatItem? item = await _local.get(key);
+                    if (item != null) {
+                      chatEntity.lastReadItemCursor = item.cursor!;
+                      chatEntity.value.lastReadItem = item.value;
+                    }
+                  }
                 }
               }
 
