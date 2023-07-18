@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.9.1] · 2023-07-??
+[0.1.0-alpha.9.1]: /../../tree/v0.1.0-alpha.9.1
+
+[Diff](/../../compare/v0.1.0-alpha.9...v0.1.0-alpha.9.1) | [Milestone](/../../milestone/7)
+
+### Fixed
+
+- Performance:
+    - Spamming backend API when reading a chat ([#487]).
+- Web:
+    - Avatar not uploading due to simultaneous file read. ([#487])
+
+[#487]: /../../pull/487
+
+
+
+
 ## [0.1.0-alpha.9] · 2023-07-17
 [0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
 

@@ -131,12 +131,13 @@ class Chat extends HiveObject {
   @HiveField(12)
   ChatItem? lastItem;
 
-  /// Last [ChatItem] read by the authenticated [MyUser] in this [Chat].
+  /// ID of the last [ChatItem] read by the authenticated [MyUser] in this
+  /// [Chat].
   ///
   /// If [Chat] hasn't been read yet, or has no visible [ChatItem]s for the
   /// authenticated [MyUser], then it's `null`.
   @HiveField(13)
-  ChatItem? lastReadItem;
+  ChatItemId? lastReadItem;
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [Chat].
   @HiveField(14)
