@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-import '/ui/page/style/fonts/widget/font_column.dart';
 import '/ui/page/style/widget/headers.dart';
 import 'widget/family.dart';
+import 'widget/font_column.dart';
 import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.

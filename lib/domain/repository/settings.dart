@@ -17,7 +17,7 @@
 
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';

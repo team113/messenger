@@ -41,15 +41,13 @@ class FontFamiliesWidget extends StatelessWidget {
         _FontFamilyContainer(
           isDarkMode,
           label: 'SFUI-Regular',
-          textStyle: fonts.displayLarge!.copyWith(
-            fontWeight: FontWeight.normal,
-          ),
+          textStyle: fonts.displayLarge!.copyWith(fontWeight: FontWeight.w400),
         ),
         const SizedBox(height: 20),
         _FontFamilyContainer(
           isDarkMode,
           label: 'SFUI-Bold',
-          textStyle: fonts.displayLarge!,
+          textStyle: fonts.displayLarge!.copyWith(fontWeight: FontWeight.w700),
         ),
       ],
     );

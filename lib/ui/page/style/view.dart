@@ -22,7 +22,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
-import '/util/message_popup.dart';
 import 'colors/view.dart';
 import 'fonts/view.dart';
 import 'widget/custom_switcher.dart';
@@ -33,172 +32,154 @@ class StyleView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return GetBuilder(
+      init: StyleController(),
+      builder: (StyleController c) {
+        return SafeArea(
+          child: Scaffold(
+            body: Row(
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: ColoredBox(
+                    color: const Color(0xFFFFFFFF),
+                    child: Column(
+                      children: [
+                        Expanded(child: _tabs(c, context)),
+                        const SizedBox(height: 10),
+                        _mode(c),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 5,
+                  child: Container(
+                    color: const Color(0xFFF5F5F5),
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverList(
+                          delegate: SliverChildListDelegate([
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 70),
+                              child: Obx(() {
+                                return Column(
+                                  children: [
+                                    if (c.selectedTab.value == StyleTab.colors)
+                                      ColorStyleView(c.isDarkMode.value),
+                                    if (c.selectedTab.value ==
+                                        StyleTab.typography)
+                                      FontsView(c.isDarkMode.value),
+                                  ],
+                                );
+                              }),
+                            ),
+                          ]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Returns the list of [StyleCard]s representing the [StyleTab]s.
+  Widget _tabs(StyleController c, BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return GetBuilder(
-        init: StyleController(),
-        builder: (StyleController c) {
-          return SafeArea(
-            child: Scaffold(
-              body: Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Container(
-                      color: const Color(0xFFFFFFFF),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: CustomScrollView(
-                              slivers: [
-                                SliverAppBar(
-                                  expandedHeight: 75,
-                                  leadingWidth: double.infinity,
-                                  flexibleSpace: FlexibleSpaceBar(
-                                    title: Text(
-                                      'Style by Gapopa',
-                                      textAlign: TextAlign.center,
-                                      style: fonts.headlineLarge!.copyWith(
-                                        color: const Color(0xFF1F3C5D),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SliverList.builder(
-                                  itemCount: StyleTab.values.length,
-                                  itemBuilder: (context, i) {
-                                    return Obx(() {
-                                      final StyleTab tab = StyleTab.values[i];
-
-                                      final bool inverted =
-                                          c.selectedTab.value == tab;
-
-                                      switch (tab) {
-                                        case StyleTab.colors:
-                                          return StyleCard(
-                                            title: 'Color palette',
-                                            icon: inverted
-                                                ? Icons.format_paint
-                                                : Icons.format_paint_outlined,
-                                            inverted: inverted,
-                                            onPressed: () => c.toggleTab(tab),
-                                          );
-
-                                        case StyleTab.typography:
-                                          return StyleCard(
-                                            title: 'Typography',
-                                            icon: inverted
-                                                ? Icons.text_snippet
-                                                : Icons.text_snippet_outlined,
-                                            inverted: inverted,
-                                            onPressed: () => c.toggleTab(tab),
-                                          );
-
-                                        case StyleTab.multimedia:
-                                          return StyleCard(
-                                            title: 'Multimedia',
-                                            icon: inverted
-                                                ? Icons.play_lesson
-                                                : Icons.play_lesson_outlined,
-                                            inverted: inverted,
-                                            onPressed: () {
-                                              // TODO: Implement Multimedia page.
-                                              MessagePopup.error(
-                                                'Not implemented yet',
-                                              );
-                                            },
-                                          );
-
-                                        case StyleTab.elements:
-                                          return StyleCard(
-                                            title: 'Elements',
-                                            icon: inverted
-                                                ? Icons.widgets
-                                                : Icons.widgets_outlined,
-                                            inverted: inverted,
-                                            onPressed: () {
-                                              // TODO: Implement Elements page.
-                                              MessagePopup.error(
-                                                'Not implemented yet',
-                                              );
-                                            },
-                                          );
-                                      }
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            children: [
-                              const Divider(),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(bottom: 20, top: 10),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.light_mode,
-                                      color: Color(0xFFFFB74D),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      child: CustomSwitcher(
-                                        onChanged: c.toggleDarkMode,
-                                      ),
-                                    ),
-                                    const Icon(
-                                      Icons.dark_mode,
-                                      color: Color(0xFF1F3C5D),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    flex: 5,
-                    child: Container(
-                      color: const Color(0xFFF5F5F5),
-                      child: CustomScrollView(
-                        slivers: [
-                          SliverList(
-                            delegate: SliverChildListDelegate([
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 70),
-                                child: Obx(() {
-                                  return Column(
-                                    children: [
-                                      if (c.selectedTab.value ==
-                                          StyleTab.colors)
-                                        ColorStyleView(c.isDarkMode.value),
-                                      if (c.selectedTab.value ==
-                                          StyleTab.typography)
-                                        FontsView(c.isDarkMode.value),
-                                    ],
-                                  );
-                                }),
-                              ),
-                            ]),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 75,
+          leadingWidth: double.infinity,
+          flexibleSpace: FlexibleSpaceBar(
+            title: Text(
+              'Styles',
+              textAlign: TextAlign.center,
+              style: fonts.headlineLarge!.copyWith(
+                color: const Color(0xFF1F3C5D),
               ),
             ),
-          );
-        });
+          ),
+        ),
+        SliverList.builder(
+          itemCount: StyleTab.values.length,
+          itemBuilder: (context, i) {
+            return Obx(() {
+              final StyleTab tab = StyleTab.values[i];
+
+              final bool inverted = c.selectedTab.value == tab;
+
+              switch (tab) {
+                case StyleTab.colors:
+                  return StyleCard(
+                    title: 'Color palette',
+                    icon: inverted
+                        ? Icons.format_paint
+                        : Icons.format_paint_outlined,
+                    inverted: inverted,
+                    onPressed: () => c.toggleTab(tab),
+                  );
+
+                case StyleTab.typography:
+                  return StyleCard(
+                    title: 'Typography',
+                    icon: inverted
+                        ? Icons.text_snippet
+                        : Icons.text_snippet_outlined,
+                    inverted: inverted,
+                    onPressed: () => c.toggleTab(tab),
+                  );
+
+                case StyleTab.multimedia:
+                  return StyleCard(
+                    title: 'Multimedia',
+                    icon: inverted
+                        ? Icons.play_lesson
+                        : Icons.play_lesson_outlined,
+                    inverted: inverted,
+
+                    // TODO: Implement.
+                    onPressed: null,
+                  );
+
+                case StyleTab.elements:
+                  return StyleCard(
+                    title: 'Elements',
+                    icon: inverted ? Icons.widgets : Icons.widgets_outlined,
+                    inverted: inverted,
+
+                    // TODO: Implement.
+                    onPressed: null,
+                  );
+              }
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  /// Returns a [CustomSwitcher] switching between the light and dark mode.
+  Widget _mode(StyleController c) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: CustomSwitcher(onChanged: c.toggleDarkMode),
+        ),
+        const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
+      ],
+    );
   }
 }

@@ -45,10 +45,9 @@ class AvatarColors extends StatelessWidget {
             alignment: WrapAlignment.center,
             spacing: 16,
             runSpacing: 16,
-            children: List.generate(
-              style.colors.userColors.length,
-              (i) => ColorWidget(isDarkMode, style.colors.userColors[i]),
-            ),
+            children: style.colors.userColors
+                .map((e) => ColorWidget(isDarkMode, e))
+                .toList(),
           ),
           const SizedBox(height: 30),
         ],

@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '/l10n/l10n.dart';
 import '/themes.dart';
 
 /// Column of [_CustomFont]s.
@@ -167,38 +166,14 @@ class _CustomFont extends StatelessWidget {
                 ),
             ],
           ),
-          Column(
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'Size: ${style!.fontSize}',
-                    style: fonts.titleMedium?.copyWith(
-                      color: isDarkMode
-                          ? const Color(0xFFFFFFFF)
-                          : const Color(0xFF000000),
-                    ),
-                  ),
-                  Text(
-                    'space_vertical_space'.l10n,
-                    style: fonts.titleMedium?.copyWith(
-                      color: isDarkMode
-                          ? const Color(0xFFFFFFFF)
-                          : const Color(0xFF000000),
-                    ),
-                  ),
-                  Text(
-                    'Font weight: ${style!.fontWeight?.value}',
-                    style: fonts.titleMedium?.copyWith(
-                      color: isDarkMode
-                          ? const Color(0xFFFFFFFF)
-                          : const Color(0xFF000000),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          )
+          Text(
+            '${style!.fontSize} pt, w${style!.fontWeight?.value}',
+            style: fonts.titleMedium?.copyWith(
+              color: isDarkMode
+                  ? const Color(0xFFFFFFFF)
+                  : const Color(0xFF000000),
+            ),
+          ),
         ],
       ),
     );
