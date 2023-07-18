@@ -29,9 +29,12 @@ class ProgressBar extends StatefulWidget {
     this.onDragEnd,
     this.onDragStart,
     this.onDragUpdate,
-    super.key,
+    Key? key,
+    required this.barHeight,
+    required this.handleHeight,
     required this.drawShadow,
-  }) : colors = colors ?? ChewieProgressColors();
+  })  : colors = colors ?? ChewieProgressColors(),
+        super(key: key);
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
@@ -47,6 +50,12 @@ class ProgressBar extends StatefulWidget {
 
   /// Callback, called when progress drag updated.
   final Function()? onDragUpdate;
+
+  /// Height of the progress bar.
+  final double barHeight;
+
+  /// Radius of the progress handle.
+  final double handleHeight;
 
   /// Indicator whether a shadow should be drawn around this [ProgressBar].
   final bool drawShadow;
@@ -69,24 +78,24 @@ class _ProgressBarState extends State<ProgressBar> {
 
     final child = Center(
       child: Container(
-        height: MediaQuery.sizeOf(context).height,
-        width: MediaQuery.sizeOf(context).width,
-        color: Colors.transparent,
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        color: style.colors.transparent,
         child: RxBuilder((_) {
-          return CustomPaint(
-            painter: _ProgressBarPainter(
-              duration: widget.controller.duration.value,
-              position: widget.controller.position.value,
-              buffered: widget.controller.buffered.value,
-              colors: ChewieProgressColors(
-                playedColor: style.colors.primary,
-                handleColor: style.colors.primary,
-                bufferedColor: style.colors.background.withOpacity(0.5),
-                backgroundColor: style.colors.secondary.withOpacity(0.5),
+          return MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: CustomPaint(
+              painter: _ProgressBarPainter(
+                duration: widget.controller.duration.value,
+                position: _latestDraggableOffset != null
+                    ? _relativePosition(_latestDraggableOffset!)
+                    : widget.controller.position.value,
+                buffered: widget.controller.buffered.value,
+                colors: widget.colors,
+                barHeight: widget.barHeight,
+                handleHeight: widget.handleHeight,
+                drawShadow: widget.drawShadow,
               ),
-              barHeight: 2,
-              handleHeight: 6,
-              drawShadow: widget.drawShadow,
             ),
           );
         }),
@@ -120,7 +129,7 @@ class _ProgressBarState extends State<ProgressBar> {
         }
 
         if (_latestDraggableOffset != null) {
-          _seekToRelativePosition(_latestDraggableOffset!);
+          widget.controller.seekTo(_relativePosition(_latestDraggableOffset!));
           _latestDraggableOffset = null;
         }
 
@@ -130,19 +139,18 @@ class _ProgressBarState extends State<ProgressBar> {
         if (!widget.controller.dataStatus.loaded) {
           return;
         }
-        _seekToRelativePosition(details.globalPosition);
+        widget.controller.seekTo(_relativePosition(details.globalPosition));
       },
       child: child,
     );
   }
 
-  /// Transforms the provided [globalPosition] into relative and sets the
-  /// progress.
-  void _seekToRelativePosition(Offset globalPosition) {
+  /// Transforms the provided [globalPosition] into relative [Duration].
+  Duration _relativePosition(Offset globalPosition) {
     final box = context.findRenderObject()! as RenderBox;
     final Offset tapPos = box.globalToLocal(globalPosition);
     final double relative = tapPos.dx / box.size.width;
-    widget.controller.seekTo(widget.controller.duration.value * relative);
+    return widget.controller.duration.value * relative;
   }
 }
 

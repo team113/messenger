@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -23,26 +24,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
-import '../video/desktop_controls/view.dart';
-import '../video/mobile_controls/view.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
+import 'desktop_controls.dart';
+import 'mobile_controls.dart';
 
 /// Video player with controls.
 class Video extends StatefulWidget {
   const Video(
     this.url, {
-    super.key,
+    Key? key,
     this.onClose,
     this.toggleFullscreen,
     this.onController,
     this.isFullscreen,
     this.onError,
     this.showInterfaceFor,
-  });
+  }) : super(key: key);
 
   /// URL of the video to display.
   final String url;
@@ -71,15 +72,13 @@ class Video extends StatefulWidget {
 
 /// State of a [Video] used to initialize and dispose video controller.
 class _VideoState extends State<Video> {
-  /// Height of the bottom controls bar.
-  final double _barHeight = 48.0 * 1.5;
-
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
   /// [CancelToken] for cancelling the [Video.url] header fetching.
   CancelToken? _cancelToken;
 
+  /// [MeeduPlayerController] controlling the video playback.
   final MeeduPlayerController _controller = MeeduPlayerController(
     controlsStyle: ControlsStyle.custom,
     fits: [BoxFit.contain],
@@ -129,27 +128,48 @@ class _VideoState extends State<Video> {
       duration: const Duration(milliseconds: 300),
       child: RxBuilder((_) {
         return _controller.dataStatus.loaded
-            ? Stack(
-                children: [
-                  MeeduVideoPlayer(
-                    controller: _controller,
-                    customControls: (_, __, ___) => const SizedBox(),
-                  ),
-                  PlatformUtils.isMobile
-                      ? MobileControlsView(
+            ? LayoutBuilder(builder: (_, constraints) {
+                Size? size;
+
+                if (_controller.videoPlayerController != null) {
+                  final double maxHeight = constraints.maxHeight;
+                  final double maxWidth = constraints.maxWidth;
+
+                  size = _controller.videoPlayerController!.value.size;
+
+                  if (maxHeight < size.height ||
+                      maxWidth < size.width ||
+                      widget.isFullscreen?.value == true) {
+                    final double ratio =
+                        min(maxHeight / size.height, maxWidth / size.width);
+                    size *= ratio;
+                  }
+                }
+
+                return Stack(
+                  children: [
+                    Center(
+                      child: SizedBox.fromSize(
+                        size: size,
+                        child: MeeduVideoPlayer(
                           controller: _controller,
-                          barHeight: _barHeight,
-                        )
-                      : DesktopControlsView(
-                          controller: _controller,
-                          barHeight: _barHeight,
-                          onClose: widget.onClose,
-                          toggleFullscreen: widget.toggleFullscreen,
-                          isFullscreen: widget.isFullscreen?.value,
-                          showInterfaceFor: widget.showInterfaceFor,
+                          customControls: (_, __, ___) => const SizedBox(),
                         ),
-                ],
-              )
+                      ),
+                    ),
+                    PlatformUtils.isMobile
+                        ? MobileControls(controller: _controller)
+                        : DesktopControls(
+                            controller: _controller,
+                            onClose: widget.onClose,
+                            toggleFullscreen: widget.toggleFullscreen,
+                            isFullscreen: widget.isFullscreen,
+                            showInterfaceFor: widget.showInterfaceFor,
+                            size: size,
+                          ),
+                  ],
+                );
+              })
             : _controller.dataStatus.error
                 ? Center(
                     key: const Key('Error'),
@@ -213,7 +233,7 @@ class _VideoState extends State<Video> {
     Backoff.run(
       () async {
         try {
-          await PlatformUtils.dio.head(widget.url);
+          await (PlatformUtils.dio).head(widget.url);
           if (shouldReload) {
             // Reinitialize the [_controller] if an unexpected error was thrown.
             await _controller.setDataSource(
