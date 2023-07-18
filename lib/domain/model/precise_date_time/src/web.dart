@@ -72,7 +72,7 @@ class PreciseDateTime extends NewType<DateTime>
   @override
   bool operator ==(Object other) =>
       other is PreciseDateTime &&
-          microsecondsSinceEpoch == other.microsecondsSinceEpoch;
+      microsecondsSinceEpoch == other.microsecondsSinceEpoch;
 
   /// Returns `true` if this [PreciseDateTime] occurs before [other].
   ///

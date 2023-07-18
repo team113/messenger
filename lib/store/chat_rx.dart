@@ -601,7 +601,7 @@ class HiveRxChat extends RxChat {
       await _local.init(userId: me);
 
       for (var e in saved) {
-        if(e is HiveChatMessage) {
+        if (e is HiveChatMessage) {
           // Create new [HiveChatMessage] because [saved] messages is connected
           // to another [ChatItemHiveProvider].
           e = HiveChatMessage(e.value, e.cursor, e.ver, e.repliesToCursors);
@@ -1127,7 +1127,7 @@ class HiveRxChat extends RxChat {
 
                 if (event.byUser.id == me) {
                   final key = _local.keys.lastWhereOrNull(
-                        (e) => e.at == at,
+                    (e) => e.at == at,
                   );
                   if (key != null) {
                     final HiveChatItem? item = await _local.get(key);
