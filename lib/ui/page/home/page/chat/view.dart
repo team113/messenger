@@ -590,22 +590,20 @@ class _ChatViewState extends State<ChatView>
         }
 
         previousSame = (previous is ChatMessageElement &&
-                previous.item.value.authorId == author &&
+                previous.item.value.author.id == author &&
                 element.id.at.val
                         .difference(previous.item.value.at.val)
                         .abs() <=
                     const Duration(minutes: 5)) ||
             (previous is ChatCallElement &&
-                previous.item.value.authorId == author &&
+                previous.item.value.author.id == author &&
                 element.id.at.val
                         .difference(previous.item.value.at.val)
                         .abs() <=
                     const Duration(minutes: 5)) ||
             (previous is ChatForwardElement &&
                 previous.authorId == author &&
-                element.id.at.val
-                        .difference(previous.id.at.val)
-                        .abs() <=
+                element.id.at.val.difference(previous.id.at.val).abs() <=
                     const Duration(minutes: 5));
       }
     }
@@ -818,11 +816,13 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
-        child: TimeLabelWidget(
-          element.id.at.val,
-          animation: _animation,
-          opacity: c.stickyIndex.value == i && c.showSticky.isFalse ? 0 : 1,
-        ),
+        child: Obx(() {
+          return TimeLabelWidget(
+            element.id.at.val,
+            animation: _animation,
+            opacity: c.stickyIndex.value == i && c.showSticky.isFalse ? 0 : 1,
+          );
+        }),
       );
     } else if (element is UnreadMessagesElement) {
       return SelectionContainer.disabled(child: UnreadLabel(c.unreadMessages));

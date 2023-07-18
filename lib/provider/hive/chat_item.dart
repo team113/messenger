@@ -148,7 +148,7 @@ class HiveChatMessage extends HiveChatItem {
     super.value,
     super.cursor,
     super.ver,
-    this.repliesToCursor,
+    this.repliesToCursors,
   );
 
   /// Constructs a [HiveChatMessage] in a [SendingStatus.sending] state.
@@ -179,7 +179,7 @@ class HiveChatMessage extends HiveChatItem {
 
   /// Cursors of the [ChatMessage.repliesTo] list.
   @HiveField(3)
-  List<ChatItemsCursor?>? repliesToCursor;
+  List<ChatItemsCursor?>? repliesToCursors;
 }
 
 /// Persisted in [Hive] storage [ChatForward]'s [value].

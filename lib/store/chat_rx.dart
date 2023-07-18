@@ -601,8 +601,13 @@ class HiveRxChat extends RxChat {
       await _local.init(userId: me);
 
       for (var e in saved) {
-        e.value.chatId = newChat.id;
-        _local.put(e);
+        if(e is HiveChatMessage) {
+          // Create new [HiveChatMessage] because [saved] messages is connected
+          // to another [ChatItemHiveProvider].
+          e = HiveChatMessage(e.value, e.cursor, e.ver, e.repliesToCursors);
+          e.value.chatId = newChat.id;
+          await _local.put(e);
+        }
       }
 
       _initLocalSubscription();
