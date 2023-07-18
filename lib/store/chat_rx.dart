@@ -366,22 +366,29 @@ class HiveRxChat extends RxChat {
       unreadCount.value = messages.skip(messages.length - readUntil).length;
     }
 
-    _readTimer?.cancel();
-    _readTimer = AwaitableTimer(
+    final ChatItemId? lastReadItem = chat.value.lastReadItem;
+    if (lastReadItem != untilId) {
+      chat.update((e) => e?..lastReadItem = untilId);
+
+      _readTimer?.cancel();
+      _readTimer = AwaitableTimer(
         chat.value.lastItem?.id == untilId
             ? Duration.zero
-            : const Duration(seconds: 1), () async {
-      try {
-        await _chatRepository.readUntil(id, untilId);
-      } catch (_) {
-        unreadCount.value = chat.value.unreadCount;
-        rethrow;
-      } finally {
-        _readTimer = null;
-      }
-    });
-
-    await _readTimer?.future;
+            : const Duration(seconds: 1),
+        () async {
+          try {
+            await _chatRepository.readUntil(id, untilId);
+          } catch (_) {
+            chat.update((e) => e?..lastReadItem = lastReadItem);
+            unreadCount.value = chat.value.unreadCount;
+            rethrow;
+          } finally {
+            _readTimer = null;
+          }
+        },
+      );
+      await _readTimer?.future;
+    }
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
