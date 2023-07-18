@@ -583,7 +583,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
   });
 }
 
-/// Returns addable list of [MyUser.emails].
+/// Returns addable list of [MyUser.phones].
 Widget _phones(MyProfileController c, BuildContext context) {
   final (style, fonts) = Theme.of(context).styles;
 
