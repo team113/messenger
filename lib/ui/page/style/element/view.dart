@@ -60,6 +60,9 @@ class ElementStyleTabView extends StatelessWidget {
           const SmallHeader(label: 'Navigation'),
           const NavigationWidget(),
           const Divider(),
+
+          /// TODO: remove
+          const SizedBox(height: 700),
         ],
       ),
     );

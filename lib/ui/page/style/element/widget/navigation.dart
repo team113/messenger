@@ -32,7 +32,7 @@ class NavigationWidget extends StatelessWidget {
     final (style, fonts) = Theme.of(context).styles;
 
     return Container(
-      height: 300,
+      height: 160,
       width: double.infinity,
       decoration: BoxDecoration(
         color: style.colors.onPrimary,
