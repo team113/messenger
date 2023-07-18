@@ -317,9 +317,16 @@ class ChatDirectLinkSlug extends NewType<String> {
     final Random r = Random();
     const String chars =
         'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890_-';
-    return ChatDirectLinkSlug(
-      List.generate(length, (_) => chars[r.nextInt(chars.length)]).join(),
-    );
+    String generatedString =
+        List.generate(length, (_) => chars[r.nextInt(chars.length)]).join();
+
+    if (generatedString.endsWith('-')) {
+      String randomChar = chars[r.nextInt(chars.length)].replaceAll('-', '');
+      generatedString =
+          generatedString.substring(0, generatedString.length - 1) + randomChar;
+    }
+
+    return ChatDirectLinkSlug(generatedString);
   }
 
   /// Regular expression for basic [ChatDirectLinkSlug] validation.
