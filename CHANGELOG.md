@@ -6,7 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.9] · 2023-??-??
+## [0.1.0-alpha.9] · 2023-07-17
 [0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
 
 [Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
@@ -31,7 +31,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Unread chats badge on favicon. ([#403])
 - Desktop:
-    - Video support. ([#468], [#445], [#438])
+    - Video playback. ([#468], [#445], [#438])
 - Mobile:
     - Video rewinding indication. ([#468], [#452])
 
@@ -73,7 +73,6 @@ All user visible changes to this project will be documented in this file. This p
 [#118]: /../../pull/118
 [#258]: /../../issues/258
 [#264]: /../../issues/264
-[#367]: /../../issues/367
 [#270]: /../../pull/270
 [#281]: /../../issues/281
 [#286]: /../../pull/286
@@ -81,10 +80,11 @@ All user visible changes to this project will be documented in this file. This p
 [#333]: /../../pull/333
 [#344]: /../../issues/344
 [#348]: /../../issues/348
+[#356]: /../../pull/356
 [#357]: /../../pull/357
 [#361]: /../../pull/361
 [#362]: /../../pull/362
-[#356]: /../../pull/356
+[#367]: /../../issues/367
 [#371]: /../../issues/371
 [#375]: /../../pull/375
 [#377]: /../../issues/377
