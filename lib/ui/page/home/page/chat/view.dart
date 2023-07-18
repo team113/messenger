@@ -834,7 +834,7 @@ class _ChatViewState extends State<ChatView>
           child = Center(
             key: const ValueKey(1),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+              padding: EdgeInsets.only(top: 10, bottom: isLast ? 0 : 10),
               child: ConstrainedBox(
                 constraints: BoxConstraints.tight(const Size.square(40)),
                 child: Center(
