@@ -39,7 +39,7 @@ abstract class ChatItemQuote {
   factory ChatItemQuote.from(ChatItem item) {
     if (item is ChatMessage) {
       return ChatMessageQuote(
-        author: item.authorId,
+        author: item.author.id,
         at: item.at,
         attachments: item.attachments,
         text: item.text,
@@ -47,13 +47,13 @@ abstract class ChatItemQuote {
       );
     } else if (item is ChatCall) {
       return ChatCallQuote(
-        author: item.authorId,
+        author: item.author.id,
         at: item.at,
         original: item,
       );
     } else if (item is ChatInfo) {
       return ChatInfoQuote(
-        author: item.authorId,
+        author: item.author.id,
         at: item.at,
         action: item.action,
         original: item,

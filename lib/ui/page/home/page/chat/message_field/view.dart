@@ -964,7 +964,7 @@ class MessageFieldView extends StatelessWidget {
   }) {
     final (style, fonts) = Theme.of(context).styles;
 
-    final bool fromMe = item.authorId == c.me;
+    final bool fromMe = item.author.id == c.me;
 
     if (edited) {
       return MouseRegion(
@@ -1072,7 +1072,7 @@ class MessageFieldView extends StatelessWidget {
               .localizedString();
         }
       } else {
-        title = item.authorId == c.me
+        title = item.author.id == c.me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
@@ -1162,7 +1162,7 @@ class MessageFieldView extends StatelessWidget {
       );
     } else {
       expanded = FutureBuilder<RxUser?>(
-        future: c.getUser(item.authorId),
+        future: c.getUser(item.author.id),
         builder: (context, snapshot) {
           final Color color = snapshot.data?.user.value.id == c.me
               ? style.colors.primary

@@ -26,7 +26,6 @@ import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
-import '/domain/model/gallery_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -137,32 +136,7 @@ mixin UserGraphQlMixin {
     return UpdateUserName$Mutation.fromJson(res.data!).updateUserName;
   }
 
-  /// Updates [MyUser.bio] field for the authenticated [MyUser].
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserBioUpdated] (if [bio] argument is specified);
-  /// - [EventUserBioDeleted] (if [bio] argument is absent or is `null`).
-  ///
-  /// ### Idempotent
-  ///
-  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [bio] already.
-  Future<MyUserEventsVersionedMixin?> updateUserBio(UserBio? bio) async {
-    final variables = UpdateUserBioArguments(bio: bio);
-    QueryResult res = await client.mutate(
-      MutationOptions(
-        document: UpdateUserBioMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-    );
-    return UpdateUserBio$Mutation.fromJson(res.data!).updateUserBio;
-  }
+
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   ///
@@ -795,8 +769,12 @@ mixin UserGraphQlMixin {
         .deleteChatDirectLink as MyUserEventsVersionedMixin?;
   }
 
-  /// Updates or resets the [MyUser.avatar] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated MyUser.
+  /// Updates or resets the [MyUser.avatar] field with the provided image
+  /// [file].
+  ///
+  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
+  /// containing the uploaded file and the file argument itself must be `null`,
+  /// otherwise this mutation will fail.
   ///
   /// ### Authentication
   ///
@@ -805,33 +783,75 @@ mixin UserGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserAvatarUpdated] (if [id] argument is specified);
-  /// - [EventUserAvatarDeleted] (if [id] argument is absent or is `null`).
+  /// - [EventUserAvatarUpdated] (if image [file] is provided);
+  /// - [EventUserAvatarDeleted] (if image [file] is not provided).
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [GalleryItem] with the same crop area as
-  /// his avatar already.
+  /// [MyUser] uses the specified image [file] already as his avatar with the
+  /// same crop area.
   Future<MyUserEventsVersionedMixin?> updateUserAvatar(
-      GalleryItemId? id, CropAreaInput? crop) async {
-    final variables = UpdateUserAvatarArguments(id: id, crop: crop);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'UpdateUserAvatar',
-        document: UpdateUserAvatarMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => UpdateUserAvatarException(
-          UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
-              as UpdateUserAvatarErrorCode),
+    dio.MultipartFile? file,
+    CropAreaInput? crop, {
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    final variables = UpdateUserAvatarArguments(file: null, crop: crop);
+    final query = MutationOptions(
+      operationName: 'UpdateUserAvatar',
+      document: UpdateUserAvatarMutation(variables: variables).document,
+      variables: variables.toJson(),
     );
-    return (UpdateUserAvatar$Mutation.fromJson(result.data!).updateUserAvatar
-        as MyUserEventsVersionedMixin?);
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    try {
+      var response = await client.post(
+        file == null
+            ? encodedBody
+            : dio.FormData.fromMap({
+                'operations': encodedBody,
+                'map': '{ "file": ["variables.upload"] }',
+                'file': file,
+              }),
+        options: file == null
+            ? null
+            : dio.Options(contentType: 'multipart/form-data'),
+        onSendProgress: onSendProgress,
+        onException: (data) => UpdateUserAvatarException(
+          (UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
+                  as UpdateUserAvatar$Mutation$UpdateUserAvatar$UpdateUserAvatarError)
+              .code,
+        ),
+      );
+
+      if (response.data['data'] == null) {
+        throw GraphQlException(
+          [GraphQLError(message: response.data.toString())],
+        );
+      }
+
+      return (UpdateUserAvatar$Mutation.fromJson(response.data['data'])
+          .updateUserAvatar as MyUserEventsVersionedMixin?);
+    } on dio.DioError catch (e) {
+      if (e.response?.statusCode == 413) {
+        throw const UpdateUserAvatarException(
+          UpdateUserAvatarErrorCode.tooBigSize,
+        );
+      }
+
+      rethrow;
+    }
   }
 
-  /// Updates or resets the [MyUser.callCover] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
+  /// Updates or resets the [MyUser.callCover] field with the provided image
+  /// [file].
+  ///
+  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
+  /// containing the uploaded file and the file argument itself must be `null`,
+  /// otherwise this mutation will fail.
   ///
   /// ### Authentication
   ///
@@ -840,29 +860,67 @@ mixin UserGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserCallCoverUpdated] (if [id] argument is specified);
-  /// - [EventUserCallCoverDeleted] (if [id] argument is absent or is `null`).
+  /// - [EventUserCallCoverUpdated] (if image [file] is provided);
+  /// - [EventUserCallCoverDeleted] (if image [file] is not provided).
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [GalleryItem] with the same crop area as his
-  /// callCover already.
+  /// [MyUser] uses the specified image [file] already as his callCover with the
+  /// same crop area.
   Future<MyUserEventsVersionedMixin?> updateUserCallCover(
-      GalleryItemId? id, CropAreaInput? crop) async {
-    final variables = UpdateUserCallCoverArguments(id: id, crop: crop);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'UpdateUserCallCover',
-        document: UpdateUserCallCoverMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => UpdateUserCallCoverException(
-          UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
-              as UpdateUserCallCoverErrorCode),
+    dio.MultipartFile? file,
+    CropAreaInput? crop, {
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    final variables = UpdateUserCallCoverArguments(file: null, crop: crop);
+    final query = MutationOptions(
+      operationName: 'UpdateUserCallCover',
+      document: UpdateUserCallCoverMutation(variables: variables).document,
+      variables: variables.toJson(),
     );
-    return (UpdateUserCallCover$Mutation.fromJson(result.data!)
-        .updateUserCallCover as MyUserEventsVersionedMixin?);
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    try {
+      var response = await client.post(
+        file == null
+            ? encodedBody
+            : dio.FormData.fromMap({
+                'operations': encodedBody,
+                'map': '{ "file": ["variables.upload"] }',
+                'file': file,
+              }),
+        options: file == null
+            ? null
+            : dio.Options(contentType: 'multipart/form-data'),
+        onSendProgress: onSendProgress,
+        onException: (data) => UpdateUserCallCoverException(
+          (UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
+                  as UpdateUserCallCover$Mutation$UpdateUserCallCover$UpdateUserCallCoverError)
+              .code,
+        ),
+      );
+
+      if (response.data['data'] == null) {
+        throw GraphQlException(
+          [GraphQLError(message: response.data.toString())],
+        );
+      }
+
+      return (UpdateUserCallCover$Mutation.fromJson(response.data['data'])
+          .updateUserCallCover as MyUserEventsVersionedMixin?);
+    } on dio.DioError catch (e) {
+      if (e.response?.statusCode == 413) {
+        throw const UpdateUserCallCoverException(
+          UpdateUserCallCoverErrorCode.tooBigSize,
+        );
+      }
+
+      rethrow;
+    }
   }
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser]. Overrides
@@ -907,95 +965,6 @@ mixin UserGraphQlMixin {
         as MyUserEventsVersionedMixin?);
   }
 
-  /// Adds a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  ///
-  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
-  /// containing the uploaded file and the file argument itself must be `null`,
-  /// otherwise this mutation will fail.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] is always produced on success:
-  /// - [EventUserGalleryItemAdded].
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Each time adds a new unique [GalleryItem].
-  Future<MyUserEventsVersionedMixin?> uploadUserGalleryItem(
-    dio.MultipartFile? galleryItem, {
-    void Function(int count, int total)? onSendProgress,
-  }) async {
-    final variables = UploadUserGalleryItemArguments(upload: null);
-    final query = MutationOptions(
-      operationName: 'UploadUserGalleryItem',
-      document: UploadUserGalleryItemMutation(variables: variables).document,
-      variables: variables.toJson(),
-    );
-
-    final request = query.asRequest;
-    final body = const RequestSerializer().serializeRequest(request);
-    final encodedBody = json.encode(body);
-
-    try {
-      var response = await client.post(
-        dio.FormData.fromMap({
-          'operations': encodedBody,
-          'map': '{ "file": ["variables.upload"] }',
-          'file': galleryItem,
-        }),
-        options: dio.Options(contentType: 'multipart/form-data'),
-        onSendProgress: onSendProgress,
-        onException: (data) => UploadUserGalleryItemException(
-            (UploadUserGalleryItem$Mutation.fromJson(data).uploadUserGalleryItem
-                    as UploadUserGalleryItem$Mutation$UploadUserGalleryItem$UploadUserGalleryItemError)
-                .code),
-      );
-
-      return (UploadUserGalleryItem$Mutation.fromJson(response.data['data'])
-          .uploadUserGalleryItem as MyUserEventsVersionedMixin?);
-    } on dio.DioError catch (e) {
-      if (e.response?.statusCode == 413) {
-        throw const UploadUserGalleryItemException(
-          UploadUserGalleryItemErrorCode.tooBigSize,
-        );
-      }
-
-      rethrow;
-    }
-  }
-
-  /// Removes the specified [GalleryItem] from the authenticated [MyUser]'s
-  /// gallery.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] may be produced on success:
-  /// - [EventUserGalleryItemDeleted].
-  ///
-  /// ### Idempotent
-  ///
-  /// Succeeds as no-op (and returns no [MyUserEvent]) if the specified
-  /// [GalleryItem] was deleted already (or if it never existed).
-  Future<MyUserEventsVersionedMixin?> deleteUserGalleryItem(
-      GalleryItemId id) async {
-    final variables = DeleteUserGalleryItemArguments(id: id);
-    final QueryResult result = await client.mutate(MutationOptions(
-      operationName: 'DeleteUserGalleryItem',
-      document: DeleteUserGalleryItemMutation(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return DeleteUserGalleryItem$Mutation.fromJson(result.data!)
-        .deleteUserGalleryItem;
-  }
-
   /// Keeps the authenticated [MyUser] online while subscribed.
   ///
   /// Keep this subscription up while the authenticated [MyUser] should be
@@ -1034,12 +1003,12 @@ mixin UserGraphQlMixin {
     );
   }
 
-  /// Blacklists the specified [User] for the authenticated [MyUser].
+  /// Blocks the specified [User] for the authenticated [MyUser].
   ///
-  /// Blacklisted [User]s are not able to communicate with the authenticated
-  /// [MyUser] directly (in [Chat]-dialogs).
+  /// Blocked [User]s are not able to communicate with the authenticated
+  /// [MyUser] directly (in [Chat]-dialogs) and add him to [Chat]-groups.
   ///
-  /// [MyUser]'s blacklist can be obtained via `Query.blacklist`.
+  /// [MyUser]'s blocklist can be obtained via [getBlocklist].
   ///
   /// ### Authentication
   ///
@@ -1047,36 +1016,37 @@ mixin UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [BlacklistEvent] may be produced on success:
-  /// - [EventBlacklistRecordAdded].
+  /// Only the following BlocklistEvent may be produced on success:
+  /// - [EventBlocklistRecordAdded].
   ///
   /// ### Idempotent
   ///
-  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
-  /// [User] is blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> blacklistUser(
+  /// Succeeds as no-op (and returns no [BlocklistEvent]) if the specified
+  /// [User] is blocked by the authenticated [MyUser] already with the same
+  /// [BlocklistReason].
+  Future<BlocklistEventsVersionedMixin?> blockUser(
     UserId id,
-    BlacklistReason? reason,
+    BlocklistReason? reason,
   ) async {
-    final variables = BlacklistUserArguments(id: id, reason: reason);
+    final variables = BlockUserArguments(id: id, reason: reason);
     final QueryResult result = await client.mutate(
       MutationOptions(
-        operationName: 'BlacklistUser',
-        document: BlacklistUserMutation(variables: variables).document,
+        operationName: 'BlockUser',
+        document: BlockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => BlacklistUserException(
-          BlacklistUser$Mutation.fromJson(data).blacklistUser
-              as BlacklistUserErrorCode),
+      onException: (data) => BlockUserException(
+        BlockUser$Mutation.fromJson(data).blockUser as BlockUserErrorCode,
+      ),
     );
-    return BlacklistUser$Mutation.fromJson(result.data!).blacklistUser
-        as BlacklistEventsVersionedMixin?;
+    return BlockUser$Mutation.fromJson(result.data!).blockUser
+        as BlocklistEventsVersionedMixin?;
   }
 
-  /// Removes the specified [User] from the blacklist of the authenticated
+  /// Removes the specified [User] from the blocklist of the authenticated
   /// [MyUser].
   ///
-  /// Reverses the action of [blacklistUser].
+  /// Reverses the action of [blockUser].
   ///
   /// ### Authentication
   ///
@@ -1084,57 +1054,54 @@ mixin UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [BlacklistEvent] may be produced on success:
-  /// - [EventBlacklistRecordRemoved].
+  /// Only the following [BlocklistEvent] may be produced on success:
+  /// - [EventBlocklistRecordRemoved].
   ///
-  /// ### Idempotent
+  /// Idempotent
   ///
-  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
-  /// [User] is not blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> unblacklistUser(UserId id) async {
-    final variables = UnblacklistUserArguments(id: id);
+  /// Succeeds as no-op (and returns no [BlocklistEvent]) if the specified
+  /// [User] is not blocked by the authenticated [MyUser] already.
+  Future<BlocklistEventsVersionedMixin?> unblockUser(UserId id) async {
+    final variables = UnblockUserArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
-        operationName: 'UnblacklistUser',
-        document: UnblacklistUserMutation(variables: variables).document,
+        operationName: 'UnblockUser',
+        document: UnblockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UnblacklistUserException(
-          UnblacklistUser$Mutation.fromJson(data).unblacklistUser
-              as UnblacklistUserErrorCode),
+      onException: (data) => UnblockUserException(
+        UnblockUser$Mutation.fromJson(data).unblockUser as UnblockUserErrorCode,
+      ),
     );
-    return UnblacklistUser$Mutation.fromJson(result.data!).unblacklistUser
-        as BlacklistEventsVersionedMixin?;
+    return UnblockUser$Mutation.fromJson(result.data!).unblockUser
+        as BlocklistEventsVersionedMixin?;
   }
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
+  /// Returns [User]s blocked by this [MyUser] as [BlocklistRecord]s.
   ///
   /// ### Sorting
   ///
-  /// Returned [User]s are sorted primarily by their blacklisting [DateTime],
-  /// and secondary by their IDs (if the blacklisting [DateTime] is the same),
-  /// in descending order.
+  /// Returned [User]s are sorted primarily by their blocking [DateTime], and
+  /// secondary by their IDs (if the blocking [DateTime] is the same), in
+  /// descending order.
   ///
   /// ### Pagination
   ///
   /// It's allowed to specify both [first] and [last] counts at the same time,
   /// provided that [after] and [before] cursors are equal. In such case the
-  /// returned page will include the [User] pointed by the cursor and the
-  /// requested count of [User]s preceding and following it.
+  /// returned page will include the [BlocklistRecord] pointed by the cursor and
+  /// the requested count of [BlocklistRecord]s preceding and following it.
   ///
-  /// If it's desired to receive the [User], pointed by the cursor, without
-  /// querying in both directions, one can specify [first] or [last] count as 0.
-  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+  /// If it's desired to receive the [BlocklistRecord], pointed by the cursor,
+  /// without querying in both directions, one can specify [first] or [last]
+  /// count as 0.
+  Future<GetBlocklist$Query$Blocklist> getBlocklist({
     int? first,
-    BlacklistCursor? after,
+    BlocklistCursor? after,
     int? last,
-    BlacklistCursor? before,
+    BlocklistCursor? before,
   }) async {
-    final variables = GetBlacklistArguments(
+    final variables = GetBlocklistArguments(
       first: first,
       after: after,
       last: last,
@@ -1142,12 +1109,12 @@ mixin UserGraphQlMixin {
     );
     final QueryResult result = await client.query(
       QueryOptions(
-        operationName: 'GetBlacklist',
-        document: GetBlacklistQuery(variables: variables).document,
+        operationName: 'GetBlocklist',
+        document: GetBlocklistQuery(variables: variables).document,
         variables: variables.toJson(),
       ),
     );
-    return GetBlacklist$Query.fromJson(result.data!).blacklist;
+    return GetBlocklist$Query.fromJson(result.data!).blocklist;
   }
 
   /// Registers a device (Android, iOS, or Web) for receiving notifications via

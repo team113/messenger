@@ -704,7 +704,7 @@ class ContactsTabView extends StatelessWidget {
             final dialog = contact.user.value?.dialog.value;
 
             if (dialog?.chat.value.muted == null ||
-                contact.user.value?.user.value.isBlacklisted != null) {
+                contact.user.value?.user.value.isBlocked != null) {
               return const SizedBox();
             }
 
@@ -721,7 +721,7 @@ class ContactsTabView extends StatelessWidget {
             );
           }),
           Obx(() {
-            if (contact.user.value?.user.value.isBlacklisted == null) {
+            if (contact.user.value?.user.value.isBlocked == null) {
               return const SizedBox();
             }
 

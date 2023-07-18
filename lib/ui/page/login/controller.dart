@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
@@ -32,7 +31,6 @@ import '/provider/gql/exceptions.dart'
         ConfirmUserEmailException,
         ConnectionException,
         CreateSessionException,
-        RecoverUserPasswordException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
@@ -356,8 +354,6 @@ class LoginController extends GetxController {
       recovery.error.value = 'err_account_not_found'.l10n;
     } on ArgumentError {
       recovery.error.value = 'err_account_not_found'.l10n;
-    } on RecoverUserPasswordException catch (e) {
-      recovery.error.value = e.toMessage();
     } catch (e) {
       recovery.unsubmit();
       recovery.error.value = 'err_data_transfer'.l10n;

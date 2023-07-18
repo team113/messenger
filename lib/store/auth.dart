@@ -51,11 +51,6 @@ class AuthRepository implements AbstractAuthRepository {
   void applyToken() => _graphQlProvider.reconnect();
 
   @override
-  Future<bool> checkUserIdentifiable(UserLogin? login, UserNum? num,
-          UserEmail? email, UserPhone? phone) async =>
-      await _graphQlProvider.checkUserIdentifiable(login, num, email, phone);
-
-  @override
   Future<Credentials> signUp() async {
     var response = await _graphQlProvider.signUp();
     return Credentials(
@@ -104,7 +99,7 @@ class AuthRepository implements AbstractAuthRepository {
   Future<void> validateToken() async => await _graphQlProvider.validateToken();
 
   @override
-  Future<Credentials> renewSession(RememberToken token) =>
+  Future<Credentials> renewSession(RefreshToken token) =>
       _graphQlProvider.clientGuard.protect(() async {
         var response = (await _graphQlProvider.renewSession(token)).renewSession
             as RenewSession$Mutation$RenewSession$RenewSessionOk;

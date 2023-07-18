@@ -186,7 +186,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.fmt check=$(check) dockerized=no
 else
-	flutter format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
+	dart format $(if $(call eq,$(check),yes),-o none --set-exit-if-changed,) .
 endif
 
 
@@ -202,6 +202,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.gen overwrite=$(overwrite) dockerized=no
 else
+	rm -f lib/pubspec.g.dart
 	dart run build_runner build \
 		$(if $(call eq,$(overwrite),no),,--delete-conflicting-outputs)
 endif

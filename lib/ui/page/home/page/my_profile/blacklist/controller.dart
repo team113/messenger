@@ -72,11 +72,11 @@ class BlacklistController extends GetxController {
   }
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  Future<void> unblacklist(RxUser user) async {
+  Future<void> unblock(RxUser user) async {
     if (blacklist.length == 1) {
       pop?.call();
     }
 
-    await _userService.unblacklistUser(user.id);
+    await _userService.unblockUser(user.id);
   }
 }

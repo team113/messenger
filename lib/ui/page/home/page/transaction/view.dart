@@ -428,7 +428,7 @@ class TransactionView extends StatelessWidget {
                       DataAttachment(
                         FileAttachment(
                           id: const AttachmentId('id'),
-                          original: StorageFile(
+                          original: PlainFile(
                             relativeRef: 'resume.pdf',
                             size: 200000,
                           ),

@@ -15,9 +15,14 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation UpdateUserBio($bio: UserBio) {
-    updateUserBio(bio: $bio) {
+mutation BlockUser($id: UserId!, $reason: BlocklistReason) {
+    blockUser(id: $id, reason: $reason) {
         __typename
-        ...MyUserEventsVersioned
+        ... on BlocklistEventsVersioned {
+            ...BlocklistEventsVersioned
+        }
+        ... on BlockUserError {
+            code
+        }
     }
 }

@@ -17,35 +17,32 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
-import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
@@ -476,7 +473,10 @@ class MyProfileController extends GetxController {
         welcome.value = ChatMessage(
           welcome.value?.id ?? ChatItemId.local(),
           welcome.value?.chatId ?? const ChatId('123'),
-          welcome.value?.authorId ?? myUser.value!.id,
+          User(
+            welcome.value?.author.id ?? myUser.value!.id,
+            welcome.value?.author.num ?? myUser.value!.num,
+          ),
           welcome.value?.at ?? PreciseDateTime.now(),
           text: ChatMessageText(send.field.text),
           attachments: send.attachments.map((e) => e.value).toList(),
@@ -554,27 +554,9 @@ class MyProfileController extends GetxController {
         withReadStream: true,
       );
 
-      if (result != null) {
+      if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
-
-        final List<Future> futures = [];
-        for (var e in List<ImageGalleryItem>.from(
-          myUser.value?.gallery ?? [],
-          growable: false,
-        ).map((e) => e.id)) {
-          futures.add(_myUserService.deleteGalleryItem(e));
-        }
-
-        List<Future<ImageGalleryItem?>> uploads = result.files
-            .map((e) => NativeFile.fromPlatformFile(e))
-            .map((e) => _myUserService.uploadGalleryItem(e))
-            .toList();
-        ImageGalleryItem? item = (await Future.wait(uploads)).firstOrNull;
-        if (item != null) {
-          futures.add(_updateAvatar(item.id));
-        }
-
-        await Future.wait(futures);
+        await _updateAvatar(NativeFile.fromPlatformFile(result!.files.first));
       }
     } finally {
       avatarUpload.value = RxStatus.empty();
@@ -620,15 +602,16 @@ class MyProfileController extends GetxController {
   Future<void> setLeaveWhenAlone(bool enabled) =>
       _settingsRepo.setLeaveWhenAlone(enabled);
 
-  /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
-  /// with the provided [id].
+  /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
-  /// If [id] is `null`, then deletes the [MyUser.avatar] and
+  /// If [file] is `null`, then deletes the [MyUser.avatar] and
   /// [MyUser.callCover].
-  Future<void> _updateAvatar(GalleryItemId? id) async {
+  Future<void> _updateAvatar(NativeFile? file) async {
     try {
-      await _myUserService.updateAvatar(id);
-      await _myUserService.updateCallCover(id);
+      await Future.wait([
+        _myUserService.updateAvatar(file),
+        _myUserService.updateCallCover(file)
+      ]);
     } on UpdateUserAvatarException catch (e) {
       MessagePopup.error(e);
     } on UpdateUserCallCoverException catch (e) {

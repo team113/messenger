@@ -16,10 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/widget/animated_button.dart';
 
 import '/themes.dart';
-import '/ui/widget/widget_button.dart';
+import '/ui/widget/animated_button.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
@@ -46,16 +45,14 @@ class StyledBackButton extends StatelessWidget {
     // );
 
     if (ModalRoute.of(context)?.canPop == true) {
-      return WidgetButton(
+      return AnimatedButton(
         onPressed: onPressed ?? () => Navigator.maybePop(context),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: AnimatedButton(
-            child: Icon(
-              Icons.arrow_back_ios_rounded,
-              color: style.colors.primary,
-              size: 22,
-            ),
+          child: Icon(
+            Icons.arrow_back_ios_rounded,
+            color: style.colors.primary,
+            size: 22,
           ),
         ),
         // child: SvgImage.asset(

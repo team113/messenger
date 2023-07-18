@@ -15,14 +15,17 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation BlacklistUser($id: UserId!, $reason: BlacklistReason) {
-    blacklistUser(id: $id, reason: $reason) {
+fragment BlocklistEventsVersioned on BlocklistEventsVersioned {
+    events {
         __typename
-        ... on BlacklistEventsVersioned {
-            ...BlacklistEventsVersioned
+        user {
+            ...User
+            __typename
         }
-        ... on BlacklistUserError {
-            code
+        at
+        ... on EventBlocklistRecordAdded {
+            reason
         }
     }
+    myVer: ver
 }

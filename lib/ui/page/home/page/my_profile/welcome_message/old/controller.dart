@@ -99,7 +99,7 @@ class WelcomeMessageController extends GetxController {
         message.value = ChatMessage(
           ChatItemId.local(),
           const ChatId('123'),
-          me!,
+          User(me!, UserNum('1234123412341234')),
           PreciseDateTime.now(),
           text: ChatMessageText(send.field.text),
           attachments: send.attachments.map((e) => e.value).toList(),

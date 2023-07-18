@@ -15,9 +15,14 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation DeleteUserGalleryItem($id: GalleryItemId!) {
-    deleteUserGalleryItem(id: $id) {
+mutation UnblockUser($id: UserId!) {
+    unblockUser(id: $id) {
         __typename
-        ...MyUserEventsVersioned
+        ... on BlocklistEventsVersioned {
+            ...BlocklistEventsVersioned
+        }
+        ... on UnblockUserError {
+            code
+        }
     }
 }

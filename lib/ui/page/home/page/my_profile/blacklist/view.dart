@@ -85,7 +85,7 @@ class BlacklistView extends StatelessWidget {
                           subtitle: [
                             const SizedBox(height: 5),
                             Text(
-                              user.user.value.isBlacklisted!.at.val.yMd,
+                              user.user.value.isBlocked!.at.val.yMd,
                               style: fonts.bodySmall!.copyWith(
                                 color: style.colors.secondary,
                               ),
@@ -93,7 +93,7 @@ class BlacklistView extends StatelessWidget {
                           ],
                           trailing: [
                             WidgetButton(
-                              onPressed: () => c.unblacklist(user),
+                              onPressed: () => c.unblock(user),
                               child: Text(
                                 'btn_unblock_short'.l10n,
                                 style: fonts.bodySmall!.copyWith(

@@ -35,7 +35,7 @@ abstract class ChatItem {
   ChatItem(
     this.id,
     this.chatId,
-    this.authorId,
+    this.author,
     this.at, {
     SendingStatus? status,
   }) : status = Rx(
@@ -50,9 +50,9 @@ abstract class ChatItem {
   @HiveField(1)
   ChatId chatId;
 
-  /// ID of the [User] who posted this [ChatItem].
+  /// [User] who posted this [ChatItem].
   @HiveField(2)
-  final UserId authorId;
+  final User author;
 
   /// [PreciseDateTime] when this [ChatItem] was posted.
   @HiveField(3)
@@ -73,7 +73,7 @@ class ChatMessage extends ChatItem {
   ChatMessage(
     super.id,
     super.chatId,
-    super.authorId,
+    super.author,
     super.at, {
     super.status,
     this.repliesTo = const [],
@@ -108,7 +108,7 @@ class ChatMessage extends ChatItem {
   }
 
   /// Indicates whether the [other] message shares the same [text], [repliesTo],
-  /// [authorId], [chatId] and [attachments] as this [ChatMessage].
+  /// [author], [chatId] and [attachments] as this [ChatMessage].
   bool isEquals(ChatMessage other) {
     return text == other.text &&
         repliesTo.every(
@@ -120,7 +120,7 @@ class ChatMessage extends ChatItem {
                 m.original?.id == e.original?.id,
           ),
         ) &&
-        authorId == other.authorId &&
+        author.id == other.author.id &&
         chatId == other.chatId &&
         attachments.every(
           (e) => other.attachments.any(
@@ -138,7 +138,7 @@ class ChatForward extends ChatItem {
   ChatForward(
     super.id,
     super.chatId,
-    super.authorId,
+    super.author,
     super.at, {
     required this.quote,
   });

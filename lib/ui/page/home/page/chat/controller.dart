@@ -746,7 +746,7 @@ class ChatController extends GetxController {
           // Combine this [ChatMessage] with previous and next [ChatForward]s,
           // if it was posted less than [groupForwardThreshold] ago.
           if (previous is ChatForwardElement &&
-              previous.authorId == item.authorId &&
+              previous.authorId == item.author.id &&
               item.at.val
                       .difference(previous.forwards.last.value.at.val)
                       .abs() <
@@ -755,7 +755,7 @@ class ChatController extends GetxController {
             insert = false;
             previous.note.value = e;
           } else if (next is ChatForwardElement &&
-              next.authorId == item.authorId &&
+              next.authorId == item.author.id &&
               next.forwards.last.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold &&
               next.note.value == null) {
@@ -785,7 +785,7 @@ class ChatController extends GetxController {
           bool insert = true;
 
           if (previous is ChatForwardElement &&
-              previous.authorId == item.authorId &&
+              previous.authorId == item.author.id &&
               item.at.val
                       .difference(previous.forwards.last.value.at.val)
                       .abs() <
@@ -796,7 +796,7 @@ class ChatController extends GetxController {
             previous.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
             insert = false;
           } else if (previous is ChatMessageElement &&
-              previous.item.value.authorId == item.authorId &&
+              previous.item.value.author.id == item.author.id &&
               item.at.val.difference(previous.item.value.at.val).abs() <
                   groupForwardThreshold) {
             // Add the previous [ChatMessage] to this [ChatForwardElement.note],
@@ -804,7 +804,7 @@ class ChatController extends GetxController {
             element.note.value = previous.item;
             elements.remove(previousKey);
           } else if (next is ChatForwardElement &&
-              next.authorId == item.authorId &&
+              next.authorId == item.author.id &&
               next.forwards.first.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold) {
             // Add this [ChatForward] to next [ChatForwardElement], if it was
@@ -813,7 +813,7 @@ class ChatController extends GetxController {
             next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
             insert = false;
           } else if (next is ChatMessageElement &&
-              next.item.value.authorId == item.authorId &&
+              next.item.value.author.id == item.author.id &&
               next.item.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold) {
             // Add the next [ChatMessage] to this [ChatForwardElement.note], if
@@ -1346,7 +1346,7 @@ class ChatController extends GetxController {
       final RxUser? recipient =
           chat!.members.values.firstWhereOrNull((e) => e.id != me);
       if (recipient != null) {
-        await _userService.unblacklistUser(recipient.id);
+        await _userService.unblockUser(recipient.id);
       }
     }
   }
@@ -1477,7 +1477,7 @@ class ChatController extends GetxController {
     if (chat!.chat.value.unreadCount != 0) {
       if (myRead != null) {
         _firstUnreadItem = chat!.messages.firstWhereOrNull(
-          (e) => myRead.isBefore(e.value.at) && e.value.authorId != me,
+          (e) => myRead.isBefore(e.value.at) && e.value.author.id != me,
         );
       } else {
         _firstUnreadItem = chat!.messages.firstOrNull;
@@ -1663,7 +1663,7 @@ class ChatForwardElement extends ListElement {
     Rx<ChatItem>? note,
   })  : forwards = RxList(forwards),
         note = Rx(note),
-        authorId = forwards.first.value.authorId,
+        authorId = forwards.first.value.author.id,
         super(ListElementId(at, forwards.first.value.id));
 
   /// Forwarded [ChatItem]s.
@@ -1836,7 +1836,7 @@ extension FileAttachmentIsVideo on FileAttachment {
 extension IsChatItemEditable on ChatItem {
   /// Indicates whether this [ChatItem] is editable.
   bool isEditable(Chat chat, UserId me) {
-    if (authorId == me) {
+    if (author.id == me) {
       if (this is ChatMessage) {
         bool isRead = chat.isRead(this, me);
         return at

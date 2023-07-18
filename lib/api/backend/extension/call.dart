@@ -36,9 +36,8 @@ extension ChatCallConversion on ChatCallMixin {
   ChatCall toModel() => ChatCall(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
-        caller: caller?.toModel(),
         members: members.map((e) => e.toModel()).toList(),
         withVideo: withVideo,
         conversationStartedAt: conversationStartedAt,

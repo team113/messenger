@@ -892,8 +892,8 @@ class CallController extends GetxController {
         case OperationKind.updated:
           // if (e.key != e.oldKey && e.oldKey != null) {
           //   for (var m in [
-          //     ..._findParticipants(e.oldKey!, MediaSourceKind.Device),
-          //     ..._findParticipants(e.oldKey!, MediaSourceKind.Display),
+          //     ..._findParticipants(e.oldKey!, MediaSourceKind.device),
+          //     ..._findParticipants(e.oldKey!, MediaSourceKind.display),
           //   ]) {
           //     m.member = e.value!;
           //     print('member is now ${e.value?.id}');
@@ -1190,8 +1190,8 @@ class CallController extends GetxController {
   /// [unfocus]ing every participant in [focused].
   void center(Participant participant) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.Display) {
-      // Movement of a local [MediaSourceKind.Display] is prohibited.
+        participant.video.value?.source == MediaSourceKind.display) {
+      // Movement of a local [MediaSourceKind.display] is prohibited.
       return;
     }
 
@@ -1213,8 +1213,8 @@ class CallController extends GetxController {
   /// it's not empty, or to its `default` group otherwise.
   void focus(Participant participant) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.Display) {
-      // Movement of a local [MediaSourceKind.Display] is prohibited.
+        participant.video.value?.source == MediaSourceKind.display) {
+      // Movement of a local [MediaSourceKind.display] is prohibited.
       return;
     }
 
@@ -1237,8 +1237,8 @@ class CallController extends GetxController {
   /// Unfocuses [participant], which means putting it in its `default` group.
   void unfocus(Participant participant) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.Display) {
-      // Movement of a local [MediaSourceKind.Display] is prohibited.
+        participant.video.value?.source == MediaSourceKind.display) {
+      // Movement of a local [MediaSourceKind.display] is prohibited.
       return;
     }
 
@@ -1948,8 +1948,8 @@ class CallController extends GetxController {
   /// Puts [participant] from its `default` group to [list].
   void _putVideoTo(Participant participant, RxList<Participant> list) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.Display) {
-      // Movement of a local [MediaSourceKind.Display] is prohibited.
+        participant.video.value?.source == MediaSourceKind.display) {
+      // Movement of a local [MediaSourceKind.display] is prohibited.
       return;
     }
 
@@ -1964,8 +1964,8 @@ class CallController extends GetxController {
   void _putVideoFrom(Participant participant, RxList<Participant> list) {
     switch (participant.member.owner) {
       case MediaOwnerKind.local:
-        // Movement of [MediaSourceKind.Display] to [locals] is prohibited.
-        if (participant.video.value?.source == MediaSourceKind.Display) {
+        // Movement of [MediaSourceKind.display] to [locals] is prohibited.
+        if (participant.video.value?.source == MediaSourceKind.display) {
           break;
         }
 
@@ -2011,7 +2011,7 @@ class CallController extends GetxController {
     CallMemberId id, [
     MediaSourceKind? source,
   ]) {
-    source ??= MediaSourceKind.Device;
+    source ??= MediaSourceKind.device;
     return [
       ...locals.where((e) => e.member.id == id && e.source == source),
       ...remotes.where((e) => e.member.id == id && e.source == source),
@@ -2022,7 +2022,7 @@ class CallController extends GetxController {
 
   /// Puts the [CallMember.tracks] to the according [Participant].
   void _putMember(CallMember member) {
-    if (member.tracks.none((t) => t.source == MediaSourceKind.Device)) {
+    if (member.tracks.none((t) => t.source == MediaSourceKind.device)) {
       _putParticipant(member, null);
     }
 
@@ -2039,17 +2039,17 @@ class CallController extends GetxController {
     final Iterable<Participant> participants =
         _findParticipants(member.id, track?.source);
 
-    if (track?.source == MediaSourceKind.Display ||
+    if (track?.source == MediaSourceKind.display ||
         participants.isEmpty ||
         (track != null &&
-            participants.none((e) => track.kind == MediaKind.Video
+            participants.none((e) => track.kind == MediaKind.video
                 ? e.video.value == null
                 : e.audio.value == null &&
-                    e.video.value?.source != MediaSourceKind.Display))) {
+                    e.video.value?.source != MediaSourceKind.display))) {
       final Participant participant = Participant(
         member,
-        video: track?.kind == MediaKind.Video ? track : null,
-        audio: track?.kind == MediaKind.Audio ? track : null,
+        video: track?.kind == MediaKind.video ? track : null,
+        audio: track?.kind == MediaKind.audio ? track : null,
       );
 
       _userService
@@ -2060,11 +2060,11 @@ class CallController extends GetxController {
         case MediaOwnerKind.local:
           if (isGroup || isMonolog) {
             switch (participant.source) {
-              case MediaSourceKind.Device:
+              case MediaSourceKind.device:
                 locals.add(participant);
                 break;
 
-              case MediaSourceKind.Display:
+              case MediaSourceKind.display:
                 paneled.add(participant);
                 break;
             }
@@ -2080,11 +2080,11 @@ class CallController extends GetxController {
 
         case MediaOwnerKind.remote:
           switch (participant.source) {
-            case MediaSourceKind.Device:
+            case MediaSourceKind.device:
               remotes.add(participant);
               break;
 
-            case MediaSourceKind.Display:
+            case MediaSourceKind.display:
               focused.add(participant);
               break;
           }
@@ -2093,11 +2093,11 @@ class CallController extends GetxController {
     } else {
       if (track != null) {
         final Participant participant = participants.firstWhere((e) =>
-            track.kind == MediaKind.Video
+            track.kind == MediaKind.video
                 ? e.video.value == null
                 : e.audio.value == null &&
-                    e.video.value?.source != MediaSourceKind.Display);
-        if (track.kind == MediaKind.Video) {
+                    e.video.value?.source != MediaSourceKind.display);
+        if (track.kind == MediaKind.video) {
           participant.video.value = track;
         } else {
           participant.audio.value = track;
@@ -2111,8 +2111,8 @@ class CallController extends GetxController {
     final Iterable<Participant> participants =
         _findParticipants(member.id, track.source);
 
-    if (track.kind == MediaKind.Video) {
-      if (participants.length == 1 && track.source == MediaSourceKind.Device) {
+    if (track.kind == MediaKind.video) {
+      if (participants.length == 1 && track.source == MediaSourceKind.device) {
         participants.first.video.value = null;
       } else {
         final Participant? participant =
@@ -2208,5 +2208,5 @@ class Participant {
 
   /// Returns the [MediaSourceKind] of this [Participant].
   MediaSourceKind get source =>
-      video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
+      video.value?.source ?? audio.value?.source ?? MediaSourceKind.device;
 }

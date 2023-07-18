@@ -101,27 +101,27 @@ extension LocalTrackStateImpl on LocalTrackState {
 
 /// Extension adding helper methods to a [TrackMediaDirection].
 extension TrackMediaDirectionEmitting on TrackMediaDirection {
-  /// Indicates whether the current value is [TrackMediaDirection.SendRecv] or
-  /// [TrackMediaDirection.SendOnly].
+  /// Indicates whether the current value is [TrackMediaDirection.sendRecv] or
+  /// [TrackMediaDirection.sendOnly].
   bool get isEmitting {
     switch (this) {
-      case TrackMediaDirection.SendRecv:
-      case TrackMediaDirection.SendOnly:
+      case TrackMediaDirection.sendRecv:
+      case TrackMediaDirection.sendOnly:
         return true;
-      case TrackMediaDirection.RecvOnly:
-      case TrackMediaDirection.Inactive:
+      case TrackMediaDirection.recvOnly:
+      case TrackMediaDirection.inactive:
         return false;
     }
   }
 
-  /// Indicates whether the current value is [TrackMediaDirection.SendRecv].
+  /// Indicates whether the current value is [TrackMediaDirection.sendRecv].
   bool get isEnabled {
     switch (this) {
-      case TrackMediaDirection.SendRecv:
+      case TrackMediaDirection.sendRecv:
         return true;
-      case TrackMediaDirection.SendOnly:
-      case TrackMediaDirection.RecvOnly:
-      case TrackMediaDirection.Inactive:
+      case TrackMediaDirection.sendOnly:
+      case TrackMediaDirection.recvOnly:
+      case TrackMediaDirection.inactive:
         return false;
     }
   }
@@ -295,7 +295,7 @@ class OngoingCall {
   ObsList<Track>? get localTracks => members[_me]?.tracks;
 
   /// [User] that started this [OngoingCall].
-  User? get caller => call.value?.caller;
+  User? get caller => call.value?.author;
 
   /// Indicator whether this [OngoingCall] is intended to start with video.
   ///
@@ -320,7 +320,7 @@ class OngoingCall {
       members[_me]
           ?.tracks
           .where((t) =>
-              t.kind == MediaKind.Audio && t.source == MediaSourceKind.Device)
+              t.kind == MediaKind.audio && t.source == MediaSourceKind.device)
           .isNotEmpty ??
       false;
 
@@ -540,6 +540,7 @@ class OngoingCall {
 
                   final CallMemberId id =
                       CallMemberId(node.user.id, node.deviceId);
+
                   if (members[id]?.isConnected.value == false) {
                     members.remove(id)?.dispose();
                   }
@@ -668,6 +669,10 @@ class OngoingCall {
                     });
                   }
                   break;
+
+                case ChatCallEventKind.conversationStarted:
+                  // TODO: Implement [EventChatCallConversationStarted].
+                  break;
               }
             }
             break;
@@ -732,7 +737,7 @@ class OngoingCall {
             await _updateSettings(
               screenDevice: deviceId ?? displays.firstOrNull?.deviceId(),
             );
-            await _room?.enableVideo(MediaSourceKind.Display);
+            await _room?.enableVideo(MediaSourceKind.display);
             screenShareState.value = LocalTrackState.enabled;
 
             final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
@@ -760,8 +765,8 @@ class OngoingCall {
         if (!enabled) {
           screenShareState.value = LocalTrackState.disabling;
           try {
-            await _room?.disableVideo(MediaSourceKind.Display);
-            _removeLocalTracks(MediaKind.Video, MediaSourceKind.Display);
+            await _room?.disableVideo(MediaSourceKind.display);
+            _removeLocalTracks(MediaKind.video, MediaSourceKind.display);
             screenShareState.value = LocalTrackState.disabled;
             screenDevice.value = null;
           } on MediaStateTransitionException catch (_) {
@@ -788,8 +793,8 @@ class OngoingCall {
             if (members[_me]
                     ?.tracks
                     .where((t) =>
-                        t.kind == MediaKind.Audio &&
-                        t.source == MediaSourceKind.Device)
+                        t.kind == MediaKind.audio &&
+                        t.source == MediaSourceKind.device)
                     .isEmpty ??
                 false) {
               print('enableAudio');
@@ -845,13 +850,13 @@ class OngoingCall {
         if (enabled) {
           videoState.value = LocalTrackState.enabling;
           try {
-            await _room?.enableVideo(MediaSourceKind.Device);
+            await _room?.enableVideo(MediaSourceKind.device);
             videoState.value = LocalTrackState.enabled;
 
             final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
               video: VideoPreferences(
                 device: videoDevice.value,
-                facingMode: videoDevice.value == null ? FacingMode.User : null,
+                facingMode: videoDevice.value == null ? FacingMode.user : null,
               ),
             );
             tracks.forEach(_addLocalTrack);
@@ -876,8 +881,8 @@ class OngoingCall {
         if (!enabled) {
           videoState.value = LocalTrackState.disabling;
           try {
-            await _room?.disableVideo(MediaSourceKind.Device);
-            _removeLocalTracks(MediaKind.Video, MediaSourceKind.Device);
+            await _room?.disableVideo(MediaSourceKind.device);
+            _removeLocalTracks(MediaKind.video, MediaSourceKind.device);
             videoState.value = LocalTrackState.disabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -969,7 +974,7 @@ class OngoingCall {
         isRemoteAudioEnabled.toggle();
       } else if (!enabled && isRemoteAudioEnabled.isTrue) {
         for (CallMember m in members.values.where((e) => e.id != _me)) {
-          if (m.tracks.any((e) => e.kind == MediaKind.Audio)) {
+          if (m.tracks.any((e) => e.kind == MediaKind.audio)) {
             futures.add(m.setAudioEnabled(false));
           }
         }
@@ -993,15 +998,15 @@ class OngoingCall {
       if (enabled && isRemoteVideoEnabled.isFalse) {
         for (CallMember m in members.values.where((e) => e.id != _me)) {
           futures.addAll([
-            m.setVideoEnabled(true, source: MediaSourceKind.Device),
-            m.setVideoEnabled(true, source: MediaSourceKind.Display),
+            m.setVideoEnabled(true, source: MediaSourceKind.device),
+            m.setVideoEnabled(true, source: MediaSourceKind.display),
           ]);
         }
 
         isRemoteVideoEnabled.toggle();
       } else if (!enabled && isRemoteVideoEnabled.isTrue) {
         for (CallMember m in members.values.where((e) => e.id != _me)) {
-          m.tracks.where((e) => e.kind == MediaKind.Video).forEach((e) {
+          m.tracks.where((e) => e.kind == MediaKind.video).forEach((e) {
             futures.add(m.setVideoEnabled(false, source: e.source));
           });
         }
@@ -1081,19 +1086,19 @@ class OngoingCall {
       if (e is LocalMediaInitException) {
         try {
           switch (e.kind()) {
-            case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
+            case LocalMediaInitExceptionKind.getUserMediaAudioFailed:
               addError('Failed to acquire local audio: $e');
               await _room?.disableAudio();
-              _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
+              _removeLocalTracks(MediaKind.audio, MediaSourceKind.device);
               audioState.value = LocalTrackState.disabled;
               break;
 
-            case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
+            case LocalMediaInitExceptionKind.getUserMediaVideoFailed:
               addError('Failed to acquire local video: $e');
               await setVideoEnabled(false);
               break;
 
-            case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+            case LocalMediaInitExceptionKind.getDisplayMediaFailed:
               if (e.message().contains('Permission denied')) {
                 break;
               }
@@ -1110,7 +1115,7 @@ class OngoingCall {
               addError('Failed to get media: $e');
 
               await _room?.disableAudio();
-              _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
+              _removeLocalTracks(MediaKind.audio, MediaSourceKind.device);
               audioState.value = LocalTrackState.disabled;
               audioDevice.value = null;
 
@@ -1154,7 +1159,7 @@ class OngoingCall {
         members.move(redialedId, id);
       }
 
-      final CallMember? member = members[id];
+      CallMember? member = members[id];
 
       if (member != null) {
         member.id = id;
@@ -1179,10 +1184,26 @@ class OngoingCall {
       });
 
       conn.onRemoteTrackAdded((track) async {
-        Log.print('onRemoteTrackAdded', 'CALL');
+        Log.print(
+          'onRemoteTrackAdded ${track.kind()}-${track.mediaSourceKind()}, ${track.mediaDirection()}',
+          'CALL',
+        );
 
         final Track t = Track(track);
-        final CallMember? member = members[id]?..tracks.add(t);
+
+        if (track.mediaDirection().isEmitting) {
+          final CallMember? redialed = members[redialedId];
+          if (redialed?.isDialing.value == true) {
+            members.move(redialedId, id);
+          }
+
+          member = members[id];
+          member?.id = id;
+          member?.isConnected.value = true;
+          member?.isDialing.value = false;
+
+          member?.tracks.add(t);
+        }
 
         track.onMuted(() {
           t.isMuted.value = true;
@@ -1195,64 +1216,61 @@ class OngoingCall {
         });
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
-          Log.print('onMediaDirectionChanged $d', 'CALL');
+          Log.print(
+            'onMediaDirectionChanged ${track.kind()}-${track.mediaSourceKind()} ${track.mediaDirection()}',
+            'CALL',
+          );
 
           t.direction.value = d;
 
           switch (d) {
-            case TrackMediaDirection.SendRecv:
+            case TrackMediaDirection.sendRecv:
+            case TrackMediaDirection.sendOnly:
+              member?.tracks.addIf(!member!.tracks.contains(t), t);
               switch (track.kind()) {
-                case MediaKind.Audio:
+                case MediaKind.audio:
                   await t.createRenderer();
                   break;
 
-                case MediaKind.Video:
+                case MediaKind.video:
                   await t.createRenderer();
                   break;
               }
-
-              member?.tracks.addIf(!member.tracks.contains(t), t);
               break;
 
-            case TrackMediaDirection.SendOnly:
-              switch (track.kind()) {
-                case MediaKind.Audio:
-                  t.removeRenderer();
-                  break;
-
-                case MediaKind.Video:
-                  t.removeRenderer();
-                  break;
-              }
-
-              member?.tracks.addIf(!member.tracks.contains(t), t);
-              break;
-
-            case TrackMediaDirection.RecvOnly:
-            case TrackMediaDirection.Inactive:
-              t.removeRenderer();
+            case TrackMediaDirection.recvOnly:
+            case TrackMediaDirection.inactive:
               member?.tracks.remove(t);
+              await t.removeRenderer();
               break;
           }
         });
 
         track.onStopped(() {
-          Log.print('onStopped', 'CALL');
+          Log.print(
+            'onStopped ${track.kind()}-${track.mediaSourceKind()}',
+            'CALL',
+          );
+
           member?.tracks.remove(t..dispose());
         });
 
         switch (track.kind()) {
-          case MediaKind.Audio:
+          case MediaKind.audio:
             if (isRemoteAudioEnabled.isTrue) {
-              await t.createRenderer();
+              if (track.mediaDirection().isEmitting) {
+                await t.createRenderer();
+              }
             } else {
               await member?.setAudioEnabled(false);
             }
             break;
 
-          case MediaKind.Video:
+          case MediaKind.video:
             if (isRemoteVideoEnabled.isTrue) {
-              await t.createRenderer();
+              if (track.mediaDirection().isEmitting) {
+                await t.createRenderer();
+              }
             } else {
               await member?.setVideoEnabled(false, source: t.source);
             }
@@ -1343,7 +1361,7 @@ class OngoingCall {
                 ? VideoPreferences(
                     device: videoDevice.value,
                     facingMode:
-                        videoDevice.value == null ? FacingMode.User : null,
+                        videoDevice.value == null ? FacingMode.user : null,
                   )
                 : null,
             screen: screenShareState.value == LocalTrackState.enabling
@@ -1352,19 +1370,19 @@ class OngoingCall {
           );
         } on LocalMediaInitException catch (e) {
           switch (e.kind()) {
-            case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
+            case LocalMediaInitExceptionKind.getUserMediaAudioFailed:
               audioDevice.value = null;
               audioState.value = LocalTrackState.disabled;
               await initLocalTracks();
               break;
 
-            case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
+            case LocalMediaInitExceptionKind.getUserMediaVideoFailed:
               videoDevice.value = null;
               videoState.value = LocalTrackState.disabled;
               await initLocalTracks();
               break;
 
-            case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+            case LocalMediaInitExceptionKind.getDisplayMediaFailed:
               screenDevice.value = null;
               screenShareState.value = LocalTrackState.disabled;
               await initLocalTracks();
@@ -1382,11 +1400,11 @@ class OngoingCall {
       }
       if (videoState.value != LocalTrackState.enabled &&
           videoState.value != LocalTrackState.enabling) {
-        await _room?.disableVideo(MediaSourceKind.Device);
+        await _room?.disableVideo(MediaSourceKind.device);
       }
       if (screenShareState.value != LocalTrackState.enabled &&
           screenShareState.value != LocalTrackState.enabling) {
-        await _room?.disableVideo(MediaSourceKind.Display);
+        await _room?.disableVideo(MediaSourceKind.display);
       }
 
       try {
@@ -1467,7 +1485,13 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join('$link?token=$creds');
+    try {
+      await _room?.join('$link?token=$creds');
+    } on RpcClientException catch (e) {
+      Log.error('Joining the room failed due to: ${e.message()}');
+      rethrow;
+    }
+
     Log.print('Room joined!', 'CALL');
 
     me.isConnected.value = true;
@@ -1502,10 +1526,10 @@ class OngoingCall {
       try {
         await _mediaSettingsGuard.acquire();
         _removeLocalTracks(
-          audioDevice == null ? MediaKind.Video : MediaKind.Audio,
+          audioDevice == null ? MediaKind.video : MediaKind.audio,
           screenDevice == null
-              ? MediaSourceKind.Device
-              : MediaSourceKind.Display,
+              ? MediaSourceKind.device
+              : MediaSourceKind.display,
         );
 
         MediaStreamSettings settings = _mediaStreamSettings(
@@ -1547,7 +1571,7 @@ class OngoingCall {
       video: videoState.value.isEnabled && video
           ? VideoPreferences(
               device: videoDevice.value,
-              facingMode: videoDevice.value == null ? FacingMode.User : null,
+              facingMode: videoDevice.value == null ? FacingMode.user : null,
             )
           : null,
       screen: screenShareState.value.isEnabled && screen
@@ -1563,14 +1587,14 @@ class OngoingCall {
   /// Adds the provided [track] to the local tracks and initializes video
   /// renderer if required.
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
-    if (track.kind() == MediaKind.Video) {
+    if (track.kind() == MediaKind.video) {
       LocalTrackState state;
       switch (track.mediaSourceKind()) {
-        case MediaSourceKind.Device:
+        case MediaSourceKind.device:
           state = videoState.value;
           break;
 
-        case MediaSourceKind.Display:
+        case MediaSourceKind.display:
           state = screenShareState.value;
           break;
       }
@@ -1584,9 +1608,9 @@ class OngoingCall {
         Track t = Track(track);
         members[_me]?.tracks.add(t);
 
-        if (track.mediaSourceKind() == MediaSourceKind.Device) {
+        if (track.mediaSourceKind() == MediaSourceKind.device) {
           videoDevice.value = videoDevice.value ?? track.getTrack().deviceId();
-        } else if (track.mediaSourceKind() == MediaSourceKind.Display) {
+        } else if (track.mediaSourceKind() == MediaSourceKind.display) {
           screenDevice.value =
               screenDevice.value ?? track.getTrack().deviceId();
         }
@@ -1598,7 +1622,7 @@ class OngoingCall {
 
       members[_me]?.tracks.add(Track(track));
 
-      if (track.mediaSourceKind() == MediaSourceKind.Device) {
+      if (track.mediaSourceKind() == MediaSourceKind.device) {
         audioDevice.value = audioDevice.value ?? track.getTrack().deviceId();
       }
     }
@@ -1730,7 +1754,7 @@ abstract class RtcRenderer {
 class RtcVideoRenderer extends RtcRenderer {
   RtcVideoRenderer(MediaTrack track) : super(track.getTrack()) {
     if (track is LocalMediaTrack) {
-      inner.mirror = track.mediaSourceKind() == MediaSourceKind.Device;
+      inner.mirror = track.mediaSourceKind() == MediaSourceKind.device;
     }
   }
 
@@ -1871,7 +1895,7 @@ class CallMember {
   /// Sets the inbound video of this [CallMember] as [enabled].
   Future<void> setVideoEnabled(
     bool enabled, {
-    MediaSourceKind source = MediaSourceKind.Device,
+    MediaSourceKind source = MediaSourceKind.device,
   }) async {
     if (enabled) {
       await _connection?.enableRemoteVideo(source);
@@ -1909,7 +1933,7 @@ class Track {
   final Rx<RtcRenderer?> renderer = Rx(null);
 
   /// [TrackMediaDirection] this [Track] has.
-  final Rx<TrackMediaDirection> direction = Rx(TrackMediaDirection.SendRecv);
+  final Rx<TrackMediaDirection> direction = Rx(TrackMediaDirection.sendRecv);
 
   /// Indicator whether this [Track] is muted.
   late final RxBool isMuted;
@@ -1920,37 +1944,61 @@ class Track {
   /// [MediaKind] of this [Track].
   final MediaKind kind;
 
+  /// Indicator whether this [Track] is already disposed or not.
+  ///
+  /// Used to prohibit multiple [dispose] invoking.
+  bool _disposed = false;
+
+  /// [Mutex] guarding the [renderer] synchronized access.
+  ///
+  /// Used to neglect the possible [createRenderer] and [removeRenderer] races.
+  final Mutex _rendererGuard = Mutex();
+
   /// Creates the [renderer] for this [Track].
   Future<void> createRenderer() async {
-    switch (track.kind()) {
-      case MediaKind.Audio:
-        renderer.value = RtcAudioRenderer(track);
-        break;
+    await _rendererGuard.protect(() async {
+      if (renderer.value != null) {
+        await renderer.value?.dispose();
+      }
 
-      case MediaKind.Video:
-        renderer.value = RtcVideoRenderer(track);
-        await (renderer.value as RtcVideoRenderer?)?.initialize();
-        (renderer.value as RtcVideoRenderer?)?.srcObject = track.getTrack();
-        break;
-    }
+      switch (track.kind()) {
+        case MediaKind.audio:
+          renderer.value = RtcAudioRenderer(track);
+          break;
+
+        case MediaKind.video:
+          renderer.value = RtcVideoRenderer(track);
+          await (renderer.value as RtcVideoRenderer?)?.initialize();
+          (renderer.value as RtcVideoRenderer?)?.srcObject = track.getTrack();
+          break;
+      }
+    });
   }
 
   /// Disposes the [renderer] of this [Track].
-  void removeRenderer() {
-    renderer.value?.dispose();
-    renderer.value = null;
+  Future<void> removeRenderer() async {
+    await _rendererGuard.protect(() async {
+      renderer.value?.dispose();
+      renderer.value = null;
+    });
   }
 
   /// Disposes this [Track].
-  void dispose() {
-    removeRenderer();
-    track.free();
+  ///
+  /// No-op, if this [Track] was already disposed.
+  Future<void> dispose() async {
+    if (!_disposed) {
+      _disposed = true;
+      await Future.wait([removeRenderer(), track.free()]);
+    }
   }
 
   /// Stops the [webrtc.MediaStreamTrack] of this [Track].
-  void stop() {
-    track.getTrack().stop();
-    removeRenderer();
+  Future<void> stop() async {
+    await Future.wait([
+      track.getTrack().stop(),
+      removeRenderer(),
+    ]);
   }
 }
 
@@ -1958,21 +2006,21 @@ class Track {
 /// [MediaDeviceKind].
 extension DevicesList on List<MediaDeviceDetails> {
   /// Returns a new [Iterable] with [MediaDeviceDetails] of
-  /// [MediaDeviceKind.VideoInput].
+  /// [MediaDeviceKind.videoInput].
   Iterable<MediaDeviceDetails> video() {
-    return where((i) => i.kind() == MediaDeviceKind.VideoInput);
+    return where((i) => i.kind() == MediaDeviceKind.videoInput);
   }
 
   /// Returns a new [Iterable] with [MediaDeviceDetails] of
-  /// [MediaDeviceKind.AudioInput].
+  /// [MediaDeviceKind.audioInput].
   Iterable<MediaDeviceDetails> audio() {
-    return where((i) => i.kind() == MediaDeviceKind.AudioInput);
+    return where((i) => i.kind() == MediaDeviceKind.audioInput);
   }
 
   /// Returns a new [Iterable] with [MediaDeviceDetails] of
-  /// [MediaDeviceKind.AudioOutput].
+  /// [MediaDeviceKind.audioOutput].
   Iterable<MediaDeviceDetails> output() {
-    return where((i) => i.kind() == MediaDeviceKind.AudioOutput);
+    return where((i) => i.kind() == MediaDeviceKind.audioOutput);
   }
 }
 

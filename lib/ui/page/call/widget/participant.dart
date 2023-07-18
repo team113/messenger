@@ -106,7 +106,7 @@ class ParticipantWidget extends StatelessWidget {
                       key: participant.videoKey,
                       mirror:
                           participant.member.owner == MediaOwnerKind.local &&
-                              participant.source == MediaSourceKind.Device,
+                              participant.source == MediaSourceKind.device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
                       border:
@@ -212,7 +212,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
     return Obx(() {
       bool isMuted;
 
-      if (participant.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.display) {
         isMuted = false;
       } else {
         isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
@@ -224,7 +224,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       bool isAudioDisabled = participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
-          participant.source != MediaSourceKind.Display &&
+          participant.source != MediaSourceKind.display &&
           participant.member.owner == MediaOwnerKind.remote;
 
       final List<Widget> additionally = [];
@@ -268,7 +268,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
-      if (participant.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 4));
         }

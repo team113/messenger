@@ -10,9 +10,9 @@ services:
     image: ${COMPOSE_FRONTEND_IMAGE}:${COMPOSE_FRONTEND_TAG}
     build:
       context: .
-    depends_on: ["backend", "baza-server"]
+    depends_on: [ "backend", "baza-server" ]
     ports:
-      - 80:80        # nginx http
+      - 80:80 # nginx http
     volumes:
       - ./assets/conf.toml:/var/www/conf.toml:ro,Z
       - ./build/web/:/var/www/public/:ro,Z
@@ -21,42 +21,64 @@ services:
   backend:
     container_name: ${COMPOSE_PROJECT_NAME}-backend
     image: ${COMPOSE_BACKEND}
-    depends_on: ["baza-storage", "cockroachdb", "mailhog"]
+    depends_on: [ "baza-storage", "cockroachdb", "mailhog" ]
     environment:
       CONF.MODE.DEBUG: "true"
       CONF.DB.COCKROACHDB.HOST: cockroachdb
       CONF.FCM.SA_KEY: ${COMPOSE_FCM_SA_KEY}
       CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.HTTP.PUBLIC_URL: ws://localhost/api/medea/ws
+      CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.WEBRTC.PUBLIC_IP: 127.0.0.1
       CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST: 127.0.0.1:3478
       CONF.STORAGE.FILE.S3.HOST: baza-storage
       CONF.SMTP.HOST: mailhog
     ports:
-      - 3478:3478                # backend medea stun
-      - 8081:7777                # backend http
-      - 8090:8090                # backend medea ws
-      - 49066-49100:49166-49200  # backend medea turn
+      - 3478:3478 # backend medea stun tcp
+      - 3478:3478/udp # backend medea stun udp
+      - 8081:7777 # backend http
+      - 8090:8090 # backend medea http (ws)
+      - 49066-49100:49166-49200 # backend medea turn
+      - 19305:19305 # backend medea webrtc tcp
+      - 19305:19305/udp # backend medea webrtc udp
     expose:
-      - 9372   # backend metrics
-      - 10025  # backend healthz
+      - 9372 # backend metrics
+      - 10025 # backend healthz
     volumes:
       - ./.cache/backend/l10n/:/l10n/:Z
       - ./dev/backend.toml:/config.toml:ro,Z
   cockroachdb:
     container_name: ${COMPOSE_PROJECT_NAME}-cockroachdb
     image: ${COMPOSE_COCKROACHDB}
-    command: ["start-single-node", "--insecure", "--log-config-file=/logs.yaml"]
+    command:
+      [
+        "start-single-node",
+        "--insecure",
+        "--log-config-file=/logs.yaml"
+      ]
     ports:
-      - 8070:8080    # cockroachdb admin ui http
-      - 8071:8081    # cockroachdb pgweb ui http
-      - 26257:26257  # cockroachdb sql
+      - 8070:8080 # cockroachdb admin ui http
+      - 8071:8081 # cockroachdb pgweb ui http
+      - 26257:26257 # cockroachdb sql
     volumes:
       - ./.cache/cockroachdb/data/:/cockroach/cockroach-data/:Z
       - ./dev/cockroachdb/logs.yaml:/logs.yaml:ro,Z
+    healthcheck:
+      # https://www.cockroachlabs.com/docs/monitoring-and-alerting.html#health-ready-1
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:8080/health?ready=1"
+        ]
+      interval: 3s
+      timeout: 3s
+      retries: 5
   cockroachdb-pgweb:
     container_name: ${COMPOSE_PROJECT_NAME}-cockroachdb-pgweb
     image: sosedoff/pgweb:latest
-    depends_on: ["cockroachdb"]
-    restart: on-failure
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgres://root@127.0.0.1:26257/defaultdb?sslmode=disable
     network_mode: service:cockroachdb
@@ -65,14 +87,14 @@ services:
     image: ghcr.io/instrumentisto/baza:0.2
     user: "1000"
     ports:
-      - 5656:5656  # baza http (read)
-      - 9294:9294  # baza s3 (write)
+      - 5656:5656 # baza http (read)
+      - 9294:9294 # baza s3 (write)
     volumes:
       - ./.cache/baza/data/:/var/lib/baza/:z
   baza-server:
     container_name: ${COMPOSE_PROJECT_NAME}-baza-server
     image: ${COMPOSE_FILESERVER}
-    depends_on: ["baza-storage"]
+    depends_on: [ "baza-storage" ]
     environment:
       NGINX_JWT_SECRET: baza
     volumes:
@@ -84,9 +106,9 @@ services:
     image: mailhog/mailhog:latest
     environment:
       MH_HOSTNAME: mailhog.localhost
-      MH_AUTH_FILE: /etc/auth.passwd  # robot:test
+      MH_AUTH_FILE: /etc/auth.passwd # robot:test
     ports:
-      - 1025:1025  # mailhog smtp
-      - 8082:8025  # mailhog http
+      - 1025:1025 # mailhog smtp
+      - 8082:8025 # mailhog http
     volumes:
       - ./dev/mailhog/auth.passwd:/etc/auth.passwd:ro,Z

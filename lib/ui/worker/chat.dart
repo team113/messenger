@@ -223,7 +223,7 @@ class _ChatWatchData {
                       .difference(chat.lastItem!.at.val)
                       .compareTo(ChatWorker.newMessageThreshold) <=
                   -1 &&
-              chat.lastItem!.authorId != me?.call() &&
+              chat.lastItem!.author.id != me?.call() &&
               chat.muted == null) {
             final StringBuffer body = StringBuffer();
             final ChatItem msg = chat.lastItem!;
@@ -233,7 +233,7 @@ class _ChatWatchData {
             if (msg is ChatMessage) {
               final String? text = _message(
                 isGroup: chat.isGroup,
-                author: await getUser(msg.authorId),
+                author: await getUser(msg.author.id),
                 text: msg.text,
                 attachments: msg.attachments,
               );
@@ -254,7 +254,7 @@ class _ChatWatchData {
               if (quote is ChatMessageQuote) {
                 final String? text = _message(
                   isGroup: chat.isGroup,
-                  author: await getUser(msg.authorId),
+                  author: await getUser(msg.author.id),
                   text: quote.text,
                   attachments: quote.attachments,
                 );
@@ -271,7 +271,7 @@ class _ChatWatchData {
               } else if (quote is ChatInfoQuote) {
                 if (quote.action != null) {
                   final String? text = _info(
-                    author: (await getUser(msg.authorId))?.user.value,
+                    author: (await getUser(msg.author.id))?.user.value,
                     info: quote.action!,
                   );
 

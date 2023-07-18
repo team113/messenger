@@ -474,7 +474,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             snapshot.data?.user.value.num.val ??
                             'dot'.l10n * 3,
                         onTitlePressed: () =>
-                            router.user(msg.authorId, push: true),
+                            router.user(msg.author.id, push: true),
                       ),
                     ),
                   ],
@@ -602,7 +602,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 .localizedString();
           }
         } else {
-          title = call?.authorId == widget.me
+          title = call?.author.id == widget.me
               ? 'label_outgoing_call'.l10n
               : 'label_incoming_call'.l10n;
         }
@@ -757,7 +757,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               title: widget.user?.user.value.name?.val ??
                   widget.user?.user.value.num.val ??
                   'dot'.l10n * 3,
-              onTitlePressed: () => router.user(item.authorId, push: true),
+              onTitlePressed: () => router.user(item.author.id, push: true),
             ),
             const SizedBox(height: 6),
           ] else if (!_fromMe && widget.chat.value?.isGroup == true) ...[

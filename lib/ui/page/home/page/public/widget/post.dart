@@ -1120,7 +1120,7 @@ class _PostWidgetState extends State<PostWidget> {
       child: WidgetButton(
         child: FutureBuilder<RxUser?>(
           key: Key('FutureBuilder_${item.id}'),
-          future: widget.getUser?.call(item.authorId),
+          future: widget.getUser?.call(item.author.id),
           builder: (context, snapshot) {
             const Color color = Colors.blue;
             // Color color = snapshot.data?.user.value.id == widget.me

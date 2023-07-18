@@ -1175,7 +1175,7 @@
 //             ];
 //           } else {
 //             description =
-//                 item.finishReason?.localizedString(item.authorId == c.me) ??
+//                 item.finishReason?.localizedString(item.author.id == c.me) ??
 //                     description;
 //             subtitle = [
 //               const Padding(
@@ -1188,7 +1188,7 @@
 //         } else if (item is ChatMessage) {
 //           var desc = StringBuffer();
 
-//           if (!chat.isGroup && item.authorId == c.me) {
+//           if (!chat.isGroup && item.author.id == c.me) {
 //             desc.write('${'label_you'.l10n}: ');
 //           }
 
@@ -1280,7 +1280,7 @@
 //             //   Padding(
 //             //     padding: const EdgeInsets.only(right: 5),
 //             //     child: FutureBuilder<RxUser?>(
-//             //       future: c.getUser(item.authorId),
+//             //       future: c.getUser(item.author.id),
 //             //       builder: (_, snapshot) => AvatarWidget.fromRxUser(
 //             //         snapshot.data,
 //             //         radius: 10,
@@ -1295,7 +1295,7 @@
 //             //   Padding(
 //             //     padding: const EdgeInsets.only(right: 5),
 //             //     child: FutureBuilder<RxUser?>(
-//             //       future: c.getUser(item.authorId),
+//             //       future: c.getUser(item.author.id),
 //             //       builder: (_, snapshot) => snapshot.data != null
 //             //           ? Obx(
 //             //               () => AvatarWidget.fromUser(

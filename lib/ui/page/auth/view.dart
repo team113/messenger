@@ -15,12 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/widget/rmb_detector.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -150,12 +147,6 @@ class AuthView extends StatelessWidget {
             ),
           );
         });
-
-        final Widget download = SvgImage.asset(
-          'assets/icons/get_it_on_google_play.svg',
-          width: 759.84 * 0.23,
-          height: 257.23 * 0.23,
-        );
 
         // Header part of the page.
         //

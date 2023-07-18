@@ -1256,7 +1256,7 @@ Widget _primaryView(CallController c) {
             if (d?.chatId == c.chatId.value) {
               if (d?.participant.member.id.userId != c.me.id.userId ||
                   d?.participant.video.value?.source !=
-                      MediaSourceKind.Display) {
+                      MediaSourceKind.display) {
                 c.primaryTargets.value = 1;
               }
 
@@ -1345,7 +1345,7 @@ Widget _primaryView(CallController c) {
                       actions: [
                         if (participant.video.value?.renderer.value !=
                             null) ...[
-                          if (participant.source == MediaSourceKind.Device)
+                          if (participant.source == MediaSourceKind.device)
                             ContextMenuButton(
                               label: fit == null || fit == BoxFit.cover
                                   ? 'btn_call_do_not_cut_video'.l10n

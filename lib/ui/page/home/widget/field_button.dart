@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -148,7 +149,7 @@ class _FieldButtonState extends State<FieldButton> {
         Positioned.fill(
           child: Align(
             alignment: Alignment.centerRight,
-            child: WidgetButton(
+            child: AnimatedButton(
               onPressed: widget.onTrailingPressed,
               child: const SizedBox(width: 50, height: double.infinity),
             ),
