@@ -106,7 +106,7 @@ class MyProfileView extends StatelessWidget {
                               children: [
                                 WidgetButton(
                                   onPressed: c.myUser.value?.avatar == null
-                                      ? () => c.uploadAvatar()
+                                      ? c.uploadAvatar
                                       : () async {
                                           await GalleryPopup.show(
                                             context: context,
@@ -359,10 +359,9 @@ class MyProfileView extends StatelessWidget {
                                   c.myUser.value?.muted == null;
 
                               return SwitchField(
-                                text: (isMuted
-                                        ? 'label_enabled'
-                                        : 'label_disabled')
-                                    .l10n,
+                                text: isMuted
+                                    ? 'label_enabled'.l10n
+                                    : 'label_disabled'.l10n,
                                 value: isMuted,
                                 onChanged:
                                     c.isMuting.value ? null : c.toggleMute,
@@ -763,7 +762,7 @@ Future<void> _deleteEmail(
 Future<void> _deletePhone(
   MyProfileController c,
   BuildContext context,
-  UserPhone? phone,
+  UserPhone phone,
 ) async {
   final fonts = Theme.of(context).fonts;
 
@@ -771,7 +770,7 @@ Future<void> _deletePhone(
     'label_delete_phone_number'.l10n,
     description: [
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
-      TextSpan(text: phone?.val, style: fonts.labelLarge),
+      TextSpan(text: phone.val, style: fonts.labelLarge),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
   );

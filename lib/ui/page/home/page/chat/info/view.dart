@@ -15,11 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -28,6 +26,8 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
+// TODO(review): move this widget to `home/widget`.
+import '/ui/page/home/page/my_profile/widget/direct_link.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -213,7 +213,12 @@ class ChatInfoView extends StatelessWidget {
                     ),
                     Block(
                       title: 'label_direct_chat_link'.l10n,
-                      children: [_link(c, context)],
+                      children: [
+                        DirectLinkField(
+                          c.chat?.chat.value.directLink,
+                          onCreate: c.createChatDirectLink,
+                        ),
+                      ],
                     ),
                   ],
                   Block(
@@ -349,75 +354,6 @@ class ChatInfoView extends StatelessWidget {
                   ),
                 ),
         ),
-      );
-    });
-  }
-
-  /// Returns a [Chat.directLink] editable field.
-  Widget _link(ChatInfoController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Obx(() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ReactiveTextField(
-            key: const Key('LinkField'),
-            state: c.link,
-            onSuffixPressed: c.link.isEmpty.value
-                ? null
-                : () {
-                    PlatformUtils.copy(
-                      text:
-                          '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
-                    );
-
-                    MessagePopup.success('label_copied'.l10n);
-                  },
-            trailing: c.link.isEmpty.value
-                ? null
-                : Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child:
-                          SvgImage.asset('assets/icons/copy.svg', height: 15),
-                    ),
-                  ),
-            label: '${Config.origin}/',
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-            child: Row(
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_transition_count'.l10nfmt({
-                              'count':
-                                  c.chat?.chat.value.directLink?.usageCount ?? 0
-                            }) +
-                            'dot_space'.l10n,
-                        style: fonts.labelSmall!.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'label_details'.l10n,
-                        style: fonts.labelSmall!.copyWith(
-                          color: style.colors.primary,
-                        ),
-                        recognizer: TapGestureRecognizer()..onTap = () {},
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       );
     });
   }

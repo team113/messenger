@@ -236,9 +236,9 @@ class MyProfileController extends GetxController {
   }
 
   /// Deletes the provided [phone] from [MyUser.phones].
-  Future<void> deletePhone(UserPhone? phone) async {
+  Future<void> deletePhone(UserPhone phone) async {
     try {
-      await _myUserService.deleteUserPhone(phone!);
+      await _myUserService.deleteUserPhone(phone);
     } catch (_) {
       MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
@@ -287,9 +287,6 @@ class MyProfileController extends GetxController {
   Future<void> updateUserLogin(UserLogin login) async {
     await _myUserService.updateUserLogin(login);
   }
-
-  /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
-  /// with the provided [id].
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
