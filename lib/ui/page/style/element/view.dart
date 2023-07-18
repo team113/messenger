@@ -55,7 +55,7 @@ class ElementStyleTabView extends StatelessWidget {
           const ContainmentWidget(),
           const Divider(),
           const SmallHeader(label: 'System messages'),
-          const SystemMessagesWidget(),
+          SystemMessagesWidget(isDarkMode),
           const Divider(),
           const SmallHeader(label: 'Navigation'),
           const NavigationWidget(),
