@@ -29,7 +29,6 @@ enum WidgetKey {
   Approve,
   AudioCall,
   AuthView,
-  BioField,
   Block,
   ChangeAvatar,
   ChangeLanguage,

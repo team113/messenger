@@ -23,8 +23,7 @@ import '/config.dart';
 part 'file.g.dart';
 
 /// File on a file storage.
-@HiveType(typeId: ModelTypeId.storageFile)
-class StorageFile extends HiveObject {
+abstract class StorageFile extends HiveObject {
   StorageFile({
     required this.relativeRef,
     this.checksum,
@@ -70,4 +69,34 @@ class StorageFile extends HiveObject {
 
   /// Returns an absolute URL to this [StorageFile] on a file storage.
   String get url => '${Config.files}$relativeRef';
+}
+
+/// Plain-[StorageFile] on a file storage.
+@HiveType(typeId: ModelTypeId.plainFile)
+class PlainFile extends StorageFile {
+  PlainFile({
+    required super.relativeRef,
+    super.checksum,
+    super.size,
+  });
+}
+
+/// Image-[StorageFile] on a file storage.
+@HiveType(typeId: ModelTypeId.imageFile)
+class ImageFile extends StorageFile {
+  ImageFile({
+    required super.relativeRef,
+    super.checksum,
+    super.size,
+    this.width,
+    this.height,
+  });
+
+  /// Width of this [ImageFile] in pixels.
+  @HiveField(3)
+  final int? width;
+
+  /// Height of this [ImageFile] in pixels.
+  @HiveField(4)
+  final int? height;
 }

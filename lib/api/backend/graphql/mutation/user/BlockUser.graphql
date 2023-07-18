@@ -15,16 +15,14 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-query CheckUserIdentifiable(
-    $num: UserNum
-    $login: UserLogin
-    $email: UserEmail
-    $phone: UserPhone
-) {
-    checkUserIdentifiable(
-        num: $num
-        email: $email
-        login: $login
-        phone: $phone
-    )
+mutation BlockUser($id: UserId!, $reason: BlocklistReason) {
+    blockUser(id: $id, reason: $reason) {
+        __typename
+        ... on BlocklistEventsVersioned {
+            ...BlocklistEventsVersioned
+        }
+        ... on BlockUserError {
+            code
+        }
+    }
 }

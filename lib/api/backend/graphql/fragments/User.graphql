@@ -19,7 +19,6 @@ fragment User on User {
     id
     num
     name
-    bio
     avatar {
         __typename
         ...UserAvatar
@@ -27,14 +26,6 @@ fragment User on User {
     callCover {
         __typename
         ...UserCallCover
-    }
-    gallery {
-        nodes {
-            __typename
-            ... on ImageGalleryItem {
-                ...ImageGalleryItem
-            }
-        }
     }
     mutualContactsCount
     online {
@@ -49,7 +40,7 @@ fragment User on User {
     dialog {
         id
     }
-    isBlacklisted {
+    isBlocked {
         record {
             reason
             at

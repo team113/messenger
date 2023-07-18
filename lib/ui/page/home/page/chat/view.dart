@@ -578,11 +578,11 @@ class _ChatViewState extends State<ChatView>
         UserId author;
 
         if (element is ChatMessageElement) {
-          author = element.item.value.authorId;
+          author = element.item.value.author.id;
         } else if (element is ChatCallElement) {
-          author = element.item.value.authorId;
+          author = element.item.value.author.id;
         } else if (element is ChatInfoElement) {
-          author = element.item.value.authorId;
+          author = element.item.value.author.id;
         } else if (element is ChatForwardElement) {
           author = element.authorId;
         } else {
@@ -631,8 +631,8 @@ class _ChatViewState extends State<ChatView>
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(e.value.authorId),
-          builder: (_, u) => Obx(() {
+          future: c.getUser(e.value.author.id),
+          builder: (_, snapshot) => Obx(() {
             return AnimatedContainer(
               duration: 400.milliseconds,
               curve: Curves.ease,
@@ -651,8 +651,8 @@ class _ChatViewState extends State<ChatView>
                     : c.chat!.reads.where((m) =>
                         m.at == e.value.at &&
                         m.memberId != c.me &&
-                        m.memberId != e.value.authorId),
-                user: u.data,
+                        m.memberId != e.value.author.id),
+                user: snapshot.data,
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,
