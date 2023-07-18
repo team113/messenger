@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
+import 'package:uuid/uuid.dart';
 
 import '/api/backend/schema.dart'
     show ChatCallFinishReason, ChatKind, PostChatMessageErrorCode;
@@ -1287,7 +1288,9 @@ extension ListInsertAfter<T> on List<T> {
 /// [Timer] exposing its [future] to be awaited.
 class AwaitableTimer {
   AwaitableTimer(Duration d, FutureOr Function() callback) {
+    print('AwaitableTimer($id)');
     _timer = Timer(d, () async {
+      print('AwaitableTimer($id).complete');
       try {
         _completer.complete(await callback());
       } on StateError {
@@ -1297,6 +1300,8 @@ class AwaitableTimer {
       }
     });
   }
+
+  final id = Uuid().v4();
 
   /// [Timer] executing the callback.
   late final Timer _timer;
@@ -1309,6 +1314,7 @@ class AwaitableTimer {
 
   /// Cancels this [AwaitableTimer].
   void cancel() {
+    print('AwaitableTimer($id).cancel');
     _timer.cancel();
     _completer.complete();
   }

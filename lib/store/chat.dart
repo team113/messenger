@@ -474,6 +474,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
+    print('readChat($chatId, $untilId)');
     await _chats[chatId]?.read(untilId);
   }
 

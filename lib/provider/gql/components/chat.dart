@@ -431,7 +431,11 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
   /// already read by the authenticated [MyUser] until the specified [ChatItem].
   Future<ChatEventsVersionedMixin?> readChat(
-      ChatId chatId, ChatItemId untilId) async {
+    ChatId chatId,
+    ChatItemId untilId,
+  ) async {
+    // print('readChat $chatId until $untilId\n${StackTrace.current}\n\n');
+
     final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.query(
       QueryOptions(

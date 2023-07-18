@@ -38,13 +38,21 @@ import 'widget/primary_button.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
-  const LoginView({super.key});
+  const LoginView({
+    super.key,
+    this.stage = LoginViewStage.signUp,
+  });
+
+  final LoginViewStage stage;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
+  static Future<T?> show<T>(
+    BuildContext context, {
+    LoginViewStage stage = LoginViewStage.signUp,
+  }) {
     return ModalPopup.show(
       context: context,
-      child: const LoginView(),
+      child: LoginView(stage: stage),
     );
   }
 
@@ -54,7 +62,7 @@ class LoginView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('LoginView'),
-      init: LoginController(Get.find()),
+      init: LoginController(Get.find(), stage: stage),
       builder: (LoginController c) {
         return Obx(() {
           final Widget header;
@@ -389,51 +397,51 @@ class LoginView extends StatelessWidget {
                   assetWidth: 20,
                 ),
                 const SizedBox(height: 25 / 2),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('OR', style: fonts.headlineSmall),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 25 / 2),
-                Center(
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Already have an account? '.l10n,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.secondary,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'Sign in.'.l10n,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.primary,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap =
-                                () => c.stage.value = LoginViewStage.signIn,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: Container(
+                //         height: 1,
+                //         width: double.infinity,
+                //         color: style.colors.secondaryHighlight,
+                //       ),
+                //     ),
+                //     const SizedBox(width: 8),
+                //     Text('OR', style: fonts.headlineSmall),
+                //     const SizedBox(width: 8),
+                //     Expanded(
+                //       child: Container(
+                //         height: 1,
+                //         width: double.infinity,
+                //         color: style.colors.secondaryHighlight,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 25 / 2),
+                // Center(
+                //   child: Text.rich(
+                //     TextSpan(
+                //       children: [
+                //         TextSpan(
+                //           text: 'Already have an account? '.l10n,
+                //           style: fonts.bodyMedium!.copyWith(
+                //             color: style.colors.secondary,
+                //           ),
+                //         ),
+                //         TextSpan(
+                //           text: 'Sign in.'.l10n,
+                //           style: fonts.bodyMedium!.copyWith(
+                //             color: style.colors.primary,
+                //           ),
+                //           recognizer: TapGestureRecognizer()
+                //             ..onTap =
+                //                 () => c.stage.value = LoginViewStage.signIn,
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 // const SizedBox(height: 16),
               ];
               break;
@@ -503,7 +511,7 @@ class LoginView extends StatelessWidget {
                   onPressed:
                       c.login.isEmpty.value ? null : c.signInWithoutPassword,
                 ),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
               ];
               break;
 
@@ -631,51 +639,51 @@ class LoginView extends StatelessWidget {
                   assetWidth: 20,
                 ),
                 const SizedBox(height: 25 / 2),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('OR', style: fonts.headlineSmall),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 25 / 2),
-                Center(
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Don\'t have an account? '.l10n,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.secondary,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'Sign up.'.l10n,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.primary,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap =
-                                () => c.stage.value = LoginViewStage.signUp,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: Container(
+                //         height: 1,
+                //         width: double.infinity,
+                //         color: style.colors.secondaryHighlight,
+                //       ),
+                //     ),
+                //     const SizedBox(width: 8),
+                //     Text('OR', style: fonts.headlineSmall),
+                //     const SizedBox(width: 8),
+                //     Expanded(
+                //       child: Container(
+                //         height: 1,
+                //         width: double.infinity,
+                //         color: style.colors.secondaryHighlight,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 25 / 2),
+                // Center(
+                //   child: Text.rich(
+                //     TextSpan(
+                //       children: [
+                //         TextSpan(
+                //           text: 'Don\'t have an account? '.l10n,
+                //           style: fonts.bodyMedium!.copyWith(
+                //             color: style.colors.secondary,
+                //           ),
+                //         ),
+                //         TextSpan(
+                //           text: 'Sign up.'.l10n,
+                //           style: fonts.bodyMedium!.copyWith(
+                //             color: style.colors.primary,
+                //           ),
+                //           recognizer: TapGestureRecognizer()
+                //             ..onTap =
+                //                 () => c.stage.value = LoginViewStage.signUp,
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
               ];
               break;
           }

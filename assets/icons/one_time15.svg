@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="b" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.91 22.63">
+  <g id="c" data-name="Layer 1">
+    <path d="m21.41,11.31c0-5.7-4.57-10.31-10.21-10.31S1,5.62,1,11.31s4.57,10.31,10.21,10.31" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <path d="m23.8,11.98l-2.14,2.37c-.14.14-.36.14-.5,0l-2.14-2.37c-.22-.22-.06-.61.25-.61h4.28c.31,0,.47.38.25.61Z" fill="#fff"/>
+    <path d="m8.52,9.24v-.72c0-.07.03-.14.09-.18l2.38-1.73s.08-.04.13-.04h.87c.12,0,.22.1.22.22v9.16c0,.12-.1.22-.22.22h-.71c-.12,0-.22-.1-.22-.22v-7.68c0-.18-.2-.29-.35-.18l-1.85,1.33c-.15.1-.35,0-.35-.18Z" fill="#fff" stroke="#fff" stroke-miterlimit="10" stroke-width=".6"/>
+    <path d="m14.05,21.22c.36-.11.72-.24,1.03-.36" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1.7"/>
+    <path d="m17.06,19.89c.26-.2.43-.32.7-.54" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1.7"/>
+    <path d="m19.33,17.94c.24-.29.26-.35.5-.68" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1.7"/>
+  </g>
+</svg>
