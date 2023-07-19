@@ -33,7 +33,7 @@ void main() {
 
     test('Should not end with a hyphen', () {
       final slug = ChatDirectLinkSlug.generate();
-      expect(slug.val.endsWith('-'), isFalse);
+      expect(slug.val.endsWith('-') && slug.val.endsWith('_'), isFalse);
     });
   });
 }

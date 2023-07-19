@@ -321,9 +321,11 @@ class ChatDirectLinkSlug extends NewType<String> {
       List.generate(
         length,
         (i) => i == length - 1
-            // `-` being the last might not be parsed as a link by some
+            // `-` and `_` being the last might not be parsed as a link by some
             // applications.
-            ? chars.replaceFirst('-', '')[r.nextInt(chars.length)]
+            ? chars
+                .replaceFirst('-', '')
+                .replaceFirst('_', '')[r.nextInt(chars.length)]
             : chars[r.nextInt(chars.length)],
       ).join(),
     );
