@@ -568,8 +568,8 @@ class ChatController extends GetxController {
         if (item is ChatMessage) {
           ChatMessageElement element = ChatMessageElement(e);
 
-          ListElement? previous = elements[elements.lastKeyBefore(element.id)];
-          ListElement? next = elements[elements.firstKeyAfter(element.id)];
+          ListElement? previous = elements[elements.firstKeyAfter(element.id)];
+          ListElement? next = elements[elements.lastKeyBefore(element.id)];
 
           bool insert = true;
 
@@ -606,10 +606,10 @@ class ChatController extends GetxController {
           ChatForwardElement element =
               ChatForwardElement(forwards: [e], e.value.at);
 
-          ListElementId? previousKey = elements.lastKeyBefore(element.id);
+          ListElementId? previousKey = elements.firstKeyAfter(element.id);
           ListElement? previous = elements[previousKey];
 
-          ListElementId? nextKey = elements.firstKeyAfter(element.id);
+          ListElementId? nextKey = elements.lastKeyBefore(element.id);
           ListElement? next = elements[nextKey];
 
           bool insert = true;
@@ -674,10 +674,10 @@ class ChatController extends GetxController {
             ListElementId key = ListElementId(item.at, item.id);
             ListElement? element = elements[key];
 
-            ListElementId? before = elements.lastKeyBefore(key);
+            ListElementId? before = elements.firstKeyAfter(key);
             ListElement? beforeElement = elements[before];
 
-            ListElementId? after = elements.firstKeyAfter(key);
+            ListElementId? after = elements.lastKeyBefore(key);
             ListElement? afterElement = elements[after];
 
             // Remove the [DateTimeElement] before, if this [ChatItem] is the
