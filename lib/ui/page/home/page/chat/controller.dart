@@ -119,8 +119,9 @@ class ChatController extends GetxController {
   /// - `status.isSuccess`, meaning [chat] is successfully fetched.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
-  /// [RxSplayTreeMap] of the [ListElement]s to display.
-  final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
+  /// [RxObsSplayTreeMap] of the [ListElement]s to display.
+  final RxObsSplayTreeMap<ListElementId, ListElement> elements =
+      RxObsSplayTreeMap();
 
   /// [MessageFieldController] for sending a [ChatMessage].
   late final MessageFieldController send;
@@ -172,9 +173,6 @@ class ChatController extends GetxController {
   /// Used to hide it when no scrolling is happening.
   final RxBool showSticky = RxBool(false);
 
-  /// Duration of a [Chat.ongoingCall].
-  final Rx<Duration?> duration = Rx(null);
-
   /// Keep position offset of the [FlutterListViewDelegate].
   ///
   /// Position will be keeping only when `scrollOffset` >= [keepPositionOffset].
@@ -189,7 +187,7 @@ class ChatController extends GetxController {
   bool _isNextPageLoading = false;
 
   /// Indicator whether the [LoaderElement]s should be displayed.
-  final RxBool showLoader = RxBool(true);
+  final RxBool showLoaders = RxBool(true);
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -849,7 +847,7 @@ class ChatController extends GetxController {
       // If [RxChat.status] is not successful yet, populate the
       // [_messageInitializedWorker] to determine the initial messages list
       // index and offset.
-      if (!chat!.status.value.isSuccess || chat!.status.value.isLoadingMore) {
+      if (!chat!.status.value.isSuccess) {
         _messageInitializedWorker = ever(chat!.status, (RxStatus status) async {
           if (_messageInitializedWorker != null) {
             if (status.isSuccess) {
@@ -875,7 +873,7 @@ class ChatController extends GetxController {
         initIndex = result.index;
         initOffset = result.offset;
 
-        status.value = RxStatus.success();
+        status.value = RxStatus.loadingMore();
       }
 
       _bottomLoaderStartTimer = Timer(
@@ -914,13 +912,13 @@ class ChatController extends GetxController {
       status.value = RxStatus.success();
 
       if (_bottomLoader != null) {
-        showLoader.value = false;
+        showLoaders.value = false;
 
         _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
           if (_bottomLoader != null) {
             elements.remove(_bottomLoader!.id);
             _bottomLoader = null;
-            showLoader.value = true;
+            showLoaders.value = true;
           }
         });
       }

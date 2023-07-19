@@ -26,46 +26,52 @@ import 'obs.dart';
 /// `GetX`-reactive [SplayTreeMap].
 ///
 /// Behaves like a wrapper around [SplayTreeMap].
-class RxSplayTreeMap<K, V>
+class RxObsSplayTreeMap<K, V>
     with
         MapMixin<K, V>,
         NotifyManager<SplayTreeMap<K, V>>,
         RxObjectMixin<SplayTreeMap<K, V>>
     implements RxInterface<SplayTreeMap<K, V>> {
   /// Creates a new [SplayTreeMap] with the provided [initial] keys and values.
-  RxSplayTreeMap([Map<K, V> initial = const {}])
+  RxObsSplayTreeMap([Map<K, V> initial = const {}])
       : _value = SplayTreeMap.from(initial);
 
   /// Creates a new [SplayTreeMap] with the same keys and values as [other].
-  factory RxSplayTreeMap.from(Map<K, V> other) =>
-      RxSplayTreeMap(Map.from(other));
+  factory RxObsSplayTreeMap.from(Map<K, V> other) =>
+      RxObsSplayTreeMap(Map.from(other));
 
   /// Creates a new [SplayTreeMap] with the same keys and values as [other].
-  factory RxSplayTreeMap.of(Map<K, V> other) => RxSplayTreeMap(Map.of(other));
+  factory RxObsSplayTreeMap.of(Map<K, V> other) =>
+      RxObsSplayTreeMap(Map.of(other));
 
   /// Creates an unmodifiable hash based map containing the entries of [other].
-  factory RxSplayTreeMap.unmodifiable(Map<dynamic, dynamic> other) =>
-      RxSplayTreeMap(Map.unmodifiable(other));
+  factory RxObsSplayTreeMap.unmodifiable(Map<dynamic, dynamic> other) =>
+      RxObsSplayTreeMap(Map.unmodifiable(other));
 
   /// Creates a new [SplayTreeMap] instance in which the keys and values are
   /// computed from the provided [iterable].
-  factory RxSplayTreeMap.fromIterable(
+  factory RxObsSplayTreeMap.fromIterable(
     Iterable iterable, {
     K Function(dynamic element)? key,
     V Function(dynamic element)? value,
   }) =>
-      RxSplayTreeMap(Map<K, V>.fromIterable(iterable, key: key, value: value));
+      RxObsSplayTreeMap(
+        Map<K, V>.fromIterable(iterable, key: key, value: value),
+      );
 
   /// Creates a new [SplayTreeMap] associating the given [keys] to the given
   /// [values].
-  factory RxSplayTreeMap.fromIterables(Iterable<K> keys, Iterable<V> values) =>
-      RxSplayTreeMap(Map<K, V>.fromIterables(keys, values));
+  factory RxObsSplayTreeMap.fromIterables(
+    Iterable<K> keys,
+    Iterable<V> values,
+  ) =>
+      RxObsSplayTreeMap(Map<K, V>.fromIterables(keys, values));
 
   /// Creates a new [SplayTreeMap] and adds all the provided [entries] to it.
-  factory RxSplayTreeMap.fromEntries(Iterable<MapEntry<K, V>> entries) =>
-      RxSplayTreeMap(Map<K, V>.fromEntries(entries));
+  factory RxObsSplayTreeMap.fromEntries(Iterable<MapEntry<K, V>> entries) =>
+      RxObsSplayTreeMap(Map<K, V>.fromEntries(entries));
 
-  /// Internal actual value of the [SplayTreeMap] this [RxSplayTreeMap] holds.
+  /// Internal actual value of the [SplayTreeMap] this [RxObsSplayTreeMap] holds.
   late SplayTreeMap<K, V> _value;
 
   /// [StreamController] of record of changes of this [ObsMap].
@@ -167,10 +173,10 @@ class RxSplayTreeMap<K, V>
   @override
   bool containsValue(Object? value) => _value.containsValue(value);
 
-  /// Returns the first key of this [RxSplayTreeMap].
+  /// Returns the first key of this [RxObsSplayTreeMap].
   K? firstKey() => _value.firstKey();
 
-  /// Returns the last key of this [RxSplayTreeMap].
+  /// Returns the last key of this [RxObsSplayTreeMap].
   K? lastKey() => _value.lastKey();
 
   /// Returns the key preceding the provided [key].

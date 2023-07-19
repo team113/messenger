@@ -601,11 +601,9 @@ class _ChatViewState extends State<ChatView>
       }
 
       return Padding(
-        padding: EdgeInsets.fromLTRB(
-          8,
-          0,
-          8,
-          isLast ? ChatController.lastItemBottomOffset : 0,
+        padding: EdgeInsets.only(
+          top: previousSame ? 0 : 9,
+          bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.authorId),
@@ -673,7 +671,7 @@ class _ChatViewState extends State<ChatView>
       return Padding(
         padding: EdgeInsets.only(
           top: 4.5,
-          bottom: 4.5 + (isLast ? 8 : 0),
+          bottom: isLast ? ChatController.lastItemBottomOffset : 4.5,
         ),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
@@ -807,13 +805,13 @@ class _ChatViewState extends State<ChatView>
       return Obx(() {
         final Widget child;
 
-        if (c.showLoader.value) {
+        if (c.showLoaders.value) {
           child = SizedBox.square(
             dimension: ChatController.loadingHeight,
             child: Center(
               key: const ValueKey(1),
               child: Padding(
-                padding: const EdgeInsets.only(top: 12),
+                padding: EdgeInsets.only(top: 10, bottom: isLast ? 0 : 10),
                 child: ConstrainedBox(
                   constraints: BoxConstraints.tight(const Size.square(40)),
                   child: Center(

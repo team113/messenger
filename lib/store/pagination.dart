@@ -37,7 +37,7 @@ class Pagination<T, K, C> {
   final int perPage;
 
   /// List of the items fetched from the [provider].
-  final RxSplayTreeMap<K, T> items = RxSplayTreeMap();
+  final RxObsSplayTreeMap<K, T> items = RxObsSplayTreeMap();
 
   /// [PageProvider] providing the [items].
   final PageProvider<T, C> provider;

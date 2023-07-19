@@ -18,23 +18,17 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
-import '/domain/model/file.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat_item.dart';
-import '/store/model/user.dart';
 import 'base.dart';
 
 part 'chat_item.g.dart';
@@ -55,9 +49,6 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
   @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
-    Hive.maybeRegisterAdapter(BlacklistReasonAdapter());
-    Hive.maybeRegisterAdapter(BlacklistRecordAdapter());
-    Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
     Hive.maybeRegisterAdapter(ChatCallQuoteAdapter());
@@ -77,33 +68,19 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(ChatMembersDialedAllAdapter());
     Hive.maybeRegisterAdapter(ChatMembersDialedConcreteAdapter());
     Hive.maybeRegisterAdapter(ChatMessageAdapter());
-    Hive.maybeRegisterAdapter(ChatNameAdapter());
-    Hive.maybeRegisterAdapter(ChatAvatarAdapter());
     Hive.maybeRegisterAdapter(ChatMessageQuoteAdapter());
     Hive.maybeRegisterAdapter(ChatMessageTextAdapter());
     Hive.maybeRegisterAdapter(FileAttachmentAdapter());
-    Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveChatCallAdapter());
     Hive.maybeRegisterAdapter(HiveChatForwardAdapter());
     Hive.maybeRegisterAdapter(HiveChatInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
-    Hive.maybeRegisterAdapter(StorageFileAdapter());
-    Hive.maybeRegisterAdapter(UserAdapter());
-    Hive.maybeRegisterAdapter(UserAvatarAdapter());
-    Hive.maybeRegisterAdapter(UserBioAdapter());
-    Hive.maybeRegisterAdapter(UserCallCoverAdapter());
-    Hive.maybeRegisterAdapter(UserIdAdapter());
-    Hive.maybeRegisterAdapter(UserNameAdapter());
-    Hive.maybeRegisterAdapter(UserNumAdapter());
-    Hive.maybeRegisterAdapter(UserTextStatusAdapter());
-    Hive.maybeRegisterAdapter(UserVersionAdapter());
   }
 
   /// Returns a list of [ChatItemKey]s stored in the [Hive].

@@ -960,7 +960,7 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
     if (id.isLocal) {
-      _chats[id]?.clear();
+      await _chats[id]?.clear();
       return;
     }
 

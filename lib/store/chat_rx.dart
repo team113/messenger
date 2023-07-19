@@ -414,8 +414,6 @@ class HiveRxChat extends RxChat {
   Future<void> read(ChatItemId untilId) async {
     int firstUnreadIndex = 0;
 
-    // TODO(review): can't we calculate that message here directly, as it's used
-    //               only there?
     if (firstUnreadItem != null) {
       firstUnreadIndex = messages.indexOf(firstUnreadItem!);
     }
@@ -605,8 +603,8 @@ class HiveRxChat extends RxChat {
   ///
   /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [_local] store.
-  Future<HiveChatItem?> get(ChatItemId itemId, {ChatItemKey? key}) async {
-    return await _guard.protect(() async {
+  Future<HiveChatItem?> get(ChatItemId itemId, {ChatItemKey? key}) {
+    return _guard.protect(() async {
       if (!_local.isReady) {
         return null;
       }
@@ -621,7 +619,6 @@ class HiveRxChat extends RxChat {
     });
   }
 
-  // TODO: remove?
   /// Recalculates the [reads] to represent the actual [messages].
   void updateReads() {
     for (LastChatRead e in chat.value.lastReads) {
@@ -666,35 +663,10 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Adds the provided [ChatItem] to the [messages] list, initializing the
-  /// [Attachment]s, if any.
-  void _add(ChatItem item) {
-    if (!PlatformUtils.isWeb) {
-      for (ChatItem item in messages.map((e) => e.value)) {
-        if (item is ChatMessage) {
-          for (var a in item.attachments.whereType<FileAttachment>()) {
-            a.init();
-          }
-        } else if (item is ChatForward) {
-          ChatItemQuote nested = item.quote;
-          if (nested is ChatMessageQuote) {
-            for (var a in nested.attachments.whereType<FileAttachment>()) {
-              a.init();
-            }
-          }
-        }
-      }
-    }
-
-    messages.insertAfter(
-      item.obs,
-      (e) => item.key.compareTo(e.value.key) == 1,
-    );
-  }
-
   /// Removes all [ChatItem]s from the [messages].
-  void clear() {
+  Future<void> clear() {
     _pagination.clear();
+    return _local.clear();
   }
 
   @override
@@ -731,6 +703,37 @@ class HiveRxChat extends RxChat {
     }
 
     return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
+  }
+
+  /// Adds the provided [ChatItem] to the [messages] list, initializing the
+  /// [Attachment]s, if any.
+  void _add(ChatItem item) {
+    if (!PlatformUtils.isWeb) {
+      for (ChatItem item in messages.map((e) => e.value)) {
+        if (item is ChatMessage) {
+          for (var a in item.attachments.whereType<FileAttachment>()) {
+            a.init();
+          }
+        } else if (item is ChatForward) {
+          ChatItemQuote nested = item.quote;
+          if (nested is ChatMessageQuote) {
+            for (var a in nested.attachments.whereType<FileAttachment>()) {
+              a.init();
+            }
+          }
+        }
+      }
+    }
+
+    final int i = messages.indexWhere((e) => e.value.id == item.id);
+    if (i == -1) {
+      messages.insertAfter(
+        item.obs,
+        (e) => item.key.compareTo(e.value.key) == 1,
+      );
+    } else {
+      messages[i].value = item;
+    }
   }
 
   /// Updates the [members] and [title] fields based on the [chat] state.
@@ -1145,9 +1148,7 @@ class HiveRxChat extends RxChat {
                 }
 
                 if (event.byUser.id == me) {
-                  final key = _local.keys.lastWhereOrNull(
-                    (e) => e.at == at,
-                  );
+                  final key = _local.keys.lastWhereOrNull((e) => e.at == at);
                   if (key != null) {
                     final HiveChatItem? item = await _local.get(key);
                     if (item != null) {
