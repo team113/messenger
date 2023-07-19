@@ -14,7 +14,9 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - Performance:
-    - Spamming backend API when reading a chat ([#487]).
+    - Spamming backend API when reading a chat. ([#487])
+- iOS:
+    - Unreadable status bar text color. ([#487])
 - Web:
     - Avatar not uploading due to simultaneous file read. ([#487])
 
