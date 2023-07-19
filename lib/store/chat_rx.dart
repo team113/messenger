@@ -386,6 +386,7 @@ class HiveRxChat extends RxChat {
           }
         },
       );
+
       await _readTimer?.future;
     }
   }
