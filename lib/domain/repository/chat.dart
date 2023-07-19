@@ -255,7 +255,7 @@ abstract class RxChat implements Comparable<RxChat> {
               .firstWhereOrNull((e) => e.id != me)
               ?.user
               .value
-              .isBlacklisted !=
+              .isBlocked !=
           null;
 
   /// Return first unread [ChatItem].

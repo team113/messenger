@@ -58,7 +58,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
     return Obx(() {
       bool isMuted;
 
-      if (participant.source == MediaSourceKind.Display ||
+      if (participant.source == MediaSourceKind.display ||
           participant.member.isDialing.isTrue) {
         isMuted = false;
       } else {
@@ -71,7 +71,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       bool isAudioDisabled = participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
-          participant.source != MediaSourceKind.Display &&
+          participant.source != MediaSourceKind.display &&
           participant.member.owner == MediaOwnerKind.remote;
 
       final List<Widget> additionally = [];
@@ -112,7 +112,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
-      if (participant.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 4));
         }

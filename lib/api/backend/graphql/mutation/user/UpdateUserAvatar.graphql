@@ -16,11 +16,11 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 mutation UpdateUserAvatar(
-    $id: GalleryItemId
+    $file: Upload
     $crop: CropAreaInput = null
 ) {
     updateUserAvatar(
-        id: $id
+        file: $file
         crop: $crop
     ) {
         __typename

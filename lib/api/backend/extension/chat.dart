@@ -98,9 +98,8 @@ extension ChatInfoConversion on ChatInfoMixin {
   ChatInfo toModel() => ChatInfo(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
-        author: author.toModel(),
         action: action.toModel(),
       );
 
@@ -154,7 +153,7 @@ extension ChatMessageConversion on ChatMessageMixin {
       ChatMessage(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         repliesTo: items.map((e) => e.value).toList(),
         text: text,
@@ -174,7 +173,7 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
   ChatMessage toModel() => ChatMessage(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         repliesTo: [],
         text: text,
@@ -200,7 +199,7 @@ extension ChatForwardConversion on ChatForwardMixin {
       ChatForward(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         quote: item.value,
       ),
@@ -221,7 +220,7 @@ extension NestedChatForwardConversion on NestedChatForwardMixin {
       ChatForward(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         quote: item.value,
       ),

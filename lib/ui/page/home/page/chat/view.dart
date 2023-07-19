@@ -591,11 +591,11 @@ class _ChatViewState extends State<ChatView>
       bool previousSame = false;
       if (previous != null) {
         previousSame = (previous is ChatMessageElement &&
-                previous.item.value.authorId == e.value.authorId &&
+                previous.item.value.author.id == e.value.author.id &&
                 e.value.at.val.difference(previous.item.value.at.val).abs() <=
                     const Duration(minutes: 5)) ||
             (previous is ChatCallElement &&
-                previous.item.value.authorId == e.value.authorId &&
+                previous.item.value.author.id == e.value.author.id &&
                 e.value.at.val.difference(previous.item.value.at.val).abs() <=
                     const Duration(minutes: 5));
       }
@@ -606,8 +606,8 @@ class _ChatViewState extends State<ChatView>
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(e.value.authorId),
-          builder: (_, u) => Obx(() {
+          future: c.getUser(e.value.author.id),
+          builder: (_, snapshot) => Obx(() {
             return AnimatedContainer(
               duration: 400.milliseconds,
               curve: Curves.ease,
@@ -626,8 +626,8 @@ class _ChatViewState extends State<ChatView>
                     : c.chat!.reads.where((m) =>
                         m.at == e.value.at &&
                         m.memberId != c.me &&
-                        m.memberId != e.value.authorId),
-                user: u.data,
+                        m.memberId != e.value.author.id),
+                user: snapshot.data,
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,

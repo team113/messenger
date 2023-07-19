@@ -68,7 +68,7 @@ class CameraSwitchController extends GetxController {
 
     await WebUtils.cameraPermission();
     devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.VideoInput);
+        await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
 
     initRenderer();
 

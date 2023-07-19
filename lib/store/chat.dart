@@ -467,13 +467,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
-    final HiveRxChat? chat = _chats[chatId];
-
-    if (chat != null) {
-      await chat.read(untilId);
-    } else {
-      await readUntil(chatId, untilId);
-    }
+    await _chats[chatId]?.read(untilId);
   }
 
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
@@ -1173,6 +1167,15 @@ class ChatRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatUnfavorited') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
       return EventChatUnfavorited(e.chatId, node.at);
+    } else if (e.$$typename == 'EventChatCallConversationStarted') {
+      var node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallConversationStarted;
+      return EventChatCallConversationStarted(
+        e.chatId,
+        node.callId,
+        node.at,
+        node.call.toModel(),
+      );
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }

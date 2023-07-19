@@ -22,12 +22,12 @@ import '/l10n/l10n.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// Visual representation of the provided [BlacklistRecord].
-class BlacklistRecordWidget extends StatelessWidget {
-  const BlacklistRecordWidget(this.record, {super.key});
+/// Visual representation of the provided [BlocklistRecord].
+class BlocklistRecordWidget extends StatelessWidget {
+  const BlocklistRecordWidget(this.record, {super.key});
 
-  /// [BlacklistRecord] to display.
-  final BlacklistRecord record;
+  /// [BlocklistRecord] to display.
+  final BlocklistRecord record;
 
   @override
   Widget build(BuildContext context) {

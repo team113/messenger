@@ -207,8 +207,12 @@ class _HtmlImageState extends State<_HtmlImage> {
 
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(
-      viewType: '${_elementId}__webImageViewType__${widget.src}__',
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: HtmlElementView(
+        viewType: '${_elementId}__webImageViewType__${widget.src}__',
+      ),
     );
   }
 
