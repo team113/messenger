@@ -29,21 +29,21 @@ import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
-import 'desktop_controls.dart';
-import 'mobile_controls.dart';
+import 'desktop_controls/view.dart';
+import 'mobile_controls/view.dart';
 
 /// Video player with controls.
-class Video extends StatefulWidget {
-  const Video(
+class VideoView extends StatefulWidget {
+  const VideoView(
     this.url, {
-    Key? key,
+    super.key,
     this.onClose,
     this.toggleFullscreen,
     this.onController,
     this.isFullscreen,
     this.onError,
     this.showInterfaceFor,
-  }) : super(key: key);
+  });
 
   /// URL of the video to display.
   final String url;
@@ -67,15 +67,15 @@ class Video extends StatefulWidget {
   final Duration? showInterfaceFor;
 
   @override
-  State<Video> createState() => _VideoState();
+  State<VideoView> createState() => _VideoViewState();
 }
 
 /// State of a [Video] used to initialize and dispose video controller.
-class _VideoState extends State<Video> {
+class _VideoViewState extends State<VideoView> {
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
-  /// [CancelToken] for cancelling the [Video.url] header fetching.
+  /// [CancelToken] for cancelling the [VideoView.url] header fetching.
   CancelToken? _cancelToken;
 
   /// [MeeduPlayerController] controlling the video playback.
@@ -110,7 +110,7 @@ class _VideoState extends State<Video> {
   }
 
   @override
-  void didUpdateWidget(Video oldWidget) {
+  void didUpdateWidget(VideoView oldWidget) {
     if (oldWidget.url != widget.url) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _initVideo();

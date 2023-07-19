@@ -27,11 +27,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
+import '../widget/video_progress_bar.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
-import 'rewind_indicator.dart';
-import 'video_progress_bar.dart';
+import 'widget/rewind_indicator.dart';
 
 /// Mobile video controls for a [Chewie] player.
 class MobileControls extends StatefulWidget {
