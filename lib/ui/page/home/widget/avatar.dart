@@ -39,7 +39,7 @@ import '/ui/widget/svg/svg.dart';
 ///
 /// Displays a colored [BoxDecoration] with initials based on a [title] if
 /// [avatar] is not specified.
-class AvatarWidget extends StatelessWidget {
+class AvatarWidget extends StatefulWidget {
   const AvatarWidget({
     super.key,
     this.avatar,
@@ -276,6 +276,7 @@ class AvatarWidget extends StatelessWidget {
     return Obx(() {
       if (chat.chat.value.isMonolog) {
         return AvatarWidget.fromMonolog(
+          key: key,
           chat.chat.value,
           chat.me,
           radius: radius,
@@ -353,28 +354,39 @@ class AvatarWidget extends StatelessWidget {
   /// Optional label to show inside this [AvatarWidget].
   final Widget? label;
 
+  @override
+  State<AvatarWidget> createState() => _AvatarWidgetState();
+}
+
+class _AvatarWidgetState extends State<AvatarWidget> {
+  final GlobalKey _imageKey = GlobalKey();
+
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
-    if (radius == null && minRadius == null && maxRadius == null) {
+    if (widget.radius == null &&
+        widget.minRadius == null &&
+        widget.maxRadius == null) {
       return 40;
     }
-    return 2.0 * (radius ?? minRadius ?? 20);
+    return 2.0 * (widget.radius ?? widget.minRadius ?? 20);
   }
 
   /// Returns maximum diameter of the avatar.
   double get _maxDiameter {
-    if (radius == null && minRadius == null && maxRadius == null) {
+    if (widget.radius == null &&
+        widget.minRadius == null &&
+        widget.maxRadius == null) {
       return 40;
     }
-    return 2.0 * (radius ?? maxRadius ?? 40);
+    return 2.0 * (widget.radius ?? widget.maxRadius ?? 40);
   }
 
   @override
   Widget build(BuildContext context) {
-    return opacity == 1
+    return widget.opacity == 1
         ? _avatar(context)
         : Opacity(
-            opacity: opacity,
+            opacity: widget.opacity,
             child: _avatar(context),
           );
   }
@@ -386,12 +398,12 @@ class AvatarWidget extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       final Color gradient;
 
-      if (color != null) {
-        gradient =
-            style.colors.userColors[color! % style.colors.userColors.length];
-      } else if (title != null) {
-        gradient = style.colors
-            .userColors[(title!.hashCode) % style.colors.userColors.length];
+      if (widget.color != null) {
+        gradient = style
+            .colors.userColors[widget.color! % style.colors.userColors.length];
+      } else if (widget.title != null) {
+        gradient = style.colors.userColors[
+            (widget.title!.hashCode) % style.colors.userColors.length];
       } else {
         gradient = style.colors.secondaryBackgroundLightest;
       }
@@ -405,7 +417,7 @@ class AvatarWidget extends StatelessWidget {
 
       return Badge(
         largeSize: badgeSize * 1.16,
-        isLabelVisible: isOnline,
+        isLabelVisible: widget.isOnline,
         alignment: Alignment.bottomRight,
         backgroundColor: style.colors.onPrimary,
         padding: EdgeInsets.all(badgeSize / 12),
@@ -416,7 +428,7 @@ class AvatarWidget extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isAway
+              color: widget.isAway
                   ? style.colors.warningColor
                   : style.colors.acceptAuxiliaryColor,
             ),
@@ -441,10 +453,10 @@ class AvatarWidget extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: label ??
+                child: widget.label ??
                     SelectionContainer.disabled(
                       child: Text(
-                        (title ?? '??').initials(),
+                        (widget.title ?? '??').initials(),
                         style: fonts.titleSmall!.copyWith(
                           fontSize:
                               fonts.bodyMedium!.fontSize! * (maxWidth / 40.0),
@@ -457,20 +469,25 @@ class AvatarWidget extends StatelessWidget {
                     ),
               ),
             ),
-            if (avatar != null)
+            if (widget.avatar != null)
               Positioned.fill(
                 child: ClipOval(
                   child: RetryImage(
-                    maxWidth > 70
-                        ? avatar!.full.url
-                        : maxWidth > 26
-                            ? avatar!.big.url
-                            : avatar!.medium.url,
-                    checksum: maxWidth > 70
-                        ? avatar!.full.checksum
-                        : maxWidth > 26
-                            ? avatar!.big.checksum
-                            : avatar!.medium.checksum,
+                    key: _imageKey,
+                    maxWidth > 250
+                        ? widget.avatar!.full.url
+                        : maxWidth > 100
+                            ? widget.avatar!.big.url
+                            : maxWidth > 46
+                                ? widget.avatar!.medium.url
+                                : widget.avatar!.small.url,
+                    checksum: maxWidth > 250
+                        ? widget.avatar!.full.checksum
+                        : maxWidth > 100
+                            ? widget.avatar!.big.checksum
+                            : maxWidth > 46
+                                ? widget.avatar!.medium.checksum
+                                : widget.avatar!.small.checksum,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,

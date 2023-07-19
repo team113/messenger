@@ -181,6 +181,8 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
+    // print('didUpdateWidget, ${oldWidget.url} vs ${widget.url}');
+
     if (oldWidget.fallbackUrl != widget.fallbackUrl) {
       _fallbackToken.cancel();
       _fallbackToken = CancelToken();

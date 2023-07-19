@@ -329,6 +329,7 @@ class NotificationService extends DisposableService {
       }
 
       _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
+        print('[NOTIFICATIONS] onMessage ${message.notification?.title}');
         if (message.notification?.title != null) {
           show(
             message.notification!.title!,

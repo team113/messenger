@@ -667,8 +667,6 @@ label_introduction_description3 =
     Чтобы иметь возможность восстановить доступ к аккаунту, пожалуйста, в{" "}
 label_introduction_description4 = настройках
 label_introduction_description5 = {" "}задайте E-mail или номер телефона.
-label_introduction_description2 = profile settings
-label_introduction_description3 = .
 label_kb = {$amount} KB
 label_language = Language
 label_language_entry = {$code}, {$name}

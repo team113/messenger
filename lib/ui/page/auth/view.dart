@@ -50,14 +50,14 @@ class AuthView extends StatelessWidget {
         bool isWeb = PlatformUtils.isWeb || true;
 
         Widget? icon;
-        const double modifier = 1.15;
+        const double modifier = 1;
 
         if (isWeb) {
           icon = Obx(() {
             switch (c.system.value) {
               case 0:
                 return SvgImage.asset(
-                  'assets/icons/apple6.svg',
+                  'assets/icons/apple6_black.svg',
                   width: 19.15 * modifier,
                   height: 23.49 * modifier,
                 );
@@ -135,14 +135,14 @@ class AuthView extends StatelessWidget {
                   //   ),
                   // )
 
-                  StyledCupertinoButton(
-                    onPressed: () {
-                      router.vacancy(null, push: true);
-                      print(router.routes);
-                    },
-                    enlarge: true,
-                    label: 'Work with us',
-                  ),
+                  // StyledCupertinoButton(
+                  //   onPressed: () {
+                  //     router.vacancy(null, push: true);
+                  //     print(router.routes);
+                  //   },
+                  //   enlarge: true,
+                  //   label: 'Work with us',
+                  // ),
                   StyledCupertinoButton(
                     label: 'Terms and conditions',
                     color: style.colors.secondary,
@@ -188,28 +188,34 @@ class AuthView extends StatelessWidget {
           OutlinedRoundedButton(
             key: const Key('RegisterButton'),
             title: Text('Регистрация'.l10n),
-            // subtitle: Text('or sign in'.l10n),
-            // height: 53,
-            // maxWidth: 250,
-            maxWidth: 200,
-            leading: SvgImage.asset(
-              'assets/icons/door6.svg',
-              width: 18.82,
-              height: 23.73,
+            maxWidth: 210,
+            height: 46,
+            // leading: SvgImage.asset(
+            //   'assets/icons/door6.svg',
+            //   width: 18.82,
+            //   height: 23.73,
+            // ),
+            // leading: SvgImage.asset(
+            //   'assets/icons/start_blue.svg',
+            //   width: 23.91 * 1,
+            //   height: 22.63 * 1,
+            // ),
+            leading: Transform.translate(
+              offset: const Offset(-2, 0),
+              child: Icon(
+                Icons.how_to_reg,
+                size: 26,
+                color: style.colors.primary,
+              ),
             ),
             onPressed: () => LoginView.show(context),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignButton'),
-            title: Text(
-              'Вход'.l10n,
-              // style: TextStyle(color: Colors.white),
-            ),
-            // subtitle: Text('or sign in'.l10n),
-            // height: 53,
-            maxWidth: 200,
-            // color: const Color(0xFFB68AD1),
+            title: Text('Вход'.l10n),
+            maxWidth: 210,
+            height: 46,
             leading: SvgImage.asset(
               'assets/icons/door6.svg',
               width: 18.82,
@@ -223,38 +229,62 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('StartButton'),
-            subtitle: Text(
-              'Одноразовый\nаккаунт'.l10n,
-              style: TextStyle(
-                color: style.colors.onPrimary,
-              ),
-            ),
-            // subtitle: Text('account'.l10n),
-            // height: 60,
-            // maxWidth: 250,
-            // maxWidth: 250,
-            height: 54,
-            maxWidth: 200,
-            // color: Color.fromRGBO(126, 198, 113, 1),
-            color: const Color(0xFF6EB876),
+            subtitle: Text('Одноразовый\nаккаунт'.l10n),
+            maxWidth: 210,
+            height: 46,
+            // leading: Transform.translate(
+            //   offset: const Offset(-2, 0),
+            //   child: Icon(
+            //     Icons.local_drink_rounded,
+            //     size: 26,
+            //     color: style.colors.primary,
+            //   ),
+            // ),
             leading: SvgImage.asset(
-              // 'assets/icons/one_time13.svg',
-              // width: 23.5,
-              // height: 22.78,
-              'assets/icons/one_time15.svg',
-              width: 23.91 * 1.1,
-              height: 22.63 * 1.1,
+              'assets/icons/start_blue.svg',
+              width: 23.91 * 1,
+              height: 22.63 * 1,
             ),
-
             onPressed: c.register,
           ),
+          const SizedBox(height: 15),
+          OutlinedRoundedButton(
+            subtitle: Text(
+              'Работайте\nс нами'.l10n,
+              // style: TextStyle(color: style.colors.onPrimary),
+            ),
+            maxWidth: 210,
+            height: 46,
+            leading: SvgImage.asset(
+              'assets/icons/partner16.svg',
+              height: 20,
+            ),
+            // color: const Color(0xFFCAE8B8),
+            onPressed: () => router.vacancy(null, push: true),
+          ),
+          const SizedBox(height: 15),
+          RmbDetector(
+            onPressed: c.systemUp,
+            child: OutlinedRoundedButton(
+              title: Text(
+                'Скачать'.l10n,
+                // style: TextStyle(color: style.colors.onPrimary),
+              ),
+              maxWidth: 210,
+              height: 46,
+              leading: icon,
+              onPressed: () => _download(context),
+              // color: style.colors.primary,
+            ),
+          ),
+
           // OutlinedRoundedButton(
           //   key: const Key('StartButton'),
           //   title: Text('Одноразовый аккаунт'.l10n),
           //   // subtitle: Text('account'.l10n),
           //   // height: 60,
-          //   // maxWidth: 250,
-          //   // maxWidth: 250,
+          //   // maxWidth: 210,
+          //   // maxWidth: 210,
           //   leading: SvgImage.asset(
           //     // 'assets/icons/one_time13.svg',
           //     // width: 23.5,
@@ -275,7 +305,7 @@ class AuthView extends StatelessWidget {
                   style: TextStyle(color: style.colors.onPrimary),
                 ),
                 height: 53,
-                // maxWidth: 250,
+                // maxWidth: 210,
                 maxWidth: 200,
                 leading: icon,
                 onPressed: () => _download(context),
@@ -327,13 +357,7 @@ class AuthView extends StatelessWidget {
                 Column(
                   children: [
                     Expanded(child: Center(child: column)),
-                    WidgetButton(
-                      onPressed: () => _download(context),
-                      child: SvgImage.asset(
-                        'assets/icons/get_it_on_google_play.svg',
-                        height: 45,
-                      ),
-                    ),
+
                     // const SizedBox(height: 15),
                     // if (icon != null) ...[
                     //   // if (isWeb) const SizedBox(height: 15),
@@ -345,7 +369,7 @@ class AuthView extends StatelessWidget {
                     //         style: TextStyle(color: style.colors.onPrimary),
                     //       ),
                     //       height: 53,
-                    //       // maxWidth: 250,
+                    //       // maxWidth: 210,
                     //       maxWidth: 170,
                     //       leading: icon,
                     //       onPressed: () => _download(context),
@@ -355,6 +379,13 @@ class AuthView extends StatelessWidget {
                     //   const SizedBox(height: 15),
                     // ],
                     status,
+                    // WidgetButton(
+                    //   onPressed: () => _download(context),
+                    //   child: SvgImage.asset(
+                    //     'assets/icons/get_it_on_google_play.svg',
+                    //     height: 45,
+                    //   ),
+                    // ),
                   ],
                 ),
                 // Column(
@@ -370,8 +401,8 @@ class AuthView extends StatelessWidget {
                 //     //   ),
                 //     //   // subtitle: Text('account'.l10n),
                 //     //   // height: 60,
-                //     //   // maxWidth: 250,
-                //     //   // maxWidth: 250,
+                //     //   // maxWidth: 210,
+                //     //   // maxWidth: 210,
                 //     //   height: 54,
                 //     //   maxWidth: 160,
                 //     //   color: Color.fromRGBO(126, 198, 113, 1),

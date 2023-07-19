@@ -28,6 +28,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.title,
     this.subtitle,
     this.leading,
+    this.leadingWidth = 24,
     this.onPressed,
     this.onLongPress,
     this.gradient,
@@ -83,6 +84,8 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   /// [BoxShadow]s to apply to this button.
   final List<BoxShadow>? shadows;
+
+  final double? leadingWidth;
 
   final TextStyle? style;
 
@@ -188,48 +191,92 @@ class OutlinedRoundedButton extends StatelessWidget {
           hoverColor: style.colors.secondary.withOpacity(0.02),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 16 * 0.7,
+              horizontal: 8 * 0.7,
               vertical: 6 * 0.7,
             ),
-            child: Stack(
-              alignment: Alignment.centerLeft,
+            child: Row(
               children: [
+                const SizedBox(width: 8),
                 if (leading != null)
-                  Row(
-                    children: [
-                      Expanded(child: Center(child: leading)),
-                      Expanded(flex: 4, child: Container()),
-                      Expanded(child: Container()),
-                    ],
-                  ),
-                DefaultTextStyle.merge(
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: this.style ?? fonts.titleLarge,
-                  child: Center(
-                    child: Padding(
-                      padding: leading == null
-                          ? EdgeInsets.zero
-                          : const EdgeInsets.only(left: 10 * 0.7),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          title ?? Container(),
-                          if (subtitle != null) const SizedBox(height: 1 * 0.7),
-                          if (subtitle != null)
-                            DefaultTextStyle.merge(
-                              style: fonts.labelMedium,
-                              child: subtitle!,
-                            ),
-                        ],
+                  SizedBox(width: leadingWidth, child: Center(child: leading!)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: DefaultTextStyle.merge(
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: this.style ?? fonts.titleLarge,
+                    child: Center(
+                      child: Padding(
+                        padding: leading == null
+                            ? EdgeInsets.zero
+                            : const EdgeInsets.only(left: 10 * 0.7),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            title ?? Container(),
+                            if (subtitle != null)
+                              const SizedBox(height: 1 * 0.7),
+                            if (subtitle != null)
+                              DefaultTextStyle.merge(
+                                style: fonts.labelMedium,
+                                child: subtitle!,
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
+                const SizedBox(width: 8),
+                if (leading != null)
+                  SizedBox(
+                    width: leadingWidth,
+                    child: Center(child: Opacity(opacity: 0, child: leading!)),
+                  ),
+                const SizedBox(width: 8),
               ],
             ),
+            // child: Stack(
+            //   alignment: Alignment.centerLeft,
+            //   children: [
+            //     if (leading != null)
+            //       Row(
+            //         children: [
+            //           Expanded(child: Center(child: leading)),
+            //           Expanded(flex: 4, child: Container()),
+            //           Expanded(child: Container()),
+            //         ],
+            //       ),
+            //     DefaultTextStyle.merge(
+            //       maxLines: 2,
+            //       overflow: TextOverflow.ellipsis,
+            //       textAlign: TextAlign.center,
+            //       style: this.style ?? fonts.titleLarge,
+            //       child: Center(
+            //         child: Padding(
+            //           padding: leading == null
+            //               ? EdgeInsets.zero
+            //               : const EdgeInsets.only(left: 10 * 0.7),
+            //           child: Column(
+            //             mainAxisAlignment: MainAxisAlignment.center,
+            //             crossAxisAlignment: CrossAxisAlignment.center,
+            //             children: [
+            //               title ?? Container(),
+            //               if (subtitle != null) const SizedBox(height: 1 * 0.7),
+            //               if (subtitle != null)
+            //                 DefaultTextStyle.merge(
+            //                   style: fonts.labelLarge,
+            //                   child: subtitle!,
+            //                 ),
+            //             ],
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
           ),
         ),
       ),

@@ -136,8 +136,6 @@ mixin UserGraphQlMixin {
     return UpdateUserName$Mutation.fromJson(res.data!).updateUserName;
   }
 
-
-
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   ///
   /// ### Authentication
@@ -1157,19 +1155,16 @@ mixin UserGraphQlMixin {
     final encodedBody = json.encode(body);
 
     await client.post(
-      dio.FormData.fromMap({
-        'operations': encodedBody,
-        'map': '{ "token": ["variables.token"] }',
-        'token': token,
-      }),
+      encodedBody,
       options: dio.Options(
         headers: {
           if (locale != null) 'Accept-Language': locale,
         },
       ),
       onException: (data) => RegisterFcmDeviceException(
-          RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
-              as RegisterFcmDeviceErrorCode),
+        RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
+            as RegisterFcmDeviceErrorCode,
+      ),
     );
   }
 

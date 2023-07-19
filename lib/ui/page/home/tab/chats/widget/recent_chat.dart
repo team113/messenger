@@ -585,25 +585,25 @@ class RecentChatTile extends StatelessWidget {
             case ChatInfoActionKind.memberAdded:
               final action = item.action as ChatInfoActionMemberAdded;
 
-              if (item.author.id != action.user.id) {
-                content = userBuilder(action.user.id, (context, user) {
-                  final User author = (item as ChatInfo).author;
-                  user ??= action.user;
+              content = userBuilder(action.user.id, (context, user) {
+                final User author = (item as ChatInfo).author;
+                user ??= action.user;
 
+                if (item.author.id != action.user.id) {
                   final Map<String, dynamic> args = {
                     'author': author.name?.val ?? author.num.val,
                     'user': user.name?.val ?? user.num.val,
                   };
 
                   return Text('label_user_added_user'.l10nfmt(args));
-                });
-              } else {
-                content = Text(
-                  'label_was_added'.l10nfmt(
-                    {'author': '${action.user.name ?? action.user.num}'},
-                  ),
-                );
-              }
+                } else {
+                  return Text(
+                    'label_was_added'.l10nfmt(
+                      {'author': user.name?.val ?? user.num.val},
+                    ),
+                  );
+                }
+              });
               break;
 
             case ChatInfoActionKind.memberRemoved:
