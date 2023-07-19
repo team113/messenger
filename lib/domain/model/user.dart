@@ -317,6 +317,7 @@ class ChatDirectLinkSlug extends NewType<String> {
     final Random r = Random();
     const String chars =
         'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890_-';
+
     return ChatDirectLinkSlug(
       List.generate(
         length,
