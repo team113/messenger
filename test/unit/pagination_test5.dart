@@ -18,7 +18,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/extension/chat.dart';
-import 'package:messenger/api/backend/schema.dart' show GetMessages$Query;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -49,7 +48,7 @@ void main() async {
     final Pagination<HiveChatItem, String, ChatItemsCursor> pagination =
         Pagination(
       perPage: 4,
-      onKey: (e) => e.value.key,
+      onKey: (e) => e.value.key.toString(),
       provider: GraphQlPageProvider<HiveChatItem, ChatItemsCursor>(
         fetch: ({after, before, first, last}) async {
           final q = await graphQlProvider.chatItems(

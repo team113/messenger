@@ -48,7 +48,7 @@ void main() async {
     final Pagination<HiveChatItem, String, ChatItemsCursor> pagination =
         Pagination(
       perPage: 4,
-      onKey: (i) => i.value.key,
+      onKey: (i) => i.value.key.toString(),
       provider: GraphQlPageProvider<HiveChatItem, ChatItemsCursor>(
         fetch: ({after, before, first, last}) async {
           final q = await graphQlProvider.chatItems(
