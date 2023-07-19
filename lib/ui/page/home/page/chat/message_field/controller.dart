@@ -238,8 +238,6 @@ class MessageFieldController extends GetxController {
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
-
-    clear();
     super.onClose();
   }
 
