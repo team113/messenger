@@ -201,7 +201,7 @@ class HiveRxChat extends RxChat {
 
       if (myRead != null) {
         return messages.firstWhereOrNull(
-          (e) => myRead.isBefore(e.value.at) && e.value.authorId != me,
+          (e) => myRead.isBefore(e.value.at) && e.value.author.id != me,
         );
       } else {
         return messages.firstOrNull;
@@ -425,7 +425,7 @@ class HiveRxChat extends RxChat {
       int read = messages
           .skip(firstUnreadIndex)
           .take(lastReadIndex - firstUnreadIndex + 1)
-          .where((e) => !e.value.id.isLocal && e.value.authorId != me)
+          .where((e) => !e.value.id.isLocal && e.value.author.id != me)
           .length;
       unreadCount.value = chat.value.unreadCount - read;
     }
