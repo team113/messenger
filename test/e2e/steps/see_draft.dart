@@ -46,10 +46,13 @@ final StepDefinitionGeneric seeDraftInDialog =
         context.world.appDriver.findBy('Draft', FindType.key),
         firstMatchOnly: true,
       );
-      expect(await context.world.appDriver.isPresent(finder), true);
 
-      final RxChat? chat = Get.find<ChatService>().chats[dialog];
-      return (chat?.draft.value as ChatMessage).text?.val == text;
+      if (await context.world.appDriver.isPresent(finder)) {
+        final RxChat? chat = Get.find<ChatService>().chats[dialog];
+        return (chat?.draft.value as ChatMessage).text?.val == text;
+      }
+
+      return false;
     });
   },
 );
