@@ -20,20 +20,27 @@ import 'package:messenger/domain/model/user.dart';
 
 void main() {
   group('ChatDirectLinkSlug', () {
-    test('Should generate a slug of given length', () {
-      final slug = ChatDirectLinkSlug.generate(10);
+    test('Should generate slug with random chars', () {
+      final slug = ChatDirectLinkSlug.generate();
+      print(slug);
+
+      expect(slug.val, isNotNull);
+      expect(slug.val, isNotEmpty);
       expect(slug.val.length, equals(10));
     });
 
     test('Should generate a slug with valid characters', () {
       final slug = ChatDirectLinkSlug.generate(10);
       final validChars = RegExp(r'^[A-Za-z0-9_-]+$');
+      print(slug);
       expect(validChars.hasMatch(slug.val), isTrue);
     });
 
-    test('Should not end with a hyphen', () {
+    test('Should not end with "-" or "_"', () {
       final slug = ChatDirectLinkSlug.generate();
-      expect(slug.val.endsWith('-') && slug.val.endsWith('_'), isFalse);
+      print(slug);
+      expect(slug.val.endsWith('-'), isFalse);
+      expect(slug.val.endsWith('_'), isFalse);
     });
   });
 }

@@ -318,6 +318,10 @@ class ChatDirectLinkSlug extends NewType<String> {
     const String chars =
         'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890_-';
 
+    final index = r.nextInt(chars.length) % chars.length;
+
+    print(index);
+
     return ChatDirectLinkSlug(
       List.generate(
         length,
@@ -326,7 +330,7 @@ class ChatDirectLinkSlug extends NewType<String> {
             // applications.
             ? chars
                 .replaceFirst('-', '')
-                .replaceFirst('_', '')[r.nextInt(chars.length)]
+                .replaceFirst('_', '')[r.nextInt(chars.length - 1)]
             : chars[r.nextInt(chars.length)],
       ).join(),
     );
