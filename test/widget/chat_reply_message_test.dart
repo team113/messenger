@@ -435,6 +435,12 @@ void main() async {
     await gesture.addPointer(location: Offset.zero);
     addTearDown(gesture.removePointer);
 
+    // Wait for local subscription in [RxChat].
+    await tester.runAsync(() async {
+      await Future.delayed(1.seconds);
+    });
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     var message = find.richText('text message', skipOffstage: false);
     expect(message, findsOneWidget);
 
@@ -458,6 +464,12 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 10));
 
     await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    // Wait for local subscription in [RxChat].
+    await tester.runAsync(() async {
+      await Future.delayed(1.seconds);
+    });
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
