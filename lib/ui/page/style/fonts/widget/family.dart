@@ -30,26 +30,36 @@ class FontFamiliesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Column(
-      children: [
-        _FontFamilyContainer(
-          isDarkMode,
-          label: 'SFUI-Light',
-          textStyle: fonts.displayLarge!.copyWith(fontWeight: FontWeight.w300),
-        ),
-        const SizedBox(height: 20),
-        _FontFamilyContainer(
-          isDarkMode,
-          label: 'SFUI-Regular',
-          textStyle: fonts.displayLarge!.copyWith(fontWeight: FontWeight.w400),
-        ),
-        const SizedBox(height: 20),
-        _FontFamilyContainer(
-          isDarkMode,
-          label: 'SFUI-Bold',
-          textStyle: fonts.displayLarge!.copyWith(fontWeight: FontWeight.w700),
-        ),
-      ],
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          _FontFamilyContainer(
+            isDarkMode,
+            label: 'SFUI-Light',
+            textStyle:
+                fonts.displayLarge!.copyWith(fontWeight: FontWeight.w300),
+          ),
+          Divider(color: isDarkMode ? Colors.white : null),
+          _FontFamilyContainer(
+            isDarkMode,
+            label: 'SFUI-Regular',
+            textStyle:
+                fonts.displayLarge!.copyWith(fontWeight: FontWeight.w400),
+          ),
+          Divider(color: isDarkMode ? Colors.white : null),
+          _FontFamilyContainer(
+            isDarkMode,
+            label: 'SFUI-Bold',
+            textStyle:
+                fonts.displayLarge!.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -75,66 +85,69 @@ class _FontFamilyContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Stack(
-      children: [
-        AnimatedContainer(
-          height: 230,
-          duration: const Duration(milliseconds: 400),
-          decoration: BoxDecoration(
-            color:
-                isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        if (label != null)
-          Positioned(
-            right: 20,
-            bottom: 10,
-            child: Text(
-              label!,
-              style: fonts.displayLarge!.copyWith(
-                color: const Color(0xFFF5F5F5),
-                fontSize: 40,
-              ),
-            ),
-          ),
-        DefaultTextStyle(
-          style: textStyle.copyWith(
-            color:
-                isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
-          ),
-          child: const Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(left: 32, top: 25),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                  SizedBox(height: 40),
-                  Text('abcdefghijklmnopqrstuvwxyz'),
-                  SizedBox(height: 40),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 25),
-                    child: Row(
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Expanded(
+            child: Column(
+              children: [
+                DefaultTextStyle(
+                  style: textStyle.copyWith(
+                    color: isDarkMode
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('1234567890'),
-                        SizedBox(width: 50),
-                        Flexible(
-                          child: Text(
-                            '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
-                            softWrap: true,
-                          ),
-                        )
+                        Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                        SizedBox(height: 40),
+                        Text('abcdefghijklmnopqrstuvwxyz'),
+                        SizedBox(height: 40),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                '1234567890',
+                                softWrap: true,
+                              ),
+                            ),
+                            SizedBox(width: 50),
+                            Flexible(
+                              child: Text(
+                                '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
+                                softWrap: true,
+                              ),
+                            )
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+                if (label != null)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Text(
+                        label!,
+                        style: fonts.displayLarge!.copyWith(
+                          color: const Color(0xFFF5F5F5),
+                          fontSize: 28,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }

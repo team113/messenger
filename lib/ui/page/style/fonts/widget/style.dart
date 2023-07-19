@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/allow_overflow.dart';
 
 import '/themes.dart';
 
@@ -153,8 +154,8 @@ class _FontStyleContainer extends StatelessWidget {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
-      height: 270,
-      width: 290,
+      height: 245,
+      width: 245,
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
@@ -164,20 +165,22 @@ class _FontStyleContainer extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 32),
+            const SizedBox(height: 30),
             if (title != null)
               Center(
-                child: Text(
-                  title!,
-                  style: style.copyWith(
-                    color: color ??
-                        (isDarkMode
-                            ? const Color(0xFFFFFFFF)
-                            : const Color(0xFF000000)),
+                child: AllowOverflow(
+                  child: Text(
+                    title!,
+                    style: style.copyWith(
+                      color: color ??
+                          (isDarkMode
+                              ? const Color(0xFFFFFFFF)
+                              : const Color(0xFF000000)),
+                    ),
                   ),
                 ),
               ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Divider(color: isDarkMode ? const Color(0xFFFFFFFF) : null),
             const SizedBox(height: 8),
             Row(
@@ -189,82 +192,91 @@ class _FontStyleContainer extends StatelessWidget {
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF888888),
                   ),
-                  child: SizedBox(
-                    height: 130,
-                    width: 140,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
+                  child: Expanded(
+                    child: SizedBox(
+                      height: 130,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('Size'),
-                            Expanded(
-                              child: Divider(
-                                indent: 10,
-                                endIndent: 10,
-                                color:
-                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
-                              ),
+                            Row(
+                              children: [
+                                const Text('Size'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: isDarkMode
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Text('Weight'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: isDarkMode
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Text('Style'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: isDarkMode
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Text('Color'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: isDarkMode
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Text('Spacing'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: isDarkMode
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Text('Weight'),
-                            Expanded(
-                              child: Divider(
-                                indent: 10,
-                                endIndent: 10,
-                                color:
-                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Text('Style'),
-                            Expanded(
-                              child: Divider(
-                                indent: 10,
-                                endIndent: 10,
-                                color:
-                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Text('Color'),
-                            Expanded(
-                              child: Divider(
-                                indent: 10,
-                                endIndent: 10,
-                                color:
-                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Text('Letter spacing'),
-                            Expanded(
-                              child: Divider(
-                                indent: 10,
-                                endIndent: 10,
-                                color:
-                                    isDarkMode ? const Color(0xFFFFFFFF) : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -276,21 +288,23 @@ class _FontStyleContainer extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(style.fontSize.toString()),
-                        const SizedBox(height: 8),
-                        Text(style.fontWeight!.value.toString()),
-                        const SizedBox(height: 8),
-                        Text(_getFontWeightName(style.fontWeight)),
-                        const SizedBox(height: 8),
-                        Text(label),
-                        const SizedBox(height: 8),
-                        style.letterSpacing == null
-                            ? const Text('0 %')
-                            : Text('${style.letterSpacing} %'),
-                      ],
+                    child: Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(style.fontSize.toString()),
+                          const SizedBox(height: 8),
+                          Text(style.fontWeight!.value.toString()),
+                          const SizedBox(height: 8),
+                          Text(_getFontWeightName(style.fontWeight)),
+                          const SizedBox(height: 8),
+                          Text(label),
+                          const SizedBox(height: 8),
+                          style.letterSpacing == null
+                              ? const Text('0 %')
+                              : Text('${style.letterSpacing} %'),
+                        ],
+                      ),
                     ),
                   ),
                 )

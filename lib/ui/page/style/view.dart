@@ -41,13 +41,14 @@ class StyleView extends StatelessWidget {
               children: [
                 Flexible(
                   flex: 1,
+                  fit: FlexFit.loose,
                   child: ColoredBox(
                     color: const Color(0xFFFFFFFF),
                     child: Column(
                       children: [
                         Expanded(child: _tabs(c, context)),
                         const SizedBox(height: 10),
-                        _mode(c),
+                        _mode(c, 120),
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -101,7 +102,7 @@ class StyleView extends StatelessWidget {
           leadingWidth: double.infinity,
           flexibleSpace: FlexibleSpaceBar(
             title: Text(
-              'Styles',
+              'Style',
               textAlign: TextAlign.center,
               style: fonts.headlineLarge!.copyWith(
                 color: const Color(0xFF1F3C5D),
@@ -168,18 +169,37 @@ class StyleView extends StatelessWidget {
   }
 
   /// Returns a [CustomSwitcher] switching between the light and dark mode.
-  Widget _mode(StyleController c) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: CustomSwitcher(onChanged: c.toggleDarkMode),
-        ),
-        const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
-      ],
+  Widget _mode(StyleController c, double width) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final Widget child;
+
+        if (constraints.maxWidth < width) {
+          child = Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: CustomSwitcher(onChanged: c.toggleDarkMode),
+          );
+        } else {
+          child = Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: CustomSwitcher(onChanged: c.toggleDarkMode),
+              ),
+              const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
+            ],
+          );
+        }
+
+        return AnimatedSize(
+          curve: Curves.ease,
+          duration: const Duration(milliseconds: 200),
+          child: child,
+        );
+      },
     );
   }
 }
