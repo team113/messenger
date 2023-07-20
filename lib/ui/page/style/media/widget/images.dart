@@ -50,7 +50,7 @@ class ImagesView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       child: SvgImage.asset(
                         'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fitHeight,
                       ),
                     ),
                   ),

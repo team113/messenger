@@ -555,7 +555,7 @@ class _ButtonCard extends StatelessWidget {
                               const BorderRadius.all(Radius.circular(10)),
                           child: SvgImage.asset(
                             'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                            fit: BoxFit.fill,
+                            fit: BoxFit.fitHeight,
                           ),
                         ),
                       ),

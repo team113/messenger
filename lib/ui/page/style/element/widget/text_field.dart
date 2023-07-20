@@ -272,7 +272,10 @@ class _ReactiveTextFieldCard extends StatelessWidget {
                               const BorderRadius.all(Radius.circular(10)),
                           child: SvgImage.asset(
                             'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                            fit: BoxFit.fill,
+                            fit: BoxFit.fitHeight,
+                            // fit: BoxFit.fitHeight,
+                            // fit: BoxFit.none,
+                            // fit: BoxFit.none,
                           ),
                         ),
                       ),
@@ -398,7 +401,7 @@ class _CopyableTextFieldCard extends StatelessWidget {
                               const BorderRadius.all(Radius.circular(10)),
                           child: SvgImage.asset(
                             'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                            fit: BoxFit.fill,
+                            fit: BoxFit.fitHeight,
                           ),
                         ),
                       ),
@@ -495,7 +498,7 @@ class _SharableFieldCard extends StatelessWidget {
                               const BorderRadius.all(Radius.circular(10)),
                           child: SvgImage.asset(
                             'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                            fit: BoxFit.fill,
+                            fit: BoxFit.fitHeight,
                           ),
                         ),
                       ),
