@@ -19,7 +19,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../widget/svg/svg.dart';
 import '../../../call/widget/hint.dart';
 import '../../../home/page/chat/widget/time_label.dart';
 import '../../../home/page/chat/widget/unread_label.dart';
@@ -44,12 +43,11 @@ class SystemMessagesWidget extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-              child: SvgImage.asset(
-                'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                fit: BoxFit.fitHeight,
-              ),
+            decoration: BoxDecoration(
+              color: isDarkMode
+                  ? const Color(0xFF142839)
+                  : const Color(0xFFF4F9FB),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
           Column(

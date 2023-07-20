@@ -265,18 +265,14 @@ class _ReactiveTextFieldCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Stack(
                     children: [
-                      SizedBox(
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 400),
                         width: MediaQuery.sizeOf(context).width,
-                        child: ClipRRect(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          child: SvgImage.asset(
-                            'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                            fit: BoxFit.fitHeight,
-                            // fit: BoxFit.fitHeight,
-                            // fit: BoxFit.none,
-                            // fit: BoxFit.none,
-                          ),
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? const Color(0xFF142839)
+                              : const Color(0xFFF4F9FB),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       Row(
@@ -394,15 +390,14 @@ class _CopyableTextFieldCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Stack(
                     children: [
-                      SizedBox(
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 400),
                         width: MediaQuery.sizeOf(context).width,
-                        child: ClipRRect(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          child: SvgImage.asset(
-                            'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                            fit: BoxFit.fitHeight,
-                          ),
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? const Color(0xFF142839)
+                              : const Color(0xFFF4F9FB),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       Row(
@@ -491,15 +486,14 @@ class _SharableFieldCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Stack(
                     children: [
-                      SizedBox(
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 400),
                         width: MediaQuery.sizeOf(context).width,
-                        child: ClipRRect(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          child: SvgImage.asset(
-                            'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                            fit: BoxFit.fitHeight,
-                          ),
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? const Color(0xFF142839)
+                              : const Color(0xFFF4F9FB),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       Row(

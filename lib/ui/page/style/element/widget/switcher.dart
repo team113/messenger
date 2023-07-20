@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../widget/svg/svg.dart';
 import '../../../../widget/text_field.dart';
 import '../../../home/widget/paddings.dart';
 import '/themes.dart';
@@ -104,15 +103,14 @@ class _SwitcherCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Stack(
                     children: [
-                      SizedBox(
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 400),
                         width: MediaQuery.sizeOf(context).width,
-                        child: ClipRRect(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          child: SvgImage.asset(
-                            'assets/images/background_${isDarkMode ? 'dark' : 'light'}.svg',
-                            fit: BoxFit.fitHeight,
-                          ),
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? const Color(0xFF142839)
+                              : const Color(0xFFF4F9FB),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       Row(
