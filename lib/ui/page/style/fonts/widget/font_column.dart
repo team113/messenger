@@ -152,61 +152,52 @@ class _CustomFont extends StatelessWidget {
       builder: (context, constraints) {
         final Widget child;
 
-        if (constraints.maxWidth < 300) {
-          child = Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (title != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 10,
+        if (constraints.maxWidth < 305) {
+          child = Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 10,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (title != null)
+                  Text(
+                    title!,
+                    style: style!.copyWith(
+                      color: inverted
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000),
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title!,
-                        style: style!.copyWith(
-                          color: inverted
-                              ? const Color(0xFFFFFFFF)
-                              : const Color(0xFF000000),
-                        ),
-                      ),
-                      Text(
-                        '${style!.fontSize} pt, w${style!.fontWeight?.value}',
-                        style: fonts.titleMedium?.copyWith(
-                          color: inverted
-                              ? const Color(0xFFFFFFFF)
-                              : const Color(0xFF000000),
-                        ),
-                      ),
-                    ],
+                Text(
+                  '${style!.fontSize} pt, w${style!.fontWeight?.value}',
+                  style: fonts.titleMedium?.copyWith(
+                    color: inverted
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
                   ),
                 ),
-            ],
+              ],
+            ),
           );
         } else {
           child = Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
             child: Row(
               children: [
-                Column(
-                  children: [
-                    if (title != null)
-                      SizedBox(
-                        width: 180,
-                        child: Text(
-                          title!,
-                          style: style!.copyWith(
-                            color: inverted
-                                ? const Color(0xFFFFFFFF)
-                                : const Color(0xFF000000),
-                          ),
-                        ),
+                if (title != null)
+                  SizedBox(
+                    width: 180,
+                    child: Text(
+                      title!,
+                      style: style!.copyWith(
+                        color: inverted
+                            ? const Color(0xFFFFFFFF)
+                            : const Color(0xFF000000),
                       ),
-                  ],
-                ),
+                    ),
+                  ),
                 Text(
                   '${style!.fontSize} pt, w${style!.fontWeight?.value}',
                   style: fonts.titleMedium?.copyWith(
