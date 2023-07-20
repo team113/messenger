@@ -570,7 +570,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           });
         } else {
           final Map<String, dynamic> args = {
-            'author': action.user.name?.val ?? action.user.num.val,
+            'author': widget.user?.user.value.name?.val ??
+                widget.user?.user.value.num.val ??
+                action.user.name?.val ??
+                action.user.num.val,
           };
 
           content = Text.rich(
