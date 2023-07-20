@@ -45,14 +45,13 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -99,7 +98,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -186,7 +184,15 @@ void main() async {
               '__typename': 'ChatMessage',
               'id': '6d1c8e23-8583-4e3d-9ebb-413c95c786b0',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-              'authorId': 'me',
+              'author': {
+                'id': 'me',
+                'num': '1234567890123456',
+                'mutualContactsCount': 0,
+                'isDeleted': false,
+                'isBlocked': {'blacklisted': false, 'ver': '0'},
+                'presence': 'AWAY',
+                'ver': '0',
+              },
               'at': '2022-02-01T09:32:52.246988+00:00',
               'ver': '10',
               'repliesTo': [],
@@ -260,13 +266,13 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  when(graphQlProvider.getBlacklist(
+  when(graphQlProvider.getBlocklist(
     first: 120,
     after: null,
     last: null,
     before: null,
   )).thenAnswer(
-    (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
   );
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
@@ -279,16 +285,13 @@ void main() async {
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       RememberedSession(
-        const RememberToken('token'),
+        const RefreshToken('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),
     ),
   );
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -313,7 +316,7 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
@@ -351,8 +354,8 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
@@ -385,7 +388,6 @@ void main() async {
       graphQlProvider,
       myUserProvider,
       blacklistedUsersProvider,
-      galleryItemProvider,
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));

@@ -98,6 +98,14 @@ class Themes {
       bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
     );
 
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: colors.primaryHighlight,
+        statusBarColor: colors.transparent,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
+
     final ThemeData theme = ThemeData.light();
 
     return theme.copyWith(
@@ -154,10 +162,6 @@ class Themes {
           ),
           actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
             color: colors.secondary,
-          ),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            systemNavigationBarColor: colors.primaryHighlight,
-            statusBarColor: colors.transparent,
           ),
           elevation: 0,
           centerTitle: true,
@@ -565,6 +569,7 @@ class Palette {
     Color? onBackgroundOpacity27,
     Color? onBackgroundOpacity40,
     Color? onBackgroundOpacity50,
+    Color? onBackgroundOpacity70,
     required this.transparent,
     required this.acceptColor,
     required this.acceptAuxiliaryColor,
@@ -599,7 +604,9 @@ class Palette {
         onBackgroundOpacity40 =
             onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
         onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50);
+            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
+        onBackgroundOpacity70 =
+            onBackgroundOpacity70 ?? onBackground.withOpacity(0.70);
 
   /// Primary [Color] of the application.
   ///
@@ -737,6 +744,11 @@ class Palette {
 
   /// [Color] for elements to put above the [background] color.
   final Color onBackground;
+
+  /// 70% opacity of the [onBackground] color.
+  ///
+  /// Used to darken inactive interface elements.
+  final Color onBackgroundOpacity70;
 
   /// 50% opacity of the [onBackground] color.
   ///

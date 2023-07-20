@@ -32,10 +32,10 @@ import 'package:messenger/ui/page/home/page/chat/video/desktop_controls/widget/m
 import 'package:messenger/ui/page/home/page/chat/video/desktop_controls/widget/play_pause.dart';
 import 'package:messenger/ui/page/home/page/chat/video/desktop_controls/widget/position.dart';
 
-import 'widget/volume_bar.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
+import 'widget/volume_bar.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
@@ -403,21 +403,10 @@ class _DesktopControlsState extends State<DesktopControls>
   //     ),
   //   );
   // }
-
-  /// Returns the mute/unmute button with a volume overlay above it.
-  // Widget _buildMuteButton(MeeduPlayerController controller) {
-  //   final style = Theme.of(context).style;
-
-  //   return MouseRegion(
-  //     cursor: SystemMouseCursors.click,
-  //     onEnter: (_) {
-  //       if (mounted && _volumeEntry == null) {
-  //         Offset offset = Offset.zero;
-  //         final keyContext = _volumeKey.currentContext;
-  //         if (keyContext != null) {
-  //           final box = keyContext.findRenderObject() as RenderBox;
-  //           offset = box.localToGlobal(Offset.zero);
-  //         }
+//             final box = keyContext.findRenderObject() as RenderBox;
+//             offset = box.localToGlobal(Offset.zero);
+//           }
+// >>>>>>> c324edb173d8e31050185333abc59d32a37f4a1c:lib/ui/page/home/page/chat/widget/desktop_controls.dart
 
   //         _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
   //         Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
@@ -453,7 +442,7 @@ class _DesktopControlsState extends State<DesktopControls>
   //   );
   // }
 
-  /// Returns the [_volumeEntry] overlay.
+  // Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
     final style = Theme.of(context).style;
 

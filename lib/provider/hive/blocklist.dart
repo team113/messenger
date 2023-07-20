@@ -20,19 +20,19 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '/domain/model/user.dart';
 import 'base.dart';
 
-/// [Hive] storage for blacklisted [UserId]s of the authenticated [MyUser].
-class BlacklistHiveProvider extends HiveBaseProvider<bool> {
+/// [Hive] storage for blocked [UserId]s of the authenticated [MyUser].
+class BlocklistHiveProvider extends HiveBaseProvider<bool> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'blacklist';
+  String get boxName => 'blocklist';
 
   @override
   void registerAdapters() {}
 
   /// Returns a list of [UserId]s from [Hive].
-  Iterable<UserId> get blacklisted => box.keys.map((e) => UserId(e));
+  Iterable<UserId> get blocked => box.keys.map((e) => UserId(e));
 
   /// Puts the provided [UserId] to [Hive].
   Future<void> put(UserId id) => putSafe(id.val, true);

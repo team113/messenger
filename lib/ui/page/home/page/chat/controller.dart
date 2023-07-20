@@ -63,7 +63,6 @@ import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'forward/view.dart';
@@ -175,9 +174,6 @@ class ChatController extends GetxController {
   /// Used to hide it when no scrolling is happening.
   final RxBool showSticky = RxBool(false);
 
-  /// Duration of a [Chat.ongoingCall].
-  final Rx<Duration?> duration = Rx(null);
-
   /// Indicator whether the [_bottomLoader] should be displayed.
   final RxBool bottomLoader = RxBool(false);
 
@@ -232,9 +228,6 @@ class ChatController extends GetxController {
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
-
-  /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
-  Timer? _durationTimer;
 
   /// [Timer] for resetting the [showSticky].
   Timer? _stickyTimer;
@@ -389,7 +382,6 @@ class ChatController extends GetxController {
     _typingSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
-    _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
     _bottomLoaderStartTimer?.cancel();
@@ -581,7 +573,7 @@ class ChatController extends GetxController {
           // Combine this [ChatMessage] with previous and next [ChatForward]s,
           // if it was posted less than [groupForwardThreshold] ago.
           if (previous is ChatForwardElement &&
-              previous.authorId == item.authorId &&
+              previous.authorId == item.author.id &&
               item.at.val
                       .difference(previous.forwards.last.value.at.val)
                       .abs() <
@@ -590,7 +582,7 @@ class ChatController extends GetxController {
             insert = false;
             previous.note.value = e;
           } else if (next is ChatForwardElement &&
-              next.authorId == item.authorId &&
+              next.authorId == item.author.id &&
               next.forwards.last.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold &&
               next.note.value == null) {
@@ -620,7 +612,7 @@ class ChatController extends GetxController {
           bool insert = true;
 
           if (previous is ChatForwardElement &&
-              previous.authorId == item.authorId &&
+              previous.authorId == item.author.id &&
               item.at.val
                       .difference(previous.forwards.last.value.at.val)
                       .abs() <
@@ -631,7 +623,7 @@ class ChatController extends GetxController {
             previous.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
             insert = false;
           } else if (previous is ChatMessageElement &&
-              previous.item.value.authorId == item.authorId &&
+              previous.item.value.author.id == item.author.id &&
               item.at.val.difference(previous.item.value.at.val).abs() <
                   groupForwardThreshold) {
             // Add the previous [ChatMessage] to this [ChatForwardElement.note],
@@ -639,7 +631,7 @@ class ChatController extends GetxController {
             element.note.value = previous.item;
             elements.remove(previousKey);
           } else if (next is ChatForwardElement &&
-              next.authorId == item.authorId &&
+              next.authorId == item.author.id &&
               next.forwards.first.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold) {
             // Add this [ChatForward] to next [ChatForwardElement], if it was
@@ -648,7 +640,7 @@ class ChatController extends GetxController {
             next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
             insert = false;
           } else if (next is ChatMessageElement &&
-              next.item.value.authorId == item.authorId &&
+              next.item.value.author.id == item.author.id &&
               next.item.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold) {
             // Add the next [ChatMessage] to this [ChatForwardElement.note], if
@@ -756,44 +748,11 @@ class ChatController extends GetxController {
         }
       });
 
-      // Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
-      // changes.
-      ChatItemId? previousCall;
-
-      // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
-      // from the stored [previousCall].
-      void updateTimer(Chat chat) {
-        if (previousCall != chat.ongoingCall?.id) {
-          previousCall = chat.ongoingCall?.id;
-
-          duration.value = null;
-          _durationTimer?.cancel();
-          _durationTimer = null;
-
-          if (chat.ongoingCall != null) {
-            _durationTimer = Timer.periodic(
-              const Duration(seconds: 1),
-              (_) {
-                if (chat.ongoingCall!.conversationStartedAt != null) {
-                  duration.value = DateTime.now().difference(
-                    chat.ongoingCall!.conversationStartedAt!.val,
-                  );
-                }
-              },
-            );
-          }
-        }
-      }
-
-      updateTimer(chat!.chat.value);
-
       _chatWorker = ever(chat!.chat, (Chat e) {
         if (e.id != id) {
           WebUtils.replaceState(id.val, e.id.val);
           id = e.id;
         }
-
-        updateTimer(e);
       });
 
       listController.sliverController.onPaintItemPositionsCallback =
@@ -1112,7 +1071,7 @@ class ChatController extends GetxController {
       final RxUser? recipient =
           chat!.members.values.firstWhereOrNull((e) => e.id != me);
       if (recipient != null) {
-        await _userService.unblacklistUser(recipient.id);
+        await _userService.unblockUser(recipient.id);
       }
     }
   }
@@ -1238,7 +1197,7 @@ class ChatController extends GetxController {
     if (chat!.chat.value.unreadCount != 0) {
       if (myRead != null) {
         _firstUnreadItem = chat!.messages.firstWhereOrNull(
-          (e) => myRead.isBefore(e.value.at) && e.value.authorId != me,
+          (e) => myRead.isBefore(e.value.at) && e.value.author.id != me,
         );
       } else {
         _firstUnreadItem = chat!.messages.firstOrNull;
@@ -1424,7 +1383,7 @@ class ChatForwardElement extends ListElement {
     Rx<ChatItem>? note,
   })  : forwards = RxList(forwards),
         note = Rx(note),
-        authorId = forwards.first.value.authorId,
+        authorId = forwards.first.value.author.id,
         super(ListElementId(at, forwards.first.value.id));
 
   /// Forwarded [ChatItem]s.
@@ -1577,7 +1536,7 @@ extension FileAttachmentIsVideo on FileAttachment {
 extension IsChatItemEditable on ChatItem {
   /// Indicates whether this [ChatItem] is editable.
   bool isEditable(Chat chat, UserId me) {
-    if (authorId == me) {
+    if (author.id == me) {
       if (this is ChatMessage) {
         bool isRead = chat.isRead(this, me);
         return at

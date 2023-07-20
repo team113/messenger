@@ -68,7 +68,7 @@ class CameraSwitchController extends GetxController {
 
     await WebUtils.cameraPermission();
     devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.VideoInput);
+        await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
 
     initRenderer();
 
@@ -98,7 +98,7 @@ class CameraSwitchController extends GetxController {
     renderer.value?.dispose();
     _localTrack?.free();
 
-    final String? camera = this.camera.value;
+    String? camera = this.camera.value;
 
     await _initRendererGuard.protect(() async {
       final List<LocalMediaTrack> tracks =
@@ -112,6 +112,11 @@ class CameraSwitchController extends GetxController {
       }
 
       if (_localTrack != null) {
+        if (camera == null) {
+          camera = _localTrack?.getTrack().deviceId();
+          this.camera.value = camera;
+        }
+
         final RtcVideoRenderer renderer = RtcVideoRenderer(_localTrack!);
         await renderer.initialize();
 

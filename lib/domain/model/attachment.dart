@@ -35,11 +35,11 @@ part 'attachment.g.dart';
 
 /// Attachment of a [ChatItem].
 abstract class Attachment extends HiveObject {
-  Attachment(
-    this.id,
-    this.original,
-    this.filename,
-  );
+  Attachment({
+    required this.id,
+    required this.original,
+    required this.filename,
+  });
 
   /// Unique ID of this [Attachment].
   @HiveField(0)
@@ -58,36 +58,38 @@ abstract class Attachment extends HiveObject {
 @HiveType(typeId: ModelTypeId.imageAttachment)
 class ImageAttachment extends Attachment {
   ImageAttachment({
-    required AttachmentId id,
-    required StorageFile original,
-    required String filename,
+    required super.id,
+    required super.original,
+    required super.filename,
     required this.big,
     required this.medium,
     required this.small,
-  }) : super(id, original, filename);
+  });
 
-  /// Big [ImageAttachment]'s view image [StorageFile] of `400px`x`400px` size.
+  /// Big view [ImageFile] of this [ImageAttachment], scaled proportionally to
+  /// `800px` of its maximum dimension (either width or height).
   @HiveField(3)
-  StorageFile big;
+  ImageFile big;
 
-  /// Medium [ImageAttachment]'s view image [StorageFile] of `200px`x`200px`
-  /// size.
+  /// Medium view [ImageFile] of this [ImageAttachment], scaled proportionally
+  /// to `200px` of its maximum dimension (either width or height).
   @HiveField(4)
-  StorageFile medium;
+  ImageFile medium;
 
-  /// Small [ImageAttachment]'s view image [StorageFile] of `30px`x`30px` size.
+  /// Small view [ImageFile] of this [ImageAttachment], scaled proportionally to
+  /// `30px` of its maximum dimension (either width or height).
   @HiveField(5)
-  StorageFile small;
+  ImageFile small;
 }
 
 /// Plain file [Attachment].
 @HiveType(typeId: ModelTypeId.fileAttachment)
 class FileAttachment extends Attachment {
   FileAttachment({
-    required AttachmentId id,
-    required StorageFile original,
-    required String filename,
-  }) : super(id, original, filename);
+    required super.id,
+    required super.original,
+    required super.filename,
+  });
 
   /// Path to the downloaded [FileAttachment] in the local filesystem.
   @HiveField(3)
@@ -214,9 +216,9 @@ class LocalAttachment extends Attachment {
   LocalAttachment(this.file, {SendingStatus status = SendingStatus.error})
       : status = Rx(status),
         super(
-          AttachmentId.local(),
-          StorageFile(relativeRef: '', size: file.size),
-          file.name,
+          id: AttachmentId.local(),
+          original: ImageFile(relativeRef: '', size: file.size),
+          filename: file.name,
         );
 
   /// [NativeFile] representing this [LocalAttachment].

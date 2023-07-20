@@ -20,7 +20,6 @@ import 'package:hive/hive.dart';
 import '../model_type_id.dart';
 import 'crop_area.dart';
 import 'file.dart';
-import 'image_gallery_item.dart';
 
 part 'avatar.g.dart';
 
@@ -29,34 +28,38 @@ part 'avatar.g.dart';
 /// Specified as relative paths on a files storage. Prepend them with a files
 /// storage URL to obtain a link to the concrete image.
 abstract class Avatar {
-  Avatar(
-    this.full,
-    this.big,
-    this.medium,
-    this.small,
-    this.original,
+  Avatar({
+    required this.full,
+    required this.big,
+    required this.medium,
+    required this.small,
+    required this.original,
     this.crop,
-  );
+  });
 
-  /// Full-sized [UserAvatar]'s image [StorageFile], keeping the original sizes.
+  /// Full-sized [ImageFile] representing this [UserAvatar], keeping the
+  /// original dimensions.
   @HiveField(0)
-  final StorageFile full;
+  final ImageFile full;
 
-  /// Big [UserAvatar]'s view image [StorageFile] of `70px`x`70px` size.
+  /// Big view [ImageFile] of this [UserAvatar], square-cropped to its minimum
+  /// dimension (either width or height), and scaled to `250px`x`250px`.
   @HiveField(1)
-  final StorageFile big;
+  final ImageFile big;
 
-  /// Medium [UserAvatar]'s view image [StorageFile] of `46px`x`46px` size.
+  /// Medium view [ImageFile] of this [UserAvatar], square-cropped to its
+  /// minimum dimension (either width or height), and scaled to `100px`x`100px`.
   @HiveField(2)
-  final StorageFile medium;
+  final ImageFile medium;
 
-  /// Small [UserAvatar]'s view image [StorageFile] of `25px`x`25px` size.
+  /// Small view [ImageFile] of this [UserAvatar], square-cropped to its minimum
+  /// dimension (either width or height), and scaled to `46px`x`46px`.
   @HiveField(3)
-  final StorageFile small;
+  final ImageFile small;
 
-  /// Original image [StorageFile] representing this [UserAvatar].
+  /// Original [ImageFile] representing this [UserAvatar].
   @HiveField(4)
-  final StorageFile original;
+  final ImageFile original;
 
   /// [CropArea] applied to this [Avatar].
   @HiveField(5)
@@ -67,29 +70,24 @@ abstract class Avatar {
 @HiveType(typeId: ModelTypeId.userAvatar)
 class UserAvatar extends Avatar {
   UserAvatar({
-    this.galleryItem,
-    required StorageFile full,
-    required StorageFile big,
-    required StorageFile medium,
-    required StorageFile small,
-    required StorageFile original,
-    CropArea? crop,
-  }) : super(full, big, medium, small, original, crop);
-
-  /// [ImageGalleryItem] this [UserAvatar] was created from.
-  @HiveField(6)
-  final ImageGalleryItem? galleryItem;
+    required super.full,
+    required super.big,
+    required super.medium,
+    required super.small,
+    required super.original,
+    super.crop,
+  });
 }
 
 /// [Avatar] of a [Chat].
 @HiveType(typeId: ModelTypeId.chatAvatar)
 class ChatAvatar extends Avatar {
   ChatAvatar({
-    required StorageFile full,
-    required StorageFile big,
-    required StorageFile medium,
-    required StorageFile small,
-    required StorageFile original,
-    CropArea? crop,
-  }) : super(full, big, medium, small, original, crop);
+    required super.full,
+    required super.big,
+    required super.medium,
+    required super.small,
+    required super.original,
+    super.crop,
+  });
 }

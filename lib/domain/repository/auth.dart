@@ -38,13 +38,6 @@ abstract class AbstractAuthRepository {
   /// reconnection right away this method may be used.
   void applyToken();
 
-  /// Indicates whether some [User] can be identified by the given [num],
-  /// [login], [email] or [phone].
-  ///
-  /// Exactly one of [num]/[login]/[email]/[phone] arguments must be specified.
-  Future<bool> checkUserIdentifiable(
-      UserLogin? login, UserNum? num, UserEmail? email, UserPhone? phone);
-
   /// Creates a new [MyUser] having only [UserId] and [UserNum] fields, and
   /// creates a new [Session] for this [MyUser].
   ///
@@ -66,13 +59,13 @@ abstract class AbstractAuthRepository {
 
   /// Refreshes the current [AccessToken].
   ///
-  /// Invalidates the provided [RememberToken] and returns a new one, which
+  /// Invalidates the provided [RefreshToken] and returns a new one, which
   /// should be used instead.
   ///
   /// The renewed [Session] has its own expiration after renewal, so to renew it
-  /// again use this method with the new returned [RememberToken] (omit using
+  /// again use this method with the new returned [RefreshToken] (omit using
   /// old ones).
-  Future<Credentials> renewSession(RememberToken token);
+  Future<Credentials> renewSession(RefreshToken token);
 
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
