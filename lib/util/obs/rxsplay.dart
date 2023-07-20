@@ -109,6 +109,9 @@ class RxObsSplayTreeMap<K, V>
   @override
   V? remove(Object? key) {
     V? result = _value.remove(key);
+    if (result != null) {
+      _changes.add(MapChangeNotification<K, V>.removed(key as K?, result));
+    }
     refresh();
     return result;
   }
@@ -148,6 +151,7 @@ class RxObsSplayTreeMap<K, V>
   @override
   void addAll(Map<K, V> other) {
     other.forEach((K key, V value) {
+      _changes.add(MapChangeNotification<K, V>.added(key, value));
       this[key] = value;
     });
   }

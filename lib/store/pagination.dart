@@ -26,7 +26,7 @@ import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
 /// key identifying those items and their [C] cursor.
-class Pagination<T, K, C> {
+class Pagination<T, K extends Comparable, C> {
   Pagination({
     this.perPage = 20,
     required this.provider,
@@ -177,10 +177,32 @@ class Pagination<T, K, C> {
   }
 
   /// Adds the provided [item] to the [items].
+  ///
+  /// [item] will be added if it is within the bounds of the stored [items].
   Future<void> put(T item) async {
     Log.print('put($item)', 'Pagination');
-    items[onKey(item)] = item;
-    await provider.put(item);
+    final K key = onKey(item);
+
+    Future<void> put() async {
+      items[onKey(item)] = item;
+      await provider.put(item);
+    }
+
+    if (items.isEmpty) {
+      if (hasNext.isFalse && hasPrevious.isFalse) {
+        await put();
+      }
+    } else if (key.compareTo(items.lastKey()) == 1) {
+      if (hasNext.isFalse) {
+        await put();
+      }
+    } else if (key.compareTo(items.firstKey()) == -1) {
+      if (hasPrevious.isFalse) {
+        await put();
+      }
+    } else {
+      await put();
+    }
   }
 
   /// Removes the item with the provided [key] from the [items].

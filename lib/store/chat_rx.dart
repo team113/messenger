@@ -263,6 +263,7 @@ class HiveRxChat extends RxChat {
     if (id.isLocal) {
       _pagination.hasNext.value = false;
       _pagination.hasPrevious.value = false;
+      status.value = RxStatus.success();
     }
 
     _paginationSubscription = _pagination.changes.listen((event) {

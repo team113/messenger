@@ -68,6 +68,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
+import 'view.dart';
 import 'widget/chat_gallery.dart';
 
 export 'view.dart';
@@ -235,6 +236,12 @@ class ChatController extends GetxController {
   /// Index of an item from the [elements] that should be highlighted.
   final RxnInt highlight = RxnInt(null);
 
+  /// Height of a [LoaderElement] displayed in the message list.
+  static const double loadingHeight = 70;
+
+  /// Bottom offset of the last item displayed in the message list.
+  static const double lastItemBottomOffset = 10;
+
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
@@ -243,12 +250,6 @@ class ChatController extends GetxController {
 
   /// Currently displayed [LoaderElement] in the bottom of the [elements] list.
   LoaderElement? _bottomLoader;
-
-  /// Height of a [LoaderElement] displayed in the message list.
-  static const double loadingHeight = 70;
-
-  /// Bottom offset of the last item displayed in the message list.
-  static const double lastItemBottomOffset = 10;
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
@@ -928,6 +929,7 @@ class ChatController extends GetxController {
       }
     }
 
+    _ensureScrollable();
     _ignorePositionChanges = false;
   }
 
@@ -1224,28 +1226,53 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Ensures the [ChatView] is scrollable.
+  void _ensureScrollable() {
+    Future.delayed(1.milliseconds, () async {
+      if(!listController.hasClients) {
+        _ensureScrollable();
+      }
+
+      if (listController.position.maxScrollExtent == 0 &&
+          (hasNext.isTrue || hasPrevious.isTrue)) {
+        await _loadNextPage();
+        await _loadPreviousPage();
+        _ensureScrollable();
+      }
+    });
+  }
+
   /// Loads next page of the [RxChat.messages] based on the
   /// [FlutterListViewController.position] value.
   Future<void> _loadNextPage() async {
     if (hasNext.isTrue && !_isNextPageLoading && _atBottom) {
-      Log.print('Fetch next page', 'ChatController');
-
+      keepPositionOffset.value = 0;
       _isNextPageLoading = true;
+
       if (_bottomLoader != null) {
         elements.remove(_bottomLoader!.id);
       }
-
       _bottomLoader =
           LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
+      elements[_bottomLoader!.id] = _bottomLoader!;
 
       await chat!.next();
 
-      if (hasNext.isFalse) {
+      final double offset = listController.position.pixels;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (offset < loadingHeight) {
+          listController.jumpTo(
+            listController.position.pixels - (loadingHeight + 28),
+          );
+        }
         elements.remove(_bottomLoader?.id);
         _bottomLoader = null;
-      }
 
-      _isNextPageLoading = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          keepPositionOffset.value = 50;
+          _isNextPageLoading = false;
+        });
+      });
     }
   }
 
