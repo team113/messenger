@@ -1181,7 +1181,7 @@ class HiveRxChat extends RxChat {
                     final HiveChatItem? item = await _local.get(key);
                     if (item != null) {
                       chatEntity.lastReadItemCursor = item.cursor!;
-                      chatEntity.value.lastReadItem = item.value;
+                      chatEntity.value.lastReadItem = item.value.id;
                       _lastReadItemCursor = item.cursor!;
                     }
                   }
