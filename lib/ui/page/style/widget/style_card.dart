@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
-/// Styled [OutlinedRoundedButton] used for [Routes.style] pages.
+/// Styled [OutlinedRoundedButton].
 class StyleCard extends StatelessWidget {
   const StyleCard({
     super.key,
@@ -47,31 +47,70 @@ class StyleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: OutlinedRoundedButton(
-        color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
-        onPressed: onPressed,
-        title: Row(
-          children: [
-            Icon(
-              icon,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final Widget child;
+
+        if (constraints.maxWidth < 130) {
+          child = Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: OutlinedRoundedButton(
               color:
-                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF1F3C5D),
-            ),
-            const SizedBox(width: 7),
-            if (title != null)
-              Text(
-                title!,
-                style: fonts.headlineLarge!.copyWith(
-                  color: inverted
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF1F3C5D),
-                ),
+                  inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
+              onPressed: onPressed,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icon,
+                    color: inverted
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF1F3C5D),
+                  ),
+                ],
               ),
-          ],
-        ),
-      ),
+            ),
+          );
+        } else {
+          child = Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: OutlinedRoundedButton(
+              color:
+                  inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
+              onPressed: onPressed,
+              title: Row(
+                children: [
+                  Icon(
+                    icon,
+                    color: inverted
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF1F3C5D),
+                  ),
+                  const SizedBox(width: 7),
+                  if (title != null)
+                    Flexible(
+                      child: Text(
+                        title!,
+                        overflow: TextOverflow.ellipsis,
+                        style: fonts.headlineLarge!.copyWith(
+                          color: inverted
+                              ? const Color(0xFFFFFFFF)
+                              : const Color(0xFF1F3C5D),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return AnimatedSize(
+          curve: Curves.ease,
+          duration: const Duration(milliseconds: 200),
+          child: child,
+        );
+      },
     );
   }
 }
