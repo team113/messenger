@@ -165,7 +165,13 @@ class HiveRxChat extends RxChat {
   RxBool get hasNext => _pagination.hasNext;
 
   @override
+  RxBool get nextLoading => _pagination.nextLoading;
+
+  @override
   RxBool get hasPrevious => _pagination.hasPrevious;
+
+  @override
+  RxBool get previousLoading => _pagination.previousLoading;
 
   @override
   UserCallCover? get callCover {
@@ -270,6 +276,7 @@ class HiveRxChat extends RxChat {
       switch (event.op) {
         case OperationKind.added:
           _add(event.value!.value);
+          _local.put(event.value!);
           break;
 
         case OperationKind.removed:
@@ -278,6 +285,7 @@ class HiveRxChat extends RxChat {
 
         case OperationKind.updated:
           _add(event.value!.value);
+          _local.put(event.value!);
           break;
       }
     });
@@ -357,6 +365,10 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> around() async {
+    if (id.isLocal || status.value.isSuccess) {
+      return;
+    }
+
     if (!status.value.isLoading) {
       status.value = RxStatus.loadingMore();
     }
@@ -837,10 +849,16 @@ class HiveRxChat extends RxChat {
 
   /// Returns the [ChatItem.at] being the predecessor of the provided [at].
   PreciseDateTime? _lastReadAt(PreciseDateTime at) {
-    return messages
-        .lastWhereOrNull((e) => e.value is! ChatInfo && e.value.at <= at)
-        ?.value
-        .at;
+    final Rx<ChatItem>? message = messages
+        .lastWhereOrNull((e) => e.value is! ChatInfo && e.value.at <= at);
+
+    // Return `null` if [hasNext] because the provided [at] can be actually
+    // connected to another [message].
+    if (message == null || hasNext.isTrue && messages.last == message) {
+      return null;
+    } else {
+      return message.value.at;
+    }
   }
 
   /// Re-fetches the [Attachment]s of the specified [item] to be up-to-date.
@@ -964,6 +982,7 @@ class HiveRxChat extends RxChat {
               chatEntity.value.lastReadItem = null;
               chatEntity.lastItemCursor = null;
               chatEntity.lastReadItemCursor = null;
+              _lastReadItemCursor = null;
               await _guard.protect(_local.clear);
               break;
 
@@ -1149,7 +1168,8 @@ class HiveRxChat extends RxChat {
                 }
 
                 if (event.byUser.id == me) {
-                  final key = _local.keys.lastWhereOrNull((e) => e.at == at);
+                  final ChatItemKey? key =
+                      _local.keys.lastWhereOrNull((e) => e.at == at);
                   if (key != null) {
                     final HiveChatItem? item = await _local.get(key);
                     if (item != null) {

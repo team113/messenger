@@ -179,14 +179,6 @@ class ChatController extends GetxController {
   /// Position will be keeping only when `scrollOffset` >= [keepPositionOffset].
   final Rx<double> keepPositionOffset = Rx(50);
 
-  // TODO(review): shouldn't [Pagination] control that?
-  /// Indicator whether a previous page of [RxChat.messages] is loading.
-  bool _isPrevPageLoading = false;
-
-  // TODO(review): shouldn't [Pagination] control that?
-  /// Indicator whether a next page of [RxChat.messages] is loading.
-  bool _isNextPageLoading = false;
-
   /// Indicator whether the [LoaderElement]s should be displayed.
   final RxBool showLoaders = RxBool(true);
 
@@ -324,13 +316,13 @@ class ChatController extends GetxController {
 
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
-      listController.hasClients && listController.position.pixels < 100;
+      listController.hasClients && listController.position.pixels < 500;
 
   /// Indicates whether the [listController] is scrolled to its top.
   bool get _atTop =>
       listController.hasClients &&
       listController.position.pixels >
-          listController.position.maxScrollExtent - 100;
+          listController.position.maxScrollExtent - 500;
 
   @override
   void onInit() {
@@ -1229,8 +1221,8 @@ class ChatController extends GetxController {
   /// Ensures the [ChatView] is scrollable.
   void _ensureScrollable() {
     Future.delayed(1.milliseconds, () async {
-      if(!listController.hasClients) {
-        _ensureScrollable();
+      if (!listController.hasClients) {
+        return _ensureScrollable();
       }
 
       if (listController.position.maxScrollExtent == 0 &&
@@ -1242,12 +1234,10 @@ class ChatController extends GetxController {
     });
   }
 
-  /// Loads next page of the [RxChat.messages] based on the
-  /// [FlutterListViewController.position] value.
+  /// Loads next page of the [RxChat.messages] based on the [_atBottom] value.
   Future<void> _loadNextPage() async {
-    if (hasNext.isTrue && !_isNextPageLoading && _atBottom) {
+    if (hasNext.isTrue && chat!.nextLoading.isFalse && _atBottom) {
       keepPositionOffset.value = 0;
-      _isNextPageLoading = true;
 
       if (_bottomLoader != null) {
         elements.remove(_bottomLoader!.id);
@@ -1268,22 +1258,17 @@ class ChatController extends GetxController {
         elements.remove(_bottomLoader?.id);
         _bottomLoader = null;
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          keepPositionOffset.value = 50;
-          _isNextPageLoading = false;
-        });
+        keepPositionOffset.value = 50;
       });
     }
   }
 
-  /// Loads previous page of the [RxChat.messages] based on the
-  /// [FlutterListViewController.position] value.
+  /// Loads previous page of the [RxChat.messages] based on the [_atTop] value.
   Future<void> _loadPreviousPage() async {
-    if (hasPrevious.isTrue && !_isPrevPageLoading && _atTop) {
+    if (hasPrevious.isTrue && chat!.previousLoading.isFalse && _atTop) {
       Log.print('Fetch previous page', 'ChatController');
 
       keepPositionOffset.value = 0;
-      _isPrevPageLoading = true;
 
       if (_topLoader == null) {
         _topLoader = LoaderElement.top();
@@ -1293,8 +1278,6 @@ class ChatController extends GetxController {
       elements[_topLoader!.id] = _topLoader!;
 
       await chat!.previous();
-
-      _isPrevPageLoading = false;
 
       if (hasPrevious.isFalse) {
         elements.remove(_topLoader?.id);

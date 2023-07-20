@@ -42,21 +42,17 @@ class Pagination<T, K extends Comparable, C> {
   /// [PageProvider] providing the [items].
   final PageProvider<T, C> provider;
 
-  /// Reactive [RxStatus] of the [items].
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning no [items] are loaded.
-  /// - `status.isLoading`, meaning the [items] are being fetched.
-  /// - `status.isLoadingMore`, meaning some [items] were fetched, however
-  ///   previous or next items are being fetched additionally.
-  /// - `status.isSuccess`, meaning the [items] were successfully fetched.
-  final Rx<RxStatus> status = Rx(RxStatus.empty());
-
   /// Indicator whether the [items] have next page.
   final RxBool hasNext = RxBool(true);
 
   /// Indicator whether the [items] have previous page.
   final RxBool hasPrevious = RxBool(true);
+
+  /// Indicator whether the [next] function is executing.
+  final RxBool nextLoading = RxBool(false);
+
+  /// Indicator whether the [previous] function is executing.
+  final RxBool previousLoading = RxBool(false);
 
   /// Callback, called when a key of type [K] identifying the provided [T] item
   /// is required.
@@ -76,7 +72,6 @@ class Pagination<T, K extends Comparable, C> {
   /// Resets this [Pagination] to its initial state.
   void clear() {
     Log.print('clear()', 'Pagination');
-    status.value = RxStatus.empty();
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
@@ -90,8 +85,6 @@ class Pagination<T, K extends Comparable, C> {
   Future<void> around({T? item, C? cursor}) async {
     Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
     clear();
-
-    status.value = RxStatus.loading();
 
     final Page<T, C>? page = await provider.around(item, cursor, perPage);
     Log.print(
@@ -112,7 +105,6 @@ class Pagination<T, K extends Comparable, C> {
     endCursor = page?.info.endCursor;
     hasNext.value = page?.info.hasNext ?? true;
     hasPrevious.value = page?.info.hasPrevious ?? true;
-    status.value = RxStatus.success();
     Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
   }
 
@@ -124,9 +116,8 @@ class Pagination<T, K extends Comparable, C> {
       return around();
     }
 
-    status.value = RxStatus.loadingMore();
-
-    if (hasNext.value) {
+    if (hasNext.isTrue && nextLoading.isFalse) {
+      nextLoading.value = true;
       await Future.delayed(const Duration(seconds: 2));
       final Page<T, C>? page =
           await provider.after(items[items.lastKey()], endCursor, perPage);
@@ -140,8 +131,8 @@ class Pagination<T, K extends Comparable, C> {
 
       endCursor = page?.info.endCursor ?? endCursor;
       hasNext.value = page?.info.hasNext ?? hasNext.value;
-      status.value = RxStatus.success();
       Log.print('next()... done', 'Pagination');
+      nextLoading.value = false;
     }
   }
 
@@ -152,9 +143,8 @@ class Pagination<T, K extends Comparable, C> {
       return around();
     }
 
-    status.value = RxStatus.loadingMore();
-
-    if (hasPrevious.value) {
+    if (hasPrevious.isTrue && previousLoading.isFalse) {
+      previousLoading.value = true;
       await Future.delayed(const Duration(seconds: 2));
       final Page<T, C>? page =
           await provider.before(items[items.firstKey()], startCursor, perPage);
@@ -171,8 +161,8 @@ class Pagination<T, K extends Comparable, C> {
 
       startCursor = page?.info.startCursor ?? startCursor;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-      status.value = RxStatus.success();
       Log.print('previous()... done', 'Pagination');
+      previousLoading.value = false;
     }
   }
 
