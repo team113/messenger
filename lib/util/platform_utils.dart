@@ -460,8 +460,10 @@ class PlatformUtilsImpl {
 
   /// Keeps the [_isActive] status as [active].
   void keepActive([bool active = true]) {
-    _isActive = active;
-    _activityController?.add(active);
+    if (_isActive != active) {
+      _isActive = active;
+      _activityController?.add(active);
+    }
 
     _activityTimer?.cancel();
 

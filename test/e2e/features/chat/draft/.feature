@@ -25,6 +25,7 @@ Feature: Drafts
 
     When I attach "test.txt" file
     And I fill `MessageField` field with "He-he, draft!"
+    And I pause for 2 seconds
     And I return to previous page
     Then I see draft "He-he, draft!" in chat with Bob
 
