@@ -87,7 +87,10 @@ class _WebImageState extends State<WebImage> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        if (_loading) const Center(child: CircularProgressIndicator()),
+        if (_loading)
+          const Positioned.fill(
+            child: Center(child: CircularProgressIndicator()),
+          ),
         if (!_backoffRunning)
           IgnorePointer(
             child: _HtmlImage(

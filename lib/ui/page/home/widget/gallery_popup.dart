@@ -571,16 +571,20 @@ class _GalleryPopupState extends State<GalleryPopup>
                       fit: _isFullscreen.isTrue
                           ? BoxFit.contain
                           : BoxFit.scaleDown,
-                      child: PlatformUtils.isWeb
-                          ? WebImage(
-                              e.link,
-                              onForbidden: e.onError,
-                            )
-                          : RetryImage(
-                              e.link,
-                              checksum: e.checksum,
-                              onForbidden: e.onError,
-                            ),
+                      child: ConstrainedBox(
+                        constraints:
+                            const BoxConstraints(minWidth: 1, minHeight: 1),
+                        child: PlatformUtils.isWeb
+                            ? WebImage(
+                                e.link,
+                                onForbidden: e.onError,
+                              )
+                            : RetryImage(
+                                e.link,
+                                checksum: e.checksum,
+                                onForbidden: e.onError,
+                              ),
+                      ),
                     ),
                   ),
           ),
