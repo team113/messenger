@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/style/colors/widget/avatar.dart';
 
 import '/ui/page/style/widget/headers.dart';
+import 'widget/avatar.dart';
 import 'widget/palette.dart';
 
 /// View of the [StyleTab.colors] page.

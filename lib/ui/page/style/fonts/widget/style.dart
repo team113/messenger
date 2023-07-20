@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/allow_overflow.dart';
 
 import '/themes.dart';
 
@@ -169,15 +168,13 @@ class _FontStyleContainer extends StatelessWidget {
             const SizedBox(height: 30),
             if (title != null)
               Center(
-                child: AllowOverflow(
-                  child: Text(
-                    title!,
-                    style: style.copyWith(
-                      color: color ??
-                          (inverted
-                              ? const Color(0xFFFFFFFF)
-                              : const Color(0xFF000000)),
-                    ),
+                child: Text(
+                  title!,
+                  style: style.copyWith(
+                    color: color ??
+                        (inverted
+                            ? const Color(0xFFFFFFFF)
+                            : const Color(0xFF000000)),
                   ),
                 ),
               ),

@@ -25,11 +25,11 @@ class AnimatedWrap extends StatelessWidget {
     this.children = const <Widget>[],
   });
 
-  /// Widgets to put inside a [Wrap].
-  final List<Widget> children;
-
   /// Indicator whether this [AnimatedWrap] should have its colors inverted.
   final bool inverted;
+
+  /// Widgets to put inside a [Wrap].
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {

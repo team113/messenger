@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// Column of application font families.
+/// [AnimatedContainer] of application font families.
 class FontFamiliesWidget extends StatelessWidget {
   const FontFamiliesWidget(this.inverted, {super.key});
 
@@ -39,25 +39,28 @@ class FontFamiliesWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _FontFamilyContainer(
+          _FontFamily(
             inverted,
             label: 'SFUI-Light',
-            textStyle:
-                fonts.displayLarge!.copyWith(fontWeight: FontWeight.w300),
+            textStyle: fonts.displayLarge!.copyWith(
+              fontWeight: FontWeight.w300,
+            ),
           ),
-          Divider(color: inverted ? Colors.white : null),
-          _FontFamilyContainer(
+          Divider(color: inverted ? const Color(0xFFFFFFFF) : null),
+          _FontFamily(
             inverted,
             label: 'SFUI-Regular',
-            textStyle:
-                fonts.displayLarge!.copyWith(fontWeight: FontWeight.w400),
+            textStyle: fonts.displayLarge!.copyWith(
+              fontWeight: FontWeight.w400,
+            ),
           ),
-          Divider(color: inverted ? Colors.white : null),
-          _FontFamilyContainer(
+          Divider(color: inverted ? const Color(0xFFFFFFFF) : null),
+          _FontFamily(
             inverted,
             label: 'SFUI-Bold',
-            textStyle:
-                fonts.displayLarge!.copyWith(fontWeight: FontWeight.w700),
+            textStyle: fonts.displayLarge!.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),
@@ -65,22 +68,22 @@ class FontFamiliesWidget extends StatelessWidget {
   }
 }
 
-/// [AnimatedContainer] that displays a specific font family.
-class _FontFamilyContainer extends StatelessWidget {
-  const _FontFamilyContainer(
+/// [Column] of all characters in a specific font family.
+class _FontFamily extends StatelessWidget {
+  const _FontFamily(
     this.inverted, {
     required this.textStyle,
     this.label,
   });
 
-  /// Indicator whether this [_FontFamilyContainer] should have its colors
+  /// Indicator whether this [_FontFamily] should have its colors
   /// inverted.
   final bool inverted;
 
-  /// Label of this [_FontFamilyContainer].
+  /// Label of this [_FontFamily].
   final String? label;
 
-  /// Text style of this [_FontFamilyContainer].
+  /// Text style of this [_FontFamily].
   final TextStyle textStyle;
 
   @override
