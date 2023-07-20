@@ -19,24 +19,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:messenger/domain/model/user.dart';
 
 void main() {
-  group('ChatDirectLinkSlug', () {
-    test('Should generate slug with random chars', () {
-      final slug = ChatDirectLinkSlug.generate();
-      expect(slug.val, isNotNull);
-      expect(slug.val, isNotEmpty);
-      expect(slug.val.length, equals(10));
-    });
+  test('ChatDirectLinkSlug generates slug of the specified length', () {
+    expect(ChatDirectLinkSlug.generate(1).val.length, 1);
+    expect(ChatDirectLinkSlug.generate(10).val.length, 10);
+    expect(ChatDirectLinkSlug.generate(100).val.length, 100);
+  });
 
-    test('Should generate a slug with valid characters', () {
-      final slug = ChatDirectLinkSlug.generate(10);
-      final validChars = RegExp(r'^[A-Za-z0-9_-]+$');
-      expect(validChars.hasMatch(slug.val), isTrue);
-    });
+  test('ChatDirectLinkSlug generates slug with valid characters', () {
+    final slug = ChatDirectLinkSlug.generate(100);
+    final validChars = RegExp(r'^[A-Za-z0-9_-]+$');
+    expect(validChars.hasMatch(slug.val), isTrue);
+  });
 
-    test('Should not end with "-" or "_"', () {
+  test('ChatDirectLinkSlug generates slug that doesn\'t end with `-` or `_`',
+      () {
+    for (int i = 0; i < 10; ++i) {
       final slug = ChatDirectLinkSlug.generate();
       expect(slug.val.endsWith('-'), isFalse);
       expect(slug.val.endsWith('_'), isFalse);
-    });
+    }
   });
 }

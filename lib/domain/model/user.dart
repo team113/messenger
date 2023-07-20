@@ -319,16 +319,16 @@ class ChatDirectLinkSlug extends NewType<String> {
         'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890_-';
 
     return ChatDirectLinkSlug(
-      List.generate(
-        length,
-        (i) => i == length - 1
-            // `-` and `_` being the last might not be parsed as a link by some
-            // applications.
-            ? chars
-                .replaceFirst('-', '')
-                .replaceFirst('_', '')[r.nextInt(chars.length - 2)]
-            : chars[r.nextInt(chars.length)],
-      ).join(),
+      List.generate(length, (i) {
+        // `-` and `_` being the last might not be parsed as a link by some
+        // applications.
+        if (i == length - 1) {
+          final str = chars.replaceFirst('-', '').replaceFirst('_', '');
+          return str[r.nextInt(str.length)];
+        }
+
+        return chars[r.nextInt(chars.length)];
+      }).join(),
     );
   }
 
