@@ -28,7 +28,7 @@ import '/themes.dart';
 class VideoVolumeBar extends StatelessWidget {
   VideoVolumeBar(
     this.controller, {
-    Key? key,
+    super.key,
     ChewieProgressColors? colors,
     this.onDragEnd,
     this.onDragStart,
@@ -36,8 +36,7 @@ class VideoVolumeBar extends StatelessWidget {
     this.barHeight = 2,
     this.handleHeight = 6,
     this.drawShadow = false,
-  })  : colors = colors ?? ChewieProgressColors(),
-        super(key: key);
+  }) : colors = colors ?? ChewieProgressColors();
 
   /// [MeeduPlayerController] used to control the volume.
   final MeeduPlayerController controller;

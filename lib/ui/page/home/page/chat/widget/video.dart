@@ -29,12 +29,12 @@ import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
-import 'desktop_controls/view.dart';
-import 'mobile_controls/view.dart';
+import 'desktop_controls.dart';
+import 'mobile_controls.dart';
 
 /// Video player with controls.
-class VideoView extends StatefulWidget {
-  const VideoView(
+class Video extends StatefulWidget {
+  const Video(
     this.url, {
     super.key,
     this.onClose,
@@ -67,15 +67,15 @@ class VideoView extends StatefulWidget {
   final Duration? showInterfaceFor;
 
   @override
-  State<VideoView> createState() => _VideoViewState();
+  State<Video> createState() => _VideoState();
 }
 
 /// State of a [Video] used to initialize and dispose video controller.
-class _VideoViewState extends State<VideoView> {
+class _VideoState extends State<Video> {
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
-  /// [CancelToken] for cancelling the [VideoView.url] header fetching.
+  /// [CancelToken] for cancelling the [Video.url] header fetching.
   CancelToken? _cancelToken;
 
   /// [MeeduPlayerController] controlling the video playback.
@@ -110,7 +110,7 @@ class _VideoViewState extends State<VideoView> {
   }
 
   @override
-  void didUpdateWidget(VideoView oldWidget) {
+  void didUpdateWidget(Video oldWidget) {
     if (oldWidget.url != widget.url) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _initVideo();

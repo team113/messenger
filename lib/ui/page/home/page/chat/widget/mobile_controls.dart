@@ -27,15 +27,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
-import '../widget/video_progress_bar.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
-import 'widget/rewind_indicator.dart';
+import 'rewind_indicator.dart';
+import 'video_progress_bar.dart';
 
 /// Mobile video controls for a [Chewie] player.
 class MobileControls extends StatefulWidget {
-  const MobileControls({Key? key, required this.controller}) : super(key: key);
+  const MobileControls({super.key, required this.controller});
 
   /// [Duration] to seek forward or backward for.
   static const Duration seekDuration = Duration(seconds: 5);
@@ -108,7 +108,11 @@ class _MobileControlsState extends State<MobileControls>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : _buildHitArea();
+                  : HitArea(
+                      controller: widget.controller,
+                      show: !_dragging && !_hideStuff,
+                      onPressed: _playPause,
+                    );
             }),
 
             // Seek backward indicator.
@@ -226,23 +230,23 @@ class _MobileControlsState extends State<MobileControls>
   }
 
   /// Returns the [Center]ed play/pause circular button.
-  Widget _buildHitArea() {
-    final style = Theme.of(context).style;
+  // Widget _buildHitArea() {
+  //   final style = Theme.of(context).style;
 
-    return RxBuilder((_) {
-      final bool isFinished =
-          widget.controller.position.value >= widget.controller.duration.value;
+  //   return RxBuilder((_) {
+  //     final bool isFinished =
+  //         widget.controller.position.value >= widget.controller.duration.value;
 
-      return CenterPlayButton(
-        backgroundColor: style.colors.onBackgroundOpacity13,
-        iconColor: style.colors.onPrimary,
-        isFinished: isFinished,
-        isPlaying: widget.controller.playerStatus.playing,
-        show: !_dragging && !_hideStuff,
-        onPressed: _playPause,
-      );
-    });
-  }
+  //     return CenterPlayButton(
+  //       backgroundColor: style.colors.onBackgroundOpacity13,
+  //       iconColor: style.colors.onPrimary,
+  //       isFinished: isFinished,
+  //       isPlaying: widget.controller.playerStatus.playing,
+  //       show: !_dragging && !_hideStuff,
+  //       onPressed: _playPause,
+  //     );
+  //   });
+  // }
 
   /// Returns the mute/unmute button.
   GestureDetector _buildMuteButton() {
@@ -465,5 +469,39 @@ class _MobileControlsState extends State<MobileControls>
         }
       },
     );
+  }
+}
+
+class HitArea extends StatelessWidget {
+  const HitArea({
+    super.key,
+    required this.controller,
+    required this.show,
+    required this.onPressed,
+  });
+
+  final MeeduPlayerController controller;
+
+  final bool show;
+
+  final Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return RxBuilder((_) {
+      final bool isFinished =
+          controller.position.value >= controller.duration.value;
+
+      return CenterPlayButton(
+        backgroundColor: style.colors.onBackgroundOpacity13,
+        iconColor: style.colors.onPrimary,
+        isFinished: isFinished,
+        isPlaying: controller.playerStatus.playing,
+        show: show,
+        onPressed: onPressed,
+      );
+    });
   }
 }

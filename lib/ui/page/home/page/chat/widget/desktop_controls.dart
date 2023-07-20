@@ -22,20 +22,17 @@ import 'dart:ui';
 
 import 'package:chewie/chewie.dart';
 import 'package:chewie/src/animated_play_pause.dart';
+import 'package:chewie/src/helpers/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/video/desktop_controls/widget/custom_progress_bar.dart';
-import 'package:messenger/ui/page/home/page/chat/video/desktop_controls/widget/expand_button.dart';
-import 'package:messenger/ui/page/home/page/chat/video/desktop_controls/widget/mute_button.dart';
-import 'package:messenger/ui/page/home/page/chat/video/desktop_controls/widget/play_pause.dart';
-import 'package:messenger/ui/page/home/page/chat/video/desktop_controls/widget/position.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
-import 'widget/volume_bar.dart';
+import 'video_progress_bar.dart';
+import 'volume_bar.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
@@ -184,7 +181,13 @@ class _DesktopControlsState extends State<DesktopControls>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : _buildHitArea();
+                  : HitArea(
+                      controller: widget.controller,
+                      opacity: !_dragging && !_hideStuff || _showInterface
+                          ? 1.0
+                          : 0.0,
+                      onPressed: _playPause,
+                    );
             }),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -245,7 +248,7 @@ class _DesktopControlsState extends State<DesktopControls>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(width: 7),
-                  HitArea(
+                  CustomPlayPause(
                     controller: widget.controller,
                     height: _barHeight,
                     onTap: _playPause,
@@ -298,9 +301,10 @@ class _DesktopControlsState extends State<DesktopControls>
                   ),
                   const SizedBox(width: 12),
                   ExpandButton(
-                      isFullscreen: widget.isFullscreen?.value == true,
-                      height: _barHeight,
-                      onTap: _onExpandCollapse),
+                    height: _barHeight,
+                    isFullscreen: widget.isFullscreen?.value == true,
+                    onTap: _onExpandCollapse,
+                  ),
                   const SizedBox(width: 12),
                 ],
               ),
@@ -311,138 +315,48 @@ class _DesktopControlsState extends State<DesktopControls>
     );
   }
 
-  // /// Returns the fullscreen toggling button.
-  // Widget _buildExpandButton() {
-  //   final style = Theme.of(context).style;
-
-  //   return Obx(
-  //     () => MouseRegion(
-  //       cursor: SystemMouseCursors.click,
-  //       child: GestureDetector(
-  //         onTap: _onExpandCollapse,
-  //         child: SizedBox(
-  //           height: _barHeight,
-  //           child: Center(
-  //             child: Icon(
-  //               widget.isFullscreen?.value == true
-  //                   ? Icons.fullscreen_exit
-  //                   : Icons.fullscreen,
-  //               color: style.colors.onPrimary,
-  //               size: 21,
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   /// Returns the [Center]ed play/pause circular button.
-  Widget _buildHitArea() {
-    final style = Theme.of(context).style;
-
-    return RxBuilder((_) {
-      final bool isFinished =
-          widget.controller.position.value >= widget.controller.duration.value;
-
-      return Center(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: widget.controller.playerStatus.playing
-              ? Container()
-              : AnimatedOpacity(
-                  opacity:
-                      !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: style.colors.onBackgroundOpacity13,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      iconSize: 32,
-                      icon: isFinished
-                          ? Icon(Icons.replay, color: style.colors.onPrimary)
-                          : AnimatedPlayPause(
-                              color: style.colors.onPrimary,
-                              playing: widget.controller.playerStatus.playing,
-                            ),
-                      onPressed: _playPause,
-                    ),
-                  ),
-                ),
-        ),
-      );
-    });
-  }
-
-  // // /// Returns the play/pause button.
-  // Widget _buildPlayPause(MeeduPlayerController controller) {
+  // Widget _buildHitArea() {
   //   final style = Theme.of(context).style;
 
-  //   return Transform.translate(
-  //     offset: const Offset(0, 0),
-  //     child: MouseRegion(
-  //       cursor: SystemMouseCursors.click,
-  //       child: GestureDetector(
-  //         onTap: _playPause,
-  //         child: Container(
-  //           height: _barHeight,
-  //           color: style.colors.transparent,
-  //           child: RxBuilder((_) {
-  //             return AnimatedPlayPause(
-  //               size: 21,
-  //               playing: controller.playerStatus.playing,
-  //               color: style.colors.onPrimary,
-  //             );
-  //           }),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-//             final box = keyContext.findRenderObject() as RenderBox;
-//             offset = box.localToGlobal(Offset.zero);
-//           }
-// >>>>>>> c324edb173d8e31050185333abc59d32a37f4a1c:lib/ui/page/home/page/chat/widget/desktop_controls.dart
+  //   return RxBuilder((_) {
+  //     final bool isFinished =
+  //         widget.controller.position.value >= widget.controller.duration.value;
 
-  //         _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
-  //         Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
-  //         setState(() {});
-  //       }
-  //     },
-  //     child: GestureDetector(
-  //       onTap: () {
-  //         _cancelAndRestartTimer();
-  //         if (widget.controller.volume.value == 0) {
-  //           controller.setVolume(_latestVolume ?? 0.5);
-  //         } else {
-  //           _latestVolume = controller.volume.value;
-  //           controller.setVolume(0.0);
-  //         }
-  //       },
-  //       child: ClipRect(
-  //         child: SizedBox(
-  //           key: _volumeKey,
-  //           height: _barHeight,
-  //           child: RxBuilder((_) {
-  //             return Icon(
-  //               widget.controller.volume.value > 0
-  //                   ? Icons.volume_up
-  //                   : Icons.volume_off,
-  //               color: style.colors.onPrimary,
-  //               size: 18,
-  //             );
-  //           }),
-  //         ),
+  //     return Center(
+  //       child: AnimatedSwitcher(
+  //         duration: const Duration(milliseconds: 200),
+  //         child: widget.controller.playerStatus.playing
+  //             ? Container()
+  //             : AnimatedOpacity(
+  //                 opacity:
+  //                     !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
+  //                 duration: const Duration(milliseconds: 300),
+  //                 child: Container(
+  //                   width: 48,
+  //                   height: 48,
+  //                   decoration: BoxDecoration(
+  //                     color: style.colors.onBackgroundOpacity13,
+  //                     shape: BoxShape.circle,
+  //                   ),
+  //                   child: IconButton(
+  //                     iconSize: 32,
+  //                     icon: isFinished
+  //                         ? Icon(Icons.replay, color: style.colors.onPrimary)
+  //                         : AnimatedPlayPause(
+  //                             color: style.colors.onPrimary,
+  //                             playing: widget.controller.playerStatus.playing,
+  //                           ),
+  //                     onPressed: _playPause,
+  //                   ),
+  //                 ),
+  //               ),
   //       ),
-  //     ),
-  //   );
+  //     );
+  //   });
   // }
 
-  // Returns the [_volumeEntry] overlay.
+  /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
     final style = Theme.of(context).style;
 
@@ -522,49 +436,6 @@ class _DesktopControlsState extends State<DesktopControls>
     );
   }
 
-  // /// Returns the [Text] of the current video position.
-  // Widget _buildPosition(Color? iconColor) {
-  //   final (style, fonts) = Theme.of(context).styles;
-
-  //   return RxBuilder((_) {
-  //     final position = widget.controller.position.value;
-  //     final duration = widget.controller.duration.value;
-
-  //     return Text(
-  //       '${formatDuration(position)} / ${formatDuration(duration)}',
-  //       style: fonts.headlineSmall!.copyWith(color: style.colors.onPrimary),
-  //     );
-  //   });
-  // }
-
-  // /// Returns the [ProgressBar] of the current video progression.
-  // Widget _buildProgressBar() {
-  //   final style = Theme.of(context).style;
-
-  //   return Expanded(
-  //     child: ProgressBar(
-  //       widget.controller,
-  //       barHeight: 2,
-  //       handleHeight: 6,
-  //       drawShadow: false,
-  //       onDragStart: () {
-  //         setState(() => _dragging = true);
-  //         _hideTimer?.cancel();
-  //       },
-  //       onDragEnd: () {
-  //         setState(() => _dragging = false);
-  //         _startHideTimer();
-  //       },
-  //       colors: ChewieProgressColors(
-  //         playedColor: style.colors.primary,
-  //         handleColor: style.colors.primary,
-  //         bufferedColor: style.colors.background.withOpacity(0.5),
-  //         backgroundColor: style.colors.secondary.withOpacity(0.5),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   /// Invokes a fullscreen toggle action.
   void _onExpandCollapse() {
     widget.toggleFullscreen?.call();
@@ -623,6 +494,242 @@ class _DesktopControlsState extends State<DesktopControls>
     setState(() => _hideStuff = false);
     _hideTimer = Timer(duration ?? 1.seconds, () {
       setState(() => _hideStuff = true);
+    });
+  }
+}
+
+class CustomPlayPause extends StatelessWidget {
+  const CustomPlayPause({
+    super.key,
+    required this.controller,
+    required this.height,
+    required this.onTap,
+  });
+
+  final MeeduPlayerController controller;
+
+  final double? height;
+
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Transform.translate(
+      offset: const Offset(0, 0),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            height: height,
+            color: style.colors.transparent,
+            child: RxBuilder((_) {
+              return AnimatedPlayPause(
+                size: 21,
+                playing: controller.playerStatus.playing,
+                color: style.colors.onPrimary,
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PositionWidget extends StatelessWidget {
+  const PositionWidget({super.key, required this.controller});
+
+  final MeeduPlayerController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return RxBuilder((_) {
+      final Duration position = controller.position.value;
+      final Duration duration = controller.duration.value;
+
+      return Text(
+        '${formatDuration(position)} / ${formatDuration(duration)}',
+        style: fonts.headlineSmall!.copyWith(color: style.colors.onPrimary),
+      );
+    });
+  }
+}
+
+class CustomProgressBar extends StatelessWidget {
+  const CustomProgressBar({
+    super.key,
+    required this.controller,
+    required this.onDragStart,
+    required this.onDragEnd,
+  });
+
+  final MeeduPlayerController controller;
+
+  final dynamic Function()? onDragStart;
+
+  final dynamic Function()? onDragEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Expanded(
+      child: ProgressBar(
+        controller,
+        barHeight: 2,
+        handleHeight: 6,
+        drawShadow: false,
+        onDragStart: onDragStart,
+        onDragEnd: onDragEnd,
+        colors: ChewieProgressColors(
+          playedColor: style.colors.primary,
+          handleColor: style.colors.primary,
+          bufferedColor: style.colors.background.withOpacity(0.5),
+          backgroundColor: style.colors.secondary.withOpacity(0.5),
+        ),
+      ),
+    );
+  }
+}
+
+class MuteButton extends StatelessWidget {
+  const MuteButton({
+    super.key,
+    required this.controller,
+    required this.height,
+    required this.onTap,
+    required this.onEnter,
+  });
+
+  final MeeduPlayerController controller;
+
+  final double? height;
+
+  final void Function()? onTap;
+
+  final void Function(PointerEnterEvent)? onEnter;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: onEnter,
+      child: GestureDetector(
+        onTap: onTap,
+        child: ClipRect(
+          child: SizedBox(
+            height: height,
+            child: RxBuilder((_) {
+              return Icon(
+                controller.volume.value > 0
+                    ? Icons.volume_up
+                    : Icons.volume_off,
+                color: style.colors.onPrimary,
+                size: 18,
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ExpandButton extends StatelessWidget {
+  const ExpandButton({
+    super.key,
+    required this.height,
+    required this.isFullscreen,
+    required this.onTap,
+  });
+
+  final double? height;
+
+  final bool isFullscreen;
+
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          height: height,
+          child: Center(
+            child: Icon(
+              isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+              color: style.colors.onPrimary,
+              size: 21,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HitArea extends StatelessWidget {
+  const HitArea({
+    super.key,
+    required this.controller,
+    required this.opacity,
+    required this.onPressed,
+  });
+
+  final MeeduPlayerController controller;
+
+  final double opacity;
+
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return RxBuilder((_) {
+      final bool isFinished =
+          controller.position.value >= controller.duration.value;
+
+      return Center(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: controller.playerStatus.playing
+              ? Container()
+              : AnimatedOpacity(
+                  opacity: opacity,
+                  duration: const Duration(milliseconds: 300),
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: style.colors.onBackgroundOpacity13,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      iconSize: 32,
+                      icon: isFinished
+                          ? Icon(Icons.replay, color: style.colors.onPrimary)
+                          : AnimatedPlayPause(
+                              color: style.colors.onPrimary,
+                              playing: controller.playerStatus.playing,
+                            ),
+                      onPressed: onPressed,
+                    ),
+                  ),
+                ),
+        ),
+      );
     });
   }
 }
