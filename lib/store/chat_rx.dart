@@ -928,7 +928,6 @@ class HiveRxChat extends RxChat {
           await _local.clear();
           _pagination.clear();
 
-          // TODO(review): might be obsolete?
           await _pagination.around(cursor: _lastReadItemCursor);
         }
       },

@@ -836,9 +836,10 @@ class _ChatViewState extends State<ChatView>
         }
 
         return AnimatedSizeAndFade(
-            fadeDuration: const Duration(milliseconds: 200),
-            sizeDuration: const Duration(milliseconds: 200),
-            child: child);
+          fadeDuration: const Duration(milliseconds: 200),
+          sizeDuration: const Duration(milliseconds: 200),
+          child: child,
+        );
       });
     }
 

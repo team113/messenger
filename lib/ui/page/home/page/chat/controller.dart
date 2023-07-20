@@ -177,7 +177,7 @@ class ChatController extends GetxController {
   /// Keep position offset of the [FlutterListViewDelegate].
   ///
   /// Position will be keeping only when `scrollOffset` >= [keepPositionOffset].
-  final Rx<double> keepPositionOffset = Rx(50);
+  final Rx<double> keepPositionOffset = Rx(20);
 
   /// Indicator whether the [LoaderElement]s should be displayed.
   final RxBool showLoaders = RxBool(true);
@@ -1210,14 +1210,6 @@ class ChatController extends GetxController {
     });
   }
 
-  /// Loads next and previous page of the [RxChat.messages].
-  void _loadMessages() async {
-    if (!_ignorePositionChanges && status.value.isSuccess) {
-      _loadNextPage();
-      _loadPreviousPage();
-    }
-  }
-
   /// Ensures the [ChatView] is scrollable.
   void _ensureScrollable() {
     Future.delayed(1.milliseconds, () async {
@@ -1232,6 +1224,14 @@ class ChatController extends GetxController {
         _ensureScrollable();
       }
     });
+  }
+
+  /// Loads next and previous page of the [RxChat.messages].
+  void _loadMessages() async {
+    if (!_ignorePositionChanges && status.value.isSuccess) {
+      _loadNextPage();
+      _loadPreviousPage();
+    }
   }
 
   /// Loads next page of the [RxChat.messages] based on the [_atBottom] value.
@@ -1258,7 +1258,7 @@ class ChatController extends GetxController {
         elements.remove(_bottomLoader?.id);
         _bottomLoader = null;
 
-        keepPositionOffset.value = 50;
+        keepPositionOffset.value = 20;
       });
     }
   }

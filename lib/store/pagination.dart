@@ -221,17 +221,16 @@ class Page<T, C> {
   /// [PageInfo] of this [Page].
   PageInfo<C> info;
 
-  Page<T, C> reversed({bool info = true, bool edges = false}) {
+  /// Returns a new [Page] with reversed [info].
+  Page<T, C> reversed() {
     return Page(
-      RxList.from(edges ? this.edges.reversed : this.edges),
-      info
-          ? PageInfo(
-              hasNext: this.info.hasPrevious,
-              hasPrevious: this.info.hasNext,
-              startCursor: this.info.endCursor,
-              endCursor: this.info.startCursor,
-            )
-          : this.info,
+      RxList.from(this.edges),
+      PageInfo(
+        hasNext: this.info.hasPrevious,
+        hasPrevious: this.info.hasNext,
+        startCursor: this.info.endCursor,
+        endCursor: this.info.startCursor,
+      ),
     );
   }
 }
