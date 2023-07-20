@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -93,7 +94,26 @@ class _FieldButtonState extends State<FieldButton> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
+
+    return OutlinedRoundedButton(
+      title: Text(widget.text ?? ''),
+      maxWidth: double.infinity,
+      // color: style.colors.backgroundAuxiliaryLighter,
+      color: style.colors.onPrimary,
+      disabled: style.colors.onPrimary,
+      onPressed: widget.onPressed,
+      style: fonts.titleLarge?.copyWith(
+        color: widget.onPressed == null
+            ? style.colors.onBackgroundOpacity40
+            : style.colors.onBackground,
+      ),
+      height: 46,
+      border: Border.all(
+        width: 0.5,
+        color: style.colors.secondary,
+      ),
+    );
 
     final Widget child = MouseRegion(
       onEnter: PlatformUtils.isMobile

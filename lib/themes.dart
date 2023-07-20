@@ -78,6 +78,7 @@ class Themes {
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,
+      height: 1.3,
     );
 
     final TextTheme fonts = Typography.blackCupertino.copyWith(
@@ -91,7 +92,10 @@ class Themes {
       headlineMedium:
           textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w300),
       headlineSmall: textStyle.copyWith(fontSize: 13),
-      titleLarge: textStyle.copyWith(fontWeight: FontWeight.w300),
+      titleLarge: textStyle.copyWith(
+        fontWeight: FontWeight.w300,
+        // height: 1.2,
+      ),
       titleMedium: textStyle.copyWith(fontSize: 15),
       titleSmall: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
       labelLarge: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),

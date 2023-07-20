@@ -24,7 +24,7 @@ import '/themes.dart';
 /// primary and subtitle text, and a leading icon as well.
 class OutlinedRoundedButton extends StatelessWidget {
   const OutlinedRoundedButton({
-    Key? key,
+    super.key,
     this.title,
     this.subtitle,
     this.leading,
@@ -34,12 +34,14 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.gradient,
     this.elevation = 0,
     this.color,
+    this.disabled,
     this.maxWidth = 250 * 0.72,
+    this.border,
     // this.maxWidth = 210,
     this.height = 42,
     this.shadows,
     this.style,
-  }) : super(key: key);
+  });
 
   /// Primary content of this button.
   ///
@@ -64,6 +66,7 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   /// Background color of this button.
   final Color? color;
+  final Color? disabled;
 
   /// Gradient to use when filling this button.
   ///
@@ -88,6 +91,8 @@ class OutlinedRoundedButton extends StatelessWidget {
   final double? leadingWidth;
 
   final TextStyle? style;
+
+  final Border? border;
 
   @override
   Widget build(BuildContext context) {
@@ -175,10 +180,11 @@ class OutlinedRoundedButton extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: shadows,
         color: onPressed == null
-            ? style.colors.secondaryHighlight
+            ? disabled ?? style.colors.secondaryHighlight
             : color ?? style.colors.onPrimary,
         gradient: gradient,
         borderRadius: borderRadius,
+        border: border,
       ),
       child: Material(
         color: style.colors.transparent,

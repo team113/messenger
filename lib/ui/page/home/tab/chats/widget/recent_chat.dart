@@ -159,8 +159,9 @@ class RecentChatTile extends StatelessWidget {
       final bool paid = rxChat.chat.value.isDialog &&
           (myUser?.name?.val == 'alex2' ||
               myUser?.name?.val == 'kirey' ||
-              chat.members.any((e) =>
-                  e.user.name?.val == 'kirey' || e.user.name?.val == 'alex2'));
+              rxChat.members.values.any((e) =>
+                  e.user.value.name?.val == 'kirey' ||
+                  e.user.value.name?.val == 'alex2'));
 
       return ChatTile(
         chat: rxChat,

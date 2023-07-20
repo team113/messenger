@@ -57,9 +57,9 @@ class AuthView extends StatelessWidget {
             switch (c.system.value) {
               case 0:
                 return SvgImage.asset(
-                  'assets/icons/apple6_black.svg',
-                  width: 19.15 * modifier,
-                  height: 23.49 * modifier,
+                  'assets/icons/apple.svg',
+                  width: 18.24 * modifier,
+                  height: 23 * modifier,
                 );
 
               case 1:
@@ -266,8 +266,8 @@ class AuthView extends StatelessWidget {
           RmbDetector(
             onPressed: c.systemUp,
             child: OutlinedRoundedButton(
-              title: Text(
-                'Скачать'.l10n,
+              subtitle: Text(
+                'Скачать\nприложение'.l10n,
                 // style: TextStyle(color: style.colors.onPrimary),
               ),
               maxWidth: 210,

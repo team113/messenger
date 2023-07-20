@@ -71,7 +71,7 @@ class AddEmailView extends StatelessWidget {
                           c.resent.value
                               ? 'label_add_email_confirmation_sent_again'.l10n
                               : 'label_add_email_confirmation_sent'.l10n,
-                          style: fonts.bodyMedium!.copyWith(
+                          style: fonts.titleLarge!.copyWith(
                             color: style.colors.secondary,
                           ),
                         );
@@ -148,7 +148,7 @@ class AddEmailView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         'label_add_email_description'.l10n,
-                        style: fonts.bodyMedium!.copyWith(
+                        style: fonts.titleLarge!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),

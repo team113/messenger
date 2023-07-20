@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
@@ -79,7 +80,7 @@ class LoginView extends StatelessWidget {
                 // const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: fonts.labelLarge!.copyWith(
+                  style: fonts.titleLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -112,19 +113,19 @@ class LoginView extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'label_sign_in_code_sent1'.l10n,
-                        style: fonts.labelLarge!.copyWith(
+                        style: fonts.titleLarge!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: c.login.text,
-                        style: fonts.labelLarge!.copyWith(
+                        style: fonts.titleLarge!.copyWith(
                           color: style.colors.onBackground,
                         ),
                       ),
                       TextSpan(
                         text: 'label_sign_in_code_sent2'.l10n,
-                        style: fonts.labelLarge!.copyWith(
+                        style: fonts.titleLarge!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -160,7 +161,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: fonts.labelLarge!.copyWith(
+                  style: fonts.titleLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -190,7 +191,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: fonts.labelLarge!.copyWith(
+                  style: fonts.titleLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -222,7 +223,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: fonts.labelLarge!.copyWith(
+                  style: fonts.titleLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -279,28 +280,28 @@ class LoginView extends StatelessWidget {
                 //   ),
                 // ),
                 Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_sign_in_code_sent1'.l10n,
-                        style: fonts.labelLarge!.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: c.email.text,
-                        style: fonts.labelLarge!.copyWith(
-                          color: style.colors.onBackground,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'label_sign_in_code_sent2'.l10n,
-                        style: fonts.labelLarge!.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
+                  'label_sign_up_code_email_sent'.l10nfmt({
+                    'text': c.email.text,
+                  }).parseLinks([], context),
+                  style: fonts.bodyLarge,
+                  // TextSpan(
+                  //   children: [
+                  //     TextSpan(
+                  //       text: 'label_sign_in_code_sent1'.l10n,
+                  //       style: fonts.bodyLarge,
+                  //     ),
+                  //     TextSpan(
+                  //       text: c.email.text,
+                  //       style: fonts.bodyLarge?.copyWith(
+                  //         decoration: TextDecoration.underline,
+                  //       ),
+                  //     ),
+                  //     TextSpan(
+                  //       text: 'label_sign_in_code_sent2'.l10n,
+                  //       style: fonts.bodyLarge,
+                  //     ),
+                  //   ],
+                  // ),
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -456,9 +457,9 @@ class LoginView extends StatelessWidget {
                 // const SizedBox(height: 12),
                 Text(
                   'Scan the displayed QR code to sign in.'.l10n,
-                  style: fonts.labelLarge!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: fonts.bodyLarge!.copyWith(
+                      // color: style.colors.secondary,
+                      ),
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -494,10 +495,14 @@ class LoginView extends StatelessWidget {
                 // const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: fonts.labelLarge!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: fonts.bodyLarge,
                 ),
+                // Text(
+                //   'label_recover_account_description'.l10n,
+                //   style: fonts.bodyLarge!.copyWith(
+                //       // color: style.colors.secondary,
+                //       ),
+                // ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('RecoveryField'),

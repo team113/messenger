@@ -39,6 +39,8 @@ class MediaUtils {
   /// [StreamController] piping the [MediaDisplayDetails] changes.
   static StreamController<List<MediaDisplayDetails>>? _displaysController;
 
+  static List<MediaDeviceDetails>? _devices;
+
   /// Returns the [Jason] instance of these [MediaUtils].
   static Jason? get jason {
     if (_jason == null) {
@@ -71,11 +73,11 @@ class MediaUtils {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
       mediaManager?.onDeviceChange(() async {
-        _devicesController?.add(
-          (await mediaManager?.enumerateDevices() ?? [])
-              .where((e) => e.deviceId().isNotEmpty)
-              .toList(),
-        );
+        _devices = (await mediaManager?.enumerateDevices() ?? [])
+            .where((e) => e.deviceId().isNotEmpty)
+            .toList();
+
+        _devicesController?.add(_devices!);
       });
     }
 
@@ -129,10 +131,12 @@ class MediaUtils {
   static Future<List<MediaDeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
   ]) async {
-    return (await mediaManager?.enumerateDevices() ?? [])
+    _devices = (await mediaManager?.enumerateDevices() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .where((e) => kind == null || e.kind() == kind)
         .toList();
+
+    return _devices!;
   }
 
   /// Returns the currently available [MediaDisplayDetails].

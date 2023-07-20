@@ -219,11 +219,11 @@ class IntroductionView extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'label_introduction_description1'.l10n,
-                        style: fonts.bodyMedium,
+                        style: fonts.titleLarge,
                       ),
                       TextSpan(
                         text: 'label_introduction_description2'.l10n,
-                        style: fonts.bodyMedium
+                        style: fonts.titleLarge
                             ?.copyWith(color: style.colors.primary),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
@@ -233,11 +233,11 @@ class IntroductionView extends StatelessWidget {
                       ),
                       TextSpan(
                         text: 'label_introduction_description3'.l10n,
-                        style: fonts.bodyMedium,
+                        style: fonts.titleLarge,
                       ),
                       TextSpan(
                         text: 'label_introduction_description4'.l10n,
-                        style: fonts.bodyMedium
+                        style: fonts.titleLarge
                             ?.copyWith(color: style.colors.primary),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
@@ -247,7 +247,7 @@ class IntroductionView extends StatelessWidget {
                       ),
                       TextSpan(
                         text: 'label_introduction_description5'.l10n,
-                        style: fonts.bodyMedium,
+                        style: fonts.titleLarge,
                       ),
                     ],
                   ),

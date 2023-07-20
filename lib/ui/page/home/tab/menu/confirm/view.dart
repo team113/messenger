@@ -229,7 +229,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: fonts.titleLarge!.copyWith(
+                            style: fonts.bodyMedium!.copyWith(
                               color: style.colors.onPrimary,
                             ),
                           ),
