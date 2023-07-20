@@ -24,15 +24,15 @@ import '/util/message_popup.dart';
 /// Stylized [Container] of the provided [color].
 class ColorWidget extends StatelessWidget {
   const ColorWidget(
-    this.isDarkMode,
+    this.inverted,
     this.color, {
     super.key,
     this.subtitle,
     this.hint,
   });
 
-  /// Indicator whether the dark mode is enabled or not.
-  final bool isDarkMode;
+  /// Indicator whether this [ColorWidget] should have its colors inverted.
+  final bool inverted;
 
   /// Color to display.
   final Color color;
@@ -66,7 +66,7 @@ class ColorWidget extends StatelessWidget {
                     color.toHex(),
                     textAlign: TextAlign.start,
                     style: fonts.bodySmall!.copyWith(
-                      color: isDarkMode
+                      color: inverted
                           ? const Color(0xFFFFFFFF)
                           : const Color(0xFF000000),
                     ),
@@ -79,7 +79,7 @@ class ColorWidget extends StatelessWidget {
                   child: Icon(
                     Icons.info_outline,
                     size: 13,
-                    color: isDarkMode
+                    color: inverted
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF000000),
                   ),
@@ -120,7 +120,7 @@ class ColorWidget extends StatelessWidget {
                         subtitle!,
                         textAlign: TextAlign.left,
                         style: fonts.labelSmall!.copyWith(
-                          color: isDarkMode
+                          color: inverted
                               ? const Color(0xFFFFFFFF)
                               : const Color(0xFF000000),
                         ),

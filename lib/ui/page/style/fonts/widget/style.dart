@@ -22,10 +22,10 @@ import '/themes.dart';
 
 /// Wrap with [_FontStyleContainer]s.
 class FontStyleWidget extends StatelessWidget {
-  const FontStyleWidget(this.isDarkMode, {super.key});
+  const FontStyleWidget(this.inverted, {super.key});
 
-  /// Indicator whether the dark mode is enabled or not.
-  final bool isDarkMode;
+  /// Indicator whether this [FontStyleWidget] should have its colors inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
@@ -37,82 +37,82 @@ class FontStyleWidget extends StatelessWidget {
       runSpacing: 16,
       children: [
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'displayLarge',
           style: fonts.displayLarge!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'displayMedium',
           style: fonts.displayMedium!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'displaySmall',
           style: fonts.displaySmall!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'headlineLarge',
           style: fonts.headlineLarge!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'headlineMedium',
           style: fonts.headlineMedium!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'headlineSmall',
           style: fonts.headlineSmall!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'titleLarge',
           style: fonts.titleLarge!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'titleMedium',
           style: fonts.titleMedium!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'titleSmall',
           style: fonts.titleSmall!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'labelLarge',
           style: fonts.labelLarge!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'labelMedium',
           style: fonts.labelMedium!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'labelSmall',
           style: fonts.labelSmall!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'bodyLarge',
           style: fonts.bodyLarge!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'bodyMedium',
           style: fonts.bodyMedium!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'bodySmall',
           style: fonts.bodySmall!,
         ),
         _FontStyleContainer(
-          isDarkMode,
+          inverted,
           title: 'linkStyle',
           style: style.linkStyle,
           color: style.linkStyle.color,
@@ -126,15 +126,16 @@ class FontStyleWidget extends StatelessWidget {
 /// [AnimatedContainer] which represents [Text] with a specific [style].
 class _FontStyleContainer extends StatelessWidget {
   const _FontStyleContainer(
-    this.isDarkMode, {
+    this.inverted, {
     required this.style,
     this.title,
     this.color,
     this.label = 'Black',
   });
 
-  /// Indicator whether the dark mode is enabled or not.
-  final bool isDarkMode;
+  /// Indicator whether this [_FontStyleContainer] should have its colors
+  /// inverted.
+  final bool inverted;
 
   /// Label of this [_FontStyleContainer].
   final String? title;
@@ -153,11 +154,11 @@ class _FontStyleContainer extends StatelessWidget {
     final fonts = Theme.of(context).fonts;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 300),
       height: 245,
       width: 245,
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
+        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
@@ -173,7 +174,7 @@ class _FontStyleContainer extends StatelessWidget {
                     title!,
                     style: style.copyWith(
                       color: color ??
-                          (isDarkMode
+                          (inverted
                               ? const Color(0xFFFFFFFF)
                               : const Color(0xFF000000)),
                     ),
@@ -181,14 +182,14 @@ class _FontStyleContainer extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 20),
-            Divider(color: isDarkMode ? const Color(0xFFFFFFFF) : null),
+            Divider(color: inverted ? const Color(0xFFFFFFFF) : null),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 DefaultTextStyle(
                   style: fonts.bodySmall!.copyWith(
-                    color: isDarkMode
+                    color: inverted
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF888888),
                   ),
@@ -207,7 +208,7 @@ class _FontStyleContainer extends StatelessWidget {
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
-                                    color: isDarkMode
+                                    color: inverted
                                         ? const Color(0xFFFFFFFF)
                                         : null,
                                   ),
@@ -222,7 +223,7 @@ class _FontStyleContainer extends StatelessWidget {
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
-                                    color: isDarkMode
+                                    color: inverted
                                         ? const Color(0xFFFFFFFF)
                                         : null,
                                   ),
@@ -237,7 +238,7 @@ class _FontStyleContainer extends StatelessWidget {
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
-                                    color: isDarkMode
+                                    color: inverted
                                         ? const Color(0xFFFFFFFF)
                                         : null,
                                   ),
@@ -252,7 +253,7 @@ class _FontStyleContainer extends StatelessWidget {
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
-                                    color: isDarkMode
+                                    color: inverted
                                         ? const Color(0xFFFFFFFF)
                                         : null,
                                   ),
@@ -267,7 +268,7 @@ class _FontStyleContainer extends StatelessWidget {
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
-                                    color: isDarkMode
+                                    color: inverted
                                         ? const Color(0xFFFFFFFF)
                                         : null,
                                   ),
@@ -282,7 +283,7 @@ class _FontStyleContainer extends StatelessWidget {
                 ),
                 DefaultTextStyle(
                   style: fonts.bodyMedium!.copyWith(
-                    color: isDarkMode
+                    color: inverted
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF000000),
                   ),

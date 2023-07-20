@@ -21,39 +21,40 @@ import '/themes.dart';
 
 /// Column of application font families.
 class FontFamiliesWidget extends StatelessWidget {
-  const FontFamiliesWidget(this.isDarkMode, {super.key});
+  const FontFamiliesWidget(this.inverted, {super.key});
 
-  /// Indicator whether the dark mode is enabled or not.
-  final bool isDarkMode;
+  /// Indicator whether this [FontFamiliesWidget] should have its colors
+  /// inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
+        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
           _FontFamilyContainer(
-            isDarkMode,
+            inverted,
             label: 'SFUI-Light',
             textStyle:
                 fonts.displayLarge!.copyWith(fontWeight: FontWeight.w300),
           ),
-          Divider(color: isDarkMode ? Colors.white : null),
+          Divider(color: inverted ? Colors.white : null),
           _FontFamilyContainer(
-            isDarkMode,
+            inverted,
             label: 'SFUI-Regular',
             textStyle:
                 fonts.displayLarge!.copyWith(fontWeight: FontWeight.w400),
           ),
-          Divider(color: isDarkMode ? Colors.white : null),
+          Divider(color: inverted ? Colors.white : null),
           _FontFamilyContainer(
-            isDarkMode,
+            inverted,
             label: 'SFUI-Bold',
             textStyle:
                 fonts.displayLarge!.copyWith(fontWeight: FontWeight.w700),
@@ -67,13 +68,14 @@ class FontFamiliesWidget extends StatelessWidget {
 /// [AnimatedContainer] that displays a specific font family.
 class _FontFamilyContainer extends StatelessWidget {
   const _FontFamilyContainer(
-    this.isDarkMode, {
+    this.inverted, {
     required this.textStyle,
     this.label,
   });
 
-  /// Indicator whether the dark mode is enabled or not.
-  final bool isDarkMode;
+  /// Indicator whether this [_FontFamilyContainer] should have its colors
+  /// inverted.
+  final bool inverted;
 
   /// Label of this [_FontFamilyContainer].
   final String? label;
@@ -87,66 +89,59 @@ class _FontFamilyContainer extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(top: 10),
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return Expanded(
-            child: Column(
-              children: [
-                DefaultTextStyle(
-                  style: textStyle.copyWith(
-                    color: isDarkMode
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 30),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                        SizedBox(height: 40),
-                        Text('abcdefghijklmnopqrstuvwxyz'),
-                        SizedBox(height: 40),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                '1234567890',
-                                softWrap: true,
-                              ),
-                            ),
-                            SizedBox(width: 50),
-                            Flexible(
-                              child: Text(
-                                '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
-                                softWrap: true,
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (label != null)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Text(
-                        label!,
-                        style: fonts.displayLarge!.copyWith(
-                          color: const Color(0xFFF5F5F5),
-                          fontSize: 28,
+      child: Column(
+        children: [
+          DefaultTextStyle(
+            style: textStyle.copyWith(
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                  SizedBox(height: 40),
+                  Text('abcdefghijklmnopqrstuvwxyz'),
+                  SizedBox(height: 40),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '1234567890',
+                          softWrap: true,
                         ),
                       ),
-                    ),
+                      SizedBox(width: 50),
+                      Flexible(
+                        child: Text(
+                          '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
+                          softWrap: true,
+                        ),
+                      )
+                    ],
                   ),
-              ],
+                ],
+              ),
             ),
-          );
-        },
+          ),
+          if (label != null)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Text(
+                  label!,
+                  style: fonts.displayLarge!.copyWith(
+                    color: const Color(0xFFF5F5F5),
+                    fontSize: 40,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -24,8 +24,8 @@ enum StyleTab { colors, typography, multimedia, elements }
 class StyleController extends GetxController {
   StyleController();
 
-  /// Indicator whether the dark mode is enabled or not.
-  final RxBool isDarkMode = false.obs;
+  /// Indicator whether the colors should be inverted.
+  final RxBool inverted = false.obs;
 
   /// Initial and current [StyleTab] page.
   final selectedTab = StyleTab.colors.obs;
@@ -33,6 +33,6 @@ class StyleController extends GetxController {
   /// Toggles the [StyleTab]s selection.
   void toggleTab(StyleTab tab) => selectedTab.value = tab;
 
-  /// Toggles the [isDarkMode].
-  void toggleDarkMode(bool value) => isDarkMode.value = value;
+  /// Toggles the [inverted].
+  void toggleInverted(bool value) => inverted.value = value;
 }

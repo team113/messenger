@@ -16,26 +16,25 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/util/message_popup.dart';
 
 import '/themes.dart';
 
 /// Column of [_CustomFont]s.
 class FontColumnWidget extends StatelessWidget {
-  const FontColumnWidget(this.isDarkMode, {super.key});
+  const FontColumnWidget(this.inverted, {super.key});
 
-  /// Indicator whether the dark mode is enabled or not.
-  final bool isDarkMode;
+  /// Indicator whether this [FontColumnWidget] should have its colors
+  /// inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
     return AnimatedContainer(
-      // height: 755,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
+        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -45,77 +44,77 @@ class FontColumnWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Display Large',
                   style: fonts.displayLarge,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Display Medium',
                   style: fonts.displayMedium,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Display Small',
                   style: fonts.displaySmall,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Headline Large',
                   style: fonts.headlineLarge,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Headline Medium',
                   style: fonts.headlineMedium,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Headline Small',
                   style: fonts.headlineSmall,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Title Large',
                   style: fonts.titleLarge,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Title Medium',
                   style: fonts.titleMedium,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Title Small',
                   style: fonts.titleSmall,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Label Large',
                   style: fonts.labelLarge,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Label Medium',
                   style: fonts.labelMedium,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Label Small',
                   style: fonts.labelSmall,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Body Large',
                   style: fonts.bodyLarge,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Body Medium',
                   style: fonts.bodyMedium,
                 ),
                 _CustomFont(
-                  isDarkMode,
+                  inverted,
                   title: 'Body Small',
                   style: fonts.bodySmall,
                 ),
@@ -131,18 +130,18 @@ class FontColumnWidget extends StatelessWidget {
 /// Custom-styled [Text] with information.
 class _CustomFont extends StatelessWidget {
   const _CustomFont(
-    this.isDarkMode, {
+    this.inverted, {
     this.title,
     this.style,
   });
 
-  /// Indicator whether the dark mode is enabled or not.
-  final bool isDarkMode;
+  /// Indicator whether this [_CustomFont] should have its colors inverted.
+  final bool inverted;
 
   /// Title of this [_CustomFont].
   final String? title;
 
-  /// TextStyle of this [_CustomFont].
+  /// [TextStyle] of this [_CustomFont].
   final TextStyle? style;
 
   @override
@@ -158,25 +157,31 @@ class _CustomFont extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (title != null)
-                GestureDetector(
-                  onTap: () {
-                    MessagePopup.success(
-                      '${style!.fontSize} pt, w${style!.fontWeight?.value}',
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 10,
-                    ),
-                    child: Text(
-                      title!,
-                      style: style!.copyWith(
-                        color: isDarkMode
-                            ? const Color(0xFFFFFFFF)
-                            : const Color(0xFF000000),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 10,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title!,
+                        style: style!.copyWith(
+                          color: inverted
+                              ? const Color(0xFFFFFFFF)
+                              : const Color(0xFF000000),
+                        ),
                       ),
-                    ),
+                      Text(
+                        '${style!.fontSize} pt, w${style!.fontWeight?.value}',
+                        style: fonts.titleMedium?.copyWith(
+                          color: inverted
+                              ? const Color(0xFFFFFFFF)
+                              : const Color(0xFF000000),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             ],
@@ -194,7 +199,7 @@ class _CustomFont extends StatelessWidget {
                         child: Text(
                           title!,
                           style: style!.copyWith(
-                            color: isDarkMode
+                            color: inverted
                                 ? const Color(0xFFFFFFFF)
                                 : const Color(0xFF000000),
                           ),
@@ -205,7 +210,7 @@ class _CustomFont extends StatelessWidget {
                 Text(
                   '${style!.fontSize} pt, w${style!.fontWeight?.value}',
                   style: fonts.titleMedium?.copyWith(
-                    color: isDarkMode
+                    color: inverted
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF000000),
                   ),

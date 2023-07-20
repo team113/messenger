@@ -24,26 +24,26 @@ import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.
 class FontsView extends StatelessWidget {
-  const FontsView(this.isDarkMode, {super.key});
+  const FontsView(this.inverted, {super.key});
 
-  /// Indicator whether the dark mode is enabled or not.
-  final bool isDarkMode;
+  /// Indicator whether this [FontsView] should have its colors inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           const Header(label: 'Typography'),
           const SmallHeader(label: 'Font families'),
-          FontFamiliesWidget(isDarkMode),
+          FontFamiliesWidget(inverted),
           const Divider(),
           const SmallHeader(label: 'Font'),
-          FontColumnWidget(isDarkMode),
+          FontColumnWidget(inverted),
           const Divider(),
           const SmallHeader(label: 'Styles'),
-          FontStyleWidget(isDarkMode),
+          FontStyleWidget(inverted),
           const Divider(),
         ],
       ),

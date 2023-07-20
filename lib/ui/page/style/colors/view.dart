@@ -16,30 +16,30 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/style/colors/widget/avatar.dart';
 
 import '/ui/page/style/widget/headers.dart';
-import 'widget/avatar.dart';
 import 'widget/palette.dart';
 
 /// View of the [StyleTab.colors] page.
 class ColorStyleView extends StatelessWidget {
-  const ColorStyleView(this.isDarkMode, {super.key});
+  const ColorStyleView(this.inverted, {super.key});
 
-  /// Indicator whether the dark mode is enabled or not.
-  final bool isDarkMode;
+  /// Indicator whether this [ColorStyleView] should have its colors inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           const Header(label: 'Colors palette'),
           const SmallHeader(label: 'Application colors'),
-          PaletteWidget(isDarkMode),
+          PaletteWidget(inverted),
           const Divider(),
           const SmallHeader(label: 'Avatar colors'),
-          AvatarColors(isDarkMode),
+          AvatarColors(inverted),
           const Divider(),
         ],
       ),

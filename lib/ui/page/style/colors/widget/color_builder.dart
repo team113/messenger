@@ -16,26 +16,39 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/style/colors/widget/color_builder.dart';
 
-import '/themes.dart';
-import 'color.dart';
+/// [Wrap] with animated background.
+class AnimatedWrap extends StatelessWidget {
+  const AnimatedWrap(
+    this.inverted, {
+    super.key,
+    this.children = const <Widget>[],
+  });
 
-/// [Wrap] of avatar colors.
-class AvatarColors extends StatelessWidget {
-  const AvatarColors(this.inverted, {super.key});
+  /// Widgets to put inside a [Wrap].
+  final List<Widget> children;
 
-  /// Indicator whether this [AvatarColors] should have its colors inverted.
+  /// Indicator whether this [AnimatedWrap] should have its colors inverted.
   final bool inverted;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return AnimatedWrap(
-      inverted,
-      children:
-          style.colors.userColors.map((e) => ColorWidget(inverted, e)).toList(),
+    return AnimatedContainer(
+      width: MediaQuery.sizeOf(context).width,
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 16,
+          runSpacing: 16,
+          children: children,
+        ),
+      ),
     );
   }
 }

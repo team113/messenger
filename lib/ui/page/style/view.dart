@@ -24,7 +24,6 @@ import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
 import 'colors/view.dart';
 import 'fonts/view.dart';
-import 'widget/custom_switcher.dart';
 
 /// View of the [Routes.style] page.
 class StyleView extends StatelessWidget {
@@ -33,62 +32,59 @@ class StyleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: StyleController(),
-      builder: (StyleController c) {
-        return SafeArea(
-          child: Scaffold(
-            body: Row(
-              children: [
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.loose,
-                  child: ColoredBox(
-                    color: const Color(0xFFFFFFFF),
-                    child: Column(
-                      children: [
-                        Expanded(child: _tabs(c, context)),
-                        const SizedBox(height: 10),
-                        _mode(c, 120),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-                  ),
-                ),
-                Flexible(
-                  flex: 5,
-                  child: Container(
-                    color: const Color(0xFFF5F5F5),
-                    child: CustomScrollView(
-                      slivers: [
-                        SliverList(
-                          delegate: SliverChildListDelegate([
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 70),
-                              child: Obx(() {
-                                return Column(
-                                  children: [
-                                    if (c.selectedTab.value == StyleTab.colors)
-                                      ColorStyleView(c.isDarkMode.value),
-                                    if (c.selectedTab.value ==
-                                        StyleTab.typography)
-                                      FontsView(c.isDarkMode.value),
-                                  ],
-                                );
-                              }),
-                            ),
-                          ]),
+        init: StyleController(),
+        builder: (StyleController c) {
+          return Scaffold(
+            body: ColoredBox(
+              color: const Color(0xFFFFFFFF),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      fit: FlexFit.loose,
+                      child: ColoredBox(
+                        color: const Color(0xFFFFFFFF),
+                        child: Column(
+                          children: [
+                            Expanded(child: _tabs(c, context)),
+                            const SizedBox(height: 10),
+                            _mode(c),
+                            const SizedBox(height: 20),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                    Flexible(
+                      flex: 5,
+                      child: Container(
+                        color: const Color(0xFFF5F5F5),
+                        child: CustomScrollView(
+                          slivers: [
+                            SliverList(
+                              delegate: SliverChildListDelegate([
+                                Obx(() {
+                                  List<Widget> pages = <Widget>[
+                                    ColorStyleView(c.inverted.value),
+                                    FontsView(c.inverted.value),
+                                  ];
+
+                                  return pages.elementAt(
+                                    c.selectedTab.value.index,
+                                  );
+                                }),
+                              ]),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        });
   }
 
   /// Returns the list of [StyleCard]s representing the [StyleTab]s.
@@ -169,15 +165,19 @@ class StyleView extends StatelessWidget {
   }
 
   /// Returns a [CustomSwitcher] switching between the light and dark mode.
-  Widget _mode(StyleController c, double width) {
+  Widget _mode(StyleController c) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final Widget child;
 
-        if (constraints.maxWidth < width) {
-          child = Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: CustomSwitcher(onChanged: c.toggleDarkMode),
+        if (constraints.maxWidth < 130) {
+          child = Obx(
+            () => Switch.adaptive(
+              value: c.inverted.value,
+              onChanged: c.toggleInverted,
+              activeColor: const Color(0xFF1F3C5D),
+              inactiveTrackColor: const Color(0xFFFFB74D),
+            ),
           );
         } else {
           child = Row(
@@ -187,7 +187,14 @@ class StyleView extends StatelessWidget {
               const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: CustomSwitcher(onChanged: c.toggleDarkMode),
+                child: Obx(
+                  () => Switch.adaptive(
+                    value: c.inverted.value,
+                    onChanged: c.toggleInverted,
+                    activeColor: const Color(0xFF1F3C5D),
+                    inactiveTrackColor: const Color(0xFFFFB74D),
+                  ),
+                ),
               ),
               const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
             ],
