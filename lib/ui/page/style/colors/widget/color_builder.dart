@@ -17,31 +17,37 @@
 
 import 'package:flutter/material.dart';
 
-import '../widget/header.dart';
-import 'widget/avatar.dart';
-import 'widget/palette.dart';
+/// [Wrap] with animated background.
+class AnimatedWrap extends StatelessWidget {
+  const AnimatedWrap(
+    this.inverted, {
+    super.key,
+    this.children = const <Widget>[],
+  });
 
-/// View of the [StyleTab.colors] page.
-class ColorStyleView extends StatelessWidget {
-  const ColorStyleView(this.inverted, {super.key});
-
-  /// Indicator whether this [ColorStyleView] should have its colors inverted.
+  /// Indicator whether this [AnimatedWrap] should have its colors inverted.
   final bool inverted;
+
+  /// Widgets to put inside a [Wrap].
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          const Header(label: 'Colors palette'),
-          const SmallHeader(label: 'Application colors'),
-          PaletteWidget(inverted),
-          const Divider(),
-          const SmallHeader(label: 'Avatar colors'),
-          AvatarColors(inverted),
-          const Divider(),
-        ],
+    return AnimatedContainer(
+      width: MediaQuery.sizeOf(context).width,
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 16,
+          runSpacing: 16,
+          children: children,
+        ),
       ),
     );
   }

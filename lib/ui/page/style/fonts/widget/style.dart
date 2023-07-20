@@ -19,10 +19,12 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-class FontStyleView extends StatelessWidget {
-  const FontStyleView({super.key, required this.isDarkMode});
+/// Wrap with [_FontStyleContainer]s.
+class FontStyleWidget extends StatelessWidget {
+  const FontStyleWidget(this.inverted, {super.key});
 
-  final bool isDarkMode;
+  /// Indicator whether this [FontStyleWidget] should have its colors inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
@@ -33,118 +35,129 @@ class FontStyleView extends StatelessWidget {
       spacing: 16,
       runSpacing: 16,
       children: [
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'displayLarge',
+        _FontStyleContainer(
+          inverted,
+          title: 'displayLarge',
           style: fonts.displayLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'displayMedium',
+        _FontStyleContainer(
+          inverted,
+          title: 'displayMedium',
           style: fonts.displayMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'displaySmall',
+        _FontStyleContainer(
+          inverted,
+          title: 'displaySmall',
           style: fonts.displaySmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'headlineLarge',
+        _FontStyleContainer(
+          inverted,
+          title: 'headlineLarge',
           style: fonts.headlineLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'headlineMedium',
+        _FontStyleContainer(
+          inverted,
+          title: 'headlineMedium',
           style: fonts.headlineMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'headlineSmall',
+        _FontStyleContainer(
+          inverted,
+          title: 'headlineSmall',
           style: fonts.headlineSmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'titleLarge',
+        _FontStyleContainer(
+          inverted,
+          title: 'titleLarge',
           style: fonts.titleLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'titleMedium',
+        _FontStyleContainer(
+          inverted,
+          title: 'titleMedium',
           style: fonts.titleMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'titleSmall',
+        _FontStyleContainer(
+          inverted,
+          title: 'titleSmall',
           style: fonts.titleSmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'labelLarge',
+        _FontStyleContainer(
+          inverted,
+          title: 'labelLarge',
           style: fonts.labelLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'labelMedium',
+        _FontStyleContainer(
+          inverted,
+          title: 'labelMedium',
           style: fonts.labelMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'labelSmall',
+        _FontStyleContainer(
+          inverted,
+          title: 'labelSmall',
           style: fonts.labelSmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'bodyLarge',
+        _FontStyleContainer(
+          inverted,
+          title: 'bodyLarge',
           style: fonts.bodyLarge!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'bodyMedium',
+        _FontStyleContainer(
+          inverted,
+          title: 'bodyMedium',
           style: fonts.bodyMedium!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'bodySmall',
+        _FontStyleContainer(
+          inverted,
+          title: 'bodySmall',
           style: fonts.bodySmall!,
         ),
-        _FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'linkStyle',
+        _FontStyleContainer(
+          inverted,
+          title: 'linkStyle',
           style: style.linkStyle,
-          color: 'Blue',
+          color: style.linkStyle.color,
+          label: 'Blue',
         ),
       ],
     );
   }
 }
 
-class _FontWidget extends StatelessWidget {
-  const _FontWidget({
-    required this.isDarkMode,
-    required this.label,
+/// [AnimatedContainer] which represents [Text] with a specific [style].
+class _FontStyleContainer extends StatelessWidget {
+  const _FontStyleContainer(
+    this.inverted, {
     required this.style,
-    this.color = 'Black',
+    this.title,
+    this.color,
+    this.label = 'Black',
   });
 
-  final bool isDarkMode;
+  /// Indicator whether this [_FontStyleContainer] should have its colors
+  /// inverted.
+  final bool inverted;
 
+  /// Label of this [_FontStyleContainer].
+  final String? title;
+
+  /// Description that represents the color of the [style].
   final String label;
 
-  final String color;
-
+  /// TextStyle defining the font style for this [_FontStyleContainer].
   final TextStyle style;
+
+  /// Color of [style].
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final (styles, fonts) = Theme.of(context).styles;
+    final fonts = Theme.of(context).fonts;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      height: 270,
-      width: 290,
+      duration: const Duration(milliseconds: 300),
+      height: 245,
+      width: 245,
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : styles.colors.onPrimary,
+        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
@@ -152,128 +165,144 @@ class _FontWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 32),
-            Center(
-              child: Text(
-                label,
-                style: style.copyWith(
-                  color: isDarkMode
-                      ? styles.colors.onPrimary
-                      : styles.colors.onBackground,
+            const SizedBox(height: 30),
+            if (title != null)
+              Center(
+                child: Text(
+                  title!,
+                  style: style.copyWith(
+                    color: color ??
+                        (inverted
+                            ? const Color(0xFFFFFFFF)
+                            : const Color(0xFF000000)),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Divider(color: isDarkMode ? styles.colors.onPrimary : null),
+            const SizedBox(height: 20),
+            Divider(color: inverted ? const Color(0xFFFFFFFF) : null),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 DefaultTextStyle(
                   style: fonts.bodySmall!.copyWith(
-                    color: isDarkMode
-                        ? styles.colors.onPrimary
-                        : styles.colors.secondary,
+                    color: inverted
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF888888),
                   ),
-                  child: SizedBox(
-                    height: 130,
-                    width: 140,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
+                  child: Expanded(
+                    child: SizedBox(
+                      height: 130,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('Size'),
-                            Expanded(
-                              child: Divider(
-                                indent: 10,
-                                endIndent: 10,
-                                color:
-                                    isDarkMode ? styles.colors.onPrimary : null,
-                              ),
+                            Row(
+                              children: [
+                                const Text('Size'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: inverted
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Text('Weight'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: inverted
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Text('Style'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: inverted
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Text('Color'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: inverted
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Text('Spacing'),
+                                Expanded(
+                                  child: Divider(
+                                    indent: 5,
+                                    endIndent: 5,
+                                    color: inverted
+                                        ? const Color(0xFFFFFFFF)
+                                        : null,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Text('Weight'),
-                            Expanded(
-                              child: Divider(
-                                indent: 10,
-                                endIndent: 10,
-                                color:
-                                    isDarkMode ? styles.colors.onPrimary : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Text('Style'),
-                            Expanded(
-                                child: Divider(
-                              indent: 10,
-                              endIndent: 10,
-                              color:
-                                  isDarkMode ? styles.colors.onPrimary : null,
-                            )),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Text('Color'),
-                            Expanded(
-                                child: Divider(
-                              indent: 10,
-                              endIndent: 10,
-                              color:
-                                  isDarkMode ? styles.colors.onPrimary : null,
-                            )),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Text('Letter spacing'),
-                            Expanded(
-                                child: Divider(
-                              indent: 10,
-                              endIndent: 10,
-                              color:
-                                  isDarkMode ? styles.colors.onPrimary : null,
-                            )),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
                 DefaultTextStyle(
                   style: fonts.bodyMedium!.copyWith(
-                    color: isDarkMode
-                        ? styles.colors.onPrimary
-                        : styles.colors.onBackground,
+                    color: inverted
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(style.fontSize.toString()),
-                        const SizedBox(height: 8),
-                        Text(style.fontWeight!.value.toString()),
-                        const SizedBox(height: 8),
-                        Text(_getFontWeightName(style.fontWeight)),
-                        const SizedBox(height: 8),
-                        Text(color),
-                        const SizedBox(height: 8),
-                        style.letterSpacing == null
-                            ? const Text('0 %')
-                            : Text('${style.letterSpacing} %'),
-                      ],
+                    child: Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(style.fontSize.toString()),
+                          const SizedBox(height: 8),
+                          Text(style.fontWeight!.value.toString()),
+                          const SizedBox(height: 8),
+                          Text(_getFontWeightName(style.fontWeight)),
+                          const SizedBox(height: 8),
+                          Text(label),
+                          const SizedBox(height: 8),
+                          style.letterSpacing == null
+                              ? const Text('0 %')
+                              : Text('${style.letterSpacing} %'),
+                        ],
+                      ),
                     ),
                   ),
                 )
@@ -285,6 +314,7 @@ class _FontWidget extends StatelessWidget {
     );
   }
 
+  /// Returns the corresponding [fontWeight] name as a string.
   String _getFontWeightName(FontWeight? fontWeight) {
     String fontWeightStyle = '';
 

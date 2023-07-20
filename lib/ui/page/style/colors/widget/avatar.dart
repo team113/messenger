@@ -19,39 +19,23 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import 'color.dart';
+import 'color_builder.dart';
 
-///
+/// [Wrap] of avatar colors.
 class AvatarColors extends StatelessWidget {
-  const AvatarColors({super.key, required this.isDarkMode});
+  const AvatarColors(this.inverted, {super.key});
 
-  final bool isDarkMode;
+  /// Indicator whether this [AvatarColors] should have its colors inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
-    final (style, _) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      width: MediaQuery.sizeOf(context).width,
-      child: Column(
-        children: [
-          const SizedBox(height: 30),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 16,
-            runSpacing: 16,
-            children: List.generate(
-              style.colors.userColors.length,
-              (i) => CustomColor(isDarkMode, style.colors.userColors[i]),
-            ),
-          ),
-          const SizedBox(height: 30),
-        ],
-      ),
+    return AnimatedWrap(
+      inverted,
+      children:
+          style.colors.userColors.map((e) => ColorWidget(inverted, e)).toList(),
     );
   }
 }

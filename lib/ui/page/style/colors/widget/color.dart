@@ -19,30 +19,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/themes.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
-import '/util/to_hex_extension.dart';
 
-class CustomColor extends StatelessWidget {
-  const CustomColor(
-    this.isDarkMode,
+/// Stylized [Container] of the provided [color].
+class ColorWidget extends StatelessWidget {
+  const ColorWidget(
+    this.inverted,
     this.color, {
     super.key,
-    this.subtitle = '',
-    this.title = '',
+    this.subtitle,
+    this.hint,
   });
 
-  final bool isDarkMode;
+  /// Indicator whether this [ColorWidget] should have its colors inverted.
+  final bool inverted;
 
+  /// Color to display.
   final Color color;
 
-  final String title;
-
+  /// Optional subtitle of this [ColorWidget].
   final String? subtitle;
+
+  /// Optional hint of this [ColorWidget].
+  final String? hint;
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final fonts = Theme.of(context).fonts;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -50,45 +53,49 @@ class CustomColor extends StatelessWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 150),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              const SizedBox(width: 17),
-              Text(
-                color.toHex(),
-                textAlign: TextAlign.start,
-                style: fonts.bodySmall!.copyWith(
-                  color: isDarkMode ? Colors.white : style.colors.onBackground,
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: color.toHex()));
+                    MessagePopup.success('Color hash code is copied');
+                  },
+                  child: Text(
+                    color.toHex(),
+                    textAlign: TextAlign.start,
+                    style: fonts.bodySmall!.copyWith(
+                      color: inverted
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000),
+                    ),
+                  ),
                 ),
               ),
+              if (hint != null)
+                Tooltip(
+                  message: hint,
+                  child: Icon(
+                    Icons.info_outline,
+                    size: 13,
+                    color: inverted
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
+                  ),
+                ),
             ],
           ),
         ),
         const SizedBox(height: 8),
-        Tooltip(
-          message: subtitle,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: WidgetButton(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: color.toHex()));
-                MessagePopup.success('Copied');
-              },
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    if (!isDarkMode)
-                      BoxShadow(
-                        color: style.colors.secondary.withOpacity(0.2),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: const Offset(0, 3),
-                      ),
-                  ],
-                ),
-              ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
@@ -98,16 +105,29 @@ class CustomColor extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 17),
-              Expanded(
-                child: Text(
-                  title,
-                  textAlign: TextAlign.left,
-                  style: fonts.labelSmall!.copyWith(
-                    color:
-                        isDarkMode ? Colors.white : style.colors.onBackground,
+              if (subtitle != null)
+                Expanded(
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: subtitle!));
+                        MessagePopup.success(
+                          'Technical name of the color is copied',
+                        );
+                      },
+                      child: Text(
+                        subtitle!,
+                        textAlign: TextAlign.left,
+                        style: fonts.labelSmall!.copyWith(
+                          color: inverted
+                              ? const Color(0xFFFFFFFF)
+                              : const Color(0xFF000000),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

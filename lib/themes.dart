@@ -916,3 +916,13 @@ extension ThemeStylesExtension on ThemeData {
   /// Returns a record containing the [style] and [fonts].
   (Style, TextTheme) get styles => (style, fonts);
 }
+
+/// Adds the ability to get HEX value of the color.
+extension HexColor on Color {
+  /// Returns a HEX string value of this color.
+  String toHex() => '#'
+      '${alpha.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
+}

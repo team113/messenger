@@ -16,185 +16,196 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/style/element/view.dart';
-import '/ui/page/style/media/view.dart';
+import 'controller.dart';
 import '/ui/page/style/widget/style_card.dart';
 import 'colors/view.dart';
+import 'element/view.dart';
 import 'fonts/view.dart';
-import 'widget/custom_switcher.dart';
+import 'media/view.dart';
 
 /// View of the [Routes.style] page.
-class StyleView extends StatefulWidget {
+class StyleView extends StatelessWidget {
   const StyleView({super.key});
 
   @override
-  State<StyleView> createState() => _StyleViewState();
-}
-
-/// State of an [StyleView] maintaining the [isDarkMode] and [selectedTab].
-class _StyleViewState extends State<StyleView> {
-  /// Indicator whether this page is in dark mode.
-  bool isDarkMode = false;
-
-  /// Initial and current [StyleTab] page.
-  StyleTab selectedTab = StyleTab.colors;
-
-  @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
-
-    return SafeArea(
-      child: Scaffold(
-        body: Row(
-          children: [
-            Flexible(
-              flex: 1,
-              child: Container(
-                color: const Color(0xFFFFFFFF),
-                child: Column(
+    return GetBuilder(
+        init: StyleController(),
+        builder: (StyleController c) {
+          return Scaffold(
+            body: ColoredBox(
+              color: const Color(0xFFFFFFFF),
+              child: SafeArea(
+                child: Row(
                   children: [
-                    Expanded(
-                      child: CustomScrollView(
-                        slivers: [
-                          SliverAppBar(
-                            expandedHeight: 75,
-                            leadingWidth: double.infinity,
-                            flexibleSpace: FlexibleSpaceBar(
-                              title: Text(
-                                'Style by Gapopa',
-                                textAlign: TextAlign.center,
-                                style: fonts.headlineLarge!.copyWith(
-                                  color: const Color(0xFF1F3C5D),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SliverList.builder(
-                              itemCount: StyleTab.values.length,
-                              itemBuilder: (context, i) {
-                                final StyleTab tab = StyleTab.values[i];
-
-                                final bool inverted = selectedTab == tab;
-
-                                switch (tab) {
-                                  case StyleTab.colors:
-                                    return StyleCard(
-                                      title: 'Color palette',
-                                      icon: Icons.format_paint_rounded,
-                                      inverted: inverted,
-                                      onPressed: () {
-                                        selectedTab = tab;
-                                        setState(() {});
-                                      },
-                                    );
-
-                                  case StyleTab.typography:
-                                    return StyleCard(
-                                      title: 'Typography',
-                                      icon: Icons.text_fields_rounded,
-                                      inverted: inverted,
-                                      onPressed: () {
-                                        selectedTab = tab;
-                                        setState(() {});
-                                      },
-                                    );
-
-                                  case StyleTab.multimedia:
-                                    return StyleCard(
-                                      title: 'Multimedia',
-                                      icon: Icons.play_lesson_rounded,
-                                      inverted: inverted,
-                                      onPressed: () {
-                                        selectedTab = tab;
-                                        setState(() {});
-                                      },
-                                    );
-
-                                  case StyleTab.elements:
-                                    return StyleCard(
-                                      title: 'Elements',
-                                      icon: Icons.widgets_rounded,
-                                      inverted: inverted,
-                                      onPressed: () {
-                                        selectedTab = tab;
-                                        setState(() {});
-                                      },
-                                    );
-                                }
-                              }),
-                        ],
+                    Flexible(
+                      flex: 1,
+                      fit: FlexFit.loose,
+                      child: ColoredBox(
+                        color: const Color(0xFFFFFFFF),
+                        child: Column(
+                          children: [
+                            Expanded(child: _tabs(c, context)),
+                            const SizedBox(height: 10),
+                            _mode(c),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
                       ),
                     ),
-                    Column(
-                      children: [
-                        const Divider(),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 20, top: 10),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.light_mode,
-                                color: Color(0xFFFFB74D),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: CustomSwitcher(
-                                  onChanged: (b) => setState(
-                                    () => isDarkMode = b,
-                                  ),
-                                ),
-                              ),
-                              const Icon(
-                                Icons.dark_mode,
-                                color: Color(0xFF1F3C5D),
-                              ),
-                            ],
-                          ),
+                    Flexible(
+                      flex: 5,
+                      child: Container(
+                        color: const Color(0xFFF5F5F5),
+                        child: CustomScrollView(
+                          slivers: [
+                            SliverList(
+                              delegate: SliverChildListDelegate([
+                                Obx(() {
+                                  List<Widget> pages = <Widget>[
+                                    ColorStyleView(c.inverted.value),
+                                    FontsView(c.inverted.value),
+                                    MultimediaView(c.inverted.value),
+                                    ElementStyleTabView(c.inverted.value),
+                                  ];
+
+                                  return pages.elementAt(
+                                    c.selectedTab.value.index,
+                                  );
+                                }),
+                              ]),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-            Flexible(
-              flex: 4,
-              child: Container(
-                color: const Color(0xFFF5F5F5),
-                child: CustomScrollView(
-                  slivers: [
-                    SliverList(
-                      delegate: SliverChildListDelegate([
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 70),
-                          child: Column(
-                            children: [
-                              if (selectedTab == StyleTab.colors)
-                                ColorStyleView(isDarkMode: isDarkMode),
-                              if (selectedTab == StyleTab.typography)
-                                FontsView(isDarkMode: isDarkMode),
-                              if (selectedTab == StyleTab.multimedia)
-                                MultimediaView(isDarkMode: isDarkMode),
-                              if (selectedTab == StyleTab.elements)
-                                ElementStyleTabView(isDarkMode: isDarkMode),
-                            ],
-                          ),
-                        ),
-                      ]),
-                    ),
-                  ],
-                ),
+          );
+        });
+  }
+
+  /// Returns the list of [StyleCard]s representing the [StyleTab]s.
+  Widget _tabs(StyleController c, BuildContext context) {
+    final fonts = Theme.of(context).fonts;
+
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 75,
+          leadingWidth: double.infinity,
+          flexibleSpace: FlexibleSpaceBar(
+            title: Text(
+              'Style',
+              textAlign: TextAlign.center,
+              style: fonts.headlineLarge!.copyWith(
+                color: const Color(0xFF1F3C5D),
               ),
             ),
-          ],
+          ),
         ),
-      ),
+        SliverList.builder(
+          itemCount: StyleTab.values.length,
+          itemBuilder: (context, i) {
+            return Obx(() {
+              final StyleTab tab = StyleTab.values[i];
+
+              final bool inverted = c.selectedTab.value == tab;
+
+              switch (tab) {
+                case StyleTab.colors:
+                  return StyleCard(
+                    title: 'Color palette',
+                    icon: inverted
+                        ? Icons.format_paint
+                        : Icons.format_paint_outlined,
+                    inverted: inverted,
+                    onPressed: () => c.toggleTab(tab),
+                  );
+
+                case StyleTab.typography:
+                  return StyleCard(
+                    title: 'Typography',
+                    icon: inverted
+                        ? Icons.text_snippet
+                        : Icons.text_snippet_outlined,
+                    inverted: inverted,
+                    onPressed: () => c.toggleTab(tab),
+                  );
+
+                case StyleTab.multimedia:
+                  return StyleCard(
+                    title: 'Multimedia',
+                    icon: inverted
+                        ? Icons.play_lesson
+                        : Icons.play_lesson_outlined,
+                    inverted: inverted,
+                    onPressed: () => c.toggleTab(tab),
+                  );
+
+                case StyleTab.elements:
+                  return StyleCard(
+                    title: 'Elements',
+                    icon: inverted ? Icons.widgets : Icons.widgets_outlined,
+                    inverted: inverted,
+                    onPressed: () => c.toggleTab(tab),
+                  );
+              }
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  /// Returns a [CustomSwitcher] switching between the light and dark mode.
+  Widget _mode(StyleController c) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final Widget child;
+
+        if (constraints.maxWidth < 130) {
+          child = Obx(
+            () => Switch.adaptive(
+              value: c.inverted.value,
+              onChanged: c.toggleInverted,
+              activeColor: const Color(0xFF1F3C5D),
+              inactiveTrackColor: const Color(0xFFFFB74D),
+            ),
+          );
+        } else {
+          child = Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Obx(
+                  () => Switch.adaptive(
+                    value: c.inverted.value,
+                    onChanged: c.toggleInverted,
+                    activeColor: const Color(0xFF1F3C5D),
+                    inactiveTrackColor: const Color(0xFFFFB74D),
+                  ),
+                ),
+              ),
+              const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
+            ],
+          );
+        }
+
+        return AnimatedSize(
+          curve: Curves.ease,
+          duration: const Duration(milliseconds: 200),
+          child: child,
+        );
+      },
     );
   }
 }

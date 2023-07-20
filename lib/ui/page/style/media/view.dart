@@ -23,14 +23,14 @@ import 'widget/images.dart';
 import 'widget/sounds.dart';
 
 class MultimediaView extends StatelessWidget {
-  const MultimediaView({super.key, required this.isDarkMode});
+  const MultimediaView(this.isDarkMode, {super.key});
 
   final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           const Header(label: 'Multimedia'),

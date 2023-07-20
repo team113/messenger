@@ -19,278 +19,263 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import 'color.dart';
+import 'color_builder.dart';
 
-/// Colors tab view of the [Routes.style] page.
+/// Palette of application colors.
 class PaletteWidget extends StatelessWidget {
-  const PaletteWidget({super.key, this.isDarkMode = false});
+  const PaletteWidget(this.inverted, {super.key});
 
-  /// Indicator whether this page is in dark mode.
-  final bool isDarkMode;
+  /// Indicator whether this [PaletteWidget] should have its colors inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return AnimatedContainer(
-      width: MediaQuery.sizeOf(context).width,
-      duration: const Duration(milliseconds: 500),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        child: Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 16,
-          runSpacing: 16,
-          children: [
-            CustomColor(
-              isDarkMode,
-              style.colors.onBackground,
-              title: 'onBackground',
-              subtitle: 'Primary text color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.secondaryBackground,
-              title: 'secondaryBackground',
-              subtitle: 'Background text and stroke',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.secondaryBackgroundLight,
-              title: 'secondaryBackground\nLight',
-              subtitle: 'Call background color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.secondaryBackgroundLightest,
-              title: 'secondaryBackground\nLightest',
-              subtitle: 'Background color of avatar and call buttons',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.secondary,
-              title: 'secondary',
-              subtitle: 'Text and stroke color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.secondaryHighlightDarkest,
-              title: 'secondaryHighlight\nDarkest',
-              subtitle:
-                  'Color of inscriptions and icons over the background of the call',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.secondaryHighlightDark,
-              title: 'secondaryHighlightDark',
-              subtitle: 'Navigation bar button color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.secondaryHighlight,
-              title: 'secondaryHighlight',
-              subtitle: 'Circular progress indicator color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.background,
-              title: 'background',
-              subtitle: 'General background',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.secondaryOpacity87,
-              title: 'secondaryOpacity87',
-              subtitle:
-                  'Color of a raised hand and a muted microphone in a call',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onBackgroundOpacity50,
-              title: 'onBackgroundOpacity50',
-              subtitle: 'Attached file background color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onBackgroundOpacity40,
-              title: 'onBackgroundOpacity40',
-              subtitle: 'Color of the bottom chat bar',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onBackgroundOpacity27,
-              title: 'onBackgroundOpacity27',
-              subtitle: 'Color of the floating bar shadow',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onBackgroundOpacity20,
-              title: 'onBackgroundOpacity20',
-              subtitle: 'Color of the panel with buttons in the call',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onBackgroundOpacity13,
-              title: 'onBackgroundOpacity13',
-              subtitle: 'Color of the video play/pause button',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onBackgroundOpacity7,
-              title: 'onBackgroundOpacity7',
-              subtitle: 'Color of the dividers',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onBackgroundOpacity2,
-              title: 'onBackgroundOpacity2',
-              subtitle: 'Text color "Connecting", "Calling", etc. in a call',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onPrimary,
-              title: 'onPrimary',
-              subtitle: 'Color used on the left side of the profile page',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onPrimaryOpacity95,
-              title: 'onPrimaryOpacity95',
-              subtitle: 'Color of the message that was received',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onPrimaryOpacity50,
-              title: 'onPrimaryOpacity50',
-              subtitle:
-                  'Outline color for call accept buttons with audio and video',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onPrimaryOpacity25,
-              title: 'onPrimaryOpacity25',
-              subtitle: 'Shadow color of forwarded messages',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onPrimaryOpacity7,
-              title: 'onPrimaryOpacity7',
-              subtitle: 'Additional background color for the call',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.backgroundAuxiliary,
-              title: 'backgroundAuxiliary',
-              subtitle: 'Active call color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.backgroundAuxiliaryLight,
-              title: 'backgroundAuxiliaryLight',
-              subtitle: 'Profile background color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onSecondaryOpacity88,
-              title: 'onSecondaryOpacity88',
-              subtitle: 'Color of the top draggable title bar',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onSecondary,
-              title: 'onSecondary',
-              subtitle: 'Call button color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onSecondaryOpacity60,
-              title: 'onSecondaryOpacity60',
-              subtitle: 'Additional color for the top draggable title bar',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onSecondaryOpacity50,
-              title: 'onSecondaryOpacity50',
-              subtitle: 'Color of the buttons in the gallery',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.onSecondaryOpacity20,
-              title: 'onSecondaryOpacity20',
-              subtitle: 'Mobile selector color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.primaryHighlight,
-              title: 'primaryHighlight',
-              subtitle: 'Dropdown menu color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.primary,
-              title: 'primary',
-              subtitle: 'Color of inverted buttons and links',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.primaryHighlightShiniest,
-              title: 'primaryHighlightShiniest',
-              subtitle: 'Color of the read message',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.primaryHighlightLightest,
-              title: 'primaryHighlightLightest',
-              subtitle: 'Outline color of the read message',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.backgroundAuxiliaryLighter,
-              title: 'backgroundAuxiliaryLighter',
-              subtitle: 'Unload color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.backgroundAuxiliaryLightest,
-              title: 'backgroundAuxiliaryLightest',
-              subtitle: 'Background color of group members and unread messages',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.acceptAuxiliaryColor,
-              title: 'acceptAuxiliaryColor',
-              subtitle: 'User panel color',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.acceptColor,
-              title: 'acceptColor',
-              subtitle: 'Color of the call accept button',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.dangerColor,
-              title: 'dangerColor',
-              subtitle: 'Color that warns of something',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.declineColor,
-              title: 'declineColor',
-              subtitle: 'Color of the end call button',
-            ),
-            CustomColor(
-              isDarkMode,
-              style.colors.warningColor,
-              title: 'warningColor',
-              subtitle: 'Do not disturb status color',
-            ),
-          ],
+    return AnimatedWrap(
+      inverted,
+      children: [
+        ColorWidget(
+          inverted,
+          style.colors.onBackground,
+          subtitle: 'onBackground',
+          hint: 'Primary text',
         ),
-      ),
+        ColorWidget(
+          inverted,
+          style.colors.secondaryBackground,
+          subtitle: 'secondaryBackground',
+          hint: 'Background text and stroke',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.secondaryBackgroundLight,
+          subtitle: 'secondaryBackgroundLight',
+          hint: 'Call background',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.secondaryBackgroundLightest,
+          subtitle: 'secondaryBackgroundLightest',
+          hint: 'Background of avatar and call buttons',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.secondary,
+          subtitle: 'secondary',
+          hint: 'Text and stroke',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.secondaryHighlightDarkest,
+          subtitle: 'secondaryHighlightDarkest',
+          hint: 'Inscriptions and icons over the background of the call',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.secondaryHighlightDark,
+          subtitle: 'secondaryHighlightDark',
+          hint: 'Navigation bar button',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.secondaryHighlight,
+          subtitle: 'secondaryHighlight',
+          hint: 'Circular progress indicator',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.background,
+          subtitle: 'background',
+          hint: 'General background',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.secondaryOpacity87,
+          subtitle: 'secondaryOpacity87',
+          hint: 'Raised hand and a muted microphone in a call',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onBackgroundOpacity50,
+          subtitle: 'onBackgroundOpacity50',
+          hint: 'Attached file background',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onBackgroundOpacity40,
+          subtitle: 'onBackgroundOpacity40',
+          hint: 'Bottom chat bar',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onBackgroundOpacity27,
+          subtitle: 'onBackgroundOpacity27',
+          hint: 'Floating bar shadow',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onBackgroundOpacity20,
+          subtitle: 'onBackgroundOpacity20',
+          hint: 'Panel with buttons in the call',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onBackgroundOpacity13,
+          subtitle: 'onBackgroundOpacity13',
+          hint: 'Video play/pause button',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onBackgroundOpacity7,
+          subtitle: 'onBackgroundOpacity7',
+          hint: 'Dividers',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onBackgroundOpacity2,
+          subtitle: 'onBackgroundOpacity2',
+          hint: 'Text "Connecting", "Calling", etc. in a call',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onPrimary,
+          subtitle: 'onPrimary',
+          hint: 'Left side of the profile page',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onPrimaryOpacity95,
+          subtitle: 'onPrimaryOpacity95',
+          hint: 'Message that was received',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onPrimaryOpacity50,
+          subtitle: 'onPrimaryOpacity50',
+          hint: 'Outline call accept buttons with audio and video',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onPrimaryOpacity25,
+          subtitle: 'onPrimaryOpacity25',
+          hint: 'Shadow of forwarded messages',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onPrimaryOpacity7,
+          subtitle: 'onPrimaryOpacity7',
+          hint: 'Additional background for the call',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.backgroundAuxiliary,
+          subtitle: 'backgroundAuxiliary',
+          hint: 'Active call',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.backgroundAuxiliaryLight,
+          subtitle: 'backgroundAuxiliaryLight',
+          hint: 'Profile background',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onSecondaryOpacity88,
+          subtitle: 'onSecondaryOpacity88',
+          hint: 'Top draggable subtitle bar',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onSecondary,
+          subtitle: 'onSecondary',
+          hint: 'Call button',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onSecondaryOpacity60,
+          subtitle: 'onSecondaryOpacity60',
+          hint: 'Additional top draggable subtitle bar',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onSecondaryOpacity50,
+          subtitle: 'onSecondaryOpacity50',
+          hint: 'Buttons in the gallery',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.onSecondaryOpacity20,
+          subtitle: 'onSecondaryOpacity20',
+          hint: 'Mobile selector',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.primaryHighlight,
+          subtitle: 'primaryHighlight',
+          hint: 'Dropdown menu',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.primary,
+          subtitle: 'primary',
+          hint: 'Inverted buttons and links',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.primaryHighlightShiniest,
+          subtitle: 'primaryHighlightShiniest',
+          hint: 'Read message',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.primaryHighlightLightest,
+          subtitle: 'primaryHighlightLightest',
+          hint: 'Outline of the read message',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.backgroundAuxiliaryLighter,
+          subtitle: 'backgroundAuxiliaryLighter',
+          hint: 'Unload',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.backgroundAuxiliaryLightest,
+          subtitle: 'backgroundAuxiliaryLightest',
+          hint: 'Background of group members and unread messages',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.acceptAuxiliaryColor,
+          subtitle: 'acceptAuxiliaryColor',
+          hint: 'User panel',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.acceptColor,
+          subtitle: 'acceptColor',
+          hint: 'Call accept button',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.dangerColor,
+          subtitle: 'dangerColor',
+          hint: 'Warns of something',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.declineColor,
+          subtitle: 'declineColor',
+          hint: 'End call button',
+        ),
+        ColorWidget(
+          inverted,
+          style.colors.warningColor,
+          subtitle: 'warningColor',
+          hint: 'Do not disturb status',
+        ),
+      ],
     );
   }
 }

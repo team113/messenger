@@ -17,27 +17,33 @@
 
 import 'package:flutter/material.dart';
 
-import '/ui/page/style/widget/header.dart';
+import '../widget/header.dart';
 import 'widget/family.dart';
+import 'widget/font_column.dart';
 import 'widget/style.dart';
 
+/// View of the [StyleTab.typography] page.
 class FontsView extends StatelessWidget {
-  const FontsView({super.key, required this.isDarkMode});
+  const FontsView(this.inverted, {super.key});
 
-  final bool isDarkMode;
+  /// Indicator whether this [FontsView] should have its colors inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           const Header(label: 'Typography'),
+          const SmallHeader(label: 'Font families'),
+          FontFamiliesWidget(inverted),
+          const Divider(),
           const SmallHeader(label: 'Font'),
-          FontFamiliesView(isDarkMode: isDarkMode),
+          FontColumnWidget(inverted),
           const Divider(),
           const SmallHeader(label: 'Styles'),
-          FontStyleView(isDarkMode: isDarkMode),
+          FontStyleWidget(inverted),
           const Divider(),
         ],
       ),

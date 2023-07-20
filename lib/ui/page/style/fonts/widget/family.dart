@@ -19,78 +19,89 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-class FontFamiliesView extends StatelessWidget {
-  const FontFamiliesView({super.key, required this.isDarkMode});
+/// [AnimatedContainer] of application font families.
+class FontFamiliesWidget extends StatelessWidget {
+  const FontFamiliesWidget(this.inverted, {super.key});
 
-  final bool isDarkMode;
+  /// Indicator whether this [FontFamiliesWidget] should have its colors
+  /// inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Column(
-      children: [
-        FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'SFUI-Light',
-          textStyle: fonts.displayLarge!.copyWith(fontWeight: FontWeight.w300),
-        ),
-        const SizedBox(height: 30),
-        FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'SFUI-Regular',
-          textStyle: fonts.displayLarge!.copyWith(
-            fontWeight: FontWeight.normal,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          _FontFamily(
+            inverted,
+            label: 'SFUI-Light',
+            textStyle: fonts.displayLarge!.copyWith(
+              fontWeight: FontWeight.w300,
+            ),
           ),
-        ),
-        const SizedBox(height: 30),
-        FontWidget(
-          isDarkMode: isDarkMode,
-          label: 'SFUI-Bold',
-          textStyle: fonts.displayLarge!,
-        ),
-      ],
+          Divider(color: inverted ? const Color(0xFFFFFFFF) : null),
+          _FontFamily(
+            inverted,
+            label: 'SFUI-Regular',
+            textStyle: fonts.displayLarge!.copyWith(
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          Divider(color: inverted ? const Color(0xFFFFFFFF) : null),
+          _FontFamily(
+            inverted,
+            label: 'SFUI-Bold',
+            textStyle: fonts.displayLarge!.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class FontWidget extends StatelessWidget {
-  const FontWidget({
-    super.key,
+/// [Column] of all characters in a specific font family.
+class _FontFamily extends StatelessWidget {
+  const _FontFamily(
+    this.inverted, {
     required this.textStyle,
-    required this.label,
-    required this.isDarkMode,
+    this.label,
   });
 
-  final bool isDarkMode;
+  /// Indicator whether this [_FontFamily] should have its colors
+  /// inverted.
+  final bool inverted;
 
-  final String label;
+  /// Label of this [_FontFamily].
+  final String? label;
 
+  /// Text style of this [_FontFamily].
   final TextStyle textStyle;
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final fonts = Theme.of(context).fonts;
 
-    return Stack(
-      children: [
-        AnimatedContainer(
-          height: 300,
-          duration: const Duration(milliseconds: 500),
-          decoration: BoxDecoration(
-            color:
-                isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 32),
-            child: DefaultTextStyle(
-              style: textStyle.copyWith(
-                color: isDarkMode
-                    ? style.colors.onPrimary
-                    : style.colors.onBackground,
-              ),
-              child: const Column(
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        children: [
+          DefaultTextStyle(
+            style: textStyle.copyWith(
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -98,33 +109,43 @@ class FontWidget extends StatelessWidget {
                   SizedBox(height: 40),
                   Text('abcdefghijklmnopqrstuvwxyz'),
                   SizedBox(height: 40),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 25),
-                    child: Row(
-                      children: [
-                        Text('1234567890'),
-                        SizedBox(width: 50),
-                        Text('_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*')
-                      ],
-                    ),
-                  )
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '1234567890',
+                          softWrap: true,
+                        ),
+                      ),
+                      SizedBox(width: 50),
+                      Flexible(
+                        child: Text(
+                          '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
+                          softWrap: true,
+                        ),
+                      )
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
-        ),
-        Positioned(
-          right: 20,
-          bottom: 0,
-          child: Text(
-            label,
-            style: fonts.displayLarge!.copyWith(
-              color: const Color(0xFFF5F5F5),
-              fontSize: 55,
+          if (label != null)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Text(
+                  label!,
+                  style: fonts.displayLarge!.copyWith(
+                    color: const Color(0xFFF5F5F5),
+                    fontSize: 40,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

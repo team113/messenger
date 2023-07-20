@@ -22,13 +22,26 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart';
 
-import '/routes.dart';
-
 export 'view.dart';
 
-/// [Routes.auth] page controller.
+/// List of [StyleView] page sections.
+enum StyleTab { colors, typography, multimedia, elements }
+
+/// Controller of a [StyleView].
 class StyleController extends GetxController {
   StyleController();
+
+  /// Indicator whether the colors should be inverted.
+  final RxBool inverted = false.obs;
+
+  /// Initial and current [StyleTab] page.
+  final selectedTab = StyleTab.colors.obs;
+
+  /// Toggles the [StyleTab]s selection.
+  void toggleTab(StyleTab tab) => selectedTab.value = tab;
+
+  /// Toggles the [inverted].
+  void toggleInverted(bool value) => inverted.value = value;
 
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);

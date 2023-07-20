@@ -28,14 +28,14 @@ import 'widget/text_field.dart';
 
 /// Elements tab view of the [Routes.style] page.
 class ElementStyleTabView extends StatelessWidget {
-  const ElementStyleTabView({super.key, required this.isDarkMode});
+  const ElementStyleTabView(this.isDarkMode, {super.key});
 
   final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           const Header(label: 'Elements'),
@@ -60,9 +60,6 @@ class ElementStyleTabView extends StatelessWidget {
           const SmallHeader(label: 'Navigation'),
           const NavigationWidget(),
           const Divider(),
-
-          /// TODO: remove
-          const SizedBox(height: 700),
         ],
       ),
     );

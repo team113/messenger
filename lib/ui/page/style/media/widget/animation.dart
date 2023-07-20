@@ -22,7 +22,7 @@ import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:rive/rive.dart';
 
 import '/ui/page/auth/widget/animated_logo.dart';
-import '/ui/page/style/controller.dart';
+import '../../controller.dart';
 import '/config.dart';
 import '/themes.dart';
 
