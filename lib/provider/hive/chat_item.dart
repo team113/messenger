@@ -180,6 +180,21 @@ class HiveChatMessage extends HiveChatItem {
   /// Cursors of the [ChatMessage.repliesTo] list.
   @HiveField(3)
   List<ChatItemsCursor?>? repliesToCursors;
+
+  /// Returns a copy of this [HiveChatMessage] with the provided parameters.
+  HiveChatMessage copyWith({
+    ChatItem? value,
+    ChatItemsCursor? cursor,
+    ChatItemVersion? ver,
+    List<ChatItemsCursor?>? repliesToCursors,
+  }) {
+    return HiveChatMessage(
+      value ?? this.value,
+      cursor ?? this.cursor,
+      ver ?? this.ver,
+      repliesToCursors ?? this.repliesToCursors,
+    );
+  }
 }
 
 /// Persisted in [Hive] storage [ChatForward]'s [value].

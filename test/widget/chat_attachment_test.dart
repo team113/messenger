@@ -444,10 +444,8 @@ void main() async {
     await tester.tap(find.byKey(const Key('Send')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    // Wait for local subscription in [RxChat].
-    await tester.runAsync(() async {
-      await Future.delayed(1.seconds);
-    });
+    // Wait for [HiveLazyProvider.boxEvents] in [RxChat].
+    await tester.runAsync(() async => await Future.delayed(1.seconds));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     AttachmentId id2 = (chatController.chat!.messages.last.value as ChatMessage)
