@@ -71,7 +71,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
-import 'chat_attachment_test.mocks.dart';
+import 'chat_update_image_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
