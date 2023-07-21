@@ -16,12 +16,6 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 fragment UserCallCover on UserCallCover {
-    galleryItem {
-        __typename
-        ... on ImageGalleryItem {
-            ...ImageGalleryItem
-        }
-    }
     crop {
         topLeft {
             x
@@ -35,18 +29,18 @@ fragment UserCallCover on UserCallCover {
     }
     original {
         __typename
-        ...File
+        ...ImageFile
     }
     full {
         __typename
-        ...File
+        ...ImageFile
     }
     vertical {
         __typename
-        ...File
+        ...ImageFile
     }
     square {
         __typename
-        ...File
+        ...ImageFile
     }
 }

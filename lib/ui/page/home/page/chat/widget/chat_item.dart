@@ -392,7 +392,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Returns the [UserId] of [User] posted this [ChatItem].
-  UserId get _author => widget.item.value.authorId;
+  UserId get _author => widget.item.value.author.id;
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the
   /// authenticated [MyUser].
@@ -482,7 +482,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final action = message.action as ChatInfoActionCreated;
 
         if (widget.chat.value?.isGroup == true) {
-          content = userBuilder(message.authorId, (context, user) {
+          content = userBuilder(message.author.id, (context, user) {
             if (user != null) {
               final Map<String, dynamic> args = {
                 'author': user.name?.val ?? user.num.val,
@@ -535,7 +535,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       case ChatInfoActionKind.memberAdded:
         final action = message.action as ChatInfoActionMemberAdded;
 
-        if (action.user.id != message.authorId) {
+        if (action.user.id != message.author.id) {
           content = userBuilder(action.user.id, (context, user) {
             final User author = widget.user?.user.value ?? message.author;
             user ??= action.user;
@@ -570,7 +570,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           });
         } else {
           final Map<String, dynamic> args = {
-            'author': action.user.name?.val ?? action.user.num.val,
+            'author': widget.user?.user.value.name?.val ??
+                widget.user?.user.value.num.val ??
+                action.user.name?.val ??
+                action.user.num.val,
           };
 
           content = Text.rich(
@@ -596,7 +599,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       case ChatInfoActionKind.memberRemoved:
         final action = message.action as ChatInfoActionMemberRemoved;
 
-        if (action.user.id != message.authorId) {
+        if (action.user.id != message.author.id) {
           content = userBuilder(action.user.id, (context, user) {
             final User author = widget.user?.user.value ?? message.author;
             user ??= action.user;
@@ -1329,7 +1332,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .localizedString();
       }
     } else {
-      title = call?.authorId == widget.me
+      title = call?.author.id == widget.me
           ? 'label_outgoing_call'.l10n
           : 'label_incoming_call'.l10n;
     }
@@ -1599,7 +1602,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   child: widget.avatar
                       ? InkWell(
                           customBorder: const CircleBorder(),
-                          onTap: () => router.user(item.authorId, push: true),
+                          onTap: () => router.user(item.author.id, push: true),
                           child:
                               AvatarWidget.fromRxUser(widget.user, radius: 17),
                         )

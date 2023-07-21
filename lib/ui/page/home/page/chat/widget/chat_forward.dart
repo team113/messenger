@@ -566,7 +566,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 .localizedString();
           }
         } else {
-          title = call?.authorId == widget.me
+          title = call?.author.id == widget.me
               ? 'label_outgoing_call'.l10n
               : 'label_incoming_call'.l10n;
         }

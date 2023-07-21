@@ -129,15 +129,6 @@ class HiveRxUser extends RxUser {
               userEntity.value.avatar = event.avatar;
               break;
 
-            case UserEventKind.bioDeleted:
-              userEntity.value.bio = null;
-              break;
-
-            case UserEventKind.bioUpdated:
-              event as EventUserBioUpdated;
-              userEntity.value.bio = event.bio;
-              break;
-
             case UserEventKind.cameOffline:
               event as EventUserCameOffline;
               userEntity.value.online = false;
@@ -155,18 +146,6 @@ class HiveRxUser extends RxUser {
             case UserEventKind.callCoverUpdated:
               event as EventUserCallCoverUpdated;
               userEntity.value.callCover = event.callCover;
-              break;
-
-            case UserEventKind.galleryItemAdded:
-              event as EventUserGalleryItemAdded;
-              userEntity.value.gallery ??= [];
-              userEntity.value.gallery?.insert(0, event.galleryItem);
-              break;
-
-            case UserEventKind.galleryItemDeleted:
-              event as EventUserGalleryItemDeleted;
-              userEntity.value.gallery
-                  ?.removeWhere((item) => item.id == event.galleryItemId);
               break;
 
             case UserEventKind.nameDeleted:
@@ -201,9 +180,9 @@ class HiveRxUser extends RxUser {
         }
         break;
 
-      case UserEventsKind.blacklistEvent:
+      case UserEventsKind.blocklistEvent:
         var userEntity = _userLocal.get(id);
-        var versioned = (events as UserEventsBlacklistEventsEvent).event;
+        var versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
         if (userEntity != null && userEntity.blacklistedVer > versioned.ver) {
@@ -215,8 +194,8 @@ class HiveRxUser extends RxUser {
         }
         break;
 
-      case UserEventsKind.isBlacklisted:
-        var versioned = events as UserEventsIsBlacklisted;
+      case UserEventsKind.isBlocked:
+        var versioned = events as UserEventsIsBlocked;
         var userEntity = _userLocal.get(id);
 
         if (userEntity != null) {
@@ -225,7 +204,7 @@ class HiveRxUser extends RxUser {
             break;
           }
 
-          userEntity.value.isBlacklisted = versioned.record;
+          userEntity.value.isBlocked = versioned.record;
           userEntity.blacklistedVer = versioned.ver;
           _userLocal.put(userEntity);
         }

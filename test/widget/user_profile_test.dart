@@ -36,13 +36,12 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -77,10 +76,8 @@ void main() async {
     'num': '1234567890123456',
     'login': 'login',
     'name': 'name',
-    'bio': 'bio',
     'emails': {'confirmed': [], 'unconfirmed': null},
     'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
     'hasPassword': true,
     'unreadChatsCount': 0,
     'ver': '0',
@@ -93,10 +90,8 @@ void main() async {
     'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1be',
     'num': '5769236098621822',
     'name': 'user name',
-    'bio': 'user bio',
     'avatar': null,
     'callCover': null,
-    'gallery': {'nodes': []},
     'mutualContactsCount': 0,
     'online': {
       '__typename': 'UserOffline',
@@ -106,7 +101,7 @@ void main() async {
     'status': null,
     'isDeleted': false,
     'dialog': {'id': '004ac2ab-911e-4d67-8671-ebba02758807'},
-    'isBlacklisted': {'blacklisted': false, 'ver': '2'},
+    'isBlocked': {'blacklisted': false, 'ver': '2'},
     'ver': '1'
   };
 
@@ -148,9 +143,7 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
+
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
   await contactProvider.clear();
@@ -171,7 +164,7 @@ void main() async {
   await backgroundProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
@@ -179,7 +172,6 @@ void main() async {
   await monologProvider.init();
 
   Get.put(myUserProvider);
-  Get.put(galleryItemProvider);
   Get.put(contactProvider);
   Get.put(userProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
@@ -233,13 +225,13 @@ void main() async {
       (_) => Future.value(RecentChats$Query.fromJson(recentChats)),
     );
 
-    when(graphQlProvider.getBlacklist(
+    when(graphQlProvider.getBlocklist(
       first: 120,
       after: null,
       last: null,
       before: null,
     )).thenAnswer(
-      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+      (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
 
     when(graphQlProvider.contactsEvents(any))
@@ -289,10 +281,8 @@ void main() async {
           'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1be',
           'num': '5769236098621822',
           'name': 'user name',
-          'bio': 'user bio',
           'avatar': null,
           'callCover': null,
-          'gallery': {'nodes': []},
           'mutualContactsCount': 0,
           'online': {
             '__typename': 'UserOffline',
@@ -302,7 +292,7 @@ void main() async {
           'status': null,
           'isDeleted': false,
           'dialog': null,
-          'isBlacklisted': {'blacklisted': false, 'ver': '5'},
+          'isBlocked': {'blacklisted': false, 'ver': '5'},
           'ver': '4'
         },
       };
@@ -370,13 +360,12 @@ void main() async {
     await authService.init();
 
     UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
+        UserRepository(graphQlProvider, userProvider);
     Get.put(UserService(userRepository));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
       blacklistedUsersProvider,
-      galleryItemProvider,
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));

@@ -37,7 +37,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
-import 'widget/blacklist_record.dart';
+import 'widget/blocklist_record.dart';
 import 'widget/name.dart';
 import 'widget/num.dart';
 import 'widget/presence.dart';
@@ -147,7 +147,7 @@ class UserView extends StatelessWidget {
                     ),
                   ),
                   Obx(() {
-                    if (c.isBlacklisted != null) {
+                    if (c.isBlocked != null) {
                       return const SizedBox.shrink();
                     }
 
@@ -185,10 +185,10 @@ class UserView extends StatelessWidget {
                     controller: c.scrollController,
                     children: [
                       const SizedBox(height: 8),
-                      if (c.isBlacklisted != null)
+                      if (c.isBlocked != null)
                         Block(
                           title: 'label_user_is_blocked'.l10n,
-                          children: [BlacklistRecordWidget(c.isBlacklisted!)],
+                          children: [BlocklistRecordWidget(c.isBlocked!)],
                         ),
                       Block(
                         title: 'label_public_information'.l10n,
@@ -250,7 +250,7 @@ class UserView extends StatelessWidget {
                 }),
               ),
               bottomNavigationBar: Obx(() {
-                if (c.isBlacklisted == null) {
+                if (c.isBlocked == null) {
                   return const SizedBox();
                 }
 
@@ -298,7 +298,7 @@ class UserView extends StatelessWidget {
         if (c.user?.user.value.dialog.isLocal == false &&
             c.user?.dialog.value != null) ...[
           Obx(() {
-            if (c.isBlacklisted != null) {
+            if (c.isBlocked != null) {
               return const SizedBox.shrink();
             }
 
@@ -335,10 +335,9 @@ class UserView extends StatelessWidget {
         ],
         Obx(() {
           return ActionButton(
-            key: Key(c.isBlacklisted != null ? 'Unblock' : 'Block'),
-            text:
-                c.isBlacklisted != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted != null
+            key: Key(c.isBlocked != null ? 'Unblock' : 'Block'),
+            text: c.isBlocked != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed: c.isBlocked != null
                 ? c.unblacklist
                 : () => _blacklistUser(c, context),
             trailing: Obx(() {

@@ -284,7 +284,7 @@ class HiveRxChat extends RxChat {
         draft = ChatMessage(
           ChatItemId.local(),
           id,
-          me ?? const UserId('dummy'),
+          User(me ?? const UserId('dummy'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
           text: text,
           repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
@@ -365,22 +365,30 @@ class HiveRxChat extends RxChat {
       unreadCount.value = messages.skip(messages.length - readUntil).length;
     }
 
-    _readTimer?.cancel();
-    _readTimer = AwaitableTimer(
+    final ChatItemId? lastReadItem = chat.value.lastReadItem;
+    if (lastReadItem != untilId) {
+      chat.update((e) => e?..lastReadItem = untilId);
+
+      _readTimer?.cancel();
+      _readTimer = AwaitableTimer(
         chat.value.lastItem?.id == untilId
             ? Duration.zero
-            : const Duration(seconds: 1), () async {
-      try {
-        await _chatRepository.readUntil(id, untilId);
-      } catch (_) {
-        unreadCount.value = chat.value.unreadCount;
-        rethrow;
-      } finally {
-        _readTimer = null;
-      }
-    });
+            : const Duration(seconds: 1),
+        () async {
+          try {
+            await _chatRepository.readUntil(id, untilId);
+          } catch (_) {
+            chat.update((e) => e?..lastReadItem = lastReadItem);
+            unreadCount.value = chat.value.unreadCount;
+            rethrow;
+          } finally {
+            _readTimer = null;
+          }
+        },
+      );
 
-    await _readTimer?.future;
+      await _readTimer?.future;
+    }
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -1133,7 +1141,7 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.isHidden = false;
               }
 
-              if (item.value is ChatMessage && item.value.authorId == me) {
+              if (item.value is ChatMessage && item.value.author.id == me) {
                 ChatMessage? pending =
                     _pending.whereType<ChatMessage>().firstWhereOrNull(
                           (e) =>
@@ -1234,6 +1242,11 @@ class HiveRxChat extends RxChat {
                   _chatRepository.chats[chatEntity.value.id],
                 ),
               );
+              break;
+
+            case ChatEventKind.callConversationStarted:
+              event as EventChatCallConversationStarted;
+              chatEntity.value.ongoingCall = event.call;
               break;
           }
         }
