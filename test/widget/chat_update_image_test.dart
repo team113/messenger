@@ -106,7 +106,7 @@ void main() async {
   );
 
   TestWidgetsFlutterBinding.ensureInitialized();
-  Hive.init('./test/.temp_hive/chat_attachment_widget');
+  Hive.init('./test/.temp_hive/chat_update_image');
   Config.files = '';
 
   var chatData = {
