@@ -42,6 +42,7 @@ import 'domain/repository/auth.dart';
 import 'domain/repository/cache.dart';
 import 'domain/service/auth.dart';
 import 'domain/service/cache.dart';
+import 'domain/service/file.dart';
 import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
@@ -117,14 +118,9 @@ Future<void> main() async {
     await authService.init();
     await L10n.init();
 
-    AbstractCacheRepository cacheRepository;
-    if (!PlatformUtils.isWeb) {
-      cacheRepository = Get.put<AbstractCacheRepository>(
-        CacheRepository(Get.find<CacheInfoHiveProvider>()),
-      );
-    } else {
-      cacheRepository = Get.put<AbstractCacheRepository>(CacheRepository(null));
-    }
+    AbstractCacheRepository cacheRepository =
+        Get.put<AbstractCacheRepository>(CacheRepository(Get.find()));
+    Get.put(FileService(cacheRepository));
 
     CacheServiceImpl cacheService =
         Get.put<CacheServiceImpl>(CacheServiceImpl(cacheRepository));
