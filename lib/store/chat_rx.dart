@@ -308,7 +308,7 @@ class HiveRxChat extends RxChat {
     List<HiveChatItem> items = await _chatRepository.messages(chat.value.id);
 
     return _guard.protect(() async {
-      for (Rx<ChatItem> item in messages) {
+      for (HiveChatItem item in await _local.messages) {
         if (item.value.status.value == SendingStatus.sent) {
           int i = items.indexWhere((e) => e.value.id == item.value.id);
           if (i == -1) {
@@ -512,11 +512,18 @@ class HiveRxChat extends RxChat {
         return;
       }
 
-      final HiveChatItem? saved = await _local.get(item.value.key);
-      if (saved == null) {
+      final bool exists = _local.keys.contains(item.value.key);
+      if (!exists) {
         _local.put(item);
-      } else if (saved.ver < item.ver || ignoreVersion) {
-        _local.put(item);
+      } else {
+        if (ignoreVersion) {
+          _local.put(item);
+        } else {
+          final HiveChatItem? saved = await _local.get(item.value.key);
+          if (saved != null && saved.ver < item.ver) {
+            _local.put(item);
+          }
+        }
       }
     });
   }
@@ -786,6 +793,7 @@ class HiveRxChat extends RxChat {
   Future<void> _updateAttachments(ChatItem item) async {
     final HiveChatItem? stored = await get(item.id, key: item.key);
     if (stored != null) {
+      item = stored.value;
       List<Attachment> response = await _chatRepository.attachments(stored);
 
       void replace(Attachment a) {

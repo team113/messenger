@@ -106,6 +106,7 @@ dev_dependencies:
   flutter_lints: ^2.0.1
   flutter_test:
     sdk: flutter
+  http_mock_adapter: ^0.4.4
   integration_test:
     sdk: flutter
   gherkin: ^2.0.8
