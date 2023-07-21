@@ -17,11 +17,11 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../widget/svg/svg.dart';
-import '../../../home/widget/animated_button.dart';
-import '../../../home/widget/app_bar.dart';
-import '../../../home/widget/avatar.dart';
-import '../../../home/widget/navigation_bar.dart';
+import '../../../../../widget/svg/svg.dart';
+import '../../../../home/widget/animated_button.dart';
+import '../../../../home/widget/app_bar.dart';
+import '../../../../home/widget/avatar.dart';
+import '../../../../home/widget/navigation_bar.dart';
 import '/themes.dart';
 
 class NavigationWidget extends StatelessWidget {

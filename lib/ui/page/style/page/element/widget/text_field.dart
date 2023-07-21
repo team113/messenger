@@ -18,14 +18,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
-import 'package:messenger/ui/page/style/element/controller.dart';
 import 'package:messenger/ui/widget/allow_overflow.dart';
 
-import '../../../../../util/message_popup.dart';
-import '../../../../widget/svg/svg.dart';
-import '../../../../widget/text_field.dart';
-import '../../../../widget/widget_button.dart';
-import '../../../home/widget/sharable.dart';
+import '../../../../../../util/message_popup.dart';
+import '../../../../../widget/svg/svg.dart';
+import '../../../../../widget/text_field.dart';
+import '../../../../../widget/widget_button.dart';
+import '../../../../home/widget/sharable.dart';
+import '../controller.dart';
 import '/themes.dart';
 
 class TextFieldWidget extends StatelessWidget {
@@ -50,7 +50,7 @@ class TextFieldWidget extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: 320,
-                    height: 51,
+                    height: 55,
                     child: ReactiveTextField(
                       state: c.name,
                       onSuffixPressed: () => MessagePopup.success('Copied'),
@@ -71,7 +71,7 @@ class TextFieldWidget extends StatelessWidget {
                   ),
                   SizedBox(
                     width: 320,
-                    height: 51,
+                    height: 55,
                     child: ReactiveTextField(
                       state: c.typing,
                       label: 'Name',
@@ -94,7 +94,7 @@ class TextFieldWidget extends StatelessWidget {
                   ),
                   SizedBox(
                     width: 320,
-                    height: 51,
+                    height: 55,
                     child: ReactiveTextField(
                       state: c.loading,
                       label: 'Name',
@@ -104,7 +104,7 @@ class TextFieldWidget extends StatelessWidget {
                   ),
                   SizedBox(
                     width: 320,
-                    height: 51,
+                    height: 55,
                     child: ReactiveTextField(
                       state: c.success,
                       label: 'Name',
@@ -124,7 +124,7 @@ class TextFieldWidget extends StatelessWidget {
                   ),
                   const SizedBox(
                     width: 320,
-                    height: 80,
+                    height: 85,
                     child: _ErrorTextField(),
                   ),
                 ],
@@ -138,7 +138,7 @@ class TextFieldWidget extends StatelessWidget {
                     children: [
                       SizedBox(
                         width: 320,
-                        height: 51,
+                        height: 55,
                         child: CopyableTextField(
                           state: TextFieldState(
                             text: '8642 4348 7885 5329',

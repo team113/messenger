@@ -19,9 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
-import '../../../../../util/message_popup.dart';
-import '../../../home/page/chat/widget/attachment_selector.dart';
-import '../../../home/page/my_profile/link_details/view.dart';
+import '../../../../../../util/message_popup.dart';
+import '../../../../home/page/chat/widget/attachment_selector.dart';
+import '../../../../home/page/my_profile/link_details/view.dart';
 import '/themes.dart';
 
 class ContainmentWidget extends StatelessWidget {

@@ -20,13 +20,15 @@ import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.da
 import 'package:messenger/ui/page/home/tab/chats/widget/rectangular_call_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
-import '../../../home/widget/rectangle_button.dart';
+import '../../../../home/tab/menu/widget/menu_button.dart';
+import '../../../../home/widget/field_button.dart';
+import '../../../../home/widget/rectangle_button.dart';
+import '../../../../home/widget/shadowed_rounded_button.dart';
+import '../temporary/sign_button.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
-import '../../../home/tab/menu/widget/menu_button.dart';
-import '../../../home/widget/field_button.dart';
-import '../../../home/widget/shadowed_rounded_button.dart';
+
 import '/themes.dart';
 
 class ButtonsWidget extends StatelessWidget {
@@ -489,6 +491,44 @@ class ButtonsWidget extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+                ],
+              ),
+              _ButtonCard(
+                isDarkMode: isDarkMode,
+                labels: const ['Default', 'Hovered', 'Pressed'],
+                title: '_signButton',
+                children: const [
+                  SizedBox(
+                    width: 300,
+                    height: 55,
+                    child: SignButton(
+                      text: 'Sign up with Apple',
+                      asset: 'apple',
+                      assetWidth: 18.24,
+                      assetHeight: 23,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 300,
+                    height: 55,
+                    child: SignButton(
+                      text: 'Sign up with Apple',
+                      asset: 'apple',
+                      assetWidth: 18.24,
+                      assetHeight: 23,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 300,
+                    height: 55,
+                    child: SignButton(
+                      color: Color(0xFFD6D6D6),
+                      text: 'Sign up with Apple',
+                      asset: 'apple',
+                      assetWidth: 18.24,
+                      assetHeight: 23,
+                    ),
                   ),
                 ],
               ),

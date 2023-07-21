@@ -154,10 +154,7 @@ class _CustomFont extends StatelessWidget {
 
         if (constraints.maxWidth < 305) {
           child = Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 10,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

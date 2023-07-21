@@ -18,7 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../controller.dart';
+import '../../../controller.dart';
 import '/themes.dart';
 
 class SoundsWidget extends StatelessWidget {

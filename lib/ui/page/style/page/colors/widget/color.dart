@@ -15,52 +15,58 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/themes.dart';
 import '/util/message_popup.dart';
 
-/// Stylized [Container] of the provided [color].
+/// Stylized [Container] describing the provided [color].
 class ColorWidget extends StatelessWidget {
   const ColorWidget(
-    this.inverted,
     this.color, {
     super.key,
+    this.inverted = false,
     this.subtitle,
     this.hint,
   });
 
-  /// Indicator whether this [ColorWidget] should have its colors inverted.
+  /// Indicator whether this [ColorWidget] should have its font colors inverted.
   final bool inverted;
 
-  /// Color to display.
+  /// [Color] to display.
   final Color color;
 
-  /// Optional subtitle of this [ColorWidget].
+  /// Optional subtitle, displayed under the [color].
   final String? subtitle;
 
-  /// Optional hint of this [ColorWidget].
+  /// Optional hint, displayed as a hint above the [color].
   final String? hint;
+
+  /// Dimensions of this [ColorWidget] to take.
+  ///
+  /// Note, that height is only about the [color] box, and doesn't account the
+  /// [hint] and [subtitle], thus actually may be higher.
+  static const double size = 120;
 
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 150),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return SizedBox(
+      width: size,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
             children: [
               MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: color.toHex()));
-                    MessagePopup.success('Color hash code is copied');
+                    MessagePopup.success('Hash is copied');
                   },
                   child: Text(
                     color.toHex(),
@@ -73,6 +79,7 @@ class ColorWidget extends StatelessWidget {
                   ),
                 ),
               ),
+              const Spacer(),
               if (hint != null)
                 Tooltip(
                   message: hint,
@@ -86,52 +93,38 @@ class ColorWidget extends StatelessWidget {
                 ),
             ],
           ),
-        ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Container(
-            width: 120,
-            height: 120,
+          const SizedBox(height: 8),
+          Container(
+            width: size,
+            height: size,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 150),
-          child: Row(
-            children: [
-              const SizedBox(width: 17),
-              if (subtitle != null)
-                Expanded(
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: subtitle!));
-                        MessagePopup.success(
-                          'Technical name of the color is copied',
-                        );
-                      },
-                      child: Text(
-                        subtitle!,
-                        textAlign: TextAlign.left,
-                        style: fonts.labelSmall!.copyWith(
-                          color: inverted
-                              ? const Color(0xFFFFFFFF)
-                              : const Color(0xFF000000),
-                        ),
-                      ),
-                    ),
-                  ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 8),
+            Flexible(
+              child: Text.rich(
+                TextSpan(
+                  text: subtitle,
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Clipboard.setData(ClipboardData(text: subtitle!));
+                      MessagePopup.success('Technical name is copied');
+                    },
                 ),
-            ],
-          ),
-        ),
-      ],
+                textAlign: TextAlign.left,
+                style: fonts.labelSmall!.copyWith(
+                  color: inverted
+                      ? const Color(0xFFFFFFFF)
+                      : const Color(0xFF000000),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

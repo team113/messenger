@@ -17,8 +17,8 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../widget/text_field.dart';
-import '../../../home/widget/paddings.dart';
+import '../../../../../widget/text_field.dart';
+import '../../../../home/widget/paddings.dart';
 import '/themes.dart';
 
 class SwitcherWidget extends StatelessWidget {

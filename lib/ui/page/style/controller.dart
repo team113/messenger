@@ -32,16 +32,10 @@ class StyleController extends GetxController {
   StyleController();
 
   /// Indicator whether the colors should be inverted.
-  final RxBool inverted = false.obs;
+  final RxBool inverted = RxBool(false);
 
-  /// Initial and current [StyleTab] page.
-  final selectedTab = StyleTab.colors.obs;
-
-  /// Toggles the [StyleTab]s selection.
-  void toggleTab(StyleTab tab) => selectedTab.value = tab;
-
-  /// Toggles the [inverted].
-  void toggleInverted(bool value) => inverted.value = value;
+  /// Selected [StyleTab].
+  final Rx<StyleTab> tab = Rx(StyleTab.colors);
 
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);

@@ -19,12 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
-import 'controller.dart';
+import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
-import 'colors/view.dart';
-import 'element/view.dart';
-import 'fonts/view.dart';
-import 'media/view.dart';
+import 'page/colors/view.dart';
+import 'page/element/view.dart';
+import 'page/media/view.dart';
+import 'page/typography/view.dart';
 
 /// View of the [Routes.style] page.
 class StyleView extends StatelessWidget {
@@ -33,60 +33,48 @@ class StyleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-        init: StyleController(),
-        builder: (StyleController c) {
-          return Scaffold(
-            body: ColoredBox(
-              color: const Color(0xFFFFFFFF),
-              child: SafeArea(
-                child: Row(
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      fit: FlexFit.loose,
-                      child: ColoredBox(
-                        color: const Color(0xFFFFFFFF),
-                        child: Column(
-                          children: [
-                            Expanded(child: _tabs(c, context)),
-                            _mode(c),
-                            const SizedBox(height: 20),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: 5,
-                      child: Container(
-                        color: const Color(0xFFF5F5F5),
-                        child: CustomScrollView(
-                          slivers: [
-                            SliverList(
-                              delegate: SliverChildListDelegate([
-                                Obx(() {
-                                  List<Widget> pages = <Widget>[
-                                    ColorStyleView(c.inverted.value),
-                                    FontsView(c.inverted.value),
-                                    MultimediaView(c.inverted.value),
-                                    ElementStyleTabView(c.inverted.value),
-                                  ];
-
-                                  return pages.elementAt(
-                                    c.selectedTab.value.index,
-                                  );
-                                }),
-                              ]),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      init: StyleController(),
+      builder: (StyleController c) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFFFFFFF),
+          body: SafeArea(
+            child: Row(
+              children: [
+                Flexible(flex: 1, child: _sideBar(c, context)),
+                Flexible(flex: 6, child: _page(c)),
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
+  }
+
+  /// Returns a corresponding [StyleController.selected] page switcher.
+  Widget _page(StyleController c) {
+    return ColoredBox(
+      color: const Color(0xFFF5F5F5),
+      child: Obx(() {
+        return switch (c.tab.value) {
+          StyleTab.colors => ColorsView(c.inverted.value),
+          StyleTab.typography => TypographyView(c.inverted.value),
+          StyleTab.multimedia => MultimediaView(c.inverted.value),
+          StyleTab.elements => ElementsView(c.inverted.value),
+        };
+      }),
+    );
+  }
+
+  /// Returns the [Column] of [_tabs] and [_mode] meant to be a side bar.
+  Widget _sideBar(StyleController c, BuildContext context) {
+    return Column(
+      children: [
+        Expanded(child: _tabs(c, context)),
+        const SizedBox(height: 10),
+        _mode(c),
+        const SizedBox(height: 20),
+      ],
+    );
   }
 
   /// Returns the list of [StyleCard]s representing the [StyleTab]s.
@@ -113,46 +101,45 @@ class StyleView extends StatelessWidget {
           itemBuilder: (context, i) {
             return Obx(() {
               final StyleTab tab = StyleTab.values[i];
-
-              final bool inverted = c.selectedTab.value == tab;
+              final bool selected = c.tab.value == tab;
 
               switch (tab) {
                 case StyleTab.colors:
                   return StyleCard(
                     title: 'Color palette',
-                    icon: inverted
+                    icon: selected
                         ? Icons.format_paint
                         : Icons.format_paint_outlined,
-                    inverted: inverted,
-                    onPressed: () => c.toggleTab(tab),
+                    inverted: selected,
+                    onPressed: () => c.tab.value = tab,
                   );
 
                 case StyleTab.typography:
                   return StyleCard(
                     title: 'Typography',
-                    icon: inverted
+                    icon: selected
                         ? Icons.text_snippet
                         : Icons.text_snippet_outlined,
-                    inverted: inverted,
-                    onPressed: () => c.toggleTab(tab),
+                    inverted: selected,
+                    onPressed: () => c.tab.value = tab,
                   );
 
                 case StyleTab.multimedia:
                   return StyleCard(
                     title: 'Multimedia',
-                    icon: inverted
+                    icon: selected
                         ? Icons.play_lesson
                         : Icons.play_lesson_outlined,
-                    inverted: inverted,
-                    onPressed: () => c.toggleTab(tab),
+                    inverted: selected,
+                    onPressed: () => c.tab.value = tab,
                   );
 
                 case StyleTab.elements:
                   return StyleCard(
                     title: 'Elements',
-                    icon: inverted ? Icons.widgets : Icons.widgets_outlined,
-                    inverted: inverted,
-                    onPressed: () => c.toggleTab(tab),
+                    icon: selected ? Icons.widgets : Icons.widgets_outlined,
+                    inverted: selected,
+                    onPressed: () => c.tab.value = tab,
                   );
               }
             });
@@ -162,7 +149,7 @@ class StyleView extends StatelessWidget {
     );
   }
 
-  /// Returns a [CustomSwitcher] switching between the light and dark mode.
+  /// Returns a [Switch] switching the [StyleController.inverted] indicator.
   Widget _mode(StyleController c) {
     return Column(
       children: [
@@ -170,43 +157,31 @@ class StyleView extends StatelessWidget {
         const SizedBox(height: 10),
         LayoutBuilder(
           builder: (context, constraints) {
-            final Widget child;
-
-            if (constraints.maxWidth < 130) {
-              child = Obx(
-                () => Switch.adaptive(
-                  value: c.inverted.value,
-                  onChanged: c.toggleInverted,
-                  activeColor: const Color(0xFF1F3C5D),
-                  inactiveTrackColor: const Color(0xFFFFB74D),
-                ),
-              );
-            } else {
-              child = Row(
+            return AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.ease,
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Obx(
-                      () => Switch.adaptive(
-                        value: c.inverted.value,
-                        onChanged: c.toggleInverted,
-                        activeColor: const Color(0xFF1F3C5D),
-                        inactiveTrackColor: const Color(0xFFFFB74D),
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
+                  if (constraints.maxWidth >= 130) ...[
+                    const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
+                    const SizedBox(width: 10),
+                  ],
+                  Obx(() {
+                    return Switch(
+                      value: c.inverted.value,
+                      onChanged: (b) => c.inverted.value = b,
+                      activeColor: const Color(0xFF1F3C5D),
+                      inactiveTrackColor: const Color(0xFFFFB74D),
+                    );
+                  }),
+                  if (constraints.maxWidth >= 130) ...[
+                    const SizedBox(width: 10),
+                    const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
+                  ],
                 ],
-              );
-            }
-
-            return AnimatedSize(
-              curve: Curves.ease,
-              duration: const Duration(milliseconds: 200),
-              child: child,
+              ),
             );
           },
         ),

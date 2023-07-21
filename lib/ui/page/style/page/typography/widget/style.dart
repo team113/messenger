@@ -286,11 +286,11 @@ class _FontStyleContainer extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: Flexible(
+                    child: Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(style.fontSize!.toStringAsFixed(0)),
+                          Text(style.fontSize.toString()),
                           const SizedBox(height: 8),
                           Text(style.fontWeight!.value.toString()),
                           const SizedBox(height: 8),
