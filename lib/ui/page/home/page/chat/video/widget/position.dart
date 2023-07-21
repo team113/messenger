@@ -15,58 +15,43 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
+// ignore_for_file: implementation_imports
+
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:chewie/src/helpers/utils.dart';
 
 import '/themes.dart';
 
 ///
-class MuteButton extends StatelessWidget {
-  const MuteButton({
-    super.key,
-    required this.controller,
-    required this.height,
-    required this.onTap,
-    required this.onEnter,
-  });
+class PositionWidget extends StatelessWidget {
+  const PositionWidget({super.key, required this.controller});
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Height of this [MuteButton].
-  final double? height;
-
-  /// Callback, called when a mouse pointer has entered this [MuteButton].
-  final void Function(PointerEnterEvent)? onEnter;
-
-  /// Callback, called when this [MuteButton] is tapped.
-  final void Function()? onTap;
-
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: onEnter,
-      child: GestureDetector(
-        onTap: onTap,
-        child: ClipRect(
-          child: SizedBox(
-            height: height,
-            child: RxBuilder((_) {
-              return Icon(
-                controller.volume.value > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                color: style.colors.onPrimary,
-                size: 18,
-              );
-            }),
-          ),
+    return RxBuilder((_) {
+      final Duration position = controller.position.value;
+      final Duration duration = controller.duration.value;
+
+      return RichText(
+        text: TextSpan(
+          text: '${formatDuration(position)} ',
+          children: <InlineSpan>[
+            TextSpan(
+              text: '/ ${formatDuration(duration)}',
+              style: fonts.labelMedium!.copyWith(
+                color: style.colors.onPrimaryOpacity50,
+              ),
+            )
+          ],
+          style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
         ),
-      ),
-    );
+      );
+    });
   }
 }

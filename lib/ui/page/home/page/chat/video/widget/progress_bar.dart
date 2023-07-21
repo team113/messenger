@@ -15,56 +15,52 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
+import 'video_progress_bar.dart';
 import '/themes.dart';
 
 ///
-class MuteButton extends StatelessWidget {
-  const MuteButton({
+class CustomProgressBar extends StatelessWidget {
+  const CustomProgressBar({
     super.key,
     required this.controller,
-    required this.height,
-    required this.onTap,
-    required this.onEnter,
+    this.drawShadow = true,
+    required this.onDragStart,
+    required this.onDragEnd,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Height of this [MuteButton].
-  final double? height;
+  /// Indicator whether a shadow should be drawn around this [ProgressBar].
+  final bool drawShadow;
 
-  /// Callback, called when a mouse pointer has entered this [MuteButton].
-  final void Function(PointerEnterEvent)? onEnter;
+  /// Callback, called when progress drag started.
+  final dynamic Function()? onDragStart;
 
-  /// Callback, called when this [MuteButton] is tapped.
-  final void Function()? onTap;
+  /// Callback, called when progress drag ended.
+  final dynamic Function()? onDragEnd;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: onEnter,
-      child: GestureDetector(
-        onTap: onTap,
-        child: ClipRect(
-          child: SizedBox(
-            height: height,
-            child: RxBuilder((_) {
-              return Icon(
-                controller.volume.value > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                color: style.colors.onPrimary,
-                size: 18,
-              );
-            }),
-          ),
+    return Expanded(
+      child: ProgressBar(
+        controller,
+        barHeight: 2,
+        handleHeight: 6,
+        drawShadow: drawShadow,
+        onDragStart: onDragStart,
+        onDragEnd: onDragEnd,
+        colors: ChewieProgressColors(
+          playedColor: style.colors.primary,
+          handleColor: style.colors.primary,
+          bufferedColor: style.colors.background.withOpacity(0.5),
+          backgroundColor: style.colors.secondary.withOpacity(0.5),
         ),
       ),
     );

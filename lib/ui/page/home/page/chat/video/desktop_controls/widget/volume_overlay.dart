@@ -1,3 +1,20 @@
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'dart:ui';
 
 import 'package:chewie/chewie.dart';
@@ -5,9 +22,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
-import '../../widget/volume_bar.dart';
+import 'volume_bar.dart';
 import '/themes.dart';
 
+///
 class VolumeOverlay extends StatelessWidget {
   const VolumeOverlay({
     super.key,
@@ -18,14 +36,19 @@ class VolumeOverlay extends StatelessWidget {
     required this.onDragEnd,
   });
 
+  ///  [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
+  /// Offset of this [VolumeOverlay] from the bottom right corner.
   final Offset offset;
 
+  /// Callback, called when a mouse pointer has exited this [VolumeOverlay].
   final void Function(PointerExitEvent)? onExit;
 
+  /// Callback, called when volume drag started.
   final dynamic Function()? onDragStart;
 
+  /// Callback, called when volume drag ended.
   final dynamic Function()? onDragEnd;
 
   @override

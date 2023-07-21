@@ -24,12 +24,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
-import '../widget/rewind_indicator.dart';
+import 'widget/rewind_indicator.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/video/widget/position.dart';
+import '/ui/page/home/page/chat/video/widget/progress_bar.dart';
 import '/ui/page/home/page/chat/video/mobile_controls/widget/hit_area.dart';
 import '/ui/page/home/page/chat/video/mobile_controls/widget/mute_button.dart';
-import '/ui/page/home/page/chat/video/mobile_controls/widget/position.dart';
-import '/ui/page/home/page/chat/video/mobile_controls/widget/progress_bar.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
@@ -235,6 +235,7 @@ class _MobileControlsState extends State<MobileControls>
                     child: Row(children: [
                       CustomProgressBar(
                         controller: widget.controller,
+                        drawShadow: false,
                         onDragStart: () {
                           setState(() => _dragging = true);
                           _hideTimer?.cancel();

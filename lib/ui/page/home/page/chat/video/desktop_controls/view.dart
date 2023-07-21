@@ -25,13 +25,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/video/desktop_controls/widget/volume_overlay.dart';
 
 import '/themes.dart';
+import '/ui/page/home/page/chat/video/widget/position.dart';
+import '/ui/page/home/page/chat/video/widget/progress_bar.dart';
 import '/ui/page/home/page/chat/video/desktop_controls/widget/hit_area.dart';
 import '/ui/page/home/page/chat/video/desktop_controls/widget/mute_button.dart';
-import '/ui/page/home/page/chat/video/desktop_controls/widget/position.dart';
-import '/ui/page/home/page/chat/video/desktop_controls/widget/progress_bar.dart';
+import '/ui/page/home/page/chat/video/desktop_controls/widget/volume_overlay.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
 import 'widget/expand_button.dart';
@@ -186,9 +186,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   ? const Center(child: CustomProgressIndicator())
                   : HitArea(
                       controller: widget.controller,
-                      opacity: !_dragging && !_hideStuff || _showInterface
-                          ? 1.0
-                          : 0.0,
+                      show: !_dragging && !_hideStuff || _showInterface,
                       onPressed: _playPause,
                     );
             }),
@@ -326,7 +324,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   const SizedBox(width: 12),
                   ExpandButton(
                     height: _barHeight,
-                    isFullscreen: widget.isFullscreen?.value == true,
+                    inverted: widget.isFullscreen?.value == true,
                     onTap: _onExpandCollapse,
                   ),
                   const SizedBox(width: 12),
@@ -338,86 +336,6 @@ class _DesktopControlsState extends State<DesktopControls>
       ),
     );
   }
-
-  // /// Returns the [_volumeEntry] overlay.
-  // Widget _volumeOverlay(Offset offset) {
-  //   final style = Theme.of(context).style;
-
-  //   return Stack(
-  //     children: [
-  //       Positioned(
-  //         left: offset.dx - 6,
-  //         bottom: 10,
-  //         child: MouseRegion(
-  //           opaque: false,
-  //           onExit: (d) {
-  //             if (mounted && !_dragging) {
-  //               _volumeEntry?.remove();
-  //               _volumeEntry = null;
-  //               setState(() {});
-  //             }
-  //           },
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               mainAxisAlignment: MainAxisAlignment.end,
-  //               children: [
-  //                 ClipRRect(
-  //                   borderRadius: BorderRadius.circular(30),
-  //                   child: BackdropFilter(
-  //                     filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-  //                     child: Container(
-  //                       width: 15,
-  //                       height: 80,
-  //                       decoration: BoxDecoration(
-  //                         color: style.colors.onBackgroundOpacity40,
-  //                         borderRadius: BorderRadius.circular(30),
-  //                       ),
-  //                       child: RotatedBox(
-  //                         quarterTurns: 3,
-  //                         child: Padding(
-  //                           padding: const EdgeInsets.symmetric(
-  //                             horizontal: 10,
-  //                           ),
-  //                           child: MouseRegion(
-  //                             cursor: SystemMouseCursors.click,
-  //                             child: VideoVolumeBar(
-  //                               widget.controller,
-  //                               onDragStart: () {
-  //                                 setState(() => _dragging = true);
-  //                               },
-  //                               onDragEnd: () {
-  //                                 if (!_showBottomBar) {
-  //                                   _volumeEntry?.remove();
-  //                                   _volumeEntry = null;
-  //                                 }
-  //                                 setState(() => _dragging = false);
-  //                               },
-  //                               colors: ChewieProgressColors(
-  //                                 playedColor: style.colors.primary,
-  //                                 handleColor: style.colors.primary,
-  //                                 bufferedColor:
-  //                                     style.colors.background.withOpacity(0.5),
-  //                                 backgroundColor:
-  //                                     style.colors.secondary.withOpacity(0.5),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(height: 27),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   /// Invokes a fullscreen toggle action.
   void _onExpandCollapse() {
