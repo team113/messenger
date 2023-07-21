@@ -37,7 +37,7 @@ class AvatarView extends StatelessWidget {
       spacing: 16,
       runSpacing: 16,
       children: [
-        _AvatarColorsWidget(isDarkMode: isDarkMode),
+        // _AvatarColorsWidget(isDarkMode: isDarkMode),
         _AnimatedCircleWidget(isDarkMode: isDarkMode),
         _AvatarSizesWidget(isDarkMode: isDarkMode),
       ],
@@ -90,64 +90,64 @@ class _AnimatedCircleWidget extends StatelessWidget {
   }
 }
 
-class _AvatarColorsWidget extends StatelessWidget {
-  const _AvatarColorsWidget({super.key, required this.isDarkMode});
+// class _AvatarColorsWidget extends StatelessWidget {
+//   const _AvatarColorsWidget({super.key, required this.isDarkMode});
 
-  final bool isDarkMode;
+//   final bool isDarkMode;
 
-  @override
-  Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+//   @override
+//   Widget build(BuildContext context) {
+//     final (style, fonts) = Theme.of(context).styles;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      height: 260,
-      width: 505,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
-        child: Column(
-          children: [
-            Center(
-              child: Text(
-                'Avatar colors',
-                style: fonts.headlineLarge!.copyWith(
-                  color: isDarkMode
-                      ? style.colors.onPrimary
-                      : style.colors.onBackground,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 199,
-              width: 470,
-              child: Expanded(
-                child: GridView.count(
-                  crossAxisCount: style.colors.userColors.length ~/ 2,
-                  children: List.generate(
-                    style.colors.userColors.length,
-                    (i) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: AvatarWidget(
-                        radius: 100,
-                        title: 'John Doe',
-                        color: i,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//     return AnimatedContainer(
+//       duration: const Duration(milliseconds: 500),
+//       decoration: BoxDecoration(
+//         color: isDarkMode ? const Color(0xFF142839) : style.colors.onPrimary,
+//         borderRadius: BorderRadius.circular(10),
+//       ),
+//       height: 260,
+//       width: 505,
+//       child: Padding(
+//         padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+//         child: Column(
+//           children: [
+//             Center(
+//               child: Text(
+//                 'Avatar colors',
+//                 style: fonts.headlineLarge!.copyWith(
+//                   color: isDarkMode
+//                       ? style.colors.onPrimary
+//                       : style.colors.onBackground,
+//                 ),
+//               ),
+//             ),
+//             const SizedBox(height: 10),
+//             SizedBox(
+//               height: 199,
+//               width: 470,
+//               child: Flexible(
+//                 child: GridView.count(
+//                   crossAxisCount: style.colors.userColors.length ~/ 2,
+//                   children: List.generate(
+//                     style.colors.userColors.length,
+//                     (i) => Padding(
+//                       padding: const EdgeInsets.all(8.0),
+//                       child: AvatarWidget(
+//                         radius: 100,
+//                         title: 'John Doe',
+//                         color: i,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class _AvatarSizesWidget extends StatelessWidget {
   const _AvatarSizesWidget({super.key, required this.isDarkMode});
