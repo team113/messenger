@@ -190,7 +190,7 @@ class _FontStyleContainer extends StatelessWidget {
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF888888),
                   ),
-                  child: Expanded(
+                  child: Flexible(
                     child: SizedBox(
                       height: 130,
                       child: Padding(
@@ -201,7 +201,7 @@ class _FontStyleContainer extends StatelessWidget {
                             Row(
                               children: [
                                 const Text('Size'),
-                                Expanded(
+                                Flexible(
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
@@ -216,7 +216,7 @@ class _FontStyleContainer extends StatelessWidget {
                             Row(
                               children: [
                                 const Text('Weight'),
-                                Expanded(
+                                Flexible(
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
@@ -231,7 +231,7 @@ class _FontStyleContainer extends StatelessWidget {
                             Row(
                               children: [
                                 const Text('Style'),
-                                Expanded(
+                                Flexible(
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
@@ -246,7 +246,7 @@ class _FontStyleContainer extends StatelessWidget {
                             Row(
                               children: [
                                 const Text('Color'),
-                                Expanded(
+                                Flexible(
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
@@ -261,7 +261,7 @@ class _FontStyleContainer extends StatelessWidget {
                             Row(
                               children: [
                                 const Text('Spacing'),
-                                Expanded(
+                                Flexible(
                                   child: Divider(
                                     indent: 5,
                                     endIndent: 5,
@@ -286,11 +286,11 @@ class _FontStyleContainer extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: Expanded(
+                    child: Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(style.fontSize.toString()),
+                          Text(style.fontSize!.toStringAsFixed(0)),
                           const SizedBox(height: 8),
                           Text(style.fontWeight!.value.toString()),
                           const SizedBox(height: 8),
