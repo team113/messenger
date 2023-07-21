@@ -160,7 +160,7 @@ void main() async {
   )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
         'chat': {
           'items': {
-            'nodes': [],
+            'edges': [],
             'pageInfo': {
               'endCursor': 'endCursor',
               'hasNextPage': false,
