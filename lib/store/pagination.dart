@@ -28,7 +28,7 @@ import 'model/page_info.dart';
 /// key identifying those items and their [C] cursor.
 class Pagination<T, K extends Comparable, C> {
   Pagination({
-    this.perPage = 20,
+    this.perPage = 50,
     required this.provider,
     required this.onKey,
   });

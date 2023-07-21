@@ -426,7 +426,6 @@ class HiveRxChat extends RxChat {
   /// authenticated [MyUser],
   Future<void> read(ChatItemId untilId) async {
     int firstUnreadIndex = 0;
-
     if (firstUnreadItem != null) {
       firstUnreadIndex = messages.indexOf(firstUnreadItem!);
     }

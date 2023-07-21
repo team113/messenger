@@ -1205,7 +1205,7 @@ class ChatRepository extends DisposableInterface
           HiveRxChat entry =
               HiveRxChat(this, _chatLocal, _draftLocal, event.value);
           _chats[chatId] = entry;
-          await entry.init();
+          entry.init();
           entry.subscribe();
         } else {
           if (chat.chat.value.isMonolog) {
@@ -1359,7 +1359,7 @@ class ChatRepository extends DisposableInterface
       if (entry == null) {
         entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
         _chats[data.chat.value.id] = entry;
-        await entry.init();
+        entry.init();
         entry.subscribe();
       }
     } else {
