@@ -20,18 +20,18 @@
 import 'dart:async';
 
 import 'package:chewie/chewie.dart';
-import 'package:chewie/src/center_play_button.dart';
-import 'package:chewie/src/helpers/utils.dart';
-import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
+import '../widget/rewind_indicator.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/video/mobile_controls/widget/hit_area.dart';
+import '/ui/page/home/page/chat/video/mobile_controls/widget/mute_button.dart';
+import '/ui/page/home/page/chat/video/mobile_controls/widget/position.dart';
+import '/ui/page/home/page/chat/video/mobile_controls/widget/progress_bar.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
-import 'rewind_indicator.dart';
-import 'video_progress_bar.dart';
 
 /// Mobile video controls for a [Chewie] player.
 class MobileControls extends StatefulWidget {
@@ -182,7 +182,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the bottom controls bar.
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 1.0,
@@ -194,7 +194,7 @@ class _MobileControlsState extends State<MobileControls>
             end: Alignment.bottomCenter,
             colors: [
               style.colors.transparent,
-              style.colors.onBackgroundOpacity40
+              style.colors.onBackgroundOpacity40,
             ],
           ),
         ),
@@ -210,133 +210,46 @@ class _MobileControlsState extends State<MobileControls>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      _buildPosition(fonts.labelLarge!.color),
-                      _buildMuteButton(),
+                      PositionWidget(controller: widget.controller),
+                      MuteButton(
+                        controller: widget.controller,
+                        height: _barHeight,
+                        opacity: _hideStuff ? 0.0 : 1.0,
+                        onTap: () {
+                          _cancelAndRestartTimer();
+
+                          if (widget.controller.volume.value == 0) {
+                            widget.controller.setVolume(_latestVolume ?? 0.5);
+                          } else {
+                            _latestVolume = widget.controller.volume.value;
+                            widget.controller.setVolume(0.0);
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.only(right: 20),
-                    child: Row(children: [_buildProgressBar()]),
+                    child: Row(children: [
+                      CustomProgressBar(
+                        controller: widget.controller,
+                        onDragStart: () {
+                          setState(() => _dragging = true);
+                          _hideTimer?.cancel();
+                        },
+                        onDragEnd: () {
+                          setState(() => _dragging = false);
+                          _startHideTimer();
+                        },
+                      )
+                    ]),
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [Center]ed play/pause circular button.
-  // Widget _buildHitArea() {
-  //   final style = Theme.of(context).style;
-
-  //   return RxBuilder((_) {
-  //     final bool isFinished =
-  //         widget.controller.position.value >= widget.controller.duration.value;
-
-  //     return CenterPlayButton(
-  //       backgroundColor: style.colors.onBackgroundOpacity13,
-  //       iconColor: style.colors.onPrimary,
-  //       isFinished: isFinished,
-  //       isPlaying: widget.controller.playerStatus.playing,
-  //       show: !_dragging && !_hideStuff,
-  //       onPressed: _playPause,
-  //     );
-  //   });
-  // }
-
-  /// Returns the mute/unmute button.
-  GestureDetector _buildMuteButton() {
-    final style = Theme.of(context).style;
-
-    return GestureDetector(
-      onTap: () {
-        _cancelAndRestartTimer();
-
-        if (widget.controller.volume.value == 0) {
-          widget.controller.setVolume(_latestVolume ?? 0.5);
-        } else {
-          _latestVolume = widget.controller.volume.value;
-          widget.controller.setVolume(0.0);
-        }
-      },
-      child: AnimatedOpacity(
-        opacity: _hideStuff ? 0.0 : 1.0,
-        duration: const Duration(milliseconds: 300),
-        child: Container(
-          height: _barHeight,
-          margin: const EdgeInsets.only(right: 12.0),
-          padding: const EdgeInsets.only(
-            left: 8.0,
-            right: 8.0,
-          ),
-          child: Center(
-            child: RxBuilder((_) {
-              return Icon(
-                widget.controller.volume.value > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                color: style.colors.onPrimary,
-                size: 18,
-              );
-            }),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [RichText] of the current video position.
-  Widget _buildPosition(Color? iconColor) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return RxBuilder((_) {
-      final position = widget.controller.position.value;
-      final duration = widget.controller.duration.value;
-
-      return RichText(
-        text: TextSpan(
-          text: '${formatDuration(position)} ',
-          children: <InlineSpan>[
-            TextSpan(
-              text: '/ ${formatDuration(duration)}',
-              style: fonts.labelMedium!.copyWith(
-                color: style.colors.onPrimaryOpacity50,
-              ),
-            )
-          ],
-          style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
-        ),
-      );
-    });
-  }
-
-  /// Returns the [VideoProgressBar] of the current video progression.
-  Widget _buildProgressBar() {
-    final style = Theme.of(context).style;
-
-    return Expanded(
-      child: ProgressBar(
-        widget.controller,
-        barHeight: 2,
-        handleHeight: 6,
-        drawShadow: true,
-        onDragStart: () {
-          setState(() => _dragging = true);
-          _hideTimer?.cancel();
-        },
-        onDragEnd: () {
-          setState(() => _dragging = false);
-          _startHideTimer();
-        },
-        colors: ChewieProgressColors(
-          playedColor: style.colors.primary,
-          handleColor: style.colors.primary,
-          bufferedColor: style.colors.background.withOpacity(0.5),
-          backgroundColor: style.colors.secondary.withOpacity(0.5),
         ),
       ),
     );
@@ -469,39 +382,5 @@ class _MobileControlsState extends State<MobileControls>
         }
       },
     );
-  }
-}
-
-class HitArea extends StatelessWidget {
-  const HitArea({
-    super.key,
-    required this.controller,
-    required this.show,
-    required this.onPressed,
-  });
-
-  final MeeduPlayerController controller;
-
-  final bool show;
-
-  final Function()? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return RxBuilder((_) {
-      final bool isFinished =
-          controller.position.value >= controller.duration.value;
-
-      return CenterPlayButton(
-        backgroundColor: style.colors.onBackgroundOpacity13,
-        iconColor: style.colors.onPrimary,
-        isFinished: isFinished,
-        isPlaying: controller.playerStatus.playing,
-        show: show,
-        onPressed: onPressed,
-      );
-    });
   }
 }

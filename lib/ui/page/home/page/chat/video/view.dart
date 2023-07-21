@@ -29,8 +29,8 @@ import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
-import 'desktop_controls.dart';
-import 'mobile_controls.dart';
+import '../video/desktop_controls/view.dart';
+import '../video/mobile_controls/view.dart';
 
 /// Video player with controls.
 class Video extends StatefulWidget {

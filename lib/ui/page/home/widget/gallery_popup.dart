@@ -27,7 +27,7 @@ import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import '../page/chat/widget/video.dart';
+import '../page/chat/video/view.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
