@@ -166,47 +166,53 @@ class StyleView extends StatelessWidget {
 
   /// Returns a [CustomSwitcher] switching between the light and dark mode.
   Widget _mode(StyleController c) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final Widget child;
+    return Column(
+      children: [
+        const Divider(),
+        const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final Widget child;
 
-        if (constraints.maxWidth < 130) {
-          child = Obx(
-            () => Switch.adaptive(
-              value: c.inverted.value,
-              onChanged: c.toggleInverted,
-              activeColor: const Color(0xFF1F3C5D),
-              inactiveTrackColor: const Color(0xFFFFB74D),
-            ),
-          );
-        } else {
-          child = Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Obx(
-                  () => Switch.adaptive(
-                    value: c.inverted.value,
-                    onChanged: c.toggleInverted,
-                    activeColor: const Color(0xFF1F3C5D),
-                    inactiveTrackColor: const Color(0xFFFFB74D),
-                  ),
+            if (constraints.maxWidth < 130) {
+              child = Obx(
+                () => Switch.adaptive(
+                  value: c.inverted.value,
+                  onChanged: c.toggleInverted,
+                  activeColor: const Color(0xFF1F3C5D),
+                  inactiveTrackColor: const Color(0xFFFFB74D),
                 ),
-              ),
-              const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
-            ],
-          );
-        }
+              );
+            } else {
+              child = Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Obx(
+                      () => Switch.adaptive(
+                        value: c.inverted.value,
+                        onChanged: c.toggleInverted,
+                        activeColor: const Color(0xFF1F3C5D),
+                        inactiveTrackColor: const Color(0xFFFFB74D),
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
+                ],
+              );
+            }
 
-        return AnimatedSize(
-          curve: Curves.ease,
-          duration: const Duration(milliseconds: 200),
-          child: child,
-        );
-      },
+            return AnimatedSize(
+              curve: Curves.ease,
+              duration: const Duration(milliseconds: 200),
+              child: child,
+            );
+          },
+        ),
+      ],
     );
   }
 }

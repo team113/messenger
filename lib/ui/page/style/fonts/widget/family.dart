@@ -111,19 +111,14 @@ class _FontFamily extends StatelessWidget {
                   SizedBox(height: 40),
                   Row(
                     children: [
-                      Flexible(
-                        child: Text(
-                          '1234567890',
-                          softWrap: true,
-                        ),
-                      ),
+                      Flexible(child: Text('1234567890', softWrap: true)),
                       SizedBox(width: 50),
                       Flexible(
                         child: Text(
                           '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
                           softWrap: true,
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ],

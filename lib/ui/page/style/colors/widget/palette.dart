@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import 'color.dart';
-import 'color_builder.dart';
+import 'animated_wrap.dart';
 
 /// Palette of application colors.
 class PaletteWidget extends StatelessWidget {
