@@ -501,7 +501,7 @@ class ButtonsWidget extends StatelessWidget {
                 children: const [
                   SizedBox(
                     width: 300,
-                    height: 55,
+                    height: 57,
                     child: SignButton(
                       text: 'Sign up with Apple',
                       asset: 'apple',
@@ -511,7 +511,7 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                   SizedBox(
                     width: 300,
-                    height: 55,
+                    height: 57,
                     child: SignButton(
                       text: 'Sign up with Apple',
                       asset: 'apple',
@@ -521,7 +521,7 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                   SizedBox(
                     width: 300,
-                    height: 55,
+                    height: 57,
                     child: SignButton(
                       color: Color(0xFFD6D6D6),
                       text: 'Sign up with Apple',
