@@ -77,12 +77,12 @@ class _MenuButtonState extends State<MenuButton> {
             child: Material(
               type: MaterialType.card,
               borderRadius: style.cardRadius,
-              color: widget.inverted ? style.colors.primary : style.cardColor,
+              color: widget.inverted ? style.activeColor : style.cardColor,
               child: InkWell(
                 borderRadius: style.cardRadius,
                 onTap: widget.onPressed,
                 hoverColor: widget.inverted
-                    ? style.colors.primary
+                    ? style.activeColor
                     : style.cardColor.darken(0.03),
                 child: Padding(
                   padding: const EdgeInsets.all(12),

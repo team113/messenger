@@ -41,6 +41,7 @@ class ContactTile extends StatelessWidget {
     this.trailing = const [],
     this.onTap,
     this.selected = false,
+    this.active = false,
     this.subtitle = const [],
     this.darken = 0,
     this.height = 86,
@@ -74,6 +75,9 @@ class ContactTile extends StatelessWidget {
 
   /// Indicator whether this [ContactTile] is selected.
   final bool selected;
+
+  /// Indicator whether this [ContactTile] is active.
+  final bool active;
 
   /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
@@ -117,6 +121,8 @@ class ContactTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
+    final Color chosen = active ? style.activeColor : style.selectedColor;
+
     return ContextMenuRegion(
       key: contact != null || user != null
           ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
@@ -128,7 +134,9 @@ class ContactTile extends StatelessWidget {
       child: Padding(
         padding: margin,
         child: InkWellWithHover(
-          selectedColor: style.colors.primary,
+          // selectedColor: style.colors.primary,
+          selectedColor: chosen,
+          // selectedColor: style.colors.onSecondaryOpacity50,
           unselectedColor: style.cardColor.darken(darken),
           selected: selected,
           hoveredBorder:
@@ -137,7 +145,7 @@ class ContactTile extends StatelessWidget {
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: style.cardColor.darken(darken + 0.03),
-          selectedHoverColor: style.colors.primary,
+          selectedHoverColor: chosen,
           folded: contact?.contact.value.favoritePosition != null,
           child: Padding(
             key: contact?.contact.value.favoritePosition != null

@@ -109,6 +109,7 @@ class _FieldButtonState extends State<FieldButton> {
             : style.colors.onBackground,
       ),
       height: 46,
+      maxHeight: double.infinity,
       border: Border.all(
         width: 0.5,
         color: style.colors.secondary,

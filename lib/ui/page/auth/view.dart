@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/my_profile/language/view.dart';
 import 'package:messenger/ui/page/home/widget/rmb_detector.dart';
 import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -144,8 +145,17 @@ class AuthView extends StatelessWidget {
                   //   label: 'Work with us',
                   // ),
                   StyledCupertinoButton(
-                    label: 'Terms and conditions',
+                    key: c.languageKey,
+                    label: 'label_language_entry'.l10nfmt({
+                      'code': L10n.chosen.value!.locale.countryCode,
+                      'name': L10n.chosen.value!.name,
+                    }),
+                    onPressed: () => LanguageSelectionView.show(context, null),
+                  ),
+                  StyledCupertinoButton(
+                    label: 'btn_terms_and_conditions'.l10n,
                     color: style.colors.secondary,
+                    onPressed: () {},
                   ),
                 ],
               ),
@@ -187,7 +197,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
           OutlinedRoundedButton(
             key: const Key('RegisterButton'),
-            title: Text('Регистрация'.l10n),
+            title: Text('btn_sign_up'.l10n),
             maxWidth: 210,
             height: 46,
             // leading: SvgImage.asset(
@@ -213,7 +223,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignButton'),
-            title: Text('Вход'.l10n),
+            title: Text('btn_sign_in'.l10n),
             maxWidth: 210,
             height: 46,
             leading: SvgImage.asset(
@@ -221,15 +231,13 @@ class AuthView extends StatelessWidget {
               width: 18.82,
               height: 23.73,
             ),
-            onPressed: () => LoginView.show(
-              context,
-              stage: LoginViewStage.signIn,
-            ),
+            onPressed: () =>
+                LoginView.show(context, stage: LoginViewStage.signIn),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('StartButton'),
-            subtitle: Text('Одноразовый\nаккаунт'.l10n),
+            subtitle: Text('btn_one_time_account'.l10n),
             maxWidth: 210,
             height: 46,
             // leading: Transform.translate(
@@ -249,10 +257,7 @@ class AuthView extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
-            subtitle: Text(
-              'Работайте\nс нами'.l10n,
-              // style: TextStyle(color: style.colors.onPrimary),
-            ),
+            subtitle: Text('btn_work_with_us'.l10n),
             maxWidth: 210,
             height: 46,
             leading: SvgImage.asset(
@@ -266,15 +271,11 @@ class AuthView extends StatelessWidget {
           RmbDetector(
             onPressed: c.systemUp,
             child: OutlinedRoundedButton(
-              subtitle: Text(
-                'Скачать\nприложение'.l10n,
-                // style: TextStyle(color: style.colors.onPrimary),
-              ),
+              subtitle: Text('btn_download_application'.l10n),
               maxWidth: 210,
               height: 46,
               leading: icon,
               onPressed: () => _download(context),
-              // color: style.colors.primary,
             ),
           ),
 

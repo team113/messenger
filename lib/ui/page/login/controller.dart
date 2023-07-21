@@ -46,6 +46,8 @@ enum LoginViewStage {
   signInWithCode,
   signInWithQr,
   signUp,
+  signUpWithEmail,
+  signUpWithPhone,
   noPassword,
   noPasswordCode,
   code,

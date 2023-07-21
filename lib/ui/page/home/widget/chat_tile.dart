@@ -38,6 +38,7 @@ class ChatTile extends StatefulWidget {
     this.leading = const [],
     this.trailing = const [],
     this.actions = const [],
+    this.active = false,
     this.selected = false,
     this.outlined = false,
     this.onTap,
@@ -73,6 +74,10 @@ class ChatTile extends StatefulWidget {
 
   /// Indicator whether this [ChatTile] is selected.
   final bool selected;
+
+  /// Indicator whether this [ChatTile] is active.
+  final bool active;
+
   final bool outlined;
 
   /// Callback, called when this [ChatTile] is pressed.
@@ -115,7 +120,8 @@ class _ChatTileState extends State<ChatTile> {
 
     const Color normal = Colors.white;
     const Color paid = Color.fromRGBO(213, 232, 253, 1);
-    const Color chosen = Color(0xFF63B4FF);
+    final Color chosen =
+        widget.active ? style.activeColor : style.selectedColor;
 
     final Border normalBorder =
         Border.all(color: const Color(0xFFEBEBEB), width: 0.5);
@@ -151,7 +157,7 @@ class _ChatTileState extends State<ChatTile> {
                       ? paidBorder
                       : normalBorder,
               hoveredBorder: widget.selected ? chosenBorder : hoverBorder,
-              selected: widget.selected,
+              selected: widget.selected || widget.active,
               borderRadius: style.cardRadius,
               onTap: widget.onTap,
               folded: widget.chat?.chat.value.favoritePosition != null,
@@ -194,9 +200,10 @@ class _ChatTileState extends State<ChatTile> {
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                           style: fonts.headlineLarge!.copyWith(
-                                            color: widget.selected
-                                                ? style.colors.onPrimary
-                                                : style.colors.onBackground,
+                                            color:
+                                                widget.selected || widget.active
+                                                    ? style.colors.onPrimary
+                                                    : style.colors.onBackground,
                                           ),
                                         );
                                       }),

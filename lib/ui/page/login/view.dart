@@ -283,25 +283,7 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_code_email_sent'.l10nfmt({
                     'text': c.email.text,
                   }).parseLinks([], context),
-                  style: fonts.bodyLarge,
-                  // TextSpan(
-                  //   children: [
-                  //     TextSpan(
-                  //       text: 'label_sign_in_code_sent1'.l10n,
-                  //       style: fonts.bodyLarge,
-                  //     ),
-                  //     TextSpan(
-                  //       text: c.email.text,
-                  //       style: fonts.bodyLarge?.copyWith(
-                  //         decoration: TextDecoration.underline,
-                  //       ),
-                  //     ),
-                  //     TextSpan(
-                  //       text: 'label_sign_in_code_sent2'.l10n,
-                  //       style: fonts.bodyLarge,
-                  //     ),
-                  //   ],
-                  // ),
+                  style: fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -321,17 +303,20 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
-            case LoginViewStage.signUp:
-              header = const ModalPopupHeader(text: 'Sign up');
+            case LoginViewStage.signUpWithPhone:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = LoginViewStage.signUp,
+              );
 
               children = [
                 ReactiveTextField(
                   state: c.email,
-                  label: 'E-mail or phone number'.l10n,
+                  label: 'label_phone_number'.l10n,
                   style: fonts.bodyMedium,
                   treatErrorAsStatus: false,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 25),
                 Center(
                   child: Obx(() {
                     final bool enabled =
@@ -339,7 +324,7 @@ class LoginView extends StatelessWidget {
 
                     return OutlinedRoundedButton(
                       title: Text(
-                        'Sign up'.l10n,
+                        'btn_proceed'.l10n,
                         style: fonts.titleLarge!.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
@@ -353,31 +338,74 @@ class LoginView extends StatelessWidget {
                   }),
                 ),
                 const SizedBox(height: 25 / 2),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
+              ];
+              break;
+
+            case LoginViewStage.signUpWithEmail:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = LoginViewStage.signUp,
+              );
+
+              children = [
+                ReactiveTextField(
+                  state: c.email,
+                  label: 'label_email'.l10n,
+                  style: fonts.bodyMedium,
+                  treatErrorAsStatus: false,
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: Obx(() {
+                    final bool enabled =
+                        !c.email.isEmpty.value && c.email.error.value == null;
+
+                    return OutlinedRoundedButton(
+                      title: Text(
+                        'btn_proceed'.l10n,
+                        style: fonts.titleLarge!.copyWith(
+                          color: enabled
+                              ? style.colors.onPrimary
+                              : fonts.titleLarge!.color,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('OR', style: fonts.headlineSmall),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                  ],
+                      onPressed: enabled ? c.email.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                    );
+                  }),
+                ),
+                const SizedBox(height: 25 / 2),
+              ];
+              break;
+
+            case LoginViewStage.signUp:
+              header = ModalPopupHeader(text: 'label_sign_up'.l10n);
+
+              children = [
+                _signButton(
+                  context,
+                  text: 'btn_continue_with_email'.l10n,
+                  asset: 'apple',
+                  assetWidth: 18.24,
+                  assetHeight: 23,
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Sign up with Apple'.l10n,
+                  text: 'btn_continue_with_phone'.l10n,
+                  asset: 'apple',
+                  assetWidth: 18.24,
+                  assetHeight: 23,
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signUpWithPhone,
+                ),
+                const SizedBox(height: 25 / 2),
+                _signButton(
+                  context,
+                  text: 'btn_continue_with_apple'.l10n,
                   asset: 'apple',
                   assetWidth: 18.24,
                   assetHeight: 23,
@@ -385,65 +413,19 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Sign up with Google'.l10n,
+                  text: 'btn_continue_with_google'.l10n,
                   asset: 'google_logo',
                   assetHeight: 20,
                 ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Sign up with GitHub'.l10n,
+                  text: 'btn_continue_with_github'.l10n,
                   asset: 'github',
                   assetHeight: 19.99,
                   assetWidth: 20,
                 ),
                 const SizedBox(height: 25 / 2),
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: Container(
-                //         height: 1,
-                //         width: double.infinity,
-                //         color: style.colors.secondaryHighlight,
-                //       ),
-                //     ),
-                //     const SizedBox(width: 8),
-                //     Text('OR', style: fonts.headlineSmall),
-                //     const SizedBox(width: 8),
-                //     Expanded(
-                //       child: Container(
-                //         height: 1,
-                //         width: double.infinity,
-                //         color: style.colors.secondaryHighlight,
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                // const SizedBox(height: 25 / 2),
-                // Center(
-                //   child: Text.rich(
-                //     TextSpan(
-                //       children: [
-                //         TextSpan(
-                //           text: 'Already have an account? '.l10n,
-                //           style: fonts.bodyMedium!.copyWith(
-                //             color: style.colors.secondary,
-                //           ),
-                //         ),
-                //         TextSpan(
-                //           text: 'Sign in.'.l10n,
-                //           style: fonts.bodyMedium!.copyWith(
-                //             color: style.colors.primary,
-                //           ),
-                //           recognizer: TapGestureRecognizer()
-                //             ..onTap =
-                //                 () => c.stage.value = LoginViewStage.signIn,
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 16),
               ];
               break;
 
@@ -457,9 +439,7 @@ class LoginView extends StatelessWidget {
                 // const SizedBox(height: 12),
                 Text(
                   'Scan the displayed QR code to sign in.'.l10n,
-                  style: fonts.bodyLarge!.copyWith(
-                      // color: style.colors.secondary,
-                      ),
+                  style: fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -492,17 +472,10 @@ class LoginView extends StatelessWidget {
               );
 
               children = [
-                // const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: fonts.bodyLarge,
+                  style: fonts.titleLarge,
                 ),
-                // Text(
-                //   'label_recover_account_description'.l10n,
-                //   style: fonts.bodyLarge!.copyWith(
-                //       // color: style.colors.secondary,
-                //       ),
-                // ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('RecoveryField'),
@@ -712,8 +685,12 @@ class LoginView extends StatelessWidget {
                       children: [
                         header,
                         const SizedBox(height: 12),
-                        ...children.map((e) => Padding(
-                            padding: ModalPopup.padding(context), child: e)),
+                        ...children.map(
+                          (e) => Padding(
+                            padding: ModalPopup.padding(context),
+                            child: e,
+                          ),
+                        ),
                         const SizedBox(height: 12),
                       ],
                     ),
@@ -752,7 +729,7 @@ class LoginView extends StatelessWidget {
         style: fonts.titleMedium!.copyWith(color: style.colors.primary),
         onPressed: onPressed ?? () {},
         prefix: Padding(
-          padding: const EdgeInsets.only(left: 24, bottom: 4).add(padding),
+          padding: const EdgeInsets.only(left: 16, bottom: 0).add(padding),
           child: leading ??
               SvgImage.asset(
                 'assets/icons/$asset.svg',

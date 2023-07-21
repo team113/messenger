@@ -81,7 +81,13 @@ class LanguageSelectionView extends StatelessWidget {
                             'name': e.name,
                           }),
                           selected: c.selected.value == e,
-                          onPressed: () => c.selected.value = e,
+                          onPressed: () {
+                            c.selected.value = e;
+
+                            if (c.selected.value != null) {
+                              c.setLocalization(c.selected.value!);
+                            }
+                          },
                         );
                       });
                     },
@@ -90,29 +96,29 @@ class LanguageSelectionView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 25),
-              Padding(
-                padding: ModalPopup.padding(context),
-                child: OutlinedRoundedButton(
-                  key: const Key('Proceed'),
-                  maxWidth: double.infinity,
-                  title: Text(
-                    'btn_proceed'.l10n,
-                    style: fonts.bodyMedium!.copyWith(
-                      color: style.colors.onPrimary,
-                    ),
-                  ),
-                  onPressed: () {
-                    if (c.selected.value != null) {
-                      c.setLocalization(c.selected.value!);
-                    }
+              // const SizedBox(height: 25),
+              // Padding(
+              //   padding: ModalPopup.padding(context),
+              //   child: OutlinedRoundedButton(
+              //     key: const Key('Proceed'),
+              //     maxWidth: double.infinity,
+              //     title: Text(
+              //       'btn_proceed'.l10n,
+              //       style: fonts.bodyMedium!.copyWith(
+              //         color: style.colors.onPrimary,
+              //       ),
+              //     ),
+              //     onPressed: () {
+              //       if (c.selected.value != null) {
+              //         c.setLocalization(c.selected.value!);
+              //       }
 
-                    Navigator.of(context).pop();
-                  },
-                  color: style.colors.primary,
-                ),
-              ),
-              const SizedBox(height: 16),
+              //       Navigator.of(context).pop();
+              //     },
+              //     color: style.colors.primary,
+              //   ),
+              // ),
+              const SizedBox(height: 25),
             ],
           ),
         );

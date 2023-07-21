@@ -164,6 +164,8 @@ class Themes {
             systemMessageStyle:
                 fonts.bodySmall!.copyWith(color: colors.secondary),
             unreadMessageColor: colors.primaryHighlightShiniest,
+            activeColor: colors.primary,
+            selectedColor: colors.primaryOpacity70,
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,
@@ -373,6 +375,8 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageColor,
     required this.systemMessageStyle,
     required this.unreadMessageColor,
+    required this.activeColor,
+    required this.selectedColor,
   });
 
   /// [Palette] to use in the application.
@@ -440,6 +444,12 @@ class Style extends ThemeExtension<Style> {
   /// [ChatCall]s posted by the authenticated [MyUser].
   final Color unreadMessageColor;
 
+  ///
+  final Color activeColor;
+
+  ///
+  final Color selectedColor;
+
   @override
   ThemeExtension<Style> copyWith({
     Palette? colors,
@@ -463,6 +473,8 @@ class Style extends ThemeExtension<Style> {
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
     Color? unreadMessageColor,
+    Color? activeColor,
+    Color? selectedColor,
   }) {
     return Style(
       colors: colors ?? this.colors,
@@ -488,6 +500,8 @@ class Style extends ThemeExtension<Style> {
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
       unreadMessageColor: unreadMessageColor ?? this.unreadMessageColor,
+      activeColor: activeColor ?? this.activeColor,
+      selectedColor: selectedColor ?? this.selectedColor,
     );
   }
 
@@ -538,6 +552,8 @@ class Style extends ThemeExtension<Style> {
       )!,
       unreadMessageColor:
           Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
+      selectedColor: Color.lerp(selectedColor, other.selectedColor, t)!,
+      activeColor: Color.lerp(activeColor, other.activeColor, t)!,
     );
   }
 }
@@ -547,6 +563,7 @@ class Palette {
   Palette({
     required this.primary,
     Color? primaryOpacity20,
+    Color? primaryOpacity70,
     required this.primaryHighlight,
     required this.primaryHighlightShiny,
     required this.primaryHighlightShiniest,
@@ -591,6 +608,7 @@ class Palette {
     required this.warningColor,
     required this.userColors,
   })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
+        primaryOpacity70 = primaryOpacity70 ?? primary.withOpacity(0.70),
         onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
@@ -630,6 +648,11 @@ class Palette {
   ///
   /// Used to highlight chat messages.
   final Color primaryOpacity20;
+
+  /// 70% opacity of the [primary] color.
+  ///
+  /// Used on selected buttons and elements.
+  final Color primaryOpacity70;
 
   /// [Color] for elements to put above the [primary] color.
   ///

@@ -58,6 +58,7 @@ class RecentChatTile extends StatelessWidget {
     this.myUser,
     this.blocked = false,
     this.selected = false,
+    this.active = false,
     this.trailing,
     this.getUser,
     this.inCall,
@@ -90,6 +91,9 @@ class RecentChatTile extends StatelessWidget {
 
   /// Indicator whether this [RecentChatTile] is selected.
   final bool selected;
+
+  /// Indicator whether this [RecentChatTile] is active.
+  final bool active;
 
   /// [Widget]s to display in the trailing instead of the defaults.
   final List<Widget>? trailing;
@@ -154,7 +158,7 @@ class RecentChatTile extends StatelessWidget {
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
-      final bool inverted = isRoute || selected;
+      final bool inverted = selected || active || isRoute;
 
       final bool paid = rxChat.chat.value.isDialog &&
           (myUser?.name?.val == 'alex2' ||
@@ -278,7 +282,8 @@ class RecentChatTile extends StatelessWidget {
               trailing: const Icon(Icons.delete),
             ),
         ],
-        selected: inverted,
+        active: active || isRoute,
+        selected: selected,
         highlight: paid,
         enableContextMenu: enableContextMenu,
         onTap: onTap ??

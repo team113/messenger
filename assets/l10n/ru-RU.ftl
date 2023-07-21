@@ -779,7 +779,10 @@ label_recovery_code = Код восстановления
 label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail/телефон, указанный для данного аккаунта. Пожалуйста, введите код ниже.
 # label_sign_in_code_sent1 = Проверочный код отправлен на{" "}
 # label_sign_in_code_sent2 = . Пожалуйста, введите код ниже.
-label_sign_up_code_email_sent = На E-mail {$text} отправлен проверчный код. Пожалуйста, введите код ниже.
+label_sign_up_code_email_sent =
+    Проверочный код был отправлен на e-mail {$text}
+
+    Пожалуйста, введите код ниже
 label_sign_up_code_phone_sent = На телефон {$text} отправлен проверчный код. Пожалуйста, введите код ниже.
 label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
 label_remove_member = Удалить участника
@@ -1007,3 +1010,23 @@ label_donate_count = {$donate} ¤ подарок
 label_no_registration = No registration
 label_or_register = Or register
 label_one_time_account_created = Одноразовый аккаунт создан
+btn_terms_and_conditions = Условия использования
+btn_sign_up = Регистрация
+btn_sign_in = Вход
+btn_one_time_account =
+    Одноразовый
+    аккаунт
+btn_work_with_us =
+    Работайте
+    с нами
+btn_download_application =
+    Скачать
+    приложение
+label_sign_up = Регистрация
+btn_continue_with_email = Продолжить с e-mail
+btn_continue_with_phone =
+    Продолжить с номером
+    телефона
+btn_continue_with_apple = Продолжить с Apple
+btn_continue_with_google = Продолжить с Google
+btn_continue_with_github = Продолжить с GitHub

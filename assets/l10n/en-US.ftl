@@ -767,7 +767,10 @@ label_recovery_code = Recovery code
 label_recovery_code_sent = The verification code has been sent to the verified E-mail/phone linked to this account. Please, enter the code below.
 label_sign_in_code_sent1 = The verification code has been sent to the{" "}
 label_sign_in_code_sent2 = . Please, enter the code below.
-label_sign_up_code_email_sent = To the E-mail {$text} verification code has been sent. Please, enter the code below.
+label_sign_up_code_email_sent =
+    Verification code has been sent to the e-mail {$text}
+
+    Please, enter the code below
 label_sign_up_code_phone_sent = To the phone {$text} verification code has been sent. Please, enter the code below.
 label_recovery_enter_new_password = Please enter the new password below.
 label_remove_member = Remove member
@@ -985,3 +988,23 @@ fcm_group_donate =
     }: {$donate}G gift
 label_donate_count = {$donate} ¤ gift
 label_one_time_account_created = One-time account created
+btn_terms_and_conditions = Terms and conditions
+btn_sign_up = Sign up
+btn_sign_in = Sign in
+btn_one_time_account =
+    One-time
+    account
+btn_work_with_us =
+    Work
+    with us
+btn_download_application =
+    Download
+    application
+label_sign_up = Sign up
+btn_continue_with_email = Continue with email
+btn_continue_with_phone =
+    Continue with
+    phone number
+btn_continue_with_apple = Continue with Apple
+btn_continue_with_google = Continue with Google
+btn_continue_with_github = Continue with GitHub

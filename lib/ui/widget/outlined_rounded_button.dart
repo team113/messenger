@@ -36,6 +36,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.color,
     this.disabled,
     this.maxWidth = 250 * 0.72,
+    this.maxHeight,
     this.border,
     // this.maxWidth = 210,
     this.height = 42,
@@ -81,6 +82,7 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   /// Maximum width this button is allowed to occupy.
   final double maxWidth;
+  final double? maxHeight;
 
   /// Height of this button.
   final double? height;
@@ -172,11 +174,6 @@ class OutlinedRoundedButton extends StatelessWidget {
 
     return Container(
       alignment: Alignment.center,
-      constraints: BoxConstraints(
-        maxWidth: maxWidth,
-        minHeight: height ?? 0,
-        maxHeight: height ?? double.infinity,
-      ),
       decoration: BoxDecoration(
         boxShadow: shadows,
         color: onPressed == null
@@ -195,7 +192,12 @@ class OutlinedRoundedButton extends StatelessWidget {
           onTap: onPressed,
           onLongPress: onLongPress,
           hoverColor: style.colors.secondary.withOpacity(0.02),
-          child: Padding(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: maxWidth,
+              minHeight: height ?? 0,
+              maxHeight: maxHeight ?? height ?? double.infinity,
+            ),
             padding: const EdgeInsets.symmetric(
               horizontal: 8 * 0.7,
               vertical: 6 * 0.7,

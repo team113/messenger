@@ -95,8 +95,13 @@ class DownloadButton extends StatelessWidget {
 }
 
 class PrefixButton extends StatelessWidget {
-  const PrefixButton(
-      {super.key, this.text = '', this.onPressed, this.style, this.prefix});
+  const PrefixButton({
+    super.key,
+    this.text = '',
+    this.onPressed,
+    this.style,
+    this.prefix,
+  });
 
   final String text;
   final TextStyle? style;
@@ -110,6 +115,7 @@ class PrefixButton extends StatelessWidget {
       children: [
         FieldButton(
           text: text,
+          maxLines: null,
           style: style,
           onPressed: onPressed,
           textAlign: TextAlign.center,
