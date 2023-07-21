@@ -23,29 +23,31 @@ import 'widget/font_column.dart';
 import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.
-class FontsView extends StatelessWidget {
-  const FontsView(this.inverted, {super.key});
+class TypographyView extends StatelessWidget {
+  const TypographyView(this.inverted, {super.key});
 
-  /// Indicator whether this [FontsView] should have its colors inverted.
+  /// Indicator whether this [TypographyView] should have its colors inverted.
   final bool inverted;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          const Header(label: 'Typography'),
-          const SmallHeader(label: 'Font families'),
-          FontFamiliesWidget(inverted),
-          const Divider(),
-          const SmallHeader(label: 'Font'),
-          FontColumnWidget(inverted),
-          const Divider(),
-          const SmallHeader(label: 'Styles'),
-          FontStyleWidget(inverted),
-          const Divider(),
-        ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const Header(label: 'Typography'),
+            const SmallHeader(label: 'Font families'),
+            FontFamiliesWidget(inverted),
+            const Divider(),
+            const SmallHeader(label: 'Font'),
+            FontColumnWidget(inverted),
+            const Divider(),
+            const SmallHeader(label: 'Styles'),
+            FontStyleWidget(inverted),
+            const Divider(),
+          ],
+        ),
       ),
     );
   }

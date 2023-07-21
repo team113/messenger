@@ -17,28 +17,34 @@
 
 import 'package:flutter/material.dart';
 
-/// [Wrap] with animated background.
-class AnimatedWrap extends StatelessWidget {
-  const AnimatedWrap(
-    this.inverted, {
+/// Colored [Wrap] displaying the provided [children] in a [Wrap] using the
+/// [builder].
+class BuilderWrap<T> extends StatelessWidget {
+  const BuilderWrap(
+    this.children,
+    this.builder, {
     super.key,
-    this.children = const <Widget>[],
+    this.inverted = false,
   });
 
-  /// Indicator whether this [AnimatedWrap] should have its colors inverted.
-  final bool inverted;
+  /// Items to [Wrap].
+  final Iterable<T> children;
 
-  /// Widgets to put inside a [Wrap].
-  final List<Widget> children;
+  /// Builder, building the single [T] item from the [children].
+  final Widget Function(T) builder;
+
+  /// Indicator whether the background should have its colors inverted.
+  final bool inverted;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      width: MediaQuery.sizeOf(context).width,
       duration: const Duration(milliseconds: 300),
+      curve: Curves.ease,
+      width: double.infinity,
       decoration: BoxDecoration(
         color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 15),
@@ -46,7 +52,7 @@ class AnimatedWrap extends StatelessWidget {
           alignment: WrapAlignment.center,
           spacing: 16,
           runSpacing: 16,
-          children: children,
+          children: children.map((e) => builder(e)).toList(),
         ),
       ),
     );
