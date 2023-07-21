@@ -173,6 +173,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     );
 
     return Container(
+      constraints: BoxConstraints(maxWidth: maxWidth),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         boxShadow: shadows,
@@ -194,7 +195,6 @@ class OutlinedRoundedButton extends StatelessWidget {
           hoverColor: style.colors.secondary.withOpacity(0.02),
           child: Container(
             constraints: BoxConstraints(
-              maxWidth: maxWidth,
               minHeight: height ?? 0,
               maxHeight: maxHeight ?? height ?? double.infinity,
             ),

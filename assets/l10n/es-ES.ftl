@@ -14,10 +14,14 @@ btn_download_application =
     aplicación
 btn_proceed = Continuar
 label_sign_up = Regístrate
-label_email = label_email
-label_phone_number = label_phone_number
-btn_continue_with_email = btn_continue_with_email
-btn_continue_with_phone = btn_continue_with_phone
-btn_continue_with_apple = btn_continue_with_apple
-btn_continue_with_google = btn_continue_with_google
-btn_continue_with_github = btn_continue_with_github
+label_email = Correo electrónico
+label_phone_number = Número de teléfono
+btn_continue_with_email =
+    Continuar con el
+    correo electrónico
+btn_continue_with_phone =
+    Continuar con
+    número de teléfono
+btn_continue_with_apple = Continuar con Apple
+btn_continue_with_google = Continuar con Google
+btn_continue_with_github = Continuar con GitHub
