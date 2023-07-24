@@ -20,16 +20,18 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/headers.dart';
-import '/util/platform_utils.dart';
 import 'widget/color.dart';
 import 'widget/schema.dart';
 
 /// View of the [StyleTab.colors] page.
 class ColorsView extends StatelessWidget {
-  const ColorsView(this.inverted, {super.key});
+  const ColorsView(this.inverted, this.compact, {super.key});
 
   /// Indicator whether this [ColorsView] should have its colors inverted.
   final bool inverted;
+
+  ///
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +193,7 @@ class ColorsView extends StatelessWidget {
             [
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.isNarrow ? 0 : 16,
+                  horizontal: compact ? 0 : 16,
                   vertical: 16,
                 ),
                 child: Column(

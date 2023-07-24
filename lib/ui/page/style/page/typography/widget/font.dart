@@ -18,12 +18,12 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/util/platform_utils.dart';
 
 /// Custom-styled [Text] with information.
 class FontWidget extends StatelessWidget {
   const FontWidget(
-    this.inverted, {
+    this.inverted,
+    this.compact, {
     super.key,
     this.title,
     this.style,
@@ -31,6 +31,9 @@ class FontWidget extends StatelessWidget {
 
   /// Indicator whether this [FontWidget] should have its colors inverted.
   final bool inverted;
+
+  ///
+  final bool compact;
 
   /// Title of this [FontWidget].
   final String? title;
@@ -44,13 +47,12 @@ class FontWidget extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: context.isNarrow ? 5 : 15,
+        horizontal: compact ? 0 : 15,
         vertical: 5,
       ),
       child: Row(
-        mainAxisAlignment: context.isNarrow
-            ? MainAxisAlignment.spaceBetween
-            : MainAxisAlignment.start,
+        mainAxisAlignment:
+            compact ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
         children: [
           SizedBox(
             width: 100,
@@ -65,7 +67,7 @@ class FontWidget extends StatelessWidget {
           ),
           if (title != null)
             SizedBox(
-              width: 175,
+              width: 165,
               child: Text(
                 title!,
                 style: style!.copyWith(

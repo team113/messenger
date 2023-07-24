@@ -19,10 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
-import '/util/platform_utils.dart';
 import 'page/colors/view.dart';
 import 'page/typography/view.dart';
 
@@ -37,34 +35,90 @@ class StyleView extends StatelessWidget {
       builder: (StyleController c) {
         return Scaffold(
           backgroundColor: const Color(0xFFFFFFFF),
-          bottomNavigationBar: context.isNarrow
-              ? Obx(
-                  () => BottomNavigationBar(
-                    type: BottomNavigationBarType.shifting,
-                    backgroundColor: const Color(0xFFFFFFFF),
-                    items: const <BottomNavigationBarItem>[
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.format_paint_outlined),
-                        activeIcon: Icon(Icons.format_paint),
-                        label: 'Colors',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.text_snippet_outlined),
-                        activeIcon: Icon(Icons.text_snippet),
-                        label: 'Typography',
-                      ),
-                    ],
-                    currentIndex: c.tab.value.index,
-                    selectedItemColor: const Color(0xFF1F3C5D),
-                    onTap: (index) => c.tab.value = StyleTab.values[index],
-                  ),
-                )
-              : null,
           body: SafeArea(
-            child: Row(
+            child: Column(
               children: [
-                if (!context.isNarrow)
-                  SizedBox(width: 100, child: _sideBar(c, context)),
+                Row(
+                  children: [
+                    const SizedBox(width: 5),
+                    SizedBox(
+                      height: 50,
+                      width: 380,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: StyleTab.values.length,
+                        itemBuilder: (context, i) {
+                          return Obx(() {
+                            final StyleTab tab = StyleTab.values[i];
+                            final bool selected = c.tab.value == tab;
+
+                            return switch (tab) {
+                              StyleTab.colors => StyleCard(
+                                  icon: selected
+                                      ? Icons.format_paint
+                                      : Icons.format_paint_outlined,
+                                  inverted: selected,
+                                  onPressed: () => c.tab.value = tab,
+                                ),
+                              StyleTab.typography => StyleCard(
+                                  icon: selected
+                                      ? Icons.text_snippet
+                                      : Icons.text_snippet_outlined,
+                                  inverted: selected,
+                                  onPressed: () => c.tab.value = tab,
+                                ),
+                              StyleTab.multimedia => StyleCard(
+                                  icon: selected
+                                      ? Icons.play_lesson
+                                      : Icons.play_lesson_outlined,
+                                  inverted: selected,
+
+                                  // TODO: Implement.
+                                  onPressed: null,
+                                ),
+                              StyleTab.elements => StyleCard(
+                                  icon: selected
+                                      ? Icons.widgets
+                                      : Icons.widgets_outlined,
+                                  inverted: selected,
+
+                                  // TODO: Implement.
+                                  onPressed: null,
+                                ),
+                            };
+                          });
+                        },
+                      ),
+                    ),
+                    const Spacer(),
+                    Obx(
+                      () => IconButton(
+                        onPressed: () => c.compact.toggle(),
+                        icon: Icon(
+                          c.compact.value
+                              ? Icons.layers_clear_rounded
+                              : Icons.layers_rounded,
+                          color: const Color(0xFF1F3C5D),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Obx(
+                      () => IconButton(
+                        onPressed: () => c.inverted.toggle(),
+                        icon: Icon(
+                          c.inverted.value
+                              ? Icons.dark_mode_rounded
+                              : Icons.light_mode_rounded,
+                          color: c.inverted.value
+                              ? const Color(0xFF1F3C5D)
+                              : const Color(0xFFFFB74D),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                  ],
+                ),
                 Expanded(child: _page(c)),
               ],
             ),
@@ -80,8 +134,11 @@ class StyleView extends StatelessWidget {
       color: const Color(0xFFF5F5F5),
       child: Obx(() {
         return switch (c.tab.value) {
-          StyleTab.colors => ColorsView(c.inverted.value),
-          StyleTab.typography => TypographyView(c.inverted.value),
+          StyleTab.colors => ColorsView(c.inverted.value, c.compact.value),
+          StyleTab.typography => TypographyView(
+              c.inverted.value,
+              c.compact.value,
+            ),
 
           // TODO: Implement.
           StyleTab.multimedia => Container(),
@@ -90,113 +147,6 @@ class StyleView extends StatelessWidget {
           StyleTab.elements => Container(),
         };
       }),
-    );
-  }
-
-  /// Returns the [Column] of [_tabs] and [_mode] meant to be a side bar.
-  Widget _sideBar(StyleController c, BuildContext context) {
-    return Column(
-      children: [
-        Expanded(child: _tabs(c, context)),
-        _mode(c),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  /// Returns the list of [StyleCard]s representing the [StyleTab]s.
-  Widget _tabs(StyleController c, BuildContext context) {
-    final fonts = Theme.of(context).fonts;
-
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 60,
-          leadingWidth: double.infinity,
-          flexibleSpace: FlexibleSpaceBar(
-            title: Text(
-              'Style',
-              textAlign: TextAlign.center,
-              style: fonts.headlineLarge!.copyWith(
-                color: const Color(0xFF1F3C5D),
-              ),
-            ),
-          ),
-        ),
-        SliverList.builder(
-          itemCount: StyleTab.values.length,
-          itemBuilder: (context, i) {
-            return Obx(() {
-              final StyleTab tab = StyleTab.values[i];
-              final bool selected = c.tab.value == tab;
-
-              switch (tab) {
-                case StyleTab.colors:
-                  return StyleCard(
-                    icon: selected
-                        ? Icons.format_paint
-                        : Icons.format_paint_outlined,
-                    inverted: selected,
-                    onPressed: () => c.tab.value = tab,
-                  );
-
-                case StyleTab.typography:
-                  return StyleCard(
-                    icon: selected
-                        ? Icons.text_snippet
-                        : Icons.text_snippet_outlined,
-                    inverted: selected,
-                    onPressed: () => c.tab.value = tab,
-                  );
-
-                case StyleTab.multimedia:
-                  return StyleCard(
-                    icon: selected
-                        ? Icons.play_lesson
-                        : Icons.play_lesson_outlined,
-                    inverted: selected,
-
-                    // TODO: Implement.
-                    onPressed: null,
-                  );
-
-                case StyleTab.elements:
-                  return StyleCard(
-                    icon: selected ? Icons.widgets : Icons.widgets_outlined,
-                    inverted: selected,
-
-                    // TODO: Implement.
-                    onPressed: null,
-                  );
-              }
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  /// Returns a [Switch] switching the [StyleController.inverted] indicator.
-  Widget _mode(StyleController c) {
-    return Column(
-      children: [
-        const Divider(color: Color(0xFFE8E8E8)),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Obx(() {
-              return Switch(
-                value: c.inverted.value,
-                onChanged: (b) => c.inverted.value = b,
-                activeColor: const Color(0xFF1F3C5D),
-                inactiveTrackColor: const Color(0xFFFFB74D),
-              );
-            }),
-          ],
-        ),
-      ],
     );
   }
 }

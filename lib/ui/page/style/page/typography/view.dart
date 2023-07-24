@@ -20,17 +20,18 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/headers.dart';
-import '/util/platform_utils.dart';
 import 'widget/family.dart';
 import 'widget/font.dart';
 import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.
 class TypographyView extends StatelessWidget {
-  const TypographyView(this.inverted, {super.key});
+  const TypographyView(this.inverted, this.compact, {super.key});
 
   /// Indicator whether this [TypographyView] should have its colors inverted.
   final bool inverted;
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +65,7 @@ class TypographyView extends StatelessWidget {
             [
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.isNarrow ? 0 : 16,
+                  horizontal: compact ? 0 : 16,
                   vertical: 16,
                 ),
                 child: Column(
@@ -75,7 +76,12 @@ class TypographyView extends StatelessWidget {
                       styles,
                       inverted: inverted,
                       padding: EdgeInsets.zero,
-                      (e) => FontWidget(inverted, style: e.$1, title: e.$2),
+                      (e) => FontWidget(
+                        inverted,
+                        compact,
+                        style: e.$1,
+                        title: e.$2,
+                      ),
                     ),
                     const SmallHeader(label: 'Font families'),
                     BuilderWrap(

@@ -22,6 +22,9 @@ enum StyleTab { colors, typography, multimedia, elements }
 
 /// Controller of a [StyleView].
 class StyleController extends GetxController {
+  /// Indicator whether the ui should be compact.
+  final RxBool compact = RxBool(false);
+
   /// Indicator whether the colors should be inverted.
   final RxBool inverted = RxBool(false);
 
