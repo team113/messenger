@@ -17,28 +17,22 @@
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
-import 'my_user.dart' show BlacklistEvent;
+import 'my_user.dart' show BlocklistEvent;
 
 /// Possible kinds of [UserEvent].
 enum UserEventKind {
   avatarDeleted,
   avatarUpdated,
-  bioDeleted,
-  bioUpdated,
   callCoverDeleted,
   callCoverUpdated,
   cameOffline,
   cameOnline,
-  galleryItemAdded,
-  galleryItemDeleted,
   nameDeleted,
   nameUpdated,
   presenceUpdated,
@@ -49,15 +43,15 @@ enum UserEventKind {
 
 /// Tag representing a [UserEvents] kind.
 enum UserEventsKind {
-  blacklistEvent,
+  blocklistEvent,
   initialized,
-  isBlacklisted,
+  isBlocked,
   user,
   event,
 }
 
-/// Tag representing a [BlacklistEvent] kind.
-enum BlacklistEventsKind {
+/// Tag representing a [BlocklistEvent] kind.
+enum BlocklistEventsKind {
   recordAdded,
   recordRemoved,
 }
@@ -95,44 +89,44 @@ class UserEventsInitialized extends UserEvents {
 
 /// Information about some [User] being present in [MyUser]'s blacklist of the
 /// authenticated [MyUser].
-class UserEventsIsBlacklisted extends UserEvents {
-  UserEventsIsBlacklisted(this.record, this.ver);
+class UserEventsIsBlocked extends UserEvents {
+  UserEventsIsBlocked(this.record, this.ver);
 
-  /// [BlacklistRecord] of the [User] in blacklist.
+  /// [BlocklistRecord] of the [User] in blacklist.
   ///
   /// `null` if the [User] is not blacklisted by the authenticated [MyUser].
-  final BlacklistRecord? record;
+  final BlocklistRecord? record;
 
   /// Version of the authenticated [MyUser]'s state.
   final MyUserVersion ver;
 
   @override
-  UserEventsKind get kind => UserEventsKind.isBlacklisted;
+  UserEventsKind get kind => UserEventsKind.isBlocked;
 }
 
-/// [BlacklistEventsVersioned] along with the corresponding [MyUserVersion].
-class BlacklistEventsVersioned extends UserEvents {
-  BlacklistEventsVersioned(this.events, this.ver);
+/// [BlocklistEventsVersioned] along with the corresponding [MyUserVersion].
+class BlocklistEventsVersioned extends UserEvents {
+  BlocklistEventsVersioned(this.events, this.ver);
 
-  /// [BlacklistEvent]s themselves.
-  final List<BlacklistEvent> events;
+  /// [BlocklistEvent]s themselves.
+  final List<BlocklistEvent> events;
 
   /// Version of the [MyUser]'s state updated by these
-  /// [BlacklistEventsVersioned].
+  /// [BlocklistEventsVersioned].
   final MyUserVersion ver;
 
   @override
-  UserEventsKind get kind => UserEventsKind.blacklistEvent;
+  UserEventsKind get kind => UserEventsKind.blocklistEvent;
 }
 
-class UserEventsBlacklistEventsEvent extends UserEvents {
-  const UserEventsBlacklistEventsEvent(this.event);
+class UserEventsBlocklistEventsEvent extends UserEvents {
+  const UserEventsBlocklistEventsEvent(this.event);
 
   /// [UserEventsVersioned] itself.
-  final BlacklistEventsVersioned event;
+  final BlocklistEventsVersioned event;
 
   @override
-  UserEventsKind get kind => UserEventsKind.blacklistEvent;
+  UserEventsKind get kind => UserEventsKind.blocklistEvent;
 }
 
 /// [UserEventsEvent] happening with the [User].
@@ -170,7 +164,7 @@ abstract class UserEvent {
 
 /// Event of an [UserAvatar] being deleted.
 class EventUserAvatarDeleted extends UserEvent {
-  const EventUserAvatarDeleted(UserId userId, this.at) : super(userId);
+  const EventUserAvatarDeleted(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserAvatar] was deleted.
   final PreciseDateTime at;
@@ -181,8 +175,7 @@ class EventUserAvatarDeleted extends UserEvent {
 
 /// Event of an [UserAvatar] being updated.
 class EventUserAvatarUpdated extends UserEvent {
-  const EventUserAvatarUpdated(UserId userId, this.avatar, this.at)
-      : super(userId);
+  const EventUserAvatarUpdated(super.userId, this.avatar, this.at);
 
   /// New [UserAvatar].
   final UserAvatar avatar;
@@ -194,34 +187,9 @@ class EventUserAvatarUpdated extends UserEvent {
   UserEventKind get kind => UserEventKind.avatarUpdated;
 }
 
-/// Event of an [UserBio] being deleted.
-class EventUserBioDeleted extends UserEvent {
-  const EventUserBioDeleted(UserId userId, this.at) : super(userId);
-
-  /// [PreciseDateTime] when the [UserBio] was deleted.
-  final PreciseDateTime at;
-
-  @override
-  UserEventKind get kind => UserEventKind.bioDeleted;
-}
-
-/// Event of an [UserBio] being updated.
-class EventUserBioUpdated extends UserEvent {
-  const EventUserBioUpdated(UserId userId, this.bio, this.at) : super(userId);
-
-  /// New [UserBio].
-  final UserBio bio;
-
-  /// [PreciseDateTime] when the [UserBio] was updated.
-  final PreciseDateTime at;
-
-  @override
-  UserEventKind get kind => UserEventKind.bioUpdated;
-}
-
 /// Event of an [UserCallCover] being deleted.
 class EventUserCallCoverDeleted extends UserEvent {
-  const EventUserCallCoverDeleted(UserId userId, this.at) : super(userId);
+  const EventUserCallCoverDeleted(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserCallCover] was deleted.
   final PreciseDateTime at;
@@ -232,8 +200,7 @@ class EventUserCallCoverDeleted extends UserEvent {
 
 /// Event of an [UserCallCover] being updated.
 class EventUserCallCoverUpdated extends UserEvent {
-  const EventUserCallCoverUpdated(UserId userId, this.callCover, this.at)
-      : super(userId);
+  const EventUserCallCoverUpdated(super.userId, this.callCover, this.at);
 
   /// New [UserCallCover].
   final UserCallCover callCover;
@@ -247,7 +214,7 @@ class EventUserCallCoverUpdated extends UserEvent {
 
 /// Event of an [User] coming offline.
 class EventUserCameOffline extends UserEvent {
-  const EventUserCameOffline(UserId userId, this.at) : super(userId);
+  const EventUserCameOffline(super.userId, this.at);
 
   /// [PreciseDateTime] when the [User] was online the last time.
   final PreciseDateTime at;
@@ -258,7 +225,7 @@ class EventUserCameOffline extends UserEvent {
 
 /// Event of an [User] coming online.
 class EventUserCameOnline extends UserEvent {
-  const EventUserCameOnline(UserId userId) : super(userId);
+  const EventUserCameOnline(super.userId);
 
   @override
   UserEventKind get kind => UserEventKind.cameOnline;
@@ -266,7 +233,7 @@ class EventUserCameOnline extends UserEvent {
 
 /// Event of an [User] being deleted.
 class EventUserDeleted extends UserEvent {
-  const EventUserDeleted(UserId userId, this.at) : super(userId);
+  const EventUserDeleted(super.userId, this.at);
 
   /// [PreciseDateTime] when the [User] was deleted.
   final PreciseDateTime at;
@@ -277,7 +244,7 @@ class EventUserDeleted extends UserEvent {
 
 /// Event of an [UserName] being deleted.
 class EventUserNameDeleted extends UserEvent {
-  const EventUserNameDeleted(UserId userId, this.at) : super(userId);
+  const EventUserNameDeleted(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserName] was deleted.
   final PreciseDateTime at;
@@ -288,7 +255,7 @@ class EventUserNameDeleted extends UserEvent {
 
 /// Event of an [UserName] being updated.
 class EventUserNameUpdated extends UserEvent {
-  const EventUserNameUpdated(UserId userId, this.name, this.at) : super(userId);
+  const EventUserNameUpdated(super.userId, this.name, this.at);
 
   /// New [UserName].
   final UserName name;
@@ -300,42 +267,9 @@ class EventUserNameUpdated extends UserEvent {
   UserEventKind get kind => UserEventKind.nameUpdated;
 }
 
-/// Event of an [User]'s `GalleryItem` being added.
-class EventUserGalleryItemAdded extends UserEvent {
-  const EventUserGalleryItemAdded(UserId userId, this.galleryItem, this.at)
-      : super(userId);
-
-  /// Added `GalleryItem`.
-  final ImageGalleryItem galleryItem;
-
-  /// [PreciseDateTime] when the `GalleryItem` was added to the [User]'s
-  /// gallery.
-  final PreciseDateTime at;
-
-  @override
-  UserEventKind get kind => UserEventKind.galleryItemAdded;
-}
-
-/// Event of an [User]'s `GalleryItem` being deleted.
-class EventUserGalleryItemDeleted extends UserEvent {
-  const EventUserGalleryItemDeleted(UserId userId, this.galleryItemId, this.at)
-      : super(userId);
-
-  /// ID of the deleted `GalleryItem`.
-  final GalleryItemId galleryItemId;
-
-  /// [PreciseDateTime] when the `GalleryItem` was deleted from the [User]'s
-  /// gallery.
-  final PreciseDateTime at;
-
-  @override
-  UserEventKind get kind => UserEventKind.galleryItemDeleted;
-}
-
 /// Event of an [User]'s [Presence] being updated.
 class EventUserPresenceUpdated extends UserEvent {
-  const EventUserPresenceUpdated(UserId userId, this.presence, this.at)
-      : super(userId);
+  const EventUserPresenceUpdated(super.userId, this.presence, this.at);
 
   /// New [User]'s [Presence].
   final Presence presence;
@@ -349,7 +283,7 @@ class EventUserPresenceUpdated extends UserEvent {
 
 /// Event of an [UserTextStatus] being deleted.
 class EventUserStatusDeleted extends UserEvent {
-  const EventUserStatusDeleted(UserId userId, this.at) : super(userId);
+  const EventUserStatusDeleted(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserTextStatus] was deleted.
   final PreciseDateTime at;
@@ -360,8 +294,7 @@ class EventUserStatusDeleted extends UserEvent {
 
 /// Event of an [UserTextStatus] being updated.
 class EventUserStatusUpdated extends UserEvent {
-  const EventUserStatusUpdated(UserId userId, this.status, this.at)
-      : super(userId);
+  const EventUserStatusUpdated(super.userId, this.status, this.at);
 
   /// New [UserTextStatus].
   final UserTextStatus status;

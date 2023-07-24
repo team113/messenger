@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.8
+version: 0.1.0-alpha.9.1
 publish_to: none
 
 environment:
@@ -14,7 +14,6 @@ dependencies:
   callkeep: ^0.3.3
   local_notifier: ^0.1.5
   windows_notification: ^0.0.3
-  carousel_slider: ^4.2.1
   chewie: ^1.5.0
   collection: ^1.17.0
   crypto: ^3.0.3
@@ -58,8 +57,8 @@ dependencies:
   intl: ^0.17.0
   js: ^0.6.5
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.0-dev+rev.d1fa5bf748084feb988aa858487411164de58b7b
-  medea_jason: 0.3.0-dev+rev.d675a58f7a3b5c4e0508f0692405d2e1f26e9dd2
+  medea_flutter_webrtc: 0.8.2
+  medea_jason: ^0.4.0
   media_kit_libs_ios_video: ^1.0.4
   mime: ^1.0.4
   mutex: ^3.0.1
@@ -91,7 +90,7 @@ dependencies:
   vibration: ^1.7.7
   wakelock: ^0.6.2
   web_socket_channel: ^2.4.0
-  window_manager: ^0.3.2
+  window_manager: ^0.3.5
   windows_taskbar: ^1.1.1
   win32: ^5.0.5
 
@@ -121,10 +120,6 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^5.12.0
-  # TODO: Remove when `medea_jason` updates.
-  flutter_rust_bridge: ^1.77.1
-  # TODO: Remove when `medea_jason` updates.
-  medea_flutter_webrtc: ^0.8.2
   # TODO: Remove when `sentry_flutter` updates.
   package_info_plus: ^4.0.0
   # TODO: Remove when creativecreatorormaybenot/wakelock#195 is released to

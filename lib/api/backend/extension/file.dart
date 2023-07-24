@@ -18,12 +18,24 @@
 import '../schema.dart';
 import '/domain/model/file.dart';
 
-/// Extension adding models construction from a [FileMixin].
-extension FileConversion on FileMixin {
-  /// Constructs a new [StorageFile] from this [FileMixin].
-  StorageFile toModel() => StorageFile(
+/// Extension adding models construction from a [PlainFileMixin].
+extension PlainFileConversion on PlainFileMixin {
+  /// Constructs a new [PlainFile] from this [PlainFileMixin].
+  PlainFile toModel() => PlainFile(
         relativeRef: relativeRef,
         checksum: checksum,
         size: size,
+      );
+}
+
+/// Extension adding models construction from a [ImageFileMixin].
+extension ImageFileConversion on ImageFileMixin {
+  /// Constructs a new [ImageFile] from this [ImageFileMixin].
+  ImageFile toModel() => ImageFile(
+        relativeRef: relativeRef,
+        checksum: checksum,
+        size: size,
+        width: width,
+        height: height,
       );
 }

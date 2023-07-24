@@ -61,11 +61,11 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - libyuv-iOS (1.0.2)
-  - medea_flutter_webrtc (0.8.2):
+  - medea_flutter_webrtc (0.8.3-dev):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 112.0.5615.165)
     - libyuv-iOS
-  - medea_jason (0.3.0-dev):
+  - medea_jason (0.4.0):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -253,8 +253,8 @@ SPEC CHECKSUMS:
   instrumentisto-libwebrtc-bin: f780c8c0bfb3d4df2279c678fa6b3971917af3bf
   integration_test: 13825b8a9334a850581300559b8839134b124670
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
-  medea_flutter_webrtc: 3b18686832c51cd46bf794e4e3ec94551a6dd664
-  medea_jason: 1088dc4572d2b14026ce84d44af0e7757dccc891
+  medea_flutter_webrtc: ba8933d74f0b720684dd1b619b963b6e70633d23
+  medea_jason: 05d8174fd71ee885e68e40a50816d609d971f7b5
   media_kit_libs_ios_video: 96259eccffaa309b63a7ee610c2c7786a3b335e5
   media_kit_native_event_loop: 9f9eb778d0d806ab9486eff7513f7f90f07d50f8
   media_kit_video: c6ae801433b484912087b519b45f1beac97b960b

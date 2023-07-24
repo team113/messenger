@@ -19,6 +19,7 @@ export 'list.dart';
 export 'map.dart';
 export 'rxlist.dart';
 export 'rxmap.dart';
+export 'rxsplay.dart';
 
 /// Possible operation kinds changing an observable iterable.
 enum OperationKind { added, removed, updated }

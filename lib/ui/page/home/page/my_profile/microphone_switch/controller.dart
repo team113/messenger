@@ -54,7 +54,7 @@ class MicrophoneSwitchController extends GetxController {
 
     await WebUtils.microphonePermission();
     devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.AudioInput);
+        await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
 
     super.onInit();
   }
