@@ -17,10 +17,12 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/headers.dart';
 import '/util/platform_utils.dart';
 import 'widget/family.dart';
-import 'widget/font_column.dart';
+import 'widget/font.dart';
 import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.
@@ -32,24 +34,70 @@ class TypographyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.isNarrow ? 0 : 16,
-          vertical: 16,
+    final fonts = Theme.of(context).fonts;
+
+    final List<(TextStyle?, String)> styles = [
+      (fonts.displayLarge, 'displayLarge'),
+      (fonts.displayMedium, 'displayMedium'),
+      (fonts.displaySmall, 'displaySmall'),
+      (fonts.headlineLarge, 'headlineLarge'),
+      (fonts.headlineMedium, 'headlineMedium'),
+      (fonts.headlineSmall, 'headlineSmall'),
+      (fonts.labelLarge, 'labelLarge'),
+      (fonts.labelMedium, 'labelMedium'),
+      (fonts.labelSmall, 'labelSmall'),
+      (fonts.bodyLarge, 'bodyLarge'),
+      (fonts.bodyMedium, 'bodyMedium'),
+      (fonts.bodySmall, 'bodySmall'),
+    ];
+
+    final List<(FontWeight, String)> families = [
+      (FontWeight.w300, 'SFUI-Light'),
+      (FontWeight.w400, 'SFUI-Regular'),
+      (FontWeight.w700, 'SFUI-Bold'),
+    ];
+
+    return CustomScrollView(
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate(
+            [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.isNarrow ? 0 : 16,
+                  vertical: 16,
+                ),
+                child: Column(
+                  children: [
+                    const Header(label: 'Typography'),
+                    const SmallHeader(label: 'Font'),
+                    BuilderWrap(
+                      styles,
+                      inverted: inverted,
+                      padding: EdgeInsets.zero,
+                      (e) => FontWidget(inverted, style: e.$1, title: e.$2),
+                    ),
+                    const SmallHeader(label: 'Font families'),
+                    BuilderWrap(
+                      families,
+                      inverted: inverted,
+                      padding: EdgeInsets.zero,
+                      (e) =>
+                          FontFamily(inverted, fontWeight: e.$1, label: e.$2),
+                    ),
+                    const SmallHeader(label: 'Styles'),
+                    BuilderWrap(
+                      styles,
+                      inverted: inverted,
+                      (e) => FontStyle(inverted, style: e.$1, title: e.$2),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          children: [
-            const Header(label: 'Typography'),
-            const SmallHeader(label: 'Font'),
-            FontColumnWidget(inverted),
-            const SmallHeader(label: 'Font families'),
-            FontFamiliesWidget(inverted),
-            const SmallHeader(label: 'Styles'),
-            FontStyleWidget(inverted),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }

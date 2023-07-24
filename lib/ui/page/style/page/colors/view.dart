@@ -21,7 +21,7 @@ import 'package:messenger/util/platform_utils.dart';
 import '/themes.dart';
 import '/ui/page/style/widget/headers.dart';
 import 'widget/color.dart';
-import 'widget/builder_wrap.dart';
+import '../../widget/builder_wrap.dart';
 import 'widget/schema.dart';
 
 /// View of the [StyleTab.colors] page.
@@ -184,42 +184,50 @@ class ColorsView extends StatelessWidget {
 
     final List<Color> avatars = style.colors.userColors;
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.isNarrow ? 0 : 16,
-          vertical: 16,
-        ),
-        child: Column(
-          children: [
-            const Header(label: 'Palette'),
-            const SmallHeader(label: 'Color schema'),
-            ColorSchemaWidget(
-              colors.map((e) => (e.$1, e.$2)),
-              inverted: inverted,
-            ),
-            const SizedBox(height: 16),
-            const SmallHeader(label: 'Colors'),
-            BuilderWrap(
-              colors,
-              (e) => ColorWidget(
-                e.$1,
-                inverted: inverted,
-                subtitle: e.$2,
-                hint: e.$3,
+    return CustomScrollView(
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate(
+            [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.isNarrow ? 0 : 16,
+                  vertical: 16,
+                ),
+                child: Column(
+                  children: [
+                    const Header(label: 'Palette'),
+                    const SmallHeader(label: 'Color schema'),
+                    ColorSchemaWidget(
+                      colors.map((e) => (e.$1, e.$2)),
+                      inverted: inverted,
+                    ),
+                    const SizedBox(height: 16),
+                    const SmallHeader(label: 'Colors'),
+                    BuilderWrap(
+                      colors,
+                      (e) => ColorWidget(
+                        e.$1,
+                        inverted: inverted,
+                        subtitle: e.$2,
+                        hint: e.$3,
+                      ),
+                      inverted: inverted,
+                    ),
+                    const SizedBox(height: 16),
+                    const SmallHeader(label: 'Avatars'),
+                    BuilderWrap(
+                      avatars,
+                      (e) => ColorWidget(e, inverted: inverted),
+                      inverted: inverted,
+                    ),
+                  ],
+                ),
               ),
-              inverted: inverted,
-            ),
-            const SizedBox(height: 16),
-            const SmallHeader(label: 'Avatars'),
-            BuilderWrap(
-              avatars,
-              (e) => ColorWidget(e, inverted: inverted),
-              inverted: inverted,
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

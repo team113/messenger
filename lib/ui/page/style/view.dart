@@ -111,7 +111,7 @@ class StyleView extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-          expandedHeight: 75,
+          expandedHeight: 60,
           leadingWidth: double.infinity,
           flexibleSpace: FlexibleSpaceBar(
             title: Text(

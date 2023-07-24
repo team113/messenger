@@ -16,151 +16,43 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
 
-/// Wrap with [_FontStyleContainer]s.
-class FontStyleWidget extends StatelessWidget {
-  const FontStyleWidget(this.inverted, {super.key});
-
-  /// Indicator whether this [FontStyleWidget] should have its colors inverted.
-  final bool inverted;
-
-  @override
-  Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: context.isNarrow ? 5 : 16,
-      runSpacing: 16,
-      children: [
-        _FontStyleContainer(
-          inverted,
-          title: 'displayLarge',
-          style: fonts.displayLarge!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'displayMedium',
-          style: fonts.displayMedium!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'displaySmall',
-          style: fonts.displaySmall!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'headlineLarge',
-          style: fonts.headlineLarge!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'headlineMedium',
-          style: fonts.headlineMedium!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'headlineSmall',
-          style: fonts.headlineSmall!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'titleLarge',
-          style: fonts.titleLarge!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'titleMedium',
-          style: fonts.titleMedium!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'titleSmall',
-          style: fonts.titleSmall!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'labelLarge',
-          style: fonts.labelLarge!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'labelMedium',
-          style: fonts.labelMedium!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'labelSmall',
-          style: fonts.labelSmall!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'bodyLarge',
-          style: fonts.bodyLarge!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'bodyMedium',
-          style: fonts.bodyMedium!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'bodySmall',
-          style: fonts.bodySmall!,
-        ),
-        _FontStyleContainer(
-          inverted,
-          title: 'linkStyle',
-          style: style.linkStyle,
-          color: style.linkStyle.color,
-          label: 'Blue',
-        ),
-      ],
-    );
-  }
-}
-
-/// [AnimatedContainer] which represents [Text] with a specific [style].
-class _FontStyleContainer extends StatelessWidget {
-  const _FontStyleContainer(
+/// [Container] which represents [Text] with a specific [style].
+class FontStyle extends StatelessWidget {
+  const FontStyle(
     this.inverted, {
+    super.key,
     required this.style,
     this.title,
     this.color,
     this.label = 'Black',
   });
 
-  /// Indicator whether this [_FontStyleContainer] should have its colors
+  /// Indicator whether this [FontStyle] should have its colors
   /// inverted.
   final bool inverted;
 
-  /// Label of this [_FontStyleContainer].
+  /// Label of this [FontStyle].
   final String? title;
 
   /// Description that represents the color of the [style].
   final String label;
 
-  /// TextStyle defining the font style for this [_FontStyleContainer].
-  final TextStyle style;
+  /// [TextStyle] defining the font style for this [FontStyle].
+  final TextStyle? style;
 
-  /// Color of [style].
+  /// [Color] of [style].
   final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+    return SizedBox(
       height: 245,
-      width: 245,
-      decoration: BoxDecoration(
-        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(12),
-      ),
+      width: 240,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -169,7 +61,7 @@ class _FontStyleContainer extends StatelessWidget {
             Center(
               child: Text(
                 title!,
-                style: style.copyWith(
+                style: style!.copyWith(
                   color: color ??
                       (inverted
                           ? const Color(0xFFFFFFFF)
@@ -177,7 +69,7 @@ class _FontStyleContainer extends StatelessWidget {
                 ),
               ),
             ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           Divider(
             color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
             indent: 25,
@@ -293,17 +185,17 @@ class _FontStyleContainer extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(style.fontSize.toString()),
+                        Text(style!.fontSize.toString()),
                         const SizedBox(height: 8),
-                        Text(style.fontWeight!.value.toString()),
+                        Text(style!.fontWeight!.value.toString()),
                         const SizedBox(height: 8),
-                        Text(_getFontWeightName(style.fontWeight)),
+                        Text(_getFontWeightName(style!.fontWeight)),
                         const SizedBox(height: 8),
                         Text(label),
                         const SizedBox(height: 8),
-                        style.letterSpacing == null
+                        style!.letterSpacing == null
                             ? const Text('0 %')
-                            : Text('${style.letterSpacing} %'),
+                            : Text('${style!.letterSpacing} %'),
                       ],
                     ),
                   ),
@@ -318,7 +210,7 @@ class _FontStyleContainer extends StatelessWidget {
 
   /// Returns the corresponding [fontWeight] name as a string.
   String _getFontWeightName(FontWeight? fontWeight) {
-    String fontWeightStyle = '';
+    final String fontWeightStyle;
 
     switch (fontWeight) {
       case FontWeight.w100:

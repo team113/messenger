@@ -19,131 +19,71 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// [AnimatedContainer] of application font families.
-class FontFamiliesWidget extends StatelessWidget {
-  const FontFamiliesWidget(this.inverted, {super.key});
-
-  /// Indicator whether this [FontFamiliesWidget] should have its colors
-  /// inverted.
-  final bool inverted;
-
-  @override
-  Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          _FontFamily(
-            inverted,
-            label: 'SFUI-Light',
-            textStyle: fonts.displayLarge!.copyWith(
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          Divider(
-            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
-          ),
-          _FontFamily(
-            inverted,
-            label: 'SFUI-Regular',
-            textStyle: fonts.displayLarge!.copyWith(
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          Divider(
-            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
-          ),
-          _FontFamily(
-            inverted,
-            label: 'SFUI-Bold',
-            textStyle: fonts.displayLarge!.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// [Column] of all characters in a specific font family.
-class _FontFamily extends StatelessWidget {
-  const _FontFamily(
+class FontFamily extends StatelessWidget {
+  const FontFamily(
     this.inverted, {
-    required this.textStyle,
+    super.key,
+    this.fontWeight,
     this.label,
   });
 
-  /// Indicator whether this [_FontFamily] should have its colors
+  /// Indicator whether this [FontFamily] should have its colors
   /// inverted.
   final bool inverted;
 
-  /// Label of this [_FontFamily].
+  /// Label of this [FontFamily].
   final String? label;
 
-  /// Text style of this [_FontFamily].
-  final TextStyle textStyle;
+  /// [FontWeight] of this [FontFamily].
+  final FontWeight? fontWeight;
 
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Column(
-        children: [
-          DefaultTextStyle(
-            style: textStyle.copyWith(
-              color:
-                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 30),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                  SizedBox(height: 40),
-                  Text('abcdefghijklmnopqrstuvwxyz'),
-                  SizedBox(height: 40),
-                  Row(
-                    children: [
-                      Flexible(child: Text('1234567890', softWrap: true)),
-                      SizedBox(width: 50),
-                      Flexible(
-                        child: Text(
-                          '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
-                          softWrap: true,
-                        ),
-                      ),
-                    ],
+    return DefaultTextStyle(
+      style: fonts.displayLarge!.copyWith(
+        color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+            const SizedBox(height: 40),
+            const Text('abcdefghijklmnopqrstuvwxyz'),
+            const SizedBox(height: 40),
+            const Row(
+              children: [
+                Flexible(child: Text('1234567890', softWrap: true)),
+                SizedBox(width: 50),
+                Flexible(
+                  child: Text(
+                    '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
+                    softWrap: true,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-          if (label != null)
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Text(
-                  label!,
-                  style: fonts.displayLarge!.copyWith(
-                    color: const Color(0xFFF5F5F5),
-                    fontSize: 40,
+            if (label != null)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Text(
+                    label!,
+                    style: fonts.displayLarge!.copyWith(
+                      color: const Color(0xFFF5F5F5),
+                      fontSize: 40,
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
