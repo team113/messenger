@@ -17,12 +17,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
+import '/util/platform_utils.dart';
 import 'page/colors/view.dart';
 import 'page/typography/view.dart';
 

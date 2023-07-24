@@ -42,14 +42,14 @@ class ColorSchemaWidget extends StatelessWidget {
       curve: Curves.ease,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: inverted ? const Color(0xFF142839) : Colors.white,
+        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
       ),
       child: Column(
         children: colors.mapIndexed((i, e) {
           final HSLColor hsl = HSLColor.fromColor(e.$1);
           final Color text = hsl.lightness > 0.7 || hsl.alpha < 0.4
-              ? Colors.black
-              : Colors.white;
+              ? const Color(0xFF000000)
+              : const Color(0xFFFFFFFF);
           final TextStyle style = fonts.bodySmall!.copyWith(color: text);
 
           return Container(

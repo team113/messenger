@@ -16,12 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
+import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/headers.dart';
+import '/util/platform_utils.dart';
 import 'widget/color.dart';
-import '../../widget/builder_wrap.dart';
 import 'widget/schema.dart';
 
 /// View of the [StyleTab.colors] page.
