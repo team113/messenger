@@ -23,9 +23,11 @@ import 'widget/images.dart';
 import 'widget/sounds.dart';
 
 class MultimediaView extends StatelessWidget {
-  const MultimediaView(this.isDarkMode, {super.key});
+  const MultimediaView(this.isDarkMode, this.compact, {super.key});
 
   final bool isDarkMode;
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,7 @@ class MultimediaView extends StatelessWidget {
           delegate: SliverChildListDelegate(
             [
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(compact ? 0 : 20),
                 child: Column(
                   children: [
                     const Header(label: 'Multimedia'),

@@ -136,8 +136,11 @@ class StyleView extends StatelessWidget {
               c.inverted.value,
               c.compact.value,
             ),
-          StyleTab.multimedia => MultimediaView(c.inverted.value),
-          StyleTab.elements => ElementsView(c.inverted.value),
+          StyleTab.multimedia => MultimediaView(
+              c.inverted.value,
+              c.compact.value,
+            ),
+          StyleTab.elements => ElementsView(c.inverted.value, c.compact.value),
         };
       }),
     );

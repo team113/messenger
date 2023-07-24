@@ -28,9 +28,15 @@ import 'widget/text_field.dart';
 
 /// Elements view of the [Routes.style] page.
 class ElementsView extends StatelessWidget {
-  const ElementsView(this.isDarkMode, {super.key});
+  const ElementsView(
+    this.isDarkMode,
+    this.compact, {
+    super.key,
+  });
 
   final bool isDarkMode;
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +46,7 @@ class ElementsView extends StatelessWidget {
           delegate: SliverChildListDelegate(
             [
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(compact ? 0 : 20),
                 child: Column(
                   children: [
                     const Header(label: 'Elements'),
