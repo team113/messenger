@@ -533,7 +533,7 @@ class HiveRxChat extends RxChat {
       key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
       if (key != null) {
-        await _local.remove(key!);
+        _local.remove(key!);
 
         HiveChat? chatEntity = _chatLocal.get(id);
         if (chatEntity?.value.lastItem?.id == itemId) {
