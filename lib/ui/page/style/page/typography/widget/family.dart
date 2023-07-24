@@ -45,6 +45,7 @@ class FontFamily extends StatelessWidget {
     return DefaultTextStyle(
       style: fonts.displayLarge!.copyWith(
         color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+        fontWeight: fontWeight,
       ),
       child: Padding(
         padding: const EdgeInsets.all(15),
