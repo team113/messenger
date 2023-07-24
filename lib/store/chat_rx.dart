@@ -513,11 +513,11 @@ class HiveRxChat extends RxChat {
       }
 
       if (ignoreVersion || !_local.keys.contains(item.value.key)) {
-        _local.put(item);
+        await _local.put(item);
       } else {
         final HiveChatItem? saved = await _local.get(item.value.key);
         if (saved != null && saved.ver < item.ver) {
-          _local.put(item);
+          await _local.put(item);
         }
       }
     });
@@ -533,7 +533,7 @@ class HiveRxChat extends RxChat {
       key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
       if (key != null) {
-        _local.remove(key!);
+        await _local.remove(key!);
 
         HiveChat? chatEntity = _chatLocal.get(id);
         if (chatEntity?.value.lastItem?.id == itemId) {
