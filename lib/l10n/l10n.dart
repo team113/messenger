@@ -49,7 +49,7 @@ class L10n {
     if (lang == null) {
       List<Locale> locales = WidgetsBinding.instance.platformDispatcher.locales;
       for (int i = 0; i < locales.length && chosen.value == null; ++i) {
-        Language? language = Language.from(locales[i].toLanguageTag());
+        final Language? language = Language.fromLocale(locales[i]);
         if (language != null) {
           await set(language, refresh: false);
         }
@@ -99,8 +99,20 @@ class Language {
 
   /// Returns a [Language] identified by its [tag] from the [L10n.languages], if
   /// any.
-  static Language? from(String? tag) {
+  static Language? fromTag(String? tag) {
     return L10n.languages.firstWhereOrNull((e) => e.toString() == tag);
+  }
+
+  /// Returns a [Language] identified by its [locale] from the [L10n.languages],
+  /// if any.
+  static Language? fromLocale(Locale locale) {
+    return L10n.languages.firstWhereOrNull((e) => e.locale == locale) ??
+        // If exact match wasn't found, then find any matching the language or
+        // country code.
+        L10n.languages.firstWhereOrNull(
+            (e) => e.locale.languageCode == locale.languageCode) ??
+        L10n.languages.firstWhereOrNull(
+            (e) => e.locale.countryCode == locale.countryCode);
   }
 
   @override

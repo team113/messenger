@@ -16,14 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
-import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/util/platform_utils.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '/l10n/l10n.dart';
@@ -39,10 +36,7 @@ import 'widget/primary_button.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
-  const LoginView({
-    super.key,
-    this.stage = LoginViewStage.signUp,
-  });
+  const LoginView({super.key, this.stage = LoginViewStage.signUp});
 
   final LoginViewStage stage;
 
@@ -51,10 +45,7 @@ class LoginView extends StatelessWidget {
     BuildContext context, {
     LoginViewStage stage = LoginViewStage.signUp,
   }) {
-    return ModalPopup.show(
-      context: context,
-      child: LoginView(stage: stage),
-    );
+    return ModalPopup.show(context: context, child: LoginView(stage: stage));
   }
 
   @override
@@ -269,20 +260,13 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.code:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signUp,
-                text: 'Sign up'.l10n,
+                text: 'label_sign_up'.l10n,
               );
 
               children = [
-                // Text(
-                //   'label_recovery_code_sent'.l10n,
-                //   style: fonts.labelLarge!.copyWith(
-                //     color: style.colors.secondary,
-                //   ),
-                // ),
                 Text.rich(
-                  'label_sign_up_code_email_sent'.l10nfmt({
-                    'text': c.email.text,
-                  }).parseLinks([], context),
+                  'label_sign_up_code_email_sent'
+                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
                   style: fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
@@ -299,7 +283,6 @@ class LoginView extends StatelessWidget {
                   onPressed:
                       c.emailCode.isEmpty.value ? null : c.emailCode.submit,
                 ),
-                // const SizedBox(height: 16),
               ];
               break;
 
@@ -344,7 +327,10 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.signUpWithEmail:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
-                onBack: () => c.stage.value = LoginViewStage.signUp,
+                onBack: () {
+                  c.stage.value = LoginViewStage.signUp;
+                  c.email.unsubmit();
+                },
               );
 
               children = [
@@ -385,7 +371,7 @@ class LoginView extends StatelessWidget {
               children = [
                 _signButton(
                   context,
-                  text: 'btn_continue_with_email'.l10n,
+                  text: 'btn_email'.l10n,
                   asset: 'apple',
                   assetWidth: 18.24,
                   assetHeight: 23,
@@ -395,7 +381,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'btn_continue_with_phone'.l10n,
+                  text: 'btn_phone_number'.l10n,
                   asset: 'apple',
                   assetWidth: 18.24,
                   assetHeight: 23,
@@ -405,7 +391,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'btn_continue_with_apple'.l10n,
+                  text: 'Apple'.l10n,
                   asset: 'apple',
                   assetWidth: 18.24,
                   assetHeight: 23,
@@ -413,14 +399,14 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'btn_continue_with_google'.l10n,
+                  text: 'Google'.l10n,
                   asset: 'google_logo',
                   assetHeight: 20,
                 ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'btn_continue_with_github'.l10n,
+                  text: 'GitHub'.l10n,
                   asset: 'github',
                   assetHeight: 19.99,
                   assetWidth: 20,
@@ -432,13 +418,12 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.signInWithQr:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signIn,
-                text: 'Sign in'.l10n,
+                text: 'label_sign_in_with_qr_code'.l10n,
               );
 
               children = [
-                // const SizedBox(height: 12),
                 Text(
-                  'Scan the displayed QR code to sign in.'.l10n,
+                  'label_qr_code_sign_in_description'.l10n,
                   style: fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
@@ -449,18 +434,6 @@ class LoginView extends StatelessWidget {
                     size: 300.0,
                   ),
                 ),
-                // ReactiveTextField(
-                //   key: const Key('RecoveryField'),
-                //   state: c.login,
-                //   label: 'E-mail or phone number'.l10n,
-                // ),
-                // const SizedBox(height: 25),
-                // PrimaryButton(
-                //   key: const Key('Proceed'),
-                //   title: 'btn_proceed'.l10n,
-                //   onPressed:
-                //       c.login.isEmpty.value ? null : c.signInWithoutPassword,
-                // ),
                 const SizedBox(height: 16),
               ];
               break;
@@ -468,19 +441,19 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.signInWithCode:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signIn,
-                text: 'Sign in'.l10n,
+                text: 'label_sign_in_with_code'.l10n,
               );
 
               children = [
                 Text(
-                  'label_recover_account_description'.l10n,
+                  'label_one_time_code_sent_description'.l10n,
                   style: fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('RecoveryField'),
                   state: c.login,
-                  label: 'E-mail or phone number'.l10n,
+                  label: 'label_email_or_phone'.l10n,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
@@ -495,7 +468,7 @@ class LoginView extends StatelessWidget {
 
             case LoginViewStage.signInWithPassword:
               header = ModalPopupHeader(
-                text: 'Sign in'.l10n,
+                text: 'label_sign_in_with_password'.l10n,
                 onBack: () => c.stage.value = LoginViewStage.signIn,
               );
 
@@ -551,7 +524,7 @@ class LoginView extends StatelessWidget {
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
-                    title: 'Sign in'.l10n,
+                    title: 'btn_sign_in'.l10n,
                     onPressed: enabled ? c.signIn : null,
                   );
                 }),
@@ -559,12 +532,12 @@ class LoginView extends StatelessWidget {
               break;
 
             case LoginViewStage.signIn:
-              header = ModalPopupHeader(text: 'Sign in'.l10n);
+              header = ModalPopupHeader(text: 'label_sign_in'.l10n);
 
               children = [
                 _signButton(
                   context,
-                  text: 'Sign in with password'.l10n,
+                  text: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
                   leading: Icon(
@@ -575,7 +548,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Sign in with one-time code'.l10n,
+                  text: 'btn_one_time_code'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithCode,
                   leading: Icon(
@@ -586,7 +559,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Sign in with QR code'.l10n,
+                  text: 'btn_qr_code'.l10n,
                   onPressed: () => c.stage.value = LoginViewStage.signInWithQr,
                   leading: Icon(
                     Icons.qr_code_2,
@@ -596,7 +569,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Sign in with Apple'.l10n,
+                  text: 'Apple',
                   asset: 'apple',
                   assetWidth: 18.24,
                   assetHeight: 23,
@@ -604,64 +577,19 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Sign in with Google'.l10n,
+                  text: 'Google',
                   asset: 'google_logo',
                   assetHeight: 20,
                 ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Sign in with GitHub'.l10n,
+                  text: 'GitHub',
                   asset: 'github',
                   assetHeight: 19.99,
                   assetWidth: 20,
                 ),
                 const SizedBox(height: 25 / 2),
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: Container(
-                //         height: 1,
-                //         width: double.infinity,
-                //         color: style.colors.secondaryHighlight,
-                //       ),
-                //     ),
-                //     const SizedBox(width: 8),
-                //     Text('OR', style: fonts.headlineSmall),
-                //     const SizedBox(width: 8),
-                //     Expanded(
-                //       child: Container(
-                //         height: 1,
-                //         width: double.infinity,
-                //         color: style.colors.secondaryHighlight,
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                // const SizedBox(height: 25 / 2),
-                // Center(
-                //   child: Text.rich(
-                //     TextSpan(
-                //       children: [
-                //         TextSpan(
-                //           text: 'Don\'t have an account? '.l10n,
-                //           style: fonts.bodyMedium!.copyWith(
-                //             color: style.colors.secondary,
-                //           ),
-                //         ),
-                //         TextSpan(
-                //           text: 'Sign up.'.l10n,
-                //           style: fonts.bodyMedium!.copyWith(
-                //             color: style.colors.primary,
-                //           ),
-                //           recognizer: TapGestureRecognizer()
-                //             ..onTap =
-                //                 () => c.stage.value = LoginViewStage.signUp,
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
               ];
               break;
           }
@@ -695,13 +623,6 @@ class LoginView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // if (c.stage.value == LoginViewStage.signIn &&
-                  //     !context.isNarrow)
-                  //   Container(
-                  //     width: 400,
-                  //     height: 400,
-                  //     color: Colors.red,
-                  // ),
                 ],
               ),
             ),

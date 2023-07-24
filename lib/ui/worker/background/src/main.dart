@@ -246,7 +246,7 @@ class _BackgroundService {
 
     _service.on('l10n').listen((event) {
       _resetConnectionTimer();
-      L10n.set(Language.from(event!['locale']));
+      L10n.set(Language.fromTag(event!['locale']));
     });
 
     _service.on('ka').listen((_) {

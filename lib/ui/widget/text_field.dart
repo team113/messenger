@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -431,25 +432,23 @@ class ReactiveTextField extends StatelessWidget {
             ),
 
             // Displays an error, if any.
-            AnimatedSize(
-              duration: 200.milliseconds,
-              child: AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: state.error.value == null
-                    ? const SizedBox(width: double.infinity, height: 1)
-                    : Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                          child: Text(
-                            state.error.value ?? '',
-                            style: fonts.labelMedium?.copyWith(
-                              color: style.colors.dangerColor,
-                            ),
+            AnimatedSizeAndFade(
+              fadeDuration: 200.milliseconds,
+              sizeDuration: 200.milliseconds,
+              child: state.error.value == null
+                  ? const SizedBox(width: double.infinity, height: 0)
+                  : Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                        child: Text(
+                          state.error.value ?? '',
+                          style: fonts.labelMedium?.copyWith(
+                            color: style.colors.dangerColor,
                           ),
                         ),
                       ),
-              ),
+                    ),
             ),
           ],
         ),
@@ -506,6 +505,7 @@ class TextFieldState extends ReactiveFieldState {
     bool approvable = false,
     bool editable = true,
     bool submitted = true,
+    bool revalidateOnUnfocus = false,
   }) : focus = focus ?? FocusNode() {
     controller = TextEditingController(text: text);
     isEmpty = RxBool(text?.isEmpty ?? true);
@@ -526,18 +526,26 @@ class TextFieldState extends ReactiveFieldState {
       controller.addListener(() {
         changed.value = controller.text != (_previousSubmit ?? '');
 
-        _debounceTimer?.cancel();
-        _debounceTimer = Timer(debounce, () {
-          if (_previousText != controller.text) {
-            _previousText = controller.text;
-            onChanged?.call(this);
-          }
-        });
+        // _debounceTimer?.cancel();
+        // _debounceTimer = Timer(debounce, () {
+        //   if (_previousText != controller.text) {
+        //     _previousText = controller.text;
+        //     onChanged?.call(this);
+        //   }
+        // });
       });
     }
 
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
+
+      if (revalidateOnUnfocus) {
+        if (this.focus.hasFocus) {
+          error.value = null;
+        } else {
+          onChanged?.call(this);
+        }
+      }
 
       if (onChanged != null) {
         if (controller.text != _previousText &&

@@ -258,9 +258,9 @@ err_data_transfer =
     Ошибка передачи данных. Пожалуйста, проверьте Ваше подключение к сети.
 err_dialog = Невозможно выполнить данное действие в диалоге
 err_dimensions_too_big = Слишком большое разрешение
-err_email_occupied = Указанный E-mail привязан к другому аккаунту. Пожалуйста, сначала аннулируйте предыдущую верификацию.
+err_email_occupied = Указанный E-mail используется другим аккаунтом. Пожалуйста, сначала аннулируйте предыдущую верификацию.
 err_incorrect_chat_name = Некорректное имя
-err_incorrect_email = Некорректный E-mail.
+err_incorrect_email = Некорректный E-mail
 err_incorrect_input = Некорректный формат.
 err_incorrect_login_input = Уникальный логин должен содержать только буквы латинского алфавита, цифры и символы "-", "." и "_". Он должен начинаться с буквы или цифры и содержать не менее 3 и не более 20 символов.
 err_incorrect_password = Неверный пароль.
@@ -317,7 +317,7 @@ err_use_monolog = Невозможно создать диалог с собой
 err_wrong_items_count = Неправильное количество сообщений
 err_wrong_members_count = Участников не может быть больше 100
 err_wrong_old_password = Неправильный пароль.
-err_wrong_recovery_code = Неверный код.
+err_wrong_recovery_code = Неверный код
 err_you_already_add_this_email = Вы уже добавили указанный E-mail.
 err_you_already_add_this_phone = Вы уже добавили указанный номер телефона.
 err_you_already_has_unconfirmed_email = Вы имеете неподтвержденный E-mail.
@@ -821,7 +821,6 @@ label_short_weekday =
         [6] сб
         *[other] вс
     }
-label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
@@ -1030,3 +1029,15 @@ btn_continue_with_phone =
 btn_continue_with_apple = Продолжить с Apple
 btn_continue_with_google = Продолжить с Google
 btn_continue_with_github = Продолжить с GitHub
+btn_email = E-mail
+btn_phone_number = Номер телефона
+btn_password = Пароль
+btn_one_time_code = Одноразовый код
+btn_qr_code = QR код
+label_sign_in = Вход
+label_sign_in_with_password = Войти с паролем
+label_email_or_phone = E-mail или номер телефона
+label_sign_in_with_code = Войти с кодом
+label_one_time_code_sent_description = Укажите E-mail или номер телефона ниже.
+label_qr_code_sign_in_description = Отсканируйте QR код, чтобы войти.
+label_sign_in_with_qr_code = Войти с QR кодом

@@ -79,6 +79,7 @@ class LoginController extends GetxController {
   late final TextFieldState repeatPassword;
 
   late final TextFieldState email = TextFieldState(
+    revalidateOnUnfocus: true,
     onChanged: (s) {
       try {
         if (s.text.isNotEmpty) {
@@ -104,22 +105,22 @@ class LoginController extends GetxController {
       }
 
       stage.value = LoginViewStage.code;
-      // await _authService.register();
-
-      // router.validateEmail = true;
-      // router.home();
-
-      // while (!Get.isRegistered<MyUserService>()) {
-      //   await Future.delayed(const Duration(milliseconds: 20));
-      // }
-
-      // final MyUserService myUserService = Get.find();
-      // await myUserService.addUserEmail(UserEmail(email.text));
     },
   );
 
   late final TextFieldState emailCode = TextFieldState(
-    onChanged: (s) => s.error.value = null,
+    revalidateOnUnfocus: true,
+    onChanged: (s) {
+      try {
+        if (s.text.isNotEmpty) {
+          ConfirmationCode(s.text);
+        }
+
+        s.error.value = null;
+      } on FormatException catch (_) {
+        s.error.value = 'err_wrong_recovery_code'.l10n;
+      }
+    },
     onSubmitted: (s) async {
       try {
         final GraphQlProvider graphQlProvider = Get.find();
@@ -128,6 +129,8 @@ class LoginController extends GetxController {
         router.home();
       } on ConfirmUserEmailException catch (e) {
         s.error.value = e.toMessage();
+      } on FormatException catch (_) {
+        s.error.value = 'err_wrong_recovery_code'.l10n;
       } catch (_) {
         s.error.value = 'err_data_transfer'.l10n;
         s.unsubmit();

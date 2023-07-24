@@ -216,6 +216,14 @@ class Themes {
             borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide(color: colors.primary),
           ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide(color: colors.dangerColor),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide(color: colors.dangerColor),
+          ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide(

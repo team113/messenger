@@ -135,7 +135,7 @@ class NotificationService extends DisposableService {
     _foregroundSubscription?.cancel();
     _audioPlayer?.dispose();
     _audioPlayer = null;
-    AudioCache.instance.clear('audio/notification2.mp3');
+    // AudioCache.instance.clear('audio/notification2.mp3');
   }
 
   // TODO: Implement icons and attachments on non-web platforms.

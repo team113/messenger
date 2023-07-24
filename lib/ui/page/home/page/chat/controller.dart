@@ -519,7 +519,7 @@ class ChatController extends GetxController {
 
     _audioPlayer?.dispose();
     _audioPlayer = null;
-    AudioCache.instance.clear('audio/message_sent.mp3');
+    // AudioCache.instance.clear('audio/message_sent.mp3');
 
     if (chat?.chat.value.isDialog == true) {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();

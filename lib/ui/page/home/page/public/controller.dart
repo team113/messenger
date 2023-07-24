@@ -171,7 +171,7 @@ class PublicController extends GetxController {
     _messagesSubscription.cancel();
     _audioPlayer?.dispose();
     _audioPlayer = null;
-    AudioCache.instance.clear('audio/message_sent.mp3');
+    // AudioCache.instance.clear('audio/message_sent.mp3');
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
