@@ -59,7 +59,6 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/chat_rx.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
@@ -71,7 +70,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
-import 'chat_update_image_test.mocks.dart';
+import 'chat_update_attachments_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
@@ -164,7 +163,8 @@ void main() async {
   when(graphQlProvider
           .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
       .thenAnswer(
-          (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+    (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
+  );
 
   when(graphQlProvider.readChat(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -174,68 +174,71 @@ void main() async {
   when(graphQlProvider.chatItems(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           first: 120))
-      .thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
-            'chat': {
-              'items': {
-                'edges': [
-                  {
-                    'node': {
-                      '__typename': 'ChatMessage',
-                      'id': '6d1c8e23-8583-4e3d-9ebb-413c95c786b0',
-                      'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                      'author': {
-                        'id': 'me',
-                        'num': '1234567890123456',
-                        'mutualContactsCount': 0,
-                        'isDeleted': false,
-                        'isBlocked': {'blacklisted': false, 'ver': '0'},
-                        'presence': 'AWAY',
-                        'ver': '0',
-                      },
-                      'at': '2022-02-01T09:32:52.246988+00:00',
-                      'ver': '10',
-                      'repliesTo': [],
-                      'text': null,
-                      'editedAt': null,
-                      'attachments': [
-                        {
-                          '__typename': 'ImageAttachment',
-                          'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
-                          'filename': 'filename.png',
-                          'original': {'relativeRef': 'oldRef.png'},
-                          'big': {'relativeRef': 'oldRef.png'},
-                          'medium': {'relativeRef': 'oldRef.png'},
-                          'small': {'relativeRef': 'oldRef.png'},
-                        }
-                      ]
-                    },
-                    'cursor': '123'
-                  }
-                ]
-              }
-            }
-          })));
-
-  when(graphQlProvider.attachments(any))
-      .thenAnswer((_) => Future.value(GetAttachments$Query.fromJson({
-            'chatItem': {
+      .thenAnswer(
+    (_) => Future.value(GetMessages$Query.fromJson({
+      'chat': {
+        'items': {
+          'edges': [
+            {
               'node': {
                 '__typename': 'ChatMessage',
+                'id': '6d1c8e23-8583-4e3d-9ebb-413c95c786b0',
+                'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                'author': {
+                  'id': 'me',
+                  'num': '1234567890123456',
+                  'mutualContactsCount': 0,
+                  'isDeleted': false,
+                  'isBlocked': {'blacklisted': false, 'ver': '0'},
+                  'presence': 'AWAY',
+                  'ver': '0',
+                },
+                'at': '2022-02-01T09:32:52.246988+00:00',
+                'ver': '10',
                 'repliesTo': [],
+                'text': null,
+                'editedAt': null,
                 'attachments': [
                   {
                     '__typename': 'ImageAttachment',
                     'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
-                    'original': {'relativeRef': 'updatedRef.png'},
                     'filename': 'filename.png',
-                    'big': {'relativeRef': 'updatedRef.png'},
-                    'medium': {'relativeRef': 'updatedRef.png'},
-                    'small': {'relativeRef': 'updatedRef.png'}
+                    'original': {'relativeRef': 'oldRef.png'},
+                    'big': {'relativeRef': 'oldRef.png'},
+                    'medium': {'relativeRef': 'oldRef.png'},
+                    'small': {'relativeRef': 'oldRef.png'},
                   }
                 ]
-              }
+              },
+              'cursor': '123'
             }
-          })));
+          ]
+        }
+      }
+    })),
+  );
+
+  when(graphQlProvider.attachments(any)).thenAnswer(
+    (_) => Future.value(GetAttachments$Query.fromJson({
+      'chatItem': {
+        'node': {
+          '__typename': 'ChatMessage',
+          'repliesTo': [],
+          'attachments': [
+            {
+              '__typename': 'ImageAttachment',
+              'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
+              'original': {'relativeRef': 'updatedRef.png'},
+              'filename': 'filename.png',
+              'big': {'relativeRef': 'updatedRef.png'},
+              'medium': {'relativeRef': 'updatedRef.png'},
+              'small': {'relativeRef': 'updatedRef.png'}
+            }
+          ]
+        }
+      }
+    })),
+  );
 
   when(graphQlProvider.recentChats(
     first: 120,
@@ -324,16 +327,17 @@ void main() async {
   Widget createWidgetForTesting({required Widget child}) {
     FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
-        theme: Themes.light(),
-        home: Builder(
-          builder: (BuildContext context) {
-            router.context = context;
-            return Scaffold(body: child);
-          },
-        ));
+      theme: Themes.light(),
+      home: Builder(
+        builder: (BuildContext context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
+    );
   }
 
-  testWidgets('ChatView successfully updates images',
+  testWidgets('ChatView successfully refreshes image attachments',
       (WidgetTester tester) async {
     AuthService authService = Get.put(
       AuthService(
@@ -356,6 +360,7 @@ void main() async {
         callRectProvider,
       ),
     );
+
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
@@ -364,25 +369,32 @@ void main() async {
       me: const UserId('me'),
     );
 
-    ChatRepository chatRepository = ChatRepository(
-      graphQlProvider,
-      chatProvider,
-      callRepository,
-      draftProvider,
-      userRepository,
-      sessionProvider,
-      monologProvider,
-      me: const UserId('me'),
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+        sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
+      ),
     );
-    Get.put<AbstractChatRepository>(chatRepository);
 
-    MyUserRepository myUserRepository = MyUserRepository(
-      graphQlProvider,
-      myUserProvider,
-      blacklistedUsersProvider,
-      userRepository,
+    Get.put(
+      MyUserService(
+        authService,
+        Get.put(
+          MyUserRepository(
+            graphQlProvider,
+            myUserProvider,
+            blacklistedUsersProvider,
+            userRepository,
+          ),
+        ),
+      ),
     );
-    Get.put(MyUserService(authService, myUserRepository));
 
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -400,7 +412,7 @@ void main() async {
       findsOneWidget,
     );
 
-    final HiveRxChat chat = chatRepository
+    final RxChat chat = chatRepository
         .chats[const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')]!;
 
     await tester

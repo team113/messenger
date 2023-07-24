@@ -512,17 +512,12 @@ class HiveRxChat extends RxChat {
         return;
       }
 
-      final bool exists = _local.keys.contains(item.value.key);
-      if (!exists) {
+      if (ignoreVersion || !_local.keys.contains(item.value.key)) {
         _local.put(item);
       } else {
-        if (ignoreVersion) {
+        final HiveChatItem? saved = await _local.get(item.value.key);
+        if (saved != null && saved.ver < item.ver) {
           _local.put(item);
-        } else {
-          final HiveChatItem? saved = await _local.get(item.value.key);
-          if (saved != null && saved.ver < item.ver) {
-            _local.put(item);
-          }
         }
       }
     });
@@ -793,8 +788,8 @@ class HiveRxChat extends RxChat {
   Future<void> _updateAttachments(ChatItem item) async {
     final HiveChatItem? stored = await get(item.id, key: item.key);
     if (stored != null) {
-      item = stored.value;
-      List<Attachment> response = await _chatRepository.attachments(stored);
+      final List<Attachment> response =
+          await _chatRepository.attachments(stored);
 
       void replace(Attachment a) {
         Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
@@ -810,6 +805,7 @@ class HiveRxChat extends RxChat {
 
       final List<Attachment> all = [];
 
+      item = stored.value;
       if (item is ChatMessage) {
         all.addAll(item.attachments);
         for (ChatItemQuote replied in item.repliesTo) {
@@ -818,7 +814,7 @@ class HiveRxChat extends RxChat {
           }
         }
       } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
+        final ChatItemQuote nested = item.quote;
         if (nested is ChatMessageQuote) {
           all.addAll(nested.attachments);
 
