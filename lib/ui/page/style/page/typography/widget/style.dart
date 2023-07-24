@@ -24,7 +24,7 @@ class FontStyle extends StatelessWidget {
   const FontStyle(
     this.inverted, {
     super.key,
-    required this.style,
+    this.style,
     this.title,
     this.color,
     this.label = 'Black',
@@ -69,7 +69,7 @@ class FontStyle extends StatelessWidget {
                 ),
               ),
             ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Divider(
             color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
             indent: 25,
@@ -85,124 +85,57 @@ class FontStyle extends StatelessWidget {
                       ? const Color(0xFFFFFFFF)
                       : const Color(0xFF888888),
                 ),
-                child: Flexible(
-                  child: SizedBox(
-                    height: 130,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              const Text('Size'),
-                              Expanded(
-                                child: Divider(
-                                  indent: 5,
-                                  endIndent: 5,
-                                  color: inverted
-                                      ? const Color(0xFFFFFFFF)
-                                      : const Color(0xFFE8E8E8),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Text('Weight'),
-                              Expanded(
-                                child: Divider(
-                                  indent: 5,
-                                  endIndent: 5,
-                                  color: inverted
-                                      ? const Color(0xFFFFFFFF)
-                                      : const Color(0xFFE8E8E8),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Text('Style'),
-                              Expanded(
-                                child: Divider(
-                                  indent: 5,
-                                  endIndent: 5,
-                                  color: inverted
-                                      ? const Color(0xFFFFFFFF)
-                                      : const Color(0xFFE8E8E8),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Text('Color'),
-                              Expanded(
-                                child: Divider(
-                                  indent: 5,
-                                  endIndent: 5,
-                                  color: inverted
-                                      ? const Color(0xFFFFFFFF)
-                                      : const Color(0xFFE8E8E8),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Text('Spacing'),
-                              Expanded(
-                                child: Divider(
-                                  indent: 5,
-                                  endIndent: 5,
-                                  color: inverted
-                                      ? const Color(0xFFFFFFFF)
-                                      : const Color(0xFFE8E8E8),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    children: [
+                      _styleRow('Size', style!.fontSize.toString()),
+                      const SizedBox(height: 10),
+                      _styleRow(
+                        'Weight',
+                        style!.fontWeight!.value.toString(),
                       ),
-                    ),
-                  ),
-                ),
-              ),
-              Flexible(
-                child: DefaultTextStyle(
-                  style: fonts.bodyMedium!.copyWith(
-                    color: inverted
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(style!.fontSize.toString()),
-                        const SizedBox(height: 8),
-                        Text(style!.fontWeight!.value.toString()),
-                        const SizedBox(height: 8),
-                        Text(_getFontWeightName(style!.fontWeight)),
-                        const SizedBox(height: 8),
-                        Text(label),
-                        const SizedBox(height: 8),
+                      const SizedBox(height: 10),
+                      _styleRow(
+                        'Style',
+                        _getFontWeightName(style!.fontWeight),
+                      ),
+                      const SizedBox(height: 10),
+                      _styleRow('Color', label),
+                      const SizedBox(height: 10),
+                      _styleRow(
+                        'Spacing',
                         style!.letterSpacing == null
-                            ? const Text('0 %')
-                            : Text('${style!.letterSpacing} %'),
-                      ],
-                    ),
+                            ? '0 %'
+                            : '${style!.letterSpacing} %',
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  /// Representing a specific font style property.
+  Widget _styleRow(String title, String subtitle) {
+    return SizedBox(
+      width: 150,
+      child: Row(
+        children: [
+          Text(title),
+          Expanded(
+            child: Divider(
+              indent: 5,
+              endIndent: 5,
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+            ),
+          ),
+          Text(subtitle),
         ],
       ),
     );

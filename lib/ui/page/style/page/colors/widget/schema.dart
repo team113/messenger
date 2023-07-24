@@ -55,18 +55,17 @@ class ColorSchemaWidget extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: e.$2));
-                        MessagePopup.success('Technical name is copied');
-                      },
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: Text(e.$2, style: style),
-                      ),
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: e.$2));
+                      MessagePopup.success('Technical name is copied');
+                    },
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Text(e.$2, style: style),
                     ),
                   ),
+                  const Spacer(),
                   GestureDetector(
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: e.$1.toHex()));

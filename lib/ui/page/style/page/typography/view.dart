@@ -51,7 +51,7 @@ class TypographyView extends StatelessWidget {
       (fonts.bodySmall, 'bodySmall'),
     ];
 
-    final List<(FontWeight, String)> families = [
+    final List<(FontWeight?, String)> families = [
       (FontWeight.w300, 'SFUI-Light'),
       (FontWeight.w400, 'SFUI-Regular'),
       (FontWeight.w700, 'SFUI-Bold'),
