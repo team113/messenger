@@ -122,9 +122,7 @@ Future<void> main() async {
         Get.put<AbstractCacheRepository>(CacheRepository(Get.find()));
     Get.put(FileService(cacheRepository));
 
-    CacheServiceImpl cacheService =
-        Get.put<CacheServiceImpl>(CacheServiceImpl(cacheRepository));
-    CacheService = cacheService;
+    CacheService = Get.put<CacheServiceImpl>(CacheServiceImpl(cacheRepository));
 
     Get.put(BackgroundWorker(Get.find()));
 
