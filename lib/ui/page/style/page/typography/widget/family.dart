@@ -46,7 +46,9 @@ class FontFamiliesWidget extends StatelessWidget {
               fontWeight: FontWeight.w300,
             ),
           ),
-          Divider(color: inverted ? const Color(0xFFFFFFFF) : null),
+          Divider(
+            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+          ),
           _FontFamily(
             inverted,
             label: 'SFUI-Regular',
@@ -54,7 +56,9 @@ class FontFamiliesWidget extends StatelessWidget {
               fontWeight: FontWeight.w400,
             ),
           ),
-          Divider(color: inverted ? const Color(0xFFFFFFFF) : null),
+          Divider(
+            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+          ),
           _FontFamily(
             inverted,
             label: 'SFUI-Bold',

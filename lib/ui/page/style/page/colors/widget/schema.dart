@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../../../../../../util/message_popup.dart';
 import '/themes.dart';
 
 /// [Column] of the provided [colors] representing a [Color] scheme.
@@ -53,8 +55,28 @@ class ColorSchemaWidget extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(width: 8),
-                  Expanded(child: Text(e.$2, style: style)),
-                  Text(e.$1.toHex(), style: style),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: e.$2));
+                        MessagePopup.success('Technical name is copied');
+                      },
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: Text(e.$2, style: style),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: e.$1.toHex()));
+                      MessagePopup.success('Hash is copied');
+                    },
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Text(e.$1.toHex(), style: style),
+                    ),
+                  ),
                   const SizedBox(width: 8),
                 ],
               ),

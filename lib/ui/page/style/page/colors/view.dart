@@ -193,6 +193,12 @@ class ColorsView extends StatelessWidget {
         child: Column(
           children: [
             const Header(label: 'Palette'),
+            const SmallHeader(label: 'Color schema'),
+            ColorSchemaWidget(
+              colors.map((e) => (e.$1, e.$2)),
+              inverted: inverted,
+            ),
+            const SizedBox(height: 16),
             const SmallHeader(label: 'Colors'),
             BuilderWrap(
               colors,
@@ -209,12 +215,6 @@ class ColorsView extends StatelessWidget {
             BuilderWrap(
               avatars,
               (e) => ColorWidget(e, inverted: inverted),
-              inverted: inverted,
-            ),
-            const SizedBox(height: 16),
-            const SmallHeader(label: 'Color schema'),
-            ColorSchemaWidget(
-              colors.map((e) => (e.$1, e.$2)),
               inverted: inverted,
             ),
           ],

@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/ui/page/style/widget/headers.dart';
+import '/util/platform_utils.dart';
 import 'widget/family.dart';
 import 'widget/font_column.dart';
 import 'widget/style.dart';
@@ -33,19 +34,19 @@ class TypographyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.isNarrow ? 0 : 16,
+          vertical: 16,
+        ),
         child: Column(
           children: [
             const Header(label: 'Typography'),
-            const SmallHeader(label: 'Font families'),
-            FontFamiliesWidget(inverted),
-            const Divider(),
             const SmallHeader(label: 'Font'),
             FontColumnWidget(inverted),
-            const Divider(),
+            const SmallHeader(label: 'Font families'),
+            FontFamiliesWidget(inverted),
             const SmallHeader(label: 'Styles'),
             FontStyleWidget(inverted),
-            const Divider(),
           ],
         ),
       ),

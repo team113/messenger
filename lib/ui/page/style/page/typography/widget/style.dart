@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
 
@@ -32,7 +33,7 @@ class FontStyleWidget extends StatelessWidget {
 
     return Wrap(
       alignment: WrapAlignment.center,
-      spacing: 16,
+      spacing: context.isNarrow ? 5 : 16,
       runSpacing: 16,
       children: [
         _FontStyleContainer(
@@ -160,125 +161,128 @@ class _FontStyleContainer extends StatelessWidget {
         color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 30),
-            if (title != null)
-              Center(
-                child: Text(
-                  title!,
-                  style: style.copyWith(
-                    color: color ??
-                        (inverted
-                            ? const Color(0xFFFFFFFF)
-                            : const Color(0xFF000000)),
-                  ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 30),
+          if (title != null)
+            Center(
+              child: Text(
+                title!,
+                style: style.copyWith(
+                  color: color ??
+                      (inverted
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000)),
                 ),
               ),
-            const SizedBox(height: 20),
-            Divider(color: inverted ? const Color(0xFFFFFFFF) : null),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                DefaultTextStyle(
-                  style: fonts.bodySmall!.copyWith(
-                    color: inverted
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF888888),
-                  ),
-                  child: Flexible(
-                    child: SizedBox(
-                      height: 130,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              children: [
-                                const Text('Size'),
-                                Flexible(
-                                  child: Divider(
-                                    indent: 5,
-                                    endIndent: 5,
-                                    color: inverted
-                                        ? const Color(0xFFFFFFFF)
-                                        : null,
-                                  ),
+            ),
+          const SizedBox(height: 20),
+          Divider(
+            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+            indent: 25,
+            endIndent: 25,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DefaultTextStyle(
+                style: fonts.bodySmall!.copyWith(
+                  color: inverted
+                      ? const Color(0xFFFFFFFF)
+                      : const Color(0xFF888888),
+                ),
+                child: Flexible(
+                  child: SizedBox(
+                    height: 130,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              const Text('Size'),
+                              Expanded(
+                                child: Divider(
+                                  indent: 5,
+                                  endIndent: 5,
+                                  color: inverted
+                                      ? const Color(0xFFFFFFFF)
+                                      : const Color(0xFFE8E8E8),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                const Text('Weight'),
-                                Flexible(
-                                  child: Divider(
-                                    indent: 5,
-                                    endIndent: 5,
-                                    color: inverted
-                                        ? const Color(0xFFFFFFFF)
-                                        : null,
-                                  ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              const Text('Weight'),
+                              Expanded(
+                                child: Divider(
+                                  indent: 5,
+                                  endIndent: 5,
+                                  color: inverted
+                                      ? const Color(0xFFFFFFFF)
+                                      : const Color(0xFFE8E8E8),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                const Text('Style'),
-                                Flexible(
-                                  child: Divider(
-                                    indent: 5,
-                                    endIndent: 5,
-                                    color: inverted
-                                        ? const Color(0xFFFFFFFF)
-                                        : null,
-                                  ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              const Text('Style'),
+                              Expanded(
+                                child: Divider(
+                                  indent: 5,
+                                  endIndent: 5,
+                                  color: inverted
+                                      ? const Color(0xFFFFFFFF)
+                                      : const Color(0xFFE8E8E8),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                const Text('Color'),
-                                Flexible(
-                                  child: Divider(
-                                    indent: 5,
-                                    endIndent: 5,
-                                    color: inverted
-                                        ? const Color(0xFFFFFFFF)
-                                        : null,
-                                  ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              const Text('Color'),
+                              Expanded(
+                                child: Divider(
+                                  indent: 5,
+                                  endIndent: 5,
+                                  color: inverted
+                                      ? const Color(0xFFFFFFFF)
+                                      : const Color(0xFFE8E8E8),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                const Text('Spacing'),
-                                Flexible(
-                                  child: Divider(
-                                    indent: 5,
-                                    endIndent: 5,
-                                    color: inverted
-                                        ? const Color(0xFFFFFFFF)
-                                        : null,
-                                  ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              const Text('Spacing'),
+                              Expanded(
+                                child: Divider(
+                                  indent: 5,
+                                  endIndent: 5,
+                                  color: inverted
+                                      ? const Color(0xFFFFFFFF)
+                                      : const Color(0xFFE8E8E8),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                DefaultTextStyle(
+              ),
+              Flexible(
+                child: DefaultTextStyle(
                   style: fonts.bodyMedium!.copyWith(
                     color: inverted
                         ? const Color(0xFFFFFFFF)
@@ -286,30 +290,28 @@ class _FontStyleContainer extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(style.fontSize.toString()),
-                          const SizedBox(height: 8),
-                          Text(style.fontWeight!.value.toString()),
-                          const SizedBox(height: 8),
-                          Text(_getFontWeightName(style.fontWeight)),
-                          const SizedBox(height: 8),
-                          Text(label),
-                          const SizedBox(height: 8),
-                          style.letterSpacing == null
-                              ? const Text('0 %')
-                              : Text('${style.letterSpacing} %'),
-                        ],
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(style.fontSize.toString()),
+                        const SizedBox(height: 8),
+                        Text(style.fontWeight!.value.toString()),
+                        const SizedBox(height: 8),
+                        Text(_getFontWeightName(style.fontWeight)),
+                        const SizedBox(height: 8),
+                        Text(label),
+                        const SizedBox(height: 8),
+                        style.letterSpacing == null
+                            ? const Text('0 %')
+                            : Text('${style.letterSpacing} %'),
+                      ],
                     ),
                   ),
-                )
-              ],
-            ),
-          ],
-        ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

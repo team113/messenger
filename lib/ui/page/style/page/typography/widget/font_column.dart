@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
 
@@ -154,7 +155,10 @@ class _CustomFont extends StatelessWidget {
 
         if (constraints.maxWidth < 305) {
           child = Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            padding: EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: context.isNarrow ? 0 : 10,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -180,12 +184,29 @@ class _CustomFont extends StatelessWidget {
           );
         } else {
           child = Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.isNarrow ? 5 : 15,
+              vertical: 15,
+            ),
             child: Row(
+              mainAxisAlignment: context.isNarrow
+                  ? MainAxisAlignment.spaceBetween
+                  : MainAxisAlignment.start,
               children: [
+                SizedBox(
+                  width: 100,
+                  child: Text(
+                    '${style!.fontSize} pt, w${style!.fontWeight?.value}',
+                    style: fonts.titleMedium?.copyWith(
+                      color: inverted
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF000000),
+                    ),
+                  ),
+                ),
                 if (title != null)
                   SizedBox(
-                    width: 180,
+                    width: 175,
                     child: Text(
                       title!,
                       style: style!.copyWith(
@@ -195,14 +216,6 @@ class _CustomFont extends StatelessWidget {
                       ),
                     ),
                   ),
-                Text(
-                  '${style!.fontSize} pt, w${style!.fontWeight?.value}',
-                  style: fonts.titleMedium?.copyWith(
-                    color: inverted
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
-                  ),
-                ),
               ],
             ),
           );

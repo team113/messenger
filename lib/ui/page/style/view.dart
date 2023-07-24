@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -36,11 +37,35 @@ class StyleView extends StatelessWidget {
       builder: (StyleController c) {
         return Scaffold(
           backgroundColor: const Color(0xFFFFFFFF),
+          bottomNavigationBar: context.isNarrow
+              ? Obx(
+                  () => BottomNavigationBar(
+                    type: BottomNavigationBarType.shifting,
+                    backgroundColor: const Color(0xFFFFFFFF),
+                    items: const <BottomNavigationBarItem>[
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.format_paint_outlined),
+                        activeIcon: Icon(Icons.format_paint),
+                        label: 'Colors',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.text_snippet_outlined),
+                        activeIcon: Icon(Icons.text_snippet),
+                        label: 'Typography',
+                      ),
+                    ],
+                    currentIndex: c.tab.value.index,
+                    selectedItemColor: const Color(0xFF1F3C5D),
+                    onTap: (index) => c.tab.value = StyleTab.values[index],
+                  ),
+                )
+              : null,
           body: SafeArea(
             child: Row(
               children: [
-                Flexible(flex: 1, child: _sideBar(c, context)),
-                Flexible(flex: 5, child: _page(c)),
+                if (!context.isNarrow)
+                  SizedBox(width: 100, child: _sideBar(c, context)),
+                Expanded(child: _page(c)),
               ],
             ),
           ),
@@ -49,7 +74,7 @@ class StyleView extends StatelessWidget {
     );
   }
 
-  /// Returns a corresponding [StyleController.selected] page switcher.
+  /// Returns a corresponding [StyleController.tab] page switcher.
   Widget _page(StyleController c) {
     return ColoredBox(
       color: const Color(0xFFF5F5F5),
@@ -73,7 +98,6 @@ class StyleView extends StatelessWidget {
     return Column(
       children: [
         Expanded(child: _tabs(c, context)),
-        const SizedBox(height: 10),
         _mode(c),
         const SizedBox(height: 20),
       ],
@@ -109,7 +133,6 @@ class StyleView extends StatelessWidget {
               switch (tab) {
                 case StyleTab.colors:
                   return StyleCard(
-                    title: 'Color palette',
                     icon: selected
                         ? Icons.format_paint
                         : Icons.format_paint_outlined,
@@ -119,7 +142,6 @@ class StyleView extends StatelessWidget {
 
                 case StyleTab.typography:
                   return StyleCard(
-                    title: 'Typography',
                     icon: selected
                         ? Icons.text_snippet
                         : Icons.text_snippet_outlined,
@@ -129,7 +151,6 @@ class StyleView extends StatelessWidget {
 
                 case StyleTab.multimedia:
                   return StyleCard(
-                    title: 'Multimedia',
                     icon: selected
                         ? Icons.play_lesson
                         : Icons.play_lesson_outlined,
@@ -141,7 +162,6 @@ class StyleView extends StatelessWidget {
 
                 case StyleTab.elements:
                   return StyleCard(
-                    title: 'Elements',
                     icon: selected ? Icons.widgets : Icons.widgets_outlined,
                     inverted: selected,
 
@@ -160,37 +180,21 @@ class StyleView extends StatelessWidget {
   Widget _mode(StyleController c) {
     return Column(
       children: [
-        const Divider(),
+        const Divider(color: Color(0xFFE8E8E8)),
         const SizedBox(height: 10),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return AnimatedSize(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.ease,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (constraints.maxWidth >= 130) ...[
-                    const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
-                    const SizedBox(width: 10),
-                  ],
-                  Obx(() {
-                    return Switch(
-                      value: c.inverted.value,
-                      onChanged: (b) => c.inverted.value = b,
-                      activeColor: const Color(0xFF1F3C5D),
-                      inactiveTrackColor: const Color(0xFFFFB74D),
-                    );
-                  }),
-                  if (constraints.maxWidth >= 130) ...[
-                    const SizedBox(width: 10),
-                    const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
-                  ],
-                ],
-              ),
-            );
-          },
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Obx(() {
+              return Switch(
+                value: c.inverted.value,
+                onChanged: (b) => c.inverted.value = b,
+                activeColor: const Color(0xFF1F3C5D),
+                inactiveTrackColor: const Color(0xFFFFB74D),
+              );
+            }),
+          ],
         ),
       ],
     );

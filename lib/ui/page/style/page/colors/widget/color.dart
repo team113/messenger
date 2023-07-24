@@ -61,13 +61,13 @@ class ColorWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: color.toHex()));
-                    MessagePopup.success('Hash is copied');
-                  },
+              GestureDetector(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: color.toHex()));
+                  MessagePopup.success('Hash is copied');
+                },
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
                   child: Text(
                     color.toHex(),
                     textAlign: TextAlign.start,
