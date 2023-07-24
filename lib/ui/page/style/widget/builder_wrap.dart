@@ -25,7 +25,9 @@ class BuilderWrap<T> extends StatelessWidget {
     this.builder, {
     super.key,
     this.inverted = false,
+    this.padding = const EdgeInsets.symmetric(vertical: 15),
   });
+  final EdgeInsetsGeometry padding;
 
   /// Items to [Wrap].
   final Iterable<T> children;
@@ -47,7 +49,7 @@ class BuilderWrap<T> extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15),
+        padding: padding,
         child: Wrap(
           alignment: WrapAlignment.center,
           spacing: 16,

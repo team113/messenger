@@ -17,13 +17,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/style/page/element/view.dart';
+import 'package:messenger/ui/page/style/page/media/view.dart';
 
-import '/themes.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
 import 'page/colors/view.dart';
-import 'page/element/view.dart';
-import 'page/media/view.dart';
 import 'page/typography/view.dart';
 
 /// View of the [Routes.style] page.
@@ -38,10 +37,86 @@ class StyleView extends StatelessWidget {
         return Scaffold(
           backgroundColor: const Color(0xFFFFFFFF),
           body: SafeArea(
-            child: Row(
+            child: Column(
               children: [
-                Flexible(flex: 1, child: _sideBar(c, context)),
-                Flexible(flex: 6, child: _page(c)),
+                Row(
+                  children: [
+                    const SizedBox(width: 5),
+                    SizedBox(
+                      height: 50,
+                      width: 380,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: StyleTab.values.length,
+                        itemBuilder: (context, i) {
+                          return Obx(() {
+                            final StyleTab tab = StyleTab.values[i];
+                            final bool selected = c.tab.value == tab;
+
+                            return switch (tab) {
+                              StyleTab.colors => StyleCard(
+                                  icon: selected
+                                      ? Icons.format_paint
+                                      : Icons.format_paint_outlined,
+                                  inverted: selected,
+                                  onPressed: () => c.tab.value = tab,
+                                ),
+                              StyleTab.typography => StyleCard(
+                                  icon: selected
+                                      ? Icons.text_snippet
+                                      : Icons.text_snippet_outlined,
+                                  inverted: selected,
+                                  onPressed: () => c.tab.value = tab,
+                                ),
+                              StyleTab.multimedia => StyleCard(
+                                  icon: selected
+                                      ? Icons.play_lesson
+                                      : Icons.play_lesson_outlined,
+                                  inverted: selected,
+                                  onPressed: () => c.tab.value = tab,
+                                ),
+                              StyleTab.elements => StyleCard(
+                                  icon: selected
+                                      ? Icons.widgets
+                                      : Icons.widgets_outlined,
+                                  inverted: selected,
+                                  onPressed: () => c.tab.value = tab,
+                                ),
+                            };
+                          });
+                        },
+                      ),
+                    ),
+                    const Spacer(),
+                    Obx(
+                      () => IconButton(
+                        onPressed: () => c.compact.toggle(),
+                        icon: Icon(
+                          c.compact.value
+                              ? Icons.layers_clear_rounded
+                              : Icons.layers_rounded,
+                          color: const Color(0xFF1F3C5D),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Obx(
+                      () => IconButton(
+                        onPressed: () => c.inverted.toggle(),
+                        icon: Icon(
+                          c.inverted.value
+                              ? Icons.dark_mode_rounded
+                              : Icons.light_mode_rounded,
+                          color: c.inverted.value
+                              ? const Color(0xFF1F3C5D)
+                              : const Color(0xFFFFB74D),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                  ],
+                ),
+                Expanded(child: _page(c)),
               ],
             ),
           ),
@@ -50,142 +125,21 @@ class StyleView extends StatelessWidget {
     );
   }
 
-  /// Returns a corresponding [StyleController.selected] page switcher.
+  /// Returns a corresponding [StyleController.tab] page switcher.
   Widget _page(StyleController c) {
     return ColoredBox(
       color: const Color(0xFFF5F5F5),
       child: Obx(() {
         return switch (c.tab.value) {
-          StyleTab.colors => ColorsView(c.inverted.value),
-          StyleTab.typography => TypographyView(c.inverted.value),
+          StyleTab.colors => ColorsView(c.inverted.value, c.compact.value),
+          StyleTab.typography => TypographyView(
+              c.inverted.value,
+              c.compact.value,
+            ),
           StyleTab.multimedia => MultimediaView(c.inverted.value),
           StyleTab.elements => ElementsView(c.inverted.value),
         };
       }),
-    );
-  }
-
-  /// Returns the [Column] of [_tabs] and [_mode] meant to be a side bar.
-  Widget _sideBar(StyleController c, BuildContext context) {
-    return Column(
-      children: [
-        Expanded(child: _tabs(c, context)),
-        const SizedBox(height: 10),
-        _mode(c),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  /// Returns the list of [StyleCard]s representing the [StyleTab]s.
-  Widget _tabs(StyleController c, BuildContext context) {
-    final fonts = Theme.of(context).fonts;
-
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 75,
-          leadingWidth: double.infinity,
-          flexibleSpace: FlexibleSpaceBar(
-            title: Text(
-              'Style',
-              textAlign: TextAlign.center,
-              style: fonts.headlineLarge!.copyWith(
-                color: const Color(0xFF1F3C5D),
-              ),
-            ),
-          ),
-        ),
-        SliverList.builder(
-          itemCount: StyleTab.values.length,
-          itemBuilder: (context, i) {
-            return Obx(() {
-              final StyleTab tab = StyleTab.values[i];
-              final bool selected = c.tab.value == tab;
-
-              switch (tab) {
-                case StyleTab.colors:
-                  return StyleCard(
-                    title: 'Color palette',
-                    icon: selected
-                        ? Icons.format_paint
-                        : Icons.format_paint_outlined,
-                    inverted: selected,
-                    onPressed: () => c.tab.value = tab,
-                  );
-
-                case StyleTab.typography:
-                  return StyleCard(
-                    title: 'Typography',
-                    icon: selected
-                        ? Icons.text_snippet
-                        : Icons.text_snippet_outlined,
-                    inverted: selected,
-                    onPressed: () => c.tab.value = tab,
-                  );
-
-                case StyleTab.multimedia:
-                  return StyleCard(
-                    title: 'Multimedia',
-                    icon: selected
-                        ? Icons.play_lesson
-                        : Icons.play_lesson_outlined,
-                    inverted: selected,
-                    onPressed: () => c.tab.value = tab,
-                  );
-
-                case StyleTab.elements:
-                  return StyleCard(
-                    title: 'Elements',
-                    icon: selected ? Icons.widgets : Icons.widgets_outlined,
-                    inverted: selected,
-                    onPressed: () => c.tab.value = tab,
-                  );
-              }
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  /// Returns a [Switch] switching the [StyleController.inverted] indicator.
-  Widget _mode(StyleController c) {
-    return Column(
-      children: [
-        const Divider(),
-        const SizedBox(height: 10),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return AnimatedSize(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.ease,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (constraints.maxWidth >= 130) ...[
-                    const Icon(Icons.light_mode, color: Color(0xFFFFB74D)),
-                    const SizedBox(width: 10),
-                  ],
-                  Obx(() {
-                    return Switch(
-                      value: c.inverted.value,
-                      onChanged: (b) => c.inverted.value = b,
-                      activeColor: const Color(0xFF1F3C5D),
-                      inactiveTrackColor: const Color(0xFFFFB74D),
-                    );
-                  }),
-                  if (constraints.maxWidth >= 130) ...[
-                    const SizedBox(width: 10),
-                    const Icon(Icons.dark_mode, color: Color(0xFF1F3C5D)),
-                  ],
-                ],
-              ),
-            );
-          },
-        ),
-      ],
     );
   }
 }

@@ -34,6 +34,9 @@ class StyleController extends GetxController {
   /// Indicator whether the colors should be inverted.
   final RxBool inverted = RxBool(false);
 
+  /// Indicator whether the colors should be inverted.
+  final RxBool compact = RxBool(false);
+
   /// Selected [StyleTab].
   final Rx<StyleTab> tab = Rx(StyleTab.colors);
 

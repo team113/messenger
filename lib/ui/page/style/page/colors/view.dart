@@ -16,20 +16,22 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/util/platform_utils.dart';
 
+import '../../widget/builder_wrap.dart';
 import '../../widget/header.dart';
 import '/themes.dart';
 import 'widget/color.dart';
-import 'widget/builder_wrap.dart';
 import 'widget/schema.dart';
 
 /// View of the [StyleTab.colors] page.
 class ColorsView extends StatelessWidget {
-  const ColorsView(this.inverted, {super.key});
+  const ColorsView(this.inverted, this.compact, {super.key});
 
   /// Indicator whether this [ColorsView] should have its colors inverted.
   final bool inverted;
+
+  ///
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -191,12 +193,18 @@ class ColorsView extends StatelessWidget {
             [
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.isNarrow ? 0 : 16,
+                  horizontal: compact ? 0 : 16,
                   vertical: 16,
                 ),
                 child: Column(
                   children: [
                     const Header(label: 'Palette'),
+                    const SmallHeader(label: 'Color schema'),
+                    ColorSchemaWidget(
+                      colors.map((e) => (e.$1, e.$2)),
+                      inverted: inverted,
+                    ),
+                    const SizedBox(height: 16),
                     const SmallHeader(label: 'Colors'),
                     BuilderWrap(
                       colors,
@@ -213,12 +221,6 @@ class ColorsView extends StatelessWidget {
                     BuilderWrap(
                       avatars,
                       (e) => ColorWidget(e, inverted: inverted),
-                      inverted: inverted,
-                    ),
-                    const SizedBox(height: 16),
-                    const SmallHeader(label: 'Color schema'),
-                    ColorSchemaWidget(
-                      colors.map((e) => (e.$1, e.$2)),
                       inverted: inverted,
                     ),
                   ],
