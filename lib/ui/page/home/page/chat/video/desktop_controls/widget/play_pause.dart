@@ -23,7 +23,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-///
+/// Custom-styled [AnimatedPlayPause].
 class CustomPlayPause extends StatelessWidget {
   const CustomPlayPause({
     super.key,
@@ -45,23 +45,20 @@ class CustomPlayPause extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Transform.translate(
-      offset: const Offset(0, 0),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: onTap,
-          child: Container(
-            height: height,
-            color: style.colors.transparent,
-            child: RxBuilder((_) {
-              return AnimatedPlayPause(
-                size: 21,
-                playing: controller.playerStatus.playing,
-                color: style.colors.onPrimary,
-              );
-            }),
-          ),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: height,
+          color: style.colors.transparent,
+          child: RxBuilder((_) {
+            return AnimatedPlayPause(
+              size: 21,
+              playing: controller.playerStatus.playing,
+              color: style.colors.onPrimary,
+            );
+          }),
         ),
       ),
     );

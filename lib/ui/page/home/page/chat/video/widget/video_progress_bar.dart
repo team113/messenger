@@ -23,23 +23,19 @@ import '/themes.dart';
 
 /// Draggable video progress bar.
 class ProgressBar extends StatefulWidget {
-  ProgressBar(
+  const ProgressBar(
     this.controller, {
-    ChewieProgressColors? colors,
     this.onDragEnd,
     this.onDragStart,
     this.onDragUpdate,
     super.key,
-    required this.barHeight,
-    required this.handleHeight,
-    required this.drawShadow,
-  }) : colors = colors ?? ChewieProgressColors();
+    this.barHeight = 2,
+    this.handleHeight = 6,
+    this.drawShadow = true,
+  });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
-
-  /// [ChewieProgressColors] theme of this [ProgressBar].
-  final ChewieProgressColors colors;
 
   /// Callback, called when progress drag started.
   final Function()? onDragStart;
@@ -90,7 +86,12 @@ class _ProgressBarState extends State<ProgressBar> {
                     ? _relativePosition(_latestDraggableOffset!)
                     : widget.controller.position.value,
                 buffered: widget.controller.buffered.value,
-                colors: widget.colors,
+                colors: ChewieProgressColors(
+                  playedColor: style.colors.primary,
+                  handleColor: style.colors.primary,
+                  bufferedColor: style.colors.background.withOpacity(0.5),
+                  backgroundColor: style.colors.secondary.withOpacity(0.5),
+                ),
                 barHeight: widget.barHeight,
                 handleHeight: widget.handleHeight,
                 drawShadow: widget.drawShadow,

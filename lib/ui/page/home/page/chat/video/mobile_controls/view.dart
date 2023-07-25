@@ -27,15 +27,17 @@ import 'package:get/get.dart';
 import 'widget/rewind_indicator.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/video/widget/position.dart';
-import '/ui/page/home/page/chat/video/widget/progress_bar.dart';
-import '/ui/page/home/page/chat/video/mobile_controls/widget/hit_area.dart';
+import '/ui/page/home/page/chat/video/widget/video_progress_bar.dart';
+import 'widget/styled_play_pause.dart.dart';
 import 'widget/volume_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
 /// Mobile video controls for a [Chewie] player.
 class MobileControls extends StatefulWidget {
-  const MobileControls({super.key, required this.controller});
+  const MobileControls({super.key, required this.controller, this.barHeight});
+
+  final barHeight;
 
   /// [Duration] to seek forward or backward for.
   static const Duration seekDuration = Duration(seconds: 5);
@@ -50,9 +52,6 @@ class MobileControls extends StatefulWidget {
 /// State of [MobileControls], used to control a video.
 class _MobileControlsState extends State<MobileControls>
     with SingleTickerProviderStateMixin {
-  /// Height of the bottom controls bar.
-  final _barHeight = 48.0 * 1.5;
-
   /// Indicator whether user interface should be visible or not.
   bool _hideStuff = true;
 
@@ -108,7 +107,7 @@ class _MobileControlsState extends State<MobileControls>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : HitArea(
+                  : StyledPlayPause(
                       controller: widget.controller,
                       show: !_dragging && !_hideStuff,
                       onPressed: _playPause,
@@ -200,7 +199,7 @@ class _MobileControlsState extends State<MobileControls>
         ),
         child: SafeArea(
           child: Container(
-            height: _barHeight,
+            height: widget.barHeight,
             padding: const EdgeInsets.only(left: 20, bottom: 10),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -210,11 +209,10 @@ class _MobileControlsState extends State<MobileControls>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      PositionWidget(controller: widget.controller),
+                      CurrentPosition(controller: widget.controller),
                       VolumeButton(
                         controller: widget.controller,
-                        height: _barHeight,
-                        opacity: _hideStuff ? 0.0 : 1.0,
+                        height: widget.barHeight,
                         onTap: () {
                           _cancelAndRestartTimer();
 
@@ -232,20 +230,24 @@ class _MobileControlsState extends State<MobileControls>
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.only(right: 20),
-                    child: Row(children: [
-                      StyledProgressBar(
-                        controller: widget.controller,
-                        drawShadow: false,
-                        onDragStart: () {
-                          setState(() => _dragging = true);
-                          _hideTimer?.cancel();
-                        },
-                        onDragEnd: () {
-                          setState(() => _dragging = false);
-                          _startHideTimer();
-                        },
-                      )
-                    ]),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ProgressBar(
+                            widget.controller,
+                            drawShadow: false,
+                            onDragStart: () {
+                              setState(() => _dragging = true);
+                              _hideTimer?.cancel();
+                            },
+                            onDragEnd: () {
+                              setState(() => _dragging = false);
+                              _startHideTimer();
+                            },
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ],

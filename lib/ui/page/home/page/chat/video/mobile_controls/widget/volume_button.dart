@@ -27,7 +27,6 @@ class VolumeButton extends StatelessWidget {
     required this.controller,
     this.height,
     this.onTap,
-    this.opacity = 1,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
@@ -35,9 +34,6 @@ class VolumeButton extends StatelessWidget {
 
   /// Height of this [VolumeButton].
   final double? height;
-
-  /// Opacity of this [VolumeButton].
-  final double opacity;
 
   /// Callback, called when this [VolumeButton] is tapped.
   final void Function()? onTap;
@@ -48,27 +44,21 @@ class VolumeButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedOpacity(
-        opacity: opacity,
-        duration: const Duration(milliseconds: 300),
-        child: Container(
-          height: height,
-          margin: const EdgeInsets.only(right: 12.0),
-          padding: const EdgeInsets.only(
-            left: 8.0,
-            right: 8.0,
-          ),
-          child: Center(
-            child: RxBuilder((_) {
-              return Icon(
-                controller.volume.value > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                color: style.colors.onPrimary,
-                size: 18,
-              );
-            }),
-          ),
+      child: Container(
+        height: height,
+        margin: const EdgeInsets.only(right: 12.0),
+        padding: const EdgeInsets.only(
+          left: 8.0,
+          right: 8.0,
+        ),
+        child: Center(
+          child: RxBuilder((_) {
+            return Icon(
+              controller.volume.value > 0 ? Icons.volume_up : Icons.volume_off,
+              color: style.colors.onPrimary,
+              size: 18,
+            );
+          }),
         ),
       ),
     );

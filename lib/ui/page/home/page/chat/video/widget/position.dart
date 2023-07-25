@@ -23,9 +23,9 @@ import 'package:chewie/src/helpers/utils.dart';
 
 import '/themes.dart';
 
-/// Current position and duration of a [MeeduVideoPlayer].
-class PositionWidget extends StatelessWidget {
-  const PositionWidget({super.key, required this.controller});
+/// Text of the current position and duration of a [MeeduVideoPlayer].
+class CurrentPosition extends StatelessWidget {
+  const CurrentPosition({super.key, required this.controller});
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;

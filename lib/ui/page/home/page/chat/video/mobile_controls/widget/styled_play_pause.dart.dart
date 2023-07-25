@@ -15,54 +15,48 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:chewie/chewie.dart';
+// ignore_for_file: implementation_imports
+
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:chewie/src/center_play_button.dart';
 
-import 'video_progress_bar.dart';
 import '/themes.dart';
 
-/// Custom-styled [ProgressBar].
-class StyledProgressBar extends StatelessWidget {
-  const StyledProgressBar({
+/// Custom-styled [CenterPlayButton].
+class StyledPlayPause extends StatelessWidget {
+  const StyledPlayPause({
     super.key,
     required this.controller,
-    this.onDragStart,
-    this.onDragEnd,
-    this.drawShadow = true,
+    this.onPressed,
+    this.show = true,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Indicator whether a shadow should be drawn around this [ProgressBar].
-  final bool drawShadow;
+  /// Indicator whether to show this [StyledPlayPause].
+  final bool show;
 
-  /// Callback, called when progress drag started.
-  final dynamic Function()? onDragStart;
-
-  /// Callback, called when progress drag ended.
-  final dynamic Function()? onDragEnd;
+  /// Callback, called whin this [StyledPlayPause] is tapped.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Expanded(
-      child: ProgressBar(
-        controller,
-        barHeight: 2,
-        handleHeight: 6,
-        drawShadow: drawShadow,
-        onDragStart: onDragStart,
-        onDragEnd: onDragEnd,
-        colors: ChewieProgressColors(
-          playedColor: style.colors.primary,
-          handleColor: style.colors.primary,
-          bufferedColor: style.colors.background.withOpacity(0.5),
-          backgroundColor: style.colors.secondary.withOpacity(0.5),
-        ),
-      ),
-    );
+    return RxBuilder((_) {
+      final bool isFinished =
+          controller.position.value >= controller.duration.value;
+
+      return CenterPlayButton(
+        backgroundColor: style.colors.onBackgroundOpacity13,
+        iconColor: style.colors.onPrimary,
+        isFinished: isFinished,
+        isPlaying: controller.playerStatus.playing,
+        show: show,
+        onPressed: onPressed,
+      );
+    });
   }
 }

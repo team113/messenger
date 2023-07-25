@@ -28,8 +28,8 @@ import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/page/chat/video/widget/position.dart';
-import '/ui/page/home/page/chat/video/widget/progress_bar.dart';
-import '/ui/page/home/page/chat/video/desktop_controls/widget/hit_area.dart';
+import '/ui/page/home/page/chat/video/widget/video_progress_bar.dart';
+import 'widget/centered_control.dart';
 import 'widget/volume_button.dart';
 import '/ui/page/home/page/chat/video/desktop_controls/widget/volume_overlay.dart';
 import '/ui/page/home/widget/animated_slider.dart';
@@ -47,7 +47,11 @@ class DesktopControls extends StatefulWidget {
     this.isFullscreen,
     this.showInterfaceFor,
     this.size,
+    this.barHeight,
   });
+
+  /// Height of the bottom controls bar.
+  final double? barHeight;
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
@@ -74,9 +78,6 @@ class DesktopControls extends StatefulWidget {
 /// State of [DesktopControls], used to control a video.
 class _DesktopControlsState extends State<DesktopControls>
     with SingleTickerProviderStateMixin {
-  /// Height of the bottom controls bar.
-  final _barHeight = 48.0 * 1.5;
-
   /// Indicator whether user interface should be hidden or not.
   bool _hideStuff = true;
 
@@ -184,7 +185,7 @@ class _DesktopControlsState extends State<DesktopControls>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : HitArea(
+                  : CenteredControl(
                       controller: widget.controller,
                       show: !_dragging && !_hideStuff || _showInterface,
                       onPressed: _playPause,
@@ -251,28 +252,30 @@ class _DesktopControlsState extends State<DesktopControls>
                   const SizedBox(width: 7),
                   CustomPlayPause(
                     controller: widget.controller,
-                    height: _barHeight,
+                    height: widget.barHeight,
                     onTap: _playPause,
                   ),
                   const SizedBox(width: 12),
-                  PositionWidget(controller: widget.controller),
+                  CurrentPosition(controller: widget.controller),
                   const SizedBox(width: 12),
-                  StyledProgressBar(
-                    controller: widget.controller,
-                    onDragStart: () {
-                      setState(() => _dragging = true);
-                      _hideTimer?.cancel();
-                    },
-                    onDragEnd: () {
-                      setState(() => _dragging = false);
-                      _startHideTimer();
-                    },
+                  Expanded(
+                    child: ProgressBar(
+                      widget.controller,
+                      onDragStart: () {
+                        setState(() => _dragging = true);
+                        _hideTimer?.cancel();
+                      },
+                      onDragEnd: () {
+                        setState(() => _dragging = false);
+                        _startHideTimer();
+                      },
+                    ),
                   ),
                   const SizedBox(width: 12),
                   VolumeButton(
                     key: _volumeKey,
                     controller: widget.controller,
-                    height: _barHeight,
+                    height: widget.barHeight,
                     onTap: () {
                       _cancelAndRestartTimer();
                       if (widget.controller.volume.value == 0) {
@@ -323,7 +326,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   ),
                   const SizedBox(width: 12),
                   ExpandButton(
-                    height: _barHeight,
+                    height: widget.barHeight,
                     inverted: widget.isFullscreen?.value == true,
                     onTap: _onExpandCollapse,
                   ),

@@ -72,6 +72,9 @@ class VideoView extends StatefulWidget {
 
 /// State of a [VideoView] used to initialize and dispose video controller.
 class _VideoViewState extends State<VideoView> {
+  /// Height of the bottom controls bar.
+  final _barHeight = 48.0 * 1.5;
+
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
@@ -158,9 +161,13 @@ class _VideoViewState extends State<VideoView> {
                       ),
                     ),
                     PlatformUtils.isMobile
-                        ? MobileControls(controller: _controller)
+                        ? MobileControls(
+                            controller: _controller,
+                            barHeight: _barHeight,
+                          )
                         : DesktopControls(
                             controller: _controller,
+                            barHeight: _barHeight,
                             onClose: widget.onClose,
                             toggleFullscreen: widget.toggleFullscreen,
                             isFullscreen: widget.isFullscreen,

@@ -23,9 +23,9 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// Hit area, which can be tapped to perform an action.
-class HitArea extends StatelessWidget {
-  const HitArea({
+/// Centered button for control [MeeduVideoPlayer].
+class CenteredControl extends StatelessWidget {
+  const CenteredControl({
     super.key,
     required this.controller,
     this.onPressed,
@@ -35,10 +35,10 @@ class HitArea extends StatelessWidget {
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Indicator whether to show this [HitArea].
+  /// Indicator whether to show this [CenteredControl].
   final bool show;
 
-  /// Callback, called whin this [HitArea] is tapped.
+  /// Callback, called whin this [CenteredControl] is tapped.
   final void Function()? onPressed;
 
   @override
@@ -50,32 +50,27 @@ class HitArea extends StatelessWidget {
           controller.position.value >= controller.duration.value;
 
       return Center(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: controller.playerStatus.playing
-              ? const SizedBox()
-              : AnimatedOpacity(
-                  opacity: show ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: style.colors.onBackgroundOpacity13,
-                      shape: BoxShape.circle,
+        child: AnimatedOpacity(
+          opacity: show ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 300),
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: style.colors.onBackgroundOpacity13,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              iconSize: 32,
+              icon: isFinished
+                  ? Icon(Icons.replay, color: style.colors.onPrimary)
+                  : AnimatedPlayPause(
+                      color: style.colors.onPrimary,
+                      playing: controller.playerStatus.playing,
                     ),
-                    child: IconButton(
-                      iconSize: 32,
-                      icon: isFinished
-                          ? Icon(Icons.replay, color: style.colors.onPrimary)
-                          : AnimatedPlayPause(
-                              color: style.colors.onPrimary,
-                              playing: controller.playerStatus.playing,
-                            ),
-                      onPressed: onPressed,
-                    ),
-                  ),
-                ),
+              onPressed: onPressed,
+            ),
+          ),
         ),
       );
     });
