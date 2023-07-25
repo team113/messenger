@@ -28,8 +28,8 @@ class CustomPlayPause extends StatelessWidget {
   const CustomPlayPause({
     super.key,
     required this.controller,
-    required this.height,
-    required this.onTap,
+    this.height,
+    this.onTap,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.

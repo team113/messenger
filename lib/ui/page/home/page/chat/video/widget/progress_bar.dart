@@ -22,14 +22,14 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'video_progress_bar.dart';
 import '/themes.dart';
 
-///
-class CustomProgressBar extends StatelessWidget {
-  const CustomProgressBar({
+/// Custom-styled [ProgressBar].
+class StyledProgressBar extends StatelessWidget {
+  const StyledProgressBar({
     super.key,
     required this.controller,
+    this.onDragStart,
+    this.onDragEnd,
     this.drawShadow = true,
-    required this.onDragStart,
-    required this.onDragEnd,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.

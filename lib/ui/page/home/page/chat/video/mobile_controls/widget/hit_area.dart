@@ -23,13 +23,13 @@ import 'package:chewie/src/center_play_button.dart';
 
 import '/themes.dart';
 
-///
+/// Hit area, which can be tapped to perform an action.
 class HitArea extends StatelessWidget {
   const HitArea({
     super.key,
     required this.controller,
-    required this.show,
-    required this.onPressed,
+    this.onPressed,
+    this.show = true,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.

@@ -20,26 +20,26 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-///
-class MuteButton extends StatelessWidget {
-  const MuteButton({
+/// Button-styled [Icon] that can be used to control the volume.
+class VolumeButton extends StatelessWidget {
+  const VolumeButton({
     super.key,
     required this.controller,
-    required this.height,
-    required this.opacity,
-    required this.onTap,
+    this.height,
+    this.onTap,
+    this.opacity = 1,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Height of this [MuteButton].
+  /// Height of this [VolumeButton].
   final double? height;
 
-  /// Opacity of this [MuteButton].
+  /// Opacity of this [VolumeButton].
   final double opacity;
 
-  /// Callback, called when this [MuteButton] is tapped.
+  /// Callback, called when this [VolumeButton] is tapped.
   final void Function()? onTap;
 
   @override

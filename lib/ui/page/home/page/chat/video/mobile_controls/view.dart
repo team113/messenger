@@ -29,7 +29,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/video/widget/position.dart';
 import '/ui/page/home/page/chat/video/widget/progress_bar.dart';
 import '/ui/page/home/page/chat/video/mobile_controls/widget/hit_area.dart';
-import '/ui/page/home/page/chat/video/mobile_controls/widget/mute_button.dart';
+import 'widget/volume_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 
@@ -211,7 +211,7 @@ class _MobileControlsState extends State<MobileControls>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       PositionWidget(controller: widget.controller),
-                      MuteButton(
+                      VolumeButton(
                         controller: widget.controller,
                         height: _barHeight,
                         opacity: _hideStuff ? 0.0 : 1.0,
@@ -233,7 +233,7 @@ class _MobileControlsState extends State<MobileControls>
                   child: Container(
                     padding: const EdgeInsets.only(right: 20),
                     child: Row(children: [
-                      CustomProgressBar(
+                      StyledProgressBar(
                         controller: widget.controller,
                         drawShadow: false,
                         onDragStart: () {

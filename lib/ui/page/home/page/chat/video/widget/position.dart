@@ -23,7 +23,7 @@ import 'package:chewie/src/helpers/utils.dart';
 
 import '/themes.dart';
 
-///
+/// Current position and duration of a [MeeduVideoPlayer].
 class PositionWidget extends StatelessWidget {
   const PositionWidget({super.key, required this.controller});
 

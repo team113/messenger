@@ -19,13 +19,13 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// TODO:
+/// Button-styled [Icon] used to expand or collapse a section of content.
 class ExpandButton extends StatelessWidget {
   const ExpandButton({
     super.key,
-    required this.height,
-    required this.inverted,
-    required this.onTap,
+    this.height,
+    this.onTap,
+    this.inverted = false,
   });
 
   /// Height of this [ExpandButton].

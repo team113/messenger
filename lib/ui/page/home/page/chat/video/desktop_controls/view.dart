@@ -30,7 +30,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/video/widget/position.dart';
 import '/ui/page/home/page/chat/video/widget/progress_bar.dart';
 import '/ui/page/home/page/chat/video/desktop_controls/widget/hit_area.dart';
-import '/ui/page/home/page/chat/video/desktop_controls/widget/mute_button.dart';
+import 'widget/volume_button.dart';
 import '/ui/page/home/page/chat/video/desktop_controls/widget/volume_overlay.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -257,7 +257,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   const SizedBox(width: 12),
                   PositionWidget(controller: widget.controller),
                   const SizedBox(width: 12),
-                  CustomProgressBar(
+                  StyledProgressBar(
                     controller: widget.controller,
                     onDragStart: () {
                       setState(() => _dragging = true);
@@ -269,7 +269,7 @@ class _DesktopControlsState extends State<DesktopControls>
                     },
                   ),
                   const SizedBox(width: 12),
-                  MuteButton(
+                  VolumeButton(
                     key: _volumeKey,
                     controller: widget.controller,
                     height: _barHeight,
