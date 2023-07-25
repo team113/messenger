@@ -21,6 +21,9 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:windows_notification/notification_message.dart';
+import 'package:windows_notification/windows_notification.dart';
 
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -32,6 +35,8 @@ class NotificationService extends DisposableService {
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
+
+  WindowsNotification? _windowsPlugin;
 
   /// [AudioPlayer] playing a notification sound.
   AudioPlayer? _audioPlayer;
@@ -69,7 +74,31 @@ class NotificationService extends DisposableService {
       // user's interaction.
       WebUtils.onSelectNotification = onNotificationResponse;
     } else {
-      if (_plugin == null) {
+      if (PlatformUtils.isWindows) {
+        _windowsPlugin = WindowsNotification(
+          applicationId:
+              '{D65231B0-B2F1-4857-A4CE-A8E7C6EA7D27}\\WindowsPowerShell\\v1.0\\powershell.exe',
+        );
+
+        _windowsPlugin!.initNotificationCallBack(
+            (notification, eventType, argument) async {
+          print('notification.launch: ${notification.launch}');
+          print('eventType: $eventType');
+          print('notification.payload: ${notification.payload}');
+          print('notification.methodNmae: ${notification.methodNmae}');
+          print('argument: $argument}');
+          //EventType.onDismissed;
+          //if (eventType == EventType.onActivate) {
+          //await windowManager.focus();
+          //await WindowManager.instance.focus();
+          //windowManager.;
+          // String? payload = notification.payload['payload'];
+          // if (payload != null) {
+          //   router.push(payload);
+          // }
+          //}
+        });
+      } else if (_plugin == null) {
         _plugin = FlutterLocalNotificationsPlugin();
         await _plugin!.initialize(
           InitializationSettings(
@@ -137,7 +166,17 @@ class NotificationService extends DisposableService {
         icon: icon,
         tag: tag,
       ).onError((_, __) => false);
-    } else if (!PlatformUtils.isWindows) {
+    }
+    if (PlatformUtils.isWindows) {
+      _windowsPlugin?.showNotificationPluginTemplate(
+          NotificationMessage.fromPluginTemplate(
+        'Random().nextInt(1 << 31).toString()',
+        title,
+        body ?? '',
+        payload: {'payload': payload},
+        group: 'Gapopa',
+      ));
+    } else {
       // TODO: `flutter_local_notifications` should support Windows:
       //       https://github.com/MaikuB/flutter_local_notifications/issues/746
       await _plugin!.show(

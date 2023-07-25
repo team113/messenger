@@ -33,10 +33,10 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
 import 'package:flutter_meedu_videoplayer/src/video_player_used.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:local_notifier/local_notifier.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
+import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'config.dart';
@@ -62,11 +62,55 @@ import 'util/web/web_utils.dart';
 Future<void> main() async {
   await Config.init();
 
-  await localNotifier.setup(
-    appName: 'local_notifier_example',
-    // The parameter shortcutPolicy only works on Windows
-    shortcutPolicy: ShortcutPolicy.requireCreate,
-  );
+  if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+    // await WinToast.instance().initialize(
+    //   aumId: 'com.team113.messenger',
+    //   displayName: 'Gapopa',
+    //   iconPath:
+    //       'assets/icons/chat.svg',
+    //   clsid: '',
+    // );
+    //
+    // WinToast.instance().setActivatedCallback((event) {
+    //   print('onNotificationActivated: $event');
+    //   showDialog(
+    //       context: router.context!,
+    //       builder: (context) {
+    //         return AlertDialog(
+    //           title: const Text('onNotificationActivated'),
+    //           content: Text(event.toString()),
+    //           actions: [
+    //             TextButton(
+    //               onPressed: () {
+    //                 Navigator.of(context).pop();
+    //               },
+    //               child: const Text('OK'),
+    //             ),
+    //           ],
+    //         );
+    //       });
+    // });
+    //
+    // WinToast.instance().setDismissedCallback((event) {
+    //   print('onNotificationDismissed: $event');
+    //   showDialog(
+    //       context: router.context!,
+    //       builder: (context) {
+    //         return AlertDialog(
+    //           title: const Text('onNotificationDismissed'),
+    //           content: Text(event.toString()),
+    //           actions: [
+    //             TextButton(
+    //               onPressed: () {
+    //                 Navigator.of(context).pop();
+    //               },
+    //               child: const Text('OK'),
+    //             ),
+    //           ],
+    //         );
+    //       });
+    // });
+  }
 
   // TODO: iOS should use `video_player`:
   //       https://github.com/flutter/flutter/issues/56665
@@ -112,7 +156,7 @@ Future<void> main() async {
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     final authService =
-    Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
+        Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
 
     Get.put(NotificationService())
@@ -141,8 +185,7 @@ Future<void> main() async {
   }
 
   return SentryFlutter.init(
-        (options) =>
-    {
+    (options) => {
       options.dsn = Config.sentryDsn,
       options.tracesSampleRate = 1.0,
       options.release = '${Pubspec.name}@${Pubspec.version}',
@@ -150,12 +193,13 @@ Future<void> main() async {
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
       options.integrations.add(OnErrorIntegration()),
-      options.logger = (SentryLevel level,
-          String message, {
-            String? logger,
-            Object? exception,
-            StackTrace? stackTrace,
-          }) {
+      options.logger = (
+        SentryLevel level,
+        String message, {
+        String? logger,
+        Object? exception,
+        StackTrace? stackTrace,
+      }) {
         if (exception != null) {
           StringBuffer buf = StringBuffer('$exception');
           if (stackTrace != null) {

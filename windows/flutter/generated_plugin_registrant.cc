@@ -23,6 +23,7 @@
 #include <sentry_flutter/sentry_flutter_plugin.h>
 #include <share_plus/share_plus_windows_plugin_c_api.h>
 #include <url_launcher_windows/url_launcher_windows.h>
+#include <win_toast/win_toast_plugin.h>
 #include <window_manager/window_manager_plugin.h>
 #include <windows_notification/windows_notification_plugin_c_api.h>
 #include <windows_taskbar/windows_taskbar_plugin.h>
@@ -62,6 +63,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("SharePlusWindowsPluginCApi"));
   UrlLauncherWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("UrlLauncherWindows"));
+  WinToastPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("WinToastPlugin"));
   WindowManagerPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("WindowManagerPlugin"));
   WindowsNotificationPluginCApiRegisterWithRegistrar(

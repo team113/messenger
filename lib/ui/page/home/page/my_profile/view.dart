@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:win_toast/win_toast.dart';
 import 'package:windows_notification/notification_message.dart';
 import 'package:windows_notification/windows_notification.dart';
 
@@ -71,6 +72,8 @@ class MyProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
+    WindowsNotification? _winNotifyPlugin;
+
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find()),
@@ -108,24 +111,130 @@ class MyProfileView extends StatelessWidget {
                               alignment: Alignment.center,
                               children: [
                                 WidgetButton(
-                                  onPressed: () {
-                                    final _winNotifyPlugin = WindowsNotification(applicationId: 'SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify');
+//                                   onPressed: () async {
+//                                     await WinToast.instance().initialize(
+//                                       aumId: 'com.team113.messenger',
+//                                       displayName: 'Example Application',
+//                                       iconPath: '',
+//                                       clsid:
+//                                           '00000000-0000-0000-0000-000000000000',
+//                                     );
+//
+//                                     WinToast.instance()
+//                                         .setActivatedCallback((event) {
+//                                       print('onNotificationActivated: $event');
+//                                       showDialog(
+//                                           context: context,
+//                                           builder: (context) {
+//                                             return AlertDialog(
+//                                               title: const Text(
+//                                                   'onNotificationActivated'),
+//                                               content: Text(event.toString()),
+//                                               actions: [
+//                                                 TextButton(
+//                                                   onPressed: () {
+//                                                     Navigator.of(context).pop();
+//                                                   },
+//                                                   child: const Text('OK'),
+//                                                 ),
+//                                               ],
+//                                             );
+//                                           });
+//                                     });
+//
+//                                     WinToast.instance()
+//                                         .setDismissedCallback((event) {
+//                                       print('onNotificationDismissed: $event');
+//                                       showDialog(
+//                                           context: context,
+//                                           builder: (context) {
+//                                             return AlertDialog(
+//                                               title: const Text(
+//                                                   'onNotificationDismissed'),
+//                                               content: Text(event.toString()),
+//                                               actions: [
+//                                                 TextButton(
+//                                                   onPressed: () {
+//                                                     Navigator.of(context).pop();
+//                                                   },
+//                                                   child: const Text('OK'),
+//                                                 ),
+//                                               ],
+//                                             );
+//                                           });
+//                                     });
+//
+//                                     //Toast();
+//
+//                                     //WinToast.instance().showToast(toast: Toast());
+//
+//                                     const xml = '''
+// <?xml version="1.0" encoding="UTF-8"?>
+// <toast activationType="protocol">
+//    <visual>
+//       <binding template="ToastGeneric">
+//          <text>Andrew sent you a picture</text>
+//          <text>Check this out, Happy Canyon in Utah!</text>
+//       </binding>
+//    </visual>
+//    <actions>
+//       <input id="tbReply" type="text" placeHolderContent="Type a reply" />
+//       <action content="Reply" activationType="background" arguments="action=reply&amp;conversationId=9813" />
+//       <action content="Like" activationType="background" arguments="action=like&amp;conversationId=9813" />
+//       <action content="View" activationType="background" arguments="action=viewImage&amp;imageUrl=https://picsum.photos/364/202?image=883" />
+//    </actions>
+// </toast>
+//                                                ''';
+//                                     try {
+//                                       await WinToast.instance().showCustomToast(
+//                                         xml: xml,
+//                                         tag: 'tagtagtagtag',
+//                                         group: 'groupgroup',
+//                                       );
+//
+//                                       //WinToast.instance().;
+//                                     } catch (error, stacktrace) {
+//                                       print(
+//                                           'showCustomToast error: $error, $stacktrace');
+//                                     }
+//                                   },
+                                  onPressed: () async {
+                                    _winNotifyPlugin ??= WindowsNotification(
+                                        applicationId:
+                                            '{D65231B0-B2F1-4857-A4CE-A8E7C6EA7D27}\\WindowsPowerShell\\v1.0\\powershell.exe');
+
+                                    await _winNotifyPlugin!
+                                        .initNotificationCallBack((notification,
+                                            eventType, argument) async {
+                                      print(
+                                          'notification.launch: ${notification.launch}');
+                                      print('eventType: $eventType');
+                                      print(
+                                          'notification.payload: ${notification.payload}');
+                                      print(
+                                          'notification.methodNmae: ${notification.methodNmae}');
+                                      print('argument: $argument}');
+                                    });
 
                                     NotificationMessage message =
                                         NotificationMessage.fromPluginTemplate(
                                       'test1',
-                                      'TEXT',
-                                      'TEXT',
-                                      // largeImage: file_path,
-                                      // image: file_path
-                                          group: 'group'
+                                      'Author',
+                                      'Some message long long long long long long long long long long long long long',
+                                      largeImage: 'D:\\work\\avatar.png',
+                                      //image: 'D:\\work\\avatar.png',
+                                      group: 'group',
                                     );
 
                                     //NotificationMessage.fromCustomTemplate(id)
 
                                     //message.
 
-                                    _winNotifyPlugin
+                                    //_winNotifyPlugin.;
+
+                                    await _winNotifyPlugin!
+                                        .removeNotificationId('test1', 'group');
+                                    _winNotifyPlugin!
                                         .showNotificationPluginTemplate(
                                             message);
                                   },

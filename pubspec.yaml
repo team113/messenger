@@ -12,8 +12,9 @@ dependencies:
   audioplayers: ^4.0.1
   back_button_interceptor: ^6.0.2
   callkeep: ^0.3.3
-  local_notifier: ^0.1.5
   windows_notification: ^0.0.3
+  local_notifier: ^0.1.5
+  win_toast: ^0.3.0
   chewie: ^1.5.0
   collection: ^1.17.0
   crypto: ^3.0.3
