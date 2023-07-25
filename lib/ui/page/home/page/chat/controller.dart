@@ -134,7 +134,7 @@ class ChatController extends GetxController {
   /// [ChatMessage] is allowed to be edited.
   static const Duration editMessageTimeout = Duration(minutes: 5);
 
-  /// Bottom offset of the last item displayed in the message list.
+  /// Bottom offset to apply to the last [ListElement] in the [elements].
   static const double lastItemBottomOffset = 10;
 
   /// [FlutterListViewController] of a messages [FlutterListView].
