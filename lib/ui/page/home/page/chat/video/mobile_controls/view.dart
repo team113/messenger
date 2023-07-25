@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
-import 'widget/rewind_indicator.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/video/widget/position.dart';
 import '/ui/page/home/page/chat/video/widget/video_progress_bar.dart';
@@ -32,12 +31,14 @@ import 'widget/styled_play_pause.dart.dart';
 import 'widget/volume_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
+import 'widget/rewind_indicator.dart';
 
 /// Mobile video controls for a [Chewie] player.
 class MobileControls extends StatefulWidget {
   const MobileControls({super.key, required this.controller, this.barHeight});
 
-  final barHeight;
+  /// Height of the bottom controls bar.
+  final double? barHeight;
 
   /// [Duration] to seek forward or backward for.
   static const Duration seekDuration = Duration(seconds: 5);
