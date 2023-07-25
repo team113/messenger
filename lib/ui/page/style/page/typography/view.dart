@@ -31,6 +31,7 @@ class TypographyView extends StatelessWidget {
   /// Indicator whether this [TypographyView] should have its colors inverted.
   final bool inverted;
 
+  /// Indicator whether this [TypographyView] should be compact.
   final bool compact;
 
   @override

@@ -26,8 +26,6 @@ class FontStyle extends StatelessWidget {
     super.key,
     this.style,
     this.title,
-    this.color,
-    this.label = 'Black',
   });
 
   /// Indicator whether this [FontStyle] should have its colors
@@ -37,14 +35,8 @@ class FontStyle extends StatelessWidget {
   /// Label of this [FontStyle].
   final String? title;
 
-  /// Description that represents the color of the [style].
-  final String label;
-
   /// [TextStyle] defining the font style for this [FontStyle].
   final TextStyle? style;
-
-  /// [Color] of [style].
-  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +54,9 @@ class FontStyle extends StatelessWidget {
               child: Text(
                 title!,
                 style: style!.copyWith(
-                  color: color ??
-                      (inverted
-                          ? const Color(0xFFFFFFFF)
-                          : const Color(0xFF000000)),
+                  color: inverted
+                      ? const Color(0xFFFFFFFF)
+                      : const Color(0xFF000000),
                 ),
               ),
             ),
@@ -101,7 +92,7 @@ class FontStyle extends StatelessWidget {
                         _getFontWeightName(style!.fontWeight),
                       ),
                       const SizedBox(height: 10),
-                      _styleRow('Color', label),
+                      _styleRow('Color', style!.color!.toHex()),
                       const SizedBox(height: 10),
                       _styleRow(
                         'Spacing',
@@ -120,7 +111,7 @@ class FontStyle extends StatelessWidget {
     );
   }
 
-  /// Representing a specific font style property.
+  /// Returns a specific font style property.
   Widget _styleRow(String title, String subtitle) {
     return SizedBox(
       width: 150,
@@ -129,8 +120,8 @@ class FontStyle extends StatelessWidget {
           Text(title),
           Expanded(
             child: Divider(
-              indent: 5,
-              endIndent: 5,
+              indent: 10,
+              endIndent: 10,
               color:
                   inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
             ),

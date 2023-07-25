@@ -30,7 +30,7 @@ class ColorsView extends StatelessWidget {
   /// Indicator whether this [ColorsView] should have its colors inverted.
   final bool inverted;
 
-  ///
+  /// Indicator whether this [ColorsView] should be compact.
   final bool compact;
 
   @override

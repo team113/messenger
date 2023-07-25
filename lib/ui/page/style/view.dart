@@ -38,93 +38,102 @@ class StyleView extends StatelessWidget {
           body: SafeArea(
             child: Column(
               children: [
-                Row(
-                  children: [
-                    const SizedBox(width: 5),
-                    SizedBox(
-                      height: 50,
-                      width: 380,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: StyleTab.values.length,
-                        itemBuilder: (context, i) {
-                          return Obx(() {
-                            final StyleTab tab = StyleTab.values[i];
-                            final bool selected = c.tab.value == tab;
-
-                            return switch (tab) {
-                              StyleTab.colors => StyleCard(
-                                  icon: selected
-                                      ? Icons.format_paint
-                                      : Icons.format_paint_outlined,
-                                  inverted: selected,
-                                  onPressed: () => c.tab.value = tab,
-                                ),
-                              StyleTab.typography => StyleCard(
-                                  icon: selected
-                                      ? Icons.text_snippet
-                                      : Icons.text_snippet_outlined,
-                                  inverted: selected,
-                                  onPressed: () => c.tab.value = tab,
-                                ),
-                              StyleTab.multimedia => StyleCard(
-                                  icon: selected
-                                      ? Icons.play_lesson
-                                      : Icons.play_lesson_outlined,
-                                  inverted: selected,
-
-                                  // TODO: Implement.
-                                  onPressed: null,
-                                ),
-                              StyleTab.elements => StyleCard(
-                                  icon: selected
-                                      ? Icons.widgets
-                                      : Icons.widgets_outlined,
-                                  inverted: selected,
-
-                                  // TODO: Implement.
-                                  onPressed: null,
-                                ),
-                            };
-                          });
-                        },
-                      ),
-                    ),
-                    const Spacer(),
-                    Obx(
-                      () => IconButton(
-                        onPressed: () => c.compact.toggle(),
-                        icon: Icon(
-                          c.compact.value
-                              ? Icons.layers_clear_rounded
-                              : Icons.layers_rounded,
-                          color: const Color(0xFF1F3C5D),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Obx(
-                      () => IconButton(
-                        onPressed: () => c.inverted.toggle(),
-                        icon: Icon(
-                          c.inverted.value
-                              ? Icons.dark_mode_rounded
-                              : Icons.light_mode_rounded,
-                          color: c.inverted.value
-                              ? const Color(0xFF1F3C5D)
-                              : const Color(0xFFFFB74D),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                  ],
-                ),
+                _appBar(c),
                 Expanded(child: _page(c)),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  /// Returns [Row] of [StyleCard]s and [IconButton]s meant to be a app bar.
+  Widget _appBar(StyleController c) {
+    return Row(
+      children: [
+        const SizedBox(width: 5),
+        Expanded(
+          child: SizedBox(
+            height: 50,
+            child: CustomScrollView(
+              scrollDirection: Axis.horizontal,
+              slivers: [
+                SliverList.builder(
+                  itemCount: StyleTab.values.length,
+                  itemBuilder: (context, i) {
+                    return Obx(() {
+                      final StyleTab tab = StyleTab.values[i];
+                      final bool selected = c.tab.value == tab;
+
+                      return switch (tab) {
+                        StyleTab.colors => StyleCard(
+                            icon: selected
+                                ? Icons.format_paint
+                                : Icons.format_paint_outlined,
+                            inverted: selected,
+                            onPressed: () => c.tab.value = tab,
+                          ),
+                        StyleTab.typography => StyleCard(
+                            icon: selected
+                                ? Icons.text_snippet
+                                : Icons.text_snippet_outlined,
+                            inverted: selected,
+                            onPressed: () => c.tab.value = tab,
+                          ),
+                        StyleTab.multimedia => StyleCard(
+                            icon: selected
+                                ? Icons.play_lesson
+                                : Icons.play_lesson_outlined,
+                            inverted: selected,
+
+                            // TODO: Implement.
+                            onPressed: null,
+                          ),
+                        StyleTab.elements => StyleCard(
+                            icon: selected
+                                ? Icons.widgets
+                                : Icons.widgets_outlined,
+                            inverted: selected,
+
+                            // TODO: Implement.
+                            onPressed: null,
+                          ),
+                      };
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        Obx(
+          () => IconButton(
+            onPressed: c.compact.toggle,
+            icon: Icon(
+              c.compact.value
+                  ? Icons.layers_clear_rounded
+                  : Icons.layers_rounded,
+              color: const Color(0xFF1F3C5D),
+            ),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Obx(
+          () => IconButton(
+            onPressed: c.inverted.toggle,
+            icon: Icon(
+              c.inverted.value
+                  ? Icons.dark_mode_rounded
+                  : Icons.light_mode_rounded,
+              color: c.inverted.value
+                  ? const Color(0xFF1F3C5D)
+                  : const Color(0xFFFFB74D),
+            ),
+          ),
+        ),
+        const SizedBox(width: 15),
+      ],
     );
   }
 

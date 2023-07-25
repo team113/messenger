@@ -23,7 +23,7 @@ import '/themes.dart';
 class FontWidget extends StatelessWidget {
   const FontWidget(
     this.inverted,
-    this.compact, {
+    this.tight, {
     super.key,
     this.title,
     this.style,
@@ -32,8 +32,8 @@ class FontWidget extends StatelessWidget {
   /// Indicator whether this [FontWidget] should have its colors inverted.
   final bool inverted;
 
-  ///
-  final bool compact;
+  /// Indicator whether this [FontWidget] should be tight.
+  final bool tight;
 
   /// Title of this [FontWidget].
   final String? title;
@@ -47,12 +47,12 @@ class FontWidget extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: compact ? 0 : 15,
+        horizontal: tight ? 0 : 15,
         vertical: 5,
       ),
       child: Row(
         mainAxisAlignment:
-            compact ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
+            tight ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
         children: [
           SizedBox(
             width: 100,

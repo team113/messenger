@@ -41,14 +41,15 @@ class StyleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.all(5),
       child: SizedBox(
-        width: 75,
+        width: 70,
         child: OutlinedRoundedButton(
           color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
           onPressed: onPressed,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(
                 icon,
