@@ -20,29 +20,45 @@ import 'package:flutter/material.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
-/// [CopyableTextField] representation of the provided [UserNum].
-class UserNumCopyable extends StatelessWidget {
-  const UserNumCopyable(this.num, {super.key});
+/// Custom-styled [CopyableTextField] to display copyable [num].
+class CopyableNumField extends StatefulWidget {
+  const CopyableNumField(this.num, {super.key});
 
-  /// [UserNum] to display.
+  /// Unique number of an [User].
   final UserNum? num;
 
   @override
+  State<CopyableNumField> createState() => _CopyableNumFieldState();
+}
+
+/// State of an [CopyableNumField] maintaining the [_state].
+class _CopyableNumFieldState extends State<CopyableNumField> {
+  /// State of the [ReactiveTextField].
+  late final TextFieldState _state = TextFieldState(
+    text: widget.num?.val.replaceAllMapped(
+      RegExp(r'.{4}'),
+      (match) => '${match.group(0)} ',
+    ),
+    editable: false,
+  );
+
+  @override
   Widget build(BuildContext context) {
-    return CopyableTextField(
-      key: const Key('UserNum'),
-      state: TextFieldState(
-        text: num?.val
-            .replaceAllMapped(
-              RegExp(r'.{4}'),
-              (match) => '${match.group(0)}${'space'.l10n}',
-            )
-            .trim(),
-        editable: false,
+    return Paddings.basic(
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CopyableTextField(
+            key: const Key('NumCopyable'),
+            state: _state,
+            label: 'label_num'.l10n,
+          ),
+          const SizedBox(height: 10),
+        ],
       ),
-      label: 'label_num'.l10n,
     );
   }
 }

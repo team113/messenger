@@ -27,7 +27,7 @@ import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
 // TODO(review): move this widget to `home/widget`.
-import '/ui/page/home/page/my_profile/widget/direct_link.dart';
+import '../../../widget/direct_link.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';

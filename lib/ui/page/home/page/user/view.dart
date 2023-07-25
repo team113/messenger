@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/num.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -39,7 +40,6 @@ import '/util/message_popup.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
 import 'widget/name.dart';
-import 'widget/num.dart';
 import 'widget/presence.dart';
 import 'widget/status.dart';
 
@@ -236,7 +236,7 @@ class UserView extends StatelessWidget {
                         title: 'label_contact_information'.l10n,
                         children: [
                           Paddings.basic(
-                            UserNumCopyable(c.user!.user.value.num),
+                            CopyableNumField(c.user!.user.value.num),
                           )
                         ],
                       ),

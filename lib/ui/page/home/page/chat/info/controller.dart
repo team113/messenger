@@ -176,6 +176,10 @@ class ChatInfoController extends GetxController {
     super.onClose();
   }
 
+  Future<void> renameChat(ChatName? name) async {
+    await _chatService.renameChat(chat!.chat.value.id, name);
+  }
+
   /// Removes [User] identified by the provided [userId] from the [chat].
   Future<void> removeChatMember(UserId userId) async {
     membersOnRemoval.add(userId);

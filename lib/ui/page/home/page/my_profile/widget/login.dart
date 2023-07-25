@@ -25,55 +25,12 @@ import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserLoginException;
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/password/controller.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
-import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-
-/// Custom-styled [CopyableTextField] to display copyable [num].
-class CopyableNumField extends StatefulWidget {
-  const CopyableNumField(this.num, {super.key});
-
-  /// Unique number of an [User].
-  final UserNum? num;
-
-  @override
-  State<CopyableNumField> createState() => _CopyableNumFieldState();
-}
-
-/// State of an [CopyableNumField] maintaining the [_state].
-class _CopyableNumFieldState extends State<CopyableNumField> {
-  /// State of the [ReactiveTextField].
-  late final TextFieldState _state = TextFieldState(
-    text: widget.num?.val.replaceAllMapped(
-      RegExp(r'.{4}'),
-      (match) => '${match.group(0)} ',
-    ),
-    editable: false,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Paddings.basic(
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CopyableTextField(
-            key: const Key('NumCopyable'),
-            state: _state,
-            label: 'label_num'.l10n,
-          ),
-          const SizedBox(height: 10),
-        ],
-      ),
-    );
-  }
-}
 
 /// [ReactiveTextField] with label to display user login.
 class ReactiveLoginField extends StatefulWidget {
@@ -83,7 +40,7 @@ class ReactiveLoginField extends StatefulWidget {
   final UserLogin? login;
 
   /// Callback, called when a `UserLogin` is spotted.
-  final FutureOr<void> Function(UserLogin login)? onCreate;
+  final Future<void> Function(UserLogin login)? onCreate;
 
   @override
   State<ReactiveLoginField> createState() => _ReactiveLoginFieldState();
@@ -174,10 +131,7 @@ class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
             hint: widget.login == null
                 ? 'label_login_hint'.l10n
                 : widget.login?.val,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-            child: RichText(
+            subtitle: RichText(
               text: TextSpan(
                 children: [
                   TextSpan(
@@ -239,42 +193,6 @@ class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Custom-styled [FieldButton] for changing or setting the user password.
-class PasswordField extends StatelessWidget {
-  const PasswordField({super.key, this.hasPassword = false});
-
-  /// Indicator whether user has a password.
-  final bool hasPassword;
-
-  @override
-  Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Paddings.dense(
-          FieldButton(
-            key: hasPassword
-                ? const Key('ChangePassword')
-                : const Key('SetPassword'),
-            text: hasPassword
-                ? 'btn_change_password'.l10n
-                : 'btn_set_password'.l10n,
-            onPressed: () => ChangePasswordView.show(context),
-            style: fonts.titleMedium!.copyWith(
-              color: !hasPassword
-                  ? style.colors.dangerColor
-                  : style.colors.primary,
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-      ],
     );
   }
 }

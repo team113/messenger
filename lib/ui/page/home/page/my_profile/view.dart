@@ -19,13 +19,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/switch_field.dart';
-import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../../../widget/svg/svg.dart';
-import '../../widget/confirm_dialog.dart';
-import '../../widget/field_button.dart';
+import '../../../../../api/backend/schema.dart';
+import '../../../../../domain/repository/settings.dart';
+import '../../tab/menu/status/view.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -33,32 +31,38 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/confirm_dialog.dart';
+import '/ui/page/home/widget/direct_link.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
+import 'blacklist/view.dart';
+import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
+import 'language/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
+import 'password/view.dart';
+import 'timeline_switch/view.dart';
 import 'widget/background_preview.dart';
-import 'tab/blacklist.dart';
-import 'tab/calls.dart';
-import 'tab/chats.dart';
-import 'tab/danger.dart';
-import 'tab/download.dart';
-import 'tab/language.dart';
-import 'tab/media.dart';
-import 'tab/public.dart';
-import 'tab/singing.dart';
-import 'widget/direct_link.dart';
+import 'widget/download_button.dart';
+import 'widget/login.dart';
+import 'widget/name.dart';
+import '../../widget/num.dart';
+import 'widget/status.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -192,11 +196,7 @@ class MyProfileView extends StatelessWidget {
                               c.myUser.value?.name,
                               onCreate: c.updateUserName,
                             ),
-                            PresenceFieldButton(
-                              text: c.myUser.value?.presence.localizedString(),
-                              backgroundColor:
-                                  c.myUser.value?.presence.getColor(),
-                            ),
+                            _presence(context, c),
                             StatusFieldButton(
                               c.myUser.value?.status,
                               onCreate: c.updateUserStatus,
@@ -209,16 +209,15 @@ class MyProfileView extends StatelessWidget {
                           title: 'label_login_options'.l10n,
                           children: [
                             CopyableNumField(c.myUser.value?.num),
+                            const SizedBox(height: 10),
                             ReactiveLoginField(
                               c.myUser.value?.login,
                               onCreate: c.updateUserLogin,
                             ),
                             const SizedBox(height: 10),
-                            _emails(c, context),
-                            _phones(c, context),
-                            PasswordField(
-                              hasPassword: c.myUser.value!.hasPassword,
-                            ),
+                            _emails(context, c),
+                            _phones(context, c),
+                            _password(context, c),
                           ],
                         );
 
@@ -239,26 +238,20 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_background'.l10n,
                           children: [
-                            Obx(() {
-                              return BackgroundPreview(
+                            Obx(
+                              () => BackgroundPreview(
                                 c.background.value,
                                 onPick: c.pickBackground,
                                 onRemove: c.removeBackground,
-                              );
-                            })
+                              ),
+                            )
                           ],
                         );
 
                       case ProfileTab.chats:
                         return Block(
                           title: 'label_chats'.l10n,
-                          children: [
-                            Obx(() {
-                              return ChatsFieldButton(
-                                isTimeline: c.settings.value!.timelineEnabled,
-                              );
-                            }),
-                          ],
+                          children: [_chats(context, c)],
                         );
 
                       case ProfileTab.calls:
@@ -268,13 +261,7 @@ class MyProfileView extends StatelessWidget {
 
                         return Block(
                           title: 'label_calls'.l10n,
-                          children: [
-                            Obx(
-                              () => CallsFieldButton(
-                                enablePopups: c.settings.value?.enablePopups,
-                              ),
-                            )
-                          ],
+                          children: [_call(context, c)],
                         );
 
                       case ProfileTab.media:
@@ -284,70 +271,7 @@ class MyProfileView extends StatelessWidget {
 
                         return Block(
                           title: 'label_media'.l10n,
-                          children: [
-                            Obx(() {
-                              return MediaFieldButtons(
-                                videoText: (c.devices.video().firstWhereOrNull(
-                                                (e) =>
-                                                    e.deviceId() ==
-                                                    c.media.value
-                                                        ?.videoDevice) ??
-                                            c.devices.video().firstOrNull)
-                                        ?.label() ??
-                                    'label_media_no_device_available'.l10n,
-                                videoSwitch: () async {
-                                  await CameraSwitchView.show(
-                                    context,
-                                    camera: c.media.value?.videoDevice,
-                                  );
-
-                                  if (c.devices.video().isEmpty) {
-                                    c.devices.value =
-                                        await MediaUtils.enumerateDevices();
-                                  }
-                                },
-                                audioText: (c.devices.audio().firstWhereOrNull(
-                                                (e) =>
-                                                    e.deviceId() ==
-                                                    c.media.value
-                                                        ?.audioDevice) ??
-                                            c.devices.audio().firstOrNull)
-                                        ?.label() ??
-                                    'label_media_no_device_available'.l10n,
-                                microphoneSwitch: () async {
-                                  await MicrophoneSwitchView.show(
-                                    context,
-                                    mic: c.media.value?.audioDevice,
-                                  );
-
-                                  if (c.devices.audio().isEmpty) {
-                                    c.devices.value =
-                                        await MediaUtils.enumerateDevices();
-                                  }
-                                },
-                                outputText: (c.devices
-                                                .output()
-                                                .firstWhereOrNull((e) =>
-                                                    e.deviceId() ==
-                                                    c.media.value
-                                                        ?.outputDevice) ??
-                                            c.devices.output().firstOrNull)
-                                        ?.label() ??
-                                    'label_media_no_device_available'.l10n,
-                                outputSwitch: () async {
-                                  await OutputSwitchView.show(
-                                    context,
-                                    output: c.media.value?.outputDevice,
-                                  );
-
-                                  if (c.devices.output().isEmpty) {
-                                    c.devices.value =
-                                        await MediaUtils.enumerateDevices();
-                                  }
-                                },
-                              );
-                            })
-                          ],
+                          children: [_media(context, c)],
                         );
 
                       case ProfileTab.notifications:
@@ -389,13 +313,13 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.language:
                         return Block(
                           title: 'label_language'.l10n,
-                          children: const [LanguageFieldButton()],
+                          children: [_language(context, c)],
                         );
 
                       case ProfileTab.blocklist:
                         return Block(
                           title: 'label_blocked_users'.l10n,
-                          children: [BlacklistField(c.blacklist)],
+                          children: [_blockedUsers(context, c)],
                         );
 
                       case ProfileTab.download:
@@ -405,15 +329,13 @@ class MyProfileView extends StatelessWidget {
 
                         return Block(
                           title: 'label_download_application'.l10n,
-                          children: const [DownloadColumn()],
+                          children: [_downloads(context, c)],
                         );
 
                       case ProfileTab.danger:
                         return Block(
                           title: 'label_danger_zone'.l10n,
-                          children: [
-                            DangerFieldButton(() => _deleteAccount(c, context)),
-                          ],
+                          children: [_danger(context, c)],
                         );
 
                       case ProfileTab.logout:
@@ -431,7 +353,7 @@ class MyProfileView extends StatelessWidget {
 }
 
 /// Returns addable list of [MyUser.emails].
-Widget _emails(MyProfileController c, BuildContext context) {
+Widget _emails(BuildContext context, MyProfileController c) {
   final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
@@ -583,7 +505,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
 }
 
 /// Returns addable list of [MyUser.phones].
-Widget _phones(MyProfileController c, BuildContext context) {
+Widget _phones(BuildContext context, MyProfileController c) {
   final (style, fonts) = Theme.of(context).styles;
 
   return Obx(() {
@@ -732,6 +654,312 @@ Widget _phones(MyProfileController c, BuildContext context) {
       children: widgets.map((e) => Paddings.dense(e)).toList(),
     );
   });
+}
+
+/// Returns [WidgetButton] displaying the [MyUser.presence].
+Widget _presence(BuildContext context, MyProfileController c) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Obx(() {
+    final Presence? presence = c.myUser.value?.presence;
+
+    return Paddings.basic(
+      FieldButton(
+        onPressed: () => StatusView.show(context, expanded: false),
+        hint: 'label_presence'.l10n,
+        text: presence?.localizedString(),
+        trailing:
+            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
+        style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+      ),
+    );
+  });
+}
+
+/// Returns the buttons changing or setting the password of the currently
+/// authenticated [MyUser].
+Widget _password(BuildContext context, MyProfileController c) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Paddings.dense(
+        FieldButton(
+          key: c.myUser.value?.hasPassword == true
+              ? const Key('ChangePassword')
+              : const Key('SetPassword'),
+          text: c.myUser.value?.hasPassword == true
+              ? 'btn_change_password'.l10n
+              : 'btn_set_password'.l10n,
+          onPressed: () => ChangePasswordView.show(context),
+          style: fonts.titleMedium!.copyWith(
+            color: c.myUser.value?.hasPassword != true
+                ? style.colors.dangerColor
+                : style.colors.primary,
+          ),
+        ),
+      ),
+      const SizedBox(height: 10),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.chats] section.
+Widget _chats(BuildContext context, MyProfileController c) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Paddings.dense(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 21.0),
+            child: Text(
+              'label_display_timestamps'.l10n,
+              style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.settings.value?.timelineEnabled ?? true)
+                ? 'label_as_timeline'.l10n
+                : 'label_in_message'.l10n,
+            maxLines: null,
+            onPressed: () => TimelineSwitchView.show(context),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          );
+        }),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.calls] section.
+Widget _call(BuildContext context, MyProfileController c) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.settings.value?.enablePopups ?? true)
+                ? 'label_open_calls_in_window'.l10n
+                : 'label_open_calls_in_app'.l10n,
+            maxLines: null,
+            onPressed: () => CallWindowSwitchView.show(context),
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          );
+        }),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.media] section.
+Widget _media(BuildContext context, MyProfileController c) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.devices.video().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.videoDevice) ??
+                        c.devices.video().firstOrNull)
+                    ?.label() ??
+                'label_media_no_device_available'.l10n,
+            hint: 'label_media_camera'.l10n,
+            onPressed: () async {
+              await CameraSwitchView.show(
+                context,
+                camera: c.media.value?.videoDevice,
+              );
+
+              if (c.devices.video().isEmpty) {
+                c.devices.value = await MediaUtils.enumerateDevices();
+              }
+            },
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          );
+        }),
+      ),
+      const SizedBox(height: 16),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.devices.audio().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.audioDevice) ??
+                        c.devices.audio().firstOrNull)
+                    ?.label() ??
+                'label_media_no_device_available'.l10n,
+            hint: 'label_media_microphone'.l10n,
+            onPressed: () async {
+              await MicrophoneSwitchView.show(
+                context,
+                mic: c.media.value?.audioDevice,
+              );
+
+              if (c.devices.audio().isEmpty) {
+                c.devices.value = await MediaUtils.enumerateDevices();
+              }
+            },
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          );
+        }),
+      ),
+      const SizedBox(height: 16),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.devices.output().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.outputDevice) ??
+                        c.devices.output().firstOrNull)
+                    ?.label() ??
+                'label_media_no_device_available'.l10n,
+            hint: 'label_media_output'.l10n,
+            onPressed: () async {
+              await OutputSwitchView.show(
+                context,
+                output: c.media.value?.outputDevice,
+              );
+
+              if (c.devices.output().isEmpty) {
+                c.devices.value = await MediaUtils.enumerateDevices();
+              }
+            },
+            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          );
+        }),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.language] section.
+Widget _language(BuildContext context, MyProfileController c) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Paddings.dense(
+    FieldButton(
+      key: const Key('ChangeLanguage'),
+      onPressed: () => LanguageSelectionView.show(
+        context,
+        Get.find<AbstractSettingsRepository>(),
+      ),
+      text: 'label_language_entry'.l10nfmt({
+        'code': L10n.chosen.value!.locale.countryCode,
+        'name': L10n.chosen.value!.name,
+      }),
+      style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+    ),
+  );
+}
+
+/// Returns the contents of a [ProfileTab.blacklist] section.
+Widget _blockedUsers(BuildContext context, MyProfileController c) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Column(
+    children: [
+      Paddings.dense(
+        FieldButton(
+          text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
+          onPressed:
+              c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
+          style: fonts.titleMedium!.copyWith(
+            color: c.blacklist.isEmpty
+                ? style.colors.onBackground
+                : style.colors.primary,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.download] section.
+Widget _downloads(BuildContext context, MyProfileController c) {
+  return Paddings.dense(
+    const Column(
+      children: [
+        DownloadButton(
+          asset: 'windows',
+          width: 21.93,
+          height: 22,
+          title: 'Windows',
+          link: 'messenger-windows.zip',
+        ),
+        SizedBox(height: 8),
+        DownloadButton(
+          asset: 'apple',
+          width: 23,
+          height: 29,
+          title: 'macOS',
+          link: 'messenger-macos.zip',
+        ),
+        SizedBox(height: 8),
+        DownloadButton(
+          asset: 'linux',
+          width: 18.85,
+          height: 22,
+          title: 'Linux',
+          link: 'messenger-linux.zip',
+        ),
+        SizedBox(height: 8),
+        DownloadButton(
+          asset: 'apple',
+          width: 23,
+          height: 29,
+          title: 'iOS',
+          link: 'messenger-ios.zip',
+        ),
+        SizedBox(height: 8),
+        DownloadButton(
+          asset: 'google',
+          width: 20.33,
+          height: 22.02,
+          title: 'Android',
+          link: 'messenger-android.apk',
+        ),
+      ],
+    ),
+  );
+}
+
+/// Returns the contents of a [ProfileTab.danger] section.
+Widget _danger(BuildContext context, MyProfileController c) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Column(
+    children: [
+      Paddings.dense(
+        FieldButton(
+          key: const Key('DeleteAccount'),
+          text: 'btn_delete_account'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+          onPressed: () => _deleteAccount(c, context),
+          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+        ),
+      ),
+    ],
+  );
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the

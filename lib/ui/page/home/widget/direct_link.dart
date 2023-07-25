@@ -146,36 +146,29 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   ),
                 ),
           label: '${Config.origin}/',
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-          child: Row(
-            children: [
-              RichText(
-                text: TextSpan(
-                  style: fonts.labelSmall,
-                  children: [
-                    TextSpan(
-                      text: 'label_transition_count'.l10nfmt({
-                            'count': widget.link?.usageCount ?? 0,
-                          }) +
-                          'dot_space'.l10n,
-                      style: fonts.labelSmall!.copyWith(
-                        color: style.colors.secondary,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'label_details'.l10n,
-                      style: fonts.labelSmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () => LinkDetailsView.show(context),
-                    ),
-                  ],
+          subtitle: RichText(
+            text: TextSpan(
+              style: fonts.labelSmall,
+              children: [
+                TextSpan(
+                  text: 'label_transition_count'.l10nfmt({
+                        'count': widget.link?.usageCount ?? 0,
+                      }) +
+                      'dot_space'.l10n,
+                  style: fonts.labelSmall!.copyWith(
+                    color: style.colors.secondary,
+                  ),
                 ),
-              ),
-            ],
+                TextSpan(
+                  text: 'label_details'.l10n,
+                  style: fonts.labelSmall!.copyWith(
+                    color: style.colors.primary,
+                  ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () => LinkDetailsView.show(context),
+                ),
+              ],
+            ),
           ),
         ),
       ],
