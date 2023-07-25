@@ -221,7 +221,7 @@ class MyProfileView extends StatelessWidget {
                                       'test1',
                                       'Author',
                                       'Some message long long long long long long long long long long long long long',
-                                      largeImage: 'D:\\work\\avatar.png',
+                                      //largeImage: 'D:\\work\\avatar.png',
                                       //image: 'D:\\work\\avatar.png',
                                       group: 'group',
                                     );
