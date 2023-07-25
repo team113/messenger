@@ -463,7 +463,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               disableGestures: e.isVideo,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: Video(
+                child: VideoView(
                   e.link,
                   showInterfaceFor: _isInitialPage ? 3.seconds : null,
                   onClose: _dismiss,
@@ -539,7 +539,7 @@ class _GalleryPopupState extends State<GalleryPopup>
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: e.isVideo
-                ? Video(
+                ? VideoView(
                     e.link,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
