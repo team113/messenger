@@ -149,7 +149,7 @@ class SwipeableStatus extends StatelessWidget {
     );
   }
 
-  // Returns an [AnimatedBuilder] with a [Transform.translate] transition.
+  /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
   Widget _animatedBuilder(Widget child, {bool translated = true}) =>
       AnimatedBuilder(
         animation: animation!,
