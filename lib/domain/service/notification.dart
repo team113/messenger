@@ -319,8 +319,6 @@ class NotificationService extends DisposableService {
         FirebaseMessaging.onBackgroundMessage(onBackground);
       }
 
-      await Firebase.initializeApp(name: 'messenger', options: options);
-
       final RemoteMessage? initial =
           await FirebaseMessaging.instance.getInitialMessage();
 

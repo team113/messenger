@@ -68,6 +68,8 @@ class Config {
   /// Version identifier of `User-Agent` header to put in network queries.
   static String userAgentVersion = '';
 
+  static String googleClientId = '';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - default values;
@@ -126,6 +128,10 @@ class Config {
 
     userAgentVersion =
         version.isNotEmpty ? version : (Pubspec.ref ?? Pubspec.version);
+
+    googleClientId = const bool.hasEnvironment('SOCAPP_GOOGLE_CLIENT_ID')
+        ? const String.fromEnvironment('SOCAPP_GOOGLE_CLIENT_ID')
+        : (document['google']?['clientId'] ?? '');
 
     origin = url;
 

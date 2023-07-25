@@ -264,7 +264,7 @@ err_incorrect_email = Некорректный E-mail
 err_incorrect_input = Некорректный формат.
 err_incorrect_login_input = Уникальный логин должен содержать только буквы латинского алфавита, цифры и символы "-", "." и "_". Он должен начинаться с буквы или цифры и содержать не менее 3 и не более 20 символов.
 err_incorrect_password = Неверный пароль.
-err_incorrect_phone = Некорректный номер телефона.
+err_incorrect_phone = Некорректный номер телефона
 err_input_empty = Поле не должно быть пустым.
 err_invalid_crop_coordinates = Неверные координаты обрезки
 err_invalid_crop_points = Неверные точки обрезки
@@ -783,7 +783,10 @@ label_sign_up_code_email_sent =
     Проверочный код был отправлен на e-mail {$text}
 
     Пожалуйста, введите код ниже
-label_sign_up_code_phone_sent = На телефон {$text} отправлен проверчный код. Пожалуйста, введите код ниже.
+label_sign_up_code_phone_sent =
+    Проверочный код был отправлен на номер телефона {$text}
+
+    Пожалуйста, введите код ниже
 label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
 label_remove_member = Удалить участника
 label_repeat_password = Повторите пароль
@@ -1041,3 +1044,5 @@ label_sign_in_with_code = Войти с кодом
 label_one_time_code_sent_description = Укажите E-mail или номер телефона ниже.
 label_qr_code_sign_in_description = Отсканируйте QR код, чтобы войти.
 label_sign_in_with_qr_code = Войти с QR кодом
+label_sign_up_email_already_occupied = E-mail {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
+label_sign_up_phone_already_occupied = Номер телефона {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?

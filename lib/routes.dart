@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
@@ -173,6 +174,8 @@ class RouterState extends ChangeNotifier {
   bool directLink = false;
   bool validateEmail = false;
   bool noIntroduction = false;
+
+  FirebaseApp? firebase;
 
   /// Reactive [AppLifecycleState].
   final Rx<AppLifecycleState> lifecycle =

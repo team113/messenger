@@ -260,6 +260,20 @@ class AuthService extends GetxService {
     });
   }
 
+  Future<void> authorizeWith(Credentials creds) {
+    _status.value = RxStatus.loading();
+    return _tokenGuard.protect(() async {
+      try {
+        _authorized(creds);
+        _sessionProvider.setCredentials(creds);
+        _status.value = RxStatus.success();
+      } catch (e) {
+        _unauthorized();
+        rethrow;
+      }
+    });
+  }
+
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
   ///

@@ -271,7 +271,7 @@ err_incorrect_email = Invalid e-mail
 err_incorrect_input = Incorrect input.
 err_incorrect_login_input = Unique login should contain only letters of the latin alphabet, numbers and symbols "-", "." and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
 err_incorrect_password = Incorrect password.
-err_incorrect_phone = Incorrect phone number.
+err_incorrect_phone = Invalid phone number
 err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
@@ -771,7 +771,10 @@ label_sign_up_code_email_sent =
     Verification code has been sent to the e-mail {$text}
 
     Please, enter the code below
-label_sign_up_code_phone_sent = To the phone {$text} verification code has been sent. Please, enter the code below.
+label_sign_up_code_phone_sent =
+    Verification code has been sent to the phone number {$text}
+
+    Please, enter the code below
 label_recovery_enter_new_password = Please enter the new password below.
 label_remove_member = Remove member
 label_repeat_password = Repeat password
@@ -1019,3 +1022,5 @@ label_sign_in_with_code = Sign in with code
 label_one_time_code_sent_description = Indicate E-mail or phone number below.
 label_qr_code_sign_in_description = Scan the displayed QR code to sign in.
 label_sign_in_with_qr_code = Sign in with QR code
+label_sign_up_email_already_occupied = E-mail {$text} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
+label_sign_up_phone_already_occupied = Phone number {$text} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?

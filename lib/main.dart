@@ -24,6 +24,8 @@ library main;
 import 'dart:async';
 
 import 'package:callkeep/callkeep.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +46,7 @@ import 'domain/model/chat.dart';
 import 'domain/model/session.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
+import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
@@ -108,6 +111,16 @@ Future<void> main() async {
     final authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
+
+    try {
+      router.firebase = await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      // await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+    } catch (e) {
+      Log.print('Failed to initialize Firebase due to: $e');
+      // No-op.
+    }
 
     await authService.init();
     await L10n.init();

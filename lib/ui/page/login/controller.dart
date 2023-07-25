@@ -15,12 +15,22 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/platform_utils.dart';
 
-import '/api/backend/schema.dart' show CreateSessionErrorCode;
+import '/api/backend/schema.dart'
+    show
+        ConfirmUserEmailErrorCode,
+        ConfirmUserPhoneErrorCode,
+        CreateSessionErrorCode,
+        SignUp$Mutation;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -28,7 +38,9 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         AddUserEmailException,
+        AddUserPhoneException,
         ConfirmUserEmailException,
+        ConfirmUserPhoneException,
         ConnectionException,
         CreateSessionException,
         ResetUserPasswordException,
@@ -38,6 +50,7 @@ import '/ui/widget/text_field.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
+  oauth,
   recovery,
   recoveryCode,
   recoveryPassword,
@@ -47,10 +60,13 @@ enum LoginViewStage {
   signInWithQr,
   signUp,
   signUpWithEmail,
+  signUpWithEmailCode,
+  signUpWithEmailOccupied,
   signUpWithPhone,
+  signUpWithPhoneCode,
+  signUpWithPhoneOccupied,
   noPassword,
   noPasswordCode,
-  code,
 }
 
 /// [GetxController] of a [LoginView].
@@ -92,19 +108,36 @@ class LoginController extends GetxController {
       }
     },
     onSubmitted: (s) async {
-      try {
-        await _authService.register();
+      final GraphQlProvider graphQlProvider = Get.find();
 
-        final GraphQlProvider graphQlProvider = Get.find();
+      try {
+        final response = await graphQlProvider.signUp();
+
+        creds = Credentials(
+          Session(
+            response.createUser.session.token,
+            response.createUser.session.expireAt,
+          ),
+          RememberedSession(
+            response.createUser.remembered!.token,
+            response.createUser.remembered!.expireAt,
+          ),
+          response.createUser.user.id,
+        );
+
+        graphQlProvider.token = creds!.session.token;
         await graphQlProvider.addUserEmail(UserEmail(email.text));
+        graphQlProvider.token = null;
       } on AddUserEmailException catch (e) {
+        graphQlProvider.token = null;
         s.error.value = e.toMessage();
       } catch (_) {
+        graphQlProvider.token = null;
         s.error.value = 'err_data_transfer'.l10n;
         s.unsubmit();
       }
 
-      stage.value = LoginViewStage.code;
+      stage.value = LoginViewStage.signUpWithEmailCode;
     },
   );
 
@@ -122,13 +155,115 @@ class LoginController extends GetxController {
       }
     },
     onSubmitted: (s) async {
+      final GraphQlProvider graphQlProvider = Get.find();
+
       try {
-        final GraphQlProvider graphQlProvider = Get.find();
+        graphQlProvider.token = creds!.session.token;
         await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
+
+        await _authService.authorizeWith(creds!);
+
         router.noIntroduction = true;
         router.home();
       } on ConfirmUserEmailException catch (e) {
+        if (e.code == ConfirmUserEmailErrorCode.occupied) {
+          stage.value = LoginViewStage.signUpWithEmailOccupied;
+        } else {
+          graphQlProvider.token = null;
+          s.error.value = e.toMessage();
+        }
+      } on FormatException catch (_) {
+        graphQlProvider.token = null;
+        s.error.value = 'err_wrong_recovery_code'.l10n;
+      } catch (_) {
+        graphQlProvider.token = null;
+        s.error.value = 'err_data_transfer'.l10n;
+        s.unsubmit();
+      }
+    },
+  );
+
+  Credentials? creds;
+
+  late final TextFieldState phone = TextFieldState(
+    revalidateOnUnfocus: true,
+    onChanged: (s) {
+      try {
+        if (s.text.isNotEmpty) {
+          UserPhone(s.text.toLowerCase());
+        }
+
+        s.error.value = null;
+      } on FormatException {
+        s.error.value = 'err_incorrect_phone'.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      final GraphQlProvider graphQlProvider = Get.find();
+
+      try {
+        final response = await graphQlProvider.signUp();
+
+        creds = Credentials(
+          Session(
+            response.createUser.session.token,
+            response.createUser.session.expireAt,
+          ),
+          RememberedSession(
+            response.createUser.remembered!.token,
+            response.createUser.remembered!.expireAt,
+          ),
+          response.createUser.user.id,
+        );
+
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.addUserPhone(UserPhone(s.text));
+        graphQlProvider.token = null;
+      } on AddUserPhoneException catch (e) {
+        graphQlProvider.token = null;
         s.error.value = e.toMessage();
+      } catch (_) {
+        graphQlProvider.token = null;
+        s.error.value = 'err_data_transfer'.l10n;
+        s.unsubmit();
+      }
+
+      stage.value = LoginViewStage.signUpWithPhoneCode;
+    },
+  );
+
+  late final TextFieldState phoneCode = TextFieldState(
+    revalidateOnUnfocus: true,
+    onChanged: (s) {
+      try {
+        if (s.text.isNotEmpty) {
+          ConfirmationCode(s.text);
+        }
+
+        s.error.value = null;
+      } on FormatException catch (_) {
+        s.error.value = 'err_wrong_recovery_code'.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      try {
+        if (ConfirmationCode(s.text).val == '1111') {
+          await _authService.authorizeWith(creds!);
+          router.noIntroduction = true;
+          router.home();
+        } else if (ConfirmationCode(s.text).val == '2222') {
+          throw const ConfirmUserPhoneException(
+            ConfirmUserPhoneErrorCode.occupied,
+          );
+        } else {
+          throw const FormatException('Error');
+        }
+      } on ConfirmUserPhoneException catch (e) {
+        if (e.code == ConfirmUserPhoneErrorCode.occupied) {
+          stage.value = LoginViewStage.signUpWithPhoneOccupied;
+        } else {
+          s.error.value = e.toMessage();
+        }
       } on FormatException catch (_) {
         s.error.value = 'err_wrong_recovery_code'.l10n;
       } catch (_) {
@@ -521,5 +656,60 @@ class LoginController extends GetxController {
         return false;
       }
     }
+  }
+
+  Future<void> continueWithGoogle() async {
+    // Trigger the authentication flow
+    final googleUser =
+        await GoogleSignIn(clientId: Config.googleClientId).signIn();
+
+    // Obtain the auth details from the request
+    final googleAuth = await googleUser?.authentication;
+
+    if (googleAuth != null) {
+      // Create a new credential
+      final creds = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+      // Once signed in, return the UserCredential
+      credential = await auth.signInWithCredential(creds);
+
+      stage.value = LoginViewStage.oauth;
+    }
+
+    // GoogleAuthProvider googleProvider = GoogleAuthProvider();
+
+    // googleProvider
+    //     .addScope('https://www.googleapis.com/auth/contacts.readonly');
+    // googleProvider.setCustomParameters({'login_hint': 'user@example.com'});
+
+    // // Once signed in, return the UserCredential
+    // final creds = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+    // print(creds.toString());
+
+    // Or use signInWithRedirect
+    // return await FirebaseAuth.instance.signInWithRedirect(googleProvider);
+  }
+
+  UserCredential? credential;
+
+  Future<void> continueWithApple() async {
+    final appleProvider = AppleAuthProvider();
+    appleProvider.addScope('email');
+
+    final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+    if (PlatformUtils.isWeb) {
+      // Once signed in, return the UserCredential
+      credential = await auth.signInWithPopup(appleProvider);
+    } else {
+      credential = await auth.signInWithProvider(appleProvider);
+    }
+
+    stage.value = LoginViewStage.oauth;
   }
 }
