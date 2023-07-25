@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Default locale not detecting in Safari. ([#491])
 
-[#487]: /../../pull/491
+[#491]: /../../pull/491
 
 
 
