@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.10] · 2023-??-??
+[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+
+[Diff](/../../compare/v0.1.0-alpha.9.1...v0.1.0-alpha.10) | [Milestone](/../../milestone/6)
+
+### Fixed
+
+- Web:
+    - Default locale not detecting in Safari. ([#491])
+
+[#487]: /../../pull/491
+
+
+
+
 ## [0.1.0-alpha.9.1] · 2023-07-20
 [0.1.0-alpha.9.1]: /../../tree/v0.1.0-alpha.9.1
 
