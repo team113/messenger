@@ -29,6 +29,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -508,7 +509,12 @@ class CallController extends GetxController {
             .toSet();
         args['members'] = '${actualMembers.length}';
         args['allMembers'] = '${chat.value?.members.length ?? 1}';
-        args['duration'] = duration.value.hhMmSs();
+
+        if (Config.disableInfiniteAnimations) {
+          args['duration'] = Duration.zero.hhMmSs();
+        } else {
+          args['duration'] = duration.value.hhMmSs();
+        }
         break;
 
       case OngoingCallState.joining:
