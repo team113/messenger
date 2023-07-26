@@ -54,3 +54,19 @@ label_sign_up_code_phone_sent =
 label_confirmation_code = Código de confirmación
 label_sign_up_email_already_occupied = El correo electrónico {$text} no se puede usar para registrar una nueva cuenta porque está conectado a una cuenta existente. ¿Continuar para iniciar sesión?
 label_sign_up_phone_already_occupied = El número de teléfono {$text} no se puede usar para registrar una nueva cuenta porque está conectado a una cuenta existente. ¿Continuar para iniciar sesión?
+label_account_created = label_account_created
+label_introduction_description1 =
+    El acceso a la cuenta desechable está mantenido durante un año o hasta que:
+
+         • Eliminará cookies / cache;
+
+         • Hará clic en el botón "Cerrar sesión".
+
+    Para guardar el acceso a su cuenta, por favor, indique una contraseña, correo electrónico o número de teléfono en{" "}
+label_introduction_description2 = las configuraciónes
+label_introduction_description3 = {" "}.
+label_one_time_account_created = Cuenta desechable creada
+label_account_created = Cuenta está creada
+btn_ok = Ok
+label_num = Gapopa ID
+label_your_direct_link = Enlace directo para chatear con Usted

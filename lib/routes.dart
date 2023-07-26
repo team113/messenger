@@ -173,6 +173,7 @@ class RouterState extends ChangeNotifier {
 
   bool directLink = false;
   bool validateEmail = false;
+  bool signUp = false;
   bool noIntroduction = false;
 
   FirebaseApp? firebase;

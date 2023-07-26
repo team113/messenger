@@ -16,11 +16,17 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/widget/field_button.dart';
+import 'package:messenger/util/message_popup.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -54,11 +60,75 @@ class IntroductionView extends StatelessWidget {
       init: IntroductionController(Get.find()),
       builder: (IntroductionController c) {
         return Obx(() {
+          List<Widget> numId() {
+            return [
+              const SizedBox(height: 25),
+              if (PlatformUtils.isMobile)
+                SharableTextField(
+                  key: const Key('NumCopyable'),
+                  text: c.num.text,
+                  label: 'label_num'.l10n,
+                  share: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                  style: fonts.headlineMedium,
+                )
+              else
+                CopyableTextField(
+                  key: const Key('NumCopyable'),
+                  state: c.num,
+                  label: 'label_num'.l10n,
+                  style: fonts.headlineMedium,
+                ),
+              const SizedBox(height: 25),
+            ];
+          }
+
+          final Widget header;
           final List<Widget> children;
 
           switch (c.stage.value) {
-            case IntroductionViewStage.validate:
+            case IntroductionViewStage.signUp:
+              header = ModalPopupHeader(text: 'label_account_created'.l10n);
+
               children = [
+                const SizedBox(height: 25),
+                if (PlatformUtils.isMobile)
+                  SharableTextField(
+                    text: c.num.text,
+                    label: 'label_num'.l10n,
+                    share: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                    style: fonts.headlineMedium,
+                  )
+                else
+                  CopyableTextField(
+                    state: c.num,
+                    label: 'label_num'.l10n,
+                    style: fonts.headlineMedium,
+                  ),
+                const SizedBox(height: 25),
+                // _emails(c, context),
+                // _phones(c, context),
+                _link(c, context),
+                const SizedBox(height: 25),
+                OutlinedRoundedButton(
+                  key: const Key('OkButton'),
+                  maxWidth: double.infinity,
+                  title: Text(
+                    'btn_ok'.l10n,
+                    style: fonts.bodyMedium!.copyWith(
+                      color: style.colors.onPrimary,
+                    ),
+                  ),
+                  onPressed: Navigator.of(context).pop,
+                  color: style.colors.primary,
+                ),
+              ];
+              break;
+
+            case IntroductionViewStage.validate:
+              header = ModalPopupHeader(text: 'label_account_created'.l10n);
+
+              children = [
+                ...numId(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Obx(() {
@@ -76,7 +146,7 @@ class IntroductionView extends StatelessWidget {
                 ReactiveTextField(
                   state: c.emailCode,
                   label: 'label_confirmation_code'.l10n,
-                  style: fonts.bodyMedium,
+                  style: fonts.headlineMedium,
                   treatErrorAsStatus: false,
                   formatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
@@ -131,7 +201,13 @@ class IntroductionView extends StatelessWidget {
               ];
 
             case IntroductionViewStage.password:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = null,
+                text: 'label_one_time_account_created'.l10n,
+              );
+
               children = [
+                ...numId(),
                 const SizedBox(height: 14),
                 Center(
                   child: Text(
@@ -145,7 +221,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: fonts.bodyMedium,
+                  style: fonts.headlineMedium,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -187,7 +263,12 @@ class IntroductionView extends StatelessWidget {
               break;
 
             case IntroductionViewStage.success:
+              header = ModalPopupHeader(
+                text: 'label_one_time_account_created'.l10n,
+              );
+
               children = [
+                ...numId(),
                 Text(
                   'label_password_set'.l10n,
                   style: fonts.bodyMedium!.copyWith(
@@ -213,7 +294,14 @@ class IntroductionView extends StatelessWidget {
               break;
 
             default:
+              header = ModalPopupHeader(
+                text: 'label_one_time_account_created'.l10n,
+              );
+
               children = [
+                ...numId(),
+                _link(c, context),
+                const SizedBox(height: 25),
                 Text.rich(
                   TextSpan(
                     children: [
@@ -235,20 +323,6 @@ class IntroductionView extends StatelessWidget {
                         text: 'label_introduction_description3'.l10n,
                         style: fonts.titleLarge,
                       ),
-                      TextSpan(
-                        text: 'label_introduction_description4'.l10n,
-                        style: fonts.titleLarge
-                            ?.copyWith(color: style.colors.primary),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.of(context).pop();
-                            router.me();
-                          },
-                      ),
-                      TextSpan(
-                        text: 'label_introduction_description5'.l10n,
-                        style: fonts.titleLarge,
-                      ),
                     ],
                   ),
                 ),
@@ -263,8 +337,6 @@ class IntroductionView extends StatelessWidget {
                     ),
                   ),
                   onPressed: Navigator.of(context).pop,
-                  // onPressed: () =>
-                  //     c.stage.value = IntroductionViewStage.password,
                   color: style.colors.primary,
                 ),
               ];
@@ -282,42 +354,7 @@ class IntroductionView extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 children: [
-                  ModalPopupHeader(
-                    onBack: c.stage.value == IntroductionViewStage.password
-                        ? () => c.stage.value = null
-                        : null,
-                    header: Center(
-                      child: Text(
-                        router.validateEmail
-                            ? 'Account created'.l10n
-                            : 'label_one_time_account_created'.l10n,
-                        style: fonts.headlineMedium,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  Padding(
-                    padding: ModalPopup.padding(context),
-                    child: PlatformUtils.isMobile
-                        ? SharableTextField(
-                            key: const Key('NumCopyable'),
-                            text: c.num.text,
-                            label: 'label_num'.l10n,
-                            share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                            trailing: SvgImage.asset(
-                              'assets/icons/share.svg',
-                              width: 18,
-                            ),
-                            style: fonts.bodyMedium,
-                          )
-                        : CopyableTextField(
-                            key: const Key('NumCopyable'),
-                            state: c.num,
-                            label: 'label_num'.l10n,
-                            style: fonts.headlineMedium,
-                          ),
-                  ),
-                  const SizedBox(height: 25),
+                  header,
                   ...children.map((e) =>
                       Padding(padding: ModalPopup.padding(context), child: e)),
                   const SizedBox(height: 16),
@@ -327,6 +364,134 @@ class IntroductionView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+
+  Widget _emails(IntroductionController c, BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    final Iterable<UserEmail> emails = [
+      ...c.myUser.value?.emails.confirmed ?? <UserEmail>[],
+      c.myUser.value?.emails.unconfirmed,
+    ].whereNotNull();
+
+    if (emails.isEmpty) {
+      return const SizedBox();
+    }
+
+    final List<Widget> widgets = [];
+
+    for (var e in emails) {
+      widgets.add(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (PlatformUtils.isMobile)
+              SharableTextField(
+                text: e.val,
+                label: 'label_email'.l10n,
+                style: fonts.headlineMedium,
+              )
+            else
+              CopyableTextField(
+                state: TextFieldState(text: e.val, editable: false),
+                label: 'label_email'.l10n,
+                style: fonts.headlineMedium,
+              ),
+          ],
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    return Column(children: [...widgets, const SizedBox(height: 25)]);
+  }
+
+  Widget _phones(IntroductionController c, BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    final Iterable<UserPhone> phones = [
+      ...c.myUser.value?.phones.confirmed ?? <UserPhone>[],
+      c.myUser.value?.phones.unconfirmed,
+    ].whereNotNull();
+
+    if (phones.isEmpty) {
+      return const SizedBox();
+    }
+
+    final List<Widget> widgets = [];
+
+    for (var e in phones) {
+      widgets.add(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (PlatformUtils.isMobile)
+              SharableTextField(
+                text: e.val,
+                label: 'label_phone_number'.l10n,
+                style: fonts.headlineMedium,
+              )
+            else
+              CopyableTextField(
+                state: TextFieldState(text: e.val, editable: false),
+                label: 'label_phone_number'.l10n,
+                style: fonts.headlineMedium,
+              ),
+          ],
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    return Column(children: [...widgets, const SizedBox(height: 15)]);
+  }
+
+  Widget _link(IntroductionController c, BuildContext context) {
+    final (style, fonts) = Theme.of(context).styles;
+
+    return ReactiveTextField(
+      key: const Key('LinkField'),
+      state: TextFieldState(
+        text:
+            '${Config.origin.replaceFirst('https://', '').replaceFirst('http://', '')}${Routes.chatDirectLink}/${c.link.text}',
+        editable: false,
+      ),
+      style: fonts.bodyMedium,
+      onSuffixPressed: () async {
+        await c.copyLink(
+          onSuccess: () async {
+            final link =
+                '${Config.origin}${Routes.chatDirectLink}/${c.link.text}';
+
+            if (PlatformUtils.isMobile) {
+              await Share.share(link);
+            } else {
+              PlatformUtils.copy(text: link);
+              MessagePopup.success('label_copied'.l10n);
+            }
+          },
+        );
+      },
+      trailing: PlatformUtils.isMobile
+          ? Transform.translate(
+              offset: const Offset(0, -4),
+              child: Icon(
+                Icons.ios_share_rounded,
+                color: style.colors.primary,
+                size: 21,
+              ),
+            )
+          : Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
+              ),
+            ),
+      label: 'label_your_direct_link'.l10n,
     );
   }
 }

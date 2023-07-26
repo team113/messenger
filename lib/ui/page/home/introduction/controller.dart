@@ -19,8 +19,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -28,6 +30,7 @@ import '/domain/service/my_user.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConfirmUserEmailException,
+        CreateChatDirectLinkException,
         ResendUserEmailConfirmationException,
         UpdateUserPasswordException;
 import '/l10n/l10n.dart';
@@ -38,6 +41,7 @@ enum IntroductionViewStage {
   password,
   success,
   validate,
+  signUp,
 }
 
 /// Controller of an [IntroductionView].
@@ -102,6 +106,42 @@ class IntroductionController extends GetxController {
       }
     },
   );
+
+  late final TextFieldState link = TextFieldState(
+    text: myUser.value?.chatDirectLink?.slug.val ??
+        myUser.value?.num.val ??
+        ChatDirectLinkSlug.generate(10).val,
+  );
+
+  Future<void> copyLink({void Function()? onSuccess}) async {
+    if (myUser.value?.chatDirectLink?.slug.val == link.text) {
+      onSuccess?.call();
+      return;
+    }
+
+    if (!link.status.value.isEmpty) {
+      return;
+    }
+
+    link.status.value = RxStatus.loading();
+
+    try {
+      await _myUserService.createChatDirectLink(ChatDirectLinkSlug(link.text));
+      link.status.value = RxStatus.success();
+
+      onSuccess?.call();
+
+      await Future.delayed(const Duration(seconds: 1));
+      link.status.value = RxStatus.empty();
+    } on CreateChatDirectLinkException catch (e) {
+      link.status.value = RxStatus.empty();
+      link.error.value = e.toMessage();
+    } catch (e) {
+      link.status.value = RxStatus.empty();
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
 
   /// [MyUserService] setting the password.
   final MyUserService _myUserService;
@@ -171,6 +211,10 @@ class IntroductionController extends GetxController {
     if (router.validateEmail) {
       stage.value = IntroductionViewStage.validate;
       _setResendEmailTimer();
+    }
+
+    if (router.signUp) {
+      stage.value = IntroductionViewStage.signUp;
     }
 
     super.onInit();

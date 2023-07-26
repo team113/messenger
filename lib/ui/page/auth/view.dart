@@ -253,7 +253,10 @@ class AuthView extends StatelessWidget {
               width: 23.91 * 1,
               height: 22.63 * 1,
             ),
-            onPressed: c.register,
+            onPressed: () {
+              router.noIntroduction = false;
+              c.register();
+            },
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(

@@ -653,20 +653,15 @@ label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
 label_introduction_description1 =
-    Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
+    Access to a one-time account is maintained for one year or until:
 
-        • You will not delete user data from the browser (application);
+         • you delete cookies / cache;
 
-        • You will not press the "Logout" button.
+         • you click the button "Sign out".
 
-    Чтобы сохранить доступ к аккаунту, пожалуйста, в{" "}
-label_introduction_description2 = настройках
-label_introduction_description3 =
-    {" "}задайте пароль.
-
-    Чтобы иметь возможность восстановить доступ к аккаунту, пожалуйста, в{" "}
-label_introduction_description4 = настройках
-label_introduction_description5 = {" "}задайте E-mail или номер телефона.
+     To save access to your account, please set a password, e-mail or phone number in the{" "}
+label_introduction_description2 = settings
+label_introduction_description3 = .
 label_kb = {$amount} KB
 label_language = Language
 label_language_entry = {$code}, {$name}
@@ -1024,3 +1019,4 @@ label_qr_code_sign_in_description = Scan the displayed QR code to sign in.
 label_sign_in_with_qr_code = Sign in with QR code
 label_sign_up_email_already_occupied = E-mail {$text} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
 label_sign_up_phone_already_occupied = Phone number {$text} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
+label_account_created = Account created

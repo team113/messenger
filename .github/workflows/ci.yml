@@ -301,6 +301,8 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
+                            SOCAPP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 

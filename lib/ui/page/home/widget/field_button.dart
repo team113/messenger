@@ -43,6 +43,7 @@ class FieldButton extends StatefulWidget {
     this.prefixStyle,
     this.label,
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
+    this.old = false,
   });
 
   /// Optional label of this [FieldButton].
@@ -81,6 +82,8 @@ class FieldButton extends StatefulWidget {
   final String? label;
   final FloatingLabelBehavior floatingLabelBehavior;
 
+  final bool old;
+
   @override
   State<FieldButton> createState() => _FieldButtonState();
 }
@@ -96,25 +99,27 @@ class _FieldButtonState extends State<FieldButton> {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    return OutlinedRoundedButton(
-      title: Text(widget.text ?? ''),
-      maxWidth: double.infinity,
-      // color: style.colors.backgroundAuxiliaryLighter,
-      color: style.colors.onPrimary,
-      disabled: style.colors.onPrimary,
-      onPressed: widget.onPressed,
-      style: fonts.titleLarge?.copyWith(
-        color: widget.onPressed == null
-            ? style.colors.onBackgroundOpacity40
-            : style.colors.onBackground,
-      ),
-      height: 46,
-      maxHeight: double.infinity,
-      border: Border.all(
-        width: 0.5,
-        color: style.colors.secondary,
-      ),
-    );
+    if (!widget.old) {
+      return OutlinedRoundedButton(
+        title: Text(widget.text ?? ''),
+        maxWidth: double.infinity,
+        // color: style.colors.backgroundAuxiliaryLighter,
+        color: style.colors.onPrimary,
+        disabled: style.colors.onPrimary,
+        onPressed: widget.onPressed,
+        style: fonts.titleLarge?.copyWith(
+          color: widget.onPressed == null
+              ? style.colors.onBackgroundOpacity40
+              : style.colors.onBackground,
+        ),
+        height: 46,
+        maxHeight: double.infinity,
+        border: Border.all(
+          width: 0.5,
+          color: style.colors.secondary,
+        ),
+      );
+    }
 
     final Widget child = MouseRegion(
       onEnter: PlatformUtils.isMobile

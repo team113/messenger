@@ -69,7 +69,7 @@ class ReactiveTextField extends StatelessWidget {
     this.textAlign = TextAlign.start,
     this.textInputAction,
     this.trailing,
-    this.trailingWidth = 24,
+    this.trailingWidth = 32,
     this.treatErrorAsStatus = true,
     this.type,
     this.withTrailing = true,
@@ -273,12 +273,20 @@ class ReactiveTextField extends StatelessWidget {
                                         )
                                       : SizedBox(
                                           key: const ValueKey('Icon'),
-                                          width: trailingWidth,
-                                          child: suffix != null
-                                              ? Icon(suffix)
-                                              : trailing == null
-                                                  ? Container()
-                                                  : trailing!,
+                                          width: trailingWidth == null
+                                              ? null
+                                              : (trailingWidth! +
+                                                  (PlatformUtils.isWeb
+                                                      ? 6
+                                                      : 0)),
+                                          child: Transform.translate(
+                                            offset: const Offset(5, 0),
+                                            child: suffix != null
+                                                ? Icon(suffix)
+                                                : trailing == null
+                                                    ? Container()
+                                                    : trailing!,
+                                          ),
                                         ),
                     ),
                   )

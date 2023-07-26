@@ -91,8 +91,15 @@ class SharableTextField extends StatelessWidget {
                 child: ReactiveTextField(
                   prefix: leading,
                   state: state,
-                  suffix: trailing == null ? Icons.ios_share : null,
-                  trailing: trailing,
+                  trailing: trailing ??
+                      Transform.translate(
+                        offset: const Offset(2, -4),
+                        child: Icon(
+                          Icons.ios_share_rounded,
+                          color: style.colors.primary,
+                          size: 21,
+                        ),
+                      ),
                   label: label,
                   style: this.style,
                 ),

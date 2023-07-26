@@ -662,20 +662,15 @@ label_image_saved_to_gallery = Изображение сохранено в га
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_introduction_description1 =
-    Доступ к одноразовому аккаунту сохраняется в течение одного года с момента создания аккаунта или пока:
+    Доступ к одноразовому аккаунту сохраняется в течение одного года или пока:
 
-        • Вы не удалите пользовательские данные из браузера (приложения);
+        • Вы не удалите куки / кэш;
 
         • Вы не нажмёте кнопку "Выйти".
 
     Чтобы сохранить доступ к аккаунту, пожалуйста, в{" "}
 label_introduction_description2 = настройках
-label_introduction_description3 =
-    {" "}задайте пароль.
-
-    Чтобы иметь возможность восстановить доступ к аккаунту, пожалуйста, в{" "}
-label_introduction_description4 = настройках
-label_introduction_description5 = {" "}задайте E-mail или номер телефона.
+label_introduction_description3 = {" "}задайте пароль, e-mail или номер телефона.
 label_kb = {$amount} КБ
 label_language = Язык
 label_language_entry = {$code}, {$name}
@@ -755,7 +750,7 @@ label_password_not_set_info = Для Вашего аккаунта не зада
     • в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файлов cookie.
 label_password_set = Пароль задан.
 label_personalization = Персонализация
-label_phone = Телефон
+label_phone = Номер телефона
 label_phone_confirmation_code_was_send =
     Код подтверждения был отправлен Вам на номер телефона
 label_phone_number = Номер телефона
@@ -1046,3 +1041,4 @@ label_qr_code_sign_in_description = Отсканируйте QR код, чтоб
 label_sign_in_with_qr_code = Войти с QR кодом
 label_sign_up_email_already_occupied = E-mail {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
 label_sign_up_phone_already_occupied = Номер телефона {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
+label_account_created = Аккаунт создан

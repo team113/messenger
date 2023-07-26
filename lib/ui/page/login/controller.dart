@@ -128,6 +128,8 @@ class LoginController extends GetxController {
         graphQlProvider.token = creds!.session.token;
         await graphQlProvider.addUserEmail(UserEmail(email.text));
         graphQlProvider.token = null;
+
+        s.unsubmit();
       } on AddUserEmailException catch (e) {
         graphQlProvider.token = null;
         s.error.value = e.toMessage();
@@ -163,7 +165,8 @@ class LoginController extends GetxController {
 
         await _authService.authorizeWith(creds!);
 
-        router.noIntroduction = true;
+        router.noIntroduction = false;
+        router.signUp = true;
         router.home();
       } on ConfirmUserEmailException catch (e) {
         if (e.code == ConfirmUserEmailErrorCode.occupied) {
@@ -219,6 +222,8 @@ class LoginController extends GetxController {
         graphQlProvider.token = creds!.session.token;
         await graphQlProvider.addUserPhone(UserPhone(s.text));
         graphQlProvider.token = null;
+
+        s.unsubmit();
       } on AddUserPhoneException catch (e) {
         graphQlProvider.token = null;
         s.error.value = e.toMessage();
@@ -249,7 +254,8 @@ class LoginController extends GetxController {
       try {
         if (ConfirmationCode(s.text).val == '1111') {
           await _authService.authorizeWith(creds!);
-          router.noIntroduction = true;
+          router.noIntroduction = false;
+          router.signUp = true;
           router.home();
         } else if (ConfirmationCode(s.text).val == '2222') {
           throw const ConfirmUserPhoneException(
@@ -659,15 +665,12 @@ class LoginController extends GetxController {
   }
 
   Future<void> continueWithGoogle() async {
-    // Trigger the authentication flow
     final googleUser =
         await GoogleSignIn(clientId: Config.googleClientId).signIn();
 
-    // Obtain the auth details from the request
     final googleAuth = await googleUser?.authentication;
 
     if (googleAuth != null) {
-      // Create a new credential
       final creds = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -675,7 +678,6 @@ class LoginController extends GetxController {
 
       final auth = FirebaseAuth.instanceFor(app: router.firebase!);
 
-      // Once signed in, return the UserCredential
       credential = await auth.signInWithCredential(creds);
 
       stage.value = LoginViewStage.oauth;
@@ -704,10 +706,24 @@ class LoginController extends GetxController {
     final auth = FirebaseAuth.instanceFor(app: router.firebase!);
 
     if (PlatformUtils.isWeb) {
-      // Once signed in, return the UserCredential
       credential = await auth.signInWithPopup(appleProvider);
     } else {
       credential = await auth.signInWithProvider(appleProvider);
+    }
+
+    stage.value = LoginViewStage.oauth;
+  }
+
+  Future<void> continueWithGitHub() async {
+    final githubProvider = GithubAuthProvider();
+    githubProvider.addScope('email');
+
+    final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+    if (PlatformUtils.isWeb) {
+      credential = await auth.signInWithPopup(githubProvider);
+    } else {
+      credential = await auth.signInWithProvider(githubProvider);
     }
 
     stage.value = LoginViewStage.oauth;

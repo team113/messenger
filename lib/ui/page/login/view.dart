@@ -18,8 +18,11 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
+import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -61,6 +64,21 @@ class LoginView extends StatelessWidget {
           final List<Widget> children;
 
           switch (c.stage.value) {
+            case LoginViewStage.oauth:
+              header = ModalPopupHeader(text: 'OAuth'.l10n);
+
+              children = [
+                Text(
+                  'Signed in with the credentials: \n\n${c.credential}'.l10n,
+                  style: fonts.titleLarge!.copyWith(
+                    color: style.colors.secondary,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                // const SizedBox(height: 16),
+              ];
+              break;
+
             case LoginViewStage.noPassword:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signIn,
@@ -257,9 +275,54 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
-            case LoginViewStage.code:
+            case LoginViewStage.signUpWithEmailOccupied:
               header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signUp,
+                onBack: () => c.stage.value = LoginViewStage.signUpWithEmail,
+                text: 'label_sign_up'.l10n,
+              );
+
+              children = [
+                Text.rich(
+                  'label_sign_up_email_already_occupied'
+                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
+                  style: fonts.titleLarge,
+                ),
+                const SizedBox(height: 25),
+                ContactTile(
+                  title: 'Name', // name ?? login ?? email/phone used to login
+                  myUser: MyUser(
+                    id: const UserId('123412'),
+                    num: UserNum('1234123412341234'),
+                    emails: MyUserEmails(confirmed: []),
+                    phones: MyUserPhones(confirmed: []),
+                    presenceIndex: 0,
+                    online: false,
+                  ),
+                  darken: 0.03,
+                  subtitle: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Text(
+                        'Gapopa ID: 1234 1234 1234 1234',
+                        style: fonts.labelMedium!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('SignIn'),
+                  title: 'btn_sign_in'.l10n,
+                  onPressed: () {},
+                ),
+              ];
+              break;
+
+            case LoginViewStage.signUpWithEmailCode:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signUpWithEmail,
                 text: 'label_sign_up'.l10n,
               );
 
@@ -286,6 +349,80 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
+            case LoginViewStage.signUpWithPhoneOccupied:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signUpWithPhone,
+                text: 'label_sign_up'.l10n,
+              );
+
+              children = [
+                Text.rich(
+                  'label_sign_up_phone_already_occupied'
+                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
+                  style: fonts.titleLarge,
+                ),
+                const SizedBox(height: 25),
+                ContactTile(
+                  title: 'Name', // name ?? login ?? email/phone used to login
+                  myUser: MyUser(
+                    id: const UserId('123412'),
+                    num: UserNum('1234123412341234'),
+                    emails: MyUserEmails(confirmed: []),
+                    phones: MyUserPhones(confirmed: []),
+                    presenceIndex: 0,
+                    online: false,
+                  ),
+                  darken: 0.03,
+                  subtitle: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Text(
+                        'Gapopa ID: 1234 1234 1234 1234',
+                        style: fonts.labelMedium!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('SignIn'),
+                  title: 'btn_sign_in'.l10n,
+                  onPressed: () {},
+                ),
+              ];
+              break;
+
+            case LoginViewStage.signUpWithPhoneCode:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signUpWithPhone,
+                text: 'label_sign_up'.l10n,
+              );
+
+              children = [
+                Text.rich(
+                  'label_sign_up_code_phone_sent'
+                      .l10nfmt({'text': c.phone.text}).parseLinks([], context),
+                  style: fonts.titleLarge,
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('EmailCodeField'),
+                  state: c.phoneCode,
+                  label: 'label_confirmation_code'.l10n,
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  title: 'btn_proceed'.l10n,
+                  onPressed:
+                      c.phoneCode.isEmpty.value ? null : c.phoneCode.submit,
+                ),
+              ];
+              break;
+
             case LoginViewStage.signUpWithPhone:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
@@ -294,16 +431,17 @@ class LoginView extends StatelessWidget {
 
               children = [
                 ReactiveTextField(
-                  state: c.email,
+                  state: c.phone,
                   label: 'label_phone_number'.l10n,
+                  hint: '+12 345 678 90 12',
                   style: fonts.bodyMedium,
+                  type: TextInputType.phone,
                   treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 25),
                 Center(
                   child: Obx(() {
-                    final bool enabled =
-                        !c.email.isEmpty.value && c.email.error.value == null;
+                    final bool enabled = !c.phone.isEmpty.value;
 
                     return OutlinedRoundedButton(
                       title: Text(
@@ -314,7 +452,7 @@ class LoginView extends StatelessWidget {
                               : fonts.titleLarge!.color,
                         ),
                       ),
-                      onPressed: enabled ? c.email.submit : null,
+                      onPressed: enabled ? c.phone.submit : null,
                       color: style.colors.primary,
                       maxWidth: double.infinity,
                     );
@@ -337,14 +475,14 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   state: c.email,
                   label: 'label_email'.l10n,
+                  hint: 'example@domain.com',
                   style: fonts.bodyMedium,
                   treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 25),
                 Center(
                   child: Obx(() {
-                    final bool enabled =
-                        !c.email.isEmpty.value && c.email.error.value == null;
+                    final bool enabled = !c.email.isEmpty.value;
 
                     return OutlinedRoundedButton(
                       title: Text(
@@ -391,17 +529,19 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Apple'.l10n,
-                  asset: 'apple',
-                  assetWidth: 18.24,
-                  assetHeight: 23,
+                  text: 'Google'.l10n,
+                  asset: 'google_logo',
+                  assetHeight: 20,
+                  onPressed: c.continueWithGoogle,
                 ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Google'.l10n,
-                  asset: 'google_logo',
-                  assetHeight: 20,
+                  text: 'Apple'.l10n,
+                  asset: 'apple',
+                  assetWidth: 18.24,
+                  assetHeight: 23,
+                  onPressed: c.continueWithApple,
                 ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
@@ -410,6 +550,7 @@ class LoginView extends StatelessWidget {
                   asset: 'github',
                   assetHeight: 19.99,
                   assetWidth: 20,
+                  onPressed: c.continueWithGitHub,
                 ),
                 const SizedBox(height: 25 / 2),
               ];
@@ -569,17 +710,19 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Apple',
-                  asset: 'apple',
-                  assetWidth: 18.24,
-                  assetHeight: 23,
+                  text: 'Google',
+                  asset: 'google_logo',
+                  assetHeight: 20,
+                  onPressed: c.continueWithGoogle,
                 ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'Google',
-                  asset: 'google_logo',
-                  assetHeight: 20,
+                  text: 'Apple',
+                  asset: 'apple',
+                  assetWidth: 18.24,
+                  assetHeight: 23,
+                  onPressed: c.continueWithApple,
                 ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
@@ -588,6 +731,7 @@ class LoginView extends StatelessWidget {
                   asset: 'github',
                   assetHeight: 19.99,
                   assetWidth: 20,
+                  onPressed: c.continueWithGitHub,
                 ),
                 const SizedBox(height: 25 / 2),
               ];
