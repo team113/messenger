@@ -194,12 +194,12 @@ class MyProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             NameField(
                               c.myUser.value?.name,
-                              onCreate: c.updateUserName,
+                              onSubmit: c.updateUserName,
                             ),
                             _presence(context, c),
                             StatusFieldButton(
                               c.myUser.value?.status,
-                              onCreate: c.updateUserStatus,
+                              onSubmit: c.updateUserStatus,
                             ),
                           ],
                         );
@@ -212,7 +212,7 @@ class MyProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             ReactiveLoginField(
                               c.myUser.value?.login,
-                              onCreate: c.updateUserLogin,
+                              onSubmit: c.updateUserLogin,
                             ),
                             const SizedBox(height: 10),
                             _emails(context, c),
@@ -228,7 +228,7 @@ class MyProfileView extends StatelessWidget {
                             Obx(() {
                               return DirectLinkField(
                                 c.myUser.value?.chatDirectLink,
-                                onCreate: c.createChatDirectLink,
+                                onSubmit: c.createChatDirectLink,
                               );
                             }),
                           ],
@@ -298,15 +298,15 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_storage'.l10n,
                           children: [
-                            Obx(() {
-                              return SwitchField(
+                            Obx(
+                              () => SwitchField(
                                 text: 'label_load_images'.l10n,
                                 value: c.settings.value?.loadImages == true,
                                 onChanged: c.settings.value == null
                                     ? null
                                     : (enabled) => c.setLoadImages(enabled),
-                              );
-                            })
+                              ),
+                            ),
                           ],
                         );
 

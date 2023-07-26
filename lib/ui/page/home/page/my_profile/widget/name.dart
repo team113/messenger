@@ -30,13 +30,13 @@ import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] to display editable [name].
 class NameField extends StatefulWidget {
-  const NameField(this.name, {super.key, this.onCreate});
+  const NameField(this.name, {super.key, this.onSubmit});
 
   /// Name of an [User].
   final UserName? name;
 
-  /// Callback, called when a `UserName` is spotted.
-  final FutureOr<void> Function(UserName? name)? onCreate;
+  /// Callback, called when [NameField] is submitted.
+  final FutureOr<void> Function(UserName? name)? onSubmit;
 
   @override
   State<NameField> createState() => _NameFieldState();
@@ -72,7 +72,7 @@ class _NameFieldState extends State<NameField> {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {
-          await widget.onCreate?.call(
+          await widget.onSubmit?.call(
             s.text.isNotEmpty ? UserName(s.text) : null,
           );
           s.status.value = RxStatus.empty();

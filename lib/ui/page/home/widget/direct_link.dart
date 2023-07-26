@@ -40,14 +40,14 @@ class DirectLinkField extends StatefulWidget {
   const DirectLinkField(
     this.link, {
     super.key,
-    this.onCreate,
+    this.onSubmit,
   });
 
   /// Reactive state of the [ReactiveTextField].
   final ChatDirectLink? link;
 
-  /// Callback, called when a `ChatDirectLinkSlug` is spotted.
-  final FutureOr<void> Function(ChatDirectLinkSlug)? onCreate;
+  /// Callback, called when [DirectLinkField] is submitted.
+  final FutureOr<void> Function(ChatDirectLinkSlug)? onSubmit;
 
   @override
   State<DirectLinkField> createState() => _DirectLinkFieldState();
@@ -86,7 +86,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         s.status.value = RxStatus.loading();
 
         try {
-          await widget.onCreate?.call(slug);
+          await widget.onSubmit?.call(slug);
           s.status.value = RxStatus.success();
           await Future.delayed(const Duration(seconds: 1));
           s.status.value = RxStatus.empty();

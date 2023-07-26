@@ -31,13 +31,13 @@ import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] to display editable [status].
 class StatusFieldButton extends StatefulWidget {
-  const StatusFieldButton(this.status, {super.key, required this.onCreate});
+  const StatusFieldButton(this.status, {super.key, required this.onSubmit});
 
   /// Status of an [User].
   final UserTextStatus? status;
 
-  /// Callback, called when a `UserTextStatus` is spotted.
-  final Future<void> Function(UserTextStatus? status) onCreate;
+  /// Callback, called when [StatusFieldButton] is submitted.
+  final Future<void> Function(UserTextStatus? status) onSubmit;
 
   @override
   State<StatusFieldButton> createState() => _StatusFieldButtonState();
@@ -73,7 +73,7 @@ class _StatusFieldButtonState extends State<StatusFieldButton> {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {
-          widget.onCreate.call(
+          widget.onSubmit.call(
             s.text.isNotEmpty ? UserTextStatus(s.text) : null,
           );
           s.status.value = RxStatus.success();

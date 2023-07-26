@@ -138,7 +138,7 @@ class ChatInfoController extends GetxController {
           s.editable.value = false;
 
           try {
-            await _chatService.renameChat(chat!.chat.value.id, name);
+            await renameChat(name);
             s.status.value = RxStatus.success();
             _nameTimer = Timer(
               const Duration(seconds: 1),

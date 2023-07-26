@@ -56,7 +56,7 @@ class SwitchField extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: Padding(
-              padding: const EdgeInsets.only(right: 5),
+              padding: const EdgeInsets.only(right: 5, bottom: 10),
               child: Transform.scale(
                 scale: 0.7,
                 transformHitTests: false,

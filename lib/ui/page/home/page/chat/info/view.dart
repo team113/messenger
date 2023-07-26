@@ -26,12 +26,11 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
-// TODO(review): move this widget to `home/widget`.
-import '../../../widget/direct_link.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/member_tile.dart';
@@ -216,7 +215,7 @@ class ChatInfoView extends StatelessWidget {
                       children: [
                         DirectLinkField(
                           c.chat?.chat.value.directLink,
-                          onCreate: c.createChatDirectLink,
+                          onSubmit: c.createChatDirectLink,
                         ),
                       ],
                     ),

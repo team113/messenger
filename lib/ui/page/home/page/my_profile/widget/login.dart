@@ -34,13 +34,13 @@ import '/util/platform_utils.dart';
 
 /// [ReactiveTextField] with label to display user login.
 class ReactiveLoginField extends StatefulWidget {
-  const ReactiveLoginField(this.login, {super.key, this.onCreate});
+  const ReactiveLoginField(this.login, {super.key, this.onSubmit});
 
   /// Unique login of an [User].
   final UserLogin? login;
 
-  /// Callback, called when a `UserLogin` is spotted.
-  final Future<void> Function(UserLogin login)? onCreate;
+  /// Callback, called when [ReactiveLoginField] is submitted.
+  final Future<void> Function(UserLogin login)? onSubmit;
 
   @override
   State<ReactiveLoginField> createState() => _ReactiveLoginFieldState();
@@ -72,7 +72,7 @@ class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {
-          await widget.onCreate?.call(UserLogin(s.text.toLowerCase()));
+          await widget.onSubmit?.call(UserLogin(s.text.toLowerCase()));
           s.status.value = RxStatus.success();
         } on UpdateUserLoginException catch (e) {
           s.error.value = e.toMessage();
