@@ -93,7 +93,7 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional trailing [Widget].
   final Widget? trailing;
 
-  ///
+  /// Optional subtitle [Widget].
   final Widget? subtitle;
 
   /// Optional label of this [ReactiveTextField].

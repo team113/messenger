@@ -37,6 +37,7 @@ class FieldButton extends StatefulWidget {
     this.trailing,
     this.prefix,
     this.style,
+    this.subtitle,
   });
 
   /// Optional label of this [FieldButton].
@@ -61,6 +62,9 @@ class FieldButton extends StatefulWidget {
 
   /// Optional trailing [Widget].
   final Widget? trailing;
+
+  /// Optional subtitle [Widget].
+  final Widget? subtitle;
 
   /// Optional prefix [Widget].
   final Widget? prefix;
@@ -121,29 +125,40 @@ class _FieldButtonState extends State<FieldButton> {
       return child;
     }
 
-    return Stack(
-      alignment: Alignment.centerRight,
+    return Column(
       children: [
-        child,
-        Positioned.fill(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: AnimatedButton(
-              onPressed: widget.onTrailingPressed,
-              enabled: widget.onTrailingPressed != null,
-              decorator: (child) {
-                return SizedBox(
-                  width: 50,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: child,
-                    ),
-                  ),
-                );
-              },
-              child: widget.trailing!,
+        Stack(
+          alignment: Alignment.centerRight,
+          children: [
+            child,
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: AnimatedButton(
+                  onPressed: widget.onTrailingPressed,
+                  enabled: widget.onTrailingPressed != null,
+                  decorator: (child) {
+                    return SizedBox(
+                      width: 50,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: child,
+                        ),
+                      ),
+                    );
+                  },
+                  child: widget.trailing!,
+                ),
+              ),
             ),
+          ],
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: widget.subtitle,
           ),
         ),
       ],

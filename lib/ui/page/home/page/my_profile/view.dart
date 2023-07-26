@@ -376,27 +376,24 @@ Widget _emails(BuildContext context, MyProfileController c) {
               onTrailingPressed: () => _deleteEmail(c, context, e),
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
-                offset: const Offset(0, -1),
+                offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-              child: RichText(
+              subtitle: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: fonts.bodySmall!.copyWith(
+                      style: fonts.labelSmall!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: fonts.bodySmall!.copyWith(
+                      style: fonts.labelSmall!.copyWith(
                         color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -409,7 +406,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: fonts.headlineMedium,
+                                  style: fonts.labelSmall,
                                 ),
                               ),
                             ],
@@ -458,7 +455,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
             text: c.myUser.value!.emails.unconfirmed!.val,
             hint: 'label_verify_email'.l10n,
             trailing: Transform.translate(
-              offset: const Offset(0, -1),
+              offset: const Offset(0, -5),
               child: Transform.scale(
                 scale: 1.15,
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
@@ -523,7 +520,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
               hint: 'label_phone_number'.l10n,
               trailing: Transform.translate(
                 key: const Key('DeletePhone'),
-                offset: const Offset(0, -1),
+                offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
@@ -534,21 +531,18 @@ Widget _phones(BuildContext context, MyProfileController c) {
                 MessagePopup.success('label_copied'.l10n);
               },
               onTrailingPressed: () => _deletePhone(c, context, e),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-              child: RichText(
+              subtitle: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: fonts.bodySmall!.copyWith(
+                      style: fonts.labelSmall!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: fonts.bodySmall!.copyWith(
+                      style: fonts.labelSmall!.copyWith(
                         color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -561,7 +555,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: fonts.headlineMedium,
+                                  style: fonts.labelSmall,
                                 ),
                               ),
                             ],
@@ -610,7 +604,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
             text: c.myUser.value!.phones.unconfirmed!.val,
             hint: 'label_verify_number'.l10n,
             trailing: Transform.translate(
-              offset: const Offset(0, -1),
+              offset: const Offset(0, -5),
               child: Transform.scale(
                 scale: 1.15,
                 child: SvgImage.asset('assets/icons/delete.svg', height: 14),
