@@ -24,11 +24,11 @@ enum Enabled { enabled, disabled }
 class EnabledParameter extends CustomParameter<Enabled> {
   EnabledParameter()
       : super(
-    'enabled',
-    RegExp(
-      '(${Enabled.values.map((e) => e.name).join('|')})',
-      caseSensitive: false,
-    ),
-        (c) => Enabled.values.firstWhere((e) => e.name == c),
-  );
+          'enabled',
+          RegExp(
+            '(${Enabled.values.map((e) => e.name).join('|')})',
+            caseSensitive: false,
+          ),
+          (c) => Enabled.values.firstWhere((e) => e.name == c),
+        );
 }
