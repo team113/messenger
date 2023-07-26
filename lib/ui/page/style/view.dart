@@ -48,7 +48,7 @@ class StyleView extends StatelessWidget {
     );
   }
 
-  /// Returns [Row] of [StyleCard]s and [IconButton]s meant to be a app bar.
+  /// Returns [Row] of [StyleCard]s and [IconButton]s meant to be an app bar.
   Widget _appBar(StyleController c) {
     return Row(
       children: [
@@ -109,11 +109,9 @@ class StyleView extends StatelessWidget {
         ),
         Obx(
           () => IconButton(
-            onPressed: c.compact.toggle,
+            onPressed: c.dense.toggle,
             icon: Icon(
-              c.compact.value
-                  ? Icons.layers_clear_rounded
-                  : Icons.layers_rounded,
+              c.dense.value ? Icons.layers_clear_rounded : Icons.layers_rounded,
               color: const Color(0xFF1F3C5D),
             ),
           ),
@@ -143,10 +141,13 @@ class StyleView extends StatelessWidget {
       color: const Color(0xFFF5F5F5),
       child: Obx(() {
         return switch (c.tab.value) {
-          StyleTab.colors => ColorsView(c.inverted.value, c.compact.value),
+          StyleTab.colors => ColorsView(
+              inverted: c.inverted.value,
+              dense: c.dense.value,
+            ),
           StyleTab.typography => TypographyView(
-              c.inverted.value,
-              c.compact.value,
+              inverted: c.inverted.value,
+              dense: c.dense.value,
             ),
 
           // TODO: Implement.

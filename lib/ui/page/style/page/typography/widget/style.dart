@@ -42,13 +42,31 @@ class FontStyle extends StatelessWidget {
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
+    // Returns a [Row] spacing its [title] and [subtitle] with a [Divider].
+    Widget cell(String title, String subtitle) {
+      return Row(
+        children: [
+          Text(title),
+          Expanded(
+            child: Divider(
+              indent: 10,
+              endIndent: 10,
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+            ),
+          ),
+          Text(subtitle),
+        ],
+      );
+    }
+
     return SizedBox(
-      height: 245,
-      width: 240,
+      width: 210,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 30),
+          const SizedBox(height: 8),
           if (title != null)
             Center(
               child: Text(
@@ -67,108 +85,53 @@ class FontStyle extends StatelessWidget {
             endIndent: 25,
           ),
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              DefaultTextStyle(
-                style: fonts.bodySmall!.copyWith(
-                  color: inverted
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF888888),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    children: [
-                      _styleRow('Size', style!.fontSize.toString()),
-                      const SizedBox(height: 10),
-                      _styleRow(
-                        'Weight',
-                        style!.fontWeight!.value.toString(),
-                      ),
-                      const SizedBox(height: 10),
-                      _styleRow(
-                        'Style',
-                        _getFontWeightName(style!.fontWeight),
-                      ),
-                      const SizedBox(height: 10),
-                      _styleRow('Color', style!.color!.toHex()),
-                      const SizedBox(height: 10),
-                      _styleRow(
-                        'Spacing',
-                        style!.letterSpacing == null
-                            ? '0 %'
-                            : '${style!.letterSpacing} %',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Returns a specific font style property.
-  Widget _styleRow(String title, String subtitle) {
-    return SizedBox(
-      width: 150,
-      child: Row(
-        children: [
-          Text(title),
-          Expanded(
-            child: Divider(
-              indent: 10,
-              endIndent: 10,
+          DefaultTextStyle(
+            style: fonts.bodySmall!.copyWith(
               color:
-                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF888888),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                children: [
+                  cell('Size', style!.fontSize.toString()),
+                  const SizedBox(height: 10),
+                  cell('Weight', style!.fontWeight!.value.toString()),
+                  const SizedBox(height: 10),
+                  cell('Style', style!.fontWeight?.name ?? ''),
+                  const SizedBox(height: 10),
+                  cell('Color', style!.color!.toHex()),
+                  const SizedBox(height: 10),
+                  cell(
+                    'Spacing',
+                    style!.letterSpacing == null
+                        ? '0 %'
+                        : '${style!.letterSpacing} %',
+                  ),
+                ],
+              ),
             ),
           ),
-          Text(subtitle),
+          const SizedBox(height: 8),
         ],
       ),
     );
   }
+}
 
-  /// Returns the corresponding [fontWeight] name as a string.
-  String _getFontWeightName(FontWeight? fontWeight) {
-    final String fontWeightStyle;
-
-    switch (fontWeight) {
-      case FontWeight.w100:
-        fontWeightStyle = 'Thin';
-        break;
-      case FontWeight.w200:
-        fontWeightStyle = 'Extra-light';
-        break;
-      case FontWeight.w300:
-        fontWeightStyle = 'Light';
-        break;
-      case FontWeight.w400:
-        fontWeightStyle = 'Regular';
-        break;
-      case FontWeight.w500:
-        fontWeightStyle = 'Medium';
-        break;
-      case FontWeight.w600:
-        fontWeightStyle = 'Semi-bold';
-        break;
-      case FontWeight.w700:
-        fontWeightStyle = 'Bold';
-        break;
-      case FontWeight.w800:
-        fontWeightStyle = 'Extra-bold';
-        break;
-      case FontWeight.w900:
-        fontWeightStyle = 'Black';
-        break;
-      default:
-        fontWeightStyle = 'Regular';
-        break;
-    }
-
-    return fontWeightStyle;
-  }
+/// Extension adding conversion of [FontWeight] to its name.
+extension on FontWeight {
+  /// Returns this [FontWeight] localized as a [String].
+  String get name => switch (value) {
+        100 => 'Thin',
+        200 => 'Extra-light',
+        300 => 'Light',
+        400 => 'Regular',
+        500 => 'Medium',
+        600 => 'Semi-bold',
+        700 => 'Bold',
+        800 => 'Extra-bold',
+        900 => 'Black',
+        _ => 'Regular',
+      };
 }

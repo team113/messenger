@@ -26,13 +26,17 @@ import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.
 class TypographyView extends StatelessWidget {
-  const TypographyView(this.inverted, this.compact, {super.key});
+  const TypographyView({
+    super.key,
+    this.inverted = false,
+    this.dense = false,
+  });
 
-  /// Indicator whether this [TypographyView] should have its colors inverted.
+  /// Indicator whether this view should have its colors inverted.
   final bool inverted;
 
-  /// Indicator whether this [TypographyView] should be compact.
-  final bool compact;
+  /// Indicator whether this view should be compact, meaning minimal [Padding]s.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +70,7 @@ class TypographyView extends StatelessWidget {
             [
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: compact ? 0 : 16,
+                  horizontal: dense ? 0 : 16,
                   vertical: 16,
                 ),
                 child: Column(
@@ -79,7 +83,7 @@ class TypographyView extends StatelessWidget {
                       padding: EdgeInsets.zero,
                       (e) => FontWidget(
                         inverted,
-                        compact,
+                        dense,
                         style: e.$1,
                         title: e.$2,
                       ),

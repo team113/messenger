@@ -15,11 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/themes.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
 /// Stylized [Container] describing the provided [color].
@@ -61,21 +61,18 @@ class ColorWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              GestureDetector(
-                onTap: () {
+              WidgetButton(
+                onPressed: () {
                   Clipboard.setData(ClipboardData(text: color.toHex()));
                   MessagePopup.success('Hash is copied');
                 },
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: Text(
-                    color.toHex(),
-                    textAlign: TextAlign.start,
-                    style: fonts.bodySmall!.copyWith(
-                      color: inverted
-                          ? const Color(0xFFFFFFFF)
-                          : const Color(0xFF000000),
-                    ),
+                child: Text(
+                  color.toHex(),
+                  textAlign: TextAlign.start,
+                  style: fonts.bodySmall!.copyWith(
+                    color: inverted
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
                   ),
                 ),
               ),
@@ -105,20 +102,19 @@ class ColorWidget extends StatelessWidget {
           if (subtitle != null) ...[
             const SizedBox(height: 8),
             Flexible(
-              child: Text.rich(
-                TextSpan(
-                  text: subtitle,
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      Clipboard.setData(ClipboardData(text: subtitle!));
-                      MessagePopup.success('Technical name is copied');
-                    },
-                ),
-                textAlign: TextAlign.left,
-                style: fonts.labelSmall!.copyWith(
-                  color: inverted
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF000000),
+              child: WidgetButton(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: subtitle!));
+                  MessagePopup.success('Technical name is copied');
+                },
+                child: Text(
+                  subtitle!,
+                  textAlign: TextAlign.left,
+                  style: fonts.labelSmall!.copyWith(
+                    color: inverted
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
+                  ),
                 ),
               ),
             ),

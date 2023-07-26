@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/themes.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
 /// [Column] of the provided [colors] representing a [Color] scheme.
@@ -72,26 +73,20 @@ class ColorSchemaWidget extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
+                  WidgetButton(
+                    onPressed: () {
                       Clipboard.setData(ClipboardData(text: e.$2));
                       MessagePopup.success('Technical name is copied');
                     },
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: Text(e.$2, style: style),
-                    ),
+                    child: Text(e.$2, style: style),
                   ),
                   const Spacer(),
-                  GestureDetector(
-                    onTap: () {
+                  WidgetButton(
+                    onPressed: () {
                       Clipboard.setData(ClipboardData(text: e.$1.toHex()));
                       MessagePopup.success('Hash is copied');
                     },
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: Text(e.$1.toHex(), style: style),
-                    ),
+                    child: Text(e.$1.toHex(), style: style),
                   ),
                   const SizedBox(width: 8),
                 ],

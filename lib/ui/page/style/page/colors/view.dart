@@ -25,13 +25,17 @@ import 'widget/schema.dart';
 
 /// View of the [StyleTab.colors] page.
 class ColorsView extends StatelessWidget {
-  const ColorsView(this.inverted, this.compact, {super.key});
+  const ColorsView({
+    super.key,
+    this.inverted = false,
+    this.dense = false,
+  });
 
-  /// Indicator whether this [ColorsView] should have its colors inverted.
+  /// Indicator whether this view should have its colors inverted.
   final bool inverted;
 
-  /// Indicator whether this [ColorsView] should be compact.
-  final bool compact;
+  /// Indicator whether this view should be compact, meaning minimal [Padding]s.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -189,45 +193,43 @@ class ColorsView extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: compact ? 0 : 16,
-                  vertical: 16,
-                ),
-                child: Column(
-                  children: [
-                    const Header(label: 'Palette'),
-                    const SmallHeader(label: 'Color schema'),
-                    ColorSchemaWidget(
-                      colors.map((e) => (e.$1, e.$2)),
-                      inverted: inverted,
-                    ),
-                    const SizedBox(height: 16),
-                    const SmallHeader(label: 'Colors'),
-                    BuilderWrap(
-                      colors,
-                      (e) => ColorWidget(
-                        e.$1,
-                        inverted: inverted,
-                        subtitle: e.$2,
-                        hint: e.$3,
-                      ),
-                      inverted: inverted,
-                    ),
-                    const SizedBox(height: 16),
-                    const SmallHeader(label: 'Avatars'),
-                    BuilderWrap(
-                      avatars,
-                      (e) => ColorWidget(e, inverted: inverted),
-                      inverted: inverted,
-                    ),
-                  ],
-                ),
+          delegate: SliverChildListDelegate([
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: dense ? 0 : 16,
+                vertical: 16,
               ),
-            ],
-          ),
+              child: Column(
+                children: [
+                  const Header(label: 'Palette'),
+                  const SmallHeader(label: 'Color schema'),
+                  ColorSchemaWidget(
+                    colors.map((e) => (e.$1, e.$2)),
+                    inverted: inverted,
+                  ),
+                  const SizedBox(height: 16),
+                  const SmallHeader(label: 'Colors'),
+                  BuilderWrap(
+                    colors,
+                    (e) => ColorWidget(
+                      e.$1,
+                      inverted: inverted,
+                      subtitle: e.$2,
+                      hint: e.$3,
+                    ),
+                    inverted: inverted,
+                  ),
+                  const SizedBox(height: 16),
+                  const SmallHeader(label: 'Avatars'),
+                  BuilderWrap(
+                    avatars,
+                    (e) => ColorWidget(e, inverted: inverted),
+                    inverted: inverted,
+                  ),
+                ],
+              ),
+            ),
+          ]),
         ),
       ],
     );
