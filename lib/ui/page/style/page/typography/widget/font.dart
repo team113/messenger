@@ -19,66 +19,65 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// Custom-styled [Text] with information.
+/// [Row] displaying the provided [TextStyle] in a compact way.
 class FontWidget extends StatelessWidget {
   const FontWidget(
-    this.inverted,
-    this.tight, {
+    this.style, {
     super.key,
-    this.title,
-    this.style,
+    this.inverted = false,
+    this.dense = false,
   });
+
+  /// [TextStyle] along with its title to display.
+  final (TextStyle, String) style;
 
   /// Indicator whether this [FontWidget] should have its colors inverted.
   final bool inverted;
 
-  /// Indicator whether this [FontWidget] should be tight.
-  final bool tight;
-
-  /// Title of this [FontWidget].
-  final String? title;
-
-  /// [TextStyle] of this [FontWidget].
-  final TextStyle? style;
+  /// Indicator whether this [FontWidget] should be dense, meaning no
+  /// [Padding]s.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: tight ? 0 : 15,
-        vertical: 5,
-      ),
-      child: Row(
-        mainAxisAlignment:
-            tight ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 100,
+    return Row(
+      children: [
+        AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.ease,
+          child: SizedBox(width: dense ? 0 : 16),
+        ),
+        Text(
+          '${style.$1.fontSize} pt, w${style.$1.fontWeight?.value}',
+          style: fonts.titleMedium?.copyWith(
+            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: AnimatedAlign(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease,
+            alignment: dense ? Alignment.centerRight : Alignment.centerLeft,
             child: Text(
-              '${style!.fontSize} pt, w${style!.fontWeight?.value}',
-              style: fonts.titleMedium?.copyWith(
+              style.$2,
+              style: style.$1.copyWith(
                 color: inverted
                     ? const Color(0xFFFFFFFF)
                     : const Color(0xFF000000),
               ),
+              textAlign: TextAlign.start,
             ),
           ),
-          if (title != null)
-            SizedBox(
-              width: 165,
-              child: Text(
-                title!,
-                style: style!.copyWith(
-                  color: inverted
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF000000),
-                ),
-              ),
-            ),
-        ],
-      ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.ease,
+          child: SizedBox(width: dense ? 0 : 16),
+        ),
+      ],
     );
   }
 }

@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/routes.dart';
+import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
 import 'page/colors/view.dart';
@@ -72,14 +73,14 @@ class StyleView extends StatelessWidget {
                                 ? Icons.format_paint
                                 : Icons.format_paint_outlined,
                             inverted: selected,
-                            onPressed: () => c.tab.value = tab,
+                            onPressed: () => c.pages.jumpToPage(i),
                           ),
                         StyleTab.typography => StyleCard(
                             icon: selected
                                 ? Icons.text_snippet
                                 : Icons.text_snippet_outlined,
                             inverted: selected,
-                            onPressed: () => c.tab.value = tab,
+                            onPressed: () => c.pages.jumpToPage(i),
                           ),
                         StyleTab.multimedia => StyleCard(
                             icon: selected
@@ -139,24 +140,35 @@ class StyleView extends StatelessWidget {
   Widget _page(StyleController c) {
     return ColoredBox(
       color: const Color(0xFFF5F5F5),
-      child: Obx(() {
-        return switch (c.tab.value) {
-          StyleTab.colors => ColorsView(
-              inverted: c.inverted.value,
-              dense: c.dense.value,
-            ),
-          StyleTab.typography => TypographyView(
-              inverted: c.inverted.value,
-              dense: c.dense.value,
-            ),
+      child: PageView(
+        controller: c.pages,
+        onPageChanged: (i) => c.tab.value = StyleTab.values[i],
+        physics: const NeverScrollableScrollPhysics(),
+        children: StyleTab.values.map((e) {
+          return KeepAlivePage(
+            child: switch (e) {
+              StyleTab.colors => Obx(() {
+                  return ColorsView(
+                    inverted: c.inverted.value,
+                    dense: c.dense.value,
+                  );
+                }),
+              StyleTab.typography => Obx(() {
+                  return TypographyView(
+                    inverted: c.inverted.value,
+                    dense: c.dense.value,
+                  );
+                }),
 
-          // TODO: Implement.
-          StyleTab.multimedia => Container(),
+              // TODO: Implement.
+              StyleTab.multimedia => Container(),
 
-          // TODO: Implement.
-          StyleTab.elements => Container(),
-        };
-      }),
+              // TODO: Implement.
+              StyleTab.elements => Container(),
+            },
+          );
+        }).toList(),
+      ),
     );
   }
 }

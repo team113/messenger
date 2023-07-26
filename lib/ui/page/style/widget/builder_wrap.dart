@@ -25,9 +25,8 @@ class BuilderWrap<T> extends StatelessWidget {
     this.builder, {
     super.key,
     this.inverted = false,
-    this.padding = const EdgeInsets.symmetric(vertical: 15),
+    this.dense = false,
   });
-  final EdgeInsetsGeometry padding;
 
   /// Items to [Wrap].
   final Iterable<T> children;
@@ -38,24 +37,29 @@ class BuilderWrap<T> extends StatelessWidget {
   /// Indicator whether the background should have its colors inverted.
   final bool inverted;
 
+  /// Indicator whether this [BuilderWrap] should be dense, meaning no
+  /// [Padding]s and roundness.
+  final bool dense;
+
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
       width: double.infinity,
+      margin: EdgeInsets.symmetric(
+        horizontal: dense ? 0 : 16,
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: dense ? BorderRadius.zero : BorderRadius.circular(16),
       ),
-      child: Padding(
-        padding: padding,
-        child: Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 16,
-          runSpacing: 16,
-          children: children.map((e) => builder(e)).toList(),
-        ),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 16,
+        runSpacing: 16,
+        children: children.map((e) => builder(e)).toList(),
       ),
     );
   }

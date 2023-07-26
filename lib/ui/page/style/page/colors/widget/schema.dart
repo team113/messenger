@@ -25,14 +25,23 @@ import '/util/message_popup.dart';
 
 /// [Column] of the provided [colors] representing a [Color] scheme.
 class ColorSchemaWidget extends StatelessWidget {
-  const ColorSchemaWidget(this.colors, {super.key, this.inverted = false});
+  const ColorSchemaWidget(
+    this.colors, {
+    super.key,
+    this.inverted = false,
+    this.dense = false,
+  });
 
   /// Records of [Color]s and its descriptions to display.
-  final Iterable<(Color, String)> colors;
+  final Iterable<(Color, String, String)> colors;
 
   /// Indicator whether the background of this [ColorSchemaWidget] should be
   /// inverted.
   final bool inverted;
+
+  /// Indicator whether this [ColorSchemaWidget] should be dense, meaning no
+  /// [Padding]s and roundness.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +50,9 @@ class ColorSchemaWidget extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
+      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: dense ? BorderRadius.zero : BorderRadius.circular(16),
         color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
       ),
       child: Column(
@@ -53,18 +63,22 @@ class ColorSchemaWidget extends StatelessWidget {
               : const Color(0xFFFFFFFF);
           final TextStyle style = fonts.bodySmall!.copyWith(color: text);
 
-          return Container(
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease,
             width: double.infinity,
             height: 50,
             decoration: BoxDecoration(
               color: e.$1,
               borderRadius: BorderRadius.only(
-                topLeft: i == 0 ? const Radius.circular(16) : Radius.zero,
-                topRight: i == 0 ? const Radius.circular(16) : Radius.zero,
-                bottomLeft: i == colors.length - 1
+                topLeft:
+                    i == 0 && !dense ? const Radius.circular(16) : Radius.zero,
+                topRight:
+                    i == 0 && !dense ? const Radius.circular(16) : Radius.zero,
+                bottomLeft: i == colors.length - 1 && !dense
                     ? const Radius.circular(16)
                     : Radius.zero,
-                bottomRight: i == colors.length - 1
+                bottomRight: i == colors.length - 1 && !dense
                     ? const Radius.circular(16)
                     : Radius.zero,
               ),
@@ -72,6 +86,15 @@ class ColorSchemaWidget extends StatelessWidget {
             child: Center(
               child: Row(
                 children: [
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                    child: SizedBox(width: dense ? 32 : 8),
+                  ),
+                  Tooltip(
+                    message: e.$3,
+                    child: Icon(Icons.info_outline, size: 13, color: text),
+                  ),
                   const SizedBox(width: 8),
                   WidgetButton(
                     onPressed: () {
@@ -88,7 +111,11 @@ class ColorSchemaWidget extends StatelessWidget {
                     },
                     child: Text(e.$1.toHex(), style: style),
                   ),
-                  const SizedBox(width: 8),
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                    child: SizedBox(width: dense ? 32 : 8),
+                  ),
                 ],
               ),
             ),

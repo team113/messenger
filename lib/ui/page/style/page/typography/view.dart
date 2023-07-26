@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
-import '/ui/page/style/widget/headers.dart';
+import '/ui/page/style/widget/header.dart';
 import 'widget/family.dart';
 import 'widget/font.dart';
 import 'widget/style.dart';
@@ -42,73 +42,68 @@ class TypographyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    final List<(TextStyle?, String)> styles = [
-      (fonts.displayLarge, 'displayLarge'),
-      (fonts.displayMedium, 'displayMedium'),
-      (fonts.displaySmall, 'displaySmall'),
-      (fonts.headlineLarge, 'headlineLarge'),
-      (fonts.headlineMedium, 'headlineMedium'),
-      (fonts.headlineSmall, 'headlineSmall'),
-      (fonts.labelLarge, 'labelLarge'),
-      (fonts.labelMedium, 'labelMedium'),
-      (fonts.labelSmall, 'labelSmall'),
-      (fonts.bodyLarge, 'bodyLarge'),
-      (fonts.bodyMedium, 'bodyMedium'),
-      (fonts.bodySmall, 'bodySmall'),
+    final List<(TextStyle, String)> styles = [
+      (fonts.displayLarge!, 'displayLarge'),
+      (fonts.displayMedium!, 'displayMedium'),
+      (fonts.displaySmall!, 'displaySmall'),
+      (fonts.headlineLarge!, 'headlineLarge'),
+      (fonts.headlineMedium!, 'headlineMedium'),
+      (fonts.headlineSmall!, 'headlineSmall'),
+      (fonts.labelLarge!, 'labelLarge'),
+      (fonts.labelMedium!, 'labelMedium'),
+      (fonts.labelSmall!, 'labelSmall'),
+      (fonts.bodyLarge!, 'bodyLarge'),
+      (fonts.bodyMedium!, 'bodyMedium'),
+      (fonts.bodySmall!, 'bodySmall'),
     ];
 
-    final List<(FontWeight?, String)> families = [
+    final List<(FontWeight, String)> families = [
       (FontWeight.w300, 'SFUI-Light'),
       (FontWeight.w400, 'SFUI-Regular'),
       (FontWeight.w700, 'SFUI-Bold'),
     ];
 
-    return CustomScrollView(
-      slivers: [
-        SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: dense ? 0 : 16,
-                  vertical: 16,
-                ),
-                child: Column(
-                  children: [
-                    const Header(label: 'Typography'),
-                    const SmallHeader(label: 'Font'),
-                    BuilderWrap(
-                      styles,
-                      inverted: inverted,
-                      padding: EdgeInsets.zero,
-                      (e) => FontWidget(
-                        inverted,
-                        dense,
-                        style: e.$1,
-                        title: e.$2,
-                      ),
-                    ),
-                    const SmallHeader(label: 'Font families'),
-                    BuilderWrap(
-                      families,
-                      inverted: inverted,
-                      padding: EdgeInsets.zero,
-                      (e) =>
-                          FontFamily(inverted, fontWeight: e.$1, label: e.$2),
-                    ),
-                    const SmallHeader(label: 'Styles'),
-                    BuilderWrap(
-                      styles,
-                      inverted: inverted,
-                      (e) => FontStyle(inverted, style: e.$1, title: e.$2),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Header('Typography'),
           ),
-        ),
-      ],
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SubHeader('Fonts'),
+          ),
+          BuilderWrap(
+            styles,
+            inverted: inverted,
+            dense: dense,
+            (e) => FontWidget(e, inverted: inverted, dense: dense),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SubHeader('Families'),
+          ),
+          BuilderWrap(
+            families,
+            inverted: inverted,
+            dense: dense,
+            (e) => FontFamily(e, inverted: inverted),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SubHeader('Styles'),
+          ),
+          BuilderWrap(
+            styles,
+            inverted: inverted,
+            dense: dense,
+            (e) => FontStyle(e, inverted: inverted),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

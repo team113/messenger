@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/widgets.dart' show PageController;
 import 'package:get/get.dart';
 
 /// [StyleView] section.
@@ -35,4 +36,7 @@ class StyleController extends GetxController {
 
   /// Selected [StyleTab].
   final Rx<StyleTab> tab = Rx(StyleTab.colors);
+
+  /// [PageController] controlling the [PageView] of [StyleView].
+  final PageController pages = PageController();
 }

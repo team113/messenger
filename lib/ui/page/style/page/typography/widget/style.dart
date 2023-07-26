@@ -19,24 +19,16 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// [Container] which represents [Text] with a specific [style].
+/// [Column] displaying the provided [TextStyle] in a descriptive way.
 class FontStyle extends StatelessWidget {
-  const FontStyle(
-    this.inverted, {
-    super.key,
-    this.style,
-    this.title,
-  });
+  const FontStyle(this.style, {super.key, this.inverted = false});
+
+  /// [TextStyle] along with its title to display.
+  final (TextStyle, String) style;
 
   /// Indicator whether this [FontStyle] should have its colors
   /// inverted.
   final bool inverted;
-
-  /// Label of this [FontStyle].
-  final String? title;
-
-  /// [TextStyle] defining the font style for this [FontStyle].
-  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
@@ -67,17 +59,16 @@ class FontStyle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
-          if (title != null)
-            Center(
-              child: Text(
-                title!,
-                style: style!.copyWith(
-                  color: inverted
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF000000),
-                ),
+          Center(
+            child: Text(
+              style.$2,
+              style: style.$1.copyWith(
+                color: inverted
+                    ? const Color(0xFFFFFFFF)
+                    : const Color(0xFF000000),
               ),
             ),
+          ),
           const SizedBox(height: 8),
           Divider(
             color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
@@ -94,20 +85,15 @@ class FontStyle extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Column(
                 children: [
-                  cell('Size', style!.fontSize.toString()),
+                  cell('Size', style.$1.fontSize.toString()),
                   const SizedBox(height: 10),
-                  cell('Weight', style!.fontWeight!.value.toString()),
+                  cell('Weight', style.$1.fontWeight!.value.toString()),
                   const SizedBox(height: 10),
-                  cell('Style', style!.fontWeight?.name ?? ''),
+                  cell('Style', style.$1.fontWeight?.name ?? ''),
                   const SizedBox(height: 10),
-                  cell('Color', style!.color!.toHex()),
+                  cell('Color', style.$1.color!.toHex()),
                   const SizedBox(height: 10),
-                  cell(
-                    'Spacing',
-                    style!.letterSpacing == null
-                        ? '0 %'
-                        : '${style!.letterSpacing} %',
-                  ),
+                  cell('Spacing', '${style.$1.letterSpacing ?? 0} %'),
                 ],
               ),
             ),

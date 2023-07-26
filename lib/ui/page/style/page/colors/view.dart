@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
-import '/ui/page/style/widget/headers.dart';
+import '/ui/page/style/widget/header.dart';
 import 'widget/color.dart';
 import 'widget/schema.dart';
 
@@ -190,48 +190,55 @@ class ColorsView extends StatelessWidget {
 
     final List<Color> avatars = style.colors.userColors;
 
-    return CustomScrollView(
-      slivers: [
-        SliverList(
-          delegate: SliverChildListDelegate([
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: dense ? 0 : 16,
-                vertical: 16,
-              ),
-              child: Column(
-                children: [
-                  const Header(label: 'Palette'),
-                  const SmallHeader(label: 'Color schema'),
-                  ColorSchemaWidget(
-                    colors.map((e) => (e.$1, e.$2)),
-                    inverted: inverted,
-                  ),
-                  const SizedBox(height: 16),
-                  const SmallHeader(label: 'Colors'),
-                  BuilderWrap(
-                    colors,
-                    (e) => ColorWidget(
-                      e.$1,
-                      inverted: inverted,
-                      subtitle: e.$2,
-                      hint: e.$3,
-                    ),
-                    inverted: inverted,
-                  ),
-                  const SizedBox(height: 16),
-                  const SmallHeader(label: 'Avatars'),
-                  BuilderWrap(
-                    avatars,
-                    (e) => ColorWidget(e, inverted: inverted),
-                    inverted: inverted,
-                  ),
-                ],
-              ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Header('Colors'),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SubHeader('Palette'),
+          ),
+          ColorSchemaWidget(
+            colors,
+            inverted: inverted,
+            dense: dense,
+          ),
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SubHeader('Colors'),
+          ),
+          BuilderWrap(
+            colors,
+            inverted: inverted,
+            dense: dense,
+            (e) => ColorWidget(
+              e.$1,
+              inverted: inverted,
+              subtitle: e.$2,
+              hint: e.$3,
             ),
-          ]),
-        ),
-      ],
+          ),
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SubHeader('Avatars'),
+          ),
+          BuilderWrap(
+            avatars,
+            inverted: inverted,
+            dense: dense,
+            (e) => ColorWidget(e, inverted: inverted),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }
