@@ -127,7 +127,10 @@ class ChatRepository extends DisposableInterface
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
   /// [Mutex]es guarding access to the [get] method.
-  final Map<ChatId, Mutex> _locks = {};
+  final Map<ChatId, Mutex> _getGuards = {};
+
+  /// [Mutex]es guarding synchronized access to the [_putEntry].
+  final Map<ChatId, Mutex> _putEntryGuards = {};
 
   /// [dio.CancelToken] for cancelling the [_recentChats] query.
   final dio.CancelToken _cancelToken = dio.CancelToken();
@@ -221,10 +224,10 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<HiveRxChat?> get(ChatId id) async {
-    Mutex? mutex = _locks[id];
+    Mutex? mutex = _getGuards[id];
     if (mutex == null) {
       mutex = Mutex();
-      _locks[id] = mutex;
+      _getGuards[id] = mutex;
     }
 
     return mutex.protect(() async {
@@ -1322,6 +1325,21 @@ class ChatRepository extends DisposableInterface
 
   /// Puts the provided [data] to [Hive].
   Future<HiveRxChat> _putEntry(ChatData data) async {
+    Mutex? mutex = _putEntryGuards[data.chat.value.id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _putEntryGuards[data.chat.value.id] = mutex;
+    }
+
+    return await mutex.protect(() async {
+      HiveRxChat result = await _putEntryImpl(data);
+      _putEntryGuards.remove(data.chat.value.id);
+      return result;
+    });
+  }
+
+  /// Implementation of the [_putEntry].
+  Future<HiveRxChat> _putEntryImpl(ChatData data) async {
     HiveRxChat? entry = chats[data.chat.value.id];
 
     if (entry == null) {
