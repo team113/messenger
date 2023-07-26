@@ -6,7 +6,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
   desktop_drop
   flutter_meedu_videoplayer
-  local_notifier
   medea_flutter_webrtc
   medea_jason
   media_kit_libs_linux

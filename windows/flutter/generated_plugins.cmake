@@ -8,7 +8,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_drop
   flutter_meedu_videoplayer
   fullscreen_window
-  local_notifier
   medea_flutter_webrtc
   medea_jason
   media_kit_libs_windows_video
@@ -22,7 +21,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   url_launcher_windows
   win_toast
   window_manager
-  windows_notification
   windows_taskbar
 )
 

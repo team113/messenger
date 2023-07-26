@@ -16,13 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
-import 'package:windows_notification/notification_message.dart';
-import 'package:windows_notification/windows_notification.dart';
+import 'package:win_toast/win_toast.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -35,8 +36,6 @@ class NotificationService extends DisposableService {
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
 
-  WindowsNotification? _windowsPlugin;
-
   /// [AudioPlayer] playing a notification sound.
   AudioPlayer? _audioPlayer;
 
@@ -46,6 +45,9 @@ class NotificationService extends DisposableService {
 
   /// Indicator whether the application is active.
   bool _active = true;
+
+  /// Xml data used to show local notifications on Windows.
+  String? _notificationXml;
 
   /// Initializes this [NotificationService].
   ///
@@ -74,28 +76,19 @@ class NotificationService extends DisposableService {
       WebUtils.onSelectNotification = onNotificationResponse;
     } else {
       if (PlatformUtils.isWindows) {
-        _windowsPlugin = WindowsNotification(
-          applicationId:
-              '{D65231B0-B2F1-4857-A4CE-A8E7C6EA7D27}\\WindowsPowerShell\\v1.0\\powershell.exe',
+        await WinToast.instance().initialize(
+          aumId: 'team113.messenger',
+          displayName: 'Gapopa',
+          iconPath: File(r'windows\runner\resources\app_icon.ico').absolute.path,
+          // TODO: Use a real clsid.
+          clsid: '00000000-0000-0000-0000-000000000000',
         );
 
-        _windowsPlugin!.initNotificationCallBack(
-            (notification, eventType, argument) async {
-          print('notification.launch: ${notification.launch}');
-          print('eventType: $eventType');
-          print('notification.payload: ${notification.payload}');
-          print('notification.methodNmae: ${notification.methodNmae}');
-          print('argument: $argument}');
-          //EventType.onDismissed;
-          //if (eventType == EventType.onActivate) {
-          //await windowManager.focus();
-          //await WindowManager.instance.focus();
-          //windowManager.;
-          // String? payload = notification.payload['payload'];
-          // if (payload != null) {
-          //   router.push(payload);
-          // }
-          //}
+        WinToast.instance().setActivatedCallback((event) async {
+          await WindowManager.instance.focus();
+          if (event.argument.isNotEmpty) {
+            router.push(event.argument);
+          }
         });
       } else if (_plugin == null) {
         _plugin = FlutterLocalNotificationsPlugin();
@@ -167,14 +160,7 @@ class NotificationService extends DisposableService {
       ).onError((_, __) => false);
     }
     if (PlatformUtils.isWindows) {
-      _windowsPlugin?.showNotificationPluginTemplate(
-          NotificationMessage.fromPluginTemplate(
-        'Random().nextInt(1 << 31).toString()',
-        title,
-        body ?? '',
-        payload: {'payload': payload},
-        group: 'Gapopa',
-      ));
+      await _showWindowsNotification(title: title, body: body, launch: payload);
     } else {
       // TODO: `flutter_local_notifications` should support Windows:
       //       https://github.com/MaikuB/flutter_local_notifications/issues/746
@@ -193,6 +179,27 @@ class NotificationService extends DisposableService {
         payload: payload,
       );
     }
+  }
+
+  /// Shows a local notification on Windows with the provided data.
+  Future<void> _showWindowsNotification({
+    required String title,
+    String? body,
+    String? launch,
+  }) async {
+    _notificationXml ??= await rootBundle.loadString(
+      'assets/windows_notifications/notification.xml',
+    );
+
+    String xml = _notificationXml!
+        .replaceFirst('##title##', title)
+        .replaceFirst('##body##', body ?? '')
+        .replaceFirst('##launch##', launch ?? '');
+
+    await WinToast.instance().showCustomToast(
+      xml: xml,
+      tag: 'Gapopa',
+    );
   }
 
   /// Initializes the [_audioPlayer].
