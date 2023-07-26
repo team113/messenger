@@ -288,9 +288,9 @@ class CallWorker extends DisposableService {
     _audioPlayer?.dispose();
     _audioPlayer = null;
 
-    AudioCache.instance.clear('audio/$_incoming');
-    AudioCache.instance.clear('audio/$_outgoing');
-    AudioCache.instance.clear('audio/pop.mp3');
+    AudioCache.instance.clear('audio/$_incoming').onError((_, __) => null);
+    AudioCache.instance.clear('audio/$_outgoing').onError((_, __) => null);
+    AudioCache.instance.clear('audio/pop.mp3').onError((_, __) => null);
 
     _subscription.cancel();
     _storageSubscription?.cancel();

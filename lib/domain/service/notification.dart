@@ -93,7 +93,10 @@ class NotificationService extends DisposableService {
     _onActivityChanged?.cancel();
     _audioPlayer?.dispose();
     _audioPlayer = null;
-    AudioCache.instance.clear('audio/notification.mp3');
+
+    AudioCache.instance
+        .clear('audio/notification.mp3')
+        .onError((_, __) => null);
   }
 
   // TODO: Implement icons and attachments on non-web platforms.

@@ -213,7 +213,7 @@ class MyProfileController extends GetxController {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
         allowMultiple: false,
-        withReadStream: true,
+        withData: true,
       );
 
       if (result?.files.isNotEmpty == true) {
