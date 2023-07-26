@@ -21,17 +21,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../../../../api/backend/schema.dart';
-import '../../../../../domain/repository/settings.dart';
-import '../../tab/menu/status/view.dart';
+import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
+import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -39,6 +39,7 @@ import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -61,7 +62,6 @@ import 'widget/background_preview.dart';
 import 'widget/download_button.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
-import '../../widget/num.dart';
 import 'widget/status.dart';
 
 /// View of the [Routes.me] page.
@@ -164,7 +164,7 @@ class MyProfileView extends StatelessWidget {
                                 children: [
                                   WidgetButton(
                                     key: const Key('UploadAvatar'),
-                                    onPressed: () => c.uploadAvatar(),
+                                    onPressed: c.uploadAvatar,
                                     child: Text(
                                       'btn_upload'.l10n,
                                       style: fonts.labelSmall!.copyWith(
@@ -179,7 +179,7 @@ class MyProfileView extends StatelessWidget {
                                     ),
                                     WidgetButton(
                                       key: const Key('DeleteAvatar'),
-                                      onPressed: () => c.deleteAvatar(),
+                                      onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
                                         style: fonts.bodySmall!.copyWith(

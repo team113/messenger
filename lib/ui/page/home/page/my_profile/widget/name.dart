@@ -35,7 +35,7 @@ class NameField extends StatefulWidget {
   /// Name of an [User].
   final UserName? name;
 
-  /// Callback, called when [NameField] is submitted.
+  /// Callback, called when [UserName] is submitted.
   final FutureOr<void> Function(UserName? name)? onSubmit;
 
   @override

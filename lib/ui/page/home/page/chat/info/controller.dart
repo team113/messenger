@@ -138,7 +138,7 @@ class ChatInfoController extends GetxController {
           s.editable.value = false;
 
           try {
-            await renameChat(name);
+            await _chatService.renameChat(chat!.chat.value.id, name);
             s.status.value = RxStatus.success();
             _nameTimer = Timer(
               const Duration(seconds: 1),
@@ -174,10 +174,6 @@ class ChatInfoController extends GetxController {
     _nameTimer?.cancel();
     _avatarTimer?.cancel();
     super.onClose();
-  }
-
-  Future<void> renameChat(ChatName? name) async {
-    await _chatService.renameChat(chat!.chat.value.id, name);
   }
 
   /// Removes [User] identified by the provided [userId] from the [chat].
@@ -360,9 +356,10 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  // TODO(review): add docs and test.
+  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug]
+  /// and deletes the current active [ChatDirectLink] of the given
+  /// [Chat]-group (if any).
   Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
-    // TODO(review): should be able to delete the link, when `null` is provided.
     await _chatService.createChatDirectLink(chatId, slug!);
   }
 

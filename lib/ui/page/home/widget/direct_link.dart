@@ -37,16 +37,12 @@ import '/util/platform_utils.dart';
 ///
 /// If [link] is `null`, generates and displays a random [ChatDirectLinkSlug].
 class DirectLinkField extends StatefulWidget {
-  const DirectLinkField(
-    this.link, {
-    super.key,
-    this.onSubmit,
-  });
+  const DirectLinkField(this.link, {super.key, this.onSubmit});
 
   /// Reactive state of the [ReactiveTextField].
   final ChatDirectLink? link;
 
-  /// Callback, called when [DirectLinkField] is submitted.
+  /// Callback, called when [ChatDirectLinkSlug] is submitted.
   final FutureOr<void> Function(ChatDirectLinkSlug)? onSubmit;
 
   @override

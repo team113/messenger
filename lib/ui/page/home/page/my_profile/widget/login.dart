@@ -39,7 +39,7 @@ class ReactiveLoginField extends StatefulWidget {
   /// Unique login of an [User].
   final UserLogin? login;
 
-  /// Callback, called when [ReactiveLoginField] is submitted.
+  /// Callback, called when [UserLogin] is submitted.
   final Future<void> Function(UserLogin login)? onSubmit;
 
   @override
