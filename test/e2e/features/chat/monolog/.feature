@@ -30,6 +30,7 @@ Feature: Monolog
     And monolog is indeed remote
 
   Scenario: Call can be made in local monolog
+    Given popup windows are disabled
     When I tap `AudioCall` button
     Then monolog is indeed remote
 

@@ -34,6 +34,7 @@ import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
 import 'parameters/download_status.dart';
+import 'parameters/enabled_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
@@ -67,6 +68,7 @@ import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
+import 'steps/popup_windows.dart';
 import 'steps/restart_app.dart';
 import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
@@ -151,6 +153,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         noInternetConnection,
         openChatInfo,
         pasteToField,
+        popupWindows,
         restartApp,
         returnToPreviousPage,
         rightClickWidget,
@@ -223,6 +226,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
         DownloadStatusParameter(),
+        EnabledParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),

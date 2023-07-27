@@ -39,7 +39,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show ConnectionException, PostChatMessageException;
+    show ConnectionException, PostChatMessageException, StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
@@ -211,7 +211,7 @@ class HiveRxChat extends RxChat {
     return _guard.protect(() async {
       await _local.init(userId: me);
       if (!_local.isEmpty) {
-        for (HiveChatItem i in _local.messages) {
+        for (HiveChatItem i in await _local.messages) {
           messages.add(Rx<ChatItem>(i.value));
         }
 
@@ -308,7 +308,7 @@ class HiveRxChat extends RxChat {
     List<HiveChatItem> items = await _chatRepository.messages(chat.value.id);
 
     return _guard.protect(() async {
-      for (HiveChatItem item in _local.messages) {
+      for (HiveChatItem item in await _local.messages) {
         if (item.value.status.value == SendingStatus.sent) {
           int i = items.indexWhere((e) => e.value.id == item.value.id);
           if (i == -1) {
@@ -507,51 +507,50 @@ class HiveRxChat extends RxChat {
 
   /// Puts the provided [item] to [Hive].
   Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) {
-    return _guard.protect(
-      () => Future.sync(() {
-        if (!_local.isReady) {
-          return;
-        }
+    return _guard.protect(() async {
+      if (!_local.isReady) {
+        return;
+      }
 
-        final HiveChatItem? saved = _local.get(item.value.key);
-        if (saved == null) {
-          _local.put(item);
-        } else if (saved.ver < item.ver || ignoreVersion) {
-          _local.put(item);
+      if (ignoreVersion || !_local.keys.contains(item.value.key)) {
+        await _local.put(item);
+      } else {
+        final HiveChatItem? saved = await _local.get(item.value.key);
+        if (saved != null && saved.ver < item.ver) {
+          await _local.put(item);
         }
-      }),
-    );
+      }
+    });
   }
 
   @override
   Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) {
-    return _guard.protect(
-      () => Future.sync(() {
-        if (!_local.isReady) {
-          return;
-        }
+    return _guard.protect(() async {
+      if (!_local.isReady) {
+        return;
+      }
 
-        key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
+      key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
-        if (key != null) {
-          _local.remove(key!);
+      if (key != null) {
+        _local.remove(key!);
 
-          HiveChat? chatEntity = _chatLocal.get(id);
-          if (chatEntity?.value.lastItem?.id == itemId) {
-            var lastItem =
-                messages.lastWhereOrNull((e) => e.value.id != itemId);
-            chatEntity!.value.lastItem = lastItem?.value;
-            if (lastItem != null) {
-              chatEntity.lastItemCursor =
-                  _local.get(lastItem.value.key)?.cursor;
-            } else {
-              chatEntity.lastItemCursor = null;
-            }
-            chatEntity.save();
+        HiveChat? chatEntity = _chatLocal.get(id);
+        if (chatEntity?.value.lastItem?.id == itemId) {
+          var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
+          chatEntity!.value.lastItem = lastItem?.value;
+
+          if (lastItem != null) {
+            chatEntity.lastItemCursor =
+                (await _local.get(lastItem.value.key))?.cursor;
+          } else {
+            chatEntity.lastItemCursor = null;
           }
+
+          chatEntity.save();
         }
-      }),
-    );
+      }
+    });
   }
 
   /// Returns a stored [HiveChatItem] identified by the provided [id], if any.
@@ -601,16 +600,17 @@ class HiveRxChat extends RxChat {
       subscribe();
       _localSubscription?.cancel();
 
-      final List<HiveChatItem> saved = _local.messages.toList();
+      final Iterable<HiveChatItem> saved = await _local.messages;
       await _local.clear();
       _local.close();
 
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
-      for (var e in saved) {
-        e.value.chatId = newChat.id;
-        _local.put(e);
+      for (var e in saved.whereType<HiveChatMessage>()) {
+        // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
+        final HiveChatMessage copy = e.copyWith()..value.chatId = newChat.id;
+        await _local.put(copy);
       }
 
       _initLocalSubscription();
@@ -788,7 +788,8 @@ class HiveRxChat extends RxChat {
   Future<void> _updateAttachments(ChatItem item) async {
     final HiveChatItem? stored = await get(item.id, key: item.key);
     if (stored != null) {
-      List<Attachment> response = await _chatRepository.attachments(stored);
+      final List<Attachment> response =
+          await _chatRepository.attachments(stored);
 
       void replace(Attachment a) {
         Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
@@ -804,6 +805,7 @@ class HiveRxChat extends RxChat {
 
       final List<Attachment> all = [];
 
+      item = stored.value;
       if (item is ChatMessage) {
         all.addAll(item.attachments);
         for (ChatItemQuote replied in item.repliesTo) {
@@ -812,7 +814,7 @@ class HiveRxChat extends RxChat {
           }
         }
       } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
+        final ChatItemQuote nested = item.quote;
         if (nested is ChatMessageQuote) {
           all.addAll(nested.attachments);
 
@@ -885,7 +887,16 @@ class HiveRxChat extends RxChat {
     _remoteSubscription = StreamQueue(
       _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
     );
-    await _remoteSubscription!.execute(_chatEvent);
+
+    await _remoteSubscription!.execute(
+      _chatEvent,
+      onError: (e) async {
+        if (e is StaleVersionException) {
+          await _local.clear();
+          await fetchMessages();
+        }
+      },
+    );
 
     _remoteSubscriptionInitialized = false;
   }
@@ -1116,6 +1127,17 @@ class HiveRxChat extends RxChat {
                   reads.add(LastChatRead(event.byUser.id, at));
                 } else {
                   read.at = at;
+                }
+
+                if (event.byUser.id == me) {
+                  final key = _local.keys.lastWhereOrNull((e) => e.at == at);
+                  if (key != null) {
+                    final HiveChatItem? item = await _local.get(key);
+                    if (item != null) {
+                      chatEntity.lastReadItemCursor = item.cursor!;
+                      chatEntity.value.lastReadItem = item.value.id;
+                    }
+                  }
                 }
               }
 
