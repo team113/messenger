@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +46,7 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/audio_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -264,8 +264,8 @@ class CallController extends GetxController {
   /// current frame.
   bool _secondaryRelocated = false;
 
-  /// [AudioPlayer] playing a reconnection sound.
-  final AudioPlayer _reconnectPlayer = AudioPlayer();
+  /// [StreamSubscription] for canceling a reconnection sound.
+  StreamSubscription? _reconnectAudio;
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -860,17 +860,12 @@ class CallController extends GetxController {
           .add(Timer(_notificationDuration, () => notifications.remove(e)));
     });
 
-    AudioCache.instance.loadAll(['audio/reconnect.mp3']);
-    _reconnectWorker = ever(_currentCall.value.connectionLost, (b) async {
+    _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
       if (b) {
-        await _reconnectPlayer.setReleaseMode(ReleaseMode.loop);
-        await _reconnectPlayer.play(
-          AssetSource('audio/reconnect.mp3'),
-          position: Duration.zero,
-          mode: PlayerMode.lowLatency,
-        );
+        _reconnectAudio =
+            AudioUtils.play(AudioSource.asset('audio/reconnect.mp3'));
       } else {
-        await _reconnectPlayer.stop();
+        _reconnectAudio?.cancel();
       }
     });
   }
@@ -891,7 +886,7 @@ class CallController extends GetxController {
     _notificationsSubscription?.cancel();
     _buttonsWorker?.dispose();
     _settingsWorker?.dispose();
-    _reconnectPlayer.dispose();
+    _reconnectAudio?.cancel();
     _reconnectWorker?.dispose();
 
     secondaryEntry?.remove();

@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
@@ -236,9 +235,6 @@ class ChatController extends GetxController {
   /// [Timer] for resetting the [showSticky].
   Timer? _stickyTimer;
 
-  /// [AudioPlayer] playing a sent message sound.
-  AudioPlayer? _audioPlayer;
-
   /// Call service used to start the call in this [Chat].
   final CallService _callService;
 
@@ -374,8 +370,8 @@ class ChatController extends GetxController {
   void onReady() {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
+    AudioUtils.ensureInitialized();
     _fetchChat();
-    _initAudio();
     super.onReady();
   }
 
@@ -397,9 +393,6 @@ class ChatController extends GetxController {
 
     send.onClose();
     edit.value?.onClose();
-
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
 
     if (chat?.chat.value.isDialog == true) {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
@@ -1158,24 +1151,6 @@ class ChatController extends GetxController {
         }
       }
     });
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    // [AudioPlayer] constructor creates a hanging [Future], which can't be
-    // awaited.
-    await runZonedGuarded(
-      () async {
-        _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
-      },
-      (e, _) {
-        if (e is MissingPluginException) {
-          _audioPlayer = null;
-        } else {
-          throw e;
-        }
-      },
-    );
   }
 
   /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the

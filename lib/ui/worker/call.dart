@@ -18,11 +18,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:callkeep/callkeep.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
@@ -39,6 +37,7 @@ import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/android_utils.dart';
+import '/util/audio_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -57,9 +56,6 @@ class CallWorker extends DisposableService {
 
   /// [BackgroundWorker] used to get data from its service.
   final BackgroundWorker _background;
-
-  /// [AudioPlayer] currently playing an audio.
-  AudioPlayer? _audioPlayer;
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
   final CallService _callService;
@@ -95,8 +91,8 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
-  /// [Timer] increasing the [_audioPlayer] volume gradually in [play] method.
-  Timer? _fadeTimer;
+  StreamSubscription? _outgoingAudio;
+  StreamSubscription? _incomingAudio;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
@@ -110,7 +106,7 @@ class CallWorker extends DisposableService {
 
   @override
   void onInit() {
-    _initAudio();
+    AudioUtils.ensureInitialized();
     _initBackgroundService();
     _initWebUtils();
 
@@ -285,12 +281,8 @@ class CallWorker extends DisposableService {
 
   @override
   void onClose() {
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
-
-    AudioCache.instance.clear('audio/$_incoming').onError((_, __) => null);
-    AudioCache.instance.clear('audio/$_outgoing').onError((_, __) => null);
-    AudioCache.instance.clear('audio/pop.mp3').onError((_, __) => null);
+    _outgoingAudio?.cancel();
+    _incomingAudio?.cancel();
 
     _subscription.cancel();
     _storageSubscription?.cancel();
@@ -309,33 +301,21 @@ class CallWorker extends DisposableService {
   /// Plays the given [asset].
   Future<void> play(String asset, {bool fade = false}) async {
     if (_myUser.value?.muted == null) {
-      runZonedGuarded(() async {
-        await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
-        await _audioPlayer?.play(
-          AssetSource('audio/$asset'),
-          volume: fade ? 0 : 1,
-          position: Duration.zero,
-          mode: PlayerMode.mediaPlayer,
+      if (asset == _incoming) {
+        final previous = _incomingAudio;
+        _incomingAudio = AudioUtils.play(
+          AudioSource.asset('audio/$asset'),
+          fade: fade ? 1.seconds : Duration.zero,
         );
-
-        if (fade) {
-          _fadeTimer?.cancel();
-          _fadeTimer = Timer.periodic(
-            const Duration(milliseconds: 100),
-            (timer) async {
-              if (timer.tick > 9) {
-                timer.cancel();
-              } else {
-                await _audioPlayer?.setVolume((timer.tick + 1) / 10);
-              }
-            },
-          );
-        }
-      }, (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      });
+        previous?.cancel();
+      } else {
+        final previous = _outgoingAudio;
+        _outgoingAudio = AudioUtils.play(
+          AudioSource.asset('audio/$asset'),
+          fade: fade ? 1.seconds : Duration.zero,
+        );
+        previous?.cancel();
+      }
     }
   }
 
@@ -346,33 +326,8 @@ class CallWorker extends DisposableService {
       Vibration.cancel();
     }
 
-    _fadeTimer?.cancel();
-    _fadeTimer = null;
-    await _audioPlayer?.setReleaseMode(ReleaseMode.release);
-    await _audioPlayer?.release();
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    // [AudioPlayer] constructor creates a hanging [Future], which can't be
-    // awaited.
-    await runZonedGuarded(
-      () async {
-        _audioPlayer = AudioPlayer();
-        await AudioCache.instance.loadAll([
-          'audio/$_incoming',
-          'audio/$_outgoing',
-          'audio/pop.mp3',
-        ]);
-      },
-      (e, _) {
-        if (e is MissingPluginException) {
-          _audioPlayer = null;
-        } else {
-          throw e;
-        }
-      },
-    );
+    _incomingAudio?.cancel();
+    _outgoingAudio?.cancel();
   }
 
   /// Initializes a connection to the [_background] worker.
