@@ -41,7 +41,7 @@ class SettingsWorker extends DisposableService {
     if (locale == null) {
       _settingsRepository.setLocale(L10n.chosen.value!.toString());
     } else {
-      await L10n.set(Language.from(locale));
+      await L10n.set(Language.fromTag(locale));
     }
 
     _worker = ever(
@@ -49,7 +49,7 @@ class SettingsWorker extends DisposableService {
       (ApplicationSettings? settings) {
         if (locale != settings?.locale) {
           locale = settings?.locale;
-          L10n.set(Language.from(locale) ?? L10n.languages.first);
+          L10n.set(Language.fromTag(locale) ?? L10n.languages.first);
         }
       },
     );
