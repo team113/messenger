@@ -30,6 +30,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -1033,7 +1034,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
 
-    if (isOngoing) {
+    if (isOngoing && !Config.disableInfiniteAnimations) {
       _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
         if (mounted) {
           setState(() {});

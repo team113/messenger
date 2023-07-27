@@ -46,12 +46,15 @@ class L10n {
     await initializeDateFormatting();
 
     if (lang == null) {
-      List<Locale> locales = WidgetsBinding.instance.platformDispatcher.locales;
-      for (int i = 0; i < locales.length && chosen.value == null; ++i) {
-        Language? language = Language.from(locales[i].toLanguageTag());
-        if (language != null) {
-          await set(language, refresh: false);
-        }
+      final Language? language = Language.fromLocale(
+        basicLocaleListResolution(
+          WidgetsBinding.instance.platformDispatcher.locales,
+          L10n.languages.map((e) => e.locale),
+        ),
+      );
+
+      if (language != null) {
+        await set(language, refresh: false);
       }
     } else {
       await set(lang, refresh: false);
@@ -98,8 +101,14 @@ class Language {
 
   /// Returns a [Language] identified by its [tag] from the [L10n.languages], if
   /// any.
-  static Language? from(String? tag) {
+  static Language? fromTag(String? tag) {
     return L10n.languages.firstWhereOrNull((e) => e.toString() == tag);
+  }
+
+  /// Returns a [Language] from the [L10n.languages] matching the provided
+  /// [locale], if any.
+  static Language? fromLocale(Locale locale) {
+    return L10n.languages.firstWhereOrNull((e) => e.locale == locale);
   }
 
   @override

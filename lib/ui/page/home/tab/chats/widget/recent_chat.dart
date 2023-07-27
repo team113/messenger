@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -801,7 +802,9 @@ class RecentChatTile extends StatelessWidget {
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
           child: PeriodicBuilder(
-            period: const Duration(seconds: 1),
+            period: Config.disableInfiniteAnimations
+                ? const Duration(minutes: 1)
+                : const Duration(seconds: 1),
             builder: (_) {
               return RectangularCallButton(
                 key: isActive
