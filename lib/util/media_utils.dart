@@ -23,26 +23,32 @@ import 'log.dart';
 import 'platform_utils.dart';
 import 'web/web_utils.dart';
 
+/// Global variable to access [MediaUtilsImpl].
+///
+/// May be reassigned to mock specific functionally.
+// ignore: non_constant_identifier_names
+MediaUtilsImpl MediaUtils = MediaUtilsImpl();
+
 /// Helper providing direct access to media related resources like media
 /// devices, media tracks, etc.
-class MediaUtils {
+class MediaUtilsImpl {
   /// [Jason] communicating with the media resources.
-  static Jason? _jason;
+  Jason? _jason;
 
   /// [MediaManagerHandle] maintaining the media devices.
-  static MediaManagerHandle? _mediaManager;
+  MediaManagerHandle? _mediaManager;
 
   /// [StreamController] piping the [MediaDeviceDetails] changes in the
   /// [MediaManagerHandle.onDeviceChange] callback.
-  static StreamController<List<MediaDeviceDetails>>? _devicesController;
+  StreamController<List<MediaDeviceDetails>>? _devicesController;
 
   /// [StreamController] piping the [MediaDisplayDetails] changes.
-  static StreamController<List<MediaDisplayDetails>>? _displaysController;
+  StreamController<List<MediaDisplayDetails>>? _displaysController;
 
-  static List<MediaDeviceDetails>? _devices;
+  List<MediaDeviceDetails>? _devices;
 
   /// Returns the [Jason] instance of these [MediaUtils].
-  static Jason? get jason {
+  Jason? get jason {
     if (_jason == null) {
       try {
         _jason = Jason();
@@ -63,13 +69,13 @@ class MediaUtils {
   }
 
   /// Returns the [MediaManagerHandle] instance of these [MediaUtils].
-  static MediaManagerHandle? get mediaManager {
+  MediaManagerHandle? get mediaManager {
     _mediaManager ??= jason?.mediaManager();
     return _mediaManager;
   }
 
   /// Returns a [Stream] of the [MediaDeviceDetails] changes.
-  static Stream<List<MediaDeviceDetails>> get onDeviceChange {
+  Stream<List<MediaDeviceDetails>> get onDeviceChange {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
       mediaManager?.onDeviceChange(() async {
@@ -85,7 +91,7 @@ class MediaUtils {
   }
 
   /// Returns a [Stream] of the [MediaDisplayDetails] changes.
-  static Stream<List<MediaDisplayDetails>> get onDisplayChange {
+  Stream<List<MediaDisplayDetails>> get onDisplayChange {
     if (_displaysController == null) {
       _displaysController = StreamController.broadcast();
 
@@ -104,7 +110,7 @@ class MediaUtils {
   }
 
   /// Returns [LocalMediaTrack]s of the [audio], [video] and [screen] devices.
-  static Future<List<LocalMediaTrack>> getTracks({
+  Future<List<LocalMediaTrack>> getTracks({
     AudioPreferences? audio,
     VideoPreferences? video,
     ScreenPreferences? screen,
@@ -128,7 +134,7 @@ class MediaUtils {
 
   /// Returns the [MediaDeviceDetails] currently available with the provided
   /// [kind], if specified.
-  static Future<List<MediaDeviceDetails>> enumerateDevices([
+  Future<List<MediaDeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
   ]) async {
     _devices = (await mediaManager?.enumerateDevices() ?? [])
@@ -140,7 +146,7 @@ class MediaUtils {
   }
 
   /// Returns the currently available [MediaDisplayDetails].
-  static Future<List<MediaDisplayDetails>> enumerateDisplays() async {
+  Future<List<MediaDisplayDetails>> enumerateDisplays() async {
     if (!PlatformUtils.isDesktop || PlatformUtils.isWeb) {
       return [];
     }
@@ -152,7 +158,7 @@ class MediaUtils {
 
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
-  static MediaStreamSettings _mediaStreamSettings({
+  MediaStreamSettings _mediaStreamSettings({
     AudioPreferences? audio,
     VideoPreferences? video,
     ScreenPreferences? screen,

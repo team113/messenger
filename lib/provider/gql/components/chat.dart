@@ -434,8 +434,6 @@ mixin ChatGraphQlMixin {
     ChatId chatId,
     ChatItemId untilId,
   ) async {
-    // print('readChat $chatId until $untilId\n${StackTrace.current}\n\n');
-
     final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.query(
       QueryOptions(

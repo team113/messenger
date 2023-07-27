@@ -157,10 +157,10 @@ class ChatItemId extends NewType<String> {
   const ChatItemId(String val) : super(val);
 
   /// Constructs a dummy [ChatItemId].
-  factory ChatItemId.local() => ChatItemId('local_${const Uuid().v4()}');
+  factory ChatItemId.local() => ChatItemId('local.${const Uuid().v4()}');
 
   /// Indicates whether this [ChatItemId] is a dummy ID.
-  bool get isLocal => val.startsWith('local_');
+  bool get isLocal => val.startsWith('local.');
 }
 
 /// Text of a [ChatMessage].

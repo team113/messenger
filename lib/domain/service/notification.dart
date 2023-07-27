@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -30,6 +29,7 @@ import '/domain/model/fcm_registration_token.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/android_utils.dart';
+import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -52,9 +52,6 @@ class NotificationService extends DisposableService {
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
-
-  /// [AudioPlayer] playing a notification sound on Web platforms.
-  AudioPlayer? _audioPlayer;
 
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
@@ -100,7 +97,7 @@ class NotificationService extends DisposableService {
     PlatformUtils.isFocused.then((value) => _focused = value);
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
-    _initAudio();
+    AudioUtils.ensureInitialized();
 
     _initLocalNotifications(
       onResponse: (NotificationResponse response) {
@@ -133,8 +130,6 @@ class NotificationService extends DisposableService {
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
     // AudioCache.instance.clear('audio/notification2.mp3');
   }
 
@@ -169,17 +164,9 @@ class NotificationService extends DisposableService {
     }
 
     if (PlatformUtils.isWeb) {
-      runZonedGuarded(() async {
-        await _audioPlayer?.play(
-          AssetSource('audio/${sound ?? 'notification2'}.mp3'),
-          position: Duration.zero,
-          mode: PlayerMode.lowLatency,
-        );
-      }, (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      });
+      AudioUtils.once(
+        AudioSource.asset('audio/${sound ?? 'notification2'}.mp3'),
+      );
 
       WebUtils.showNotification(
         title,
@@ -391,18 +378,6 @@ class NotificationService extends DisposableService {
           );
           print('[NOTIFICAITIONS] done');
         }
-      }
-    }
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    if (PlatformUtils.isWeb) {
-      try {
-        _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
-        await AudioCache.instance.loadAll(['audio/notification2.mp3']);
-      } on MissingPluginException {
-        _audioPlayer = null;
       }
     }
   }

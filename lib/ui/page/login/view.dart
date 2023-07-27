@@ -24,6 +24,7 @@ import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '/l10n/l10n.dart';
@@ -510,9 +511,7 @@ class LoginView extends StatelessWidget {
                 _signButton(
                   context,
                   text: 'btn_email'.l10n,
-                  asset: 'apple',
-                  assetWidth: 18.24,
-                  assetHeight: 23,
+                  leading: Icon(Icons.mail, color: style.colors.primary),
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
@@ -520,9 +519,14 @@ class LoginView extends StatelessWidget {
                 _signButton(
                   context,
                   text: 'btn_phone_number'.l10n,
-                  asset: 'apple',
-                  assetWidth: 18.24,
-                  assetHeight: 23,
+                  leading: Icon(
+                    PlatformUtils.isAndroid ||
+                            PlatformUtils.isWindows ||
+                            PlatformUtils.isLinux
+                        ? Icons.phone_android_outlined
+                        : Icons.phone_iphone_outlined,
+                    color: style.colors.primary,
+                  ),
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signUpWithPhone,
                 ),

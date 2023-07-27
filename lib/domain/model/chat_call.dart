@@ -44,8 +44,6 @@ class ChatCall extends ChatItem {
     this.dialed,
   });
 
-
-
   /// Indicator whether this [ChatCall] is intended to start with video.
   @HiveField(5)
   final bool withVideo;

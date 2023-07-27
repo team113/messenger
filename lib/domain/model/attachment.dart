@@ -85,7 +85,7 @@ class ImageAttachment extends Attachment {
 /// Plain file [Attachment].
 @HiveType(typeId: ModelTypeId.fileAttachment)
 class FileAttachment extends Attachment {
-FileAttachment({
+  FileAttachment({
     required super.id,
     required super.original,
     required super.filename,
