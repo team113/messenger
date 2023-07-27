@@ -79,7 +79,8 @@ class NotificationService extends DisposableService {
         await WinToast.instance().initialize(
           aumId: 'team113.messenger',
           displayName: 'Gapopa',
-          iconPath: File(r'windows\runner\resources\app_icon.ico').absolute.path,
+          iconPath:
+              File(r'windows\runner\resources\app_icon.ico').absolute.path,
           // TODO: Use a real clsid.
           clsid: '00000000-0000-0000-0000-000000000000',
         );
