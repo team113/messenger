@@ -691,10 +691,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_meedu_videoplayer
-      sha256: "0494a876360bae57334f930c8162c07c5c43011993b2ea60646d36e3fef7c017"
+      sha256: f84e647f1f52aa96b6e3367c8db15b44174dd1144b3ebd91d41693605dea13f7
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.13"
+    version: "4.2.20"
   flutter_neumorphic:
     dependency: "direct main"
     description:
@@ -1007,6 +1007,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  image:
+    dependency: transitive
+    description:
+      name: image
+      sha256: a72242c9a0ffb65d03de1b7113bc4e189686fc07c7147b8b41811d0dd0e0d9bf
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.17"
   image_gallery_saver:
     dependency: "direct main"
     description:
@@ -1191,13 +1199,13 @@ packages:
     source: hosted
     version: "0.4.0"
   media_kit:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: media_kit
-      sha256: "080cfb5af8d04f8cc454cb4c5ea34b19de5b8e1a1b3af62a34e766364b5244ad"
+      sha256: "1e6ea59b5f81d1db038ac5394c38cd3ad2f5e50bdf36f12154dee6fa04221bcb"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.11"
+    version: "1.1.0"
   media_kit_libs_ios_video:
     dependency: "direct main"
     description:
@@ -1218,34 +1226,34 @@ packages:
     dependency: transitive
     description:
       name: media_kit_libs_macos_video
-      sha256: c4d3706af5a67bf194d8208eef5cf29ea79e64931ea9bcd50f665b9a438f8416
+      sha256: "28ad624666cd20ed78f96a26917dddf6f286ea4bab21620676cc59ba62f3d3e5"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   media_kit_libs_windows_video:
     dependency: transitive
     description:
       name: media_kit_libs_windows_video
-      sha256: "99a3a85b185ae012a8e3bd596cf0ca425834477d0bec86207548d6ff7c926254"
+      sha256: "4aa12f61c9989c4d7159ed0c15640d645dbe59026ac9057a3651d026a409dcb9"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.4"
   media_kit_native_event_loop:
     dependency: transitive
     description:
       name: media_kit_native_event_loop
-      sha256: "521125e534603c3f603b93283db3938f557f33ecc383fbd62edd4beb3bf73747"
+      sha256: "5351f0c28124b5358756515d8619abad182cdefe967468d7fb5b274737cc2f59"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.6"
   media_kit_video:
     dependency: transitive
     description:
       name: media_kit_video
-      sha256: "89d3c2cdb0f74d1bb597a9c9a7678f656fe538d20620ad1317b7354fd5d1af15"
+      sha256: "55edf96bcf08f8bd158018d77afd10d5411f9f3b657fb34a4cd5690caec91596"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.12"
+    version: "1.1.0"
   meedu:
     dependency: transitive
     description:
@@ -2129,10 +2137,10 @@ packages:
     dependency: transitive
     description:
       name: video_player
-      sha256: de95f0e9405f29b5582573d4166132e71f83b3158aac14e8ee5767a54f4f1fbd
+      sha256: "3fd106c74da32f336dc7feb65021da9b0207cb3124392935f1552834f7cce822"
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.1"
+    version: "2.7.0"
   video_player_android:
     dependency: transitive
     description:
@@ -2153,18 +2161,18 @@ packages:
     dependency: transitive
     description:
       name: video_player_media_kit
-      sha256: f83872f20bbb198341cc749bf186157779c1ce34cd34b94514747f79cc3ddd64
+      sha256: "2d1e2389db93b9cbeba05d8b88d5eec1273675c7904e00c56ea08c776c6977a9"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.16"
+    version: "0.0.21"
   video_player_platform_interface:
     dependency: transitive
     description:
       name: video_player_platform_interface
-      sha256: a8c4dcae2a7a6e7cc1d7f9808294d968eca1993af34a98e95b9bdfa959bec684
+      sha256: "1ca9acd7a0fb15fb1a990cb554e6f004465c6f37c99d2285766f08a4b2802988"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.0"
+    version: "6.2.0"
   video_player_web:
     dependency: transitive
     description:
