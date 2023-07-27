@@ -19,165 +19,96 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// [Container] which represents [Text] with a specific [style].
+/// [Column] displaying the provided [TextStyle] in a descriptive way.
 class FontStyle extends StatelessWidget {
-  const FontStyle(
-    this.inverted, {
-    super.key,
-    this.style,
-    this.title,
-    this.color,
-    this.label = 'Black',
-  });
+  const FontStyle(this.style, {super.key, this.inverted = false});
+
+  /// [TextStyle] along with its title to display.
+  final (TextStyle, String) style;
 
   /// Indicator whether this [FontStyle] should have its colors
   /// inverted.
   final bool inverted;
 
-  /// Label of this [FontStyle].
-  final String? title;
-
-  /// Description that represents the color of the [style].
-  final String label;
-
-  /// [TextStyle] defining the font style for this [FontStyle].
-  final TextStyle? style;
-
-  /// [Color] of [style].
-  final Color? color;
-
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return SizedBox(
-      height: 245,
-      width: 240,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 30),
-          if (title != null)
-            Center(
-              child: Text(
-                title!,
-                style: style!.copyWith(
-                  color: color ??
-                      (inverted
-                          ? const Color(0xFFFFFFFF)
-                          : const Color(0xFF000000)),
-                ),
+    // Returns a [Row] spacing its [title] and [subtitle] with a [Divider].
+    Widget cell(String title, String subtitle) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
+        child: Row(
+          children: [
+            Text(title),
+            Expanded(
+              child: Divider(
+                indent: 8,
+                endIndent: 8,
+                color: inverted
+                    ? const Color(0xFFFFFFFF)
+                    : const Color(0xFFE8E8E8),
               ),
             ),
-          const SizedBox(height: 8),
-          Divider(
-            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
-            indent: 25,
-            endIndent: 25,
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              DefaultTextStyle(
-                style: fonts.bodySmall!.copyWith(
-                  color: inverted
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF888888),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    children: [
-                      _styleRow('Size', style!.fontSize.toString()),
-                      const SizedBox(height: 10),
-                      _styleRow(
-                        'Weight',
-                        style!.fontWeight!.value.toString(),
-                      ),
-                      const SizedBox(height: 10),
-                      _styleRow(
-                        'Style',
-                        _getFontWeightName(style!.fontWeight),
-                      ),
-                      const SizedBox(height: 10),
-                      _styleRow('Color', label),
-                      const SizedBox(height: 10),
-                      _styleRow(
-                        'Spacing',
-                        style!.letterSpacing == null
-                            ? '0 %'
-                            : '${style!.letterSpacing} %',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Representing a specific font style property.
-  Widget _styleRow(String title, String subtitle) {
-    return SizedBox(
-      width: 150,
-      child: Row(
-        children: [
-          Text(title),
-          Expanded(
-            child: Divider(
-              indent: 5,
-              endIndent: 5,
-              color:
-                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
-            ),
-          ),
-          Text(subtitle),
-        ],
-      ),
-    );
-  }
-
-  /// Returns the corresponding [fontWeight] name as a string.
-  String _getFontWeightName(FontWeight? fontWeight) {
-    final String fontWeightStyle;
-
-    switch (fontWeight) {
-      case FontWeight.w100:
-        fontWeightStyle = 'Thin';
-        break;
-      case FontWeight.w200:
-        fontWeightStyle = 'Extra-light';
-        break;
-      case FontWeight.w300:
-        fontWeightStyle = 'Light';
-        break;
-      case FontWeight.w400:
-        fontWeightStyle = 'Regular';
-        break;
-      case FontWeight.w500:
-        fontWeightStyle = 'Medium';
-        break;
-      case FontWeight.w600:
-        fontWeightStyle = 'Semi-bold';
-        break;
-      case FontWeight.w700:
-        fontWeightStyle = 'Bold';
-        break;
-      case FontWeight.w800:
-        fontWeightStyle = 'Extra-bold';
-        break;
-      case FontWeight.w900:
-        fontWeightStyle = 'Black';
-        break;
-      default:
-        fontWeightStyle = 'Regular';
-        break;
+            Text(subtitle),
+          ],
+        ),
+      );
     }
 
-    return fontWeightStyle;
+    return SizedBox(
+      width: 210,
+      child: DefaultTextStyle(
+        style: fonts.bodySmall!.copyWith(
+          color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF888888),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                style.$2,
+                style: style.$1.copyWith(
+                  color: inverted
+                      ? const Color(0xFFFFFFFF)
+                      : const Color(0xFF000000),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Divider(
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+              indent: 25,
+              endIndent: 25,
+            ),
+            cell('Size', style.$1.fontSize.toString()),
+            cell('Weight', style.$1.fontWeight!.value.toString()),
+            cell('Style', style.$1.fontWeight?.name ?? ''),
+            cell('Color', style.$1.color!.toHex()),
+            cell('Spacing', '${style.$1.letterSpacing ?? 0} %'),
+          ],
+        ),
+      ),
+    );
   }
+}
+
+/// Extension adding conversion of [FontWeight] to its name.
+extension on FontWeight {
+  /// Returns this [FontWeight] localized as a [String].
+  String get name => switch (value) {
+        100 => 'Thin',
+        200 => 'Extra-light',
+        300 => 'Light',
+        400 => 'Regular',
+        500 => 'Medium',
+        600 => 'Semi-bold',
+        700 => 'Bold',
+        800 => 'Extra-bold',
+        900 => 'Black',
+        _ => 'Regular',
+      };
 }

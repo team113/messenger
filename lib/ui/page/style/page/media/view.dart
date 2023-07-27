@@ -40,14 +40,14 @@ class MultimediaView extends StatelessWidget {
                 padding: EdgeInsets.all(compact ? 0 : 20),
                 child: Column(
                   children: [
-                    const Header(label: 'Multimedia'),
-                    const SmallHeader(label: 'Images'),
+                    const Header('Multimedia'),
+                    const SubHeader('Images'),
                     ImagesView(isDarkMode: isDarkMode),
                     const Divider(),
-                    const SmallHeader(label: 'Animation'),
+                    const SubHeader('Animation'),
                     const AnimationStyleWidget(),
                     const Divider(),
-                    const SmallHeader(label: 'Sound'),
+                    const SubHeader('Sound'),
                     const SoundsWidget(),
                     const Divider(),
                   ],

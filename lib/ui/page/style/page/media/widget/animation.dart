@@ -36,13 +36,12 @@ class AnimationStyleWidget extends StatelessWidget {
     return GetBuilder(
         init: StyleController(),
         builder: (StyleController c) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Tooltip(
-                message: 'Full-length animated Logo',
-                child: Container(
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
                   height: 300,
                   width: 200,
                   decoration: BoxDecoration(
@@ -63,52 +62,42 @@ class AnimationStyleWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                children: [
-                  Tooltip(
-                    message: 'AnimatedTyping',
-                    child: Container(
+                const SizedBox(height: 16),
+                Container(
+                  height: 75,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: style.colors.onPrimary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 20,
+                    ),
+                    child: AnimatedTyping(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Stack(
+                  children: [
+                    Container(
                       height: 75,
                       width: 100,
                       decoration: BoxDecoration(
                         color: style.colors.onPrimary,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 40,
-                          vertical: 20,
-                        ),
-                        child: AnimatedTyping(),
-                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Tooltip(
-                    message: 'CustomProgressIndicator',
-                    child: Stack(
-                      children: [
-                        Container(
-                          height: 75,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            color: style.colors.onPrimary,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        const Positioned(
-                          left: 32,
-                          top: 22,
-                          child: CustomProgressIndicator(),
-                        ),
-                      ],
+                    const Positioned(
+                      left: 32,
+                      top: 22,
+                      child: CustomProgressIndicator(),
                     ),
-                  ),
-                ],
-              )
-            ],
+                  ],
+                )
+              ],
+            ),
           );
         });
   }

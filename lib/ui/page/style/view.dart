@@ -18,11 +18,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/style/page/element/view.dart';
-import 'package:messenger/ui/page/style/page/media/view.dart';
 
+import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
 import 'page/colors/view.dart';
+import 'page/media/view.dart';
 import 'page/typography/view.dart';
 
 /// View of the [Routes.style] page.
@@ -39,83 +40,7 @@ class StyleView extends StatelessWidget {
           body: SafeArea(
             child: Column(
               children: [
-                Row(
-                  children: [
-                    const SizedBox(width: 5),
-                    SizedBox(
-                      height: 50,
-                      width: 380,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: StyleTab.values.length,
-                        itemBuilder: (context, i) {
-                          return Obx(() {
-                            final StyleTab tab = StyleTab.values[i];
-                            final bool selected = c.tab.value == tab;
-
-                            return switch (tab) {
-                              StyleTab.colors => StyleCard(
-                                  icon: selected
-                                      ? Icons.format_paint
-                                      : Icons.format_paint_outlined,
-                                  inverted: selected,
-                                  onPressed: () => c.tab.value = tab,
-                                ),
-                              StyleTab.typography => StyleCard(
-                                  icon: selected
-                                      ? Icons.text_snippet
-                                      : Icons.text_snippet_outlined,
-                                  inverted: selected,
-                                  onPressed: () => c.tab.value = tab,
-                                ),
-                              StyleTab.multimedia => StyleCard(
-                                  icon: selected
-                                      ? Icons.play_lesson
-                                      : Icons.play_lesson_outlined,
-                                  inverted: selected,
-                                  onPressed: () => c.tab.value = tab,
-                                ),
-                              StyleTab.elements => StyleCard(
-                                  icon: selected
-                                      ? Icons.widgets
-                                      : Icons.widgets_outlined,
-                                  inverted: selected,
-                                  onPressed: () => c.tab.value = tab,
-                                ),
-                            };
-                          });
-                        },
-                      ),
-                    ),
-                    const Spacer(),
-                    Obx(
-                      () => IconButton(
-                        onPressed: () => c.compact.toggle(),
-                        icon: Icon(
-                          c.compact.value
-                              ? Icons.layers_clear_rounded
-                              : Icons.layers_rounded,
-                          color: const Color(0xFF1F3C5D),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Obx(
-                      () => IconButton(
-                        onPressed: () => c.inverted.toggle(),
-                        icon: Icon(
-                          c.inverted.value
-                              ? Icons.dark_mode_rounded
-                              : Icons.light_mode_rounded,
-                          color: c.inverted.value
-                              ? const Color(0xFF1F3C5D)
-                              : const Color(0xFFFFB74D),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                  ],
-                ),
+                _appBar(c),
                 Expanded(child: _page(c)),
               ],
             ),
@@ -125,24 +50,126 @@ class StyleView extends StatelessWidget {
     );
   }
 
+  /// Returns [Row] of [StyleCard]s and [IconButton]s meant to be an app bar.
+  Widget _appBar(StyleController c) {
+    return Row(
+      children: [
+        const SizedBox(width: 5),
+        Expanded(
+          child: SizedBox(
+            height: 50,
+            child: CustomScrollView(
+              scrollDirection: Axis.horizontal,
+              slivers: [
+                SliverList.builder(
+                  itemCount: StyleTab.values.length,
+                  itemBuilder: (context, i) {
+                    return Obx(() {
+                      final StyleTab tab = StyleTab.values[i];
+                      final bool selected = c.tab.value == tab;
+
+                      return switch (tab) {
+                        StyleTab.colors => StyleCard(
+                            icon: selected
+                                ? Icons.format_paint
+                                : Icons.format_paint_outlined,
+                            inverted: selected,
+                            onPressed: () => c.pages.jumpToPage(i),
+                          ),
+                        StyleTab.typography => StyleCard(
+                            icon: selected
+                                ? Icons.text_snippet
+                                : Icons.text_snippet_outlined,
+                            inverted: selected,
+                            onPressed: () => c.pages.jumpToPage(i),
+                          ),
+                        StyleTab.multimedia => StyleCard(
+                            icon: selected
+                                ? Icons.play_lesson
+                                : Icons.play_lesson_outlined,
+                            inverted: selected,
+                            onPressed: () => c.pages.jumpToPage(i),
+                          ),
+                        StyleTab.elements => StyleCard(
+                            icon: selected
+                                ? Icons.widgets
+                                : Icons.widgets_outlined,
+                            inverted: selected,
+                            onPressed: () => c.pages.jumpToPage(i),
+                          ),
+                      };
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        Obx(
+          () => IconButton(
+            onPressed: c.dense.toggle,
+            icon: Icon(
+              c.dense.value ? Icons.layers_clear_rounded : Icons.layers_rounded,
+              color: const Color(0xFF1F3C5D),
+            ),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Obx(
+          () => IconButton(
+            onPressed: c.inverted.toggle,
+            icon: Icon(
+              c.inverted.value
+                  ? Icons.dark_mode_rounded
+                  : Icons.light_mode_rounded,
+              color: c.inverted.value
+                  ? const Color(0xFF1F3C5D)
+                  : const Color(0xFFFFB74D),
+            ),
+          ),
+        ),
+        const SizedBox(width: 15),
+      ],
+    );
+  }
+
   /// Returns a corresponding [StyleController.tab] page switcher.
   Widget _page(StyleController c) {
     return ColoredBox(
       color: const Color(0xFFF5F5F5),
-      child: Obx(() {
-        return switch (c.tab.value) {
-          StyleTab.colors => ColorsView(c.inverted.value, c.compact.value),
-          StyleTab.typography => TypographyView(
-              c.inverted.value,
-              c.compact.value,
-            ),
-          StyleTab.multimedia => MultimediaView(
-              c.inverted.value,
-              c.compact.value,
-            ),
-          StyleTab.elements => ElementsView(c.inverted.value, c.compact.value),
-        };
-      }),
+      child: PageView(
+        controller: c.pages,
+        onPageChanged: (i) => c.tab.value = StyleTab.values[i],
+        physics: const NeverScrollableScrollPhysics(),
+        children: StyleTab.values.map((e) {
+          return KeepAlivePage(
+            child: switch (e) {
+              StyleTab.colors => Obx(() {
+                  return ColorsView(
+                    inverted: c.inverted.value,
+                    dense: c.dense.value,
+                  );
+                }),
+              StyleTab.typography => Obx(() {
+                  return TypographyView(
+                    inverted: c.inverted.value,
+                    dense: c.dense.value,
+                  );
+                }),
+
+              // TODO: Implement.
+              StyleTab.multimedia => Obx(() {
+                  return MultimediaView(c.inverted.value, c.dense.value);
+                }),
+
+              // TODO: Implement.
+              StyleTab.elements => Obx(() {
+                  return ElementsView(c.inverted.value, c.dense.value);
+                }),
+            },
+          );
+        }).toList(),
+      ),
     );
   }
 }

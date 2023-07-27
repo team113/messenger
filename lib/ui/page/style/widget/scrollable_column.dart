@@ -17,41 +17,25 @@
 
 import 'package:flutter/material.dart';
 
-import '/ui/widget/outlined_rounded_button.dart';
+/// [Column] of [Widget]s that can be scrolled.
+class ScrollableColumn extends StatelessWidget {
+  const ScrollableColumn(this.children, {super.key});
 
-/// Small rounded [OutlinedRoundedButton] with a single [icon].
-class StyleCard extends StatelessWidget {
-  const StyleCard({
-    super.key,
-    this.icon,
-    this.onPressed,
-    this.inverted = false,
-  });
-
-  /// [IconData] to display.
-  final IconData? icon;
-
-  /// Indicator whether this [StyleCard] should have its colors inverted.
-  final bool inverted;
-
-  /// Callback, called when this [StyleCard] is pressed.
-  final void Function()? onPressed;
+  /// [Widget]s to display in this [ScrollableColumn].
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(6),
-      child: SizedBox(
-        width: 70,
-        child: OutlinedRoundedButton(
-          color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
-          onPressed: onPressed,
-          title: Icon(
-            icon,
-            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF1F3C5D),
+    return CustomScrollView(
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate(
+            [
+              Column(children: children),
+            ],
           ),
-        ),
-      ),
+        )
+      ],
     );
   }
 }

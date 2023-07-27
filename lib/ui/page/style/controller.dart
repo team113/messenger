@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart';
@@ -31,14 +32,22 @@ enum StyleTab { colors, typography, multimedia, elements }
 class StyleController extends GetxController {
   StyleController();
 
-  /// Indicator whether the colors should be inverted.
-  final RxBool inverted = RxBool(false);
+  /// Indicator whether the [StyleView] should be compact, meaning minimal
+  /// [Padding]s.
+  ///
+  /// Intended for the [StyleView] to be used as a reference.
+  final RxBool dense = RxBool(false);
 
-  /// Indicator whether the colors should be inverted.
-  final RxBool compact = RxBool(false);
+  /// Indicator whether the [Color]s of the [StyleView] should be inverted.
+  ///
+  /// Meant to be used as a light/dart theme switch.
+  final RxBool inverted = RxBool(false);
 
   /// Selected [StyleTab].
   final Rx<StyleTab> tab = Rx(StyleTab.colors);
+
+  /// [PageController] controlling the [PageView] of [StyleView].
+  final PageController pages = PageController();
 
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);

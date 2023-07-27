@@ -19,24 +19,25 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// [Column] of all characters in a specific font family.
+/// [FontWeight] visual representation.
 class FontFamily extends StatelessWidget {
   const FontFamily(
-    this.inverted, {
+    this.family, {
     super.key,
-    this.fontWeight,
-    this.label,
+    this.inverted = false,
+    this.dense = false,
   });
+
+  /// [FontWeight] along with its title to display.
+  final (FontWeight, String) family;
 
   /// Indicator whether this [FontFamily] should have its colors
   /// inverted.
   final bool inverted;
 
-  /// Label of this [FontFamily].
-  final String? label;
-
-  /// [FontWeight] of this [FontFamily].
-  final FontWeight? fontWeight;
+  /// Indicator whether this [FontFamily] should be dense, meaning no
+  /// [Padding]s.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -45,43 +46,22 @@ class FontFamily extends StatelessWidget {
     return DefaultTextStyle(
       style: fonts.displayLarge!.copyWith(
         color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+        fontWeight: family.$1,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: dense ? 0 : 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-            const SizedBox(height: 40),
-            const Text('abcdefghijklmnopqrstuvwxyz'),
-            const SizedBox(height: 40),
-            const Row(
-              children: [
-                Flexible(child: Text('1234567890', softWrap: true)),
-                SizedBox(width: 50),
-                Flexible(
-                  child: Text(
-                    '_-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
-                    softWrap: true,
-                  ),
-                ),
-              ],
-            ),
-            if (label != null)
-              Align(
-                alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Text(
-                    label!,
-                    style: fonts.displayLarge!.copyWith(
-                      color: const Color(0xFFF5F5F5),
-                      fontSize: 40,
-                    ),
-                  ),
-                ),
+            const Flexible(
+              child: Text(
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ\n'
+                'abcdefghijklmnopqrstuvwxyz\n'
+                '1234567890 _-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
               ),
+            ),
+            Text(family.$2),
           ],
         ),
       ),

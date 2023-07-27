@@ -19,53 +19,48 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// Header-styled [Text].
+/// [Text] serving a header.
 class Header extends StatelessWidget {
-  const Header({super.key, this.label});
+  const Header(this.label, {super.key});
 
-  /// Label of this [Header].
-  final String? label;
+  /// Label to display.
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        if (label != null)
-          Text(
-            label!,
-            style: fonts.displayLarge!.copyWith(color: const Color(0xFF1F3C5D)),
-          ),
-      ],
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        label,
+        style: fonts.displayLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+      ),
     );
   }
 }
 
-/// Small header-styled [Text].
-class SmallHeader extends StatelessWidget {
-  const SmallHeader({super.key, this.label});
+/// [Text] serving a sub-header.
+class SubHeader extends StatelessWidget {
+  const SubHeader(this.label, {super.key});
 
-  /// Label of this [SmallHeader].
-  final String? label;
+  /// Label to display.
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        const SizedBox(height: 50),
-        if (label != null)
-          Text(
-            label!,
-            style: fonts.headlineLarge!.copyWith(
-              color: const Color(0xFF1F3C5D),
-            ),
-          ),
-      ],
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 24, bottom: 12),
+        child: Text(
+          label,
+          style: fonts.headlineLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+          textAlign: TextAlign.start,
+        ),
+      ),
     );
   }
 }

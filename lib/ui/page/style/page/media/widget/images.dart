@@ -59,74 +59,80 @@ class ImagesView extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 16),
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Tooltip(
-              message: 'Full-length Logo',
-              child: Column(
-                children: [
-                  Container(
-                    height: 300,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      color: style.colors.onPrimary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: SvgImage.asset('assets/images/logo/logo0000.svg'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Tooltip(
-                  message: 'Logo head',
-                  child: Container(
-                    height: 150,
-                    width: 150,
-                    decoration: BoxDecoration(
-                      color: style.colors.onPrimary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: SvgImage.asset('assets/images/logo/head0000.svg'),
-                    ),
+                  message: 'Full-length Logo',
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 300,
+                        width: 200,
+                        decoration: BoxDecoration(
+                          color: style.colors.onPrimary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15),
+                          child:
+                              SvgImage.asset('assets/images/logo/logo0000.svg'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                Tooltip(
-                  message: 'Unread message counter icons',
-                  child: Container(
-                    width: 150,
-                    height: 130,
-                    decoration: BoxDecoration(
-                      color: style.colors.onPrimary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Wrap(
-                        runAlignment: WrapAlignment.center,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 3,
-                        runSpacing: 3,
-                        alignment: WrapAlignment.center,
-                        children: List.generate(20, (index) {
-                          final int number = index + 1;
-
-                          return UnreadCounter(number);
-                        }),
+                const SizedBox(height: 30),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Tooltip(
+                      message: 'Logo head',
+                      child: Container(
+                        height: 150,
+                        width: 150,
+                        decoration: BoxDecoration(
+                          color: style.colors.onPrimary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15),
+                          child:
+                              SvgImage.asset('assets/images/logo/head0000.svg'),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    Tooltip(
+                      message: 'Unread message counter icons',
+                      child: Container(
+                        width: 150,
+                        height: 130,
+                        decoration: BoxDecoration(
+                          color: style.colors.onPrimary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Wrap(
+                            runAlignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 3,
+                            runSpacing: 3,
+                            alignment: WrapAlignment.center,
+                            children: List.generate(20, (index) {
+                              final int number = index + 1;
+
+                              return UnreadCounter(number);
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
