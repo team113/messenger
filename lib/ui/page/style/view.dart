@@ -57,7 +57,7 @@ class StyleView extends StatelessWidget {
         const SizedBox(width: 5),
         Expanded(
           child: SizedBox(
-            height: 50,
+            height: 55,
             child: CustomScrollView(
               scrollDirection: Axis.horizontal,
               slivers: [
