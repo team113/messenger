@@ -91,7 +91,10 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
+  /// [StreamSubscription] for canceling the [_outgoing] sound playing.
   StreamSubscription? _outgoingAudio;
+
+  /// [StreamSubscription] for canceling the [_incoming] sound playing.
   StreamSubscription? _incomingAudio;
 
   /// Returns the currently authenticated [MyUser].
