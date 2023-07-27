@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/header.dart';
+import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/color.dart';
 import 'widget/schema.dart';
 
@@ -188,57 +189,63 @@ class ColorsView extends StatelessWidget {
       (style.colors.warningColor, 'warningColor', 'Do not disturb status'),
     ];
 
-    final List<Color> avatars = style.colors.userColors;
+    final Iterable<(Color, String, String)> avatars =
+        style.colors.userColors.map((color) => (color, '', '')).toList();
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Header('Colors'),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: SubHeader('Palette'),
-          ),
-          ColorSchemaWidget(
-            colors,
+    return ScrollableColumn(
+      children: [
+        const SizedBox(height: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Header('Colors'),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: SubHeader('Palette'),
+        ),
+        ColorSchemaWidget(
+          colors,
+          inverted: inverted,
+          dense: dense,
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: SubHeader('Avatar palette'),
+        ),
+        ColorSchemaWidget(
+          avatars,
+          inverted: inverted,
+          dense: dense,
+        ),
+        const SizedBox(height: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: SubHeader('Colors'),
+        ),
+        BuilderWrap(
+          colors,
+          inverted: inverted,
+          dense: dense,
+          (e) => ColorWidget(
+            e.$1,
             inverted: inverted,
-            dense: dense,
+            subtitle: e.$2,
+            hint: e.$3,
           ),
-          const SizedBox(height: 16),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: SubHeader('Colors'),
-          ),
-          BuilderWrap(
-            colors,
-            inverted: inverted,
-            dense: dense,
-            (e) => ColorWidget(
-              e.$1,
-              inverted: inverted,
-              subtitle: e.$2,
-              hint: e.$3,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: SubHeader('Avatars'),
-          ),
-          BuilderWrap(
-            avatars,
-            inverted: inverted,
-            dense: dense,
-            (e) => ColorWidget(e, inverted: inverted),
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
+        ),
+        const SizedBox(height: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: SubHeader('Avatars'),
+        ),
+        BuilderWrap(
+          avatars,
+          inverted: inverted,
+          dense: dense,
+          (e) => ColorWidget(e.$1, inverted: inverted),
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }

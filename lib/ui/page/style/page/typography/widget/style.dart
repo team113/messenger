@@ -36,70 +36,61 @@ class FontStyle extends StatelessWidget {
 
     // Returns a [Row] spacing its [title] and [subtitle] with a [Divider].
     Widget cell(String title, String subtitle) {
-      return Row(
-        children: [
-          Text(title),
-          Expanded(
-            child: Divider(
-              indent: 10,
-              endIndent: 10,
-              color:
-                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
+        child: Row(
+          children: [
+            Text(title),
+            Expanded(
+              child: Divider(
+                indent: 8,
+                endIndent: 8,
+                color: inverted
+                    ? const Color(0xFFFFFFFF)
+                    : const Color(0xFFE8E8E8),
+              ),
             ),
-          ),
-          Text(subtitle),
-        ],
+            Text(subtitle),
+          ],
+        ),
       );
     }
 
     return SizedBox(
       width: 210,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 8),
-          Center(
-            child: Text(
-              style.$2,
-              style: style.$1.copyWith(
-                color: inverted
-                    ? const Color(0xFFFFFFFF)
-                    : const Color(0xFF000000),
+      child: DefaultTextStyle(
+        style: fonts.bodySmall!.copyWith(
+          color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF888888),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                style.$2,
+                style: style.$1.copyWith(
+                  color: inverted
+                      ? const Color(0xFFFFFFFF)
+                      : const Color(0xFF000000),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Divider(
-            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
-            indent: 25,
-            endIndent: 25,
-          ),
-          const SizedBox(height: 8),
-          DefaultTextStyle(
-            style: fonts.bodySmall!.copyWith(
+            const SizedBox(height: 8),
+            Divider(
               color:
-                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF888888),
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+              indent: 25,
+              endIndent: 25,
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Column(
-                children: [
-                  cell('Size', style.$1.fontSize.toString()),
-                  const SizedBox(height: 10),
-                  cell('Weight', style.$1.fontWeight!.value.toString()),
-                  const SizedBox(height: 10),
-                  cell('Style', style.$1.fontWeight?.name ?? ''),
-                  const SizedBox(height: 10),
-                  cell('Color', style.$1.color!.toHex()),
-                  const SizedBox(height: 10),
-                  cell('Spacing', '${style.$1.letterSpacing ?? 0} %'),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
+            cell('Size', style.$1.fontSize.toString()),
+            cell('Weight', style.$1.fontWeight!.value.toString()),
+            cell('Style', style.$1.fontWeight?.name ?? ''),
+            cell('Color', style.$1.color!.toHex()),
+            cell('Spacing', '${style.$1.letterSpacing ?? 0} %'),
+          ],
+        ),
       ),
     );
   }

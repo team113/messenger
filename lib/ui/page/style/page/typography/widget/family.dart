@@ -21,7 +21,12 @@ import '/themes.dart';
 
 /// [FontWeight] visual representation.
 class FontFamily extends StatelessWidget {
-  const FontFamily(this.family, {super.key, this.inverted = false});
+  const FontFamily(
+    this.family, {
+    super.key,
+    this.inverted = false,
+    this.dense = false,
+  });
 
   /// [FontWeight] along with its title to display.
   final (FontWeight, String) family;
@@ -29,6 +34,10 @@ class FontFamily extends StatelessWidget {
   /// Indicator whether this [FontFamily] should have its colors
   /// inverted.
   final bool inverted;
+
+  /// Indicator whether this [FontFamily] should be dense, meaning no
+  /// [Padding]s.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -40,29 +49,19 @@ class FontFamily extends StatelessWidget {
         fontWeight: family.$1,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: dense ? 0 : 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'ABCDEFGHIJKLMNOPQRSTUVWXYZ\n'
-              'abcdefghijklmnopqrstuvwxyz\n'
-              '1234567890 _-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Text(
-                  family.$2,
-                  style: fonts.displayLarge!.copyWith(
-                    color: const Color(0xFFF5F5F5),
-                    fontSize: 40,
-                  ),
-                ),
+            const Flexible(
+              child: Text(
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ\n'
+                'abcdefghijklmnopqrstuvwxyz\n'
+                '1234567890 _-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
               ),
             ),
+            Text(family.$2),
           ],
         ),
       ),

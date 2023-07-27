@@ -47,9 +47,7 @@ class BuilderWrap<T> extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
       width: double.infinity,
-      margin: EdgeInsets.symmetric(
-        horizontal: dense ? 0 : 16,
-      ),
+      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
