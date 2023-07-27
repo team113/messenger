@@ -45,9 +45,7 @@ dependencies:
   get: ^4.6.5
   graphql_flutter: ^5.1.2
   hive_flutter: ^1.1.0
-  hive:
-    git:
-      url: https://github.com/krida2000/git-hive.git
+  hive: ^2.2.3
   http: ^0.13.6
   http_parser: ^4.0.2
   image_gallery_saver: ^1.7.1
@@ -62,9 +60,7 @@ dependencies:
   media_kit_libs_ios_video: ^1.0.4
   mime: ^1.0.4
   mutex: ^3.0.1
-  # TODO: Switch to pub.dev
-  open_file:
-    git: https://github.com/adaptolearning/open_file
+  open_file: ^3.3.2
   path: ^1.8.2
   path_provider: ^2.0.15
   path_provider_android: ^2.0.22
@@ -118,17 +114,17 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^5.12.0
+  # TODO: Remove when hivedb/hive#1034 is fixed:
+  #       https://github.com/hivedb/hive/issues/1034
+  hive:
+    git:
+      url: https://github.com/krida2000/git-hive.git
   # TODO: Remove when `sentry_flutter` updates.
   package_info_plus: ^4.0.0
   # TODO: Remove when creativecreatorormaybenot/wakelock#195 is released to
   #       `pub.dev`:
   #       https://github.com/creativecreatorormaybenot/wakelock/pull/195
   win32: ^4.1.3
-  # TODO: Remove when hivedb/hive#1034 is fixed:
-  #       https://github.com/hivedb/hive/issues/1034
-  hive:
-    git:
-      url: https://github.com/krida2000/git-hive.git
 
 flutter:
   uses-material-design: true

@@ -17,18 +17,18 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// [Enabled] statuses available in an [EnabledParameter].
-enum Enabled { enabled, disabled }
+/// Statuses available in an [EnabledParameter].
+enum EnabledStatus { enabled, disabled }
 
-/// [CustomParameter] representing an enabled status.
-class EnabledParameter extends CustomParameter<Enabled> {
+/// [CustomParameter] representing an [EnabledStatus] status.
+class EnabledParameter extends CustomParameter<EnabledStatus> {
   EnabledParameter()
       : super(
           'enabled',
           RegExp(
-            '(${Enabled.values.map((e) => e.name).join('|')})',
+            '(${EnabledStatus.values.map((e) => e.name).join('|')})',
             caseSensitive: false,
           ),
-          (c) => Enabled.values.firstWhere((e) => e.name == c),
+          (c) => EnabledStatus.values.firstWhere((e) => e.name == c),
         );
 }

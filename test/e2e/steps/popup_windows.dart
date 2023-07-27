@@ -19,20 +19,20 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/repository/settings.dart';
 
-import '../parameters/enabled.dart';
+import '../parameters/enabled_status.dart';
 import '../world/custom_world.dart';
 
-/// Enables or disables opening calls in popup.
+/// Enables or disables [ApplicationSettings.enablePopups].
 ///
 /// Examples:
-/// - Given popup windows is enabled
-/// - Given popup windows is disabled
-final StepDefinitionGeneric popupWindows = given1<Enabled, CustomWorld>(
-  'popup windows is {enabled}',
+/// - Given popup windows are enabled
+/// - Given popup windows are disabled
+final StepDefinitionGeneric popupWindows = given1<EnabledStatus, CustomWorld>(
+  'popup windows are {enabled}',
   (enabled, context) async {
     await context.world.appDriver.waitUntil(() async {
       try {
-        if (enabled == Enabled.enabled) {
+        if (enabled == EnabledStatus.enabled) {
           await Get.find<AbstractSettingsRepository>().setPopupsEnabled(true);
         } else {
           await Get.find<AbstractSettingsRepository>().setPopupsEnabled(false);
