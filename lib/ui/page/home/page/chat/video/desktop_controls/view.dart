@@ -26,16 +26,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
+import '../widget/centered_play_pause.dart';
+import '../widget/position.dart';
+import '../widget/video_progress_bar.dart';
+import '../widget/volume_button.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/video/widget/position.dart';
-import '/ui/page/home/page/chat/video/widget/video_progress_bar.dart';
-import '/ui/page/home/page/chat/video/desktop_controls/widget/volume_overlay.dart';
-import 'widget/centered_control.dart';
-import 'widget/volume_button.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
+import 'widget/custom_play_pause.dart';
 import 'widget/expand_button.dart';
-import 'widget/play_pause.dart';
+import 'widget/volume_overlay.dart';
 
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
@@ -185,7 +185,7 @@ class _DesktopControlsState extends State<DesktopControls>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : CenteredControl(
+                  : CenteredPlayPause(
                       controller: widget.controller,
                       show: !_dragging && !_hideStuff || _showInterface,
                       onPressed: _playPause,
@@ -327,7 +327,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   const SizedBox(width: 12),
                   ExpandButton(
                     height: widget.barHeight,
-                    inverted: widget.isFullscreen?.value == true,
+                    fullscreen: widget.isFullscreen?.value == true,
                     onTap: _onExpandCollapse,
                   ),
                   const SizedBox(width: 12),

@@ -21,12 +21,14 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// Button-styled [Icon] that can be used to control the volume.
+/// Button-styled volume [Icon].
 class VolumeButton extends StatelessWidget {
   const VolumeButton({
     super.key,
     required this.controller,
     this.height,
+    this.margin,
+    this.padding,
     this.onTap,
     this.onEnter,
   });
@@ -36,6 +38,12 @@ class VolumeButton extends StatelessWidget {
 
   /// Height of this [VolumeButton].
   final double? height;
+
+  /// Optional margin of this [VolumeButton].
+  final EdgeInsetsGeometry? margin;
+
+  /// Optional padding of this [VolumeButton].
+  final EdgeInsetsGeometry? padding;
 
   /// Callback, called when a mouse pointer has entered this [VolumeButton].
   final void Function(PointerEnterEvent)? onEnter;
@@ -52,19 +60,17 @@ class VolumeButton extends StatelessWidget {
       onEnter: onEnter,
       child: GestureDetector(
         onTap: onTap,
-        child: ClipRect(
-          child: SizedBox(
-            height: height,
-            child: RxBuilder((_) {
-              return Icon(
-                controller.volume.value > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                color: style.colors.onPrimary,
-                size: 18,
-              );
-            }),
-          ),
+        child: Container(
+          height: height,
+          margin: margin,
+          padding: padding,
+          child: RxBuilder((_) {
+            return Icon(
+              controller.volume.value > 0 ? Icons.volume_up : Icons.volume_off,
+              color: style.colors.onPrimary,
+              size: 18,
+            );
+          }),
         ),
       ),
     );

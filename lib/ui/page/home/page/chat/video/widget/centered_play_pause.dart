@@ -17,17 +17,18 @@
 
 // ignore_for_file: implementation_imports
 
+import 'package:chewie/src/animated_play_pause.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
-import 'package:chewie/src/center_play_button.dart';
 
 import '/themes.dart';
 
-/// Custom-styled [CenterPlayButton].
-class StyledPlayPause extends StatelessWidget {
-  const StyledPlayPause({
+/// Centered [AnimatedPlayPause].
+class CenteredPlayPause extends StatelessWidget {
+  const CenteredPlayPause({
     super.key,
     required this.controller,
+    this.size = 48,
     this.onPressed,
     this.show = true,
   });
@@ -35,10 +36,13 @@ class StyledPlayPause extends StatelessWidget {
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
 
-  /// Indicator whether to show this [StyledPlayPause].
+  /// Size of this [CenteredPlayPause].
+  final double size;
+
+  /// Indicator whether to show this [CenteredPlayPause].
   final bool show;
 
-  /// Callback, called whin this [StyledPlayPause] is tapped.
+  /// Callback, called when this [CenteredPlayPause] is tapped.
   final void Function()? onPressed;
 
   @override
@@ -49,13 +53,29 @@ class StyledPlayPause extends StatelessWidget {
       final bool isFinished =
           controller.position.value >= controller.duration.value;
 
-      return CenterPlayButton(
-        backgroundColor: style.colors.onBackgroundOpacity13,
-        iconColor: style.colors.onPrimary,
-        isFinished: isFinished,
-        isPlaying: controller.playerStatus.playing,
-        show: show,
-        onPressed: onPressed,
+      return Center(
+        child: AnimatedOpacity(
+          opacity: show ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 300),
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: style.colors.onBackgroundOpacity13,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              iconSize: 32,
+              icon: isFinished
+                  ? Icon(Icons.replay, color: style.colors.onPrimary)
+                  : AnimatedPlayPause(
+                      color: style.colors.onPrimary,
+                      playing: controller.playerStatus.playing,
+                    ),
+              onPressed: onPressed,
+            ),
+          ),
+        ),
       );
     });
   }

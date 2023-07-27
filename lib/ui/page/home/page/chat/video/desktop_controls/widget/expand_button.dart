@@ -19,20 +19,20 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// Button-styled [Icon] used to expand or collapse a section of content.
+/// Button-styled fullscreen [Icon].
 class ExpandButton extends StatelessWidget {
   const ExpandButton({
     super.key,
     this.height,
     this.onTap,
-    this.inverted = false,
+    this.fullscreen = false,
   });
 
   /// Height of this [ExpandButton].
   final double? height;
 
-  /// Indicator whether the icon of this [ExpandButton] should be inverted.
-  final bool inverted;
+  /// Indicator whether fullscreen mode is enabled.
+  final bool fullscreen;
 
   /// Callback, called when this [ExpandButton] is tapped.
   final void Function()? onTap;
@@ -49,7 +49,7 @@ class ExpandButton extends StatelessWidget {
           height: height,
           child: Center(
             child: Icon(
-              inverted ? Icons.fullscreen_exit : Icons.fullscreen,
+              fullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
               color: style.colors.onPrimary,
               size: 21,
             ),

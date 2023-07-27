@@ -22,7 +22,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
-import 'volume_bar.dart';
+import 'video_volume_bar.dart';
 import '/themes.dart';
 
 /// Volume overlay for controlling the volume of a video player.

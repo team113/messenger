@@ -148,9 +148,13 @@ class _ProgressBarState extends State<ProgressBar> {
   /// Transforms the provided [globalPosition] into relative [Duration].
   Duration _relativePosition(Offset globalPosition) {
     final box = context.findRenderObject()! as RenderBox;
-    final Offset tapPos = box.globalToLocal(globalPosition);
-    final double relative = tapPos.dx / box.size.width;
-    return widget.controller.duration.value * relative;
+    final Offset position = box.globalToLocal(globalPosition);
+    if (position.dx > 0) {
+      final double relative = position.dx / box.size.width;
+      return widget.controller.duration.value * relative;
+    } else {
+      return Duration.zero;
+    }
   }
 }
 

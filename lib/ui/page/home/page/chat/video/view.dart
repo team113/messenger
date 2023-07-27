@@ -26,11 +26,11 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/video/desktop_controls/view.dart';
-import '/ui/page/home/page/chat/video/mobile_controls/view.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
+import 'desktop_controls/view.dart';
+import 'mobile_controls/view.dart';
 
 /// Video player with controls.
 class VideoView extends StatefulWidget {

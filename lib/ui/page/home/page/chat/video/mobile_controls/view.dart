@@ -24,11 +24,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
+import '../widget/centered_play_pause.dart';
+import '../widget/position.dart';
+import '../widget/video_progress_bar.dart';
+import '../widget/volume_button.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/video/widget/position.dart';
-import '/ui/page/home/page/chat/video/widget/video_progress_bar.dart';
-import 'widget/styled_play_pause.dart.dart';
-import 'widget/volume_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 import 'widget/rewind_indicator.dart';
@@ -108,8 +108,9 @@ class _MobileControlsState extends State<MobileControls>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : StyledPlayPause(
+                  : CenteredPlayPause(
                       controller: widget.controller,
+                      size: 56,
                       show: !_dragging && !_hideStuff,
                       onPressed: _playPause,
                     );
@@ -214,6 +215,11 @@ class _MobileControlsState extends State<MobileControls>
                       VolumeButton(
                         controller: widget.controller,
                         height: widget.barHeight,
+                        margin: const EdgeInsets.only(right: 12.0),
+                        padding: const EdgeInsets.only(
+                          left: 8.0,
+                          right: 8.0,
+                        ),
                         onTap: () {
                           _cancelAndRestartTimer();
 
