@@ -47,6 +47,7 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
           timeout: context.configuration.timeout,
         );
         await context.world.appDriver.waitForAppToSettle();
+
         return true;
       } catch (_) {
         // No-op.
