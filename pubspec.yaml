@@ -9,7 +9,6 @@ environment:
 dependencies:
   animated_size_and_fade: ^3.0.0
   async: ^2.10.0
-  audioplayers: ^4.0.1
   back_button_interceptor: ^6.0.2
   callkeep: ^0.3.3
   chewie: ^1.5.0
