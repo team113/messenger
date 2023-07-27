@@ -61,6 +61,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/util/audio_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -330,7 +331,8 @@ class ChatController extends GetxController {
                   repliesTo: send.replied.reversed.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
-                .then((_) => _playMessageSent())
+                .then((_) => AudioUtils.once(
+                    AudioSource.asset('audio/message_sent.mp3')))
                 .onError<PostChatMessageException>(
                     (e, _) => MessagePopup.error(e))
                 .onError<UploadAttachmentException>(
@@ -445,7 +447,8 @@ class ChatController extends GetxController {
     if (item.status.value == SendingStatus.error) {
       await _chatService
           .resendChatItem(item)
-          .then((_) => _playMessageSent())
+          .then((_) =>
+              AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')))
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});
@@ -1102,22 +1105,6 @@ class ChatController extends GetxController {
 
     _highlightTimer?.cancel();
     _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
-  }
-
-  /// Plays the message sent sound.
-  void _playMessageSent() {
-    runZonedGuarded(
-      () => _audioPlayer?.play(
-        AssetSource('audio/message_sent.mp3'),
-        position: Duration.zero,
-        mode: PlayerMode.lowLatency,
-      ),
-      (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      },
-    );
   }
 
   /// Invokes [_updateSticky] and [_updateFabStates].
