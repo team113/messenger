@@ -34,6 +34,7 @@ import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
 import 'parameters/download_status.dart';
+import 'parameters/enabled.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
@@ -225,6 +226,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
         DownloadStatusParameter(),
+        EnabledParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
