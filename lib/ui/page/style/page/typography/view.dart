@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/page/style/page/typography/widget/font_schema.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
@@ -43,7 +44,7 @@ class TypographyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    final List<(TextStyle, String)> styles = [
+    final Iterable<(TextStyle, String)> styles = [
       (fonts.displayLarge!, 'displayLarge'),
       (fonts.displayMedium!, 'displayMedium'),
       (fonts.displaySmall!, 'displaySmall'),
@@ -56,6 +57,44 @@ class TypographyView extends StatelessWidget {
       (fonts.bodyLarge!, 'bodyLarge'),
       (fonts.bodyMedium!, 'bodyMedium'),
       (fonts.bodySmall!, 'bodySmall'),
+    ];
+
+    final Iterable<(TextStyle, String, String)> schema = [
+      // Display large
+      (fonts.displayLarge!, 'displayLarge', ''),
+
+      // Display medium
+      (fonts.displayMedium!, 'displayMedium', ''),
+
+      // Display small
+      (fonts.displaySmall!, 'displaySmall', ''),
+
+      // Headline large
+      (fonts.headlineLarge!, 'headlineLarge', ''),
+
+      // Headline medium
+      (fonts.headlineMedium!, 'headlineMedium', ''),
+
+      // Headline small
+      (fonts.headlineSmall!, 'headlineSmall', ''),
+
+      // Label large
+      (fonts.labelLarge!, 'labelLarge', ''),
+
+      // Label medium
+      (fonts.labelMedium!, 'labelMedium', ''),
+
+      // Label small
+      (fonts.labelSmall!, 'labelSmall', ''),
+
+      // Body large
+      (fonts.bodyLarge!, 'bodyLarge', ''),
+
+      // Body medium
+      (fonts.bodyMedium!, 'bodyMedium', ''),
+
+      // Body small
+      (fonts.bodySmall!, 'bodySmall', ''),
     ];
 
     final List<(FontWeight, String)> families = [
@@ -81,6 +120,11 @@ class TypographyView extends StatelessWidget {
           dense: dense,
           (e) => FontWidget(e, inverted: inverted, dense: dense),
         ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: SubHeader('Font schema'),
+        ),
+        FontSchema(styles: schema, inverted: inverted, dense: dense),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: SubHeader('Families'),

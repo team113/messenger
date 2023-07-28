@@ -22,7 +22,7 @@ import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/color.dart';
-import 'widget/schema.dart';
+import 'widget/color_schema.dart';
 
 /// View of the [StyleTab.colors] page.
 class ColorsView extends StatelessWidget {
