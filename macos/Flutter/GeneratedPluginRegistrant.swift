@@ -12,6 +12,7 @@ import device_info_plus
 import flutter_app_badger
 import flutter_local_notifications
 import flutter_meedu_videoplayer
+import isar_flutter_libs
 import medea_flutter_webrtc
 import medea_jason
 import media_kit_libs_macos_video
@@ -37,6 +38,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FlutterAppBadgerPlugin.register(with: registry.registrar(forPlugin: "FlutterAppBadgerPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   FlutterMeeduVideoplayerPlugin.register(with: registry.registrar(forPlugin: "FlutterMeeduVideoplayerPlugin"))
+  IsarFlutterLibsPlugin.register(with: registry.registrar(forPlugin: "IsarFlutterLibsPlugin"))
   MedeaFlutterWebrtcPlugin.register(with: registry.registrar(forPlugin: "MedeaFlutterWebrtcPlugin"))
   MedeaJasonPlugin.register(with: registry.registrar(forPlugin: "MedeaJasonPlugin"))
   MediaKitLibsMacosVideoPlugin.register(with: registry.registrar(forPlugin: "MediaKitLibsMacosVideoPlugin"))

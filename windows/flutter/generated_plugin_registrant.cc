@@ -11,6 +11,7 @@
 #include <desktop_drop/desktop_drop_plugin.h>
 #include <flutter_meedu_videoplayer/flutter_meedu_videoplayer_plugin_c_api.h>
 #include <fullscreen_window/fullscreen_window_plugin_c_api.h>
+#include <isar_flutter_libs/isar_flutter_libs_plugin.h>
 #include <medea_flutter_webrtc/medea_flutter_webrtc_plugin_c_api.h>
 #include <medea_jason/medea_jason_plugin.h>
 #include <media_kit_libs_windows_video/media_kit_libs_windows_video_plugin_c_api.h>
@@ -36,6 +37,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("FlutterMeeduVideoplayerPluginCApi"));
   FullscreenWindowPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FullscreenWindowPluginCApi"));
+  IsarFlutterLibsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("IsarFlutterLibsPlugin"));
   MedeaFlutterWebrtcPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MedeaFlutterWebrtcPluginCApi"));
   MedeaJasonPluginRegisterWithRegistrar(
