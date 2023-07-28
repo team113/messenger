@@ -9,7 +9,6 @@ environment:
 dependencies:
   animated_size_and_fade: ^3.0.0
   async: ^2.10.0
-  audioplayers: ^4.0.1
   back_button_interceptor: ^6.0.2
   callkeep: ^0.3.3
   chewie: ^1.5.0
@@ -59,6 +58,7 @@ dependencies:
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.8.2
   medea_jason: ^0.4.0
+  media_kit: ^1.1.0
   media_kit_libs_ios_video: ^1.0.4
   mime: ^1.0.4
   mutex: ^3.0.1

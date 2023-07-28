@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  audioplayers_linux
   desktop_drop
   flutter_meedu_videoplayer
   isar_flutter_libs
