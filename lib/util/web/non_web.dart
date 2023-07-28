@@ -386,4 +386,8 @@ class WebUtils {
 
     return agent;
   }
+
+  static Future<void> play(String asset) async {}
+
+  static void stop(String asset) {}
 }

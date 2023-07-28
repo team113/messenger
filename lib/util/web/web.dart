@@ -586,6 +586,24 @@ class WebUtils {
     return info.userAgent ??
         '${Config.userAgentProduct}/${Config.userAgentVersion}';
   }
+
+  static Future<void> play(String asset) async {
+    final e = html.document.getElementById(asset);
+    print('[WebUtils] play $asset');
+
+    if (e is html.AudioElement) {
+      e.muted = false;
+      await e.play();
+    }
+  }
+
+  static void stop(String asset) {
+    final e = html.document.getElementById(asset);
+    if (e is html.AudioElement) {
+      e.currentTime = 0;
+      e.pause();
+    }
+  }
 }
 
 /// Extension adding JSON manipulation methods to a [Rect].

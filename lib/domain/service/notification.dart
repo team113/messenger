@@ -74,7 +74,8 @@ class NotificationService extends DisposableService {
 
   /// Indicates whether the Firebase Cloud Messaging notifications are
   /// configured.
-  bool get pushNotifications => _onTokenRefresh != null;
+  // bool get pushNotifications => _onTokenRefresh != null;
+  bool get pushNotifications => false;
 
   /// Initializes this [NotificationService].
   ///
