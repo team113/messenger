@@ -15,15 +15,20 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:gherkin/gherkin.dart';
 
-import '../model_type_id.dart';
-import '/util/new_type.dart';
+/// Statuses available in an [EnabledParameter].
+enum EnabledStatus { enabled, disabled }
 
-part 'gallery_item.g.dart';
-
-/// Unique ID of a `GalleryItem`.
-@HiveType(typeId: ModelTypeId.galleryItemId)
-class GalleryItemId extends NewType<String> {
-  const GalleryItemId(String val) : super(val);
+/// [CustomParameter] representing an [EnabledStatus] status.
+class EnabledParameter extends CustomParameter<EnabledStatus> {
+  EnabledParameter()
+      : super(
+          'enabled',
+          RegExp(
+            '(${EnabledStatus.values.map((e) => e.name).join('|')})',
+            caseSensitive: false,
+          ),
+          (c) => EnabledStatus.values.firstWhere((e) => e.name == c),
+        );
 }

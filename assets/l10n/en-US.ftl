@@ -197,6 +197,7 @@ btn_participants = Participants
 btn_participants_desc =
     Call
     participants
+btn_paste = Paste
 btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove
@@ -253,7 +254,7 @@ err_data_transfer =
     Data transfer error. Please, check your network connection.
 err_dialog = Can't perfom this action in a dialog
 err_dimensions_too_big = Dimensions too big
-err_email_occupied = Email address is already occupied
+err_email_occupied = Specified E-mail is linked to another account. Please, annulate the previous verification.
 err_incorrect_chat_name = Incorrect name
 err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.
@@ -399,8 +400,6 @@ label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}updated avatar
 label_away = away
 label_background = Background
-label_biography = Biography
-label_biography_hint = Write about yourself
 label_block = Block
 label_blocked_users = Blocked users
 label_cache_and_downloads = Cache and downloads

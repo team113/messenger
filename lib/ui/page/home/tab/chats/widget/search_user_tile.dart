@@ -84,8 +84,8 @@ class SearchUserTile extends StatelessWidget {
             ),
           ],
           trailing: [
-            if (user?.user.value.isBlacklisted != null ||
-                contact?.user.value?.user.value.isBlacklisted != null)
+            if (user?.user.value.isBlocked != null ||
+                contact?.user.value?.user.value.isBlocked != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(

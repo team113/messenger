@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -415,7 +416,7 @@ class RecentChatTile extends StatelessWidget {
             ];
           } else {
             final String description =
-                item.finishReason?.localizedString(item.authorId == me) ??
+                item.finishReason?.localizedString(item.author.id == me) ??
                     'label_chat_call_ended'.l10n;
             subtitle = [widget, Flexible(child: Text(description))];
           }
@@ -457,17 +458,17 @@ class RecentChatTile extends StatelessWidget {
           }
 
           subtitle = [
-            if (item.authorId == me)
+            if (item.author.id == me)
               Text('${'label_you'.l10n}${'colon_space'.l10n}')
             else if (chat.isGroup)
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.authorId),
+                  future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
-                          chat.getUser(item!.authorId),
+                          chat.getUser(item!.author.id),
                           radius: 10,
                         ),
                 ),
@@ -492,11 +493,11 @@ class RecentChatTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.authorId),
+                  future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
-                          chat.getUser(item!.authorId),
+                          chat.getUser(item!.author.id),
                           radius: 10,
                         ),
                 ),
@@ -527,7 +528,7 @@ class RecentChatTile extends StatelessWidget {
           switch (item.action.kind) {
             case ChatInfoActionKind.created:
               if (chat.isGroup) {
-                content = userBuilder(item.authorId, (context, user) {
+                content = userBuilder(item.author.id, (context, user) {
                   user ??= (item as ChatInfo).author;
                   final Map<String, dynamic> args = {
                     'author': user.name?.val ?? user.num.val,
@@ -545,31 +546,31 @@ class RecentChatTile extends StatelessWidget {
             case ChatInfoActionKind.memberAdded:
               final action = item.action as ChatInfoActionMemberAdded;
 
-              if (item.authorId != action.user.id) {
-                content = userBuilder(action.user.id, (context, user) {
-                  final User author = (item as ChatInfo).author;
-                  user ??= action.user;
+              content = userBuilder(action.user.id, (context, user) {
+                final User author = (item as ChatInfo).author;
+                user ??= action.user;
 
+                if (item.author.id != action.user.id) {
                   final Map<String, dynamic> args = {
                     'author': author.name?.val ?? author.num.val,
                     'user': user.name?.val ?? user.num.val,
                   };
 
                   return Text('label_user_added_user'.l10nfmt(args));
-                });
-              } else {
-                content = Text(
-                  'label_was_added'.l10nfmt(
-                    {'author': '${action.user.name ?? action.user.num}'},
-                  ),
-                );
-              }
+                } else {
+                  return Text(
+                    'label_was_added'.l10nfmt(
+                      {'author': user.name?.val ?? user.num.val},
+                    ),
+                  );
+                }
+              });
               break;
 
             case ChatInfoActionKind.memberRemoved:
               final action = item.action as ChatInfoActionMemberRemoved;
 
-              if (item.authorId != action.user.id) {
+              if (item.author.id != action.user.id) {
                 content = userBuilder(action.user.id, (context, user) {
                   final User author = (item as ChatInfo).author;
                   user ??= action.user;
@@ -749,7 +750,7 @@ class RecentChatTile extends StatelessWidget {
         item = chat.lastItem;
       }
 
-      if (item != null && item.authorId == me && !chat.isMonolog) {
+      if (item != null && item.author.id == me && !chat.isMonolog) {
         final bool isSent = item.status.value == SendingStatus.sent;
         final bool isRead =
             chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
@@ -801,7 +802,9 @@ class RecentChatTile extends StatelessWidget {
         child: AnimatedSwitcher(
           duration: 300.milliseconds,
           child: PeriodicBuilder(
-            period: const Duration(seconds: 1),
+            period: Config.disableInfiniteAnimations
+                ? const Duration(minutes: 1)
+                : const Duration(seconds: 1),
             builder: (_) {
               return RectangularCallButton(
                 key: isActive

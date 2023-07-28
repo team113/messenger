@@ -189,11 +189,11 @@ class ColorsView extends StatelessWidget {
       (style.colors.warningColor, 'warningColor', 'Do not disturb status'),
     ];
 
-    final Iterable<(Color, String, String)> avatars =
-        style.colors.userColors.map((color) => (color, '', '')).toList();
+    final Iterable<(Color, String?, String?)> avatars =
+        style.colors.userColors.map((color) => (color, null, null)).toList();
 
     return ScrollableColumn(
-      [
+      children: [
         const SizedBox(height: 16),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
@@ -203,20 +203,12 @@ class ColorsView extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: SubHeader('Palette'),
         ),
-        ColorSchemaWidget(
-          colors,
-          inverted: inverted,
-          dense: dense,
-        ),
+        ColorSchemaWidget(colors, inverted: inverted, dense: dense),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: SubHeader('Avatar palette'),
         ),
-        ColorSchemaWidget(
-          avatars,
-          inverted: inverted,
-          dense: dense,
-        ),
+        ColorSchemaWidget(avatars, inverted: inverted, dense: dense),
         const SizedBox(height: 16),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),

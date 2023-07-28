@@ -29,6 +29,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -39,10 +40,10 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'message_field/controller.dart';
@@ -217,7 +218,7 @@ class _ChatViewState extends State<ChatView>
 
                           if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
-                              WidgetButton(
+                              AnimatedButton(
                                 onPressed: () => c.call(true),
                                 child: SvgImage.asset(
                                   'assets/icons/chat_video_call.svg',
@@ -225,7 +226,7 @@ class _ChatViewState extends State<ChatView>
                                 ),
                               ),
                               const SizedBox(width: 28),
-                              WidgetButton(
+                              AnimatedButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
                                 child: SvgImage.asset(
@@ -235,49 +236,59 @@ class _ChatViewState extends State<ChatView>
                               ),
                             ];
                           } else {
+                            final Widget child;
+
+                            if (c.inCall) {
+                              child = Container(
+                                key: const Key('Drop'),
+                                height: 32,
+                                width: 32,
+                                decoration: BoxDecoration(
+                                  color: style.colors.dangerColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgImage.asset(
+                                    'assets/icons/call_end.svg',
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              child = Container(
+                                key: const Key('Join'),
+                                height: 32,
+                                width: 32,
+                                decoration: BoxDecoration(
+                                  color: style.colors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgImage.asset(
+                                    'assets/icons/audio_call_start.svg',
+                                    width: 15,
+                                    height: 15,
+                                  ),
+                                ),
+                              );
+                            }
+
                             children = [
-                              AnimatedSwitcher(
+                              AnimatedButton(
                                 key: const Key('ActiveCallButton'),
-                                duration: 300.milliseconds,
-                                child: c.inCall
-                                    ? WidgetButton(
-                                        key: const Key('Drop'),
-                                        onPressed: c.dropCall,
-                                        child: Container(
-                                          height: 32,
-                                          width: 32,
-                                          decoration: BoxDecoration(
-                                            color: style.colors.dangerColor,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                            child: SvgImage.asset(
-                                              'assets/icons/call_end.svg',
-                                              width: 32,
-                                              height: 32,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    : WidgetButton(
-                                        key: const Key('Join'),
-                                        onPressed: c.joinCall,
-                                        child: Container(
-                                          height: 32,
-                                          width: 32,
-                                          decoration: BoxDecoration(
-                                            color: style.colors.primary,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                            child: SvgImage.asset(
-                                              'assets/icons/audio_call_start.svg',
-                                              width: 15,
-                                              height: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                onPressed: c.inCall ? c.dropCall : c.joinCall,
+                                child: AnimatedSwitcher(
+                                  duration: 300.milliseconds,
+                                  layoutBuilder: (current, previous) => Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      if (previous.isNotEmpty) previous.first,
+                                      if (current != null) current,
+                                    ],
+                                  ),
+                                  child: child,
+                                ),
                               ),
                             ];
                           }
@@ -552,6 +563,51 @@ class _ChatViewState extends State<ChatView>
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == 0;
 
+    bool previousSame = false;
+
+    if (element is ChatMessageElement ||
+        element is ChatCallElement ||
+        element is ChatInfoElement ||
+        element is ChatForwardElement) {
+      ListElement? previous;
+      if (i < c.elements.length - 1) {
+        previous = c.elements.values.elementAt(i + 1);
+      }
+
+      if (previous != null) {
+        UserId author;
+
+        if (element is ChatMessageElement) {
+          author = element.item.value.author.id;
+        } else if (element is ChatCallElement) {
+          author = element.item.value.author.id;
+        } else if (element is ChatInfoElement) {
+          author = element.item.value.author.id;
+        } else if (element is ChatForwardElement) {
+          author = element.authorId;
+        } else {
+          throw Exception('Unreachable');
+        }
+
+        previousSame = (previous is ChatMessageElement &&
+                previous.item.value.author.id == author &&
+                element.id.at.val
+                        .difference(previous.item.value.at.val)
+                        .abs() <=
+                    const Duration(minutes: 5)) ||
+            (previous is ChatCallElement &&
+                previous.item.value.author.id == author &&
+                element.id.at.val
+                        .difference(previous.item.value.at.val)
+                        .abs() <=
+                    const Duration(minutes: 5)) ||
+            (previous is ChatForwardElement &&
+                previous.authorId == author &&
+                element.id.at.val.difference(previous.id.at.val).abs() <=
+                    const Duration(minutes: 5));
+      }
+    }
+
     if (element is ChatMessageElement ||
         element is ChatCallElement ||
         element is ChatInfoElement) {
@@ -567,48 +623,14 @@ class _ChatViewState extends State<ChatView>
         throw Exception('Unreachable');
       }
 
-      ListElement? previous;
-      if (i < c.elements.length - 1) {
-        previous = c.elements.values.elementAt(i + 1);
-      }
-
-      ListElement? next;
-      if (i > 0) {
-        next = c.elements.values.elementAt(i - 1);
-      }
-
-      bool previousSame = false;
-      if (previous != null) {
-        previousSame = (previous is ChatMessageElement &&
-                previous.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(previous.item.value.at.val).abs() <=
-                    const Duration(minutes: 5)) ||
-            (previous is ChatCallElement &&
-                previous.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(previous.item.value.at.val).abs() <=
-                    const Duration(minutes: 5));
-      }
-
-      bool nextSame = false;
-      if (next != null) {
-        nextSame = (next is ChatMessageElement &&
-                next.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(next.item.value.at.val).abs() <=
-                    const Duration(minutes: 5)) ||
-            (next is ChatCallElement &&
-                next.item.value.authorId == e.value.authorId &&
-                e.value.at.val.difference(next.item.value.at.val).abs() <=
-                    const Duration(minutes: 5));
-      }
-
       return Padding(
         padding: EdgeInsets.only(
-          top: previousSame ? 0 : 4.5,
-          bottom: nextSame ? 0 : 4.5 + (isLast ? 8 : 0),
+          top: previousSame ? 0 : 9,
+          bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(e.value.authorId),
-          builder: (_, u) => Obx(() {
+          future: c.getUser(e.value.author.id),
+          builder: (_, snapshot) => Obx(() {
             return AnimatedContainer(
               duration: 400.milliseconds,
               curve: Curves.ease,
@@ -627,8 +649,8 @@ class _ChatViewState extends State<ChatView>
                     : c.chat!.reads.where((m) =>
                         m.at == e.value.at &&
                         m.memberId != c.me &&
-                        m.memberId != e.value.authorId),
-                user: u.data,
+                        m.memberId != e.value.author.id),
+                user: snapshot.data,
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,
@@ -671,8 +693,8 @@ class _ChatViewState extends State<ChatView>
     } else if (element is ChatForwardElement) {
       return Padding(
         padding: EdgeInsets.only(
-          top: 4.5,
-          bottom: 4.5 + (isLast ? 8 : 0),
+          top: previousSame ? 0 : 9,
+          bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
@@ -794,11 +816,13 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
-        child: TimeLabelWidget(
-          element.id.at.val,
-          animation: _animation,
-          opacity: c.stickyIndex.value == i && c.showSticky.value ? 1 : 0,
-        ),
+        child: Obx(() {
+          return TimeLabelWidget(
+            element.id.at.val,
+            animation: _animation,
+            opacity: c.stickyIndex.value == i && c.showSticky.isFalse ? 0 : 1,
+          );
+        }),
       );
     } else if (element is UnreadMessagesElement) {
       return SelectionContainer.disabled(child: UnreadLabel(c.unreadMessages));
@@ -810,7 +834,7 @@ class _ChatViewState extends State<ChatView>
           child = Center(
             key: const ValueKey(1),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+              padding: const EdgeInsets.only(top: 12, bottom: 12),
               child: ConstrainedBox(
                 constraints: BoxConstraints.tight(const Size.square(40)),
                 child: Center(
@@ -825,7 +849,11 @@ class _ChatViewState extends State<ChatView>
         } else {
           child = SizedBox(
             key: const ValueKey(2),
-            height: c.listController.position.pixels == 0 ? null : 64,
+            height: c.listController.position.pixels == 0
+                ? isLast
+                    ? ChatController.lastItemBottomOffset
+                    : null
+                : 64,
           );
         }
 

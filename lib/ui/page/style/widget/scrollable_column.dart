@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-/// [Column] of [Widget]s that can be scrolled.
+/// Scrollable [Column] of [Widget]s.
 class ScrollableColumn extends StatelessWidget {
-  const ScrollableColumn(this.children, {super.key});
+  const ScrollableColumn({super.key, this.children = const []});
 
   /// [Widget]s to display in this [ScrollableColumn].
   final List<Widget> children;
@@ -29,11 +29,7 @@ class ScrollableColumn extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              Column(children: children),
-            ],
-          ),
+          delegate: SliverChildListDelegate([Column(children: children)]),
         )
       ],
     );

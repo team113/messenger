@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.8
+version: 0.1.0-alpha.9.1
 publish_to: none
 
 environment:
@@ -9,10 +9,8 @@ environment:
 dependencies:
   animated_size_and_fade: ^3.0.0
   async: ^2.10.0
-  audioplayers: ^4.0.1
   back_button_interceptor: ^6.0.2
   callkeep: ^0.3.3
-  carousel_slider: ^4.2.1
   chewie: ^1.5.0
   collection: ^1.17.0
   crypto: ^3.0.3
@@ -37,7 +35,7 @@ dependencies:
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^14.0.0+2
-  flutter_meedu_videoplayer: ^4.2.13
+  flutter_meedu_videoplayer: ^4.2.20
   flutter_spinkit: ^5.2.0
   flutter_staggered_animations: ^1.1.1
   flutter_svg: ^2.0.6
@@ -56,17 +54,13 @@ dependencies:
   intl: ^0.17.0
   js: ^0.6.5
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.0-dev+rev.d1fa5bf748084feb988aa858487411164de58b7b
-  medea_jason: 0.3.0-dev+rev.d675a58f7a3b5c4e0508f0692405d2e1f26e9dd2
+  medea_flutter_webrtc: 0.8.2
+  medea_jason: ^0.4.0
+  media_kit: ^1.1.0
   media_kit_libs_ios_video: ^1.0.4
   mime: ^1.0.4
   mutex: ^3.0.1
-  # TODO: Switch to pub.dev version when the following pull request is merged
-  #       into it:
-  #       https://github.com/crazecoder/open_file/pull/205
-  open_file:
-    git:
-      url: https://github.com/adaptolearning/open_file
+  open_file: ^3.3.2
   path: ^1.8.2
   path_provider: ^2.0.15
   path_provider_android: ^2.0.22
@@ -87,9 +81,9 @@ dependencies:
   url_launcher: ^6.1.11
   uuid: ^3.0.7
   vibration: ^1.7.7
-  wakelock: ^0.6.2
+  wakelock_plus: ^1.1.1
   web_socket_channel: ^2.4.0
-  window_manager: ^0.3.2
+  window_manager: ^0.3.5
   windows_taskbar: ^1.1.1
   win32: ^5.0.5
 
@@ -107,6 +101,7 @@ dev_dependencies:
   flutter_lints: ^2.0.1
   flutter_test:
     sdk: flutter
+  http_mock_adapter: ^0.4.4
   integration_test:
     sdk: flutter
   gherkin: ^2.0.8
@@ -119,10 +114,11 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^5.12.0
-  # TODO: Remove when `medea_jason` updates.
-  flutter_rust_bridge: ^1.77.1
-  # TODO: Remove when `medea_jason` updates.
-  medea_flutter_webrtc: ^0.8.2
+  # TODO: Remove when hivedb/hive#1034 is fixed:
+  #       https://github.com/hivedb/hive/issues/1034
+  hive:
+    git:
+      url: https://github.com/krida2000/git-hive.git
   # TODO: Remove when `sentry_flutter` updates.
   package_info_plus: ^4.0.0
   # TODO: Remove when creativecreatorormaybenot/wakelock#195 is released to

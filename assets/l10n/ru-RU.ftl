@@ -197,6 +197,7 @@ btn_participants = Участники
 btn_participants_desc =
     Список
     участников
+btn_paste = Вставить
 btn_personalize = Персонализация
 btn_proceed = Продолжить
 btn_remove = Удалить
@@ -414,8 +415,6 @@ label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}обновил аватар
 label_away = отошёл
 label_background = Бэкграунд
-label_biography = Биография
-label_biography_hint = Несколько слов о Вас
 label_block = Заблокировать
 label_blocked_users = Заблокированные пользователи
 label_cache_and_downloads = Кэш и загрузки

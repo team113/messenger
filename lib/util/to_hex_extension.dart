@@ -16,13 +16,54 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+<<<<<<<< HEAD:lib/util/to_hex_extension.dart
+========
 
-/// Adds the ability to get HEX value of the color.
-extension HexColor on Color {
-  /// Returns a HEX string value of this color.
-  String toHex() => '#'
-      '${alpha.toRadixString(16).toUpperCase().padLeft(2, '0')}'
-      '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
-      '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
-      '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
+import '/themes.dart';
+
+/// [Text] serving a header.
+class Header extends StatelessWidget {
+  const Header(this.label, {super.key});
+
+  /// Label to display.
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final fonts = Theme.of(context).fonts;
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        label,
+        style: fonts.displayLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+      ),
+    );
+  }
+}
+>>>>>>>> d88dd8b25d05b8c4e8fbe51af1c31b763ed3bdcc:lib/ui/page/style/widget/header.dart
+
+/// [Text] serving a sub-header.
+class SubHeader extends StatelessWidget {
+  const SubHeader(this.label, {super.key});
+
+  /// Label to display.
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final fonts = Theme.of(context).fonts;
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 24, bottom: 12),
+        child: Text(
+          label,
+          style: fonts.headlineLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+          textAlign: TextAlign.start,
+        ),
+      ),
+    );
+  }
 }

@@ -217,6 +217,14 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
         ... on EventChatUnfavorited {
             at
         }
+        ... on EventChatCallConversationStarted {
+            callId
+            call {
+                __typename
+                ...ChatCall
+            }
+            at
+        }
     }
     ver
 }

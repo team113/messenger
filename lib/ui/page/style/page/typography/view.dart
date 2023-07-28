@@ -65,7 +65,7 @@ class TypographyView extends StatelessWidget {
     ];
 
     return ScrollableColumn(
-      [
+      children: [
         const SizedBox(height: 16),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),

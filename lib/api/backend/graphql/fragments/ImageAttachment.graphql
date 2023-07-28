@@ -19,19 +19,19 @@ fragment ImageAttachment on ImageAttachment {
     id
     original {
         __typename
-        ...File
+        ...ImageFile
     }
     filename
     big {
         __typename
-        ...File
+        ...ImageFile
     }
     medium {
         __typename
-        ...File
+        ...ImageFile
     }
     small {
         __typename
-        ...File
+        ...ImageFile
     }
 }

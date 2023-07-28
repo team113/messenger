@@ -24,11 +24,11 @@ class Themes {
   static ThemeData light() {
     final Palette colors = Palette(
       primary: const Color(0xFF63B4FF),
-      primaryHighlight: Colors.blue,
+      primaryHighlight: const Color(0xFF2196F3),
       primaryHighlightShiny: const Color(0xFF58A6EF),
       primaryHighlightShiniest: const Color(0xFFD2E3F9),
       primaryHighlightLightest: const Color(0xFFB9D9FA),
-      onPrimary: Colors.white,
+      onPrimary: const Color(0xFFFFFFFF),
       secondary: const Color(0xFF888888),
       secondaryHighlight: const Color(0xFFEFEFEF),
       secondaryHighlightDark: const Color(0xFFDEDEDE),
@@ -42,24 +42,24 @@ class Themes {
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
-      onBackground: Colors.black,
+      onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
       acceptColor: const Color(0x7F34B139),
-      acceptAuxiliaryColor: Colors.green,
+      acceptAuxiliaryColor: const Color(0xFF4CAF50),
       declineColor: const Color(0x7FFF0000),
-      dangerColor: Colors.red,
-      warningColor: Colors.orange,
+      dangerColor: const Color(0xFFF44336),
+      warningColor: const Color(0xFFFF9800),
       userColors: [
-        Colors.purple,
-        Colors.deepPurple,
-        Colors.indigo,
-        Colors.blue,
-        Colors.cyan,
-        Colors.lightGreen,
-        Colors.lime,
-        Colors.amber,
-        Colors.orange,
-        Colors.deepOrange,
+        const Color(0xFF9C27B0),
+        const Color(0xFF673AB7),
+        const Color(0xFF3F51B5),
+        const Color(0xFF2196F3),
+        const Color(0xFF00BCD4),
+        const Color(0xFF8BC34A),
+        const Color(0xFFCDDC39),
+        const Color(0xFFFFC107),
+        const Color(0xFFFF9800),
+        const Color(0xFFFF5722),
       ],
     );
 
@@ -96,6 +96,14 @@ class Themes {
       bodyLarge: textStyle,
       bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
       bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+    );
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: colors.primaryHighlight,
+        statusBarColor: colors.transparent,
+        statusBarBrightness: Brightness.light,
+      ),
     );
 
     final ThemeData theme = ThemeData.light();
@@ -155,10 +163,6 @@ class Themes {
           ),
           actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
             color: colors.secondary,
-          ),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            systemNavigationBarColor: colors.primaryHighlight,
-            statusBarColor: colors.transparent,
           ),
           elevation: 0,
           centerTitle: true,

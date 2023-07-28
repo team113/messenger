@@ -213,7 +213,7 @@ class _ChatWatchData {
                       .difference(chat.lastItem!.at.val)
                       .compareTo(ChatWorker.newMessageThreshold) <=
                   -1 &&
-              chat.lastItem!.authorId != me?.call() &&
+              chat.lastItem!.author.id != me?.call() &&
               chat.muted == null) {
             final StringBuffer body = StringBuffer();
 
@@ -243,7 +243,7 @@ class _ChatWatchData {
                 case ChatInfoActionKind.memberAdded:
                   final action = msg.action as ChatInfoActionMemberAdded;
 
-                  if (msg.authorId == action.user.id) {
+                  if (msg.author.id == action.user.id) {
                     body.write(
                       'label_was_added'.l10nfmt(
                         {'author': '${action.user.name ?? action.user.num}'},
@@ -262,7 +262,7 @@ class _ChatWatchData {
                 case ChatInfoActionKind.memberRemoved:
                   final action = msg.action as ChatInfoActionMemberRemoved;
 
-                  if (msg.authorId == action.user.id) {
+                  if (msg.author.id == action.user.id) {
                     body.write(
                       'label_was_removed'.l10nfmt(
                         {'author': '${action.user.name ?? action.user.num}'},

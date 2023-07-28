@@ -77,6 +77,6 @@ class BlacklistController extends GetxController {
       pop?.call();
     }
 
-    await _userService.unblacklistUser(user.id);
+    await _userService.unblockUser(user.id);
   }
 }
