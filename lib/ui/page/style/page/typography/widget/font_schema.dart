@@ -18,27 +18,27 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:messenger/themes.dart';
 
-import '../../../../../../util/message_popup.dart';
-import '../../../../../widget/widget_button.dart';
+import '/themes.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 
 class FontSchema extends StatelessWidget {
-  const FontSchema({
+  const FontSchema(
+    this.styles, {
     super.key,
-    required this.styles,
     this.inverted = false,
-    required this.dense,
+    this.dense = false,
   });
 
-  /// Records of [Color]s and its descriptions to display.
+  /// Records of [TextStyle]s and its descriptions to display.
   final Iterable<(TextStyle, String, String)> styles;
 
-  /// Indicator whether the background of this [ColorSchemaWidget] should be
+  /// Indicator whether the background of this [FontSchema] should be
   /// inverted.
   final bool inverted;
 
-  /// Indicator whether this [ColorSchemaWidget] should be dense, meaning no
+  /// Indicator whether this [FontSchema] should be dense, meaning no
   /// [Padding]s and roundness.
   final bool dense;
 
@@ -92,26 +92,26 @@ class FontSchema extends StatelessWidget {
                             : const Color(0xFF000000),
                       ),
                     ),
-                  const SizedBox(width: 8),
-                  WidgetButton(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: e.$1.toString()));
-                      MessagePopup.success('Hash is copied');
-                    },
-                    child: Text(
-                      e.$1.color!.toHex(),
-                      style: fonts.bodySmall?.copyWith(
-                        color: inverted
-                            ? const Color(0xFFFFFFFF)
-                            : const Color(0xFF000000),
+                  if (e.$3.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: e.$1.toString()));
+                        MessagePopup.success('Hash is copied');
+                      },
+                      child: Text(
+                        e.$1.color!.toHex(),
+                        style: fonts.bodySmall?.copyWith(
+                          color: inverted
+                              ? const Color(0xFFFFFFFF)
+                              : const Color(0xFF000000),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                   const SizedBox(width: 8),
                   Expanded(
-                    child: AnimatedAlign(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.ease,
+                    child: Align(
                       alignment:
                           dense ? Alignment.centerRight : Alignment.centerLeft,
                       child: WidgetButton(
