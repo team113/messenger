@@ -33,7 +33,7 @@ class ColorSchemaWidget extends StatelessWidget {
   });
 
   /// Records of [Color]s and its descriptions to display.
-  final Iterable<(Color, String, String)> colors;
+  final Iterable<(Color, String?, String?)> colors;
 
   /// Indicator whether the background of this [ColorSchemaWidget] should be
   /// inverted.
@@ -91,19 +91,21 @@ class ColorSchemaWidget extends StatelessWidget {
                     curve: Curves.ease,
                     child: SizedBox(width: dense ? 32 : 8),
                   ),
-                  if (e.$3.isNotEmpty)
+                  if (e.$3 != null)
                     Tooltip(
                       message: e.$3,
                       child: Icon(Icons.info_outline, size: 13, color: text),
                     ),
-                  const SizedBox(width: 8),
-                  WidgetButton(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: e.$2));
-                      MessagePopup.success('Technical name is copied');
-                    },
-                    child: Text(e.$2, style: style),
-                  ),
+                  if (e.$2 != null) ...[
+                    const SizedBox(width: 8),
+                    WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: e.$2!));
+                        MessagePopup.success('Technical name is copied');
+                      },
+                      child: Text(e.$2!, style: style),
+                    ),
+                  ],
                   const Spacer(),
                   WidgetButton(
                     onPressed: () {
