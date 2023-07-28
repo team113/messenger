@@ -70,3 +70,4 @@ label_account_created = Cuenta está creada
 btn_ok = Ok
 label_num = Gapopa ID
 label_your_direct_link = Enlace directo para chatear con Usted
+label_waiting_response_from = Esperando la respuesta de {$from}

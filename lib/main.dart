@@ -116,7 +116,10 @@ Future<void> main() async {
       router.firebase = await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      // await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+
+      if (kDebugMode) {
+        await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      }
     } catch (e) {
       Log.print('Failed to initialize Firebase due to: $e');
       // No-op.

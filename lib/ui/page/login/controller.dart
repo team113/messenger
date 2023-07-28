@@ -15,14 +15,21 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/mime.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/api/backend/schema.dart'
@@ -664,68 +671,182 @@ class LoginController extends GetxController {
     }
   }
 
+  LoginViewStage fallbackStage = LoginViewStage.signUp;
+
   Future<void> continueWithGoogle() async {
-    final googleUser =
-        await GoogleSignIn(clientId: Config.googleClientId).signIn();
+    fallbackStage = stage.value;
+    oAuthProvider = OAuthProvider.google;
+    stage.value = LoginViewStage.oauth;
 
-    final googleAuth = await googleUser?.authentication;
+    if (kDebugMode) {
+      try {
+        final googleProvider = GoogleAuthProvider();
+        googleProvider.addScope('email');
 
-    if (googleAuth != null) {
-      final creds = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+        final auth = FirebaseAuth.instanceFor(app: router.firebase!);
 
-      final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+        if (PlatformUtils.isWeb) {
+          credential = await auth.signInWithPopup(googleProvider);
+        } else {
+          credential = await auth.signInWithProvider(googleProvider);
+        }
 
-      credential = await auth.signInWithCredential(creds);
+        await registerWithCredentials(credential!);
+      } catch (_) {
+        stage.value = fallbackStage;
+      }
 
-      stage.value = LoginViewStage.oauth;
+      return;
     }
 
-    // GoogleAuthProvider googleProvider = GoogleAuthProvider();
+    try {
+      final googleUser =
+          await GoogleSignIn(clientId: Config.googleClientId).signIn();
 
-    // googleProvider
-    //     .addScope('https://www.googleapis.com/auth/contacts.readonly');
-    // googleProvider.setCustomParameters({'login_hint': 'user@example.com'});
+      final googleAuth = await googleUser?.authentication;
 
-    // // Once signed in, return the UserCredential
-    // final creds = await FirebaseAuth.instance.signInWithPopup(googleProvider);
-    // print(creds.toString());
+      if (googleAuth != null) {
+        final creds = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
 
-    // Or use signInWithRedirect
-    // return await FirebaseAuth.instance.signInWithRedirect(googleProvider);
+        final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+        credential = await auth.signInWithCredential(creds);
+
+        await registerWithCredentials(credential!);
+      }
+    } catch (_) {
+      stage.value = fallbackStage;
+    }
   }
 
   UserCredential? credential;
+  OAuthProvider? oAuthProvider;
 
   Future<void> continueWithApple() async {
-    final appleProvider = AppleAuthProvider();
-    appleProvider.addScope('email');
-
-    final auth = FirebaseAuth.instanceFor(app: router.firebase!);
-
-    if (PlatformUtils.isWeb) {
-      credential = await auth.signInWithPopup(appleProvider);
-    } else {
-      credential = await auth.signInWithProvider(appleProvider);
-    }
-
+    fallbackStage = stage.value;
+    oAuthProvider = OAuthProvider.apple;
     stage.value = LoginViewStage.oauth;
+
+    try {
+      final appleProvider = AppleAuthProvider();
+      appleProvider.addScope('email');
+
+      final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+      if (PlatformUtils.isWeb) {
+        credential = await auth.signInWithPopup(appleProvider);
+      } else {
+        credential = await auth.signInWithProvider(appleProvider);
+      }
+
+      await registerWithCredentials(credential!);
+    } catch (_) {
+      stage.value = fallbackStage;
+    }
   }
 
   Future<void> continueWithGitHub() async {
-    final githubProvider = GithubAuthProvider();
-    githubProvider.addScope('email');
+    fallbackStage = stage.value;
+    oAuthProvider = OAuthProvider.github;
+    stage.value = LoginViewStage.oauth;
 
-    final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+    try {
+      final githubProvider = GithubAuthProvider();
+      githubProvider.addScope('email');
 
-    if (PlatformUtils.isWeb) {
-      credential = await auth.signInWithPopup(githubProvider);
-    } else {
-      credential = await auth.signInWithProvider(githubProvider);
+      final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+      if (PlatformUtils.isWeb) {
+        credential = await auth.signInWithPopup(githubProvider);
+      } else {
+        credential = await auth.signInWithProvider(githubProvider);
+      }
+
+      await registerWithCredentials(credential!);
+    } catch (_) {
+      stage.value = fallbackStage;
+    }
+  }
+
+  Future<void> registerWithCredentials(UserCredential credential) async {
+    print(
+      '[OAuth] Registering with the provided `UserCredential`:\n\n$credential\n\n',
+    );
+
+    await _authService.register();
+    router.directLink = false;
+    router.validateEmail = false;
+    router.noIntroduction = false;
+    router.signUp = true;
+    router.home();
+
+    while (!Get.isRegistered<MyUserService>()) {
+      await Future.delayed(const Duration(milliseconds: 20));
     }
 
-    stage.value = LoginViewStage.oauth;
+    final MyUserService myUserService = Get.find();
+
+    if (credential.user?.displayName != null) {
+      try {
+        await myUserService
+            .updateUserName(UserName(credential.user!.displayName!));
+      } catch (e) {
+        print('[OAuth] Unable to `updateUserName`: ${e.toString()}');
+      }
+    }
+
+    if (credential.user?.email != null) {
+      try {
+        await myUserService.addUserEmail(UserEmail(credential.user!.email!));
+      } catch (e) {
+        print('[OAuth] Unable to `addUserEmail`: ${e.toString()}');
+      }
+    }
+
+    if (credential.user?.phoneNumber != null) {
+      try {
+        await myUserService
+            .addUserPhone(UserPhone(credential.user!.phoneNumber!));
+      } catch (e) {
+        print('[OAuth] Unable to `addUserPhone`: ${e.toString()}');
+      }
+    }
+
+    if (credential.user?.photoURL != null) {
+      try {
+        final Response data = await (await PlatformUtils.dio).get(
+          credential.user!.photoURL!,
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        if (data.data != null && data.statusCode == 200) {
+          var type = MimeResolver.lookup(
+            '${DateTime.now()}.jpg',
+            headerBytes: data.data,
+          );
+
+          final file = NativeFile(
+            name: '${DateTime.now()}.jpg',
+            size: (data.data as Uint8List).length,
+            bytes: data.data,
+            mime: type != null ? MediaType.parse(type) : null,
+          );
+
+          await myUserService.updateAvatar(file);
+          await myUserService.updateCallCover(file);
+        }
+      } catch (e) {
+        print('[OAuth] Unable to `updateAvatar`: ${e.toString()}');
+      }
+    }
   }
+}
+
+enum OAuthProvider {
+  apple,
+  google,
+  github,
 }

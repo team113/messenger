@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/my_profile/language/view.dart';
 import 'package:messenger/ui/page/home/widget/rmb_detector.dart';
 import 'package:messenger/ui/page/login/controller.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -43,7 +42,7 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final (style) = Theme.of(context).style;
 
     return GetBuilder(
       init: AuthController(Get.find()),
@@ -93,75 +92,32 @@ class AuthView extends StatelessWidget {
           color: style.colors.onBackground,
         );
 
-        final Widget status = LayoutBuilder(builder: (context, constraints) {
-          final bool narrow = constraints.maxWidth > 300;
-
-          return Container(
-            width: double.infinity,
-            // color: Colors.white.withOpacity(0.5),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Flex(
-                mainAxisSize: narrow ? MainAxisSize.min : MainAxisSize.min,
-                mainAxisAlignment: narrow
-                    ? MainAxisAlignment.center
-                    : MainAxisAlignment.center,
-                // direction: narrow ? Axis.horizontal : Axis.vertical,
-                direction: Axis.vertical,
-                children: [
-                  // if (narrow)
-                  //   const Expanded(
-                  //     child: StyledCupertinoButton(
-                  //       label: 'Terms and conditions',
-                  //     ),
-                  //   )
-                  // else
-
-                  // Container(
-                  //   margin: const EdgeInsets.symmetric(horizontal: 10),
-                  //   width: 1,
-                  //   height: 12,
-                  //   color: Colors.grey,
-                  // ),
-                  // StyledCupertinoButton(
-                  //   onPressed: () => _download(context),
-                  //   label: 'Download application',
-                  // ),
-                  // WidgetButton(
-                  //   onPressed: () => _download(context),
-                  //   child: SvgImage.asset(
-                  //     'assets/icons/get_it_on_google_play.svg',
-                  //     width: 759.84 * 0.23,
-                  //     height: 257.23 * 0.23,
-                  //   ),
-                  // )
-
-                  // StyledCupertinoButton(
-                  //   onPressed: () {
-                  //     router.vacancy(null, push: true);
-                  //     print(router.routes);
-                  //   },
-                  //   enlarge: true,
-                  //   label: 'Work with us',
-                  // ),
-                  StyledCupertinoButton(
-                    key: c.languageKey,
-                    label: 'label_language_entry'.l10nfmt({
-                      'code': L10n.chosen.value!.locale.countryCode,
-                      'name': L10n.chosen.value!.name,
-                    }),
-                    onPressed: () => LanguageSelectionView.show(context, null),
-                  ),
-                  StyledCupertinoButton(
-                    label: 'btn_terms_and_conditions'.l10n,
-                    color: style.colors.secondary,
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+        final Widget status = Container(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Flex(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              direction: Axis.vertical,
+              children: [
+                StyledCupertinoButton(
+                  key: c.languageKey,
+                  label: 'label_language_entry'.l10nfmt({
+                    'code': L10n.chosen.value!.locale.countryCode,
+                    'name': L10n.chosen.value!.name,
+                  }),
+                  onPressed: () => LanguageSelectionView.show(context, null),
+                ),
+                StyledCupertinoButton(
+                  label: 'btn_terms_and_conditions'.l10n,
+                  color: style.colors.secondary,
+                  onPressed: () {},
+                ),
+              ],
             ),
-          );
-        });
+          ),
+        );
 
         // Header part of the page.
         //
@@ -200,16 +156,6 @@ class AuthView extends StatelessWidget {
             title: Text('btn_sign_up'.l10n),
             maxWidth: 210,
             height: 46,
-            // leading: SvgImage.asset(
-            //   'assets/icons/door6.svg',
-            //   width: 18.82,
-            //   height: 23.73,
-            // ),
-            // leading: SvgImage.asset(
-            //   'assets/icons/start_blue.svg',
-            //   width: 23.91 * 1,
-            //   height: 22.63 * 1,
-            // ),
             leading: Transform.translate(
               offset: const Offset(-2, 0),
               child: Icon(
@@ -240,14 +186,6 @@ class AuthView extends StatelessWidget {
             subtitle: Text('btn_one_time_account'.l10n),
             maxWidth: 210,
             height: 46,
-            // leading: Transform.translate(
-            //   offset: const Offset(-2, 0),
-            //   child: Icon(
-            //     Icons.local_drink_rounded,
-            //     size: 26,
-            //     color: style.colors.primary,
-            //   ),
-            // ),
             leading: SvgImage.asset(
               'assets/icons/start_blue.svg',
               width: 23.91 * 1,
@@ -267,7 +205,6 @@ class AuthView extends StatelessWidget {
               'assets/icons/partner16.svg',
               height: 20,
             ),
-            // color: const Color(0xFFCAE8B8),
             onPressed: () => router.vacancy(null, push: true),
           ),
           const SizedBox(height: 15),
@@ -281,42 +218,6 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
           ),
-
-          // OutlinedRoundedButton(
-          //   key: const Key('StartButton'),
-          //   title: Text('Одноразовый аккаунт'.l10n),
-          //   // subtitle: Text('account'.l10n),
-          //   // height: 60,
-          //   // maxWidth: 210,
-          //   // maxWidth: 210,
-          //   leading: SvgImage.asset(
-          //     // 'assets/icons/one_time13.svg',
-          //     // width: 23.5,
-          //     // height: 22.78,
-          //     'assets/icons/one_time14.svg',
-          //     width: 23.91,
-          //     height: 22.63,
-          //   ),
-          //   onPressed: c.register,
-          // ),
-          if (false) ...[
-            if (isWeb) const SizedBox(height: 15),
-            RmbDetector(
-              onPressed: c.systemUp,
-              child: OutlinedRoundedButton(
-                subtitle: Text(
-                  'Скачать\nприложение'.l10n,
-                  style: TextStyle(color: style.colors.onPrimary),
-                ),
-                height: 53,
-                // maxWidth: 210,
-                maxWidth: 200,
-                leading: icon,
-                onPressed: () => _download(context),
-                color: style.colors.primary,
-              ),
-            ),
-          ],
         ];
 
         final Widget column = Column(
@@ -358,72 +259,21 @@ class AuthView extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
-                Column(
-                  children: [
-                    Expanded(child: Center(child: column)),
-
-                    // const SizedBox(height: 15),
-                    // if (icon != null) ...[
-                    //   // if (isWeb) const SizedBox(height: 15),
-                    //   RmbDetector(
-                    //     onPressed: c.systemUp,
-                    //     child: OutlinedRoundedButton(
-                    //       subtitle: Text(
-                    //         'Скачать\nприложение'.l10n,
-                    //         style: TextStyle(color: style.colors.onPrimary),
-                    //       ),
-                    //       height: 53,
-                    //       // maxWidth: 210,
-                    //       maxWidth: 170,
-                    //       leading: icon,
-                    //       onPressed: () => _download(context),
-                    //       color: style.colors.primary,
-                    //     ),
-                    //   ),
-                    //   const SizedBox(height: 15),
-                    // ],
-                    status,
-                    // WidgetButton(
-                    //   onPressed: () => _download(context),
-                    //   child: SvgImage.asset(
-                    //     'assets/icons/get_it_on_google_play.svg',
-                    //     height: 45,
-                    //   ),
-                    // ),
+                CustomScrollView(
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 8),
+                          Expanded(child: Center(child: column)),
+                          const SizedBox(height: 8),
+                          status,
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-                // Column(
-                //   children: [
-                //     const Spacer(),
-                //     // OutlinedRoundedButton(
-                //     //   key: const Key('StartButton'),
-                //     //   subtitle: Text(
-                //     //     'Одноразовый\nаккаунт'.l10n,
-                //     //     style: TextStyle(
-                //     //       color: style.colors.onPrimary,
-                //     //     ),
-                //     //   ),
-                //     //   // subtitle: Text('account'.l10n),
-                //     //   // height: 60,
-                //     //   // maxWidth: 210,
-                //     //   // maxWidth: 210,
-                //     //   height: 54,
-                //     //   maxWidth: 160,
-                //     //   color: Color.fromRGBO(126, 198, 113, 1),
-                //     //   leading: SvgImage.asset(
-                //     //     // 'assets/icons/one_time13.svg',
-                //     //     // width: 23.5,
-                //     //     // height: 22.78,
-                //     //     'assets/icons/one_time15.svg',
-                //     //     width: 23.91,
-                //     //     height: 22.63,
-                //     //   ),
-
-                //     //   onPressed: c.register,
-                //     // ),
-                //     const SizedBox(height: 100),
-                //   ],
-                // ),
               ],
             ),
           ),

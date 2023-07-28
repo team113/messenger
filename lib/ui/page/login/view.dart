@@ -66,17 +66,30 @@ class LoginView extends StatelessWidget {
 
           switch (c.stage.value) {
             case LoginViewStage.oauth:
-              header = ModalPopupHeader(text: 'OAuth'.l10n);
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = c.fallbackStage,
+              );
+
+              final (String, String) provider = switch (c.oAuthProvider) {
+                OAuthProvider.apple => ('Apple', 'apple'),
+                OAuthProvider.google => ('Google', 'google_logo'),
+                OAuthProvider.github => ('GitHub', 'github'),
+                _ => ('', ''),
+              };
 
               children = [
-                Text(
-                  'Signed in with the credentials: \n\n${c.credential}'.l10n,
-                  style: fonts.titleLarge!.copyWith(
-                    color: style.colors.secondary,
+                const SizedBox(height: 12),
+                SvgImage.asset('assets/icons/${provider.$2}.svg', height: 100),
+                const SizedBox(height: 25 + 5),
+                Center(
+                  child: Text(
+                    'label_waiting_response_from'
+                        .l10nfmt({'from': provider.$1}),
+                    style: fonts.titleLarge!,
+                    textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 25),
-                // const SizedBox(height: 16),
               ];
               break;
 

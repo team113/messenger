@@ -1042,3 +1042,4 @@ label_sign_in_with_qr_code = Войти с QR кодом
 label_sign_up_email_already_occupied = E-mail {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
 label_sign_up_phone_already_occupied = Номер телефона {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
 label_account_created = Аккаунт создан
+label_waiting_response_from = Ожидается ответ от {$from}
