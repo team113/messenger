@@ -1933,7 +1933,7 @@ packages:
     source: hosted
     version: "2.0.7"
   wakelock:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: wakelock
       sha256: "769ecf42eb2d07128407b50cb93d7c10bd2ee48f0276ef0119db1d25cc2f87db"
@@ -1957,7 +1957,7 @@ packages:
     source: hosted
     version: "0.3.0"
   wakelock_plus:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: wakelock_plus
       sha256: aac3f3258f01781ec9212df94eecef1eb9ba9350e106728def405baa096ba413
