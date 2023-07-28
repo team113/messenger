@@ -755,3 +755,4 @@ plus = +
 space = {" "}
 space_or_space = {" "}или{" "}
 space_vertical_space = {" "}|{" "}
+space_slash_space = {" "}/{" "}

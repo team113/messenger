@@ -22,6 +22,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:chewie/src/helpers/utils.dart';
 
 import '/themes.dart';
+import '/l10n/l10n.dart';
 
 /// Text of the current position and duration of a [MeeduVideoPlayer].
 class CurrentPosition extends StatelessWidget {
@@ -40,14 +41,10 @@ class CurrentPosition extends StatelessWidget {
 
       return RichText(
         text: TextSpan(
-          text: '${formatDuration(position)} ',
-          children: <InlineSpan>[
-            TextSpan(
-              text: '/ ${formatDuration(duration)}',
-              style: fonts.labelMedium!.copyWith(
-                color: style.colors.onPrimaryOpacity50,
-              ),
-            )
+          children: [
+            TextSpan(text: formatDuration(position)),
+            TextSpan(text: 'space_slash_space'.l10n),
+            TextSpan(text: formatDuration(duration)),
           ],
           style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
         ),
