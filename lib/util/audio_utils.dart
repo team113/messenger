@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:media_kit/media_kit.dart';
 
+import 'log.dart';
 import 'platform_utils.dart';
 
 /// Global variable to access [AudioUtilsImpl].
@@ -38,7 +39,15 @@ class AudioUtilsImpl {
   /// Ensures the underlying resources are initialized to reduce possible delays
   /// when playing [once].
   void ensureInitialized() {
-    _player ??= Player();
+    try {
+      _player ??= Player();
+    } catch (e) {
+      // If [Player] isn't available on the current platform, this throws a
+      // `null check operator used on a null value`.
+      if (e is! TypeError) {
+        Log.error('Failed to initialize `Player`: ${e.toString()}');
+      }
+    }
   }
 
   /// Plays the provided [sound] once.
@@ -68,7 +77,16 @@ class AudioUtilsImpl {
 
       controller = StreamController.broadcast(
         onListen: () async {
-          player = Player();
+          try {
+            player = Player();
+          } catch (e) {
+            // If [Player] isn't available on the current platform, this throws
+            // a `null check operator used on a null value`.
+            if (e is! TypeError) {
+              Log.error('Failed to initialize `Player`: ${e.toString()}');
+            }
+          }
+
           await player?.open(music.media);
 
           // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
