@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../widget/svg/svg.dart';
-import '../../../../home/widget/animated_button.dart';
 import '../../../../home/widget/app_bar.dart';
 import '../../../../home/widget/avatar.dart';
 import '../../../../home/widget/navigation_bar.dart';
@@ -147,22 +146,22 @@ class NavigationWidget extends StatelessWidget {
                       ),
                     ),
                   ],
-                  actions: [
+                  actions: const [
                     Row(
                       children: [
-                        AnimatedButton(
-                          child: SvgImage.asset(
-                            'assets/icons/chat_video_call.svg',
-                            height: 17,
-                          ),
-                        ),
-                        const SizedBox(width: 28),
-                        AnimatedButton(
-                          child: SvgImage.asset(
-                            'assets/icons/chat_audio_call.svg',
-                            height: 19,
-                          ),
-                        ),
+                        // AnimatedButton(
+                        //   child: SvgImage.asset(
+                        //     'assets/icons/chat_video_call.svg',
+                        //     height: 17,
+                        //   ),
+                        // ),
+                        // const SizedBox(width: 28),
+                        // AnimatedButton(
+                        //   child: SvgImage.asset(
+                        //     'assets/icons/chat_audio_call.svg',
+                        //     height: 19,
+                        //   ),
+                        // ),
                       ],
                     )
                   ],

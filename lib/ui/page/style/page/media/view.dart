@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import '/ui/page/style/widget/header.dart';
 import 'widget/animation.dart';
 import 'widget/images.dart';
-import 'widget/sounds.dart';
 
 class MultimediaView extends StatelessWidget {
   const MultimediaView(this.isDarkMode, this.compact, {super.key});
@@ -48,7 +47,6 @@ class MultimediaView extends StatelessWidget {
                     const AnimationStyleWidget(),
                     const Divider(),
                     const SubHeader('Sound'),
-                    const SoundsWidget(),
                     const Divider(),
                   ],
                 ),

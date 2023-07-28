@@ -57,9 +57,7 @@ class FontWidget extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: AnimatedAlign(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.ease,
+          child: Align(
             alignment: dense ? Alignment.centerRight : Alignment.centerLeft,
             child: Text(
               style.$2,

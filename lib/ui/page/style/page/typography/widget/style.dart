@@ -37,7 +37,7 @@ class FontStyle extends StatelessWidget {
     // Returns a [Row] spacing its [title] and [subtitle] with a [Divider].
     Widget cell(String title, String subtitle) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
         child: Row(
           children: [
             Text(title),
@@ -57,7 +57,7 @@ class FontStyle extends StatelessWidget {
     }
 
     return SizedBox(
-      width: 190,
+      width: 210,
       child: DefaultTextStyle(
         style: fonts.bodySmall!.copyWith(
           color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF888888),
@@ -78,6 +78,12 @@ class FontStyle extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
+            Divider(
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFFE8E8E8),
+              indent: 25,
+              endIndent: 25,
+            ),
             cell('Size', style.$1.fontSize.toString()),
             cell('Weight', style.$1.fontWeight!.value.toString()),
             cell('Style', style.$1.fontWeight?.name ?? ''),

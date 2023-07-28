@@ -16,8 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-<<<<<<<< HEAD:lib/util/to_hex_extension.dart
-========
 
 import '/themes.dart';
 
@@ -41,7 +39,6 @@ class Header extends StatelessWidget {
     );
   }
 }
->>>>>>>> d88dd8b25d05b8c4e8fbe51af1c31b763ed3bdcc:lib/ui/page/style/widget/header.dart
 
 /// [Text] serving a sub-header.
 class SubHeader extends StatelessWidget {
