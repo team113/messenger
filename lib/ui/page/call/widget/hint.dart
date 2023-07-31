@@ -75,7 +75,7 @@ class HintWidget extends StatelessWidget {
                         ? 'label_error'.l10n
                         : 'label_hint_from_gapopa'.l10n,
                     style: fonts.bodySmall!.copyWith(
-                      color: style.colors.secondaryOpacity87,
+                      color: style.colors.secondary,
                     ),
                   ),
                 ),

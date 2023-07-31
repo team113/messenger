@@ -99,91 +99,26 @@ class Themes {
     );
 
     final FontStyle fonts = FontStyle(
+      primary: colors.primary,
+      secondary: colors.secondary,
+      onPrimary: colors.onPrimary,
       displayLarge: textTheme.displayLarge!,
-      displayLargeOnPrimary:
-          textTheme.displayLarge!.copyWith(color: colors.onPrimary),
       displayMedium: textTheme.displayMedium!,
-      displayMediumSecondary:
-          textTheme.displayMedium!.copyWith(color: colors.secondary),
       displaySmall: textTheme.displaySmall!,
-      displaySmallSecondary:
-          textTheme.displaySmall!.copyWith(color: colors.secondary),
-      displaySmallOnPrimary:
-          textTheme.displaySmall!.copyWith(color: colors.onPrimary),
       headlineLarge: textTheme.headlineLarge!,
-      headlineLargeOnPrimary:
-          textTheme.headlineLarge!.copyWith(color: colors.onPrimary),
       headlineMedium: textTheme.headlineMedium!,
-      headlineMediumOnPrimary:
-          textTheme.headlineMedium!.copyWith(color: colors.onPrimary),
       headlineSmall: textTheme.headlineSmall!,
-      headlineSmallSecondary:
-          textTheme.headlineSmall!.copyWith(color: colors.secondary),
-      headlineSmallOnPrimary:
-          textTheme.headlineSmall!.copyWith(color: colors.onPrimary),
-      headlineSmallShadowed: textTheme.headlineSmall!.copyWith(
-        color: colors.onPrimary,
-        shadows: [
-          Shadow(blurRadius: 6, color: colors.onBackground),
-          Shadow(blurRadius: 6, color: colors.onBackground),
-        ],
-      ),
       titleLarge: textTheme.titleLarge!,
-      titleLargeSecondary:
-          textTheme.titleLarge!.copyWith(color: colors.secondary),
-      titleLargeOnPrimary:
-          textTheme.titleLarge!.copyWith(color: colors.onPrimary),
       titleMedium: textTheme.titleMedium!,
-      titleMediumPrimary:
-          textTheme.titleMedium!.copyWith(color: colors.primary),
-      titleMediumSecondary:
-          textTheme.titleMedium!.copyWith(color: colors.secondary),
-      titleMediumOnPrimary:
-          textTheme.titleMedium!.copyWith(color: colors.onPrimary),
       titleSmall: textTheme.titleSmall!,
-      titleSmallOnPrimary:
-          textTheme.titleSmall!.copyWith(color: colors.onPrimary),
       labelLarge: textTheme.labelLarge!,
-      labelLargeSecondary:
-          textTheme.labelLarge!.copyWith(color: colors.secondary),
-      labelLargeOnPrimary:
-          textTheme.labelLarge!.copyWith(color: colors.onPrimary),
       labelMedium: textTheme.labelMedium!,
-      labelMediumPrimary:
-          textTheme.labelMedium!.copyWith(color: colors.primary),
-      labelMediumSecondary:
-          textTheme.labelMedium!.copyWith(color: colors.secondary),
-      labelMediumOnPrimary:
-          textTheme.labelMedium!.copyWith(color: colors.onPrimary),
       labelSmall: textTheme.labelSmall!,
-      labelSmallPrimary: textTheme.labelSmall!.copyWith(color: colors.primary),
-      labelSmallSecondary:
-          textTheme.labelSmall!.copyWith(color: colors.secondary),
-      labelSmallSecondaryAuxiliary:
-          textTheme.labelSmall!.copyWith(color: colors.secondaryHighlightDark),
-      labelSmallOnPrimary:
-          textTheme.labelSmall!.copyWith(color: colors.onPrimary),
       bodyLarge: textTheme.bodyLarge!,
-      bodyLargePrimary: textTheme.bodyLarge!.copyWith(color: colors.primary),
-      bodyLargeSecondary:
-          textTheme.bodyLarge!.copyWith(color: colors.secondary),
       bodyMedium: textTheme.bodyMedium!,
-      bodyMediumPrimary: textTheme.bodyMedium!.copyWith(color: colors.primary),
-      bodyMediumSecondary:
-          textTheme.bodyMedium!.copyWith(color: colors.secondary),
-      bodyMediumOnPrimary:
-          textTheme.bodyMedium!.copyWith(color: colors.onPrimary),
       bodySmall: textTheme.bodySmall!,
-      bodySmallPrimary: textTheme.bodySmall!.copyWith(color: colors.primary),
-      bodySmallSecondary:
-          textTheme.bodySmall!.copyWith(color: colors.secondary),
-      bodySmallSecondaryOpacity87:
-          textTheme.bodySmall!.copyWith(color: colors.secondaryOpacity87),
-      bodySmallOnPrimary:
-          textTheme.bodySmall!.copyWith(color: colors.onPrimary),
+      errorStyle: textTheme.headlineSmall!.copyWith(color: colors.dangerColor),
       inputDecorationStyle: textTheme.bodyMedium!
-          .copyWith(color: colors.secondaryHighlightDarkest),
-      errorStyle: textTheme.bodyMedium!
           .copyWith(color: colors.secondaryHighlightDarkest),
       counterStyle: textTheme.bodySmall!
           .copyWith(color: colors.secondaryHighlightDarkest),
@@ -622,58 +557,93 @@ class Style extends ThemeExtension<Style> {
 ///
 class FontStyle {
   FontStyle({
+    this.primary,
+    this.secondary,
+    this.onPrimary,
     required this.displayLarge,
-    required this.displayLargeOnPrimary,
+    TextStyle? displayLargeOnPrimary,
     required this.displayMedium,
-    required this.displayMediumSecondary,
+    TextStyle? displayMediumSecondary,
     required this.displaySmall,
-    required this.displaySmallSecondary,
-    required this.displaySmallOnPrimary,
+    TextStyle? displaySmallSecondary,
+    TextStyle? displaySmallOnPrimary,
     required this.headlineLarge,
-    required this.headlineLargeOnPrimary,
+    TextStyle? headlineLargeOnPrimary,
     required this.headlineMedium,
-    required this.headlineMediumOnPrimary,
+    TextStyle? headlineMediumOnPrimary,
     required this.headlineSmall,
-    required this.headlineSmallSecondary,
-    required this.headlineSmallOnPrimary,
-    required this.headlineSmallShadowed,
+    TextStyle? headlineSmallSecondary,
+    TextStyle? headlineSmallOnPrimary,
     required this.titleLarge,
-    required this.titleLargeSecondary,
-    required this.titleLargeOnPrimary,
+    TextStyle? titleLargeSecondary,
+    TextStyle? titleLargeOnPrimary,
     required this.titleMedium,
-    required this.titleMediumPrimary,
-    required this.titleMediumSecondary,
-    required this.titleMediumOnPrimary,
+    TextStyle? titleMediumPrimary,
+    TextStyle? titleMediumSecondary,
+    TextStyle? titleMediumOnPrimary,
     required this.titleSmall,
-    required this.titleSmallOnPrimary,
+    TextStyle? titleSmallOnPrimary,
     required this.labelLarge,
-    required this.labelLargeSecondary,
-    required this.labelLargeOnPrimary,
+    TextStyle? labelLargeSecondary,
+    TextStyle? labelLargeOnPrimary,
     required this.labelMedium,
-    required this.labelMediumPrimary,
-    required this.labelMediumSecondary,
-    required this.labelMediumOnPrimary,
+    TextStyle? labelMediumPrimary,
+    TextStyle? labelMediumSecondary,
+    TextStyle? labelMediumOnPrimary,
     required this.labelSmall,
-    required this.labelSmallPrimary,
-    required this.labelSmallSecondary,
-    required this.labelSmallSecondaryAuxiliary,
-    required this.labelSmallOnPrimary,
+    TextStyle? labelSmallPrimary,
+    TextStyle? labelSmallSecondary,
+    TextStyle? labelSmallOnPrimary,
     required this.bodyLarge,
-    required this.bodyLargePrimary,
-    required this.bodyLargeSecondary,
+    TextStyle? bodyLargePrimary,
+    TextStyle? bodyLargeSecondary,
     required this.bodyMedium,
-    required this.bodyMediumPrimary,
-    required this.bodyMediumSecondary,
-    required this.bodyMediumOnPrimary,
+    TextStyle? bodyMediumPrimary,
+    TextStyle? bodyMediumSecondary,
+    TextStyle? bodyMediumOnPrimary,
     required this.bodySmall,
-    required this.bodySmallPrimary,
-    required this.bodySmallSecondary,
-    required this.bodySmallSecondaryOpacity87,
-    required this.bodySmallOnPrimary,
+    TextStyle? bodySmallPrimary,
+    TextStyle? bodySmallSecondary,
+    TextStyle? bodySmallOnPrimary,
     required this.inputDecorationStyle,
     required this.errorStyle,
     required this.counterStyle,
-  });
+  })  : displayLargeOnPrimary = displayLarge.copyWith(color: onPrimary),
+        displayMediumSecondary = displayMedium.copyWith(color: secondary),
+        displaySmallSecondary = displaySmall.copyWith(color: secondary),
+        displaySmallOnPrimary = displaySmall.copyWith(color: onPrimary),
+        headlineLargeOnPrimary = headlineLarge.copyWith(color: onPrimary),
+        headlineMediumOnPrimary = headlineMedium.copyWith(color: onPrimary),
+        headlineSmallSecondary = headlineSmall.copyWith(color: secondary),
+        headlineSmallOnPrimary = headlineSmall.copyWith(color: onPrimary),
+        titleLargeSecondary = titleLarge.copyWith(color: secondary),
+        titleLargeOnPrimary = titleLarge.copyWith(color: onPrimary),
+        titleMediumPrimary = titleMedium.copyWith(color: primary),
+        titleMediumSecondary = titleMedium.copyWith(color: secondary),
+        titleMediumOnPrimary = titleMedium.copyWith(color: onPrimary),
+        titleSmallOnPrimary = titleSmall.copyWith(color: onPrimary),
+        labelLargeSecondary = labelLarge.copyWith(color: secondary),
+        labelLargeOnPrimary = labelLarge.copyWith(color: onPrimary),
+        labelMediumPrimary = labelMedium.copyWith(color: primary),
+        labelMediumSecondary = labelMedium.copyWith(color: secondary),
+        labelMediumOnPrimary = labelMedium.copyWith(color: onPrimary),
+        labelSmallPrimary = labelSmall.copyWith(color: primary),
+        labelSmallSecondary = labelSmall.copyWith(color: secondary),
+        labelSmallOnPrimary = labelSmall.copyWith(color: onPrimary),
+        bodyLargePrimary = bodyLarge.copyWith(color: primary),
+        bodyLargeSecondary = bodyLarge.copyWith(color: secondary),
+        bodyMediumPrimary = bodyMedium.copyWith(color: primary),
+        bodyMediumSecondary = bodyMedium.copyWith(color: secondary),
+        bodyMediumOnPrimary = bodyMedium.copyWith(color: onPrimary),
+        bodySmallPrimary = bodySmall.copyWith(color: primary),
+        bodySmallSecondary = bodySmall.copyWith(color: secondary),
+        bodySmallOnPrimary = bodySmall.copyWith(color: onPrimary);
+
+  final Color? primary;
+
+  final Color? secondary;
+
+  final Color? onPrimary;
 
   ///
   final TextStyle displayLarge;
@@ -716,9 +686,6 @@ class FontStyle {
 
   ///
   final TextStyle headlineSmallOnPrimary;
-
-  ///
-  final TextStyle headlineSmallShadowed;
 
   ///
   final TextStyle titleLarge;
@@ -778,9 +745,6 @@ class FontStyle {
   final TextStyle labelSmallSecondary;
 
   ///
-  final TextStyle labelSmallSecondaryAuxiliary;
-
-  ///
   final TextStyle labelSmallOnPrimary;
 
   ///
@@ -814,9 +778,6 @@ class FontStyle {
   final TextStyle bodySmallSecondary;
 
   ///
-  final TextStyle bodySmallSecondaryOpacity87;
-
-  ///
   final TextStyle bodySmallOnPrimary;
 
   ///
@@ -828,7 +789,7 @@ class FontStyle {
   ///
   final TextStyle counterStyle;
 
-  /// Linear interpolation between two [Palette] objects based on a given [t]
+  /// Linear interpolation between two [FontStyle] objects based on a given [t]
   /// value.
   static FontStyle lerp(FontStyle font, FontStyle? other, double t) {
     if (other is! FontStyle) {
@@ -861,8 +822,6 @@ class FontStyle {
           font.headlineSmallSecondary, other.displayLargeOnPrimary, t)!,
       headlineSmallOnPrimary: TextStyle.lerp(
           font.headlineSmallOnPrimary, other.displayLargeOnPrimary, t)!,
-      headlineSmallShadowed: TextStyle.lerp(
-          font.headlineSmallShadowed, other.displayLargeOnPrimary, t)!,
       titleLarge: TextStyle.lerp(font.titleLarge, other.titleLarge, t)!,
       titleLargeSecondary: TextStyle.lerp(
           font.titleLargeSecondary, other.displayLargeOnPrimary, t)!,
@@ -895,8 +854,6 @@ class FontStyle {
           font.labelSmallPrimary, other.displayLargeOnPrimary, t)!,
       labelSmallSecondary: TextStyle.lerp(
           font.labelSmallSecondary, other.displayLargeOnPrimary, t)!,
-      labelSmallSecondaryAuxiliary: TextStyle.lerp(
-          font.labelSmallSecondaryAuxiliary, other.displayLargeOnPrimary, t)!,
       labelSmallOnPrimary: TextStyle.lerp(
           font.labelSmallOnPrimary, other.displayLargeOnPrimary, t)!,
       bodyLarge: TextStyle.lerp(font.bodyLarge, other.bodyLarge, t)!,
@@ -916,8 +873,6 @@ class FontStyle {
           font.bodySmallPrimary, other.displayLargeOnPrimary, t)!,
       bodySmallSecondary: TextStyle.lerp(
           font.bodySmallSecondary, other.displayLargeOnPrimary, t)!,
-      bodySmallSecondaryOpacity87: TextStyle.lerp(
-          font.bodySmallSecondaryOpacity87, other.displayLargeOnPrimary, t)!,
       bodySmallOnPrimary: TextStyle.lerp(
           font.bodySmallOnPrimary, other.displayLargeOnPrimary, t)!,
       inputDecorationStyle: TextStyle.lerp(
