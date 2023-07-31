@@ -34,6 +34,7 @@ class DownloadButton extends StatelessWidget {
     this.asset,
     this.width,
     this.height,
+    this.left = 0,
     required this.title,
     this.link,
   });
@@ -52,6 +53,8 @@ class DownloadButton extends StatelessWidget {
 
   /// Relative link to the downloadable asset.
   final String? link;
+
+  final double left;
 
   @override
   Widget build(BuildContext context) {
@@ -72,23 +75,20 @@ class DownloadButton extends StatelessWidget {
       prefix: asset == null
           ? null
           : Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: Transform.scale(
-                scale: 2,
-                child: SvgImage.asset(
-                  'assets/icons/$asset.svg',
-                  width: width == null ? null : width! / 2,
-                  height: height == null ? null : height! / 2,
-                ),
+              padding: EdgeInsets.only(left: 4 + left),
+              child: SvgImage.asset(
+                'assets/icons/$asset.svg',
+                width: width,
+                height: height,
               ),
             ),
-      trailing: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Transform.scale(
-          scale: 1.15,
-          child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-        ),
-      ),
+      // trailing: Transform.translate(
+      //   offset: const Offset(-3, 0),
+      //   child: Transform.scale(
+      //     scale: 1.15,
+      //     child: SvgImage.asset('assets/icons/copy.svg', height: 15),
+      //   ),
+      // ),
       style: fonts.titleMedium!.copyWith(color: style.colors.primary),
     );
   }

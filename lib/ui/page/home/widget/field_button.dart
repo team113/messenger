@@ -113,6 +113,15 @@ class _FieldButtonState extends State<FieldButton> {
               : style.colors.onBackground,
         ),
         height: 46,
+        trailing: AnimatedScale(
+          duration: const Duration(milliseconds: 100),
+          scale: _hovered ? 1.05 : 1,
+          child: Transform.translate(
+            offset: const Offset(0, 1),
+            child: widget.trailing,
+          ),
+        ),
+        leading: widget.prefix,
         maxHeight: double.infinity,
         border: Border.all(
           width: 0.5,
@@ -140,15 +149,15 @@ class _FieldButtonState extends State<FieldButton> {
               state: TextFieldState(text: widget.text, editable: false),
               label: widget.label,
               maxLines: widget.maxLines,
-              trailing: AnimatedScale(
-                key: _key,
-                duration: const Duration(milliseconds: 100),
-                scale: _hovered ? 1.05 : 1,
-                child: Transform.translate(
-                  offset: const Offset(0, 1),
-                  child: widget.trailing,
-                ),
-              ),
+              // trailing: AnimatedScale(
+              //   key: _key,
+              //   duration: const Duration(milliseconds: 100),
+              //   scale: _hovered ? 1.05 : 1,
+              //   child: Transform.translate(
+              //     offset: const Offset(0, 1),
+              //     child: widget.trailing,
+              //   ),
+              // ),
               prefixStyle: widget.prefixStyle,
               prefixText: widget.prefixText,
               floatingLabelBehavior: widget.floatingLabelBehavior,

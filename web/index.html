@@ -198,19 +198,33 @@
 </head>
 
 <body>
+  <audio id="notification.mp3" src="assets/assets/audio/notification.mp3" muted autoplay></audio>
+  <audio id="notification2.mp3" src="assets/assets/audio/notification2.mp3" muted autoplay></audio>
+  <audio id="message_sent.mp3" src="assets/assets/audio/message_sent.mp3" muted autoplay></audio>
+  <audio id="pop.mp3" src="assets/assets/audio/pop.mp3" muted autoplay></audio>
+  <audio id="chinese-web.mp3" src="assets/assets/audio/chinese-web.mp3" muted autoplay loop></audio>
+  <audio id="reconnect.mp3" src="assets/assets/audio/reconnect.mp3" muted autoplay loop></audio>
+  <audio id="ringing.mp3" src="assets/assets/audio/ringing.mp3" muted autoplay loop></audio>
   <div id="loader" class="container content">
     <div style="vertical-align: middle;">
       <div style="display: flex; justify-content: center; margin-bottom: 12px;">
-        <div style="color:#888888; font-weight: 300; font-size:18pt; font-family: SF UI Display, system-ui;">Messenger</div>
+        <div style="color:#888888; font-weight: 300; font-size:18pt; font-family: SF UI Display, system-ui;">
+          Messenger
+        </div>
       </div>
       <div style="display: flex; justify-content: center; margin-bottom: 24px;">
-        <div style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui; transform: translate(0px, -8px);">by Gapopa</div>
+        <div
+          style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui; transform: translate(0px, -8px);">
+          by Gapopa
+        </div>
       </div>
       <div style="display: flex; justify-content: center;">
         <canvas class="gapopa" id="canvas"></canvas>
       </div>
       <div style="display: flex; justify-content: center; margin-top: 24px;">
-        <div class="col-auto h4 shimmer" style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui;">Downloading</div>
+        <div class="col-auto h4 shimmer"
+          style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui;">Downloading
+        </div>
       </div>
     </div>
   </div>
@@ -245,7 +259,7 @@
         // Otherwise, the browser will load the script multiple times,
         // potentially different versions.
         var serviceWorkerUrl = 'flutter_service_worker.js?v=' +
-                               serviceWorkerVersion;
+          serviceWorkerVersion;
         navigator.serviceWorker.register(serviceWorkerUrl)
           .then((reg) => {
             function waitForActivation(serviceWorker) {

@@ -57,30 +57,37 @@ class AuthView extends StatelessWidget {
             switch (c.system.value) {
               case 0:
                 return SvgImage.asset(
-                  'assets/icons/apple.svg',
-                  width: 18.24 * modifier,
-                  height: 23 * modifier,
+                  'assets/icons/app_store.svg',
+                  width: 23,
+                  height: 23,
                 );
 
               case 1:
                 return SvgImage.asset(
-                  'assets/icons/google4.svg',
-                  width: 20.64 * modifier,
-                  height: 23 * modifier,
+                  'assets/icons/apple7.svg',
+                  width: 21.07,
+                  height: 27,
                 );
 
               case 2:
                 return SvgImage.asset(
-                  'assets/icons/linux4.svg',
-                  width: 22.09 * modifier,
-                  height: 26 * modifier,
+                  'assets/icons/google_play.svg',
+                  width: 21.26,
+                  height: 23.02,
                 );
 
               case 3:
                 return SvgImage.asset(
-                  'assets/icons/windows4.svg',
-                  width: 22.93 * modifier,
-                  height: 23 * modifier,
+                  'assets/icons/linux4.svg',
+                  width: 20.57,
+                  height: 24,
+                );
+
+              case 4:
+                return SvgImage.asset(
+                  'assets/icons/windows5.svg',
+                  width: 23.93,
+                  height: 24,
                 );
             }
 
@@ -157,11 +164,11 @@ class AuthView extends StatelessWidget {
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
-              offset: const Offset(-2, 0),
-              child: Icon(
-                Icons.how_to_reg,
-                size: 26,
-                color: style.colors.primary,
+              offset: const Offset(3, 0),
+              child: SvgImage.asset(
+                'assets/icons/register3.svg',
+                width: 23,
+                height: 23,
               ),
             ),
             onPressed: () => LoginView.show(context),
@@ -172,10 +179,13 @@ class AuthView extends StatelessWidget {
             title: Text('btn_sign_in'.l10n),
             maxWidth: 210,
             height: 46,
-            leading: SvgImage.asset(
-              'assets/icons/door6.svg',
-              width: 18.82,
-              height: 23.73,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: SvgImage.asset(
+                'assets/icons/enter1.svg',
+                width: 19.42,
+                height: 24,
+              ),
             ),
             onPressed: () =>
                 LoginView.show(context, stage: LoginViewStage.signIn),
@@ -186,10 +196,13 @@ class AuthView extends StatelessWidget {
             subtitle: Text('btn_one_time_account'.l10n),
             maxWidth: 210,
             height: 46,
-            leading: SvgImage.asset(
-              'assets/icons/start_blue.svg',
-              width: 23.91 * 1,
-              height: 22.63 * 1,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: SvgImage.asset(
+                'assets/icons/one_time19.svg',
+                width: 19.88,
+                height: 26,
+              ),
             ),
             onPressed: () {
               router.noIntroduction = false;
@@ -201,9 +214,13 @@ class AuthView extends StatelessWidget {
             subtitle: Text('btn_work_with_us'.l10n),
             maxWidth: 210,
             height: 46,
-            leading: SvgImage.asset(
-              'assets/icons/partner16.svg',
-              height: 20,
+            leading: Transform.translate(
+              offset: const Offset(2, 0),
+              child: SvgImage.asset(
+                'assets/icons/work7.svg',
+                width: 26,
+                height: 23,
+              ),
             ),
             onPressed: () => router.vacancy(null, push: true),
           ),
@@ -214,7 +231,10 @@ class AuthView extends StatelessWidget {
               subtitle: Text('btn_download_application'.l10n),
               maxWidth: 210,
               height: 46,
-              leading: icon,
+              leading: Transform.translate(
+                offset: const Offset(5, 0),
+                child: icon,
+              ),
               onPressed: () => _download(context),
             ),
           ),
@@ -296,7 +316,7 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final style = Theme.of(context).style;
+    final (style, fonts) = Theme.of(context).styles;
 
     await ModalPopup.show(
       context: context,
@@ -307,10 +327,10 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: style.colors.onBackground,
-                      fontSize: 18,
-                    ),
+                style: fonts.headlineMedium?.copyWith(
+                  color: style.colors.onBackground,
+                  fontSize: 18,
+                ),
               ),
             ),
           ),
@@ -321,34 +341,34 @@ class AuthView extends StatelessWidget {
               shrinkWrap: true,
               children: const [
                 DownloadButton(
-                  asset: 'windows',
-                  width: 21.93,
-                  height: 22,
+                  asset: 'windows5',
+                  width: 23.93,
+                  height: 24,
                   title: 'Windows',
                   link: 'messenger-windows.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'apple',
-                  width: 23,
-                  height: 29,
+                  asset: 'apple7',
+                  width: 21.07,
+                  height: 27,
                   title: 'macOS',
                   link: 'messenger-macos.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'linux',
-                  width: 18.85,
-                  height: 22,
+                  asset: 'linux4',
+                  width: 20.57,
+                  height: 24,
                   title: 'Linux',
                   link: 'messenger-linux.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'apple',
+                  asset: 'app_store',
                   width: 23,
-                  height: 29,
-                  title: 'iOS',
+                  height: 23,
+                  title: 'App Store',
                   link: 'messenger-ios.zip',
                 ),
                 SizedBox(height: 8),
@@ -356,6 +376,15 @@ class AuthView extends StatelessWidget {
                   asset: 'google',
                   width: 20.33,
                   height: 22.02,
+                  title: 'Google Play',
+                  left: 3,
+                  link: 'messenger-android.apk',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'android3',
+                  width: 20.99,
+                  height: 25,
                   title: 'Android',
                   link: 'messenger-android.apk',
                 ),

@@ -28,7 +28,9 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.title,
     this.subtitle,
     this.leading,
-    this.leadingWidth = 24,
+    this.trailing,
+    // this.leadingWidth = 24
+    this.leadingWidth,
     this.onPressed,
     this.onLongPress,
     this.gradient,
@@ -58,6 +60,7 @@ class OutlinedRoundedButton extends StatelessWidget {
   ///
   /// Typically an [Icon] or a [CircleAvatar] widget.
   final Widget? leading;
+  final Widget? trailing;
 
   /// Callback, called when this button is tapped or activated other way.
   final VoidCallback? onPressed;
@@ -205,6 +208,7 @@ class OutlinedRoundedButton extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(width: 8),
+                // if (leading != null) leading!,
                 if (leading != null)
                   SizedBox(width: leadingWidth, child: Center(child: leading!)),
                 const SizedBox(width: 8),
@@ -238,11 +242,14 @@ class OutlinedRoundedButton extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
+                // if (leading != null) Opacity(opacity: 0, child: leading!),
+
                 if (leading != null)
                   SizedBox(
                     width: leadingWidth,
                     child: Center(child: Opacity(opacity: 0, child: leading!)),
                   ),
+                if (trailing != null) trailing!,
                 const SizedBox(width: 8),
               ],
             ),

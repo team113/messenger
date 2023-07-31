@@ -54,13 +54,15 @@ class AuthController extends GetxController {
 
   @override
   void onInit() {
-    system.value = (PlatformUtils.isIOS || PlatformUtils.isMacOS)
+    system.value = PlatformUtils.isIOS
         ? 0
-        : PlatformUtils.isAndroid
+        : PlatformUtils.isMacOS
             ? 1
-            : PlatformUtils.isLinux
+            : PlatformUtils.isAndroid
                 ? 2
-                : 3;
+                : PlatformUtils.isLinux
+                    ? 3
+                    : 4;
     super.onInit();
   }
 
