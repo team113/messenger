@@ -64,42 +64,38 @@ class TypographyView extends StatelessWidget {
 
     final Iterable<(TextStyle, String, String)> schema = [
       // Display large
-      (fonts.displayLarge!, 'displayLarge', '0 uses by this color'),
-      (
-        fonts.displayLarge!.copyWith(color: style.colors.onPrimary),
-        'displayLarge',
-        '"CallTitle" title'
-      ),
+      (style.fonts.displayLarge, 'displayLarge', '0 uses by this color'),
+      (style.fonts.displayLargeOnPrimary, 'displayLarge', '"CallTitle" title'),
 
       // Display medium
-      (fonts.displayMedium!, 'displayMedium', '0 uses by this color'),
+      (style.fonts.displayMedium, 'displayMedium', '0 uses by this color'),
       (
-        fonts.displayMedium!.copyWith(color: style.colors.secondary),
+        style.fonts.displayMediumSecondary,
         'displayMedium',
         '"Messenger" on auth page'
       ),
 
       // Display small
-      (fonts.displaySmall!, 'displaySmall', '0 uses by this color'),
+      (style.fonts.displaySmall, 'displaySmall', '0 uses by this color'),
       (
-        fonts.displaySmall!.copyWith(color: style.colors.secondary),
+        style.fonts.displaySmallSecondary,
         'displaySmall',
         '"UnreadCounter" when dimmed and inverted'
       ),
       (
-        fonts.displaySmall!.copyWith(color: style.colors.onPrimary),
+        style.fonts.displaySmallOnPrimary,
         'displaySmall',
         '"UnreadCounter" by default or when dimmed and not inverted'
       ),
 
       // Headline large
       (
-        fonts.headlineLarge!,
+        style.fonts.headlineLarge,
         'headlineLarge',
         '"MenuButton", "ChatTile", "ContactTile" title'
       ),
       (
-        fonts.headlineLarge!.copyWith(color: style.colors.onPrimary),
+        style.fonts.headlineLargeOnPrimary,
         'headlineLarge',
         'Mobile title of chat during call \nInverted "MenuButton" title \n'
             'Selected "ChatTile" and "ContactTile" title'
@@ -107,104 +103,94 @@ class TypographyView extends StatelessWidget {
 
       // Headline medium
       (
-        fonts.headlineMedium!,
+        style.fonts.headlineMedium,
         'headlineMedium',
         'btn_set_password \n"NumCopyable" \n"_repliedMessage" error \nlabel_visible_to \n'
             'MenuTab user name \nlabel_presence \n"CustomAppBar" title \n"Block" title'
       ),
 
       (
-        fonts.headlineMedium!.copyWith(color: style.colors.onPrimary),
+        style.fonts.headlineMediumOnPrimary,
         'headlineMedium',
         '"CallTitle" state \n"ConfirmDialogVariant"'
       ),
 
       // Headline small
-      (fonts.headlineSmall!, 'headlineSmall', '0 uses of this color'),
+      (style.fonts.headlineSmall, 'headlineSmall', '0 uses of this color'),
       (
-        fonts.headlineSmall!.copyWith(color: style.colors.secondary),
+        style.fonts.headlineSmallSecondary,
         'headlineSmall',
         '"time" in MessageFieldView \nlabel_forwarded_messages \nlabel_kb'
       ),
       (
-        fonts.headlineSmall!.copyWith(color: style.colors.onPrimary),
+        style.fonts.headlineSmallOnPrimary,
         'headlineSmall',
         '"RoundFloatingButton" and "RtcVideoView" label \nCurrent video position and duration'
       ),
       (
-        fonts.headlineSmall!.copyWith(
-          color: style.colors.onPrimary,
-          shadows: [
-            Shadow(blurRadius: 6, color: style.colors.onBackground),
-            Shadow(blurRadius: 6, color: style.colors.onBackground),
-          ],
-        ),
+        style.fonts.headlineSmallShadowed,
         'headlineSmall',
         '"RoundFloatingButton" and "TooltipButton" hint'
       ),
 
       // Title large
       (
-        fonts.titleLarge!,
+        style.fonts.titleLarge,
         'titleLarge',
         'ShadowedRoundedButton label \n"ConfirmLogoutView" user \n"PrimaryButton"'
       ),
       (
-        fonts.titleLarge!.copyWith(color: style.colors.secondary),
+        style.fonts.titleLargeSecondary,
         'titleLarge',
         'alert_are_you_sure_want_to_log_out'
       ),
       (
-        fonts.titleLarge!.copyWith(color: style.colors.onPrimary),
+        style.fonts.titleLargeOnPrimary,
         'titleLarge',
         '"OutlinedRoundedButton" and "ShadowedRoundedButton" label with `primary` or inverted color'
       ),
 
       // Title medium
       (
-        fonts.titleMedium!,
+        style.fonts.titleMedium,
         'titleMedium',
         'SearchTextField \nAttachmentSelector \nStatusField \nPasswordField \nRepeatPasswordField'
       ),
       (
-        fonts.titleMedium!.copyWith(color: style.colors.primary),
+        style.fonts.titleMediumPrimary,
         'titleMedium',
         '"CallSettingsView" fields \nMyUser "FieldButton"s \nActionButton'
       ),
       (
-        fonts.titleMedium!.copyWith(color: style.colors.secondary),
+        style.fonts.titleMediumSecondary,
         'titleMedium',
         '"_repliedMessage" label \nMyUser unconfirmed emails and phones'
       ),
-      (
-        fonts.titleMedium!.copyWith(color: style.colors.onPrimary),
-        'titleMedium',
-        'AnimatedDots'
-      ),
+      (style.fonts.titleMediumSecondary, 'titleMedium', 'AnimatedDots'),
 
       // Title small
       (fonts.titleSmall!, 'titleSmall', '0 uses of this color'),
       (
-        fonts.titleSmall!.copyWith(color: style.colors.onPrimary),
+        style.fonts.titleSmallOnPrimary,
         'titleSmall',
         '"CallCoverWidget" title \nLabel or title of "AvatarWidget"'
       ),
 
       // Label large
       (
-        fonts.labelLarge!,
+        style.fonts.labelLarge,
         'labelLarge',
         '"ChatInfoView" and "UserView" Popups \n"SearchCategory" names'
       ),
       (
-        fonts.labelLarge!.copyWith(color: style.colors.secondary),
+        style.fonts.labelLargeSecondary,
         'labelLarge',
         '"by Gapopa" on auth page \n"ChatItem" time \n"RecentChatTile" updated at \n'
             'label_password_set \nlabel_password_not_set \nConfirmDialog description \n'
             'LoginViewStage labels'
       ),
       (
-        fonts.labelLarge!.copyWith(color: style.colors.onPrimary),
+        style.fonts.labelLargeOnPrimary,
         'labelLarge',
         'Mobile title of chat contains information about current call \n'
             'Add call participants label \nInverted "RecentChatTile" updated at \n'
@@ -213,55 +199,47 @@ class TypographyView extends StatelessWidget {
 
       // Label medium
       (
-        fonts.labelMedium!,
+        style.fonts.labelMedium,
         'labelMedium',
         'NoMessages \nlabel_nothing_found \nMenuButton subtitle'
       ),
+      (style.fonts.labelMediumPrimary, 'labelMedium', 'label_typing'),
       (
-        fonts.labelMedium!.copyWith(color: style.colors.primary),
-        'labelMedium',
-        'label_typing'
-      ),
-      (
-        fonts.labelMedium!.copyWith(color: style.colors.secondary),
+        style.fonts.labelMediumSecondary,
         'labelMedium',
         '"CupertinoButton" label, \nlabel_synchronization \nSearchUserTile label \n'
             '"ContactsTabView" subtitle \nMenuTabView status'
       ),
       (
-        fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
+        style.fonts.labelMediumOnPrimary,
         'labelMedium',
         'Desktop Call title \nDraggable label \nInverted label_typing \nInverted SearchUserTile label \n'
             'Inverted "ContactsTabView" subtitle \nInverted "MenuButton" subtitle'
       ),
 
       // Label small
-      (fonts.labelSmall!, 'labelSmall', '0 uses of this color'),
+      (style.fonts.labelSmall, 'labelSmall', '0 uses of this color'),
       (
-        fonts.labelSmall!.copyWith(color: style.colors.primary),
+        style.fonts.labelSmallPrimary,
         'labelSmall',
         'label_details \n"MyProfileView" btn_upload and btn_delete \nlabel_nobody'
       ),
       (
-        fonts.labelSmall!.copyWith(color: style.colors.secondary),
+        style.fonts.labelSmallSecondary,
         'labelSmall',
         'Hint of "CallButton" \n"MessageTimestamp" \n"SwipeableStatus" \nlabel_transition_count \n'
-            'label_login_visible \n '
+            'label_login_visible'
       ),
       (
-        fonts.labelSmall!.copyWith(color: style.colors.secondaryHighlightDark),
+        style.fonts.labelSmallSecondaryAuxiliary,
         'labelSmall',
         'Inverted "MessageTimestamp"'
       ),
-      (
-        fonts.labelSmall!.copyWith(color: style.colors.onPrimary),
-        'labelSmall',
-        'Hint of "CallButton" \n'
-      ),
+      (style.fonts.labelSmallOnPrimary, 'labelSmall', 'Hint of "CallButton"'),
 
       // Body large
       (
-        fonts.bodyLarge!,
+        style.fonts.bodyLarge,
         'bodyLarge',
         'label_send_message_hint \n Text of the "ChatMessage" \n'
             'label_forwarded_message \nerr_unknown \n'
@@ -271,31 +249,27 @@ class TypographyView extends StatelessWidget {
             'btn_unblock'
       ),
       (
-        fonts.bodyLarge!.copyWith(color: style.colors.primary),
+        style.fonts.bodyLargePrimary,
         'bodyLarge',
         'label_edit \n"MessageFieldView" preview'
       ),
 
       // Body medium
       (
-        fonts.bodyMedium!,
+        style.fonts.bodyMedium,
         'bodyMedium',
         'IntroductionView "ReactiveTextField"s \nlabel_introduction_description \n'
       ),
+      (style.fonts.bodyMediumPrimary, 'bodyMedium', '"bigButton" title'),
       (
-        fonts.bodyMedium!.copyWith(color: style.colors.primary),
-        'bodyMedium',
-        '"bigButton" title'
-      ),
-      (
-        fonts.bodyMedium!.copyWith(color: style.colors.secondary),
+        style.fonts.bodyMediumSecondary,
         'bodyMedium',
         'label_password_set \nAddEmailView, AddPhoneView labels \nlabel_direct_chat_link_description \n'
             'ChangePasswordView labels and buttons \nRecentChatTile subtitle'
       ),
 
       (
-        fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
+        style.fonts.bodyMediumOnPrimary,
         'bodyMedium',
         'label_reconnecting_ellipsis \nbtn_share \n"CallNotificationWidget" title \n'
             '"ParticipantOverlayWidget" name \nRewindIndicator label \n Video player error \n'
@@ -306,30 +280,30 @@ class TypographyView extends StatelessWidget {
 
       // Body small
       (
-        fonts.bodySmall!,
+        style.fonts.bodySmall,
         'bodySmall',
         'MessageFiledView content \nMessageInfo ID \nlabel_delete_contact'
       ),
       (
-        fonts.bodySmall!.copyWith(color: style.colors.primary),
+        style.fonts.bodySmallPrimary,
         'bodySmall',
         'btn_upload \nbtn_delete \nlabel_phone_visible \nlabel_nobody \nbtn_unblock_short \n'
             'btn_forgot_password'
       ),
       (
-        fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        style.fonts.bodySmallSecondary,
         'bodySmall',
         'label_kb \nChatSubtitle labels \nlabel_read_at \nUserView subtitle'
       ),
       (
-        fonts.bodySmall!.copyWith(color: style.colors.onPrimary),
-        'bodySmall',
-        '"CallButton" description \nlabel_required \nCustomNavigationBarItem'
-      ),
-      (
-        fonts.bodySmall!.copyWith(color: style.colors.secondaryOpacity87),
+        style.fonts.bodySmallSecondaryOpacity87,
         'bodySmall',
         '"HintWidget" labels'
+      ),
+      (
+        style.fonts.bodySmallOnPrimary,
+        'bodySmall',
+        '"CallButton" description \nlabel_required \nCustomNavigationBarItem'
       ),
     ];
 
@@ -379,7 +353,7 @@ class TypographyView extends StatelessWidget {
           styles,
           inverted: inverted,
           dense: dense,
-          (e) => FontStyle(e, inverted: inverted),
+          (e) => FontStyleWidget(e, inverted: inverted),
         ),
         const SizedBox(height: 16),
       ],

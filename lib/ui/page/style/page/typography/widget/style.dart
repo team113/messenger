@@ -20,13 +20,13 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 
 /// [Column] displaying the provided [TextStyle] in a descriptive way.
-class FontStyle extends StatelessWidget {
-  const FontStyle(this.style, {super.key, this.inverted = false});
+class FontStyleWidget extends StatelessWidget {
+  const FontStyleWidget(this.style, {super.key, this.inverted = false});
 
   /// [TextStyle] along with its title to display.
   final (TextStyle, String) style;
 
-  /// Indicator whether this [FontStyle] should have its colors
+  /// Indicator whether this [FontStyleWidget] should have its colors
   /// inverted.
   final bool inverted;
 

@@ -23,6 +23,7 @@ import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
+/// TODO:
 class FontSchema extends StatelessWidget {
   const FontSchema(
     this.styles, {
@@ -96,7 +97,9 @@ class FontSchema extends StatelessWidget {
                     const SizedBox(width: 8),
                     WidgetButton(
                       onPressed: () {
-                        Clipboard.setData(ClipboardData(text: e.$1.toString()));
+                        Clipboard.setData(
+                          ClipboardData(text: e.$1.color!.toHex()),
+                        );
                         MessagePopup.success('Hash is copied');
                       },
                       child: Text(

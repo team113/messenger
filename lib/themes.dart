@@ -71,7 +71,7 @@ class Themes {
       fontWeight: FontWeight.w400,
     );
 
-    final TextTheme fonts = Typography.blackCupertino.copyWith(
+    final TextTheme textTheme = Typography.blackCupertino.copyWith(
       displayLarge:
           textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.bold),
       displayMedium:
@@ -98,6 +98,97 @@ class Themes {
       bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
     );
 
+    final FontStyle fonts = FontStyle(
+      displayLarge: textTheme.displayLarge!,
+      displayLargeOnPrimary:
+          textTheme.displayLarge!.copyWith(color: colors.onPrimary),
+      displayMedium: textTheme.displayMedium!,
+      displayMediumSecondary:
+          textTheme.displayMedium!.copyWith(color: colors.secondary),
+      displaySmall: textTheme.displaySmall!,
+      displaySmallSecondary:
+          textTheme.displaySmall!.copyWith(color: colors.secondary),
+      displaySmallOnPrimary:
+          textTheme.displaySmall!.copyWith(color: colors.onPrimary),
+      headlineLarge: textTheme.headlineLarge!,
+      headlineLargeOnPrimary:
+          textTheme.headlineLarge!.copyWith(color: colors.onPrimary),
+      headlineMedium: textTheme.headlineMedium!,
+      headlineMediumOnPrimary:
+          textTheme.headlineMedium!.copyWith(color: colors.onPrimary),
+      headlineSmall: textTheme.headlineSmall!,
+      headlineSmallSecondary:
+          textTheme.headlineSmall!.copyWith(color: colors.secondary),
+      headlineSmallOnPrimary:
+          textTheme.headlineSmall!.copyWith(color: colors.onPrimary),
+      headlineSmallShadowed: textTheme.headlineSmall!.copyWith(
+        color: colors.onPrimary,
+        shadows: [
+          Shadow(blurRadius: 6, color: colors.onBackground),
+          Shadow(blurRadius: 6, color: colors.onBackground),
+        ],
+      ),
+      titleLarge: textTheme.titleLarge!,
+      titleLargeSecondary:
+          textTheme.titleLarge!.copyWith(color: colors.secondary),
+      titleLargeOnPrimary:
+          textTheme.titleLarge!.copyWith(color: colors.onPrimary),
+      titleMedium: textTheme.titleMedium!,
+      titleMediumPrimary:
+          textTheme.titleMedium!.copyWith(color: colors.primary),
+      titleMediumSecondary:
+          textTheme.titleMedium!.copyWith(color: colors.secondary),
+      titleMediumOnPrimary:
+          textTheme.titleMedium!.copyWith(color: colors.onPrimary),
+      titleSmall: textTheme.titleSmall!,
+      titleSmallOnPrimary:
+          textTheme.titleSmall!.copyWith(color: colors.onPrimary),
+      labelLarge: textTheme.labelLarge!,
+      labelLargeSecondary:
+          textTheme.labelLarge!.copyWith(color: colors.secondary),
+      labelLargeOnPrimary:
+          textTheme.labelLarge!.copyWith(color: colors.onPrimary),
+      labelMedium: textTheme.labelMedium!,
+      labelMediumPrimary:
+          textTheme.labelMedium!.copyWith(color: colors.primary),
+      labelMediumSecondary:
+          textTheme.labelMedium!.copyWith(color: colors.secondary),
+      labelMediumOnPrimary:
+          textTheme.labelMedium!.copyWith(color: colors.onPrimary),
+      labelSmall: textTheme.labelSmall!,
+      labelSmallPrimary: textTheme.labelSmall!.copyWith(color: colors.primary),
+      labelSmallSecondary:
+          textTheme.labelSmall!.copyWith(color: colors.secondary),
+      labelSmallSecondaryAuxiliary:
+          textTheme.labelSmall!.copyWith(color: colors.secondaryHighlightDark),
+      labelSmallOnPrimary:
+          textTheme.labelSmall!.copyWith(color: colors.onPrimary),
+      bodyLarge: textTheme.bodyLarge!,
+      bodyLargePrimary: textTheme.bodyLarge!.copyWith(color: colors.primary),
+      bodyLargeSecondary:
+          textTheme.bodyLarge!.copyWith(color: colors.secondary),
+      bodyMedium: textTheme.bodyMedium!,
+      bodyMediumPrimary: textTheme.bodyMedium!.copyWith(color: colors.primary),
+      bodyMediumSecondary:
+          textTheme.bodyMedium!.copyWith(color: colors.secondary),
+      bodyMediumOnPrimary:
+          textTheme.bodyMedium!.copyWith(color: colors.onPrimary),
+      bodySmall: textTheme.bodySmall!,
+      bodySmallPrimary: textTheme.bodySmall!.copyWith(color: colors.primary),
+      bodySmallSecondary:
+          textTheme.bodySmall!.copyWith(color: colors.secondary),
+      bodySmallSecondaryOpacity87:
+          textTheme.bodySmall!.copyWith(color: colors.secondaryOpacity87),
+      bodySmallOnPrimary:
+          textTheme.bodySmall!.copyWith(color: colors.onPrimary),
+      inputDecorationStyle: textTheme.bodyMedium!
+          .copyWith(color: colors.secondaryHighlightDarkest),
+      errorStyle: textTheme.bodyMedium!
+          .copyWith(color: colors.secondaryHighlightDarkest),
+      counterStyle: textTheme.bodySmall!
+          .copyWith(color: colors.secondaryHighlightDarkest),
+    );
+
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         systemNavigationBarColor: colors.primaryHighlight,
@@ -112,6 +203,7 @@ class Themes {
         extensions: [
           Style(
             colors: colors,
+            fonts: fonts,
             barrierColor: colors.onBackgroundOpacity50,
             cardBlur: 5,
             cardBorder:
@@ -148,8 +240,7 @@ class Themes {
               width: 0.5,
             ),
             systemMessageColor: colors.secondaryHighlight,
-            systemMessageStyle:
-                fonts.bodySmall!.copyWith(color: colors.secondary),
+            systemMessageStyle: fonts.bodySmallSecondary,
             unreadMessageColor: colors.backgroundAuxiliaryLightest,
           ),
         ],
@@ -165,8 +256,7 @@ class Themes {
           ),
           elevation: 0,
           centerTitle: true,
-          titleTextStyle:
-              fonts.headlineMedium!.copyWith(color: colors.onBackground),
+          titleTextStyle: fonts.headlineMedium,
         ),
         tabBarTheme: theme.tabBarTheme.copyWith(
           labelColor: colors.primary,
@@ -176,26 +266,19 @@ class Themes {
           color: colors.secondary,
         ),
         iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
-        textTheme: fonts,
+        textTheme: textTheme,
         inputDecorationTheme: theme.inputDecorationTheme.copyWith(
           focusColor: colors.primary,
           hoverColor: colors.transparent,
           fillColor: colors.primary,
-          hintStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          labelStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          errorStyle: fonts.headlineSmall!.copyWith(color: colors.dangerColor),
-          helperStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          prefixStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          suffixStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          counterStyle: fonts.bodySmall!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          floatingLabelStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
+          hintStyle: fonts.inputDecorationStyle,
+          labelStyle: fonts.inputDecorationStyle,
+          errorStyle: fonts.errorStyle,
+          helperStyle: fonts.inputDecorationStyle,
+          prefixStyle: fonts.inputDecorationStyle,
+          suffixStyle: fonts.inputDecorationStyle,
+          counterStyle: fonts.counterStyle,
+          floatingLabelStyle: fonts.inputDecorationStyle,
           errorMaxLines: 5,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
@@ -239,7 +322,7 @@ class Themes {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: colors.secondary,
-            textStyle: fonts.bodyLarge!.copyWith(color: colors.secondary),
+            textStyle: fonts.bodyLargeSecondary,
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -252,7 +335,7 @@ class Themes {
               borderRadius: BorderRadius.circular(30),
             ),
             side: BorderSide(width: 1, color: colors.secondary),
-            textStyle: fonts.bodyLarge!.copyWith(color: colors.secondary),
+            textStyle: fonts.bodyLargeSecondary,
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -262,7 +345,7 @@ class Themes {
               borderRadius: BorderRadius.circular(30),
             ),
             padding: const EdgeInsets.all(12),
-            textStyle: fonts.titleMedium!.copyWith(color: colors.secondary),
+            textStyle: fonts.titleMediumSecondary,
           ),
         ),
         scrollbarTheme: theme.scrollbarTheme.copyWith(
@@ -340,6 +423,7 @@ class CustomBoxShadow extends BoxShadow {
 class Style extends ThemeExtension<Style> {
   const Style({
     required this.colors,
+    required this.fonts,
     required this.barrierColor,
     required this.cardBlur,
     required this.cardBorder,
@@ -364,6 +448,9 @@ class Style extends ThemeExtension<Style> {
 
   /// [Palette] to use in the application.
   final Palette colors;
+
+  /// [FontStyle] to use in the application.
+  final FontStyle fonts;
 
   /// [Color] of the modal background barrier.
   final Color barrierColor;
@@ -430,6 +517,7 @@ class Style extends ThemeExtension<Style> {
   @override
   ThemeExtension<Style> copyWith({
     Palette? colors,
+    FontStyle? fonts,
     Color? barrierColor,
     double? cardBlur,
     Border? cardBorder,
@@ -453,6 +541,7 @@ class Style extends ThemeExtension<Style> {
   }) {
     return Style(
       colors: colors ?? this.colors,
+      fonts: fonts ?? this.fonts,
       barrierColor: barrierColor ?? this.barrierColor,
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
@@ -486,6 +575,7 @@ class Style extends ThemeExtension<Style> {
 
     return Style(
       colors: Palette.lerp(colors, other.colors, t),
+      fonts: FontStyle.lerp(fonts, other.fonts, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
@@ -525,6 +615,315 @@ class Style extends ThemeExtension<Style> {
       )!,
       unreadMessageColor:
           Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
+    );
+  }
+}
+
+///
+class FontStyle {
+  FontStyle({
+    required this.displayLarge,
+    required this.displayLargeOnPrimary,
+    required this.displayMedium,
+    required this.displayMediumSecondary,
+    required this.displaySmall,
+    required this.displaySmallSecondary,
+    required this.displaySmallOnPrimary,
+    required this.headlineLarge,
+    required this.headlineLargeOnPrimary,
+    required this.headlineMedium,
+    required this.headlineMediumOnPrimary,
+    required this.headlineSmall,
+    required this.headlineSmallSecondary,
+    required this.headlineSmallOnPrimary,
+    required this.headlineSmallShadowed,
+    required this.titleLarge,
+    required this.titleLargeSecondary,
+    required this.titleLargeOnPrimary,
+    required this.titleMedium,
+    required this.titleMediumPrimary,
+    required this.titleMediumSecondary,
+    required this.titleMediumOnPrimary,
+    required this.titleSmall,
+    required this.titleSmallOnPrimary,
+    required this.labelLarge,
+    required this.labelLargeSecondary,
+    required this.labelLargeOnPrimary,
+    required this.labelMedium,
+    required this.labelMediumPrimary,
+    required this.labelMediumSecondary,
+    required this.labelMediumOnPrimary,
+    required this.labelSmall,
+    required this.labelSmallPrimary,
+    required this.labelSmallSecondary,
+    required this.labelSmallSecondaryAuxiliary,
+    required this.labelSmallOnPrimary,
+    required this.bodyLarge,
+    required this.bodyLargePrimary,
+    required this.bodyLargeSecondary,
+    required this.bodyMedium,
+    required this.bodyMediumPrimary,
+    required this.bodyMediumSecondary,
+    required this.bodyMediumOnPrimary,
+    required this.bodySmall,
+    required this.bodySmallPrimary,
+    required this.bodySmallSecondary,
+    required this.bodySmallSecondaryOpacity87,
+    required this.bodySmallOnPrimary,
+    required this.inputDecorationStyle,
+    required this.errorStyle,
+    required this.counterStyle,
+  });
+
+  ///
+  final TextStyle displayLarge;
+
+  ///
+  final TextStyle displayLargeOnPrimary;
+
+  ///
+  final TextStyle displayMedium;
+
+  ///
+  final TextStyle displayMediumSecondary;
+
+  ///
+  final TextStyle displaySmall;
+
+  ///
+  final TextStyle displaySmallSecondary;
+
+  ///
+  final TextStyle displaySmallOnPrimary;
+
+  ///
+  final TextStyle headlineLarge;
+
+  ///
+  final TextStyle headlineLargeOnPrimary;
+
+  ///
+  final TextStyle headlineMedium;
+
+  ///
+  final TextStyle headlineMediumOnPrimary;
+
+  ///
+  final TextStyle headlineSmall;
+
+  ///
+  final TextStyle headlineSmallSecondary;
+
+  ///
+  final TextStyle headlineSmallOnPrimary;
+
+  ///
+  final TextStyle headlineSmallShadowed;
+
+  ///
+  final TextStyle titleLarge;
+
+  ///
+  final TextStyle titleLargeSecondary;
+
+  ///
+  final TextStyle titleLargeOnPrimary;
+
+  ///
+  final TextStyle titleMedium;
+
+  ///
+  final TextStyle titleMediumPrimary;
+
+  ///
+  final TextStyle titleMediumSecondary;
+
+  ///
+  final TextStyle titleMediumOnPrimary;
+
+  ///
+  final TextStyle titleSmall;
+
+  ///
+  final TextStyle titleSmallOnPrimary;
+
+  ///
+  final TextStyle labelLarge;
+
+  ///
+  final TextStyle labelLargeSecondary;
+
+  ///
+  final TextStyle labelLargeOnPrimary;
+
+  ///
+  final TextStyle labelMedium;
+
+  ///
+  final TextStyle labelMediumPrimary;
+
+  ///
+  final TextStyle labelMediumSecondary;
+
+  ///
+  final TextStyle labelMediumOnPrimary;
+
+  ///
+  final TextStyle labelSmall;
+
+  ///
+  final TextStyle labelSmallPrimary;
+
+  ///
+  final TextStyle labelSmallSecondary;
+
+  ///
+  final TextStyle labelSmallSecondaryAuxiliary;
+
+  ///
+  final TextStyle labelSmallOnPrimary;
+
+  ///
+  final TextStyle bodyLarge;
+
+  ///
+  final TextStyle bodyLargePrimary;
+
+  ///
+  final TextStyle bodyLargeSecondary;
+
+  ///
+  final TextStyle bodyMedium;
+
+  ///
+  final TextStyle bodyMediumPrimary;
+
+  ///
+  final TextStyle bodyMediumSecondary;
+
+  ///
+  final TextStyle bodyMediumOnPrimary;
+
+  ///
+  final TextStyle bodySmall;
+
+  ///
+  final TextStyle bodySmallPrimary;
+
+  ///
+  final TextStyle bodySmallSecondary;
+
+  ///
+  final TextStyle bodySmallSecondaryOpacity87;
+
+  ///
+  final TextStyle bodySmallOnPrimary;
+
+  ///
+  final TextStyle inputDecorationStyle;
+
+  ///
+  final TextStyle errorStyle;
+
+  ///
+  final TextStyle counterStyle;
+
+  /// Linear interpolation between two [Palette] objects based on a given [t]
+  /// value.
+  static FontStyle lerp(FontStyle font, FontStyle? other, double t) {
+    if (other is! FontStyle) {
+      return font;
+    }
+    return FontStyle(
+      displayLarge: TextStyle.lerp(font.displayLarge, other.displayLarge, t)!,
+      displayLargeOnPrimary: TextStyle.lerp(
+          font.displayLargeOnPrimary, other.displayLargeOnPrimary, t)!,
+      displayMedium:
+          TextStyle.lerp(font.displayMedium, other.displayMedium, t)!,
+      displayMediumSecondary: TextStyle.lerp(
+          font.displayMediumSecondary, other.displayLargeOnPrimary, t)!,
+      displaySmall: TextStyle.lerp(font.displaySmall, other.displaySmall, t)!,
+      displaySmallSecondary: TextStyle.lerp(
+          font.displaySmallSecondary, other.displayLargeOnPrimary, t)!,
+      displaySmallOnPrimary: TextStyle.lerp(
+          font.displaySmallOnPrimary, other.displayLargeOnPrimary, t)!,
+      headlineLarge:
+          TextStyle.lerp(font.headlineLarge, other.headlineLarge, t)!,
+      headlineLargeOnPrimary: TextStyle.lerp(
+          font.headlineLargeOnPrimary, other.displayLargeOnPrimary, t)!,
+      headlineMedium:
+          TextStyle.lerp(font.headlineMedium, other.headlineMedium, t)!,
+      headlineMediumOnPrimary: TextStyle.lerp(
+          font.headlineMediumOnPrimary, other.displayLargeOnPrimary, t)!,
+      headlineSmall:
+          TextStyle.lerp(font.headlineSmall, other.headlineSmall, t)!,
+      headlineSmallSecondary: TextStyle.lerp(
+          font.headlineSmallSecondary, other.displayLargeOnPrimary, t)!,
+      headlineSmallOnPrimary: TextStyle.lerp(
+          font.headlineSmallOnPrimary, other.displayLargeOnPrimary, t)!,
+      headlineSmallShadowed: TextStyle.lerp(
+          font.headlineSmallShadowed, other.displayLargeOnPrimary, t)!,
+      titleLarge: TextStyle.lerp(font.titleLarge, other.titleLarge, t)!,
+      titleLargeSecondary: TextStyle.lerp(
+          font.titleLargeSecondary, other.displayLargeOnPrimary, t)!,
+      titleLargeOnPrimary: TextStyle.lerp(
+          font.titleLargeOnPrimary, other.displayLargeOnPrimary, t)!,
+      titleMedium: TextStyle.lerp(font.titleMedium, other.titleMedium, t)!,
+      titleMediumPrimary: TextStyle.lerp(
+          font.titleMediumPrimary, other.displayLargeOnPrimary, t)!,
+      titleMediumSecondary: TextStyle.lerp(
+          font.titleMediumSecondary, other.displayLargeOnPrimary, t)!,
+      titleMediumOnPrimary: TextStyle.lerp(
+          font.titleMediumOnPrimary, other.displayLargeOnPrimary, t)!,
+      titleSmall: TextStyle.lerp(font.titleSmall, other.titleSmall, t)!,
+      titleSmallOnPrimary: TextStyle.lerp(
+          font.titleSmallOnPrimary, other.displayLargeOnPrimary, t)!,
+      labelLarge: TextStyle.lerp(font.labelLarge, other.labelLarge, t)!,
+      labelLargeSecondary: TextStyle.lerp(
+          font.labelLargeSecondary, other.displayLargeOnPrimary, t)!,
+      labelLargeOnPrimary: TextStyle.lerp(
+          font.labelLargeOnPrimary, other.displayLargeOnPrimary, t)!,
+      labelMedium: TextStyle.lerp(font.labelMedium, other.labelMedium, t)!,
+      labelMediumPrimary: TextStyle.lerp(
+          font.labelMediumPrimary, other.displayLargeOnPrimary, t)!,
+      labelMediumSecondary: TextStyle.lerp(
+          font.labelMediumSecondary, other.displayLargeOnPrimary, t)!,
+      labelMediumOnPrimary: TextStyle.lerp(
+          font.labelMediumOnPrimary, other.displayLargeOnPrimary, t)!,
+      labelSmall: TextStyle.lerp(font.labelSmall, other.labelSmall, t)!,
+      labelSmallPrimary: TextStyle.lerp(
+          font.labelSmallPrimary, other.displayLargeOnPrimary, t)!,
+      labelSmallSecondary: TextStyle.lerp(
+          font.labelSmallSecondary, other.displayLargeOnPrimary, t)!,
+      labelSmallSecondaryAuxiliary: TextStyle.lerp(
+          font.labelSmallSecondaryAuxiliary, other.displayLargeOnPrimary, t)!,
+      labelSmallOnPrimary: TextStyle.lerp(
+          font.labelSmallOnPrimary, other.displayLargeOnPrimary, t)!,
+      bodyLarge: TextStyle.lerp(font.bodyLarge, other.bodyLarge, t)!,
+      bodyLargePrimary: TextStyle.lerp(
+          font.bodyLargePrimary, other.displayLargeOnPrimary, t)!,
+      bodyLargeSecondary:
+          TextStyle.lerp(font.bodyLargeSecondary, other.bodyLargeSecondary, t)!,
+      bodyMedium: TextStyle.lerp(font.bodyMedium, other.bodyMedium, t)!,
+      bodyMediumPrimary: TextStyle.lerp(
+          font.bodyMediumPrimary, other.displayLargeOnPrimary, t)!,
+      bodyMediumSecondary: TextStyle.lerp(
+          font.bodyMediumSecondary, other.displayLargeOnPrimary, t)!,
+      bodyMediumOnPrimary: TextStyle.lerp(
+          font.bodyMediumOnPrimary, other.displayLargeOnPrimary, t)!,
+      bodySmall: TextStyle.lerp(font.bodySmall, other.bodySmall, t)!,
+      bodySmallPrimary: TextStyle.lerp(
+          font.bodySmallPrimary, other.displayLargeOnPrimary, t)!,
+      bodySmallSecondary: TextStyle.lerp(
+          font.bodySmallSecondary, other.displayLargeOnPrimary, t)!,
+      bodySmallSecondaryOpacity87: TextStyle.lerp(
+          font.bodySmallSecondaryOpacity87, other.displayLargeOnPrimary, t)!,
+      bodySmallOnPrimary: TextStyle.lerp(
+          font.bodySmallOnPrimary, other.displayLargeOnPrimary, t)!,
+      inputDecorationStyle: TextStyle.lerp(
+          font.inputDecorationStyle, other.inputDecorationStyle, t)!,
+      errorStyle: TextStyle.lerp(font.errorStyle, other.errorStyle, t)!,
+      counterStyle: TextStyle.lerp(font.counterStyle, other.counterStyle, t)!,
     );
   }
 }
