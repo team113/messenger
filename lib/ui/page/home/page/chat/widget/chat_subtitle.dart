@@ -89,7 +89,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final Chat chat = widget.chat.chat.value;
 
@@ -121,10 +121,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         }
 
         return Text.rich(
-          TextSpan(
-            children: spans,
-            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-          ),
+          TextSpan(children: spans, style: style.fonts.bodySmallSecondary),
         );
       }
 
@@ -136,10 +133,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                'label_typing'.l10n,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
-              ),
+              Text('label_typing'.l10n, style: style.fonts.labelMediumPrimary),
               const SizedBox(width: 3),
               const Padding(
                 padding: EdgeInsets.only(bottom: 3),
@@ -162,7 +156,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+                style: style.fonts.labelMediumPrimary,
               ),
             ),
             const SizedBox(width: 3),
@@ -176,10 +170,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
     }
 
     if (chat.isGroup) {
-      return Text(
-        chat.getSubtitle()!,
-        style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
-      );
+      return Text(chat.getSubtitle()!, style: style.fonts.bodySmallSecondary);
     } else if (chat.isDialog) {
       final RxUser? member = widget.chat.members.values
           .firstWhereOrNull((u) => u.user.value.id != widget.me);
@@ -201,7 +192,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
             child = Text(
               buffer.toString(),
-              style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+              style: style.fonts.bodySmallSecondary,
             );
           } else {
             child = const SizedBox();

@@ -762,7 +762,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 /// Builds a tile representation of the [CallController.chat].
 Widget _chat(BuildContext context, CallController c) {
   return Obx(() {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final RxChat? chat = c.chat.value;
 
@@ -800,16 +800,12 @@ Widget _chat(BuildContext context, CallController c) {
                                 chat?.title.value ?? 'dot'.l10n * 3,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: fonts.headlineLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
+                                style: style.fonts.headlineLargeOnPrimary,
                               ),
                             ),
                             Text(
                               c.duration.value.hhMmSs(),
-                              style: fonts.labelLarge!.copyWith(
-                                color: style.colors.onPrimary,
-                              ),
+                              style: style.fonts.labelLargeOnPrimary,
                             ),
                           ],
                         ),
@@ -827,9 +823,7 @@ Widget _chat(BuildContext context, CallController c) {
                                         .status
                                         ?.val ??
                                     'label_online'.l10n,
-                                style: fonts.labelLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
+                                style: style.fonts.labelLargeOnPrimary,
                               ),
                               const Spacer(),
                               Text(
@@ -837,9 +831,7 @@ Widget _chat(BuildContext context, CallController c) {
                                   'a': '${actualMembers.length}',
                                   'b': '${c.chat.value?.members.length}',
                                 }),
-                                style: fonts.labelLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
+                                style: style.fonts.labelLargeOnPrimary,
                               ),
                             ],
                           ),

@@ -219,7 +219,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
@@ -244,7 +244,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   const SizedBox(width: 7),
                   _buildPlayPause(widget.controller),
                   const SizedBox(width: 12),
-                  _buildPosition(fonts.labelLarge!.color),
+                  _buildPosition(style.fonts.labelLarge.color),
                   const SizedBox(width: 12),
                   _buildProgressBar(),
                   const SizedBox(width: 12),
@@ -485,7 +485,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return RxBuilder((_) {
       final position = widget.controller.position.value;
@@ -493,7 +493,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
       return Text(
         '${formatDuration(position)} / ${formatDuration(duration)}',
-        style: fonts.headlineSmall!.copyWith(color: style.colors.onPrimary),
+        style: style.fonts.headlineSmallOnPrimary,
       );
     });
   }
