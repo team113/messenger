@@ -614,7 +614,7 @@ class HiveRxChat extends RxChat {
             chatEntity.save();
           }
 
-          chatEntity.save();
+          chatEntity?.save();
         }
       },
     );
@@ -675,11 +675,13 @@ class HiveRxChat extends RxChat {
 
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
-      
+
       for (var e in saved) {
-        // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
-        final HiveChatMessage copy = e.copyWith()..value.chatId = newChat.id;
-        _local.put(e);
+        if(e is HiveChatMessage) {
+          // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
+          final HiveChatMessage copy = e.copyWith()..value.chatId = newChat.id;
+          _local.put(copy);
+        }
       }
     }
   }

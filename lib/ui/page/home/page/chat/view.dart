@@ -574,6 +574,9 @@ class _ChatViewState extends State<ChatView>
       ListElement? previous;
       if (i < c.elements.length - 1) {
         previous = c.elements.values.elementAt(i + 1);
+        if(previous is LoaderElement && i < c.elements.length - 2) {
+          previous = c.elements.values.elementAt(i + 2);
+        }
       }
 
       if (previous != null) {
@@ -839,13 +842,10 @@ class _ChatViewState extends State<ChatView>
               key: const ValueKey(1),
               child: Padding(
                 padding: const EdgeInsets.only(top: 12, bottom: 12),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints.tight(const Size.square(40)),
-                  child: Center(
-                    child: ColoredBox(
-                      color: style.colors.transparent,
-                      child: const CustomProgressIndicator(),
-                    ),
+                child: Center(
+                  child: ColoredBox(
+                    color: style.colors.transparent,
+                    child: const CustomProgressIndicator(),
                   ),
                 ),
               ),

@@ -232,10 +232,7 @@ class ChatController extends GetxController {
   final RxnInt highlight = RxnInt(null);
 
   /// Height of a [LoaderElement] displayed in the message list.
-  static const double loadingHeight = 70;
-
-  /// Bottom offset of the last item displayed in the message list.
-  static const double lastItemBottomOffset = 10;
+  static const double loadingHeight = 64;
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
@@ -1267,24 +1264,6 @@ class ChatController extends GetxController {
         _topLoader = null;
       }
     }
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    // [AudioPlayer] constructor creates a hanging [Future], which can't be
-    // awaited.
-    await runZonedGuarded(
-      () async {
-        _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
-      },
-      (e, _) {
-        if (e is MissingPluginException) {
-          _audioPlayer = null;
-        } else {
-          throw e;
-        }
-      },
-    );
   }
 
   /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the
