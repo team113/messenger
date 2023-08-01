@@ -1273,7 +1273,7 @@ class Palette {
   }
 }
 
-/// Extension adding [Style] and [TextTheme] handy getters from the [ThemeData].
+/// Extension adding [Style] handy getters from the [ThemeData].
 extension ThemeStylesExtension on ThemeData {
   /// Returns the [Style] of this [ThemeData].
   Style get style => extension<Style>()!;
