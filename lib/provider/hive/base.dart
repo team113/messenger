@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show mustCallSuper, protected;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -82,7 +83,7 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   Future<void> init({UserId? userId}) async {
     registerAdapters();
     await _mutex.protect(() async {
-      String name = userId == null ? boxName : '${userId}_$boxName';
+      final String name = userId == null ? boxName : '${userId}_$boxName';
       try {
         _box = await Hive.openBox<T>(name);
       } catch (e) {
@@ -209,7 +210,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   Future<void> init({UserId? userId}) async {
     registerAdapters();
     await _mutex.protect(() async {
-      String name = userId == null ? boxName : '${userId}_$boxName';
+      final String name = userId == null ? boxName : '${userId}_$boxName';
       try {
         _box = await Hive.openLazyBox(name);
       } catch (e) {

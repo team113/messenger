@@ -589,13 +589,12 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) {
-    return _guard.protect(
-      () async {
-        if (!_local.isReady) {
-          return;
-        }
+    return _guard.protect(() async {
+      if (!_local.isReady) {
+        return;
+      }
 
-        key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
+      key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
         if (key != null) {
           _local.remove(key!);
@@ -614,6 +613,8 @@ class HiveRxChat extends RxChat {
             }
             chatEntity.save();
           }
+
+          chatEntity.save();
         }
       },
     );
@@ -674,10 +675,10 @@ class HiveRxChat extends RxChat {
 
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
-
-      // Put the [saved] items to the new [ChatItemHiveProvider].
+      
       for (var e in saved) {
-        e.value.chatId = newChat.id;
+        // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
+        final HiveChatMessage copy = e.copyWith()..value.chatId = newChat.id;
         _local.put(e);
       }
     }
@@ -872,7 +873,8 @@ class HiveRxChat extends RxChat {
   Future<void> _updateAttachments(ChatItem item) async {
     final HiveChatItem? stored = await get(item.id, key: item.key);
     if (stored != null) {
-      List<Attachment> response = await _chatRepository.attachments(stored);
+      final List<Attachment> response =
+          await _chatRepository.attachments(stored);
 
       void replace(Attachment a) {
         Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
@@ -888,6 +890,7 @@ class HiveRxChat extends RxChat {
 
       final List<Attachment> all = [];
 
+      item = stored.value;
       if (item is ChatMessage) {
         all.addAll(item.attachments);
         for (ChatItemQuote replied in item.repliesTo) {
@@ -896,7 +899,7 @@ class HiveRxChat extends RxChat {
           }
         }
       } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
+        final ChatItemQuote nested = item.quote;
         if (nested is ChatMessageQuote) {
           all.addAll(nested.attachments);
 

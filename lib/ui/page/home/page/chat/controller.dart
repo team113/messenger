@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
@@ -62,6 +61,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/util/audio_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -136,6 +136,9 @@ class ChatController extends GetxController {
   /// Interval of a [ChatMessage] since its creation within which this
   /// [ChatMessage] is allowed to be edited.
   static const Duration editMessageTimeout = Duration(minutes: 5);
+
+  /// Bottom offset to apply to the last [ListElement] in the [elements].
+  static const double lastItemBottomOffset = 10;
 
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
@@ -249,9 +252,6 @@ class ChatController extends GetxController {
   /// [Timer] for resetting the [showSticky].
   Timer? _stickyTimer;
 
-  /// [AudioPlayer] playing a sent message sound.
-  AudioPlayer? _audioPlayer;
-
   /// Call service used to start the call in this [Chat].
   final CallService _callService;
 
@@ -363,7 +363,8 @@ class ChatController extends GetxController {
                   repliesTo: send.replied.reversed.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
-                .then((_) => _playMessageSent())
+                .then((_) => AudioUtils.once(
+                    AudioSource.asset('audio/message_sent.mp3')))
                 .onError<PostChatMessageException>(
                     (e, _) => MessagePopup.error(e))
                 .onError<UploadAttachmentException>(
@@ -402,8 +403,8 @@ class ChatController extends GetxController {
   void onReady() {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
+    AudioUtils.ensureInitialized();
     _fetchChat();
-    _initAudio();
     super.onReady();
   }
 
@@ -426,9 +427,6 @@ class ChatController extends GetxController {
 
     send.onClose();
     edit.value?.onClose();
-
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
 
     if (chat?.chat.value.isDialog == true) {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
@@ -479,7 +477,8 @@ class ChatController extends GetxController {
     if (item.status.value == SendingStatus.error) {
       await _chatService
           .resendChatItem(item)
-          .then((_) => _playMessageSent())
+          .then((_) =>
+              AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')))
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});
@@ -601,8 +600,8 @@ class ChatController extends GetxController {
         if (item is ChatMessage) {
           ChatMessageElement element = ChatMessageElement(e);
 
-          ListElement? previous = elements[elements.lastKeyBefore(element.id)];
-          ListElement? next = elements[elements.firstKeyAfter(element.id)];
+          ListElement? previous = elements[elements.firstKeyAfter(element.id)];
+          ListElement? next = elements[elements.lastKeyBefore(element.id)];
 
           bool insert = true;
 
@@ -639,10 +638,10 @@ class ChatController extends GetxController {
           ChatForwardElement element =
               ChatForwardElement(forwards: [e], e.value.at);
 
-          ListElementId? previousKey = elements.lastKeyBefore(element.id);
+          ListElementId? previousKey = elements.firstKeyAfter(element.id);
           ListElement? previous = elements[previousKey];
 
-          ListElementId? nextKey = elements.firstKeyAfter(element.id);
+          ListElementId? nextKey = elements.lastKeyBefore(element.id);
           ListElement? next = elements[nextKey];
 
           bool insert = true;
@@ -707,10 +706,10 @@ class ChatController extends GetxController {
             ListElementId key = ListElementId(item.at, item.id);
             ListElement? element = elements[key];
 
-            ListElementId? before = elements.lastKeyBefore(key);
+            ListElementId? before = elements.firstKeyAfter(key);
             ListElement? beforeElement = elements[before];
 
-            ListElementId? after = elements.firstKeyAfter(key);
+            ListElementId? after = elements.lastKeyBefore(key);
             ListElement? afterElement = elements[after];
 
             // Remove the [DateTimeElement] before, if this [ChatItem] is the
@@ -1141,22 +1140,6 @@ class ChatController extends GetxController {
 
     _highlightTimer?.cancel();
     _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
-  }
-
-  /// Plays the message sent sound.
-  void _playMessageSent() {
-    runZonedGuarded(
-      () => _audioPlayer?.play(
-        AssetSource('audio/message_sent.mp3'),
-        position: Duration.zero,
-        mode: PlayerMode.lowLatency,
-      ),
-      (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      },
-    );
   }
 
   /// Invokes [_updateSticky] and [_updateFabStates].

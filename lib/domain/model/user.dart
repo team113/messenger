@@ -317,8 +317,18 @@ class ChatDirectLinkSlug extends NewType<String> {
     final Random r = Random();
     const String chars =
         'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890_-';
+
     return ChatDirectLinkSlug(
-      List.generate(length, (_) => chars[r.nextInt(chars.length)]).join(),
+      List.generate(length, (i) {
+        // `-` and `_` being the last might not be parsed as a link by some
+        // applications.
+        if (i == length - 1) {
+          final str = chars.replaceFirst('-', '').replaceFirst('_', '');
+          return str[r.nextInt(str.length)];
+        }
+
+        return chars[r.nextInt(chars.length)];
+      }).join(),
     );
   }
 

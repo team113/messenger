@@ -371,6 +371,10 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    // Wait for [HiveLazyProvider.boxEvents] in [RxChat].
+    await tester.runAsync(() async => await Future.delayed(1.seconds));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     var message = find.richText('edit message', skipOffstage: false);
     expect(message, findsOneWidget);
     await tester.longPress(message);
