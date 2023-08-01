@@ -271,51 +271,57 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         setState(() {});
       }
 
-      _entry = OverlayEntry(builder: (_) {
-        return LayoutBuilder(builder: (_, constraints) {
-          double qx = 1, qy = 1;
-          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          final Alignment alignment = Alignment(qx, qy);
+      await showDialog(
+        context: context,
+        barrierColor: style.colors.transparent,
+        builder: (context) {
+          return LayoutBuilder(builder: (_, constraints) {
+            double qx = 1, qy = 1;
+            if (position.dx > (constraints.maxWidth) / 2) qx = -1;
+            if (position.dy > (constraints.maxHeight) / 2) qy = -1;
+            final Alignment alignment = Alignment(qx, qy);
 
-          return Listener(
-            onPointerUp: (d) {
-              _entry?.remove();
+            return Listener(
+              onPointerUp: (d) {
+                Navigator.of(context).pop();
+                // _entry?.remove();
 
-              _displayed = false;
-              if (widget.indicateOpenedMenu) {
-                _darkened = false;
-              }
+                _displayed = false;
+                if (widget.indicateOpenedMenu) {
+                  _darkened = false;
+                }
 
-              if (mounted) {
-                setState(() {});
-              }
-            },
-            child: Container(
-              color: style.colors.transparent,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned(
-                    left:
-                        position.dx + widget.margin.left - widget.margin.right,
-                    top: position.dy + widget.margin.top - widget.margin.bottom,
-                    child: FractionalTranslation(
-                      translation: Offset(
-                        alignment.x > 0 ? 0 : -1,
-                        alignment.y > 0 ? 0 : -1,
+                if (mounted) {
+                  setState(() {});
+                }
+              },
+              child: Container(
+                color: style.colors.transparent,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned(
+                      left: position.dx +
+                          widget.margin.left -
+                          widget.margin.right,
+                      top: position.dy +
+                          widget.margin.top -
+                          widget.margin.bottom,
+                      child: FractionalTranslation(
+                        translation: Offset(
+                          alignment.x > 0 ? 0 : -1,
+                          alignment.y > 0 ? 0 : -1,
+                        ),
+                        child: ContextMenu(actions: widget.actions),
                       ),
-                      child: ContextMenu(actions: widget.actions),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
-            ),
-          );
-        });
-      });
-
-      Overlay.of(context, rootOverlay: true).insert(_entry!);
+            );
+          });
+        },
+      );
     }
   }
 }
