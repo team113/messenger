@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show mustCallSuper, protected;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';

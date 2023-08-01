@@ -62,14 +62,11 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
       return null;
     }
 
-    final Page<U, T> page;
     if (reversed) {
-      page = await fetch(before: cursor, last: count);
+      return (await fetch(before: cursor, last: count)).reversed();
     } else {
-      page = await fetch(after: cursor, first: count);
+      return fetch(after: cursor, first: count);
     }
-
-    return reversed ? page.reversed() : page;
   }
 
   @override
@@ -78,14 +75,11 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
       return null;
     }
 
-    final Page<U, T> page;
     if (reversed) {
-      page = await fetch(after: cursor, first: count);
+      return (await fetch(after: cursor, first: count)).reversed();
     } else {
-      page = await fetch(before: cursor, last: count);
+      return fetch(before: cursor, last: count);
     }
-
-    return reversed ? page.reversed() : page;
   }
 
   @override

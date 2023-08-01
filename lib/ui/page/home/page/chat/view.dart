@@ -574,7 +574,7 @@ class _ChatViewState extends State<ChatView>
       ListElement? previous;
       if (i < c.elements.length - 1) {
         previous = c.elements.values.elementAt(i + 1);
-        if(previous is LoaderElement && i < c.elements.length - 2) {
+        if (previous is LoaderElement && i < c.elements.length - 2) {
           previous = c.elements.values.elementAt(i + 2);
         }
       }
