@@ -18,12 +18,12 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/style/page/typography/widget/font_schema.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/family.dart';
 import 'widget/font.dart';
+import 'widget/font_schema.dart';
 import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.

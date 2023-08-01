@@ -232,7 +232,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
           (_) {
-            if (chat.ongoingCall!.conversationStartedAt != null) {
+            if (chat.ongoingCall?.conversationStartedAt != null) {
               _duration = DateTime.now().difference(
                 chat.ongoingCall!.conversationStartedAt!.val,
               );
