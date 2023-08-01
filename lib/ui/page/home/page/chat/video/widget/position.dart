@@ -36,18 +36,12 @@ class CurrentPosition extends StatelessWidget {
     final (style, fonts) = Theme.of(context).styles;
 
     return RxBuilder((_) {
-      final Duration position = controller.position.value;
-      final Duration duration = controller.duration.value;
+      final String position = formatDuration(controller.position.value);
+      final String duration = formatDuration(controller.duration.value);
 
-      return RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(text: formatDuration(position)),
-            TextSpan(text: 'space_slash_space'.l10n),
-            TextSpan(text: formatDuration(duration)),
-          ],
-          style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
-        ),
+      return Text(
+        'time_slash_time'.l10nfmt({'a': position, 'b': duration}),
+        style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
       );
     });
   }
