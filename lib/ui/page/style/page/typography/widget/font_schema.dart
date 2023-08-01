@@ -23,7 +23,7 @@ import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
-/// TODO:
+/// [Column] of the provided [styles] representing a [TextStyle] scheme.
 class FontSchema extends StatelessWidget {
   const FontSchema(
     this.styles, {
