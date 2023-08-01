@@ -15,8 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/widgets.dart' show PageController;
 import 'package:get/get.dart';
+import 'package:rive/rive.dart';
 
 /// [StyleView] section.
 enum StyleTab { colors, typography, multimedia, elements }
@@ -39,4 +42,34 @@ class StyleController extends GetxController {
 
   /// [PageController] controlling the [PageView] of [StyleView].
   final PageController pages = PageController();
+
+  /// Current logo's animation frame.
+  final RxInt logoFrame = RxInt(0);
+
+  /// [SMITrigger] triggering the blinking animation.
+  SMITrigger? blink;
+
+  /// [Timer] periodically increasing the [logoFrame].
+  Timer? _animationTimer;
+
+  @override
+  void onClose() {
+    _animationTimer?.cancel();
+    super.onClose();
+  }
+
+  /// Resets the [logoFrame] and starts the blinking animation.
+  void animate() {
+    blink?.fire();
+
+    logoFrame.value = 1;
+    _animationTimer?.cancel();
+    _animationTimer = Timer.periodic(
+      const Duration(milliseconds: 45),
+      (t) {
+        ++logoFrame.value;
+        if (logoFrame >= 9) t.cancel();
+      },
+    );
+  }
 }
