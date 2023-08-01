@@ -33,7 +33,7 @@ class ColorSchemaWidget extends StatelessWidget {
   });
 
   /// Records of [Color]s and its descriptions to display.
-  final Iterable<(Color, String, String)> colors;
+  final Iterable<(Color, String?, String?)> colors;
 
   /// Indicator whether the background of this [ColorSchemaWidget] should be
   /// inverted.
@@ -45,7 +45,7 @@ class ColorSchemaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final styles = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -61,8 +61,7 @@ class ColorSchemaWidget extends StatelessWidget {
           final Color text = hsl.lightness > 0.7 || hsl.alpha < 0.4
               ? const Color(0xFF000000)
               : const Color(0xFFFFFFFF);
-          final TextStyle textStyle =
-              style.fonts.bodySmall.copyWith(color: text);
+          final TextStyle style = styles.fonts.bodySmall.copyWith(color: text);
 
           return AnimatedContainer(
             duration: const Duration(milliseconds: 300),
@@ -92,26 +91,28 @@ class ColorSchemaWidget extends StatelessWidget {
                     curve: Curves.ease,
                     child: SizedBox(width: dense ? 32 : 8),
                   ),
-                  if (e.$3.isNotEmpty)
+                  if (e.$3 != null)
                     Tooltip(
                       message: e.$3,
                       child: Icon(Icons.info_outline, size: 13, color: text),
                     ),
-                  const SizedBox(width: 8),
-                  WidgetButton(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: e.$2));
-                      MessagePopup.success('Technical name is copied');
-                    },
-                    child: Text(e.$2, style: textStyle),
-                  ),
+                  if (e.$2 != null) ...[
+                    const SizedBox(width: 8),
+                    WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: e.$2!));
+                        MessagePopup.success('Technical name is copied');
+                      },
+                      child: Text(e.$2!, style: style),
+                    ),
+                  ],
                   const Spacer(),
                   WidgetButton(
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: e.$1.toHex()));
                       MessagePopup.success('Hash is copied');
                     },
-                    child: Text(e.$1.toHex(), style: textStyle),
+                    child: Text(e.$1.toHex(), style: style),
                   ),
                   AnimatedSize(
                     duration: const Duration(milliseconds: 300),
