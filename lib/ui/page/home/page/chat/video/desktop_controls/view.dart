@@ -187,7 +187,8 @@ class _DesktopControlsState extends State<DesktopControls>
                   ? const Center(child: CustomProgressIndicator())
                   : CenteredPlayPause(
                       controller: widget.controller,
-                      show: !_dragging && !_hideStuff || _showInterface,
+                      show: (!_dragging && !_hideStuff || _showInterface) &&
+                          !widget.controller.playerStatus.playing,
                       onPressed: _playPause,
                     );
             }),

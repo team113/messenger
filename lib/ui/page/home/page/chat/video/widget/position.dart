@@ -40,7 +40,7 @@ class CurrentPosition extends StatelessWidget {
       final String duration = formatDuration(controller.duration.value);
 
       return Text(
-        'time_slash_time'.l10nfmt({'a': position, 'b': duration}),
+        'label_time_slash_time'.l10nfmt({'a': position, 'b': duration}),
         style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
       );
     });

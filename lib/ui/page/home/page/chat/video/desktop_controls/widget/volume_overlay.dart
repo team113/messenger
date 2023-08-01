@@ -25,7 +25,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'video_volume_bar.dart';
 import '/themes.dart';
 
-/// Volume overlay for controlling the volume of a video player.
+/// Volume overlay controlling the volume of a video player.
 class VolumeOverlay extends StatelessWidget {
   const VolumeOverlay({
     super.key,

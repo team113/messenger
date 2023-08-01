@@ -157,6 +157,7 @@ class _VideoViewState extends State<VideoView> {
                         child: MeeduVideoPlayer(
                           controller: _controller,
                           customControls: (_, __, ___) => const SizedBox(),
+                          backgroundColor: style.colors.transparent,
                         ),
                       ),
                     ),
