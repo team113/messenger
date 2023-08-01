@@ -96,9 +96,11 @@ class AddEmailView extends StatelessWidget {
                                     : 'label_resend_timeout'.l10nfmt(
                                         {'timeout': c.resendEmailTimeout.value},
                                       ),
-                                style: c.resendEmailTimeout.value == 0
-                                    ? style.fonts.bodyMediumOnPrimary
-                                    : style.fonts.bodyMedium,
+                                style: style.fonts.bodyMedium.copyWith(
+                                  color: c.resendEmailTimeout.value == 0
+                                      ? style.colors.onPrimary
+                                      : style.colors.onBackground,
+                                ),
                               ),
                               onPressed: c.resendEmailTimeout.value == 0
                                   ? c.resendEmail
@@ -113,9 +115,11 @@ class AddEmailView extends StatelessWidget {
                               maxWidth: double.infinity,
                               title: Text(
                                 'btn_proceed'.l10n,
-                                style: c.emailCode.isEmpty.value
-                                    ? style.fonts.bodyMedium
-                                    : style.fonts.bodyMediumOnPrimary,
+                                style: style.fonts.bodyMedium.copyWith(
+                                  color: c.emailCode.isEmpty.value
+                                      ? style.colors.onBackground
+                                      : style.colors.onPrimary,
+                                ),
                               ),
                               onPressed: c.emailCode.isEmpty.value
                                   ? null
@@ -159,9 +163,11 @@ class AddEmailView extends StatelessWidget {
                         maxWidth: double.infinity,
                         title: Text(
                           'btn_proceed'.l10n,
-                          style: c.email.isEmpty.value
-                              ? style.fonts.bodyMedium
-                              : style.fonts.bodyMediumOnPrimary,
+                          style: style.fonts.bodyMedium.copyWith(
+                            color: c.email.isEmpty.value
+                                ? style.colors.onBackground
+                                : style.colors.onPrimary,
+                          ),
                         ),
                         onPressed:
                             c.email.isEmpty.value ? null : c.email.submit,

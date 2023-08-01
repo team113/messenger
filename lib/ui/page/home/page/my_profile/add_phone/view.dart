@@ -96,9 +96,11 @@ class AddPhoneView extends StatelessWidget {
                                     : 'label_resend_timeout'.l10nfmt(
                                         {'timeout': c.resendPhoneTimeout.value},
                                       ),
-                                style: c.resendPhoneTimeout.value == 0
-                                    ? style.fonts.bodyMediumOnPrimary
-                                    : style.fonts.bodyMedium,
+                                style: style.fonts.bodyMedium.copyWith(
+                                  color: c.resendPhoneTimeout.value == 0
+                                      ? style.colors.onPrimary
+                                      : style.colors.onBackground,
+                                ),
                               ),
                               onPressed: c.resendPhoneTimeout.value == 0
                                   ? c.resendPhone
@@ -113,9 +115,11 @@ class AddPhoneView extends StatelessWidget {
                               maxWidth: double.infinity,
                               title: Text(
                                 'btn_proceed'.l10n,
-                                style: c.phoneCode.isEmpty.value
-                                    ? style.fonts.bodyMedium
-                                    : style.fonts.bodyMediumOnPrimary,
+                                style: style.fonts.bodyMedium.copyWith(
+                                  color: c.phoneCode.isEmpty.value
+                                      ? style.colors.onBackground
+                                      : style.colors.onPrimary,
+                                ),
                               ),
                               onPressed: c.phoneCode.isEmpty.value
                                   ? null
@@ -163,9 +167,11 @@ class AddPhoneView extends StatelessWidget {
                         maxWidth: double.infinity,
                         title: Text(
                           'btn_proceed'.l10n,
-                          style: c.phone.isEmpty.value
-                              ? style.fonts.bodyMedium
-                              : style.fonts.bodyMediumOnPrimary,
+                          style: style.fonts.bodyMedium.copyWith(
+                            color: c.phone.isEmpty.value
+                                ? style.colors.onBackground
+                                : style.colors.onPrimary,
+                          ),
                         ),
                         onPressed:
                             c.phone.isEmpty.value ? null : c.phone.submit,
