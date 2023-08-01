@@ -126,8 +126,8 @@ class LoginView extends StatelessWidget {
 
             case LoginViewStage.noPasswordCode:
               header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signIn,
-                text: 'Sign in without password'.l10n,
+                onBack: () => c.stage.value = LoginViewStage.signInWithCode,
+                text: 'label_sign_in_with_code'.l10n,
               );
 
               children = [
@@ -534,7 +534,7 @@ class LoginView extends StatelessWidget {
                 _signButton(
                   context,
                   text: 'btn_phone_number'.l10n,
-                  asset: 'phone4',
+                  asset: 'phone6',
                   assetWidth: 17.61,
                   assetHeight: 25,
                   padding: const EdgeInsets.only(left: 2),
@@ -659,7 +659,7 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
                       child: WidgetButton(
                         onPressed: () {
-                          c.stage.value = LoginViewStage.recovery;
+                          c.stage.value = LoginViewStage.signInWithCode;
                           // if (c.isEmailOrPhone(c.login.text)) {
                           //   c.signInWithoutPassword();
                           // } else {
@@ -668,7 +668,7 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style: fonts.bodyMedium!.copyWith(
+                          style: fonts.labelSmall!.copyWith(
                             color: style.colors.primary,
                           ),
                         ),
@@ -699,9 +699,10 @@ class LoginView extends StatelessWidget {
                   text: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
-                  asset: 'password',
-                  assetWidth: 21,
-                  assetHeight: 25.3,
+                  asset: 'password2',
+                  assetWidth: 19,
+                  assetHeight: 21,
+                  padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
@@ -709,21 +710,24 @@ class LoginView extends StatelessWidget {
                   text: 'btn_one_time_code'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithCode,
-                  leading: Icon(
-                    Icons.pin,
-                    color: style.colors.primary,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
-                  text: 'btn_qr_code'.l10n,
-                  onPressed: () => c.stage.value = LoginViewStage.signInWithQr,
-                  asset: 'qr_code',
+                  asset: 'otp_code2',
                   assetWidth: 22,
-                  assetHeight: 22,
+                  assetHeight: 19.7,
+                  padding: const EdgeInsets.only(top: 1),
                 ),
+                if (false) ...[
+                  const SizedBox(height: 25 / 2),
+                  _signButton(
+                    context,
+                    text: 'btn_qr_code'.l10n,
+                    onPressed: () =>
+                        c.stage.value = LoginViewStage.signInWithQr,
+                    asset: 'qr_code2',
+                    assetWidth: 20,
+                    assetHeight: 20,
+                    padding: const EdgeInsets.only(left: 1),
+                  ),
+                ],
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,

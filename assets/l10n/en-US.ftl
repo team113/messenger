@@ -1021,3 +1021,5 @@ label_sign_up_email_already_occupied = E-mail {$text} cannot be used to register
 label_sign_up_phone_already_occupied = Phone number {$text} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
 label_account_created = Account created
 label_waiting_response_from = Waiting for the response from {$from}
+label_linked_devices = Linked devices
+label_scan_qr_code = Scan QR code

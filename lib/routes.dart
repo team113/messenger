@@ -122,6 +122,7 @@ enum ProfileTab {
   getPaid,
   donates,
   notifications,
+  // devices,
   storage,
   language,
   blacklist,

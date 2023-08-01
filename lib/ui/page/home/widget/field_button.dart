@@ -101,7 +101,7 @@ class _FieldButtonState extends State<FieldButton> {
 
     if (!widget.old) {
       return OutlinedRoundedButton(
-        title: Text(widget.text ?? ''),
+        title: Text(widget.text ?? '', maxLines: widget.maxLines),
         maxWidth: double.infinity,
         // color: style.colors.backgroundAuxiliaryLighter,
         color: style.colors.onPrimary,

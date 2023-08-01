@@ -334,6 +334,14 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
+                  // case ProfileTab.devices:
+                  //   child = card(
+                  //     icon: Icons.devices,
+                  //     title: 'label_linked_devices'.l10n,
+                  //     subtitle: 'label_scan_qr_code'.l10n,
+                  //   );
+                  //   break;
+
                   case ProfileTab.storage:
                     child = card(
                       icon: Icons.storage,

@@ -17,6 +17,7 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
@@ -462,7 +463,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatInfo].
   Widget _renderAsChatInfo() {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final ChatInfo message = widget.item.value as ChatInfo;
 
@@ -2255,10 +2256,10 @@ extension FixedDigitsExtension on Text {
 
   /// Returns a [Text] guaranteed to have fixed width of digits in it.
   Widget fixedDigits() {
-    Text copyWith(String string) {
+    Text copyWith(String string, {TextStyle? style}) {
       return Text(
         string,
-        style: style,
+        style: style ?? this.style,
         strutStyle: strutStyle,
         textAlign: textAlign,
         textDirection: textDirection,

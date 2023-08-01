@@ -36,8 +36,7 @@ import '/api/backend/schema.dart'
     show
         ConfirmUserEmailErrorCode,
         ConfirmUserPhoneErrorCode,
-        CreateSessionErrorCode,
-        SignUp$Mutation;
+        CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';

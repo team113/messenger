@@ -419,6 +419,12 @@ class MyProfileView extends StatelessWidget {
                           children: [_notifications(context, c)],
                         );
 
+                      // case ProfileTab.devices:
+                      //   return Block(
+                      //     title: 'label_linked_devices'.l10n,
+                      //     children: [_devices(context, c)],
+                      //   );
+
                       case ProfileTab.storage:
                         return Block(
                           title: 'label_storage'.l10n,
@@ -490,13 +496,13 @@ Widget _name(MyProfileController c) {
       label: 'label_name'.l10n,
       hint: 'label_name_hint'.l10n,
       filled: true,
-      onSuffixPressed: c.login.text.isEmpty
+      onSuffixPressed: c.name.text.isEmpty
           ? null
           : () {
               PlatformUtils.copy(text: c.name.text);
               MessagePopup.success('label_copied'.l10n);
             },
-      trailing: c.login.text.isEmpty
+      trailing: c.name.text.isEmpty
           ? null
           : Transform.translate(
               offset: const Offset(0, -1),
@@ -2336,6 +2342,21 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
         ),
       ),
     ],
+  );
+}
+
+Widget _devices(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return _dense(
+    Column(
+      children: [
+        FieldButton(
+          onPressed: () {},
+          text: 'Scan QR code',
+        ),
+      ],
+    ),
   );
 }
 
