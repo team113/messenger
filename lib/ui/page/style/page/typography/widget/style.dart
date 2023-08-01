@@ -32,7 +32,7 @@ class FontStyleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final styles = Theme.of(context).style;
 
     // Returns a [Row] spacing its [title] and [subtitle] with a [Divider].
     Widget cell(String title, String subtitle) {
@@ -59,7 +59,7 @@ class FontStyleWidget extends StatelessWidget {
     return SizedBox(
       width: 210,
       child: DefaultTextStyle(
-        style: fonts.bodySmall!.copyWith(
+        style: styles.fonts.bodySmall.copyWith(
           color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF888888),
         ),
         child: Column(

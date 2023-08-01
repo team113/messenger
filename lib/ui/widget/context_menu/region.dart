@@ -215,7 +215,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     if (widget.actions.isEmpty) {
       return;
@@ -246,7 +246,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   b.leading!,
                   const SizedBox(width: 12),
                 ],
-                Text(b.label, style: fonts.labelLarge),
+                Text(b.label, style: style.fonts.labelLarge),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,

@@ -45,7 +45,7 @@ class FontSchema extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -104,7 +104,7 @@ class FontSchema extends StatelessWidget {
                       },
                       child: Text(
                         e.$1.color!.toHex(),
-                        style: fonts.bodySmall?.copyWith(
+                        style: style.fonts.bodySmall.copyWith(
                           color: inverted
                               ? const Color(0xFFFFFFFF)
                               : const Color(0xFF000000),

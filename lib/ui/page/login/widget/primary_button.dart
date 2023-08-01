@@ -36,13 +36,13 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return OutlinedRoundedButton(
       maxWidth: double.infinity,
       title: Text(
         title,
-        style: fonts.titleLarge!.copyWith(
+        style: style.fonts.titleLarge.copyWith(
           color: onPressed == null
               ? style.colors.onBackground
               : style.colors.onPrimary,

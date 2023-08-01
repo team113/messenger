@@ -40,7 +40,7 @@ class FontWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final styles = Theme.of(context).style;
 
     return Row(
       children: [
@@ -51,7 +51,7 @@ class FontWidget extends StatelessWidget {
         ),
         Text(
           '${style.$1.fontSize} pt, w${style.$1.fontWeight?.value}',
-          style: fonts.titleMedium?.copyWith(
+          style: styles.fonts.titleMedium.copyWith(
             color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
           ),
         ),

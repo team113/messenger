@@ -554,7 +554,7 @@ class Style extends ThemeExtension<Style> {
   }
 }
 
-///
+/// [TextStyle]s used throughout the application.
 class FontStyle {
   FontStyle({
     this.primary,
@@ -584,6 +584,7 @@ class FontStyle {
     required this.titleSmall,
     TextStyle? titleSmallOnPrimary,
     required this.labelLarge,
+    TextStyle? labelLargePrimary,
     TextStyle? labelLargeSecondary,
     TextStyle? labelLargeOnPrimary,
     required this.labelMedium,
@@ -622,6 +623,7 @@ class FontStyle {
         titleMediumSecondary = titleMedium.copyWith(color: secondary),
         titleMediumOnPrimary = titleMedium.copyWith(color: onPrimary),
         titleSmallOnPrimary = titleSmall.copyWith(color: onPrimary),
+        labelLargePrimary = labelLarge.copyWith(color: primary),
         labelLargeSecondary = labelLarge.copyWith(color: secondary),
         labelLargeOnPrimary = labelLarge.copyWith(color: onPrimary),
         labelMediumPrimary = labelMedium.copyWith(color: primary),
@@ -639,154 +641,161 @@ class FontStyle {
         bodySmallSecondary = bodySmall.copyWith(color: secondary),
         bodySmallOnPrimary = bodySmall.copyWith(color: onPrimary);
 
+  /// Primary [Color] of the application.
   final Color? primary;
 
+  /// Secondary [Color] used alongside with [primary].
   final Color? secondary;
 
+  /// [Color] for elements to put above the [primary] color.
   final Color? onPrimary;
 
-  ///
+  /// Large version of display text.
   final TextStyle displayLarge;
 
-  ///
+  /// Large version of display text with [onPrimary] color.
   final TextStyle displayLargeOnPrimary;
 
-  ///
+  /// Medium version of display text.
   final TextStyle displayMedium;
 
-  ///
+  /// Medium version of display text with [secondary] color.
   final TextStyle displayMediumSecondary;
 
-  ///
+  /// Small version of display text.
   final TextStyle displaySmall;
 
-  ///
+  /// Small version of display text with [secondary] color.
   final TextStyle displaySmallSecondary;
 
-  ///
+  /// Small version of display text with [onPrimary] color.
   final TextStyle displaySmallOnPrimary;
 
-  ///
+  /// Large version of headline text.
   final TextStyle headlineLarge;
 
-  ///
+  /// Large version of headline text with [onPrimary] color.
   final TextStyle headlineLargeOnPrimary;
 
-  ///
+  /// Medium version of headline text.
   final TextStyle headlineMedium;
 
-  ///
+  /// Medium version of headline text with [onPrimary] color.
   final TextStyle headlineMediumOnPrimary;
 
-  ///
+  /// Small version of headline text.
   final TextStyle headlineSmall;
 
-  ///
+  /// Small version of headline text with [secondary] color.
   final TextStyle headlineSmallSecondary;
 
-  ///
+  /// Small version of headline text with [onPrimary] color.
   final TextStyle headlineSmallOnPrimary;
 
-  ///
+  /// Large version of title text.
   final TextStyle titleLarge;
 
-  ///
+  /// Large version of title text with [secondary] color.
   final TextStyle titleLargeSecondary;
 
-  ///
+  /// Large version of title text with [onPrimary] color.
   final TextStyle titleLargeOnPrimary;
 
-  ///
+  /// Medium version of title text.
   final TextStyle titleMedium;
 
-  ///
+  /// Medium version of title text with [primary] color.
   final TextStyle titleMediumPrimary;
 
-  ///
+  /// Medium version of title text with [secondary] color.
   final TextStyle titleMediumSecondary;
 
-  ///
+  /// Medium version of title text with [onPrimary] color.
   final TextStyle titleMediumOnPrimary;
 
-  ///
+  /// Small version of title text.
   final TextStyle titleSmall;
 
-  ///
+  /// Small version of title text with [onPrimary] color.
   final TextStyle titleSmallOnPrimary;
 
-  ///
+  /// Large version of label text.
   final TextStyle labelLarge;
 
-  ///
+  /// Large version of label text with [primary] color.
+  final TextStyle labelLargePrimary;
+
+  /// Large version of label text with [secondary] color.
   final TextStyle labelLargeSecondary;
 
-  ///
+  /// Large version of label text with [onPrimary] color.
   final TextStyle labelLargeOnPrimary;
 
-  ///
+  /// Medium version of label text.
   final TextStyle labelMedium;
 
-  ///
+  /// Medium version of label text with [primary] color.
   final TextStyle labelMediumPrimary;
 
-  ///
+  /// Medium version of label text with [secondary] color.
   final TextStyle labelMediumSecondary;
 
-  ///
+  /// Medium version of label text with [onPrimary] color.
   final TextStyle labelMediumOnPrimary;
 
-  ///
+  /// Small version of label text.
   final TextStyle labelSmall;
 
-  ///
+  /// Small version of label text with [primary] color.
   final TextStyle labelSmallPrimary;
 
-  ///
+  /// Small version of label text with [secondary] color.
   final TextStyle labelSmallSecondary;
 
-  ///
+  /// Small version of label text with [onPrimary] color.
   final TextStyle labelSmallOnPrimary;
 
-  ///
+  /// Large version of body text.
   final TextStyle bodyLarge;
 
-  ///
+  /// Large version of body text with [primary] color.
   final TextStyle bodyLargePrimary;
 
-  ///
+  /// Large version of body text with [secondary] color.
   final TextStyle bodyLargeSecondary;
 
-  ///
+  /// Medium version of body text.
   final TextStyle bodyMedium;
 
-  ///
+  /// Medium version of body text with [primary] color.
   final TextStyle bodyMediumPrimary;
 
-  ///
+  /// Medium version of body text with [secondary] color.
   final TextStyle bodyMediumSecondary;
 
-  ///
+  /// Medium version of body text with [onPrimary] color.
   final TextStyle bodyMediumOnPrimary;
 
-  ///
+  /// Small version of body text.
   final TextStyle bodySmall;
 
-  ///
+  /// Small version of body text with [primary] color.
   final TextStyle bodySmallPrimary;
 
-  ///
+  /// Small version of body text with [secondary] color.
   final TextStyle bodySmallSecondary;
 
-  ///
+  /// Small version of body text with [onPrimary] color.
   final TextStyle bodySmallOnPrimary;
 
-  ///
+  /// [TextStyle] for the decoration text in an input field.
   final TextStyle inputDecorationStyle;
 
-  ///
+  /// [TextStyle] for the error text that appears below the input field when
+  /// there is an error.
   final TextStyle errorStyle;
 
-  ///
+  /// [TextStyle] for the counter text in an input field.
   final TextStyle counterStyle;
 
   /// Linear interpolation between two [FontStyle] objects based on a given [t]
@@ -802,79 +811,79 @@ class FontStyle {
       displayMedium:
           TextStyle.lerp(font.displayMedium, other.displayMedium, t)!,
       displayMediumSecondary: TextStyle.lerp(
-          font.displayMediumSecondary, other.displayLargeOnPrimary, t)!,
+          font.displayMediumSecondary, other.displayMediumSecondary, t)!,
       displaySmall: TextStyle.lerp(font.displaySmall, other.displaySmall, t)!,
       displaySmallSecondary: TextStyle.lerp(
-          font.displaySmallSecondary, other.displayLargeOnPrimary, t)!,
+          font.displaySmallSecondary, other.displaySmallSecondary, t)!,
       displaySmallOnPrimary: TextStyle.lerp(
-          font.displaySmallOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.displaySmallOnPrimary, other.displaySmallOnPrimary, t)!,
       headlineLarge:
           TextStyle.lerp(font.headlineLarge, other.headlineLarge, t)!,
       headlineLargeOnPrimary: TextStyle.lerp(
-          font.headlineLargeOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.headlineLargeOnPrimary, other.headlineLargeOnPrimary, t)!,
       headlineMedium:
           TextStyle.lerp(font.headlineMedium, other.headlineMedium, t)!,
       headlineMediumOnPrimary: TextStyle.lerp(
-          font.headlineMediumOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.headlineMediumOnPrimary, other.headlineMediumOnPrimary, t)!,
       headlineSmall:
           TextStyle.lerp(font.headlineSmall, other.headlineSmall, t)!,
       headlineSmallSecondary: TextStyle.lerp(
-          font.headlineSmallSecondary, other.displayLargeOnPrimary, t)!,
+          font.headlineSmallSecondary, other.headlineSmallSecondary, t)!,
       headlineSmallOnPrimary: TextStyle.lerp(
-          font.headlineSmallOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.headlineSmallOnPrimary, other.headlineSmallOnPrimary, t)!,
       titleLarge: TextStyle.lerp(font.titleLarge, other.titleLarge, t)!,
       titleLargeSecondary: TextStyle.lerp(
-          font.titleLargeSecondary, other.displayLargeOnPrimary, t)!,
+          font.titleLargeSecondary, other.titleLargeSecondary, t)!,
       titleLargeOnPrimary: TextStyle.lerp(
-          font.titleLargeOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.titleLargeOnPrimary, other.titleLargeOnPrimary, t)!,
       titleMedium: TextStyle.lerp(font.titleMedium, other.titleMedium, t)!,
-      titleMediumPrimary: TextStyle.lerp(
-          font.titleMediumPrimary, other.displayLargeOnPrimary, t)!,
+      titleMediumPrimary:
+          TextStyle.lerp(font.titleMediumPrimary, other.titleMediumPrimary, t)!,
       titleMediumSecondary: TextStyle.lerp(
-          font.titleMediumSecondary, other.displayLargeOnPrimary, t)!,
+          font.titleMediumSecondary, other.titleMediumSecondary, t)!,
       titleMediumOnPrimary: TextStyle.lerp(
-          font.titleMediumOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.titleMediumOnPrimary, other.titleMediumOnPrimary, t)!,
       titleSmall: TextStyle.lerp(font.titleSmall, other.titleSmall, t)!,
       titleSmallOnPrimary: TextStyle.lerp(
-          font.titleSmallOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.titleSmallOnPrimary, other.titleSmallOnPrimary, t)!,
       labelLarge: TextStyle.lerp(font.labelLarge, other.labelLarge, t)!,
       labelLargeSecondary: TextStyle.lerp(
-          font.labelLargeSecondary, other.displayLargeOnPrimary, t)!,
+          font.labelLargeSecondary, other.labelLargeSecondary, t)!,
       labelLargeOnPrimary: TextStyle.lerp(
-          font.labelLargeOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.labelLargeOnPrimary, other.labelLargeOnPrimary, t)!,
       labelMedium: TextStyle.lerp(font.labelMedium, other.labelMedium, t)!,
-      labelMediumPrimary: TextStyle.lerp(
-          font.labelMediumPrimary, other.displayLargeOnPrimary, t)!,
+      labelMediumPrimary:
+          TextStyle.lerp(font.labelMediumPrimary, other.labelMediumPrimary, t)!,
       labelMediumSecondary: TextStyle.lerp(
-          font.labelMediumSecondary, other.displayLargeOnPrimary, t)!,
+          font.labelMediumSecondary, other.labelMediumSecondary, t)!,
       labelMediumOnPrimary: TextStyle.lerp(
-          font.labelMediumOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.labelMediumOnPrimary, other.labelMediumOnPrimary, t)!,
       labelSmall: TextStyle.lerp(font.labelSmall, other.labelSmall, t)!,
-      labelSmallPrimary: TextStyle.lerp(
-          font.labelSmallPrimary, other.displayLargeOnPrimary, t)!,
+      labelSmallPrimary:
+          TextStyle.lerp(font.labelSmallPrimary, other.labelSmallPrimary, t)!,
       labelSmallSecondary: TextStyle.lerp(
-          font.labelSmallSecondary, other.displayLargeOnPrimary, t)!,
+          font.labelSmallSecondary, other.labelSmallSecondary, t)!,
       labelSmallOnPrimary: TextStyle.lerp(
-          font.labelSmallOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.labelSmallOnPrimary, other.labelSmallOnPrimary, t)!,
       bodyLarge: TextStyle.lerp(font.bodyLarge, other.bodyLarge, t)!,
-      bodyLargePrimary: TextStyle.lerp(
-          font.bodyLargePrimary, other.displayLargeOnPrimary, t)!,
+      bodyLargePrimary:
+          TextStyle.lerp(font.bodyLargePrimary, other.bodyLargePrimary, t)!,
       bodyLargeSecondary:
           TextStyle.lerp(font.bodyLargeSecondary, other.bodyLargeSecondary, t)!,
       bodyMedium: TextStyle.lerp(font.bodyMedium, other.bodyMedium, t)!,
-      bodyMediumPrimary: TextStyle.lerp(
-          font.bodyMediumPrimary, other.displayLargeOnPrimary, t)!,
+      bodyMediumPrimary:
+          TextStyle.lerp(font.bodyMediumPrimary, other.bodyMediumPrimary, t)!,
       bodyMediumSecondary: TextStyle.lerp(
-          font.bodyMediumSecondary, other.displayLargeOnPrimary, t)!,
+          font.bodyMediumSecondary, other.bodyMediumSecondary, t)!,
       bodyMediumOnPrimary: TextStyle.lerp(
-          font.bodyMediumOnPrimary, other.displayLargeOnPrimary, t)!,
+          font.bodyMediumOnPrimary, other.bodyMediumOnPrimary, t)!,
       bodySmall: TextStyle.lerp(font.bodySmall, other.bodySmall, t)!,
-      bodySmallPrimary: TextStyle.lerp(
-          font.bodySmallPrimary, other.displayLargeOnPrimary, t)!,
-      bodySmallSecondary: TextStyle.lerp(
-          font.bodySmallSecondary, other.displayLargeOnPrimary, t)!,
-      bodySmallOnPrimary: TextStyle.lerp(
-          font.bodySmallOnPrimary, other.displayLargeOnPrimary, t)!,
+      bodySmallPrimary:
+          TextStyle.lerp(font.bodySmallPrimary, other.bodySmallPrimary, t)!,
+      bodySmallSecondary:
+          TextStyle.lerp(font.bodySmallSecondary, other.bodySmallSecondary, t)!,
+      bodySmallOnPrimary:
+          TextStyle.lerp(font.bodySmallOnPrimary, other.bodySmallOnPrimary, t)!,
       inputDecorationStyle: TextStyle.lerp(
           font.inputDecorationStyle, other.inputDecorationStyle, t)!,
       errorStyle: TextStyle.lerp(font.errorStyle, other.errorStyle, t)!,
@@ -1265,14 +1274,8 @@ class Palette {
 
 /// Extension adding [Style] and [TextTheme] handy getters from the [ThemeData].
 extension ThemeStylesExtension on ThemeData {
-  /// Returns the [TextTheme] of this [ThemeData].
-  TextTheme get fonts => textTheme;
-
   /// Returns the [Style] of this [ThemeData].
   Style get style => extension<Style>()!;
-
-  /// Returns a record containing the [style] and [fonts].
-  (Style, TextTheme) get styles => (style, fonts);
 }
 
 /// Adds the ability to get HEX value of the color.

@@ -45,7 +45,7 @@ class ColorSchemaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -61,7 +61,8 @@ class ColorSchemaWidget extends StatelessWidget {
           final Color text = hsl.lightness > 0.7 || hsl.alpha < 0.4
               ? const Color(0xFF000000)
               : const Color(0xFFFFFFFF);
-          final TextStyle style = fonts.bodySmall!.copyWith(color: text);
+          final TextStyle textStyle =
+              style.fonts.bodySmall.copyWith(color: text);
 
           return AnimatedContainer(
             duration: const Duration(milliseconds: 300),
@@ -102,7 +103,7 @@ class ColorSchemaWidget extends StatelessWidget {
                       Clipboard.setData(ClipboardData(text: e.$2));
                       MessagePopup.success('Technical name is copied');
                     },
-                    child: Text(e.$2, style: style),
+                    child: Text(e.$2, style: textStyle),
                   ),
                   const Spacer(),
                   WidgetButton(
@@ -110,7 +111,7 @@ class ColorSchemaWidget extends StatelessWidget {
                       Clipboard.setData(ClipboardData(text: e.$1.toHex()));
                       MessagePopup.success('Hash is copied');
                     },
-                    child: Text(e.$1.toHex(), style: style),
+                    child: Text(e.$1.toHex(), style: textStyle),
                   ),
                   AnimatedSize(
                     duration: const Duration(milliseconds: 300),

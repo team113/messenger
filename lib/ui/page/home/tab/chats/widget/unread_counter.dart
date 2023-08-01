@@ -42,7 +42,7 @@ class UnreadCounter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Container(
       width: 23,
@@ -58,7 +58,7 @@ class UnreadCounter extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         count > 99 ? '99${'plus'.l10n}' : '$count',
-        style: fonts.displaySmall!.copyWith(
+        style: style.fonts.displaySmall.copyWith(
           color: dimmed
               ? inverted
                   ? style.colors.secondary

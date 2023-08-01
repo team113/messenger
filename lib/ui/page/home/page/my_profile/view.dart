@@ -66,7 +66,7 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('MyProfileView'),
@@ -163,24 +163,20 @@ class MyProfileView extends StatelessWidget {
                                     onPressed: c.uploadAvatar,
                                     child: Text(
                                       'btn_upload'.l10n,
-                                      style: fonts.labelSmall!.copyWith(
-                                        color: style.colors.primary,
-                                      ),
+                                      style: style.fonts.labelSmallPrimary,
                                     ),
                                   ),
                                   if (c.myUser.value?.avatar != null) ...[
                                     Text(
                                       'space_or_space'.l10n,
-                                      style: fonts.bodySmall,
+                                      style: style.fonts.bodySmall,
                                     ),
                                     WidgetButton(
                                       key: const Key('DeleteAvatar'),
                                       onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
-                                        style: fonts.bodySmall!.copyWith(
-                                          color: style.colors.primary,
-                                        ),
+                                        style: style.fonts.bodySmallPrimary,
                                       ),
                                     ),
                                   ],
@@ -337,7 +333,7 @@ Widget _name(MyProfileController c) {
 
 /// Returns [MyUser.status] editable field.
 Widget _status(MyProfileController c, BuildContext context) {
-  final fonts = Theme.of(context).fonts;
+  final style = Theme.of(context).style;
 
   return _padding(
     ReactiveTextField(
@@ -361,14 +357,14 @@ Widget _status(MyProfileController c, BuildContext context) {
                 child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
-      style: fonts.titleMedium,
+      style: style.fonts.titleMedium,
     ),
   );
 }
 
 /// Returns [WidgetButton] displaying the [MyUser.presence].
 Widget _presence(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Obx(() {
     final Presence? presence = c.myUser.value?.presence;
@@ -380,7 +376,7 @@ Widget _presence(MyProfileController c, BuildContext context) {
         text: presence?.localizedString(),
         trailing:
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+        style: style.fonts.titleMediumPrimary,
       ),
     );
   });
@@ -399,7 +395,7 @@ Widget _num(MyProfileController c) => _padding(
 
 /// Returns [MyUser.chatDirectLink] editable field.
 Widget _link(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Obx(() {
     return Column(
@@ -440,18 +436,14 @@ Widget _link(BuildContext context, MyProfileController c) {
                     TextSpan(
                       text: 'label_transition_count'.l10nfmt({
                             'count':
-                                c.myUser.value?.chatDirectLink?.usageCount ?? 0
+                                c.myUser.value?.chatDirectLink?.usageCount ?? 0,
                           }) +
                           'dot_space'.l10n,
-                      style: fonts.labelSmall!.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: style.fonts.labelSmallSecondary,
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: fonts.labelSmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.labelSmallPrimary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await LinkDetailsView.show(context);
@@ -470,7 +462,7 @@ Widget _link(BuildContext context, MyProfileController c) {
 
 /// Returns [MyUser.login] editable field.
 Widget _login(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return _padding(
     Column(
@@ -507,15 +499,11 @@ Widget _login(MyProfileController c, BuildContext context) {
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
-                  style: fonts.labelSmall!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: style.fonts.labelSmallSecondary,
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                  style: fonts.labelSmall!.copyWith(
-                    color: style.colors.primary,
-                  ),
+                  style: style.fonts.labelSmallPrimary,
                   recognizer: TapGestureRecognizer()
                     ..onTap = () async {
                       await ConfirmDialog.show(
@@ -525,9 +513,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                           Center(
                             child: Text(
                               'label_login_visibility_hint'.l10n,
-                              style: fonts.labelLarge!.copyWith(
-                                color: style.colors.secondary,
-                              ),
+                              style: style.fonts.labelLargeSecondary,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -535,7 +521,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'label_visible_to'.l10n,
-                              style: fonts.headlineMedium,
+                              style: style.fonts.headlineMedium,
                             ),
                           ),
                         ],
@@ -569,7 +555,7 @@ Widget _login(MyProfileController c, BuildContext context) {
 
 /// Returns addable list of [MyUser.emails].
 Widget _emails(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Obx(() {
     final List<Widget> widgets = [];
@@ -605,15 +591,11 @@ Widget _emails(MyProfileController c, BuildContext context) {
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: fonts.bodySmall!.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: style.fonts.bodySmallSecondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: fonts.bodySmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.bodySmallPrimary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -624,7 +606,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: fonts.headlineMedium,
+                                  style: style.fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -661,12 +643,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
-            inputDecorationTheme:
-                Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
-                        color: style.colors.primary,
-                      ),
-                    ),
+            inputDecorationTheme: Theme.of(context)
+                .inputDecorationTheme
+                .copyWith(floatingLabelStyle: style.fonts.bodyMediumPrimary),
           ),
           child: FieldButton(
             key: const Key('UnconfirmedEmail'),
@@ -688,7 +667,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.emails.unconfirmed!,
             ),
-            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+            style: style.fonts.titleMediumSecondary,
           ),
         ),
       ]);
@@ -705,7 +684,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMediumPrimary,
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -721,7 +700,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
 
 /// Returns addable list of [MyUser.emails].
 Widget _phones(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Obx(() {
     final List<Widget> widgets = [];
@@ -757,15 +736,11 @@ Widget _phones(MyProfileController c, BuildContext context) {
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: fonts.bodySmall!.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: style.fonts.bodySmallSecondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: fonts.bodySmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.bodySmallPrimary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -776,7 +751,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: fonts.headlineMedium,
+                                  style: style.fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -813,12 +788,9 @@ Widget _phones(MyProfileController c, BuildContext context) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
-            inputDecorationTheme:
-                Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
-                        color: style.colors.primary,
-                      ),
-                    ),
+            inputDecorationTheme: Theme.of(context)
+                .inputDecorationTheme
+                .copyWith(floatingLabelStyle: style.fonts.bodyMediumPrimary),
           ),
           child: FieldButton(
             key: const Key('UnconfirmedPhone'),
@@ -840,7 +812,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+            style: style.fonts.titleMediumSecondary,
           ),
         ),
       ]);
@@ -857,7 +829,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMediumPrimary,
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -874,7 +846,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
 /// Returns the buttons changing or setting the password of the currently
 /// authenticated [MyUser].
 Widget _password(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -888,7 +860,7 @@ Widget _password(BuildContext context, MyProfileController c) {
               ? 'btn_change_password'.l10n
               : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
-          style: fonts.titleMedium!.copyWith(
+          style: style.fonts.titleMedium.copyWith(
             color: c.myUser.value?.hasPassword != true
                 ? style.colors.dangerColor
                 : style.colors.primary,
@@ -902,7 +874,7 @@ Widget _password(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.danger] section.
 Widget _danger(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Column(
     children: [
@@ -918,7 +890,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
-          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMediumPrimary,
         ),
       ),
     ],
@@ -927,7 +899,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.background] section.
 Widget _background(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   Widget message({
     bool fromMe = true,
@@ -960,7 +932,7 @@ Widget _background(BuildContext context, MyProfileController c) {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                child: Text(text, style: fonts.bodyLarge),
+                child: Text(text, style: style.fonts.bodyLarge),
               ),
             ],
           ),
@@ -1044,9 +1016,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                       c.background.value == null
                           ? 'btn_upload'.l10n
                           : 'btn_delete'.l10n,
-                      style: fonts.labelSmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.labelSmallPrimary,
                     ),
                   ),
                 ],
@@ -1061,7 +1031,7 @@ Widget _background(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.calls] section.
 Widget _call(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -1074,7 +1044,7 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
-            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1084,7 +1054,7 @@ Widget _call(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.chats] section.
 Widget _chats(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -1096,7 +1066,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
             padding: const EdgeInsets.only(left: 21.0),
             child: Text(
               'label_display_timestamps'.l10n,
-              style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+              style: style.fonts.titleMediumSecondary,
             ),
           ),
         ),
@@ -1110,7 +1080,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
-            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1120,7 +1090,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.media] section.
 Widget _media(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -1144,7 +1114,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1168,7 +1138,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1192,7 +1162,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1202,7 +1172,7 @@ Widget _media(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.notifications] section.
 Widget _notifications(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Obx(() {
     return _dense(
@@ -1218,7 +1188,7 @@ Widget _notifications(BuildContext context, MyProfileController c) {
                     .l10n,
                 editable: false,
               ),
-              style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
+              style: style.fonts.bodyMediumSecondary,
             ),
           ),
           Align(
@@ -1299,7 +1269,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.language] section.
 Widget _language(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return _dense(
     FieldButton(
@@ -1312,14 +1282,14 @@ Widget _language(BuildContext context, MyProfileController c) {
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
       }),
-      style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+      style: style.fonts.titleMediumPrimary,
     ),
   );
 }
 
 /// Returns the contents of a [ProfileTab.blacklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Column(
     children: [
@@ -1328,7 +1298,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
-          style: fonts.titleMedium!.copyWith(
+          style: style.fonts.titleMedium.copyWith(
             color: c.blacklist.isEmpty
                 ? style.colors.onBackground
                 : style.colors.primary,
@@ -1341,7 +1311,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.storage] section.
 Widget _storage(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Obx(() {
     return _dense(
@@ -1354,7 +1324,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 text: 'label_load_images'.l10n,
                 editable: false,
               ),
-              style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
+              style: style.fonts.bodyMediumSecondary,
             ),
           ),
           Align(
@@ -1390,13 +1360,13 @@ Future<void> _deleteEmail(
   BuildContext context,
   UserEmail email,
 ) async {
-  final fonts = Theme.of(context).fonts;
+  final style = Theme.of(context).style;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_email'.l10n,
     description: [
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
-      TextSpan(text: email.val, style: fonts.labelLarge),
+      TextSpan(text: email.val, style: style.fonts.labelLarge),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
   );
@@ -1413,13 +1383,13 @@ Future<void> _deletePhone(
   BuildContext context,
   UserPhone phone,
 ) async {
-  final fonts = Theme.of(context).fonts;
+  final style = Theme.of(context).style;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_phone_number'.l10n,
     description: [
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
-      TextSpan(text: phone.val, style: fonts.labelLarge),
+      TextSpan(text: phone.val, style: style.fonts.labelLarge),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
   );
@@ -1431,7 +1401,7 @@ Future<void> _deletePhone(
 
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
-  final fonts = Theme.of(context).fonts;
+  final style = Theme.of(context).style;
 
   final bool? result = await MessagePopup.alert(
     'label_delete_account'.l10n,
@@ -1442,7 +1412,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
             c.myUser.value?.login?.val ??
             c.myUser.value?.num.val ??
             'dot'.l10n * 3,
-        style: fonts.labelLarge,
+        style: style.fonts.labelLarge,
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

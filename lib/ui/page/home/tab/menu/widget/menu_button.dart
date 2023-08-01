@@ -49,7 +49,7 @@ class MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -92,7 +92,7 @@ class MenuButton extends StatelessWidget {
                             DefaultTextStyle(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: fonts.headlineLarge!.copyWith(
+                              style: style.fonts.headlineLarge.copyWith(
                                 color: inverted
                                     ? style.colors.onPrimary
                                     : style.colors.onBackground,
@@ -105,7 +105,7 @@ class MenuButton extends StatelessWidget {
                             DefaultTextStyle.merge(
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: fonts.labelMedium!.copyWith(
+                              style: style.fonts.labelMedium.copyWith(
                                 color: inverted
                                     ? style.colors.onPrimary
                                     : style.colors.onBackground,

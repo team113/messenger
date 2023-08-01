@@ -60,7 +60,7 @@ class MemberTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return ContactTile(
       user: user,
@@ -112,7 +112,7 @@ class MemberTile extends StatelessWidget {
                   TextSpan(text: 'alert_user_will_be_removed1'.l10n),
                   TextSpan(
                     text: user.user.value.name?.val ?? user.user.value.num.val,
-                    style: fonts.labelLarge,
+                    style: style.fonts.labelLarge,
                   ),
                   TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                 ],
@@ -126,9 +126,7 @@ class MemberTile extends StatelessWidget {
           child: canLeave
               ? Text(
                   'btn_leave'.l10n,
-                  style: fonts.labelLarge!.copyWith(
-                    color: style.colors.primary,
-                  ),
+                  style: style.fonts.labelLargePrimary,
                 )
               : SvgImage.asset(
                   'assets/icons/delete.svg',
