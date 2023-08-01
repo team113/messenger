@@ -17,8 +17,10 @@
 
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart' show MissingPluginException;
+import 'package:media_kit/media_kit.dart';
+
+import 'log.dart';
+import 'platform_utils.dart';
 
 /// Global variable to access [AudioUtilsImpl].
 ///
@@ -28,8 +30,8 @@ AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
-  /// [AudioPlayer] lazily initialized to play sounds [once].
-  AudioPlayer? _player;
+  /// [Player] lazily initialized to play sounds [once].
+  Player? _player;
 
   /// [StreamController]s of [AudioSource]s added in [play].
   final Map<AudioSource, StreamController<void>> _players = {};
@@ -37,19 +39,14 @@ class AudioUtilsImpl {
   /// Ensures the underlying resources are initialized to reduce possible delays
   /// when playing [once].
   void ensureInitialized() {
-    if (_player == null) {
-      // [AudioPlayer] constructor creates a hanging [Future], which can't be
-      // awaited.
-      runZonedGuarded(
-        () => _player ??= AudioPlayer(),
-        (e, _) {
-          if (e is MissingPluginException) {
-            _player = null;
-          } else {
-            throw e;
-          }
-        },
-      );
+    try {
+      _player ??= Player();
+    } catch (e) {
+      // If [Player] isn't available on the current platform, this throws a
+      // `null check operator used on a null value`.
+      if (e is! TypeError) {
+        Log.error('Failed to initialize `Player`: ${e.toString()}');
+      }
     }
   }
 
@@ -57,19 +54,11 @@ class AudioUtilsImpl {
   Future<void> once(AudioSource sound, {double? volume}) async {
     ensureInitialized();
 
-    await runZonedGuarded(
-      () async => await _player?.play(
-        sound.source,
-        position: Duration.zero,
-        mode: PlayerMode.lowLatency,
-        volume: volume,
-      ),
-      (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      },
-    );
+    await _player?.open(sound.media);
+
+    if (volume != null) {
+      await _player?.setVolume(volume);
+    }
   }
 
   /// Plays the provided [music] looped with the specified [fade].
@@ -80,44 +69,58 @@ class AudioUtilsImpl {
     Duration fade = Duration.zero,
   }) {
     StreamController? controller = _players[music];
+    StreamSubscription? position;
 
     if (controller == null) {
-      AudioPlayer? player;
+      Player? player;
       Timer? timer;
 
       controller = StreamController.broadcast(
         onListen: () async {
-          await runZonedGuarded(
-            () async {
-              player = AudioPlayer();
-              await player?.play(music.source);
-              await player?.setReleaseMode(ReleaseMode.loop);
+          try {
+            player = Player();
+          } catch (e) {
+            // If [Player] isn't available on the current platform, this throws
+            // a `null check operator used on a null value`.
+            if (e is! TypeError) {
+              Log.error('Failed to initialize `Player`: ${e.toString()}');
+            }
+          }
 
-              if (fade != Duration.zero) {
-                timer = Timer.periodic(
-                  Duration(microseconds: fade.inMicroseconds ~/ 10),
-                  (timer) async {
-                    if (timer.tick > 9) {
-                      timer.cancel();
-                    } else {
-                      await player?.setVolume((timer.tick + 1) / 10);
-                    }
-                  },
-                );
-              }
-            },
-            (e, _) {
-              if (e is! MissingPluginException ||
-                  !e.toString().contains('NotAllowedError')) {
-                throw e;
-              }
-            },
-          );
+          await player?.open(music.media);
+
+          // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
+          if (PlatformUtils.isWeb) {
+            position = player?.stream.completed.listen((e) async {
+              await player?.seek(Duration.zero);
+              await player?.play();
+            });
+          } else {
+            await player?.setPlaylistMode(PlaylistMode.loop);
+          }
+
+          if (fade != Duration.zero) {
+            await player?.setVolume(0);
+            timer = Timer.periodic(
+              Duration(microseconds: fade.inMicroseconds ~/ 10),
+              (timer) async {
+                if (timer.tick > 9) {
+                  timer.cancel();
+                } else {
+                  await player?.setVolume(100 * (timer.tick + 1) / 10);
+                }
+              },
+            );
+          }
         },
         onCancel: () async {
           _players.remove(music);
+          position?.cancel();
           timer?.cancel();
-          await player?.dispose();
+
+          Future<void>? dispose = player?.dispose();
+          player = null;
+          await dispose;
         },
       );
 
@@ -201,13 +204,15 @@ class UrlAudioSource extends AudioSource {
   bool operator ==(Object other) => other is UrlAudioSource && other.url == url;
 }
 
-/// Extension adding conversion from an [AudioSource] to a [Source].
+/// Extension adding conversion from an [AudioSource] to a [Media].
 extension on AudioSource {
-  /// Returns a [Source]  corresponding to this [AudioSource].
-  Source get source => switch (kind) {
-        AudioSourceKind.asset => AssetSource((this as AssetAudioSource).asset),
+  /// Returns a [Media] corresponding to this [AudioSource].
+  Media get media => switch (kind) {
+        AudioSourceKind.asset => Media(
+            'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}',
+          ),
         AudioSourceKind.file =>
-          DeviceFileSource((this as FileAudioSource).file),
-        AudioSourceKind.url => UrlSource((this as UrlAudioSource).url),
+          Media('file:///${(this as FileAudioSource).file}'),
+        AudioSourceKind.url => Media((this as UrlAudioSource).url),
       };
 }

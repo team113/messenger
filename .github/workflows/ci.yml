@@ -149,8 +149,6 @@ jobs:
                           ninja-build
                           libunwind-dev
                           libgtk-3-dev
-                          libgstreamer1.0-dev
-                          libgstreamer-plugins-base1.0-dev
                           libpulse-dev
                           libmpv-dev
                           mpv
@@ -358,11 +356,7 @@ jobs:
       # passed to the `chromedriver` does.
       #
       # Use `grep` to remove the meaningless logs from the output.
-      - uses: nanasess/setup-chromedriver@v1
-        with:
-          # TODO: Unpin when nanasess/setup-chromedriver#190 is fixed:
-          #       https://github.com/nanasess/setup-chromedriver/issues/190
-          chromedriver-version: '114.0.5735.90'
+      - uses: nanasess/setup-chromedriver@v2
       - run: |
           chromedriver --port=4444 --enable-chrome-logs \
                        --disable-dev-shm-usage \
