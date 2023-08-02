@@ -27,7 +27,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/log.dart';
 
 import '/api/backend/schema.dart' hide ChatItemQuoteInput;
 import '/domain/model/application_settings.dart';
@@ -62,6 +61,7 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/util/audio_utils.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -196,7 +196,7 @@ class ChatController extends GetxController {
   ///
   /// Used to scroll to it when [Chat] messages are fetched and to properly
   /// place the unread messages badge in the [elements] list.
-  Rx<ChatItem>? _firstUnreadItem;
+  Rx<ChatItem>? _firstUnread;
 
   /// [FlutterListViewItemPosition] of the [ChatItem] to return to when the
   /// return FAB is pressed.
@@ -886,14 +886,14 @@ class ChatController extends GetxController {
       // Required in order for [Hive.boxEvents] to add the messages.
       await Future.delayed(Duration.zero);
 
-      Rx<ChatItem>? firstUnread = _firstUnreadItem;
+      Rx<ChatItem>? firstUnread = _firstUnread;
       _determineLastRead();
 
-      // Scroll to the last read message if [_firstUnreadItem] was updated or
-      // there are no unread messages in [chat]. Otherwise,
+      // Scroll to the last read message if [_firstUnread] was updated or there
+      // are no unread messages in [chat]. Otherwise,
       // [FlutterListViewDelegate.keepPosition] handles this as the last read
       // item is already in the list.
-      if (firstUnread?.value.id != _firstUnreadItem?.value.id ||
+      if (firstUnread?.value.id != _firstUnread?.value.id ||
           chat!.chat.value.unreadCount == 0 && _bottomLoader == null) {
         _scrollToLastRead();
       }
@@ -1266,19 +1266,19 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the
+  /// Determines the [_firstUnread] of the authenticated [MyUser] from the
   /// [RxChat.messages] list.
   void _determineLastRead() {
     if (chat?.unreadCount.value != 0) {
-      _firstUnreadItem = chat?.firstUnreadItem;
+      _firstUnread = chat?.firstUnread;
 
-      if (_firstUnreadItem != null) {
+      if (_firstUnread != null) {
         if (_unreadElement != null) {
           elements.remove(_unreadElement!.id);
         }
 
-        PreciseDateTime? at = _firstUnreadItem!.value.at
-            .subtract(const Duration(microseconds: 1));
+        PreciseDateTime? at =
+            _firstUnread!.value.at.subtract(const Duration(microseconds: 1));
         _unreadElement = UnreadMessagesElement(at);
         elements[_unreadElement!.id] = _unreadElement!;
       }
@@ -1304,19 +1304,19 @@ class ChatController extends GetxController {
         if (chat!.chat.value.unreadCount == 0) {
           index = 0;
           offset = 0;
-        } else if (_firstUnreadItem != null) {
+        } else if (_firstUnread != null) {
           int i = elements.values.toList().indexWhere((e) {
             if (e is ChatForwardElement) {
-              if (e.note.value?.value.id == _firstUnreadItem!.value.id) {
+              if (e.note.value?.value.id == _firstUnread!.value.id) {
                 return true;
               }
 
               return e.forwards.firstWhereOrNull(
-                      (f) => f.value.id == _firstUnreadItem!.value.id) !=
+                      (f) => f.value.id == _firstUnread!.value.id) !=
                   null;
             }
 
-            return e.id.id == _firstUnreadItem!.value.id;
+            return e.id.id == _firstUnread!.value.id;
           });
           if (i != -1) {
             index = i;

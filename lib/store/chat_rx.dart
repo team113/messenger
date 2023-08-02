@@ -200,7 +200,7 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Rx<ChatItem>? get firstUnreadItem {
+  Rx<ChatItem>? get firstUnread {
     if (chat.value.unreadCount != 0) {
       PreciseDateTime? myRead =
           chat.value.lastReads.firstWhereOrNull((e) => e.memberId == me)?.at;
@@ -276,7 +276,7 @@ class HiveRxChat extends RxChat {
       switch (event.op) {
         case OperationKind.added:
           _add(event.value!.value);
-          _putToLocal(event.value!);
+          _persist(event.value!);
           break;
 
         case OperationKind.removed:
@@ -286,7 +286,7 @@ class HiveRxChat extends RxChat {
 
         case OperationKind.updated:
           _add(event.value!.value);
-          _putToLocal(event.value!);
+          _persist(event.value!);
           break;
       }
     });
@@ -373,7 +373,9 @@ class HiveRxChat extends RxChat {
     if (!status.value.isLoading) {
       status.value = RxStatus.loadingMore();
     }
+
     await _pagination.around(cursor: _lastReadItemCursor);
+
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
@@ -427,8 +429,9 @@ class HiveRxChat extends RxChat {
   /// authenticated [MyUser],
   Future<void> read(ChatItemId untilId) async {
     int firstUnreadIndex = 0;
-    if (firstUnreadItem != null) {
-      firstUnreadIndex = messages.indexOf(firstUnreadItem!);
+
+    if (firstUnread != null) {
+      firstUnreadIndex = messages.indexOf(firstUnread!);
     }
 
     int lastReadIndex =
@@ -619,7 +622,8 @@ class HiveRxChat extends RxChat {
     });
   }
 
-  /// Returns a stored [HiveChatItem] identified by the provided [itemId], if any.
+  /// Returns a stored [HiveChatItem] identified by the provided [itemId], if
+  /// any.
   ///
   /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [_local] store.
@@ -922,7 +926,7 @@ class HiveRxChat extends RxChat {
   }
 
   /// Puts the provided [item] to [Hive].
-  Future<void> _putToLocal(HiveChatItem item, {bool ignoreVersion = false}) {
+  Future<void> _persist(HiveChatItem item, {bool ignoreVersion = false}) {
     return _guard.protect(() async {
       if (!_local.isReady) {
         return;
