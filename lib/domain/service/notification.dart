@@ -19,13 +19,13 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/routes.dart';
+import '/util/audio_utils.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -35,9 +35,6 @@ class NotificationService extends DisposableService {
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
-
-  /// [AudioPlayer] playing a notification sound.
-  AudioPlayer? _audioPlayer;
 
   /// Subscription to the [PlatformUtils.onActivityChanged] updating the
   /// [_active].
@@ -68,7 +65,8 @@ class NotificationService extends DisposableService {
     _onActivityChanged =
         PlatformUtils.onActivityChanged.listen((v) => _active = v);
 
-    _initAudio();
+    AudioUtils.ensureInitialized();
+
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
       // a browser's policy to ask for notifications permission only after
@@ -113,12 +111,6 @@ class NotificationService extends DisposableService {
   @override
   void onClose() {
     _onActivityChanged?.cancel();
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
-
-    AudioCache.instance
-        .clear('audio/notification.mp3')
-        .onError((_, __) => null);
   }
 
   // TODO: Implement icons and attachments on non-web platforms.
@@ -138,17 +130,7 @@ class NotificationService extends DisposableService {
     if (_active && payload == router.route) return;
 
     if (playSound) {
-      runZonedGuarded(() async {
-        await _audioPlayer?.play(
-          AssetSource('audio/notification.mp3'),
-          position: Duration.zero,
-          mode: PlayerMode.lowLatency,
-        );
-      }, (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      });
+      AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
     }
 
     if (PlatformUtils.isWeb) {
@@ -200,25 +182,6 @@ class NotificationService extends DisposableService {
     await WinToast.instance().showCustomToast(
       xml: xml,
       tag: 'Gapopa',
-    );
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    // [AudioPlayer] constructor creates a hanging [Future], which can't be
-    // awaited.
-    await runZonedGuarded(
-      () async {
-        _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
-        await AudioCache.instance.loadAll(['audio/notification.mp3']);
-      },
-      (e, _) {
-        if (e is MissingPluginException) {
-          _audioPlayer = null;
-        } else {
-          throw e;
-        }
-      },
     );
   }
 }
