@@ -98,7 +98,7 @@ class Themes {
       bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
     );
 
-    final Typeset fonts = Typeset(
+    final Fonts fonts = Fonts(
       primary: colors.primary,
       secondary: colors.secondary,
       onPrimary: colors.onPrimary,
@@ -385,8 +385,8 @@ class Style extends ThemeExtension<Style> {
   /// [Palette] to use in the application.
   final Palette colors;
 
-  /// [Typeset] to use in the application.
-  final Typeset fonts;
+  /// [Fonts] to use in the application.
+  final Fonts fonts;
 
   /// [Color] of the modal background barrier.
   final Color barrierColor;
@@ -453,7 +453,7 @@ class Style extends ThemeExtension<Style> {
   @override
   ThemeExtension<Style> copyWith({
     Palette? colors,
-    Typeset? fonts,
+    Fonts? fonts,
     Color? barrierColor,
     double? cardBlur,
     Border? cardBorder,
@@ -511,7 +511,7 @@ class Style extends ThemeExtension<Style> {
 
     return Style(
       colors: Palette.lerp(colors, other.colors, t),
-      fonts: Typeset.lerp(fonts, other.fonts, t),
+      fonts: Fonts.lerp(fonts, other.fonts, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
@@ -556,11 +556,11 @@ class Style extends ThemeExtension<Style> {
 }
 
 /// [TextStyle]s used throughout the application.
-class Typeset {
-  Typeset({
-    this.primary,
-    this.secondary,
-    this.onPrimary,
+class Fonts {
+  Fonts({
+    Color? primary,
+    Color? secondary,
+    Color? onPrimary,
     required this.displayLarge,
     TextStyle? displayLargeOnPrimary,
     required this.displayMedium,
@@ -642,28 +642,25 @@ class Typeset {
         bodySmallSecondary = bodySmall.copyWith(color: secondary),
         bodySmallOnPrimary = bodySmall.copyWith(color: onPrimary);
 
-  /// Primary [Color] of the application.
-  final Color? primary;
-
-  /// Secondary [Color] used alongside with [primary].
-  final Color? secondary;
-
-  /// [Color] for elements to put above the [primary] color.
-  final Color? onPrimary;
-
   /// Large version of display text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle displayLarge;
 
   /// [displayLarge] with [onPrimary] color.
   final TextStyle displayLargeOnPrimary;
 
   /// Medium version of display text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle displayMedium;
 
   /// [displayMedium] with [secondary] color.
   final TextStyle displayMediumSecondary;
 
   /// Small version of display text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle displaySmall;
 
   /// [displaySmall] with [secondary] color.
@@ -673,18 +670,24 @@ class Typeset {
   final TextStyle displaySmallOnPrimary;
 
   /// Large version of headline text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle headlineLarge;
 
   /// [headlineLarge] with [onPrimary] color.
   final TextStyle headlineLargeOnPrimary;
 
   /// Medium version of headline text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle headlineMedium;
 
   /// [headlineMedium] with [onPrimary] color.
   final TextStyle headlineMediumOnPrimary;
 
   /// Small version of headline text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle headlineSmall;
 
   /// [headlineSmall] with [secondary] color.
@@ -694,6 +697,8 @@ class Typeset {
   final TextStyle headlineSmallOnPrimary;
 
   /// Large version of title text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle titleLarge;
 
   /// [titleLarge] with [secondary] color.
@@ -703,6 +708,8 @@ class Typeset {
   final TextStyle titleLargeOnPrimary;
 
   /// Medium version of title text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle titleMedium;
 
   /// [titleMedium] with [primary] color.
@@ -715,12 +722,16 @@ class Typeset {
   final TextStyle titleMediumOnPrimary;
 
   /// Small version of title text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle titleSmall;
 
   /// [titleSmall] with [onPrimary] color.
   final TextStyle titleSmallOnPrimary;
 
   /// Large version of label text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle labelLarge;
 
   /// [labelLarge] with [primary] color.
@@ -733,6 +744,8 @@ class Typeset {
   final TextStyle labelLargeOnPrimary;
 
   /// Medium version of label text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle labelMedium;
 
   /// [labelMedium] with [primary] color.
@@ -745,6 +758,8 @@ class Typeset {
   final TextStyle labelMediumOnPrimary;
 
   /// Small version of label text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle labelSmall;
 
   /// [labelSmall] with [primary] color.
@@ -757,6 +772,8 @@ class Typeset {
   final TextStyle labelSmallOnPrimary;
 
   /// Large version of body text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle bodyLarge;
 
   /// [bodyLarge] with [primary] color.
@@ -766,6 +783,8 @@ class Typeset {
   final TextStyle bodyLargeSecondary;
 
   /// Medium version of body text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle bodyMedium;
 
   /// [bodyMedium] with [primary] color.
@@ -778,6 +797,8 @@ class Typeset {
   final TextStyle bodyMediumOnPrimary;
 
   /// Small version of body text.
+  ///
+  /// Used with [onBackground] color.
   final TextStyle bodySmall;
 
   /// [bodySmall] with [primary] color.
@@ -799,14 +820,14 @@ class Typeset {
   /// [TextStyle] for the counter text in an input field.
   final TextStyle counterStyle;
 
-  /// Linear interpolation between two [Typeset] objects based on a given [t]
+  /// Linear interpolation between two [Fonts] objects based on a given [t]
   /// value.
-  static Typeset lerp(Typeset font, Typeset? other, double t) {
+  static Fonts lerp(Fonts font, Fonts? other, double t) {
     if (other == null) {
       return font;
     }
 
-    return Typeset(
+    return Fonts(
       displayLarge: TextStyle.lerp(font.displayLarge, other.displayLarge, t)!,
       displayLargeOnPrimary: TextStyle.lerp(
           font.displayLargeOnPrimary, other.displayLargeOnPrimary, t)!,
