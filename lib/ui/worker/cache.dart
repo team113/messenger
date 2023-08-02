@@ -215,7 +215,7 @@ class CacheWorker extends DisposableService {
         .map((e) => File('${cache.path}/$e'))
         .toList();
 
-    List<Future> futures = [];
+    final List<Future> futures = [];
     for (var file in files) {
       futures.add(
         Future(
@@ -242,7 +242,7 @@ class CacheWorker extends DisposableService {
 
     _localSubscription = StreamIterator(_cacheLocal!.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
+      final BoxEvent event = _localSubscription!.current;
       if (event.deleted) {
         cacheInfo.value = null;
       } else {
@@ -262,7 +262,7 @@ class CacheWorker extends DisposableService {
         return;
       }
 
-      int maxSize = cacheInfo.value!.maxSize;
+      final int maxSize = cacheInfo.value!.maxSize;
 
       int overflow = cacheInfo.value!.size - maxSize;
       if (overflow > 0) {
@@ -275,7 +275,7 @@ class CacheWorker extends DisposableService {
             .toList();
         final List<File> removed = [];
 
-        Map<File, FileStat> filesInfo = {};
+        final Map<File, FileStat> filesInfo = {};
         for (File file in files) {
           final FileStat stat = await file.stat();
           if (stat.type == FileSystemEntityType.notFound) {
@@ -334,7 +334,7 @@ class CacheWorker extends DisposableService {
       (FileSystemEntity file) async {
         if (file is File) {
           checksums.add(p.basename(file.path));
-          FileStat stat = await file.stat();
+          final FileStat stat = await file.stat();
           cacheSize += stat.size;
         }
       },
