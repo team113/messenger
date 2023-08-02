@@ -52,6 +52,7 @@ import '/provider/hive/draft.dart';
 import '/provider/hive/monolog.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
+import '/store/model/chat_item.dart';
 import '/store/user.dart';
 import '/util/backoff.dart';
 import '/util/new_type.dart';
@@ -61,6 +62,7 @@ import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
 import 'model/chat.dart';
+import 'pagination.dart';
 
 /// Implementation of an [AbstractChatRepository].
 class ChatRepository extends DisposableInterface
@@ -127,7 +129,10 @@ class ChatRepository extends DisposableInterface
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
   /// [Mutex]es guarding access to the [get] method.
-  final Map<ChatId, Mutex> _locks = {};
+  final Map<ChatId, Mutex> _getGuards = {};
+
+  /// [Mutex]es guarding synchronized access to the [_putEntry].
+  final Map<ChatId, Mutex> _putEntryGuards = {};
 
   /// [dio.CancelToken] for cancelling the [_recentChats] query.
   final dio.CancelToken _cancelToken = dio.CancelToken();
@@ -221,10 +226,10 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<HiveRxChat?> get(ChatId id) async {
-    Mutex? mutex = _locks[id];
+    Mutex? mutex = _getGuards[id];
     if (mutex == null) {
       mutex = Mutex();
-      _locks[id] = mutex;
+      _getGuards[id] = mutex;
     }
 
     return mutex.protect(() async {
@@ -383,15 +388,6 @@ class ChatRepository extends DisposableInterface
         repliesTo:
             item.repliesTo.map((e) => e.original).whereNotNull().toList(),
       );
-    }
-  }
-
-  /// Puts the provided [item] to [Hive].
-  Future<void> putChatItem(HiveChatItem item) async {
-    HiveRxChat? entry =
-        _chats[item.value.chatId] ?? (await get(item.value.chatId));
-    if (entry != null) {
-      await entry.put(item);
     }
   }
 
@@ -813,13 +809,27 @@ class ChatRepository extends DisposableInterface
     }
   }
 
-  // TODO: Messages list can be huge, so we should implement pagination and
-  //       loading on demand.
-  /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
-  Future<List<HiveChatItem>> messages(ChatId id) async {
-    const maxInt = 120;
-    var query = await _graphQlProvider.chatItems(id, first: maxInt);
-    return query.chat?.items.edges.map((e) => e.toHive()).toList() ?? [];
+  /// Fetches [ChatItem]s of the [Chat] with the provided [id] ordered by their
+  /// posting time with pagination.
+  Future<Page<HiveChatItem, ChatItemsCursor>> messages(
+    ChatId id, {
+    int? first,
+    ChatItemsCursor? after,
+    int? last,
+    ChatItemsCursor? before,
+  }) async {
+    var query = await _graphQlProvider.chatItems(
+      id,
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+
+    return Page(
+      RxList(query.chat!.items.edges.map((e) => e.toHive()).toList()),
+      query.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c)),
+    );
   }
 
   /// Fetches the [Attachment]s of the provided [item].
@@ -1322,51 +1332,60 @@ class ChatRepository extends DisposableInterface
 
   /// Puts the provided [data] to [Hive].
   Future<HiveRxChat> _putEntry(ChatData data) async {
-    HiveRxChat? entry = chats[data.chat.value.id];
+    Mutex? mutex = _putEntryGuards[data.chat.value.id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _putEntryGuards[data.chat.value.id] = mutex;
+    }
 
-    if (entry == null) {
-      // If [data] is a remote [Chat]-dialog, then try to replace the existing
-      // local [Chat], if any is associated with this [data].
-      if (!data.chat.value.isGroup && !data.chat.value.id.isLocal) {
-        final ChatMember? member = data.chat.value.members.firstWhereOrNull(
-          (m) => data.chat.value.isMonolog || m.user.id != me,
-        );
-
-        if (member != null) {
-          final ChatId localId = ChatId.local(member.user.id);
-          final HiveRxChat? localChat = chats[localId];
-
-          if (localChat != null) {
-            chats.move(localId, data.chat.value.id);
-            await localChat.updateChat(data.chat.value);
-            entry = localChat;
-          }
-
-          _draftLocal.move(localId, data.chat.value.id);
-          remove(localId);
-        }
-      }
-
-      _putChat(data.chat);
+    return await mutex.protect(() async {
+      HiveRxChat? entry = chats[data.chat.value.id];
 
       if (entry == null) {
-        entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
-        _chats[data.chat.value.id] = entry;
-        entry.init();
-        entry.subscribe();
+        // If [data] is a remote [Chat]-dialog, then try to replace the existing
+        // local [Chat], if any is associated with this [data].
+        if (!data.chat.value.isGroup && !data.chat.value.id.isLocal) {
+          final ChatMember? member = data.chat.value.members.firstWhereOrNull(
+            (m) => data.chat.value.isMonolog || m.user.id != me,
+          );
+
+          if (member != null) {
+            final ChatId localId = ChatId.local(member.user.id);
+            final HiveRxChat? localChat = chats[localId];
+
+            if (localChat != null) {
+              chats.move(localId, data.chat.value.id);
+              await localChat.updateChat(data.chat.value);
+              entry = localChat;
+            }
+
+            _draftLocal.move(localId, data.chat.value.id);
+            remove(localId);
+          }
+        }
+
+        _putChat(data.chat);
+
+        if (entry == null) {
+          entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
+          _chats[data.chat.value.id] = entry;
+          entry.init();
+          entry.subscribe();
+        }
+      } else {
+        _putChat(data.chat);
       }
-    } else {
-      _putChat(data.chat);
-    }
 
-    for (var item in [
-      if (data.lastItem != null) data.lastItem!,
-      if (data.lastReadItem != null) data.lastReadItem!,
-    ]) {
-      entry.put(item);
-    }
+      for (var item in [
+        if (data.lastItem != null) data.lastItem!,
+        if (data.lastReadItem != null) data.lastReadItem!,
+      ]) {
+        entry.put(item);
+      }
 
-    return entry;
+      _putEntryGuards.remove(data.chat.value.id);
+      return entry;
+    });
   }
 
   /// Constructs a new [ChatData] from the given [ChatMixin] fragment.

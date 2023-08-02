@@ -213,7 +213,10 @@ class MenuTabView extends StatelessWidget {
                   Key? key,
                   required String title,
                   required String subtitle,
-                  required IconData icon,
+                  IconData? icon,
+                  String? asset,
+                  double? assetWidth,
+                  double? assetHeight,
                   void Function()? onPressed,
                 }) {
                   return Obx(() {
@@ -222,7 +225,18 @@ class MenuTabView extends StatelessWidget {
 
                     return MenuButton(
                       key: key,
-                      icon: icon,
+                      icon: asset == null
+                          ? Icon(
+                              icon,
+                              color: inverted
+                                  ? style.colors.onPrimary
+                                  : style.colors.primary,
+                            )
+                          : SvgImage.asset(
+                              'assets/icons/$asset${inverted ? '_white' : ''}.svg',
+                              width: assetWidth,
+                              height: assetHeight,
+                            ),
                       title: title,
                       subtitle: subtitle,
                       inverted: inverted,
@@ -244,6 +258,9 @@ class MenuTabView extends StatelessWidget {
                     child = card(
                       key: const Key('PublicInformation'),
                       icon: Icons.person,
+                      asset: 'public_information1',
+                      assetWidth: 22.5,
+                      assetHeight: 24.08,
                       title: 'label_public_information'.l10n,
                       subtitle: 'label_public_section_hint'.l10n,
                     );

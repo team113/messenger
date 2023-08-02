@@ -67,7 +67,8 @@ class PublicController extends GetxController {
   final Rx<RxStatus> status = Rx(RxStatus.loading());
 
   /// [RxSplayTreeMap] of the [ListElement]s to display.
-  final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
+  final RxObsSplayTreeMap<ListElementId, ListElement> elements =
+      RxObsSplayTreeMap();
 
   RxList<Attachment> attachments = RxList<Attachment>();
   final Rx<Attachment?> hoveredAttachment = Rx(null);
@@ -442,7 +443,7 @@ class PublicController extends GetxController {
       });
 
       status.value = RxStatus.loadingMore();
-      await chat!.fetchMessages();
+      // await chat!.fetchMessages();
       status.value = RxStatus.success();
     }
   }

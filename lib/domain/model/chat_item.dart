@@ -64,7 +64,7 @@ abstract class ChatItem {
   /// Returns combined [at] and [id] unique identifier of this [ChatItem].
   ///
   /// Meant to be used as a key sorted by posting [DateTime] of this [ChatItem].
-  ChatItemKey get key => ChatItemKey(id, at);
+  ChatItemKey get key => ChatItemKey(at, id);
 }
 
 /// Message in a [Chat].
@@ -202,7 +202,7 @@ class ChatMessageText extends NewType<String> {
 
 /// Combined [at] and [id] unique identifier of a [ChatItem].
 class ChatItemKey implements Comparable<ChatItemKey> {
-  const ChatItemKey(this.id, this.at);
+  const ChatItemKey(this.at, this.id);
 
   /// Constructs a [ChatItemKey] from the provided [String].
   factory ChatItemKey.fromString(String value) {
@@ -213,8 +213,8 @@ class ChatItemKey implements Comparable<ChatItemKey> {
     }
 
     return ChatItemKey(
-      ChatItemId(split[1]),
       PreciseDateTime.fromMicrosecondsSinceEpoch(int.parse(split[0])),
+      ChatItemId(split[1]),
     );
   }
 

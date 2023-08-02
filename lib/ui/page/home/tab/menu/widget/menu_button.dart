@@ -39,7 +39,7 @@ class MenuButton extends StatefulWidget {
   final String? subtitle;
 
   /// Optional icon of this [MenuButton].
-  final IconData? icon;
+  final Widget? icon;
 
   /// Callback, called when this [MenuButton] is tapped.
   final void Function()? onPressed;
@@ -93,12 +93,7 @@ class _MenuButtonState extends State<MenuButton> {
                         key: _key,
                         duration: const Duration(milliseconds: 100),
                         scale: _hovered ? 1.05 : 1,
-                        child: Icon(
-                          widget.icon,
-                          color: widget.inverted
-                              ? style.colors.onPrimary
-                              : style.colors.primary,
-                        ),
+                        child: widget.icon,
                       ),
                       const SizedBox(width: 18),
                       Expanded(
