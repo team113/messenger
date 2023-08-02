@@ -24,7 +24,6 @@ import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/util/platform_utils.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '/l10n/l10n.dart';
@@ -354,11 +353,38 @@ class LoginView extends StatelessWidget {
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed:
-                      c.emailCode.isEmpty.value ? null : c.emailCode.submit,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Obx(() {
+                        final bool enabled = c.resendEmailTimeout.value == 0;
+
+                        return PrimaryButton(
+                          title: c.resendEmailTimeout.value == 0
+                              ? 'btn_resend_email'.l10n
+                              : 'Подождите ${c.resendEmailTimeout.value} секунд',
+                          onPressed: enabled ? c.resendEmail : null,
+                          dense: true,
+                        );
+                      }),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Obx(() {
+                        final bool enabled = !c.emailCode.isEmpty.value &&
+                            c.codeTimeout.value == 0;
+
+                        return PrimaryButton(
+                          key: const Key('Proceed'),
+                          title: c.codeTimeout.value == 0
+                              ? 'btn_proceed'.l10n
+                              : 'Подождите ${c.codeTimeout.value} секунд',
+                          dense: c.codeTimeout.value != 0,
+                          onPressed: enabled ? c.emailCode.submit : null,
+                        );
+                      }),
+                    ),
+                  ],
                 ),
               ];
               break;
@@ -625,6 +651,62 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
+            case LoginViewStage.signInWithEmailCode:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signIn,
+                text: 'label_sign_in_with_code'.l10n,
+              );
+
+              children = [
+                Text(
+                  'label_one_time_code_sent_description'.l10n,
+                  style: fonts.titleLarge,
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('RecoveryField'),
+                  state: c.login,
+                  label: 'label_email_or_phone'.l10n,
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  title: 'btn_proceed'.l10n,
+                  onPressed:
+                      c.login.isEmpty.value ? null : c.signInWithoutPassword,
+                ),
+                // const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.signInWithPhoneCode:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signIn,
+                text: 'label_sign_in_with_code'.l10n,
+              );
+
+              children = [
+                Text(
+                  'label_one_time_code_sent_description'.l10n,
+                  style: fonts.titleLarge,
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('RecoveryField'),
+                  state: c.login,
+                  label: 'label_email_or_phone'.l10n,
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  title: 'btn_proceed'.l10n,
+                  onPressed:
+                      c.login.isEmpty.value ? null : c.signInWithoutPassword,
+                ),
+                // const SizedBox(height: 16),
+              ];
+              break;
+
             case LoginViewStage.signInWithPassword:
               header = ModalPopupHeader(
                 text: 'label_sign_in_with_password'.l10n,
@@ -655,36 +737,20 @@ class LoginView extends StatelessWidget {
                         width: 17.07,
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-                      child: WidgetButton(
-                        onPressed: () {
-                          c.stage.value = LoginViewStage.signInWithCode;
-                          // if (c.isEmailOrPhone(c.login.text)) {
-                          //   c.signInWithoutPassword();
-                          // } else {
-                          //   c.stage.value = LoginViewStage.noPassword;
-                          // }
-                        },
-                        child: Text(
-                          'btn_forgot_password'.l10n,
-                          style: fonts.labelSmall!.copyWith(
-                            color: style.colors.primary,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
-                const SizedBox(height: 25 / 2),
+                const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled =
-                      !c.login.isEmpty.value && !c.password.isEmpty.value;
+                  final bool enabled = !c.login.isEmpty.value &&
+                      !c.password.isEmpty.value &&
+                      c.signInTimeout.value == 0;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
-                    title: 'btn_sign_in'.l10n,
-                    onPressed: enabled ? c.signIn : null,
+                    title: c.signInTimeout.value == 0
+                        ? 'btn_sign_in'.l10n
+                        : 'Подождите ${c.signInTimeout.value} секунд',
+                    onPressed: enabled ? c.password.submit : null,
                   );
                 }),
               ];
@@ -707,27 +773,34 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,
-                  text: 'btn_one_time_code'.l10n,
+                  text: 'btn_email'.l10n,
+                  asset: 'email',
+                  assetWidth: 21.93,
+                  assetHeight: 22.5,
                   onPressed: () =>
-                      c.stage.value = LoginViewStage.signInWithCode,
-                  asset: 'otp_code2',
-                  assetWidth: 22,
-                  assetHeight: 19.7,
-                  padding: const EdgeInsets.only(top: 1),
+                      c.stage.value = LoginViewStage.signInWithEmailCode,
                 ),
-                if (false) ...[
-                  const SizedBox(height: 25 / 2),
-                  _signButton(
-                    context,
-                    text: 'btn_qr_code'.l10n,
-                    onPressed: () =>
-                        c.stage.value = LoginViewStage.signInWithQr,
-                    asset: 'qr_code2',
-                    assetWidth: 20,
-                    assetHeight: 20,
-                    padding: const EdgeInsets.only(left: 1),
-                  ),
-                ],
+                const SizedBox(height: 25 / 2),
+                _signButton(
+                  context,
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signInWithPhoneCode,
+                  text: 'btn_phone_number'.l10n,
+                  asset: 'phone6',
+                  assetWidth: 17.61,
+                  assetHeight: 25,
+                  padding: const EdgeInsets.only(left: 2),
+                ),
+                const SizedBox(height: 25 / 2),
+                _signButton(
+                  context,
+                  text: 'btn_qr_code'.l10n,
+                  onPressed: () => c.stage.value = LoginViewStage.signInWithQr,
+                  asset: 'qr_code2',
+                  assetWidth: 20,
+                  assetHeight: 20,
+                  padding: const EdgeInsets.only(left: 1),
+                ),
                 const SizedBox(height: 25 / 2),
                 _signButton(
                   context,

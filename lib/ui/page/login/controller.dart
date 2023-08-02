@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -49,6 +50,7 @@ import '/provider/gql/exceptions.dart'
         ConfirmUserPhoneException,
         ConnectionException,
         CreateSessionException,
+        ResendUserEmailConfirmationException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
@@ -63,6 +65,8 @@ enum LoginViewStage {
   signIn,
   signInWithPassword,
   signInWithCode,
+  signInWithEmailCode,
+  signInWithPhoneCode,
   signInWithQr,
   signUp,
   signUpWithEmail,
@@ -114,6 +118,8 @@ class LoginController extends GetxController {
       }
     },
     onSubmitted: (s) async {
+      _setResendEmailTimer();
+
       final GraphQlProvider graphQlProvider = Get.find();
 
       try {
@@ -139,9 +145,11 @@ class LoginController extends GetxController {
       } on AddUserEmailException catch (e) {
         graphQlProvider.token = null;
         s.error.value = e.toMessage();
+        _setResendEmailTimer(false);
       } catch (_) {
         graphQlProvider.token = null;
         s.error.value = 'err_data_transfer'.l10n;
+        _setResendEmailTimer(false);
         s.unsubmit();
       }
 
@@ -180,6 +188,12 @@ class LoginController extends GetxController {
         } else {
           graphQlProvider.token = null;
           s.error.value = e.toMessage();
+
+          ++codeAttempts;
+          if (codeAttempts >= 3) {
+            codeAttempts = 0;
+            _setCodeTimer();
+          }
         }
       } on FormatException catch (_) {
         graphQlProvider.token = null;
@@ -303,6 +317,15 @@ class LoginController extends GetxController {
   /// [LoginViewStage] currently being displayed.
   final Rx<LoginViewStage> stage;
 
+  int signInAttempts = 0;
+  final RxInt signInTimeout = RxInt(0);
+  Timer? _signInTimer;
+
+  int codeAttempts = 0;
+  final RxInt codeTimeout = RxInt(0);
+  Timer? _codeTimer;
+
+  /// Indicator whether [UserEmail] confirmation code has been resent.
   /// Authentication service providing the authentication capabilities.
   final AuthService _authService;
 
@@ -333,8 +356,11 @@ class LoginController extends GetxController {
     );
 
     password = TextFieldState(
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        s.error.value = null;
+      },
       onSubmitted: (s) => signIn(),
+      revalidateOnUnfocus: true,
     );
 
     recovery = TextFieldState(
@@ -369,6 +395,14 @@ class LoginController extends GetxController {
     );
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _setSignInTimer(false);
+    _setResendEmailTimer(false);
+    _setCodeTimer(false);
+    super.onClose();
   }
 
   /// Signs in and redirects to the [Routes.home] page.
@@ -439,6 +473,14 @@ class LoginController extends GetxController {
     } on CreateSessionException catch (e) {
       switch (e.code) {
         case CreateSessionErrorCode.wrongPassword:
+          ++signInAttempts;
+
+          if (signInAttempts >= 3) {
+            // Трижды указан/введён неверный пароль. Вход возможен через Н секунд.
+            signInAttempts = 0;
+            _setSignInTimer();
+          }
+
           password.error.value = e.toMessage();
           break;
 
@@ -840,6 +882,99 @@ class LoginController extends GetxController {
       } catch (e) {
         print('[OAuth] Unable to `updateAvatar`: ${e.toString()}');
       }
+    }
+  }
+
+  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
+  void _setSignInTimer([bool enabled = true]) {
+    if (enabled) {
+      signInTimeout.value = 30;
+      _signInTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          signInTimeout.value--;
+          if (signInTimeout.value <= 0) {
+            signInTimeout.value = 0;
+            _signInTimer?.cancel();
+            _signInTimer = null;
+          }
+        },
+      );
+    } else {
+      signInTimeout.value = 0;
+      _signInTimer?.cancel();
+      _signInTimer = null;
+    }
+  }
+
+  /// Timeout of a [resendEmail].
+  final RxInt resendEmailTimeout = RxInt(0);
+
+  /// [Timer] decreasing the [resendEmailTimeout].
+  Timer? _resendEmailTimer;
+
+  /// Indicator whether [UserEmail] confirmation code has been resent.
+  final RxBool resent = RxBool(false);
+
+  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
+  void _setResendEmailTimer([bool enabled = true]) {
+    if (enabled) {
+      resendEmailTimeout.value = 30;
+      _resendEmailTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          resendEmailTimeout.value--;
+          if (resendEmailTimeout.value <= 0) {
+            resendEmailTimeout.value = 0;
+            _resendEmailTimer?.cancel();
+            _resendEmailTimer = null;
+          }
+        },
+      );
+    } else {
+      resendEmailTimeout.value = 0;
+      _resendEmailTimer?.cancel();
+      _resendEmailTimer = null;
+    }
+  }
+
+  /// Resends a [ConfirmationCode] to the specified [email].
+  Future<void> resendEmail() async {
+    try {
+      final GraphQlProvider graphQlProvider = Get.find();
+
+      graphQlProvider.token = creds!.session.token;
+      await graphQlProvider.resendEmail();
+      graphQlProvider.token = null;
+
+      resent.value = true;
+      _setResendEmailTimer(true);
+    } on ResendUserEmailConfirmationException catch (e) {
+      emailCode.error.value = e.toMessage();
+    } catch (e) {
+      emailCode.error.value = 'err_data_transfer'.l10n;
+      rethrow;
+    }
+  }
+
+  void _setCodeTimer([bool enabled = true]) {
+    if (enabled) {
+      codeTimeout.value = 30;
+      _codeTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          codeTimeout.value--;
+          if (codeTimeout.value <= 0) {
+            codeTimeout.value = 0;
+            _codeTimer?.cancel();
+            _codeTimer = null;
+          }
+        },
+      );
+    } else {
+      codeTimeout.value = 0;
+      _codeTimer?.cancel();
+      _codeTimer = null;
     }
   }
 }

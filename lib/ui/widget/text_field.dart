@@ -544,14 +544,18 @@ class TextFieldState extends ReactiveFieldState {
       });
     }
 
+    String? prevError;
+
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
 
       if (revalidateOnUnfocus) {
         if (this.focus.hasFocus) {
+          prevError = error.value;
           error.value = null;
         } else {
-          onChanged?.call(this);
+          error.value = prevError;
+          // onChanged?.call(this);
         }
       }
 
