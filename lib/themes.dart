@@ -644,170 +644,170 @@ class Fonts {
 
   /// Large version of display text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle displayLarge;
 
-  /// [displayLarge] with [onPrimary] color.
+  /// [displayLarge] with `onPrimary` color.
   final TextStyle displayLargeOnPrimary;
 
   /// Medium version of display text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle displayMedium;
 
-  /// [displayMedium] with [secondary] color.
+  /// [displayMedium] with `secondary` color.
   final TextStyle displayMediumSecondary;
 
   /// Small version of display text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle displaySmall;
 
-  /// [displaySmall] with [secondary] color.
+  /// [displaySmall] with `secondary` color.
   final TextStyle displaySmallSecondary;
 
-  /// [displaySmall] with [onPrimary] color.
+  /// [displaySmall] with `onPrimary` color.
   final TextStyle displaySmallOnPrimary;
 
   /// Large version of headline text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle headlineLarge;
 
-  /// [headlineLarge] with [onPrimary] color.
+  /// [headlineLarge] with `onPrimary` color.
   final TextStyle headlineLargeOnPrimary;
 
   /// Medium version of headline text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle headlineMedium;
 
-  /// [headlineMedium] with [onPrimary] color.
+  /// [headlineMedium] with `onPrimary` color.
   final TextStyle headlineMediumOnPrimary;
 
   /// Small version of headline text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle headlineSmall;
 
-  /// [headlineSmall] with [secondary] color.
+  /// [headlineSmall] with `secondary` color.
   final TextStyle headlineSmallSecondary;
 
-  /// [headlineSmall] with [onPrimary] color.
+  /// [headlineSmall] with `onPrimary` color.
   final TextStyle headlineSmallOnPrimary;
 
   /// Large version of title text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle titleLarge;
 
-  /// [titleLarge] with [secondary] color.
+  /// [titleLarge] with `secondary` color.
   final TextStyle titleLargeSecondary;
 
-  /// [titleLarge] with [onPrimary] color.
+  /// [titleLarge] with `onPrimary` color.
   final TextStyle titleLargeOnPrimary;
 
   /// Medium version of title text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle titleMedium;
 
-  /// [titleMedium] with [primary] color.
+  /// [titleMedium] with `primary` color.
   final TextStyle titleMediumPrimary;
 
-  /// [titleMedium] with [secondary] color.
+  /// [titleMedium] with `secondary` color.
   final TextStyle titleMediumSecondary;
 
-  /// [titleMedium] with [onPrimary] color.
+  /// [titleMedium] with `onPrimary` color.
   final TextStyle titleMediumOnPrimary;
 
   /// Small version of title text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle titleSmall;
 
-  /// [titleSmall] with [onPrimary] color.
+  /// [titleSmall] with `onPrimary` color.
   final TextStyle titleSmallOnPrimary;
 
   /// Large version of label text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle labelLarge;
 
-  /// [labelLarge] with [primary] color.
+  /// [labelLarge] with `primary` color.
   final TextStyle labelLargePrimary;
 
-  /// [labelLarge] with [secondary] color.
+  /// [labelLarge] with `secondary` color.
   final TextStyle labelLargeSecondary;
 
-  /// [labelLarge] with [onPrimary] color.
+  /// [labelLarge] with `onPrimary` color.
   final TextStyle labelLargeOnPrimary;
 
   /// Medium version of label text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle labelMedium;
 
-  /// [labelMedium] with [primary] color.
+  /// [labelMedium] with `primary` color.
   final TextStyle labelMediumPrimary;
 
-  /// [labelMedium] with [secondary] color.
+  /// [labelMedium] with `secondary` color.
   final TextStyle labelMediumSecondary;
 
-  /// [labelMedium] with [onPrimary] color.
+  /// [labelMedium] with `onPrimary` color.
   final TextStyle labelMediumOnPrimary;
 
   /// Small version of label text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle labelSmall;
 
-  /// [labelSmall] with [primary] color.
+  /// [labelSmall] with `primary` color.
   final TextStyle labelSmallPrimary;
 
-  /// [labelSmall] with [secondary] color.
+  /// [labelSmall] with `secondary` color.
   final TextStyle labelSmallSecondary;
 
-  /// [labelSmall] with [onPrimary] color.
+  /// [labelSmall] with `onPrimary` color.
   final TextStyle labelSmallOnPrimary;
 
   /// Large version of body text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle bodyLarge;
 
-  /// [bodyLarge] with [primary] color.
+  /// [bodyLarge] with `primary` color.
   final TextStyle bodyLargePrimary;
 
-  /// [bodyLarge] with [secondary] color.
+  /// [bodyLarge] with `secondary` color.
   final TextStyle bodyLargeSecondary;
 
   /// Medium version of body text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle bodyMedium;
 
-  /// [bodyMedium] with [primary] color.
+  /// [bodyMedium] with `primary` color.
   final TextStyle bodyMediumPrimary;
 
-  /// [bodyMedium] with [secondary] color.
+  /// [bodyMedium] with `secondary` color.
   final TextStyle bodyMediumSecondary;
 
-  /// [bodyMedium] with [onPrimary] color.
+  /// [bodyMedium] with `onPrimary` color.
   final TextStyle bodyMediumOnPrimary;
 
   /// Small version of body text.
   ///
-  /// Used with [onBackground] color.
+  /// Used with `onBackground` color.
   final TextStyle bodySmall;
 
-  /// [bodySmall] with [primary] color.
+  /// [bodySmall] with `primary` color.
   final TextStyle bodySmallPrimary;
 
-  /// [bodySmall] with [secondary] color.
+  /// [bodySmall] with `secondary` color.
   final TextStyle bodySmallSecondary;
 
-  /// [bodySmall] with [onPrimary] color.
+  /// [bodySmall] with `onPrimary` color.
   final TextStyle bodySmallOnPrimary;
 
   /// [TextStyle] for the decoration text in an input field.
