@@ -64,6 +64,7 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -79,6 +80,8 @@ void main() async {
   final dio = Dio(BaseOptions());
   final dioAdapter = DioAdapter(dio: dio);
   PlatformUtils.client = dio;
+
+  CacheWorker.instance = CacheWorker(null);
 
   dioAdapter.onGet(
     'oldRef.png',

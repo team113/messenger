@@ -31,7 +31,6 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
   @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(CacheInfoAdapter());
-    Hive.maybeRegisterAdapter(FileAdapter());
   }
 
   /// Returns the stored [CacheInfo] from [Hive].

@@ -15,67 +15,70 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
+import 'dart:collection';
 
 import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
-
-part 'cache_info.g.dart';
 
 /// One gigabyte in bytes.
 // ignore: constant_identifier_names
 const int GB = 1024 * 1024 * 1024;
 
 /// Info about the cache.
-@HiveType(typeId: ModelTypeId.cacheInfo)
 class CacheInfo extends HiveObject {
   CacheInfo({
-    this.checksums = const [],
+    HashSet<String>? checksums,
     this.size = 0,
     this.modified,
     this.maxSize = GB,
-  });
+  }) : checksums = checksums ?? HashSet();
 
   /// Checksums of the files stored in the cache.
-  @HiveField(0)
-  List<String> checksums;
+  HashSet<String> checksums;
 
   /// Size of all files stored in the cache.
-  @HiveField(1)
   int size;
 
   /// [DateTime] of the last cache modification.
-  @HiveField(2)
   DateTime? modified;
 
   /// Max size of all files stored in the cache.
-  @HiveField(3)
   int maxSize;
 }
 
-/// [Hive] adapter for a [File].
-class FileAdapter extends TypeAdapter<File> {
+/// [Hive] adapter for a [CacheInfo].
+class CacheInfoAdapter extends TypeAdapter<CacheInfo> {
   @override
-  final int typeId = ModelTypeId.file;
+  final int typeId = ModelTypeId.cacheInfo;
 
   @override
-  File read(BinaryReader reader) {
+  CacheInfo read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return File(
-      fields[0] as String,
+
+    return CacheInfo(
+      checksums: HashSet()..addAll(fields[0] as List<String>),
+      size: fields[1] as int,
+      modified: fields[2] as DateTime?,
+      maxSize: fields[3] as int,
     );
   }
 
   @override
-  void write(BinaryWriter writer, File obj) {
+  void write(BinaryWriter writer, CacheInfo obj) {
     writer
-      ..writeByte(1)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.path);
+      ..write(obj.checksums.toList())
+      ..writeByte(1)
+      ..write(obj.size)
+      ..writeByte(2)
+      ..write(obj.modified)
+      ..writeByte(3)
+      ..write(obj.maxSize);
   }
 
   @override

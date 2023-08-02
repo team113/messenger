@@ -172,22 +172,26 @@ class CacheWorker extends DisposableService {
     FIFOCache.set(checksum, data);
 
     if (!PlatformUtils.isWeb) {
-      final Directory cache = await cacheDirectory;
-      final File file = File('${cache.path}/$checksum');
-      if (!(await file.exists())) {
-        await file.writeAsBytes(data);
+      try {
+        final Directory cache = await cacheDirectory;
+        final File file = File('${cache.path}/$checksum');
+        if (!(await file.exists())) {
+          await file.writeAsBytes(data);
 
-        await _setMutex.protect(() async {
-          await _cacheLocal?.set(
-            CacheInfo(
-              checksums: cacheInfo.value!.checksums..add(checksum!),
-              size: cacheInfo.value!.size + data.length,
-              modified: (await cache.stat()).modified,
-            ),
-          );
-        });
+          await _setMutex.protect(() async {
+            await _cacheLocal?.set(
+              CacheInfo(
+                checksums: cacheInfo.value!.checksums..add(checksum!),
+                size: cacheInfo.value!.size + data.length,
+                modified: (await cache.stat()).modified,
+              ),
+            );
+          });
 
-        _optimizeCache();
+          _optimizeCache();
+        }
+      } on MissingPluginException {
+        // No-op.
       }
     }
   }
@@ -322,7 +326,7 @@ class CacheWorker extends DisposableService {
   void _updateInfo() async {
     final Directory cache = await cacheDirectory;
 
-    List<String> checksums = [];
+    final HashSet<String> checksums = HashSet();
     int cacheSize = 0;
 
     _cacheSubscription?.cancel();
