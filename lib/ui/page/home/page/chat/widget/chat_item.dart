@@ -17,6 +17,7 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
@@ -29,6 +30,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -1032,7 +1034,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
 
-    if (isOngoing) {
+    if (isOngoing && !Config.disableInfiniteAnimations) {
       _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
         if (mounted) {
           setState(() {});
@@ -1378,8 +1380,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         overflow: TextOverflow.ellipsis,
                         style: fonts.labelLarge!.copyWith(
                           color: style.colors.secondary,
+                          fontFeatures: [
+                            const FontFeature.tabularFigures(),
+                          ],
                         ),
-                      ).fixedDigits(),
+                      ),
                     ],
                   ),
                 ),
@@ -2039,39 +2044,5 @@ extension LinkParsingExtension on String {
     }
 
     return TextSpan(children: spans);
-  }
-}
-
-/// Extension adding a fixed-length digits [Text] transformer.
-extension FixedDigitsExtension on Text {
-  /// [RegExp] detecting numbers.
-  static final RegExp _regex = RegExp(r'\d');
-
-  /// Returns a [Text] guaranteed to have fixed width of digits in it.
-  Widget fixedDigits() {
-    Text copyWith(String string) {
-      return Text(
-        string,
-        style: style,
-        strutStyle: strutStyle,
-        textAlign: textAlign,
-        textDirection: textDirection,
-        locale: locale,
-        softWrap: softWrap,
-        overflow: overflow,
-        textScaleFactor: textScaleFactor,
-        maxLines: maxLines,
-        textWidthBasis: textWidthBasis,
-        textHeightBehavior: textHeightBehavior,
-        selectionColor: selectionColor,
-      );
-    }
-
-    return Stack(
-      children: [
-        Opacity(opacity: 0, child: copyWith(data!.replaceAll(_regex, '0'))),
-        copyWith(data!),
-      ],
-    );
   }
 }

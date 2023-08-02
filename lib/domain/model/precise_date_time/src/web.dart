@@ -66,6 +66,14 @@ class PreciseDateTime extends NewType<DateTime>
     return val.compareTo(other.val);
   }
 
+  @override
+  int get hashCode => Object.hash(val, microsecond);
+
+  @override
+  bool operator ==(Object other) =>
+      other is PreciseDateTime &&
+      microsecondsSinceEpoch == other.microsecondsSinceEpoch;
+
   /// Returns `true` if this [PreciseDateTime] occurs before [other].
   ///
   /// The comparison is independent of whether the time is in UTC or in the

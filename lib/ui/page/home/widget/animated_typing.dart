@@ -70,7 +70,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
       builder: (BuildContext context, _) {
         final Color begin =
             widget.inverted ? style.colors.onPrimary : style.colors.primary;
-        Color end = style.colors.primaryHighlightLightest;
+        final Color end = style.colors.primaryHighlightLightest;
 
         const double size = 4;
         const double spacing = 1.6;
