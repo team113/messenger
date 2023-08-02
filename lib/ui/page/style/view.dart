@@ -23,7 +23,7 @@ import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
 import 'page/colors/view.dart';
-import 'page/media/view.dart';
+import 'page/multimedia/view.dart';
 import 'page/typography/view.dart';
 
 /// View of the [Routes.style] page.
