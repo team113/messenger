@@ -2,7 +2,7 @@
 # Indicator whether remote configuration should be respected, if available.
 #
 # Default:
-#   remote = false
+#   remote = true
 
 [server.http]
 # URL address of HTTP backend server.

@@ -152,7 +152,7 @@ class Config {
 
     bool confRemote = const bool.hasEnvironment('SOCAPP_CONF_REMOTE')
         ? const bool.fromEnvironment('SOCAPP_CONF_REMOTE')
-        : (document['conf']?['remote'] ?? false);
+        : (document['conf']?['remote'] ?? true);
 
     // If [confRemote], then try to fetch and merge the remotely available
     // configuration.
