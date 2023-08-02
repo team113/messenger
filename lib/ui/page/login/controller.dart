@@ -118,7 +118,7 @@ class LoginController extends GetxController {
       }
     },
     onSubmitted: (s) async {
-      _setResendEmailTimer();
+      // _setResendEmailTimer();
 
       final GraphQlProvider graphQlProvider = Get.find();
 
