@@ -24,11 +24,11 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/file.dart';
-import '/domain/service/cache.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 
 /// [Image.memory] displaying an image fetched from the provided [url].
 ///
@@ -72,7 +72,8 @@ class RetryImage extends StatefulWidget {
     final StorageFile image;
 
     final StorageFile original = attachment.original;
-    if (original.checksum != null && CacheService.exists(original.checksum!)) {
+    if (original.checksum != null &&
+        CacheWorker.instance.exists(original.checksum!)) {
       image = original;
     } else {
       image = attachment.big;
@@ -364,7 +365,7 @@ class _RetryImageState extends State<RetryImage> {
       return;
     }
 
-    final FutureOr<Uint8List?> result = CacheService.get(
+    final FutureOr<Uint8List?> result = CacheWorker.instance.get(
       url: widget.fallbackUrl!,
       checksum: widget.fallbackChecksum,
       cancelToken: _fallbackToken,
@@ -386,7 +387,7 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Loads the [_image] from the provided URL.
   FutureOr<void> _loadImage() async {
-    final FutureOr<Uint8List?> result = CacheService.get(
+    final FutureOr<Uint8List?> result = CacheWorker.instance.get(
       url: widget.url,
       checksum: widget.checksum,
       onReceiveProgress: (received, total) {

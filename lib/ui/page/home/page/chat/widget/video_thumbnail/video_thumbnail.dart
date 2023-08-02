@@ -24,9 +24,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '/domain/service/cache.dart';
 import '/themes.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 import 'src/interface.dart'
@@ -214,8 +214,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     Uint8List? bytes = widget.bytes;
     if (bytes == null &&
         widget.checksum != null &&
-        CacheService.exists(widget.checksum!)) {
-      bytes = await CacheService.get(checksum: widget.checksum!);
+        CacheWorker.instance.exists(widget.checksum!)) {
+      bytes = await CacheWorker.instance.get(checksum: widget.checksum!);
     }
 
     final DataSource source;

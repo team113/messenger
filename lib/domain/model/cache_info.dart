@@ -31,17 +31,17 @@ const int GB = 1024 * 1024 * 1024;
 @HiveType(typeId: ModelTypeId.cacheInfo)
 class CacheInfo extends HiveObject {
   CacheInfo({
-    this.files = const [],
+    this.checksums = const [],
     this.size = 0,
     this.modified,
     this.maxSize = GB,
   });
 
-  /// [File]s stored in the cache.
+  /// Checksums of the files stored in the cache.
   @HiveField(0)
-  List<File> files;
+  List<String> checksums;
 
-  /// Size of all [files] stored in the cache.
+  /// Size of all files stored in the cache.
   @HiveField(1)
   int size;
 
@@ -49,7 +49,7 @@ class CacheInfo extends HiveObject {
   @HiveField(2)
   DateTime? modified;
 
-  /// Max size of all [files] stored in the cache.
+  /// Max size of all files stored in the cache.
   @HiveField(3)
   int maxSize;
 }

@@ -21,10 +21,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/service/cache.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/worker/cache.dart';
 
 /// Visual representation of a media [Attachment].
 class MediaAttachment extends StatefulWidget {
@@ -72,7 +72,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       final Uint8List? bytes =
           (oldWidget.attachment as LocalAttachment).file.bytes.value;
       if (bytes != null && size == bytes.length) {
-        CacheService.save(bytes);
+        CacheWorker.instance.save(bytes);
       }
     }
 

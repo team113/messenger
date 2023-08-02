@@ -28,7 +28,6 @@ import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
-import '/domain/service/cache.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -45,6 +44,7 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -1399,8 +1399,9 @@ Widget _storage(BuildContext context, MyProfileController c) {
           if (!PlatformUtils.isWeb) ...[
             const SizedBox(height: 8),
             Obx(() {
-              final int size = CacheService.cacheInfo.value?.size ?? 0;
-              final int max = CacheService.cacheInfo.value?.maxSize ?? 0;
+              final int size = CacheWorker.instance.cacheInfo.value?.size ?? 0;
+              final int max =
+                  CacheWorker.instance.cacheInfo.value?.maxSize ?? 0;
 
               return Column(
                 children: [

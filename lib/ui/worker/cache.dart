@@ -26,20 +26,25 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '/domain/model/cache_info.dart';
-import '/domain/repository/cache.dart';
+import '/domain/service/disposable_service.dart';
 import '/provider/hive/cache.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
-/// Implementation of an [AbstractCacheRepository].
-class CacheRepository extends DisposableInterface
-    implements AbstractCacheRepository {
-  CacheRepository(this._cacheLocal);
+/// Worker maintaining caching.
+class CacheWorker extends DisposableService {
+  CacheWorker(this._cacheLocal) {
+    instance = this;
+  }
 
-  @override
+  /// Global [CacheWorker] instance.
+  static late CacheWorker instance;
+
+  /// Stored [CacheInfo].
   final Rx<CacheInfo?> cacheInfo = Rx(null);
 
   /// [CacheInfo] local [Hive] storage.
@@ -67,7 +72,7 @@ class CacheRepository extends DisposableInterface
   }
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     if (!PlatformUtils.isWeb) {
       cacheInfo.value = _cacheLocal?.cacheInfo;
       _initCacheSubscription();
@@ -91,7 +96,12 @@ class CacheRepository extends DisposableInterface
     super.onClose();
   }
 
-  @override
+  /// Gets a file data from cache by the provided [checksum] or downloads by the
+  /// provided [url].
+  ///
+  /// At least one of [url] or [checksum] arguments must be provided.
+  ///
+  /// Retries itself using exponential backoff algorithm on a failure.
   FutureOr<Uint8List?> get({
     String? url,
     String? checksum,
@@ -156,7 +166,7 @@ class CacheRepository extends DisposableInterface
     });
   }
 
-  @override
+  /// Saves the provided [data] to the cache.
   Future<void> save(Uint8List data, [String? checksum]) async {
     checksum ??= sha256.convert(data).toString();
     FIFOCache.set(checksum, data);
@@ -170,7 +180,7 @@ class CacheRepository extends DisposableInterface
         await _setMutex.protect(() async {
           await _cacheLocal?.set(
             CacheInfo(
-              files: cacheInfo.value!.files..add(file),
+              checksums: cacheInfo.value!.checksums..add(checksum!),
               size: cacheInfo.value!.size + data.length,
               modified: (await cache.stat()).modified,
             ),
@@ -182,19 +192,24 @@ class CacheRepository extends DisposableInterface
     }
   }
 
-  @override
+  /// Returns indicator whether data with the provided [checksum] exists in the
+  /// cache.
   bool exists(String checksum) {
     return FIFOCache.exists(checksum) ||
-        (cacheInfo.value?.files.any((e) => e.path.endsWith(checksum)) ?? false);
+        (cacheInfo.value?.checksums.contains(checksum) ?? false);
   }
 
-  @override
+  /// Clears the cache.
   Future<void> clear() async {
     if (cacheInfo.value == null) {
       return;
     }
 
-    final List<FileSystemEntity> files = cacheInfo.value!.files.toList();
+    final Directory cache = await cacheDirectory;
+
+    final List<File> files = cacheInfo.value!.checksums
+        .map((e) => File('${cache.path}/$e'))
+        .toList();
 
     List<Future> futures = [];
     for (var file in files) {
@@ -249,7 +264,11 @@ class CacheRepository extends DisposableInterface
       if (overflow > 0) {
         overflow += (maxSize * 0.05).floor();
 
-        final List<File> files = cacheInfo.value!.files.toList();
+        final Directory cache = await cacheDirectory;
+
+        final List<File> files = cacheInfo.value!.checksums
+            .map((e) => File('${cache.path}/$e'))
+            .toList();
         final List<File> removed = [];
 
         Map<File, FileStat> filesInfo = {};
@@ -283,13 +302,13 @@ class CacheRepository extends DisposableInterface
           }
         }
 
-        final Directory cache = await cacheDirectory;
-
         _setMutex.protect(() async {
           await _cacheLocal?.set(
             CacheInfo(
-              files: cacheInfo.value!.files
-                ..removeWhere((e) => removed.contains(e)),
+              checksums: cacheInfo.value!.checksums
+                ..removeWhere(
+                  (e) => removed.contains(File('${cache.path}/$e')),
+                ),
               size: cacheInfo.value!.size - deleted,
               modified: (await cache.stat()).modified,
             ),
@@ -299,18 +318,18 @@ class CacheRepository extends DisposableInterface
     });
   }
 
-  /// Updates the [CacheInfo.size] and [CacheInfo.files] values.
+  /// Updates the [CacheInfo.size] and [CacheInfo.checksums] values.
   void _updateInfo() async {
     final Directory cache = await cacheDirectory;
 
-    List<File> files = [];
+    List<String> checksums = [];
     int cacheSize = 0;
 
     _cacheSubscription?.cancel();
     _cacheSubscription = cache.list(recursive: true).listen(
       (FileSystemEntity file) async {
         if (file is File) {
-          files.add(file);
+          checksums.add(p.basename(file.path));
           FileStat stat = await file.stat();
           cacheSize += stat.size;
         }
@@ -319,7 +338,7 @@ class CacheRepository extends DisposableInterface
         await _setMutex.protect(() async {
           await _cacheLocal?.set(
             CacheInfo(
-              files: files,
+              checksums: checksums,
               size: cacheSize,
               modified: (await cache.stat()).modified,
             ),

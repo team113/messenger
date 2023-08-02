@@ -39,9 +39,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'config.dart';
 import 'domain/repository/auth.dart';
-import 'domain/repository/cache.dart';
 import 'domain/service/auth.dart';
-import 'domain/service/cache.dart';
 import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
@@ -51,10 +49,10 @@ import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
-import 'store/cache.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
+import 'ui/worker/cache.dart';
 import 'ui/worker/window.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
@@ -117,9 +115,11 @@ Future<void> main() async {
     await authService.init();
     await L10n.init();
 
-    AbstractCacheRepository cacheRepository =
-        Get.put<AbstractCacheRepository>(CacheRepository(Get.find()));
-    CacheService = Get.put<CacheServiceImpl>(CacheServiceImpl(cacheRepository));
+    if (Get.isRegistered<CacheInfoHiveProvider>()) {
+      Get.put<CacheWorker>(CacheWorker(Get.find<CacheInfoHiveProvider>()));
+    } else {
+      Get.put<CacheWorker>(CacheWorker(null));
+    }
 
     Get.put(BackgroundWorker(Get.find()));
 
