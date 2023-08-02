@@ -134,9 +134,7 @@ class ImagesColumn extends StatelessWidget {
               WidgetButton(
                 onPressed: () {
                   Clipboard.setData(
-                    const ClipboardData(
-                      text: 'assets/images/logo/head0000.svg',
-                    ),
+                    const ClipboardData(text: 'UnreadCounter'),
                   );
                   MessagePopup.success('Technical name is copied');
                 },

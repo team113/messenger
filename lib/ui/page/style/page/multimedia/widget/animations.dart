@@ -16,10 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:rive/rive.dart';
 
+import '../../../../../../util/message_popup.dart';
 import '/ui/page/auth/widget/animated_logo.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -78,7 +81,17 @@ class AnimationsColumn extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const Text('AnimatedLogo'),
+                    WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(
+                          const ClipboardData(
+                            text: 'UnreadCounter',
+                          ),
+                        );
+                        MessagePopup.success('Technical name is copied');
+                      },
+                      child: const Text('UnreadCounter'),
+                    ),
                     const SizedBox(height: 16),
                     InfoStackWidget(
                       inverted: inverted,
@@ -90,7 +103,17 @@ class AnimationsColumn extends StatelessWidget {
                         duration: const Duration(milliseconds: 4500),
                       ),
                     ),
-                    const Text('SpinKitDoubleBounce'),
+                    WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(
+                          const ClipboardData(
+                            text: 'SpinKitDoubleBounce',
+                          ),
+                        );
+                        MessagePopup.success('Technical name is copied');
+                      },
+                      child: const Text('SpinKitDoubleBounce'),
+                    ),
                     const SizedBox(height: 16),
                     InfoStackWidget(
                       inverted: inverted,
@@ -98,14 +121,34 @@ class AnimationsColumn extends StatelessWidget {
                       padding: const EdgeInsets.all(32),
                       child: const AnimatedTyping(),
                     ),
-                    const Text('AnimatedTyping'),
+                    WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(
+                          const ClipboardData(
+                            text: 'AnimatedTyping',
+                          ),
+                        );
+                        MessagePopup.success('Technical name is copied');
+                      },
+                      child: const Text('AnimatedTyping'),
+                    ),
                     const SizedBox(height: 16),
                     InfoStackWidget(
                       inverted: inverted,
                       padding: const EdgeInsets.all(20),
                       child: const CustomProgressIndicator(),
                     ),
-                    const Text('CustomProgressIndicator'),
+                    WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(
+                          const ClipboardData(
+                            text: 'CustomProgressIndicator',
+                          ),
+                        );
+                        MessagePopup.success('Technical name is copied');
+                      },
+                      child: const Text('CustomProgressIndicator'),
+                    ),
                     const SizedBox(height: 16),
                   ],
                 ),
