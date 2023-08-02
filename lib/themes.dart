@@ -98,7 +98,7 @@ class Themes {
       bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
     );
 
-    final FontStyle fonts = FontStyle(
+    final Typeset fonts = Typeset(
       primary: colors.primary,
       secondary: colors.secondary,
       onPrimary: colors.onPrimary,
@@ -385,8 +385,8 @@ class Style extends ThemeExtension<Style> {
   /// [Palette] to use in the application.
   final Palette colors;
 
-  /// [FontStyle] to use in the application.
-  final FontStyle fonts;
+  /// [Typeset] to use in the application.
+  final Typeset fonts;
 
   /// [Color] of the modal background barrier.
   final Color barrierColor;
@@ -453,7 +453,7 @@ class Style extends ThemeExtension<Style> {
   @override
   ThemeExtension<Style> copyWith({
     Palette? colors,
-    FontStyle? fonts,
+    Typeset? fonts,
     Color? barrierColor,
     double? cardBlur,
     Border? cardBorder,
@@ -511,7 +511,7 @@ class Style extends ThemeExtension<Style> {
 
     return Style(
       colors: Palette.lerp(colors, other.colors, t),
-      fonts: FontStyle.lerp(fonts, other.fonts, t),
+      fonts: Typeset.lerp(fonts, other.fonts, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
@@ -556,8 +556,8 @@ class Style extends ThemeExtension<Style> {
 }
 
 /// [TextStyle]s used throughout the application.
-class FontStyle {
-  FontStyle({
+class Typeset {
+  Typeset({
     this.primary,
     this.secondary,
     this.onPrimary,
@@ -654,139 +654,139 @@ class FontStyle {
   /// Large version of display text.
   final TextStyle displayLarge;
 
-  /// Large version of display text with [onPrimary] color.
+  /// [displayLarge] with [onPrimary] color.
   final TextStyle displayLargeOnPrimary;
 
   /// Medium version of display text.
   final TextStyle displayMedium;
 
-  /// Medium version of display text with [secondary] color.
+  /// [displayMedium] with [secondary] color.
   final TextStyle displayMediumSecondary;
 
   /// Small version of display text.
   final TextStyle displaySmall;
 
-  /// Small version of display text with [secondary] color.
+  /// [displaySmall] with [secondary] color.
   final TextStyle displaySmallSecondary;
 
-  /// Small version of display text with [onPrimary] color.
+  /// [displaySmall] with [onPrimary] color.
   final TextStyle displaySmallOnPrimary;
 
   /// Large version of headline text.
   final TextStyle headlineLarge;
 
-  /// Large version of headline text with [onPrimary] color.
+  /// [headlineLarge] with [onPrimary] color.
   final TextStyle headlineLargeOnPrimary;
 
   /// Medium version of headline text.
   final TextStyle headlineMedium;
 
-  /// Medium version of headline text with [onPrimary] color.
+  /// [headlineMedium] with [onPrimary] color.
   final TextStyle headlineMediumOnPrimary;
 
   /// Small version of headline text.
   final TextStyle headlineSmall;
 
-  /// Small version of headline text with [secondary] color.
+  /// [headlineSmall] with [secondary] color.
   final TextStyle headlineSmallSecondary;
 
-  /// Small version of headline text with [onPrimary] color.
+  /// [headlineSmall] with [onPrimary] color.
   final TextStyle headlineSmallOnPrimary;
 
   /// Large version of title text.
   final TextStyle titleLarge;
 
-  /// Large version of title text with [secondary] color.
+  /// [titleLarge] with [secondary] color.
   final TextStyle titleLargeSecondary;
 
-  /// Large version of title text with [onPrimary] color.
+  /// [titleLarge] with [onPrimary] color.
   final TextStyle titleLargeOnPrimary;
 
   /// Medium version of title text.
   final TextStyle titleMedium;
 
-  /// Medium version of title text with [primary] color.
+  /// [titleMedium] with [primary] color.
   final TextStyle titleMediumPrimary;
 
-  /// Medium version of title text with [secondary] color.
+  /// [titleMedium] with [secondary] color.
   final TextStyle titleMediumSecondary;
 
-  /// Medium version of title text with [onPrimary] color.
+  /// [titleMedium] with [onPrimary] color.
   final TextStyle titleMediumOnPrimary;
 
   /// Small version of title text.
   final TextStyle titleSmall;
 
-  /// Small version of title text with [onPrimary] color.
+  /// [titleSmall] with [onPrimary] color.
   final TextStyle titleSmallOnPrimary;
 
   /// Large version of label text.
   final TextStyle labelLarge;
 
-  /// Large version of label text with [primary] color.
+  /// [labelLarge] with [primary] color.
   final TextStyle labelLargePrimary;
 
-  /// Large version of label text with [secondary] color.
+  /// [labelLarge] with [secondary] color.
   final TextStyle labelLargeSecondary;
 
-  /// Large version of label text with [onPrimary] color.
+  /// [labelLarge] with [onPrimary] color.
   final TextStyle labelLargeOnPrimary;
 
   /// Medium version of label text.
   final TextStyle labelMedium;
 
-  /// Medium version of label text with [primary] color.
+  /// [labelMedium] with [primary] color.
   final TextStyle labelMediumPrimary;
 
-  /// Medium version of label text with [secondary] color.
+  /// [labelMedium] with [secondary] color.
   final TextStyle labelMediumSecondary;
 
-  /// Medium version of label text with [onPrimary] color.
+  /// [labelMedium] with [onPrimary] color.
   final TextStyle labelMediumOnPrimary;
 
   /// Small version of label text.
   final TextStyle labelSmall;
 
-  /// Small version of label text with [primary] color.
+  /// [labelSmall] with [primary] color.
   final TextStyle labelSmallPrimary;
 
-  /// Small version of label text with [secondary] color.
+  /// [labelSmall] with [secondary] color.
   final TextStyle labelSmallSecondary;
 
-  /// Small version of label text with [onPrimary] color.
+  /// [labelSmall] with [onPrimary] color.
   final TextStyle labelSmallOnPrimary;
 
   /// Large version of body text.
   final TextStyle bodyLarge;
 
-  /// Large version of body text with [primary] color.
+  /// [bodyLarge] with [primary] color.
   final TextStyle bodyLargePrimary;
 
-  /// Large version of body text with [secondary] color.
+  /// [bodyLarge] with [secondary] color.
   final TextStyle bodyLargeSecondary;
 
   /// Medium version of body text.
   final TextStyle bodyMedium;
 
-  /// Medium version of body text with [primary] color.
+  /// [bodyMedium] with [primary] color.
   final TextStyle bodyMediumPrimary;
 
-  /// Medium version of body text with [secondary] color.
+  /// [bodyMedium] with [secondary] color.
   final TextStyle bodyMediumSecondary;
 
-  /// Medium version of body text with [onPrimary] color.
+  /// [bodyMedium] with [onPrimary] color.
   final TextStyle bodyMediumOnPrimary;
 
   /// Small version of body text.
   final TextStyle bodySmall;
 
-  /// Small version of body text with [primary] color.
+  /// [bodySmall] with [primary] color.
   final TextStyle bodySmallPrimary;
 
-  /// Small version of body text with [secondary] color.
+  /// [bodySmall] with [secondary] color.
   final TextStyle bodySmallSecondary;
 
-  /// Small version of body text with [onPrimary] color.
+  /// [bodySmall] with [onPrimary] color.
   final TextStyle bodySmallOnPrimary;
 
   /// [TextStyle] for the decoration text in an input field.
@@ -799,13 +799,14 @@ class FontStyle {
   /// [TextStyle] for the counter text in an input field.
   final TextStyle counterStyle;
 
-  /// Linear interpolation between two [FontStyle] objects based on a given [t]
+  /// Linear interpolation between two [Typeset] objects based on a given [t]
   /// value.
-  static FontStyle lerp(FontStyle font, FontStyle? other, double t) {
-    if (other is! FontStyle) {
+  static Typeset lerp(Typeset font, Typeset? other, double t) {
+    if (other == null) {
       return font;
     }
-    return FontStyle(
+
+    return Typeset(
       displayLarge: TextStyle.lerp(font.displayLarge, other.displayLarge, t)!,
       displayLargeOnPrimary: TextStyle.lerp(
           font.displayLargeOnPrimary, other.displayLargeOnPrimary, t)!,

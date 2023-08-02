@@ -21,10 +21,10 @@ import '/themes.dart';
 
 /// [Column] displaying the provided [TextStyle] in a descriptive way.
 class FontStyleWidget extends StatelessWidget {
-  const FontStyleWidget(this.style, {super.key, this.inverted = false});
+  const FontStyleWidget(this.textStyle, {super.key, this.inverted = false});
 
   /// [TextStyle] along with its title to display.
-  final (TextStyle, String) style;
+  final (TextStyle, String) textStyle;
 
   /// Indicator whether this [FontStyle] should have its colors
   /// inverted.
@@ -69,8 +69,8 @@ class FontStyleWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Center(
               child: Text(
-                style.$2,
-                style: style.$1.copyWith(
+                textStyle.$2,
+                style: textStyle.$1.copyWith(
                   color: inverted
                       ? const Color(0xFFFFFFFF)
                       : const Color(0xFF000000),
@@ -78,11 +78,11 @@ class FontStyleWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            cell('Size', style.$1.fontSize.toString()),
-            cell('Weight', style.$1.fontWeight!.value.toString()),
-            cell('Style', style.$1.fontWeight?.name ?? ''),
-            cell('Color', style.$1.color!.toHex()),
-            cell('Spacing', '${style.$1.letterSpacing ?? 0} %'),
+            cell('Size', textStyle.$1.fontSize.toString()),
+            cell('Weight', textStyle.$1.fontWeight!.value.toString()),
+            cell('Style', textStyle.$1.fontWeight?.name ?? ''),
+            cell('Color', textStyle.$1.color!.toHex()),
+            cell('Spacing', '${textStyle.$1.letterSpacing ?? 0} %'),
           ],
         ),
       ),
