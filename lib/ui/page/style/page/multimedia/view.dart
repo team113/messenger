@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/style/page/multimedia/widget/sounds.dart';
 
 import '/ui/page/style/page/multimedia/widget/animations.dart';
 import '/ui/page/style/widget/header.dart';
@@ -37,24 +38,13 @@ class MultimediaView extends StatelessWidget {
     return ScrollableColumn(
       children: [
         const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Header('Multimedia'),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Images'),
-        ),
+        const Header('Multimedia'),
+        const SubHeader('Images'),
         ImagesColumn(inverted: inverted, dense: dense),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Animation'),
-        ),
-        AnimationsColumn(dense: dense),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Sound'),
-        ),
+        const SubHeader('Animation'),
+        AnimationsColumn(inverted: inverted, dense: dense),
+        const SubHeader('Sound'),
+        const SoundsWidget(),
         const SizedBox(height: 16),
       ],
     );

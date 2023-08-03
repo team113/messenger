@@ -20,12 +20,13 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/home/tab/chats/widget/unread_counter.dart';
 import '/ui/widget/svg/svg.dart';
+import 'styled_container.dart';
 
-///
+/// [Column] with [Container]s which represents application images.
 class ImagesColumn extends StatelessWidget {
   const ImagesColumn({super.key, this.inverted = false, this.dense = false});
 
-  /// Indicator whether this view should have its colors inverted.
+  /// Indicator whether this [ImagesColumn] should have its colors inverted.
   final bool inverted;
 
   /// Indicator whether this [ImagesColumn] should be compact, meaning
@@ -34,80 +35,71 @@ class ImagesColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, _) = Theme.of(context).styles;
+    final fonts = Theme.of(context).fonts;
+
+    const EdgeInsetsGeometry padding = EdgeInsets.all(16);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color:
-                    inverted ? style.colors.onPrimary : const Color(0xFF1F3C5D),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(15),
+        child: DefaultTextStyle(
+          style: fonts.headlineSmall!.copyWith(
+            color: const Color(0xFF1F3C5D),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StyledContainer(
+                inverted: inverted,
+                padding: padding,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   child: SvgImage.asset(
                     'assets/images/background_${inverted ? 'dark' : 'light'}.svg',
-                    fit: BoxFit.fitHeight,
+                    fit: BoxFit.fill,
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              height: 300,
-              width: 200,
-              decoration: BoxDecoration(
-                color: style.colors.onPrimary,
-                borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 16),
+              StyledContainer(
+                inverted: inverted,
+                height: 300,
+                width: 200,
+                child: Padding(
+                  padding: padding,
+                  child: SvgImage.asset('assets/images/logo/logo0000.svg'),
+                ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: SvgImage.asset('assets/images/logo/logo0000.svg'),
+              const SizedBox(height: 16),
+              StyledContainer(
+                inverted: inverted,
+                height: 150,
+                width: 150,
+                child: Padding(
+                  padding: padding,
+                  child: SvgImage.asset('assets/images/logo/head0000.svg'),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              height: 150,
-              width: 150,
-              decoration: BoxDecoration(
-                color: style.colors.onPrimary,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: SvgImage.asset('assets/images/logo/head0000.svg'),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              width: 150,
-              height: 130,
-              decoration: BoxDecoration(
-                color: style.colors.onPrimary,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
+              const SizedBox(height: 16),
+              StyledContainer(
+                inverted: inverted,
+                text: 'UnreadCounter',
+                padding: padding,
+                width: 190,
                 child: Wrap(
-                  spacing: 3,
-                  runSpacing: 3,
-                  children: List.generate(20, (index) {
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: List.generate(24, (index) {
                     final int number = index + 1;
 
                     return UnreadCounter(number);
                   }),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
