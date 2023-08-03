@@ -118,7 +118,7 @@ class Pagination<T, K extends Comparable, C> {
 
     if (hasNext.isTrue && nextLoading.isFalse) {
       nextLoading.value = true;
-      await Future.delayed(const Duration(seconds: 2));
+
       final Page<T, C>? page =
           await provider.after(items[items.lastKey()], endCursor, perPage);
       Log.print('next()... fetched ${page?.edges.length} items', 'Pagination');
@@ -132,6 +132,7 @@ class Pagination<T, K extends Comparable, C> {
       endCursor = page?.info.endCursor ?? endCursor;
       hasNext.value = page?.info.hasNext ?? hasNext.value;
       Log.print('next()... done', 'Pagination');
+
       nextLoading.value = false;
     }
   }
@@ -145,7 +146,7 @@ class Pagination<T, K extends Comparable, C> {
 
     if (hasPrevious.isTrue && previousLoading.isFalse) {
       previousLoading.value = true;
-      await Future.delayed(const Duration(seconds: 2));
+
       final Page<T, C>? page =
           await provider.before(items[items.firstKey()], startCursor, perPage);
       Log.print(
@@ -162,6 +163,7 @@ class Pagination<T, K extends Comparable, C> {
       startCursor = page?.info.startCursor ?? startCursor;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       Log.print('previous()... done', 'Pagination');
+
       previousLoading.value = false;
     }
   }
