@@ -46,12 +46,15 @@ class L10n {
     await initializeDateFormatting();
 
     if (lang == null) {
-      List<Locale> locales = WidgetsBinding.instance.platformDispatcher.locales;
-      for (int i = 0; i < locales.length && chosen.value == null; ++i) {
-        Language? language = Language.from(locales[i].toLanguageTag());
-        if (language != null) {
-          await set(language, refresh: false);
-        }
+      final Language? language = Language.fromLocale(
+        basicLocaleListResolution(
+          WidgetsBinding.instance.platformDispatcher.locales,
+          L10n.languages.map((e) => e.locale),
+        ),
+      );
+
+      if (language != null) {
+        await set(language, refresh: false);
       }
     } else {
       await set(lang, refresh: false);
@@ -98,8 +101,14 @@ class Language {
 
   /// Returns a [Language] identified by its [tag] from the [L10n.languages], if
   /// any.
-  static Language? from(String? tag) {
+  static Language? fromTag(String? tag) {
     return L10n.languages.firstWhereOrNull((e) => e.toString() == tag);
+  }
+
+  /// Returns a [Language] from the [L10n.languages] matching the provided
+  /// [locale], if any.
+  static Language? fromLocale(Locale locale) {
+    return L10n.languages.firstWhereOrNull((e) => e.locale == locale);
   }
 
   @override
@@ -124,6 +133,13 @@ extension L10nDateExtension on DateTime {
 
   /// Returns this [DateTime] formatted in `yMd` format.
   String get yMd => DateFormat.yMd().format(this);
+
+  // TODO: Shouldn't do replacements here.
+  /// Returns this [DateTime] formatted in `yyMd` format.
+  String get yyMd => DateFormat.yMd().format(this).replaceFirst(
+        DateTime.now().year.toString(),
+        DateFormat('yy').format(this),
+      );
 
   /// Returns this [DateTime] formatted as short weekday name.
   String get e => DateFormat.E().format(this);
@@ -151,5 +167,44 @@ extension L10nDateExtension on DateTime {
     } else {
       return e;
     }
+  }
+
+  /// Returns relative to [now] text representation.
+  ///
+  /// [DateTime.now] is used if [now] is `null`.
+  String toRelative([DateTime? now]) {
+    DateTime local = isUtc ? toLocal() : this;
+    DateTime relative = now ?? DateTime.now();
+    int days = relative._julianDayNumber() - local._julianDayNumber();
+
+    int months = 0;
+    if (days >= 28) {
+      months =
+          relative.month + relative.year * 12 - local.month - local.year * 12;
+      if (relative.day < local.day) {
+        months--;
+      }
+    }
+
+    return 'label_ago_date'.l10nfmt({
+      'years': months ~/ 12,
+      'months': months,
+      'weeks': days ~/ 7,
+      'days': days,
+    });
+  }
+
+  /// Returns a Julian day number of this [DateTime].
+  int _julianDayNumber() {
+    final int c0 = ((month - 3) / 12).floor();
+    final int x4 = year + c0;
+    final int x3 = (x4 / 100).floor();
+    final int x2 = x4 % 100;
+    final int x1 = month - (12 * c0) - 3;
+    return ((146097 * x3) / 4).floor() +
+        ((36525 * x2) / 100).floor() +
+        (((153 * x1) + 2) / 5).floor() +
+        day +
+        1721119;
   }
 }

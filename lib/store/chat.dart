@@ -127,7 +127,10 @@ class ChatRepository extends DisposableInterface
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
   /// [Mutex]es guarding access to the [get] method.
-  final Map<ChatId, Mutex> _locks = {};
+  final Map<ChatId, Mutex> _getGuards = {};
+
+  /// [Mutex]es guarding synchronized access to the [_putEntry].
+  final Map<ChatId, Mutex> _putEntryGuards = {};
 
   /// [dio.CancelToken] for cancelling the [_recentChats] query.
   final dio.CancelToken _cancelToken = dio.CancelToken();
@@ -221,10 +224,10 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<HiveRxChat?> get(ChatId id) async {
-    Mutex? mutex = _locks[id];
+    Mutex? mutex = _getGuards[id];
     if (mutex == null) {
       mutex = Mutex();
-      _locks[id] = mutex;
+      _getGuards[id] = mutex;
     }
 
     return mutex.protect(() async {
@@ -474,13 +477,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
-    final HiveRxChat? chat = _chats[chatId];
-
-    if (chat != null) {
-      await chat.read(untilId);
-    } else {
-      await readUntil(chatId, untilId);
-    }
+    await _chats[chatId]?.read(untilId);
   }
 
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
@@ -520,7 +517,7 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? chat = _chats[message.chatId];
 
     if (message.status.value != SendingStatus.sent) {
-      chat?.remove(message.id, message.timestamp);
+      chat?.remove(message.id, message.key);
     } else {
       Rx<ChatItem>? item =
           chat?.messages.firstWhereOrNull((e) => e.value.id == message.id);
@@ -532,7 +529,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatMessage(message.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.timestamp);
+          chat?.remove(item.value.id, item.value.key);
         }
       } catch (_) {
         if (item != null) {
@@ -565,7 +562,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatForward(forward.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.timestamp);
+          chat?.remove(item.value.id, item.value.key);
         }
       } catch (_) {
         if (item != null) {
@@ -595,7 +592,7 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.hideChatItem(id);
 
       if (item != null) {
-        chat?.remove(item.value.id, item.value.timestamp);
+        chat?.remove(item.value.id, item.value.key);
       }
     } catch (_) {
       if (item != null) {
@@ -1166,6 +1163,15 @@ class ChatRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatUnfavorited') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
       return EventChatUnfavorited(e.chatId, node.at);
+    } else if (e.$$typename == 'EventChatCallConversationStarted') {
+      var node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallConversationStarted;
+      return EventChatCallConversationStarted(
+        e.chatId,
+        node.callId,
+        node.at,
+        node.call.toModel(),
+      );
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }
@@ -1319,51 +1325,60 @@ class ChatRepository extends DisposableInterface
 
   /// Puts the provided [data] to [Hive].
   Future<HiveRxChat> _putEntry(ChatData data) async {
-    HiveRxChat? entry = chats[data.chat.value.id];
+    Mutex? mutex = _putEntryGuards[data.chat.value.id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _putEntryGuards[data.chat.value.id] = mutex;
+    }
 
-    if (entry == null) {
-      // If [data] is a remote [Chat]-dialog, then try to replace the existing
-      // local [Chat], if any is associated with this [data].
-      if (!data.chat.value.isGroup && !data.chat.value.id.isLocal) {
-        final ChatMember? member = data.chat.value.members.firstWhereOrNull(
-          (m) => data.chat.value.isMonolog || m.user.id != me,
-        );
-
-        if (member != null) {
-          final ChatId localId = ChatId.local(member.user.id);
-          final HiveRxChat? localChat = chats[localId];
-
-          if (localChat != null) {
-            chats.move(localId, data.chat.value.id);
-            await localChat.updateChat(data.chat.value);
-            entry = localChat;
-          }
-
-          _draftLocal.move(localId, data.chat.value.id);
-          remove(localId);
-        }
-      }
-
-      _putChat(data.chat);
+    return await mutex.protect(() async {
+      HiveRxChat? entry = chats[data.chat.value.id];
 
       if (entry == null) {
-        entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
-        _chats[data.chat.value.id] = entry;
-        entry.init();
-        entry.subscribe();
+        // If [data] is a remote [Chat]-dialog, then try to replace the existing
+        // local [Chat], if any is associated with this [data].
+        if (!data.chat.value.isGroup && !data.chat.value.id.isLocal) {
+          final ChatMember? member = data.chat.value.members.firstWhereOrNull(
+            (m) => data.chat.value.isMonolog || m.user.id != me,
+          );
+
+          if (member != null) {
+            final ChatId localId = ChatId.local(member.user.id);
+            final HiveRxChat? localChat = chats[localId];
+
+            if (localChat != null) {
+              chats.move(localId, data.chat.value.id);
+              await localChat.updateChat(data.chat.value);
+              entry = localChat;
+            }
+
+            _draftLocal.move(localId, data.chat.value.id);
+            remove(localId);
+          }
+        }
+
+        _putChat(data.chat);
+
+        if (entry == null) {
+          entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
+          _chats[data.chat.value.id] = entry;
+          entry.init();
+          entry.subscribe();
+        }
+      } else {
+        _putChat(data.chat);
       }
-    } else {
-      _putChat(data.chat);
-    }
 
-    for (var item in [
-      if (data.lastItem != null) data.lastItem!,
-      if (data.lastReadItem != null) data.lastReadItem!,
-    ]) {
-      entry.put(item);
-    }
+      for (var item in [
+        if (data.lastItem != null) data.lastItem!,
+        if (data.lastReadItem != null) data.lastReadItem!,
+      ]) {
+        entry.put(item);
+      }
 
-    return entry;
+      _putEntryGuards.remove(data.chat.value.id);
+      return entry;
+    });
   }
 
   /// Constructs a new [ChatData] from the given [ChatMixin] fragment.

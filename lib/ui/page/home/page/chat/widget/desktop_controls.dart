@@ -23,7 +23,6 @@ import 'dart:ui';
 import 'package:chewie/chewie.dart';
 import 'package:chewie/src/animated_play_pause.dart';
 import 'package:chewie/src/helpers/utils.dart';
-import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
@@ -38,13 +37,14 @@ import 'volume_bar.dart';
 /// Desktop video controls for a [Chewie] player.
 class DesktopControls extends StatefulWidget {
   const DesktopControls({
-    Key? key,
+    super.key,
     required this.controller,
     this.onClose,
     this.toggleFullscreen,
     this.isFullscreen,
     this.showInterfaceFor,
-  }) : super(key: key);
+    this.size,
+  });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
@@ -60,6 +60,9 @@ class DesktopControls extends StatefulWidget {
 
   /// [Duration] to initially show an user interface for.
   final Duration? showInterfaceFor;
+
+  /// [Size] of the video these [DesktopControls] are used for.
+  final Size? size;
 
   @override
   State<StatefulWidget> createState() => _DesktopControlsState();
@@ -95,8 +98,8 @@ class _DesktopControlsState extends State<DesktopControls>
   /// [Timer] for toggling the [_showInterface] after a timeout.
   Timer? _interfaceTimer;
 
-  /// [Timer] for hiding user interface on [_initialize].
-  Timer? _initTimer;
+  /// [Timer] for toggling the [_showBottomBar] after a timeout.
+  Timer? _bottomBarTimer;
 
   /// [Timer] for showing user interface for a while after fullscreen toggle.
   Timer? _showAfterExpandCollapseTimer;
@@ -104,7 +107,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// [StreamSubscription] to the [MeeduPlayerController.playerStatus] changes.
   StreamSubscription? _statusSubscription;
 
-  /// Indicator whether the video progress bar is being dragged.
+  /// Indicator whether the video or volume progress bar is being dragged.
   bool _dragging = false;
 
   @override
@@ -127,7 +130,8 @@ class _DesktopControlsState extends State<DesktopControls>
   void dispose() {
     _statusSubscription?.cancel();
     _hideTimer?.cancel();
-    _initTimer?.cancel();
+    _interfaceTimer?.cancel();
+    _bottomBarTimer?.cancel();
     _showAfterExpandCollapseTimer?.cancel();
     _volumeEntry?.remove();
     super.dispose();
@@ -147,29 +151,33 @@ class _DesktopControlsState extends State<DesktopControls>
               behavior: HitTestBehavior.deferToChild,
               onTap: widget.onClose,
               child: Center(
-                child: Listener(
-                  behavior: HitTestBehavior.translucent,
-                  onPointerDown: (e) {
-                    if (e.buttons & kPrimaryButton != 0 &&
-                        _volumeEntry == null) {
-                      _playPause();
-                    }
-                  },
-                  // Double tap inside [AspectRatio] toggles fullscreen.
-                  child: GestureDetector(
+                child: SizedBox.fromSize(
+                  size: widget.size,
+                  child: Listener(
                     behavior: HitTestBehavior.translucent,
-                    onTap: () {},
-                    onDoubleTap: _onExpandCollapse,
-                    // Required for the [GestureDetector]s to take the full
-                    // width and height.
-                    child: const SizedBox(
-                      width: double.infinity,
-                      height: double.infinity,
+                    onPointerDown: (e) {
+                      if (e.buttons & kPrimaryButton != 0 &&
+                          _volumeEntry == null) {
+                        _playPause();
+                      }
+                    },
+                    // Double tap inside [AspectRatio] toggles fullscreen.
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {},
+                      onDoubleTap: _onExpandCollapse,
+                      // Required for the [GestureDetector]s to take the full
+                      // width and height.
+                      child: const SizedBox(
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
+            // Play/pause button.
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
@@ -191,8 +199,10 @@ class _DesktopControlsState extends State<DesktopControls>
                 onExit: (d) {
                   if (mounted) {
                     setState(() => _showBottomBar = false);
-                    _volumeEntry?.remove();
-                    _volumeEntry = null;
+                    if (!_dragging) {
+                      _volumeEntry?.remove();
+                      _volumeEntry = null;
+                    }
                   }
                 },
                 child: SizedBox(
@@ -209,12 +219,11 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
-    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
-      isOpen: _showBottomBar || _showInterface,
+      isOpen: _showBottomBar || _showInterface || _dragging,
       translate: false,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8, left: 32, right: 32),
@@ -235,7 +244,7 @@ class _DesktopControlsState extends State<DesktopControls>
                   const SizedBox(width: 7),
                   _buildPlayPause(widget.controller),
                   const SizedBox(width: 12),
-                  _buildPosition(iconColor),
+                  _buildPosition(fonts.labelLarge!.color),
                   const SizedBox(width: 12),
                   _buildProgressBar(),
                   const SizedBox(width: 12),
@@ -254,20 +263,23 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the fullscreen toggling button.
   Widget _buildExpandButton() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Obx(
-      () => GestureDetector(
-        onTap: _onExpandCollapse,
-        child: SizedBox(
-          height: _barHeight,
-          child: Center(
-            child: Icon(
-              widget.isFullscreen?.value == true
-                  ? Icons.fullscreen_exit
-                  : Icons.fullscreen,
-              color: style.colors.onPrimary,
-              size: 21,
+      () => MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: _onExpandCollapse,
+          child: SizedBox(
+            height: _barHeight,
+            child: Center(
+              child: Icon(
+                widget.isFullscreen?.value == true
+                    ? Icons.fullscreen_exit
+                    : Icons.fullscreen,
+                color: style.colors.onPrimary,
+                size: 21,
+              ),
             ),
           ),
         ),
@@ -277,7 +289,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Center]ed play/pause circular button.
   Widget _buildHitArea() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return RxBuilder((_) {
       final bool isFinished =
@@ -318,22 +330,25 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the play/pause button.
   Widget _buildPlayPause(MeeduPlayerController controller) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Transform.translate(
       offset: const Offset(0, 0),
-      child: GestureDetector(
-        onTap: _playPause,
-        child: Container(
-          height: _barHeight,
-          color: style.colors.transparent,
-          child: RxBuilder((_) {
-            return AnimatedPlayPause(
-              size: 21,
-              playing: controller.playerStatus.playing,
-              color: style.colors.onPrimary,
-            );
-          }),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: _playPause,
+          child: Container(
+            height: _barHeight,
+            color: style.colors.transparent,
+            child: RxBuilder((_) {
+              return AnimatedPlayPause(
+                size: 21,
+                playing: controller.playerStatus.playing,
+                color: style.colors.onPrimary,
+              );
+            }),
+          ),
         ),
       ),
     );
@@ -341,9 +356,10 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the mute/unmute button with a volume overlay above it.
   Widget _buildMuteButton(MeeduPlayerController controller) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) {
         if (mounted && _volumeEntry == null) {
           Offset offset = Offset.zero;
@@ -389,7 +405,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [_volumeEntry] overlay.
   Widget _volumeOverlay(Offset offset) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Stack(
       children: [
@@ -399,7 +415,7 @@ class _DesktopControlsState extends State<DesktopControls>
           child: MouseRegion(
             opaque: false,
             onExit: (d) {
-              if (mounted) {
+              if (mounted && !_dragging) {
                 _volumeEntry?.remove();
                 _volumeEntry = null;
                 setState(() {});
@@ -428,15 +444,28 @@ class _DesktopControlsState extends State<DesktopControls>
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
                             ),
-                            child: VideoVolumeBar(
-                              widget.controller,
-                              colors: ChewieProgressColors(
-                                playedColor: style.colors.primary,
-                                handleColor: style.colors.primary,
-                                bufferedColor:
-                                    style.colors.background.withOpacity(0.5),
-                                backgroundColor:
-                                    style.colors.secondary.withOpacity(0.5),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: VideoVolumeBar(
+                                widget.controller,
+                                onDragStart: () {
+                                  setState(() => _dragging = true);
+                                },
+                                onDragEnd: () {
+                                  if (!_showBottomBar) {
+                                    _volumeEntry?.remove();
+                                    _volumeEntry = null;
+                                  }
+                                  setState(() => _dragging = false);
+                                },
+                                colors: ChewieProgressColors(
+                                  playedColor: style.colors.primary,
+                                  handleColor: style.colors.primary,
+                                  bufferedColor:
+                                      style.colors.background.withOpacity(0.5),
+                                  backgroundColor:
+                                      style.colors.secondary.withOpacity(0.5),
+                                ),
                               ),
                             ),
                           ),
@@ -456,7 +485,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the [Text] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return RxBuilder((_) {
       final position = widget.controller.position.value;
@@ -464,14 +493,14 @@ class _DesktopControlsState extends State<DesktopControls>
 
       return Text(
         '${formatDuration(position)} / ${formatDuration(duration)}',
-        style: TextStyle(fontSize: 14.0, color: style.colors.onPrimary),
+        style: fonts.headlineSmall!.copyWith(color: style.colors.onPrimary),
       );
     });
   }
 
-  /// Returns the [VideoProgressBar] of the current video progression.
+  /// Returns the [ProgressBar] of the current video progression.
   Widget _buildProgressBar() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Expanded(
       child: ProgressBar(

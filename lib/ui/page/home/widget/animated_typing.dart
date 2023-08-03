@@ -63,14 +63,14 @@ class _AnimatedTypingState extends State<AnimatedTyping>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, _) {
         final Color begin =
             widget.inverted ? style.colors.onPrimary : style.colors.primary;
-        const Color end = Color(0xFFB6DCFF);
+        final Color end = style.colors.primaryHighlightLightest;
 
         const double size = 4;
         const double spacing = 1.6;

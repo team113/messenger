@@ -87,7 +87,10 @@ class _WebImageState extends State<WebImage> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        if (_loading) const Center(child: CircularProgressIndicator()),
+        if (_loading)
+          const Positioned.fill(
+            child: Center(child: CircularProgressIndicator()),
+          ),
         if (!_backoffRunning)
           IgnorePointer(
             child: _HtmlImage(
@@ -119,11 +122,11 @@ class _WebImageState extends State<WebImage> {
           Response? data;
 
           try {
-            data = await PlatformUtils.dio.head(widget.src);
+            data = await (await PlatformUtils.dio).head(widget.src);
           } on DioError catch (e) {
             if (e.response?.statusCode == 403) {
               await widget.onForbidden?.call();
-              _cancelToken.cancel();
+              return;
             }
           }
 
@@ -207,8 +210,12 @@ class _HtmlImageState extends State<_HtmlImage> {
 
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(
-      viewType: '${_elementId}__webImageViewType__${widget.src}__',
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: HtmlElementView(
+        viewType: '${_elementId}__webImageViewType__${widget.src}__',
+      ),
     );
   }
 

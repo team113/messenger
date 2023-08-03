@@ -147,6 +147,12 @@ class RxObsList<E> extends ListMixin<E>
   }
 
   @override
+  void insert(int index, E element) {
+    _value.insert(index, element);
+    refresh();
+  }
+
+  @override
   void insertAll(int index, Iterable<E> iterable) {
     _value.insertAll(index, iterable);
     refresh();
@@ -174,6 +180,12 @@ class RxObsList<E> extends ListMixin<E>
   @override
   void removeRange(int start, int end) {
     _value.removeRange(start, end);
+    refresh();
+  }
+
+  @override
+  void clear() {
+    _value.clear();
     refresh();
   }
 }

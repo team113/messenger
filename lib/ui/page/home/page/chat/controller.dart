@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
@@ -61,9 +60,9 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/util/audio_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'forward/view.dart';
@@ -135,6 +134,9 @@ class ChatController extends GetxController {
   /// [ChatMessage] is allowed to be edited.
   static const Duration editMessageTimeout = Duration(minutes: 5);
 
+  /// Bottom offset to apply to the last [ListElement] in the [elements].
+  static const double lastItemBottomOffset = 10;
+
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
 
@@ -161,12 +163,6 @@ class ChatController extends GetxController {
   /// [ChatItem]s when non-`null`.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
 
-  /// [GlobalKey] of the bottom bar.
-  final GlobalKey bottomBarKey = GlobalKey();
-
-  /// [Rect] the bottom bar takes.
-  final Rx<Rect?> bottomBarRect = Rx(null);
-
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
 
@@ -180,9 +176,6 @@ class ChatController extends GetxController {
   ///
   /// Used to hide it when no scrolling is happening.
   final RxBool showSticky = RxBool(false);
-
-  /// Duration of a [Chat.ongoingCall].
-  final Rx<Duration?> duration = Rx(null);
 
   /// Indicator whether the [_bottomLoader] should be displayed.
   final RxBool bottomLoader = RxBool(false);
@@ -219,9 +212,19 @@ class ChatController extends GetxController {
   /// Subscription for the [RxChat.messages] updating the [elements].
   StreamSubscription? _messagesSubscription;
 
+  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
+  /// [active].
+  StreamSubscription? _onActivityChanged;
+
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
+
+  /// Indicator whether the application is active.
+  final RxBool active = RxBool(true);
+
+  /// Index of an item from the [elements] that should be highlighted.
+  final RxnInt highlight = RxnInt(null);
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
@@ -229,14 +232,8 @@ class ChatController extends GetxController {
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
 
-  /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
-  Timer? _durationTimer;
-
   /// [Timer] for resetting the [showSticky].
   Timer? _stickyTimer;
-
-  /// [AudioPlayer] playing a sent message sound.
-  AudioPlayer? _audioPlayer;
 
   /// Call service used to start the call in this [Chat].
   final CallService _callService;
@@ -253,9 +250,6 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Worker capturing any [RxChat.messages] changes.
-  Worker? _messagesWorker;
-
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
@@ -268,6 +262,13 @@ class ChatController extends GetxController {
 
   /// Currently displayed bottom [LoaderElement] in the [elements] list.
   LoaderElement? _bottomLoader;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 2);
+
+  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
+  /// passed.
+  Timer? _highlightTimer;
 
   /// [Timer] adding the [_bottomLoader] to the [elements] list.
   Timer? _bottomLoaderStartTimer;
@@ -284,17 +285,6 @@ class ChatController extends GetxController {
   /// Returns the [ApplicationSettings].
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
-
-  /// Indicates whether the [listController] is at the bottom of a
-  /// [FlutterListView].
-  bool get atBottom {
-    if (listController.hasClients) {
-      return listController.position.pixels + 200 >=
-          listController.position.maxScrollExtent;
-    } else {
-      return false;
-    }
-  }
 
   /// Indicates whether this device of the currently authenticated [MyUser]
   /// takes part in the [Chat.ongoingCall], if any.
@@ -340,7 +330,8 @@ class ChatController extends GetxController {
                   repliesTo: send.replied.reversed.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
-                .then((_) => _playMessageSent())
+                .then((_) => AudioUtils.once(
+                    AudioSource.asset('audio/message_sent.mp3')))
                 .onError<PostChatMessageException>(
                     (e, _) => MessagePopup.error(e))
                 .onError<UploadAttachmentException>(
@@ -363,6 +354,15 @@ class ChatController extends GetxController {
       },
     );
 
+    PlatformUtils.isActive.then((value) => active.value = value);
+    _onActivityChanged = PlatformUtils.onActivityChanged.listen((v) {
+      active.value = v;
+
+      if (v) {
+        readChat(_lastSeenItem.value);
+      }
+    });
+
     super.onInit();
   }
 
@@ -370,20 +370,19 @@ class ChatController extends GetxController {
   void onReady() {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
+    AudioUtils.ensureInitialized();
     _fetchChat();
-    _initAudio();
     super.onReady();
   }
 
   @override
   void onClose() {
     _messagesSubscription?.cancel();
-    _messagesWorker?.dispose();
     _readWorker?.dispose();
     _chatWorker?.dispose();
     _typingSubscription?.cancel();
+    _onActivityChanged?.cancel();
     _typingTimer?.cancel();
-    _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
     _bottomLoaderStartTimer?.cancel();
@@ -394,10 +393,6 @@ class ChatController extends GetxController {
 
     send.onClose();
     edit.value?.onClose();
-
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
-    AudioCache.instance.clear('audio/message_sent.mp3');
 
     if (chat?.chat.value.isDialog == true) {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
@@ -448,7 +443,8 @@ class ChatController extends GetxController {
     if (item.status.value == SendingStatus.error) {
       await _chatService
           .resendChatItem(item)
-          .then((_) => _playMessageSent())
+          .then((_) =>
+              AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')))
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});
@@ -568,15 +564,15 @@ class ChatController extends GetxController {
         if (item is ChatMessage) {
           ChatMessageElement element = ChatMessageElement(e);
 
-          ListElement? previous = elements[elements.lastKeyBefore(element.id)];
-          ListElement? next = elements[elements.firstKeyAfter(element.id)];
+          ListElement? previous = elements[elements.firstKeyAfter(element.id)];
+          ListElement? next = elements[elements.lastKeyBefore(element.id)];
 
           bool insert = true;
 
           // Combine this [ChatMessage] with previous and next [ChatForward]s,
           // if it was posted less than [groupForwardThreshold] ago.
           if (previous is ChatForwardElement &&
-              previous.authorId == item.authorId &&
+              previous.authorId == item.author.id &&
               item.at.val
                       .difference(previous.forwards.last.value.at.val)
                       .abs() <
@@ -585,7 +581,7 @@ class ChatController extends GetxController {
             insert = false;
             previous.note.value = e;
           } else if (next is ChatForwardElement &&
-              next.authorId == item.authorId &&
+              next.authorId == item.author.id &&
               next.forwards.last.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold &&
               next.note.value == null) {
@@ -606,16 +602,16 @@ class ChatController extends GetxController {
           ChatForwardElement element =
               ChatForwardElement(forwards: [e], e.value.at);
 
-          ListElementId? previousKey = elements.lastKeyBefore(element.id);
+          ListElementId? previousKey = elements.firstKeyAfter(element.id);
           ListElement? previous = elements[previousKey];
 
-          ListElementId? nextKey = elements.firstKeyAfter(element.id);
+          ListElementId? nextKey = elements.lastKeyBefore(element.id);
           ListElement? next = elements[nextKey];
 
           bool insert = true;
 
           if (previous is ChatForwardElement &&
-              previous.authorId == item.authorId &&
+              previous.authorId == item.author.id &&
               item.at.val
                       .difference(previous.forwards.last.value.at.val)
                       .abs() <
@@ -626,7 +622,7 @@ class ChatController extends GetxController {
             previous.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
             insert = false;
           } else if (previous is ChatMessageElement &&
-              previous.item.value.authorId == item.authorId &&
+              previous.item.value.author.id == item.author.id &&
               item.at.val.difference(previous.item.value.at.val).abs() <
                   groupForwardThreshold) {
             // Add the previous [ChatMessage] to this [ChatForwardElement.note],
@@ -634,7 +630,7 @@ class ChatController extends GetxController {
             element.note.value = previous.item;
             elements.remove(previousKey);
           } else if (next is ChatForwardElement &&
-              next.authorId == item.authorId &&
+              next.authorId == item.author.id &&
               next.forwards.first.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold) {
             // Add this [ChatForward] to next [ChatForwardElement], if it was
@@ -643,7 +639,7 @@ class ChatController extends GetxController {
             next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
             insert = false;
           } else if (next is ChatMessageElement &&
-              next.item.value.authorId == item.authorId &&
+              next.item.value.author.id == item.author.id &&
               next.item.value.at.val.difference(item.at.val).abs() <
                   groupForwardThreshold) {
             // Add the next [ChatMessage] to this [ChatForwardElement.note], if
@@ -674,10 +670,10 @@ class ChatController extends GetxController {
             ListElementId key = ListElementId(item.at, item.id);
             ListElement? element = elements[key];
 
-            ListElementId? before = elements.lastKeyBefore(key);
+            ListElementId? before = elements.firstKeyAfter(key);
             ListElement? beforeElement = elements[before];
 
-            ListElementId? after = elements.firstKeyAfter(key);
+            ListElementId? after = elements.lastKeyBefore(key);
             ListElement? afterElement = elements[after];
 
             // Remove the [DateTimeElement] before, if this [ChatItem] is the
@@ -751,81 +747,19 @@ class ChatController extends GetxController {
         }
       });
 
-      // Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
-      // changes.
-      ChatItemId? previousCall;
-
-      // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
-      // from the stored [previousCall].
-      void updateTimer(Chat chat) {
-        if (previousCall != chat.ongoingCall?.id) {
-          previousCall = chat.ongoingCall?.id;
-
-          duration.value = null;
-          _durationTimer?.cancel();
-          _durationTimer = null;
-
-          if (chat.ongoingCall != null) {
-            _durationTimer = Timer.periodic(
-              const Duration(seconds: 1),
-              (_) {
-                if (chat.ongoingCall!.conversationStartedAt != null) {
-                  duration.value = DateTime.now().difference(
-                    chat.ongoingCall!.conversationStartedAt!.val,
-                  );
-                }
-              },
-            );
-          }
-        }
-      }
-
-      updateTimer(chat!.chat.value);
-
       _chatWorker = ever(chat!.chat, (Chat e) {
         if (e.id != id) {
           WebUtils.replaceState(id.val, e.id.val);
           id = e.id;
         }
-
-        updateTimer(e);
       });
-
-      _messagesWorker ??= ever(
-        chat!.messages,
-        (_) {
-          if (atBottom &&
-              status.value.isSuccess &&
-              !status.value.isLoadingMore) {
-            Future.delayed(
-              Duration.zero,
-              () => SchedulerBinding.instance.addPostFrameCallback(
-                (_) async {
-                  if (listController.hasClients) {
-                    try {
-                      _ignorePositionChanges = true;
-                      await listController.animateTo(
-                        listController.position.maxScrollExtent,
-                        duration: 100.milliseconds,
-                        curve: Curves.ease,
-                      );
-                    } finally {
-                      _ignorePositionChanges = false;
-                    }
-                  }
-                },
-              ),
-            );
-          }
-        },
-      );
 
       listController.sliverController.onPaintItemPositionsCallback =
           (height, positions) {
         if (positions.isNotEmpty) {
-          _topVisibleItem = positions.first;
+          _topVisibleItem = positions.last;
 
-          _lastVisibleItem = positions.lastWhereOrNull((e) {
+          _lastVisibleItem = positions.firstWhereOrNull((e) {
             ListElement element = elements.values.elementAt(e.index);
             return element is ChatMessageElement ||
                 element is ChatInfoElement ||
@@ -841,8 +775,9 @@ class ChatController extends GetxController {
 
             // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
             // then set the [_lastSeenItem] to this item.
-            if (_lastSeenItem.value == null ||
-                element.id.at.isAfter(_lastSeenItem.value!.at)) {
+            if (!element.id.id.isLocal &&
+                (_lastSeenItem.value == null ||
+                    element.id.at.isAfter(_lastSeenItem.value!.at))) {
               if (element is ChatMessageElement) {
                 _lastSeenItem.value = element.item.value;
               } else if (element is ChatInfoElement) {
@@ -910,19 +845,6 @@ class ChatController extends GetxController {
             );
 
             elements[_bottomLoader!.id] = _bottomLoader!;
-
-            if (listController.hasClients &&
-                listController.position.pixels >=
-                    listController.position.maxScrollExtent - 100) {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                listController.sliverController.animateToIndex(
-                  elements.length - 1,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.ease,
-                  offsetBasedOnBottom: true,
-                );
-              });
-            }
           }
         },
       );
@@ -969,7 +891,8 @@ class ChatController extends GetxController {
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
   Future<void> readChat(ChatItem? item) async {
-    if (item != null &&
+    if (active.isTrue &&
+        item != null &&
         !chat!.chat.value.isReadBy(item, me) &&
         status.value.isSuccess &&
         !status.value.isLoadingMore &&
@@ -990,8 +913,8 @@ class ChatController extends GetxController {
   /// Animates [listController] to a [ChatItem] identified by the provided [id].
   Future<void> animateTo(
     ChatItemId id, {
-    bool offsetBasedOnBottom = false,
-    double offset = 0,
+    bool offsetBasedOnBottom = true,
+    double offset = 50,
   }) async {
     int index = elements.values.toList().indexWhere((e) {
       return e.id.id == id ||
@@ -1001,6 +924,8 @@ class ChatController extends GetxController {
     });
 
     if (index != -1) {
+      _highlight(index);
+
       if (listController.hasClients) {
         await listController.sliverController.animateToIndex(
           index,
@@ -1023,13 +948,12 @@ class ChatController extends GetxController {
 
       _itemToReturnTo = _topVisibleItem;
 
-      int index = elements.length - 1;
       try {
         _ignorePositionChanges = true;
         await listController.sliverController.animateToIndex(
-          index,
+          0,
           offset: 0,
-          offsetBasedOnBottom: true,
+          offsetBasedOnBottom: false,
           duration: 300.milliseconds,
           curve: Curves.ease,
         );
@@ -1050,7 +974,7 @@ class ChatController extends GetxController {
         if (listController.hasClients) {
           await listController.sliverController.animateToIndex(
             _itemToReturnTo!.index,
-            offsetBasedOnBottom: false,
+            offsetBasedOnBottom: true,
             offset: _itemToReturnTo!.offset,
             duration: 200.milliseconds,
             curve: Curves.ease,
@@ -1146,7 +1070,7 @@ class ChatController extends GetxController {
       final RxUser? recipient =
           chat!.members.values.firstWhereOrNull((e) => e.id != me);
       if (recipient != null) {
-        await _userService.unblacklistUser(recipient.id);
+        await _userService.unblockUser(recipient.id);
       }
     }
   }
@@ -1171,20 +1095,12 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Plays the message sent sound.
-  void _playMessageSent() {
-    runZonedGuarded(
-      () => _audioPlayer?.play(
-        AssetSource('audio/message_sent.mp3'),
-        position: Duration.zero,
-        mode: PlayerMode.lowLatency,
-      ),
-      (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      },
-    );
+  /// Highlights the item with the provided [index].
+  Future<void> _highlight(int index) async {
+    highlight.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
   }
 
   /// Invokes [_updateSticky] and [_updateFabStates].
@@ -1201,10 +1117,8 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value.
   void _updateFabStates() {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (listController.position.pixels <
-          listController.position.maxScrollExtent -
-              MediaQuery.of(router.context!).size.height * 2 +
-              200) {
+      if (listController.position.pixels >
+          MediaQuery.of(router.context!).size.height * 2 + 200) {
         canGoDown.value = true;
       } else {
         canGoDown.value = false;
@@ -1227,29 +1141,16 @@ class ChatController extends GetxController {
       if (stickyIndex.value != null) {
         final double? offset =
             listController.sliverController.getItemOffset(stickyIndex.value!);
-        showSticky.value =
-            offset != null && listController.offset - offset < 35;
+        if (offset == null || offset == 0) {
+          showSticky.value = false;
+        } else {
+          showSticky.value = (listController.offset +
+                      MediaQuery.of(router.context!).size.height) -
+                  offset >
+              170;
+        }
       }
     });
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    // [AudioPlayer] constructor creates a hanging [Future], which can't be
-    // awaited.
-    await runZonedGuarded(
-      () async {
-        _audioPlayer = AudioPlayer(playerId: 'chatPlayer$id');
-        await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
-      },
-      (e, _) {
-        if (e is MissingPluginException) {
-          _audioPlayer = null;
-        } else {
-          throw e;
-        }
-      },
-    );
   }
 
   /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the
@@ -1261,7 +1162,7 @@ class ChatController extends GetxController {
     if (chat!.chat.value.unreadCount != 0) {
       if (myRead != null) {
         _firstUnreadItem = chat!.messages.firstWhereOrNull(
-          (e) => myRead.isBefore(e.value.at) && e.value.authorId != me,
+          (e) => myRead.isBefore(e.value.at) && e.value.author.id != me,
         );
       } else {
         _firstUnreadItem = chat!.messages.firstOrNull;
@@ -1281,21 +1182,23 @@ class ChatController extends GetxController {
   }
 
   /// Calculates a [_ListViewIndexCalculationResult] of a [FlutterListView].
-  _ListViewIndexCalculationResult _calculateListViewIndex(
-      [bool fixMotion = true]) {
+  _ListViewIndexCalculationResult _calculateListViewIndex([
+    bool fixMotion = true,
+  ]) {
     int index = 0;
     double offset = 0;
 
     if (itemId != null) {
       int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
+        _highlight(i);
         index = i;
         offset = (MediaQuery.of(router.context!).size.height) / 3;
       }
     } else {
       if (chat?.messages.isEmpty == false) {
         if (chat!.chat.value.unreadCount == 0) {
-          index = elements.length - 1;
+          index = 0;
           offset = 0;
         } else if (_firstUnreadItem != null) {
           int i = elements.values.toList().indexWhere((e) {
@@ -1353,7 +1256,7 @@ class ChatController extends GetxController {
             listController.sliverController.animateToIndex(
               result.index,
               offset: 0,
-              offsetBasedOnBottom: true,
+              offsetBasedOnBottom: false,
               duration: 200.milliseconds,
               curve: Curves.ease,
             );
@@ -1392,11 +1295,13 @@ class ListElementId implements Comparable<ListElementId> {
 
   @override
   int compareTo(ListElementId other) {
-    int result = at.compareTo(other.at);
+    final int result = at.compareTo(other.at);
+
+    // `-` as [elements] are reversed.
     if (result == 0) {
-      return id.val.compareTo(other.id.val);
+      return -id.val.compareTo(other.id.val);
     }
-    return result;
+    return -result;
   }
 }
 
@@ -1443,7 +1348,7 @@ class ChatForwardElement extends ListElement {
     Rx<ChatItem>? note,
   })  : forwards = RxList(forwards),
         note = Rx(note),
-        authorId = forwards.first.value.authorId,
+        authorId = forwards.first.value.author.id,
         super(ListElementId(at, forwards.first.value.id));
 
   /// Forwarded [ChatItem]s.
@@ -1582,7 +1487,7 @@ extension ChatCallFinishReasonL10n on ChatCallFinishReason {
 extension IsChatItemEditable on ChatItem {
   /// Indicates whether this [ChatItem] is editable.
   bool isEditable(Chat chat, UserId me) {
-    if (authorId == me) {
+    if (author.id == me) {
       if (this is ChatMessage) {
         bool isRead = chat.isRead(this, me);
         return at

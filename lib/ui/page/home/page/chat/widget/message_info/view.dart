@@ -60,11 +60,7 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    final TextStyle? thin = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: style.colors.onBackground,
-        );
+    final (style, fonts) = Theme.of(context).styles;
 
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
@@ -73,14 +69,7 @@ class MessageInfo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 4),
-            ModalPopupHeader(
-              header: Center(
-                child: Text(
-                  'label_message'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
-                ),
-              ),
-            ),
+            ModalPopupHeader(text: 'label_message'.l10n),
             if (id != null)
               Container(
                 margin: const EdgeInsets.only(top: 8, bottom: 16),
@@ -96,7 +85,7 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: thin?.copyWith(fontSize: 13),
+                        style: fonts.bodySmall,
                       ),
                       const SizedBox(width: 8),
                       SvgImage.asset('assets/icons/copy.svg', height: 12),
@@ -131,7 +120,7 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.boldBody.copyWith(fontSize: 17),
+                          style: fonts.bodyLarge,
                           onChanged: () => c.query.value = c.search.text,
                         ),
                       ),
@@ -198,7 +187,10 @@ class MessageInfo extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               child: Center(
-                                child: Text('label_nothing_found'.l10n),
+                                child: Text(
+                                  'label_nothing_found'.l10n,
+                                  style: fonts.labelMedium,
+                                ),
                               ),
                             )
                           else
@@ -217,7 +209,7 @@ class MessageInfo extends StatelessWidget {
                                   Text(
                                     'label_read_at'
                                         .l10nfmt({'date': time.yMdHm}),
-                                    style: TextStyle(
+                                    style: fonts.bodySmall!.copyWith(
                                       color: style.colors.secondary,
                                     ),
                                   ),

@@ -24,11 +24,11 @@ class Themes {
   static ThemeData light() {
     final Palette colors = Palette(
       primary: const Color(0xFF63B4FF),
-      primaryHighlight: Colors.blue,
+      primaryHighlight: const Color(0xFF2196F3),
       primaryHighlightShiny: const Color(0xFF58A6EF),
       primaryHighlightShiniest: const Color(0xFFD2E3F9),
       primaryHighlightLightest: const Color(0xFFB9D9FA),
-      onPrimary: Colors.white,
+      onPrimary: const Color(0xFFFFFFFF),
       secondary: const Color(0xFF888888),
       secondaryHighlight: const Color(0xFFEFEFEF),
       secondaryHighlightDark: const Color(0xFFDEDEDE),
@@ -42,24 +42,24 @@ class Themes {
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
-      onBackground: Colors.black,
+      onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
       acceptColor: const Color(0x7F34B139),
-      acceptAuxiliaryColor: Colors.green,
+      acceptAuxiliaryColor: const Color(0xFF4CAF50),
       declineColor: const Color(0x7FFF0000),
-      dangerColor: Colors.red,
-      warningColor: Colors.orange,
+      dangerColor: const Color(0xFFF44336),
+      warningColor: const Color(0xFFFF9800),
       userColors: [
-        Colors.purple,
-        Colors.deepPurple,
-        Colors.indigo,
-        Colors.blue,
-        Colors.cyan,
-        Colors.lightGreen,
-        Colors.lime,
-        Colors.amber,
-        Colors.orange,
-        Colors.deepOrange,
+        const Color(0xFF9C27B0),
+        const Color(0xFF673AB7),
+        const Color(0xFF3F51B5),
+        const Color(0xFF2196F3),
+        const Color(0xFF00BCD4),
+        const Color(0xFF8BC34A),
+        const Color(0xFFCDDC39),
+        const Color(0xFFFFC107),
+        const Color(0xFFFF9800),
+        const Color(0xFFFF5722),
       ],
     );
 
@@ -71,17 +71,49 @@ class Themes {
       fontWeight: FontWeight.w400,
     );
 
+    final TextTheme fonts = Typography.blackCupertino.copyWith(
+      displayLarge:
+          textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.bold),
+      displayMedium:
+          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
+      displaySmall:
+          textStyle.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
+      headlineLarge: textStyle.copyWith(fontSize: 18),
+      headlineMedium:
+          textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w300),
+      headlineSmall: textStyle.copyWith(fontSize: 13),
+      titleLarge: textStyle.copyWith(fontWeight: FontWeight.w300),
+      titleMedium: textStyle.copyWith(fontSize: 15),
+      titleSmall: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
+      labelLarge: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+      labelMedium:
+          textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+      labelSmall: textStyle.copyWith(
+        fontSize: 11,
+        fontWeight: FontWeight.w300,
+        letterSpacing: 0.4,
+      ),
+      bodyLarge: textStyle,
+      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+    );
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: colors.primaryHighlight,
+        statusBarColor: colors.transparent,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
+
     final ThemeData theme = ThemeData.light();
 
     return theme.copyWith(
+        useMaterial3: true,
         extensions: [
           Style(
             colors: colors,
             barrierColor: colors.onBackgroundOpacity50,
-            boldBody: textStyle.copyWith(
-              color: colors.onBackground,
-              fontSize: 17,
-            ),
             cardBlur: 5,
             cardBorder:
                 Border.all(color: colors.secondaryHighlightDark, width: 0.5),
@@ -96,7 +128,7 @@ class Themes {
             contextMenuBackgroundColor: colors.secondaryHighlight,
             contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
             contextMenuRadius: BorderRadius.circular(10),
-            linkStyle: TextStyle(
+            linkStyle: textStyle.copyWith(
               color: colors.primary,
               decoration: TextDecoration.underline,
               decorationThickness: 2,
@@ -117,11 +149,8 @@ class Themes {
               width: 0.5,
             ),
             systemMessageColor: colors.secondaryHighlight,
-            systemMessageStyle: textStyle.copyWith(
-              color: colors.secondary,
-              fontSize: 13,
-              fontWeight: FontWeight.w300,
-            ),
+            systemMessageStyle:
+                fonts.bodySmall!.copyWith(color: colors.secondary),
             unreadMessageColor: colors.backgroundAuxiliaryLightest,
           ),
         ],
@@ -135,17 +164,10 @@ class Themes {
           actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
             color: colors.secondary,
           ),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            systemNavigationBarColor: colors.primaryHighlight,
-            statusBarColor: colors.transparent,
-          ),
           elevation: 0,
           centerTitle: true,
-          titleTextStyle: textStyle.copyWith(
-            color: colors.onBackground,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
-          ),
+          titleTextStyle:
+              fonts.headlineMedium!.copyWith(color: colors.onBackground),
         ),
         tabBarTheme: theme.tabBarTheme.copyWith(
           labelColor: colors.primary,
@@ -155,86 +177,26 @@ class Themes {
           color: colors.secondary,
         ),
         iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
-        textTheme: Typography.blackCupertino.copyWith(
-          displayLarge: textStyle.copyWith(
-            color: colors.secondary,
-            fontWeight: FontWeight.w300,
-            fontSize: 24,
-          ),
-          displayMedium: textStyle.copyWith(
-            color: colors.secondary,
-            fontWeight: FontWeight.w300,
-            fontSize: 15.4,
-          ),
-          displaySmall:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 18),
-          headlineLarge:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
-          headlineMedium: textStyle.copyWith(fontSize: 18),
-          headlineSmall: textStyle.copyWith(fontSize: 18),
-          labelLarge:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
-          labelMedium:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
-          labelSmall:
-              textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 17),
-          titleMedium: textStyle.copyWith(fontSize: 15),
-          titleSmall: textStyle.copyWith(
-            color: colors.secondary,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          bodyLarge:
-              textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
-          bodyMedium:
-              textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
-          bodySmall: textStyle.copyWith(
-            color: colors.secondary,
-            fontWeight: FontWeight.w300,
-            fontSize: 13,
-          ),
-        ),
+        textTheme: fonts,
         inputDecorationTheme: theme.inputDecorationTheme.copyWith(
           focusColor: colors.primary,
           hoverColor: colors.transparent,
           fillColor: colors.primary,
-          hintStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          labelStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          errorStyle:
-              textStyle.copyWith(color: colors.dangerColor, fontSize: 13),
-          helperStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          prefixStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          suffixStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          counterStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 13,
-            fontWeight: FontWeight.w300,
-          ),
-          floatingLabelStyle: textStyle.copyWith(
-            color: colors.secondaryHighlightDarkest,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
+          hintStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          labelStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          errorStyle: fonts.headlineSmall!.copyWith(color: colors.dangerColor),
+          helperStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          prefixStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          suffixStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          counterStyle: fonts.bodySmall!
+              .copyWith(color: colors.secondaryHighlightDarkest),
+          floatingLabelStyle: fonts.bodyMedium!
+              .copyWith(color: colors.secondaryHighlightDarkest),
           errorMaxLines: 5,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
@@ -278,10 +240,7 @@ class Themes {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: colors.secondary,
-            textStyle: textStyle.copyWith(
-              color: colors.secondary,
-              fontSize: 17,
-            ),
+            textStyle: fonts.bodyLarge!.copyWith(color: colors.secondary),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -294,10 +253,7 @@ class Themes {
               borderRadius: BorderRadius.circular(30),
             ),
             side: BorderSide(width: 1, color: colors.secondary),
-            textStyle: textStyle.copyWith(
-              color: colors.secondary,
-              fontSize: 17,
-            ),
+            textStyle: fonts.bodyLarge!.copyWith(color: colors.secondary),
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -307,10 +263,7 @@ class Themes {
               borderRadius: BorderRadius.circular(30),
             ),
             padding: const EdgeInsets.all(12),
-            textStyle: textStyle.copyWith(
-              color: colors.secondary,
-              fontSize: 15,
-            ),
+            textStyle: fonts.titleMedium!.copyWith(color: colors.secondary),
           ),
         ),
         scrollbarTheme: theme.scrollbarTheme.copyWith(
@@ -389,7 +342,6 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.colors,
     required this.barrierColor,
-    required this.boldBody,
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
@@ -416,9 +368,6 @@ class Style extends ThemeExtension<Style> {
 
   /// [Color] of the modal background barrier.
   final Color barrierColor;
-
-  /// [TextStyle] to use in the body to make content readable.
-  final TextStyle boldBody;
 
   /// Blur to apply to card-like [Widget]s.
   final double cardBlur;
@@ -483,7 +432,6 @@ class Style extends ThemeExtension<Style> {
   ThemeExtension<Style> copyWith({
     Palette? colors,
     Color? barrierColor,
-    TextStyle? boldBody,
     double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
@@ -507,7 +455,6 @@ class Style extends ThemeExtension<Style> {
     return Style(
       colors: colors ?? this.colors,
       barrierColor: barrierColor ?? this.barrierColor,
-      boldBody: boldBody ?? this.boldBody,
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
@@ -541,7 +488,6 @@ class Style extends ThemeExtension<Style> {
     return Style(
       colors: Palette.lerp(colors, other.colors, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
-      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
@@ -588,6 +534,7 @@ class Style extends ThemeExtension<Style> {
 class Palette {
   Palette({
     required this.primary,
+    Color? primaryOpacity20,
     required this.primaryHighlight,
     required this.primaryHighlightShiny,
     required this.primaryHighlightShiniest,
@@ -621,9 +568,9 @@ class Palette {
     Color? onBackgroundOpacity13,
     Color? onBackgroundOpacity20,
     Color? onBackgroundOpacity27,
-    Color? onBackgroundOpacity33,
     Color? onBackgroundOpacity40,
     Color? onBackgroundOpacity50,
+    Color? onBackgroundOpacity70,
     required this.transparent,
     required this.acceptColor,
     required this.acceptAuxiliaryColor,
@@ -631,7 +578,8 @@ class Palette {
     required this.dangerColor,
     required this.warningColor,
     required this.userColors,
-  })  : onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
+  })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
+        onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
         onPrimaryOpacity95 = onPrimaryOpacity95 ?? onPrimary.withOpacity(0.95),
@@ -657,12 +605,19 @@ class Palette {
         onBackgroundOpacity40 =
             onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
         onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50);
+            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
+        onBackgroundOpacity70 =
+            onBackgroundOpacity70 ?? onBackground.withOpacity(0.70);
 
   /// Primary [Color] of the application.
   ///
   /// Used to highlight the active interface elements.
   final Color primary;
+
+  /// 20% opacity of the [primary] color.
+  ///
+  /// Used to highlight chat messages.
+  final Color primaryOpacity20;
 
   /// [Color] for elements to put above the [primary] color.
   ///
@@ -790,6 +745,11 @@ class Palette {
 
   /// [Color] for elements to put above the [background] color.
   final Color onBackground;
+
+  /// 70% opacity of the [onBackground] color.
+  ///
+  /// Used to darken inactive interface elements.
+  final Color onBackgroundOpacity70;
 
   /// 50% opacity of the [onBackground] color.
   ///
@@ -948,4 +908,26 @@ class Palette {
           other.userColors.isNotEmpty ? other.userColors : color.userColors,
     );
   }
+}
+
+/// Extension adding [Style] and [TextTheme] handy getters from the [ThemeData].
+extension ThemeStylesExtension on ThemeData {
+  /// Returns the [TextTheme] of this [ThemeData].
+  TextTheme get fonts => textTheme;
+
+  /// Returns the [Style] of this [ThemeData].
+  Style get style => extension<Style>()!;
+
+  /// Returns a record containing the [style] and [fonts].
+  (Style, TextTheme) get styles => (style, fonts);
+}
+
+/// Adds the ability to get HEX value of the color.
+extension HexColor on Color {
+  /// Returns a HEX string value of this color.
+  String toHex() => '#'
+      '${alpha.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
 }

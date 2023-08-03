@@ -142,7 +142,7 @@ class GalleryPopup extends StatefulWidget {
     required BuildContext context,
     required Widget gallery,
   }) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return showGeneralDialog(
       context: context,
@@ -320,7 +320,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -412,7 +412,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the gallery view of its items itself.
   Widget _pageView() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -567,16 +567,25 @@ class _GalleryPopupState extends State<GalleryPopup>
                       node.requestFocus();
                       _toggleFullscreen();
                     },
-                    child: PlatformUtils.isWeb
-                        ? WebImage(
-                            e.link,
-                            onForbidden: e.onError,
-                          )
-                        : RetryImage(
-                            e.link,
-                            checksum: e.checksum,
-                            onForbidden: e.onError,
-                          ),
+                    child: FittedBox(
+                      fit: _isFullscreen.isTrue
+                          ? BoxFit.contain
+                          : BoxFit.scaleDown,
+                      child: ConstrainedBox(
+                        constraints:
+                            const BoxConstraints(minWidth: 1, minHeight: 1),
+                        child: PlatformUtils.isWeb
+                            ? WebImage(
+                                e.link,
+                                onForbidden: e.onError,
+                              )
+                            : RetryImage(
+                                e.link,
+                                checksum: e.checksum,
+                                onForbidden: e.onError,
+                              ),
+                      ),
+                    ),
                   ),
           ),
         );
@@ -586,7 +595,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the [List] of [GalleryPopup] interface [Widget]s.
   List<Widget> _buildInterface() {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;

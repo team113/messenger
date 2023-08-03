@@ -222,7 +222,7 @@ class _ChatWatchData {
                       .difference(chat.lastItem!.at.val)
                       .compareTo(ChatWorker.newMessageThreshold) <=
                   -1 &&
-              chat.lastItem!.authorId != me?.call() &&
+              chat.lastItem!.author.id != me?.call() &&
               chat.muted == null) {
             final StringBuffer body = StringBuffer();
             final ChatItem msg = chat.lastItem!;

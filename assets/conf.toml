@@ -61,6 +61,23 @@
 # Default:
 #   directory = ""
 
+[user.agent]
+# Product identifier of `User-Agent` header to put in network queries.
+#
+# Unused for Web, as browser picks the `User-Agent` itself.
+#
+# Default:
+#   product = "Gapopa"
+
+# Product version of `User-Agent` header to put in network queries.
+#
+# If an empty string is passed, then the default value is used.
+#
+# Unused for Web, as browser picks the `User-Agent` itself.
+#
+# Default:
+#   version = "$(git describe --tags --dirty)"
+
 [fcm]
 # Voluntary Application Server Identification key for Web Push.
 #

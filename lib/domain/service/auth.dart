@@ -176,17 +176,6 @@ class AuthService extends GetxService {
     }
   }
 
-  /// Indicates whether some [User] can be identified by the given [num],
-  /// [login], [email] or [phone].
-  ///
-  /// Exactly one of [num]/[login]/[email]/[phone] arguments must be specified.
-  Future<bool> checkUserIdentifiable(
-          {UserLogin? login,
-          UserNum? num,
-          UserEmail? email,
-          UserPhone? phone}) async =>
-      await _authRepository.checkUserIdentifiable(login, num, email, phone);
-
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
   ///

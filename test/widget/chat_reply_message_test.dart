@@ -41,14 +41,13 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -63,15 +62,18 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/view.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
+import '../mock/platform_utils.dart';
 import 'chat_reply_message_test.mocks.dart';
 import 'extension/rich_text.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
+  PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_reply_message_widget');
 
@@ -80,10 +82,8 @@ void main() async {
     'num': '1234567890123456',
     'login': 'login',
     'name': 'name',
-    'bio': 'bio',
     'emails': {'confirmed': [], 'unconfirmed': null},
     'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
     'hasPassword': true,
     'unreadChatsCount': 0,
     'ver': '0',
@@ -108,7 +108,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -180,7 +179,15 @@ void main() async {
                   '__typename': 'ChatMessage',
                   'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb4',
                   'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                  'authorId': 'me',
+                  'author': {
+                    'id': 'me',
+                    'num': '1234567890123456',
+                    'mutualContactsCount': 0,
+                    'isDeleted': false,
+                    'isBlocked': {'blacklisted': false, 'ver': '0'},
+                    'presence': 'AWAY',
+                    'ver': '0',
+                  },
                   'at': '2022-01-05T15:40:57.010950+00:00',
                   'ver': '1',
                   'repliesTo': [],
@@ -219,43 +226,30 @@ void main() async {
               '__typename': 'ChatMessage',
               'id': '145f6006-82b9-4d07-9229-354146e4f332',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-              'authorId': 'me',
+              'author': {
+                'id': 'me',
+                'num': '1234567890123456',
+                'mutualContactsCount': 0,
+                'isDeleted': false,
+                'isBlocked': {'blacklisted': false, 'ver': '0'},
+                'presence': 'AWAY',
+                'ver': '0',
+              },
               'at': '2022-01-27T11:34:37.191440+00:00',
               'ver': '1',
               'repliesTo': [
                 {
                   '__typename': 'ChatMessageQuote',
-                  'original': {
-                    'node': {
-                      '__typename': 'ChatMessage',
-                      'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb4',
-                      'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                      'authorId': 'me',
-                      'at': '2022-01-05T15:40:57.010950+00:00',
-                      'ver': '1',
-                      'repliesTo': [],
-                      'text': 'text message',
-                      'editedAt': null,
-                      'attachments': []
-                    },
-                    'cursor':
-                        'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
-                  },
-                  'at': '2022-01-27T10:53:21.405546+00:00',
                   'author': {
                     'id': 'me',
-                    'num': '1234123412341234',
-                    'isDeleted': false,
-                    'gallery': {
-                      'nodes': [],
-                      'edges': [],
-                    },
+                    'num': '1234567890123456',
                     'mutualContactsCount': 0,
-                    'isBlacklisted': {
-                      'ver': '0',
-                    },
+                    'isDeleted': false,
+                    'isBlocked': {'blacklisted': false, 'ver': '0'},
+                    'presence': 'AWAY',
                     'ver': '0',
                   },
+                  'at': '2022-01-27T10:53:21.405546+00:00',
                   'text': '123',
                   'attachments': [],
                 },
@@ -294,13 +288,13 @@ void main() async {
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((realInvocation) => const Stream.empty());
 
-  when(graphQlProvider.getBlacklist(
+  when(graphQlProvider.getBlocklist(
     first: 120,
     after: null,
     last: null,
     before: null,
   )).thenAnswer(
-    (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
   );
 
   when(graphQlProvider.getMonolog()).thenAnswer(
@@ -317,7 +311,7 @@ void main() async {
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       RememberedSession(
-        const RememberToken('token'),
+        const RefreshToken('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),
@@ -331,9 +325,6 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -360,7 +351,7 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
@@ -393,8 +384,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
@@ -427,7 +418,6 @@ void main() async {
       graphQlProvider,
       myUserProvider,
       blacklistedUsersProvider,
-      galleryItemProvider,
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));
@@ -444,6 +434,10 @@ void main() async {
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
     await gesture.addPointer(location: Offset.zero);
     addTearDown(gesture.removePointer);
+
+    // Wait for [HiveLazyProvider.boxEvents] in [RxChat].
+    await tester.runAsync(() async => await Future.delayed(1.seconds));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     var message = find.richText('text message', skipOffstage: false);
     expect(message, findsOneWidget);
@@ -468,6 +462,10 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 10));
 
     await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    // Wait for [HiveLazyProvider.boxEvents] in [RxChat].
+    await tester.runAsync(() => Future.delayed(1.seconds));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);

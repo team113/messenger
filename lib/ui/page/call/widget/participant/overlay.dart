@@ -53,12 +53,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     return Obx(() {
       bool isMuted;
 
-      if (participant.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.display ||
+          participant.member.isDialing.isTrue) {
         isMuted = false;
       } else {
         isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
@@ -70,7 +71,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       bool isAudioDisabled = participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
-          participant.source != MediaSourceKind.Display &&
+          participant.source != MediaSourceKind.display &&
           participant.member.owner == MediaOwnerKind.remote;
 
       final List<Widget> additionally = [];
@@ -99,7 +100,19 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
-      if (participant.source == MediaSourceKind.Display) {
+      if (participant.member.quality.value <= 1) {
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 3),
+            child: SvgImage.asset(
+              'assets/icons/low_signal_level.svg',
+              height: 15.5,
+            ),
+          ),
+        );
+      }
+
+      if (participant.source == MediaSourceKind.display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 4));
         }
@@ -147,11 +160,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.user.value?.user.value.name?.val ??
               participant.user.value?.user.value.num.val ??
               'dot'.l10n * 3,
-          style: context.theme.outlinedButtonTheme.style!.textStyle!
-              .resolve({MaterialState.disabled})!.copyWith(
-            fontSize: 15,
-            color: style.colors.onPrimary,
-          ),
+          style: fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

@@ -24,6 +24,7 @@ import '../../controller.dart';
 import '../call_cover.dart';
 import '../raised_hand.dart';
 import '../video_view.dart';
+import '/config.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -70,7 +71,7 @@ class ParticipantWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
@@ -110,7 +111,7 @@ class ParticipantWidget extends StatelessWidget {
                       key: participant.videoKey,
                       mirror:
                           participant.member.owner == MediaOwnerKind.local &&
-                              participant.source == MediaSourceKind.Device,
+                              participant.source == MediaSourceKind.device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
                       border:
@@ -128,20 +129,22 @@ class ParticipantWidget extends StatelessWidget {
 
             if (participant.member.isConnected.value) {
               child = Container();
-            } else if (participant.member.isRedialing.isTrue) {
+            } else if (participant.member.isDialing.isTrue) {
               child = Container(
-                key: Key('ParticipantRedialing_${participant.member.id}'),
+                key: Key('ParticipantDialing_${participant.member.id}'),
                 width: double.infinity,
                 height: double.infinity,
                 color: style.colors.onBackgroundOpacity50,
                 child: Padding(
                   padding: const EdgeInsets.all(21.0),
                   child: Center(
-                    child: SpinKitDoubleBounce(
-                      color: style.colors.secondaryHighlight,
-                      size: 100 / 1.5,
-                      duration: const Duration(milliseconds: 4500),
-                    ),
+                    child: Config.disableInfiniteAnimations
+                        ? const CustomProgressIndicator(size: 64)
+                        : SpinKitDoubleBounce(
+                            color: style.colors.secondaryHighlight,
+                            size: 100 / 1.5,
+                            duration: const Duration(milliseconds: 4500),
+                          ),
                   ),
                 ),
               );

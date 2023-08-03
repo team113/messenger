@@ -26,8 +26,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -47,10 +46,8 @@ void main() async {
     'num': '1234567890123456',
     'login': 'login',
     'name': 'name',
-    'bio': 'bio',
     'emails': {'confirmed': [], 'unconfirmed': null},
     'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
     'hasPassword': true,
     'unreadChatsCount': 0,
     'ver': '0',
@@ -76,11 +73,9 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
 
   setUp(() async {
@@ -88,7 +83,6 @@ void main() async {
   });
 
   Get.put(myUserProvider);
-  Get.put(galleryItemProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
   Get.put(sessionProvider);
 
@@ -124,13 +118,13 @@ void main() async {
           as ToggleMyUserMute$Mutation$ToggleMyUserMute$MyUserEventsVersioned),
     );
 
-    when(graphQlProvider.getBlacklist(
+    when(graphQlProvider.getBlocklist(
       first: 120,
       after: null,
       last: null,
       before: null,
     )).thenAnswer(
-      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+      (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
 
     AuthService authService = Get.put(
@@ -139,13 +133,12 @@ void main() async {
         sessionProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
       blacklistedUsersProvider,
-      galleryItemProvider,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
@@ -182,13 +175,12 @@ void main() async {
         sessionProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
       blacklistedUsersProvider,
-      galleryItemProvider,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});

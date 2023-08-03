@@ -34,7 +34,7 @@ class RtcVideoView extends StatefulWidget {
   const RtcVideoView(
     this.renderer, {
     super.key,
-    this.source = MediaSourceKind.Device,
+    this.source = MediaSourceKind.device,
     this.borderRadius,
     this.enableContextMenu = true,
     this.fit,
@@ -98,7 +98,7 @@ class RtcVideoView extends StatefulWidget {
     BoxConstraints constraints,
     BuildContext context,
   ) {
-    if (source == MediaSourceKind.Display ||
+    if (source == MediaSourceKind.display ||
         (renderer.width == 0 && renderer.height == 0)) {
       return BoxFit.contain;
     } else {
@@ -179,7 +179,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final (style, fonts) = Theme.of(context).styles;
 
     Widget video = VideoView(
       widget.renderer.inner,
@@ -269,7 +269,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
         RtcVideoRenderer renderer = widget.renderer;
 
         BoxFit? fit;
-        if (widget.source != MediaSourceKind.Display) {
+        if (widget.source != MediaSourceKind.display) {
           fit = widget.fit;
         }
 
@@ -312,15 +312,11 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                               child: widget.label != null
                                   ? Padding(
                                       padding: EdgeInsets.only(
-                                          left: widget.muted ? 6 : 1),
+                                        left: widget.muted ? 6 : 1,
+                                      ),
                                       child: Text(
                                         widget.label!,
-                                        style: context.theme.outlinedButtonTheme
-                                            .style!.textStyle!
-                                            .resolve({
-                                          MaterialState.disabled
-                                        })!.copyWith(
-                                          fontSize: 13,
+                                        style: fonts.headlineSmall!.copyWith(
                                           color: style.colors.onPrimary,
                                         ),
                                         maxLines: 1,
