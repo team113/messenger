@@ -16,8 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/util/audio_utils.dart';
+
+import '/themes.dart';
+import '/util/audio_utils.dart';
 
 /// [Wrap] with [_MediaContainer]s which represents application sounds.
 class SoundsWidget extends StatelessWidget {

@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart' show PageController;
 import 'package:get/get.dart';
-import 'package:rive/rive.dart';
 
 /// [StyleView] section.
 enum StyleTab { colors, typography, multimedia, elements }
@@ -46,9 +45,6 @@ class StyleController extends GetxController {
   /// Current logo's animation frame.
   final RxInt logoFrame = RxInt(0);
 
-  /// [SMITrigger] triggering the blinking animation.
-  SMITrigger? blink;
-
   /// [Timer] periodically increasing the [logoFrame].
   Timer? _animationTimer;
 
@@ -58,10 +54,8 @@ class StyleController extends GetxController {
     super.onClose();
   }
 
-  /// Resets the [logoFrame] and starts the blinking animation.
+  /// Resets the [logoFrame].
   void animate() {
-    blink?.fire();
-
     logoFrame.value = 1;
     _animationTimer?.cancel();
     _animationTimer = Timer.periodic(

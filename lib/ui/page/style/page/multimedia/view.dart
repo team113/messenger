@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/style/page/multimedia/widget/sounds.dart';
 
 import '/ui/page/style/page/multimedia/widget/animations.dart';
+import '/ui/page/style/page/multimedia/widget/sounds.dart';
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/images.dart';

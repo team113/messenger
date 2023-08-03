@@ -70,7 +70,7 @@ class AnimationsColumn extends StatelessWidget {
                         () => AnimatedLogo(
                           svgAsset:
                               'assets/images/logo/head000${c.logoFrame.value}.svg',
-                          onInit: (a) => _setBlink(c, a),
+                          onInit: (a) => _setAnimate(c, a),
                         ),
                       ),
                     ),
@@ -110,14 +110,11 @@ class AnimationsColumn extends StatelessWidget {
         });
   }
 
-  /// Sets the [StyleController.blink] from the provided [Artboard] and invokes
-  /// a [StyleController.animate] to animate it.
-  Future<void> _setBlink(StyleController c, Artboard a) async {
+  /// Invokes a [StyleController.animate] to animate.
+  Future<void> _setAnimate(StyleController c, Artboard a) async {
     final StateMachineController machine =
         StateMachineController(a.stateMachines.first);
     a.addController(machine);
-
-    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
 
     await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }
