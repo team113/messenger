@@ -118,7 +118,7 @@ class LoginController extends GetxController {
       }
     },
     onSubmitted: (s) async {
-      // _setResendEmailTimer();
+      stage.value = LoginViewStage.signUpWithEmailCode;
 
       final GraphQlProvider graphQlProvider = Get.find();
 
@@ -146,14 +146,14 @@ class LoginController extends GetxController {
         graphQlProvider.token = null;
         s.error.value = e.toMessage();
         _setResendEmailTimer(false);
+        stage.value = LoginViewStage.signUpWithEmail;
       } catch (_) {
         graphQlProvider.token = null;
         s.error.value = 'err_data_transfer'.l10n;
         _setResendEmailTimer(false);
         s.unsubmit();
+        stage.value = LoginViewStage.signUpWithEmail;
       }
-
-      stage.value = LoginViewStage.signUpWithEmailCode;
     },
   );
 
@@ -940,19 +940,21 @@ class LoginController extends GetxController {
 
   /// Resends a [ConfirmationCode] to the specified [email].
   Future<void> resendEmail() async {
+    resent.value = true;
+    _setResendEmailTimer();
+
     try {
       final GraphQlProvider graphQlProvider = Get.find();
 
       graphQlProvider.token = creds!.session.token;
       await graphQlProvider.resendEmail();
       graphQlProvider.token = null;
-
-      resent.value = true;
-      _setResendEmailTimer(true);
     } on ResendUserEmailConfirmationException catch (e) {
-      emailCode.error.value = e.toMessage();
+      email.error.value = e.toMessage();
     } catch (e) {
       emailCode.error.value = 'err_data_transfer'.l10n;
+      resent.value = false;
+      _setResendEmailTimer(false);
       rethrow;
     }
   }

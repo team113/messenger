@@ -530,9 +530,25 @@ class TextFieldState extends ReactiveFieldState {
 
     controller.addListener(() => PlatformUtils.keepActive());
 
+    String prevText = controller.text;
+    controller.addListener(() {
+      if (controller.text != prevText) {
+        prevText = controller.text;
+        print('controller.addListener');
+        if (revalidateOnUnfocus) {
+          error.value = null;
+        }
+      }
+    });
+
     if (onChanged != null) {
       controller.addListener(() {
         changed.value = controller.text != (_previousSubmit ?? '');
+        // if (changed.value) {
+        //   if (revalidateOnUnfocus) {
+        //     error.value = null;
+        //   }
+        // }
 
         // _debounceTimer?.cancel();
         // _debounceTimer = Timer(debounce, () {
@@ -549,15 +565,15 @@ class TextFieldState extends ReactiveFieldState {
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
 
-      if (revalidateOnUnfocus) {
-        if (this.focus.hasFocus) {
-          prevError = error.value;
-          error.value = null;
-        } else {
-          error.value = prevError;
-          // onChanged?.call(this);
-        }
-      }
+      // if (revalidateOnUnfocus) {
+      //   if (this.focus.hasFocus) {
+      //     prevError = error.value;
+      //     error.value = null;
+      //   } else {
+      //     error.value = prevError;
+      //     // onChanged?.call(this);
+      //   }
+      // }
 
       if (onChanged != null) {
         if (controller.text != _previousText &&

@@ -387,6 +387,7 @@ class _HomeViewState extends State<HomeView> {
                               ),
                               CustomNavigationBarItem(
                                 key: const Key('MenuButton'),
+                                onPressed: context.isNarrow ? null : router.me,
                                 child: ContextMenuRegion(
                                   selector: c.profileKey,
                                   alignment: Alignment.bottomRight,

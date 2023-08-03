@@ -1023,4 +1023,5 @@ label_account_created = Account created
 label_waiting_response_from = Waiting for the response from {$from}
 label_linked_devices = Linked devices
 label_scan_qr_code = Scan QR code
-btn_resend_email = Resend code
+btn_resend_email = Resend
+btn_resend_email_timeout = Resend in {$after} s

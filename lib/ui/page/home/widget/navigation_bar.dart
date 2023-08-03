@@ -111,7 +111,10 @@ class CustomNavigationBar extends StatelessWidget {
                           if (b.child != null)
                             tab(
                               selected: currentIndex == i,
-                              onPressed: () => onTap?.call(i),
+                              onPressed: () {
+                                onTap?.call(i);
+                                b.onPressed?.call();
+                              },
                               child: Container(
                                 width: 80,
                                 color: style.colors.transparent,

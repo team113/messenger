@@ -1046,3 +1046,4 @@ label_waiting_response_from = Ожидается ответ от {$from}
 label_linked_devices = Связанные устройства
 label_scan_qr_code = Отсканировать QR код
 btn_resend_email = Отправить повторно
+btn_resend_email_timeout = Отправить повторно через {$after} с

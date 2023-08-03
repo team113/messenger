@@ -345,6 +345,21 @@ class LoginView extends StatelessWidget {
                       .l10nfmt({'text': c.email.text}).parseLinks([], context),
                   style: fonts.titleLarge,
                 ),
+                // Text.rich(
+                //   'Проверочный код был отправлен на e-mail ${c.email.text}'
+                //       .parseLinks([], context),
+                //   style: fonts.titleLarge,
+                // ),
+                // WidgetButton(
+                //   onPressed: c.resendEmail,
+                //   child: Text(
+                //     '\nОтправить код подтверждения повторно'.l10n,
+                //     style: fonts.titleLarge?.copyWith(
+                //       color: style.colors.primary,
+                //     ),
+                //   ),
+                // ),
+                // Text('\nПожалуйста, введите его ниже', style: fonts.titleLarge),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
@@ -352,40 +367,43 @@ class LoginView extends StatelessWidget {
                   label: 'label_confirmation_code'.l10n,
                   type: TextInputType.number,
                 ),
-                const SizedBox(height: 25),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Obx(() {
-                        final bool enabled = c.resendEmailTimeout.value == 0;
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  child: Obx(() {
+                    final bool enabled = c.resendEmailTimeout.value == 0;
 
-                        return PrimaryButton(
-                          title: c.resendEmailTimeout.value == 0
-                              ? 'btn_resend_email'.l10n
-                              : 'Подождите ${c.resendEmailTimeout.value} секунд',
-                          onPressed: enabled ? c.resendEmail : null,
-                          dense: true,
-                        );
-                      }),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Obx(() {
-                        final bool enabled = !c.emailCode.isEmpty.value &&
-                            c.codeTimeout.value == 0;
-
-                        return PrimaryButton(
-                          key: const Key('Proceed'),
-                          title: c.codeTimeout.value == 0
-                              ? 'btn_proceed'.l10n
-                              : 'Подождите ${c.codeTimeout.value} секунд',
-                          dense: c.codeTimeout.value != 0,
-                          onPressed: enabled ? c.emailCode.submit : null,
-                        );
-                      }),
-                    ),
-                  ],
+                    return WidgetButton(
+                      onPressed: enabled ? c.resendEmail : null,
+                      child: Text(
+                        // 'btn_resend_email'.l10n,
+                        c.resendEmailTimeout.value == 0
+                            ? 'btn_resend_email'.l10n
+                            : 'btn_resend_email_timeout'
+                                .l10nfmt({'after': c.resendEmailTimeout.value}),
+                        style: fonts.labelMedium?.copyWith(
+                          color: enabled
+                              ? style.colors.primary
+                              : style.colors.secondary,
+                        ),
+                      ),
+                    );
+                  }),
                 ),
+                const SizedBox(height: 25),
+                Obx(() {
+                  final bool enabled =
+                      !c.emailCode.isEmpty.value && c.codeTimeout.value == 0;
+
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    title: c.codeTimeout.value == 0
+                        ? 'btn_proceed'.l10n
+                        : 'Подождите ${c.codeTimeout.value} секунд',
+                    dense: c.codeTimeout.value != 0,
+                    onPressed: enabled ? c.emailCode.submit : null,
+                  );
+                }),
               ];
               break;
 

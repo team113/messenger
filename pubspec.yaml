@@ -67,7 +67,7 @@ dependencies:
   medea_flutter_webrtc: 0.8.2
   medea_jason: ^0.4.0
   media_kit: ^1.1.0
-  media_kit_libs_ios_video: ^1.0.4
+  media_kit_libs_ios_video: ^1.0.5
   mime: ^1.0.4
   mutex: ^3.0.1
   # TODO: Switch to pub.dev version when the following pull request is merged
