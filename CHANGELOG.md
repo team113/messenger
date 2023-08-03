@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.10] · 2023-??-??
+[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+
+[Diff](/../../compare/v0.1.0-alpha.9.1...v0.1.0-alpha.10) | [Milestone](/../../milestone/6)
+
+### Added
+
+- Windows:
+    - Local notifications. ([#492], [#439])
+
+[#439]: /../../issues/439
+[#492]: /../../pull/492
+
+
+
+
 ## [0.1.0-alpha.9.2] · 2023-07-28
 [0.1.0-alpha.9.2]: /../../tree/v0.1.0-alpha.9.2
 
