@@ -46,6 +46,7 @@ class ReactiveLoginField extends StatefulWidget {
   State<ReactiveLoginField> createState() => _ReactiveLoginFieldState();
 }
 
+/// State of an [ReactiveLoginField] maintaining the [_state].
 class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
   /// [Timer] to set the `RxStatus.empty` status of the [login] field.
   Timer? _loginTimer;
