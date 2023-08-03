@@ -30,12 +30,10 @@ import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
-import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -45,16 +43,12 @@ import '/util/platform_utils.dart';
 class ChatWorker extends DisposableService {
   ChatWorker(
     this._chatService,
-    this._userService,
     this._myUserService,
     this._notificationService,
   );
 
   /// [ChatService], used to get the [Chat]s list.
   final ChatService _chatService;
-
-  /// [User]s service fetching the [User]s.
-  final UserService _userService;
 
   /// [MyUserService] used to getting [MyUser.muted] status.
   final MyUserService _myUserService;
@@ -180,7 +174,6 @@ class ChatWorker extends DisposableService {
         }
       },
       me: () => _chatService.me,
-      getUser: _userService.get,
     );
   }
 
@@ -211,7 +204,6 @@ class _ChatWatchData {
     Rx<Chat> c, {
     void Function(String, String?, String?)? onNotification,
     UserId? Function()? me,
-    required Future<RxUser?> Function(UserId) getUser,
   }) : updatedAt = PreciseDateTime.now() {
     worker = ever(
       c,
@@ -231,7 +223,7 @@ class _ChatWatchData {
             if (msg is ChatMessage) {
               final String? text = _message(
                 isGroup: chat.isGroup,
-                author: await getUser(msg.authorId),
+                author: msg.author,
                 text: msg.text,
                 attachments: msg.attachments,
               );
@@ -250,7 +242,7 @@ class _ChatWatchData {
               if (quote is ChatMessageQuote) {
                 final String? text = _message(
                   isGroup: chat.isGroup,
-                  author: await getUser(msg.authorId),
+                  author: msg.author,
                   text: quote.text,
                   attachments: quote.attachments,
                 );
@@ -267,7 +259,7 @@ class _ChatWatchData {
               } else if (quote is ChatInfoQuote) {
                 if (quote.action != null) {
                   final String? text = _info(
-                    author: (await getUser(msg.authorId))?.user.value,
+                    author: msg.author,
                     info: quote.action!,
                   );
 
@@ -314,12 +306,12 @@ class _ChatWatchData {
   /// [text] and [attachments].
   String? _message({
     required bool isGroup,
-    RxUser? author,
+    User? author,
     ChatMessageText? text,
     List<Attachment> attachments = const [],
   }) {
-    final String name = author?.user.value.name?.val ?? 'x';
-    final String num = author?.user.value.num.val ?? 'err_unknown_user'.l10n;
+    final String name = author?.name?.val ?? 'x';
+    final String num = author?.num.val ?? 'err_unknown_user'.l10n;
 
     if (text != null) {
       if (isGroup) {

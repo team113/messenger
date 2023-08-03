@@ -122,7 +122,7 @@ class Config {
     userAgentVersion =
         version.isNotEmpty ? version : (Pubspec.ref ?? Pubspec.version);
 
-        vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
+    vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
         ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
         : (document['fcm']?['vapidKey'] ??
             'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');

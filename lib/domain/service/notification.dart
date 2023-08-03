@@ -21,6 +21,7 @@ import 'dart:math';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '/config.dart';
@@ -64,8 +65,6 @@ class NotificationService extends DisposableService {
   /// push notifications in foreground.
   StreamSubscription? _foregroundSubscription;
 
-  /// Indicator whether the application's window is in focus.
-  bool _focused = true;
   /// Subscription to the [PlatformUtils.onActivityChanged] updating the
   /// [_active].
   StreamSubscription? _onActivityChanged;
@@ -109,7 +108,7 @@ class NotificationService extends DisposableService {
     _onActivityChanged =
         PlatformUtils.onActivityChanged.listen((v) => _active = v);
 
-     AudioUtils.ensureInitialized();
+    AudioUtils.ensureInitialized();
 
     _initLocalNotifications(
       onResponse: (NotificationResponse response) {
@@ -144,9 +143,6 @@ class NotificationService extends DisposableService {
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
-    AudioCache.instance.clear('audio/notification.mp3');
     _onActivityChanged?.cancel();
   }
 
@@ -184,17 +180,7 @@ class NotificationService extends DisposableService {
     // Other platforms don't require playing a sound explicitly, as the local or
     // push notification displayed plays it instead.
     if (PlatformUtils.isWeb || PlatformUtils.isWindows) {
-      runZonedGuarded(() async {
-        await _audioPlayer?.play(
-          AssetSource('audio/notification.mp3'),
-          position: Duration.zero,
-          mode: PlayerMode.lowLatency,
-        );
-      }, (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      });
+      AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
     }
 
     if (PlatformUtils.isWeb) {

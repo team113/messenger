@@ -590,11 +590,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               onBackground: handlePushNotification,
             );
 
-            UserRepository userRepository = UserRepository(
-              graphQlProvider,
-              Get.find(),
-              Get.find(),
-            );
+            UserRepository userRepository =
+                UserRepository(graphQlProvider, Get.find());
             deps.put<AbstractUserRepository>(userRepository);
             CallRepository callRepository = CallRepository(
               graphQlProvider,
@@ -641,7 +638,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
-            UserService userService = deps.put(UserService(userRepository));
+            deps.put(UserService(userRepository));
             deps.put(ContactService(contactRepository));
             ChatService chatService =
                 deps.put(ChatService(chatRepository, Get.find()));
@@ -660,7 +657,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             deps.put(ChatWorker(
               chatService,
-              userService,
               myUserService,
               Get.find(),
             ));
