@@ -175,14 +175,14 @@ class MyProfileView extends StatelessWidget {
                                   if (c.myUser.value?.avatar != null) ...[
                                     Text(
                                       'space_or_space'.l10n,
-                                      style: fonts.bodySmall,
+                                      style: fonts.labelSmall,
                                     ),
                                     WidgetButton(
                                       key: const Key('DeleteAvatar'),
                                       onPressed: c.deleteAvatar,
                                       child: Text(
                                         'btn_delete'.l10n.toLowerCase(),
-                                        style: fonts.bodySmall!.copyWith(
+                                        style: fonts.labelSmall!.copyWith(
                                           color: style.colors.primary,
                                         ),
                                       ),

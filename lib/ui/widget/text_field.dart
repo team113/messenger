@@ -393,29 +393,33 @@ class ReactiveTextField extends StatelessWidget {
             ),
 
             // Displays a [subtitle] or error, if any.
-            AnimatedSize(
-              duration: 200.milliseconds,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: AnimatedSwitcher(
-                  duration: 200.milliseconds,
-                  child: state.error.value == null
-                      ? Padding(
-                          padding: const EdgeInsets.only(left: 23, top: 10),
-                          child: subtitle,
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            state.error.value ?? '',
-                            style: fonts.labelMedium?.copyWith(
-                              color: style.colors.dangerColor,
+            if (subtitle != null)
+              AnimatedSize(
+                duration: 200.milliseconds,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: AnimatedSwitcher(
+                    duration: 200.milliseconds,
+                    child: state.error.value == null
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 8,
+                            ),
+                            child: subtitle,
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              state.error.value ?? '',
+                              style: fonts.labelMedium?.copyWith(
+                                color: style.colors.dangerColor,
+                              ),
                             ),
                           ),
-                        ),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       );

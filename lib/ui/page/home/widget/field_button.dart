@@ -142,7 +142,7 @@ class _FieldButtonState extends State<FieldButton> {
                       width: 50,
                       child: Center(
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: 8, top: 8),
                           child: child,
                         ),
                       ),
@@ -157,7 +157,7 @@ class _FieldButtonState extends State<FieldButton> {
         Align(
           alignment: Alignment.centerLeft,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: widget.subtitle,
           ),
         ),
