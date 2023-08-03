@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +26,7 @@ import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/audio_utils.dart';
 import 'animated_transition.dart';
 
 /// Placing [children] evenly on a screen with an ability to reorder them.
@@ -545,24 +544,14 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   /// [GlobalKey] of this [_ReorderableFit].
   final GlobalKey _fitKey = GlobalKey();
 
-  /// [AudioPlayer] playing a pop sound.
-  AudioPlayer? _audioPlayer;
-
   /// [_ReorderableItem] being dragged that has already broke its dough.
   _ReorderableItem<T>? _doughDragged;
 
   @override
   void initState() {
     _items = widget.children.map((e) => _ReorderableItem(e)).toList();
-    _initAudio();
+    AudioUtils.ensureInitialized();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
-    super.dispose();
   }
 
   @override
@@ -644,11 +633,9 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     onDoughBreak: () {
                       _doughDragged = item;
                       widget.onDoughBreak?.call(item.item);
-                      _audioPlayer?.play(
-                        AssetSource('audio/pop.mp3'),
+                      AudioUtils.once(
+                        AudioSource.asset('audio/pop.mp3'),
                         volume: 0.3,
-                        position: Duration.zero,
-                        mode: PlayerMode.lowLatency,
                       );
                     },
                   ),
@@ -995,22 +982,6 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
       setState(() {});
     }
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    // [AudioPlayer] constructor creates a hanging [Future], which can't be
-    // awaited.
-    runZonedGuarded(
-      () => _audioPlayer = AudioPlayer(),
-      (e, _) {
-        if (e is MissingPluginException) {
-          _audioPlayer = null;
-        } else {
-          throw e;
-        }
-      },
-    );
   }
 }
 
