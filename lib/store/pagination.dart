@@ -19,8 +19,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
-import 'package:messenger/util/log.dart';
 
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'model/page_info.dart';
 
@@ -48,10 +48,10 @@ class Pagination<T, K extends Comparable, C> {
   /// Indicator whether the [items] have previous page.
   final RxBool hasPrevious = RxBool(true);
 
-  /// Indicator whether the [next] function is executing.
+  /// Indicator whether the [next] page of [items] is being fetched.
   final RxBool nextLoading = RxBool(false);
 
-  /// Indicator whether the [previous] function is executing.
+  /// Indicator whether the [previous] page of [items] is being fetched.
   final RxBool previousLoading = RxBool(false);
 
   /// Callback, called when a key of type [K] identifying the provided [T] item
@@ -237,7 +237,7 @@ class Page<T, C> {
   }
 }
 
-/// Base class for fetching items with pagination.
+/// Utility providing the [Page]s.
 abstract class PageProvider<T, K> {
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///

@@ -837,7 +837,7 @@ class _ChatViewState extends State<ChatView>
 
         if (c.showLoaders.value) {
           child = SizedBox.square(
-            dimension: ChatController.loadingHeight,
+            dimension: ChatController.loaderHeight,
             child: Center(
               key: const ValueKey(1),
               child: Padding(
@@ -858,7 +858,7 @@ class _ChatViewState extends State<ChatView>
                 ? isLast
                     ? ChatController.lastItemBottomOffset
                     : null
-                : ChatController.loadingHeight,
+                : ChatController.loaderHeight,
           );
         }
 
