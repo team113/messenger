@@ -208,7 +208,7 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_login_options'.l10n,
                           children: [
-                            CopyableNumField(c.myUser.value?.num),
+                            UserNumCopyable(c.myUser.value?.num),
                             const SizedBox(height: 10),
                             _login(context, c),
                             const SizedBox(height: 10),

@@ -236,7 +236,10 @@ class UserView extends StatelessWidget {
                         title: 'label_contact_information'.l10n,
                         children: [
                           Paddings.basic(
-                            CopyableNumField(c.user!.user.value.num),
+                            UserNumCopyable(
+                              key: const Key('UserNum'),
+                              c.user!.user.value.num,
+                            ),
                           )
                         ],
                       ),
