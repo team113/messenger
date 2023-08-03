@@ -45,20 +45,26 @@ void main() async {
       onKey: (i) => i,
     );
 
-    void console() {
-      print(
-        '[${pagination.items.values}] (${pagination.startCursor} to ${pagination.endCursor})',
-      );
-    }
-
     await pagination.around(cursor: 20);
-    console();
+    expect(pagination.items.length, 4);
+    expect(pagination.items.values, [18, 19, 20, 21]);
+    expect(pagination.hasPrevious.value, true);
+    expect(pagination.hasNext.value, true);
 
     await pagination.next();
-    console();
+    expect(pagination.items.length, 8);
+    expect(pagination.items.values, [18, 19, 20, 21, 22, 23, 24, 25]);
+    expect(pagination.hasPrevious.value, true);
+    expect(pagination.hasNext.value, true);
 
     await pagination.previous();
-    console();
+    expect(pagination.items.length, 12);
+    expect(
+      pagination.items.values,
+      [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+    );
+    expect(pagination.hasPrevious.value, true);
+    expect(pagination.hasNext.value, true);
   });
 
   test('GraphQlPageProvider correctly paginates results', () async {
