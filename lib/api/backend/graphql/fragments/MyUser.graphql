@@ -28,15 +28,6 @@ fragment MyUser on MyUser {
         unconfirmed
     }
     name
-    bio
-    gallery {
-        nodes {
-            __typename
-            ... on ImageGalleryItem {
-                ...ImageGalleryItem
-            }
-        }
-    }
     avatar {
         __typename
         ...UserAvatar

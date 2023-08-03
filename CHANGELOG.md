@@ -6,7 +6,44 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.9] · 2023-??-??
+## [0.1.0-alpha.9.2] · 2023-07-28
+[0.1.0-alpha.9.2]: /../../tree/v0.1.0-alpha.9.2
+
+[Diff](/../../compare/v0.1.0-alpha.9.1...v0.1.0-alpha.9.2) | [Milestone](/../../milestone/6)
+
+### Fixed
+
+- Linux:
+    - Application crashing when playing sounds. ([#496])
+- Web:
+    - Default locale not detecting in Safari. ([#491])
+
+[#491]: /../../pull/491
+[#496]: /../../pull/496
+
+
+
+
+## [0.1.0-alpha.9.1] · 2023-07-20
+[0.1.0-alpha.9.1]: /../../tree/v0.1.0-alpha.9.1
+
+[Diff](/../../compare/v0.1.0-alpha.9...v0.1.0-alpha.9.1) | [Milestone](/../../milestone/7)
+
+### Fixed
+
+- Performance:
+    - Spamming backend API when reading a chat. ([#487])
+- iOS:
+    - Unreadable status bar text color. ([#487])
+- Web:
+    - Avatar not uploading due to simultaneous file read. ([#487])
+
+[#487]: /../../pull/487
+
+
+
+
+## [0.1.0-alpha.9] · 2023-07-17
 [0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
 
 [Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
@@ -26,10 +63,14 @@ All user visible changes to this project will be documented in this file. This p
         - Multiple contacts selection. ([#361], [#348])
     - Media panel:
         - Low signal icons. ([#454])
+        - Device changed notifications. ([#472])
+    - Clickable icons animating on hovers and clicks. ([#470])
 - Web:
     - Unread chats badge on favicon. ([#403])
 - Desktop:
-    - Video support. ([#445], [#438])
+    - Video playback. ([#468], [#445], [#438])
+- Mobile:
+    - Video rewinding indication. ([#468], [#452])
 
 ### Changed
 
@@ -69,7 +110,6 @@ All user visible changes to this project will be documented in this file. This p
 [#118]: /../../pull/118
 [#258]: /../../issues/258
 [#264]: /../../issues/264
-[#367]: /../../issues/367
 [#270]: /../../pull/270
 [#281]: /../../issues/281
 [#286]: /../../pull/286
@@ -77,10 +117,11 @@ All user visible changes to this project will be documented in this file. This p
 [#333]: /../../pull/333
 [#344]: /../../issues/344
 [#348]: /../../issues/348
+[#356]: /../../pull/356
 [#357]: /../../pull/357
 [#361]: /../../pull/361
 [#362]: /../../pull/362
-[#356]: /../../pull/356
+[#367]: /../../issues/367
 [#371]: /../../issues/371
 [#375]: /../../pull/375
 [#377]: /../../issues/377
@@ -101,12 +142,16 @@ All user visible changes to this project will be documented in this file. This p
 [#440]: /../../pull/440
 [#443]: /../../pull/443
 [#445]: /../../pull/445
+[#452]: /../../issues/452
 [#453]: /../../pull/453
 [#454]: /../../pull/454
 [#456]: /../../pull/456
 [#462]: /../../pull/462
 [#463]: /../../pull/463
 [#467]: /../../pull/467
+[#468]: /../../pull/468
+[#470]: /../../pull/470
+[#472]: /../../pull/472
 
 
 

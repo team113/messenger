@@ -24,13 +24,11 @@ class Themes {
   static ThemeData light() {
     final Palette colors = Palette(
       primary: const Color(0xFF63B4FF),
-      primaryHighlight: Colors.blue,
+      primaryHighlight: const Color(0xFF2196F3),
       primaryHighlightShiny: const Color(0xFF58A6EF),
       primaryHighlightShiniest: const Color(0xFFD2E3F9),
       primaryHighlightLightest: const Color(0xFFB9D9FA),
-      primaryDark: const Color(0xFF1F3C5D),
-      primaryAuxiliary: const Color(0xFF165084),
-      onPrimary: Colors.white,
+      onPrimary: const Color(0xFFFFFFFF),
       secondary: const Color(0xFF888888),
       secondaryHighlight: const Color(0xFFEFEFEF),
       secondaryHighlightDark: const Color(0xFFDEDEDE),
@@ -44,24 +42,24 @@ class Themes {
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
-      onBackground: Colors.black,
+      onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
       acceptColor: const Color(0x7F34B139),
-      acceptAuxiliaryColor: Colors.green,
+      acceptAuxiliaryColor: const Color(0xFF4CAF50),
       declineColor: const Color(0x7FFF0000),
-      dangerColor: Colors.red,
-      warningColor: Colors.orange,
+      dangerColor: const Color(0xFFF44336),
+      warningColor: const Color(0xFFFF9800),
       userColors: [
-        Colors.purple,
-        Colors.deepPurple,
-        Colors.indigo,
-        Colors.blue,
-        Colors.cyan,
-        Colors.lightGreen,
-        Colors.lime,
-        Colors.amber,
-        Colors.orange,
-        Colors.deepOrange,
+        const Color(0xFF9C27B0),
+        const Color(0xFF673AB7),
+        const Color(0xFF3F51B5),
+        const Color(0xFF2196F3),
+        const Color(0xFF00BCD4),
+        const Color(0xFF8BC34A),
+        const Color(0xFFCDDC39),
+        const Color(0xFFFFC107),
+        const Color(0xFFFF9800),
+        const Color(0xFFFF5722),
       ],
     );
 
@@ -100,9 +98,18 @@ class Themes {
       bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
     );
 
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: colors.primaryHighlight,
+        statusBarColor: colors.transparent,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
+
     final ThemeData theme = ThemeData.light();
 
     return theme.copyWith(
+        useMaterial3: true,
         extensions: [
           Style(
             colors: colors,
@@ -121,7 +128,7 @@ class Themes {
             contextMenuBackgroundColor: colors.secondaryHighlight,
             contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
             contextMenuRadius: BorderRadius.circular(10),
-            linkStyle: TextStyle(
+            linkStyle: textStyle.copyWith(
               color: colors.primary,
               decoration: TextDecoration.underline,
               decorationThickness: 2,
@@ -156,10 +163,6 @@ class Themes {
           ),
           actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
             color: colors.secondary,
-          ),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            systemNavigationBarColor: colors.primaryHighlight,
-            statusBarColor: colors.transparent,
           ),
           elevation: 0,
           centerTitle: true,
@@ -536,12 +539,6 @@ class Palette {
     required this.primaryHighlightShiny,
     required this.primaryHighlightShiniest,
     required this.primaryHighlightLightest,
-    required this.primaryDark,
-    Color? primaryDarkOpacity70,
-    Color? primaryDarkOpacity90,
-    required this.primaryAuxiliary,
-    Color? primaryAuxiliaryOpacity25,
-    Color? primaryAuxiliaryOpacity90,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity25,
@@ -573,6 +570,7 @@ class Palette {
     Color? onBackgroundOpacity27,
     Color? onBackgroundOpacity40,
     Color? onBackgroundOpacity50,
+    Color? onBackgroundOpacity70,
     required this.transparent,
     required this.acceptColor,
     required this.acceptAuxiliaryColor,
@@ -581,12 +579,6 @@ class Palette {
     required this.warningColor,
     required this.userColors,
   })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
-        primaryDarkOpacity70 =
-            primaryDarkOpacity70 ?? primaryDark.withOpacity(0.70),
-        primaryDarkOpacity90 =
-            primaryDarkOpacity90 ?? primaryDark.withOpacity(0.90),
-        primaryAuxiliaryOpacity25 =
-            primaryAuxiliaryOpacity25 ?? primaryAuxiliary.withOpacity(0.25),
         onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
@@ -613,7 +605,9 @@ class Palette {
         onBackgroundOpacity40 =
             onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
         onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50);
+            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
+        onBackgroundOpacity70 =
+            onBackgroundOpacity70 ?? onBackground.withOpacity(0.70);
 
   /// Primary [Color] of the application.
   ///
@@ -644,31 +638,6 @@ class Palette {
   ///
   /// Used as a border of [ChatMessage]s and [ChatForward]s.
   final Color primaryHighlightLightest;
-
-  /// Dark [Color] of the [primary] elements.
-  ///
-  /// Used to darken the [primary] elements when hovering or activated.
-  final Color primaryDark;
-
-  /// 70% opacity of the [primaryDark] color.
-  ///
-  /// Used for `Draggable` panel elements.
-  final Color primaryDarkOpacity70;
-
-  /// 90% opacity of the [primaryDark] color.
-  ///
-  /// Used for [Launchpad] background color.
-  final Color primaryDarkOpacity90;
-
-  /// [Color] responsible for the helper primary color.
-  ///
-  /// Used for alternative primary in case we need to darken.
-  final Color primaryAuxiliary;
-
-  /// 25% opacity of the [primaryAuxiliary] color.
-  ///
-  /// Used as `possibleContainer` and [DockDecorator] color.
-  final Color primaryAuxiliaryOpacity25;
 
   /// [Color] for elements to put above the [primary] color.
   ///
@@ -777,6 +746,11 @@ class Palette {
   /// [Color] for elements to put above the [background] color.
   final Color onBackground;
 
+  /// 70% opacity of the [onBackground] color.
+  ///
+  /// Used to darken inactive interface elements.
+  final Color onBackgroundOpacity70;
+
   /// 50% opacity of the [onBackground] color.
   ///
   /// Used as a play video circle button background.
@@ -855,10 +829,6 @@ class Palette {
 
     return Palette(
       primary: Color.lerp(color.primary, other.primary, t)!,
-      primaryAuxiliary:
-          Color.lerp(color.primaryAuxiliary, other.primaryAuxiliary, t)!,
-      primaryAuxiliaryOpacity25: Color.lerp(
-          color.primaryAuxiliaryOpacity25, other.primaryAuxiliaryOpacity25, t)!,
       primaryHighlight:
           Color.lerp(color.primaryHighlight, other.primaryHighlight, t)!,
       primaryHighlightShiny: Color.lerp(
@@ -870,11 +840,6 @@ class Palette {
           color.primaryHighlightShiniest, other.primaryHighlightShiniest, t)!,
       primaryHighlightLightest: Color.lerp(
           color.primaryHighlightLightest, other.primaryHighlightLightest, t)!,
-      primaryDark: Color.lerp(color.primaryDark, other.primaryDark, t)!,
-      primaryDarkOpacity70: Color.lerp(
-          color.primaryDarkOpacity70, other.primaryDarkOpacity70, t)!,
-      primaryDarkOpacity90: Color.lerp(
-          color.primaryDarkOpacity90, other.primaryDarkOpacity90, t)!,
       onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
       onPrimaryOpacity7:
           Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,
@@ -955,4 +920,14 @@ extension ThemeStylesExtension on ThemeData {
 
   /// Returns a record containing the [style] and [fonts].
   (Style, TextTheme) get styles => (style, fonts);
+}
+
+/// Adds the ability to get HEX value of the color.
+extension HexColor on Color {
+  /// Returns a HEX string value of this color.
+  String toHex() => '#'
+      '${alpha.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
 }

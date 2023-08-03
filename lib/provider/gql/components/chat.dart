@@ -431,7 +431,9 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
   /// already read by the authenticated [MyUser] until the specified [ChatItem].
   Future<ChatEventsVersionedMixin?> readChat(
-      ChatId chatId, ChatItemId untilId) async {
+    ChatId chatId,
+    ChatItemId untilId,
+  ) async {
     final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -710,7 +712,7 @@ mixin ChatGraphQlMixin {
     dio.MultipartFile? attachment, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    final variables = UploadAttachmentArguments(upload: null);
+    final variables = UploadAttachmentArguments(file: null);
     final query = MutationOptions(
       operationName: 'UploadAttachment',
       document: UploadAttachmentMutation(variables: variables).document,
@@ -736,6 +738,12 @@ mixin ChatGraphQlMixin {
                 as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentError)
             .code),
       );
+
+      if (response.data['data'] == null) {
+        throw GraphQlException(
+          [GraphQLError(message: response.data.toString())],
+        );
+      }
 
       return (UploadAttachment$Mutation.fromJson(response.data['data']))
               .uploadAttachment

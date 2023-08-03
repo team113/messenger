@@ -182,6 +182,7 @@ class MessageFieldController extends GetxController {
     forwarding.value = false;
     field.clear();
     field.unsubmit();
+    onChanged?.call();
   }
 
   /// Returns an [User] from [UserService] by the provided [id].

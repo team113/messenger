@@ -18,7 +18,10 @@
 fragment NestedChatMessage on ChatMessage {
     id
     chatId
-    authorId
+    author {
+        __typename
+        ...User
+    }
     at
     ver
     repliesTo {

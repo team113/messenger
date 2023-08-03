@@ -28,8 +28,8 @@ import '../controller.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
-import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
+import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
@@ -290,33 +290,29 @@ Widget mobileCall(CallController c, BuildContext context) {
       }));
     }
 
-    // If there's any error to show, display it.
+    // If there's any notifications to show, display them.
     overlay.add(
-      Obx(() {
-        return AnimatedSwitcher(
-          duration: 200.milliseconds,
-          child: c.errorTimeout.value != 0 &&
-                  c.minimizing.isFalse &&
-                  c.minimized.isFalse
-              ? SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10, right: 10),
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: SizedBox(
-                        width: 280,
-                        child: HintWidget(
-                          text: '${c.error}.',
-                          onTap: () => c.errorTimeout.value = 0,
-                          isError: true,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              : Container(),
-        );
-      }),
+      Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: EdgeInsets.only(top: 8 + context.mediaQueryPadding.top),
+          child: Obx(() {
+            if (c.notifications.isEmpty) {
+              return const SizedBox();
+            }
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: c.notifications.reversed.take(3).map((e) {
+                return CallNotificationWidget(
+                  e,
+                  onClose: () => c.notifications.remove(e),
+                );
+              }).toList(),
+            );
+          }),
+        ),
+      ),
     );
 
     Widget padding(Widget child) => Padding(

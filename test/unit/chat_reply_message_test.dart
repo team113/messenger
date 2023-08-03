@@ -36,7 +36,6 @@ import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -60,8 +59,6 @@ void main() async {
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
@@ -99,7 +96,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -171,39 +167,28 @@ void main() async {
                   '__typename': 'ChatMessage',
                   'id': '145f6006-82b9-4d07-9229-354146e4f332',
                   'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                  'authorId': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+                  'author': {
+                    'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+                    'num': '1234123412341234',
+                    'isDeleted': false,
+                    'mutualContactsCount': 0,
+                    'isBlocked': {
+                      'ver': '0',
+                    },
+                    'ver': '0',
+                  },
                   'at': '2022-01-27T11:34:37.191440+00:00',
                   'ver': '1',
                   'repliesTo': [
                     {
                       '__typename': 'ChatMessageQuote',
-                      'original': {
-                        'node': {
-                          '__typename': 'ChatMessage',
-                          'id': '2c15e0e9-51f9-4e57-8589-de574a58558b',
-                          'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                          'authorId': '9a583ecf-d371-43d4-87bc-1cc27e4692e8',
-                          'at': '2022-01-27T10:53:21.405546+00:00',
-                          'ver': '1',
-                          'text': '123',
-                          'editedAt': null,
-                          'attachments': [],
-                          'repliesTo': [],
-                        },
-                        'cursor':
-                            'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
-                      },
                       'at': '2022-01-27T10:53:21.405546+00:00',
                       'author': {
                         'id': 'me',
                         'num': '1234123412341234',
                         'isDeleted': false,
-                        'gallery': {
-                          'nodes': [],
-                          'edges': [],
-                        },
                         'mutualContactsCount': 0,
-                        'isBlacklisted': {
+                        'isBlocked': {
                           'ver': '0',
                         },
                         'ver': '0',
@@ -236,8 +221,8 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -271,7 +256,7 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('2'),
-          const UserId('3'),
+          User(const UserId('3'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
         ),
       ],
@@ -305,7 +290,7 @@ void main() async {
       attachments: anyNamed('attachments'),
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).thenThrow(
-        const PostChatMessageException(PostChatMessageErrorCode.blacklisted));
+        const PostChatMessageException(PostChatMessageErrorCode.blocked));
 
     Get.put(chatProvider);
 
@@ -317,8 +302,8 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -353,7 +338,7 @@ void main() async {
           ChatMessage(
             const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
             const ChatId('2'),
-            const UserId('3'),
+            User(const UserId('3'), UserNum('1234123412341234')),
             PreciseDateTime.now(),
           ),
         ],

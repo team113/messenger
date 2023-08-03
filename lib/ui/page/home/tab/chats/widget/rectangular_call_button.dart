@@ -71,8 +71,9 @@ class RectangularCallButton extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   text,
-                  style:
-                      fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
+                  style: fonts.bodyMedium!.copyWith(
+                    color: style.colors.onPrimary,
+                  ),
                 ).fixedDigits(),
               ],
             ),

@@ -172,8 +172,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           onClosed: () => _displayed = false,
           child: widget.builder == null
               ? child
-              // Wrap [widget.builder] in [Builder] to avoid errors in call on
-              // Android.
+              // Wrap [widget.builder] with [Builder] to trigger
+              // [ContextMenuRegion.builder] on [setState].
               : Builder(builder: (_) => widget.builder!(_displayed)),
         );
       } else {

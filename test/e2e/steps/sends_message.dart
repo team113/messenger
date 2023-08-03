@@ -76,7 +76,7 @@ final StepDefinitionGeneric sendsMessageWithException =
       case ExceptionType.blacklisted:
         assert(
           exception is PostChatMessageException &&
-              exception.code == PostChatMessageErrorCode.blacklisted,
+              exception.code == PostChatMessageErrorCode.blocked,
         );
         break;
 
