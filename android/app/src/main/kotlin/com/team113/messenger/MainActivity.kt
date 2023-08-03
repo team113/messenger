@@ -37,7 +37,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.Locale
 
 class MainActivity: FlutterActivity() {
-    private val UTILS_CHANNEL = "team113.flutter.dev/android_utils"
+    private val utilsChannel = "team113.flutter.dev/android_utils"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
