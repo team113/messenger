@@ -24,6 +24,7 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../../../widget/text_field.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
@@ -69,6 +70,9 @@ class MyProfileController extends GetxController {
   /// [ScrollablePositionedList].
   int listInitIndex = 0;
 
+  /// [MyUser.login]'s field state.
+  late final TextFieldState login;
+
   /// Indicator whether there's an ongoing [toggleMute] happening.
   ///
   /// Used to discard repeated toggling.
@@ -85,6 +89,12 @@ class MyProfileController extends GetxController {
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
+
+  /// [Timer] to set the `RxStatus.empty` status of the [login] field.
+  Timer? _loginTimer;
+
+  /// Worker to react on [myUser] changes.
+  Worker? _myUserWorker;
 
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
@@ -150,12 +160,69 @@ class MyProfileController extends GetxController {
       }
     });
 
+    _myUserWorker = ever(
+      _myUserService.myUser,
+      (MyUser? v) {
+        if (!login.focus.hasFocus &&
+            !login.changed.value &&
+            login.editable.value) {
+          login.unchecked = v?.login?.val;
+        }
+      },
+    );
+
+    login = TextFieldState(
+      text: myUser.value?.login?.val,
+      approvable: true,
+      onChanged: (s) async {
+        s.error.value = null;
+
+        if (s.text.isEmpty) {
+          s.unchecked = myUser.value?.login?.val ?? '';
+          s.status.value = RxStatus.empty();
+          return;
+        }
+
+        try {
+          UserLogin(s.text.toLowerCase());
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_login_input'.l10n;
+        }
+      },
+      onSubmitted: (s) async {
+        if (s.error.value == null) {
+          _loginTimer?.cancel();
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+          try {
+            await _myUserService
+                .updateUserLogin(UserLogin(s.text.toLowerCase()));
+            s.status.value = RxStatus.success();
+            _loginTimer = Timer(
+              const Duration(milliseconds: 1500),
+              () => s.status.value = RxStatus.empty(),
+            );
+          } on UpdateUserLoginException catch (e) {
+            s.error.value = e.toMessage();
+            s.status.value = RxStatus.empty();
+          } catch (e) {
+            s.error.value = 'err_data_transfer'.l10n;
+            s.status.value = RxStatus.empty();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+          }
+        }
+      },
+    );
+
     super.onInit();
   }
 
   @override
   void onClose() {
     _profileWorker?.dispose();
+    _myUserWorker?.dispose();
     _devicesSubscription?.cancel();
     super.onClose();
   }

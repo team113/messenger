@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../../../widget/text_field.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -60,7 +61,6 @@ import 'password/view.dart';
 import 'timeline_switch/view.dart';
 import 'widget/background_preview.dart';
 import 'widget/download_button.dart';
-import 'widget/login.dart';
 import 'widget/name.dart';
 import 'widget/status.dart';
 
@@ -210,10 +210,7 @@ class MyProfileView extends StatelessWidget {
                           children: [
                             CopyableNumField(c.myUser.value?.num),
                             const SizedBox(height: 10),
-                            ReactiveLoginField(
-                              c.myUser.value?.login,
-                              onSubmit: c.updateUserLogin,
-                            ),
+                            _login(context, c),
                             const SizedBox(height: 10),
                             _emails(context, c),
                             _phones(context, c),
@@ -350,6 +347,105 @@ class MyProfileView extends StatelessWidget {
       },
     );
   }
+}
+
+/// Returns [MyUser.login] editable field.
+Widget _login(BuildContext context, MyProfileController c) {
+  final (style, fonts) = Theme.of(context).styles;
+
+  return Paddings.basic(
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ReactiveTextField(
+          key: const Key('LoginField'),
+          state: c.login,
+          onSuffixPressed: c.login.text.isEmpty
+              ? null
+              : () {
+                  PlatformUtils.copy(text: c.login.text);
+                  MessagePopup.success('label_copied'.l10n);
+                },
+          trailing: c.login.text.isEmpty
+              ? null
+              : Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
+                  ),
+                ),
+          label: 'label_login'.l10n,
+          hint: c.myUser.value?.login == null
+              ? 'label_login_hint'.l10n
+              : c.myUser.value!.login!.val,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'label_login_visible'.l10n,
+                  style: fonts.labelSmall!.copyWith(
+                    color: style.colors.secondary,
+                  ),
+                ),
+                TextSpan(
+                  text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+                  style: fonts.labelSmall!.copyWith(
+                    color: style.colors.primary,
+                  ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () async {
+                      await ConfirmDialog.show(
+                        context,
+                        title: 'label_login'.l10n,
+                        additional: [
+                          Center(
+                            child: Text(
+                              'label_login_visibility_hint'.l10n,
+                              style: fonts.labelLarge!.copyWith(
+                                color: style.colors.secondary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'label_visible_to'.l10n,
+                              style: fonts.headlineMedium,
+                            ),
+                          ),
+                        ],
+                        label: 'label_confirm'.l10n,
+                        initial: 2,
+                        variants: [
+                          ConfirmDialogVariant(
+                            onProceed: () {},
+                            child: Text('label_all'.l10n),
+                          ),
+                          ConfirmDialogVariant(
+                            onProceed: () {},
+                            child: Text('label_my_contacts'.l10n),
+                          ),
+                          ConfirmDialogVariant(
+                            onProceed: () {},
+                            child: Text('label_nobody'.l10n),
+                          ),
+                        ],
+                      );
+                    },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 /// Returns addable list of [MyUser.emails].
@@ -508,7 +604,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
   return Obx(() {
     final List<Widget> widgets = [];
 
-    for (UserPhone e in c.myUser.value?.phones.confirmed ?? []) {
+    for (UserPhone e in [...c.myUser.value?.phones.confirmed ?? []]) {
       widgets.add(
         Column(
           key: const Key('ConfirmedPhone'),
