@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 import 'package:win_toast/win_toast.dart';
@@ -77,8 +78,11 @@ class NotificationService extends DisposableService {
         await WinToast.instance().initialize(
           aumId: 'team113.messenger',
           displayName: 'Gapopa',
-          iconPath:
-              File(r'windows\runner\resources\app_icon.ico').absolute.path,
+          iconPath: kDebugMode
+              ? File(r'assets\icons\app_icon.ico').absolute.path
+              : File(r'data\flutter_assets\assets\icons\app_icon.ico')
+                  .absolute
+                  .path,
           // TODO: Use a real clsid.
           clsid: '00000000-0000-0000-0000-000000000000',
         );
@@ -141,12 +145,21 @@ class NotificationService extends DisposableService {
         icon: icon,
         tag: tag,
       ).onError((_, __) => false);
-    }
-    if (PlatformUtils.isWindows) {
-      await _showWindowsNotification(title: title, body: body, launch: payload);
+    } else if (PlatformUtils.isWindows) {
+      _notificationXml ??= await rootBundle.loadString(
+        'assets/windows_notifications/notification.xml',
+      );
+
+      String xml = _notificationXml!
+          .replaceFirst('##title##', title)
+          .replaceFirst('##body##', body ?? '')
+          .replaceFirst('##launch##', payload ?? '');
+
+      await WinToast.instance().showCustomToast(
+        xml: xml,
+        tag: 'Gapopa',
+      );
     } else {
-      // TODO: `flutter_local_notifications` should support Windows:
-      //       https://github.com/MaikuB/flutter_local_notifications/issues/746
       await _plugin!.show(
         Random().nextInt(1 << 31),
         title,
@@ -162,26 +175,5 @@ class NotificationService extends DisposableService {
         payload: payload,
       );
     }
-  }
-
-  /// Shows a local notification on Windows with the provided data.
-  Future<void> _showWindowsNotification({
-    required String title,
-    String? body,
-    String? launch,
-  }) async {
-    _notificationXml ??= await rootBundle.loadString(
-      'assets/windows_notifications/notification.xml',
-    );
-
-    String xml = _notificationXml!
-        .replaceFirst('##title##', title)
-        .replaceFirst('##body##', body ?? '')
-        .replaceFirst('##launch##', launch ?? '');
-
-    await WinToast.instance().showCustomToast(
-      xml: xml,
-      tag: 'Gapopa',
-    );
   }
 }

@@ -520,17 +520,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       TextSpan(
                         children: [
                           if (text != null) text,
-                          const WidgetSpan(child: SizedBox(width: 4)),
-                          WidgetSpan(
-                            child: Opacity(
-                              opacity: 0,
-                              child: MessageTimestamp(
-                                at: quote.at,
-                                date: true,
-                                fontSize: fonts.labelSmall!.fontSize,
-                              ),
-                            ),
-                          ),
+                          // TODO: Use transparent [MessageTimestamp]:
+                          //       https://github.com/flutter/flutter/issues/124787
+                          const WidgetSpan(child: SizedBox(width: 95)),
                         ],
                       ),
                       selectable: PlatformUtils.isDesktop || menu,

@@ -61,56 +61,6 @@ import 'util/web/web_utils.dart';
 Future<void> main() async {
   await Config.init();
 
-  if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
-    // await WinToast.instance().initialize(
-    //   aumId: 'com.team113.messenger',
-    //   displayName: 'Gapopa',
-    //   iconPath:
-    //       'assets/icons/chat.svg',
-    //   clsid: '',
-    // );
-    //
-    // WinToast.instance().setActivatedCallback((event) {
-    //   print('onNotificationActivated: $event');
-    //   showDialog(
-    //       context: router.context!,
-    //       builder: (context) {
-    //         return AlertDialog(
-    //           title: const Text('onNotificationActivated'),
-    //           content: Text(event.toString()),
-    //           actions: [
-    //             TextButton(
-    //               onPressed: () {
-    //                 Navigator.of(context).pop();
-    //               },
-    //               child: const Text('OK'),
-    //             ),
-    //           ],
-    //         );
-    //       });
-    // });
-    //
-    // WinToast.instance().setDismissedCallback((event) {
-    //   print('onNotificationDismissed: $event');
-    //   showDialog(
-    //       context: router.context!,
-    //       builder: (context) {
-    //         return AlertDialog(
-    //           title: const Text('onNotificationDismissed'),
-    //           content: Text(event.toString()),
-    //           actions: [
-    //             TextButton(
-    //               onPressed: () {
-    //                 Navigator.of(context).pop();
-    //               },
-    //               child: const Text('OK'),
-    //             ),
-    //           ],
-    //         );
-    //       });
-    // });
-  }
-
   // TODO: iOS should use `video_player`:
   //       https://github.com/flutter/flutter/issues/56665
   if (PlatformUtils.isDesktop || PlatformUtils.isIOS) {
