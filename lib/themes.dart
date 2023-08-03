@@ -28,6 +28,8 @@ class Themes {
       primaryHighlightShiny: const Color(0xFF58A6EF),
       primaryHighlightShiniest: const Color(0xFFD2E3F9),
       primaryHighlightLightest: const Color(0xFFB9D9FA),
+      primaryDark: const Color(0xFF1F3C5D),
+      primaryAuxiliary: const Color(0xFF165084),
       onPrimary: const Color(0xFFFFFFFF),
       secondary: const Color(0xFF888888),
       secondaryHighlight: const Color(0xFFEFEFEF),
@@ -539,6 +541,12 @@ class Palette {
     required this.primaryHighlightShiny,
     required this.primaryHighlightShiniest,
     required this.primaryHighlightLightest,
+    required this.primaryDark,
+    Color? primaryDarkOpacity70,
+    Color? primaryDarkOpacity90,
+    required this.primaryAuxiliary,
+    Color? primaryAuxiliaryOpacity25,
+    Color? primaryAuxiliaryOpacity90,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity25,
@@ -579,6 +587,12 @@ class Palette {
     required this.warningColor,
     required this.userColors,
   })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
+        primaryDarkOpacity70 =
+            primaryDarkOpacity70 ?? primaryDark.withOpacity(0.70),
+        primaryDarkOpacity90 =
+            primaryDarkOpacity90 ?? primaryDark.withOpacity(0.90),
+        primaryAuxiliaryOpacity25 =
+            primaryAuxiliaryOpacity25 ?? primaryAuxiliary.withOpacity(0.25),
         onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
@@ -638,6 +652,31 @@ class Palette {
   ///
   /// Used as a border of [ChatMessage]s and [ChatForward]s.
   final Color primaryHighlightLightest;
+
+  /// Dark [Color] of the [primary] elements.
+  ///
+  /// Used to darken the [primary] elements when hovering or activated.
+  final Color primaryDark;
+
+  /// 70% opacity of the [primaryDark] color.
+  ///
+  /// Used for `Draggable` panel elements.
+  final Color primaryDarkOpacity70;
+
+  /// 90% opacity of the [primaryDark] color.
+  ///
+  /// Used for [Launchpad] background color.
+  final Color primaryDarkOpacity90;
+
+  /// [Color] responsible for the helper primary color.
+  ///
+  /// Used for alternative primary in case we need to darken.
+  final Color primaryAuxiliary;
+
+  /// 25% opacity of the [primaryAuxiliary] color.
+  ///
+  /// Used as `possibleContainer` and [DockDecorator] color.
+  final Color primaryAuxiliaryOpacity25;
 
   /// [Color] for elements to put above the [primary] color.
   ///
@@ -829,6 +868,10 @@ class Palette {
 
     return Palette(
       primary: Color.lerp(color.primary, other.primary, t)!,
+      primaryAuxiliary:
+          Color.lerp(color.primaryAuxiliary, other.primaryAuxiliary, t)!,
+      primaryAuxiliaryOpacity25: Color.lerp(
+          color.primaryAuxiliaryOpacity25, other.primaryAuxiliaryOpacity25, t)!,
       primaryHighlight:
           Color.lerp(color.primaryHighlight, other.primaryHighlight, t)!,
       primaryHighlightShiny: Color.lerp(
@@ -840,6 +883,11 @@ class Palette {
           color.primaryHighlightShiniest, other.primaryHighlightShiniest, t)!,
       primaryHighlightLightest: Color.lerp(
           color.primaryHighlightLightest, other.primaryHighlightLightest, t)!,
+      primaryDark: Color.lerp(color.primaryDark, other.primaryDark, t)!,
+      primaryDarkOpacity70: Color.lerp(
+          color.primaryDarkOpacity70, other.primaryDarkOpacity70, t)!,
+      primaryDarkOpacity90: Color.lerp(
+          color.primaryDarkOpacity90, other.primaryDarkOpacity90, t)!,
       onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
       onPrimaryOpacity7:
           Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,
