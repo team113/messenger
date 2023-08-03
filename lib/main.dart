@@ -28,7 +28,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
-
 // ignore: implementation_imports
 import 'package:flutter_meedu_videoplayer/src/video_player_used.dart';
 import 'package:get/get.dart';
