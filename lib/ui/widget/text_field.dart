@@ -393,33 +393,34 @@ class ReactiveTextField extends StatelessWidget {
             ),
 
             // Displays a [subtitle] or error, if any.
-            if (subtitle != null)
-              AnimatedSize(
-                duration: 200.milliseconds,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: AnimatedSwitcher(
-                    duration: 200.milliseconds,
-                    child: state.error.value == null
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 8,
-                            ),
-                            child: subtitle,
-                          )
-                        : Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              state.error.value ?? '',
-                              style: fonts.labelMedium?.copyWith(
-                                color: style.colors.dangerColor,
+            AnimatedSize(
+              duration: 200.milliseconds,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: AnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: state.error.value == null
+                      ? (subtitle != null)
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
                               ),
+                              child: subtitle,
+                            )
+                          : const SizedBox(width: double.infinity, height: 1)
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            state.error.value ?? '',
+                            style: fonts.labelMedium?.copyWith(
+                              color: style.colors.dangerColor,
                             ),
                           ),
-                  ),
+                        ),
                 ),
               ),
+            ),
           ],
         ),
       );
