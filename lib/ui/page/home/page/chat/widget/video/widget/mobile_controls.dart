@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
