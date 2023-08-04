@@ -181,7 +181,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       try {
         await callKeep.setup(
           null,
-          PlatformUtils.callKeep,
+          Config.callKeep,
           backgroundMode: true,
         );
 

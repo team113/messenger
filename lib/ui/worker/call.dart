@@ -26,6 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -241,7 +242,7 @@ class CallWorker extends DisposableService {
   void onReady() {
     if (PlatformUtils.isMobile) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        _callKeep.setup(router.context!, PlatformUtils.callKeep);
+        _callKeep.setup(router.context!, Config.callKeep);
 
         _callKeep.on(CallKeepPerformAnswerCallAction(), (event) {
           if (event.callUUID != null) {

@@ -109,7 +109,6 @@ class Themes {
     final ThemeData theme = ThemeData.light();
 
     return theme.copyWith(
-        useMaterial3: true,
         extensions: [
           Style(
             colors: colors,

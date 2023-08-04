@@ -24,7 +24,12 @@ import 'package:messenger/util/platform_utils.dart';
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
   @override
-  Future<File?> fileExists(String filename, {int? size, String? url}) async {
+  Future<File?> fileExists(
+    String filename, {
+    int? size,
+    String? url,
+    bool temporary = false,
+  }) async {
     return null;
   }
 

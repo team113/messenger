@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
-import 'package:callkeep/callkeep.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -31,7 +30,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import 'backoff.dart';
 import 'web/web_utils.dart';
@@ -291,27 +289,6 @@ class PlatformUtilsImpl {
     return _temporaryDirectory!;
   }
 
-  /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
-  /// instance to initialize it.
-  Map<String, dynamic> get callKeep {
-    return {
-      'ios': {'appName': 'Gapopa'},
-      'android': {
-        'alertTitle': 'label_call_permissions_title'.l10n,
-        'alertDescription': 'label_call_permissions_description'.l10n,
-        'cancelButton': 'btn_dismiss'.l10n,
-        'okButton': 'btn_allow'.l10n,
-        'foregroundService': {
-          'channelId': 'default',
-          'channelName': 'Default',
-          'notificationTitle': 'My app is running on background',
-          'notificationIcon': 'mipmap/ic_notification_launcher',
-        },
-        'additionalPermissions': <String>[],
-      },
-    };
-  }
-
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
     if (isWeb) {
@@ -354,20 +331,22 @@ class PlatformUtilsImpl {
     String filename, {
     int? size,
     String? url,
+    bool temporary = false,
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
       size = size ??
           int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
-      String downloads = await PlatformUtils.downloadsDirectory;
+      String directory =
+          temporary ? await temporaryDirectory : await downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
-      File file = File('$downloads/$filename');
+      File file = File('$directory/$filename');
 
       // TODO: Compare hashes instead of sizes.
       for (int i = 1; await file.exists() && await file.length() != size; ++i) {
-        file = File('$downloads/$name ($i)$ext');
+        file = File('$directory/$name ($i)$ext');
       }
 
       if (await file.exists()) {
@@ -419,7 +398,12 @@ class PlatformUtilsImpl {
           file = await Backoff.run(
             () async {
               try {
-                return await fileExists(filename, size: size, url: url);
+                return await fileExists(
+                  filename,
+                  size: size,
+                  url: url,
+                  temporary: temporary,
+                );
               } catch (e) {
                 onError(e);
               }

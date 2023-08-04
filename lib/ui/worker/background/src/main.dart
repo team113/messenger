@@ -39,7 +39,6 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
-import '/util/platform_utils.dart';
 
 /// Background service iOS handler.
 ///
@@ -173,7 +172,7 @@ class _BackgroundService {
 
   /// Initializes the [FlutterCallkeep].
   Future<void> _initCallKeep() async {
-    await _callKeep.setup(null, PlatformUtils.callKeep, backgroundMode: true);
+    await _callKeep.setup(null, Config.callKeep, backgroundMode: true);
 
     _callKeep.on(CallKeepPerformAnswerCallAction(),
         (CallKeepPerformAnswerCallAction event) async {

@@ -377,7 +377,7 @@ class NotificationService extends DisposableService {
           await FirebaseMessaging.instance.getToken(vapidKey: Config.vapidKey);
 
       if (_token != null) {
-        _graphQlProvider.registerFcmDevice(
+        await _graphQlProvider.registerFcmDevice(
           FcmRegistrationToken(_token!),
           _language,
         );

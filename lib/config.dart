@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:toml/toml.dart';
 
+import '/l10n/l10n.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'pubspec.g.dart';
@@ -67,6 +68,27 @@ class Config {
 
   /// Version identifier of `User-Agent` header to put in network queries.
   static String userAgentVersion = '';
+
+  /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
+  /// instance to initialize it.
+  static Map<String, dynamic> get callKeep {
+    return {
+      'ios': {'appName': 'Gapopa'},
+      'android': {
+        'alertTitle': 'label_call_permissions_title'.l10n,
+        'alertDescription': 'label_call_permissions_description'.l10n,
+        'cancelButton': 'btn_dismiss'.l10n,
+        'okButton': 'btn_allow'.l10n,
+        'foregroundService': {
+          'channelId': 'default',
+          'channelName': 'Default',
+          'notificationTitle': 'My app is running on background',
+          'notificationIcon': 'mipmap/ic_notification_launcher',
+        },
+        'additionalPermissions': <String>[],
+      },
+    };
+  }
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):

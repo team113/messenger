@@ -203,8 +203,8 @@ class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
     void Function(String, String?, String?)? onNotification,
-    UserId? Function()? me,
-  }) : updatedAt = PreciseDateTime.now() {
+    this.me,
+  }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
     worker = ever(
       c,
       (Chat chat) async {
@@ -299,6 +299,10 @@ class _ChatWatchData {
   /// [PreciseDateTime] the [Chat.lastItem] was updated at.
   PreciseDateTime updatedAt;
 
+  /// Callback, called to get the [UserId] of the currently authenticated
+  /// [MyUser].
+  UserId? Function()? me;
+
   /// Disposes the [worker].
   void dispose() => worker.dispose();
 
@@ -312,36 +316,24 @@ class _ChatWatchData {
   }) {
     final String name = author?.name?.val ?? 'x';
     final String num = author?.num.val ?? 'err_unknown_user'.l10n;
+    String type = isGroup ? 'group' : 'dialog';
+    String attachmentsType = attachments.every((e) => e is ImageAttachment)
+        ? 'image'
+        : attachments.every((e) => e is FileAttachment && e.isVideo)
+            ? 'video'
+            : attachments.every((e) => e is FileAttachment && !e.isVideo)
+                ? 'file'
+                : 'attachments';
 
-    if (text != null) {
-      if (isGroup) {
-        return 'fcm_group_message'.l10nfmt({
-          'text': text.val,
-          'userName': name,
-          'userNum': num,
-        });
-      } else {
-        return 'fcm_dialog_message'.l10nfmt({'text': text.val});
-      }
-    } else if (attachments.isNotEmpty) {
-      final String kind = attachments.first is ImageAttachment
-          ? 'image'
-          : (attachments.first as FileAttachment).isVideo
-              ? 'video'
-              : 'file';
-
-      if (isGroup) {
-        return 'fcm_group_attachment'.l10nfmt({
-          'userName': name,
-          'userNum': num,
-          'kind': kind,
-        });
-      } else {
-        return 'fcm_dialog_attachment'.l10nfmt({'kind': kind});
-      }
-    }
-
-    return null;
+    return 'fcm_message'.l10nfmt({
+      'type': type,
+      'text': text?.val ?? '',
+      'textLength': text?.val.length ?? 0,
+      'userName': name,
+      'userNum': num,
+      'attachmentsCount': attachments.length,
+      'attachmentsType': attachmentsType,
+    });
   }
 
   /// Returns a localized body of a [ChatInfo] notification with provided
@@ -362,6 +354,11 @@ class _ChatWatchData {
               'authorNum': action.user.num.val,
             },
           );
+        } else if (action.user.id == me?.call()) {
+          return 'fcm_user_added_you_to_group'.l10nfmt({
+            'authorName': author?.name?.val ?? 'x',
+            'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
+          });
         } else {
           return 'fcm_user_added_user'.l10nfmt({
             'authorName': author?.name?.val ?? 'x',
@@ -381,6 +378,11 @@ class _ChatWatchData {
               'authorNum': action.user.num.val,
             },
           );
+        } else if (action.user.id == me?.call()) {
+          return 'fcm_user_removed_you'.l10nfmt({
+            'authorName': author?.name?.val ?? 'x',
+            'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
+          });
         } else {
           return 'fcm_user_removed_user'.l10nfmt({
             'authorName': author?.name?.val ?? 'x',
@@ -393,29 +395,27 @@ class _ChatWatchData {
       case ChatInfoActionKind.avatarUpdated:
         final action = info as ChatInfoActionAvatarUpdated;
         final Map<String, dynamic> args = {
-          'author':
+          'userName':
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          'userNum':
+              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          'operation': action.avatar == null ? 'removed' : 'updated',
         };
 
-        if (action.avatar == null) {
-          return 'label_avatar_removed'.l10nfmt(args);
-        } else {
-          return 'label_avatar_updated'.l10nfmt(args);
-        }
+        return 'fcm_group_avatar_changed'.l10nfmt(args);
 
       case ChatInfoActionKind.nameUpdated:
         final action = info as ChatInfoActionNameUpdated;
         final Map<String, dynamic> args = {
-          'author':
+          'userName':
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
-          if (action.name != null) 'name': action.name?.val,
+          'userNum':
+              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          'operation': action.name == null ? 'removed' : 'updated',
+          'groupName': action.name?.val ?? '',
         };
 
-        if (action.name == null) {
-          return 'label_name_removed'.l10nfmt(args);
-        } else {
-          return 'label_name_updated'.l10nfmt(args);
-        }
+        return 'fcm_group_name_changed'.l10nfmt(args);
     }
   }
 }

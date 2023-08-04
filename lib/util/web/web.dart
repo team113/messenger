@@ -35,11 +35,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
-import 'package:messenger/config.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
 import '../platform_utils.dart';
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
 import '/routes.dart';
