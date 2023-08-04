@@ -55,6 +55,8 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.contactsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   setUp(() async {
     Get.reset();
@@ -62,21 +64,28 @@ void main() async {
     await contactProvider.clear();
   });
 
-  var chatContactsData = {
-    'nodes': [
-      {
-        '__typename': 'ChatContact',
-        'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
-        'name': 'test',
-        'users': [],
-        'groups': [],
-        'emails': [],
-        'phones': [],
-        'favoritePosition': null,
-        'ver': '123456'
-      }
-    ],
+  var chatContact = {
+    '__typename': 'ChatContact',
+    'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+    'name': 'test',
+    'users': [],
+    'groups': [],
+    'emails': [],
+    'phones': [],
+    'favoritePosition': null,
     'ver': '0'
+  };
+
+  var chatContactsData = {
+    'nodes': [chatContact],
+    'ver': '0'
+  };
+
+  var chatContacts = {
+    'chatContacts': {
+      'nodes': [chatContact],
+      'ver': '0'
+    }
   };
 
   var updateChatContact = {
@@ -135,6 +144,9 @@ void main() async {
       before: null,
     )).thenAnswer(
         (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
+    when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
+      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
+    );
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(
@@ -181,11 +193,6 @@ void main() async {
         )
       ]),
     );
-
-    when(graphQlProvider.recentChats(
-            first: 120, after: null, last: null, before: null))
-        .thenAnswer(
-            (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
 
     when(
       graphQlProvider.changeContactName(
