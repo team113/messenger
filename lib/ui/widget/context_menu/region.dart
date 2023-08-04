@@ -118,13 +118,39 @@ class ContextMenuRegion extends StatefulWidget {
 }
 
 /// State of a [ContextMenuRegion] keeping the [_darkened] indicator.
-class _ContextMenuRegionState extends State<ContextMenuRegion> {
+class _ContextMenuRegionState extends State<ContextMenuRegion>
+    with TickerProviderStateMixin {
   /// Indicator whether a [ColoredBox] should be displayed above the provided
   /// child.
   bool _darkened = false;
 
   /// Indicator whether [ContextMenu] is displayed.
   bool _displayed = false;
+
+  /// [OverlayEntry] displaying a currently opened [ContextMenu].
+  OverlayEntry? _entry;
+
+  late AnimationController _controller;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _opacityAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -213,6 +239,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
     final (style, fonts) = Theme.of(context).styles;
+    OverlayState overlayState = Overlay.of(context, rootOverlay: true);
 
     if (widget.actions.isEmpty) {
       return;
@@ -268,30 +295,28 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         setState(() {});
       }
 
-      await showDialog(
-        context: context,
-        barrierColor: style.colors.transparent,
-        builder: (context) {
-          return LayoutBuilder(builder: (_, constraints) {
-            double qx = 1, qy = 1;
-            if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-            if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-            final Alignment alignment = Alignment(qx, qy);
+      _entry = OverlayEntry(builder: (_) {
+        return LayoutBuilder(builder: (_, constraints) {
+          double qx = 1, qy = 1;
+          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
+          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
+          final Alignment alignment = Alignment(qx, qy);
 
-            return Listener(
-              onPointerUp: (d) {
-                Navigator.of(context).pop();
-                // _entry?.remove();
+          return Listener(
+            onPointerUp: (d) async {
+              if (mounted) {
+                await _controller.reverse();
+              }
 
-                _displayed = false;
-                if (widget.indicateOpenedMenu) {
-                  _darkened = false;
-                }
+              _entry?.remove();
 
-                if (mounted) {
-                  setState(() {});
-                }
-              },
+              _displayed = false;
+              if (widget.indicateOpenedMenu) {
+                _darkened = false;
+              }
+            },
+            child: FadeTransition(
+              opacity: _opacityAnimation,
               child: Container(
                 color: style.colors.transparent,
                 child: Stack(
@@ -315,10 +340,14 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   ],
                 ),
               ),
-            );
-          });
-        },
-      );
+            ),
+          );
+        });
+      });
+
+      overlayState.setState(() {});
+      _controller.forward();
+      overlayState.insert(_entry!);
     }
   }
 }
