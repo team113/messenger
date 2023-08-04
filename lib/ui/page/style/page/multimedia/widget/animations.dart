@@ -16,20 +16,16 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:rive/rive.dart';
 
-import '../../../../../../util/message_popup.dart';
 import '/ui/page/auth/widget/animated_logo.dart';
 import '/ui/page/home/widget/animated_typing.dart';
-import '/ui/widget/progress_indicator.dart';
 import '/ui/page/style/controller.dart';
-import '/config.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/themes.dart';
-import 'info_stack.dart';
+import 'styled_container.dart';
 
 /// [Column] with [Container]s which represents application animations.
 class AnimationsColumn extends StatelessWidget {
@@ -65,36 +61,23 @@ class AnimationsColumn extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    InfoStackWidget(
+                    StyledContainer(
                       inverted: inverted,
                       width: 160,
+                      text: 'AnimatedLogo',
+                      padding: const EdgeInsets.all(16),
                       child: Obx(
-                        () => Padding(
-                          padding: const EdgeInsets.all(15),
-                          child: AnimatedLogo(
-                            svgAsset:
-                                'assets/images/logo/head000${c.logoFrame.value}.svg',
-                            onInit: Config.disableInfiniteAnimations
-                                ? null
-                                : (a) => _setBlink(c, a),
-                          ),
+                        () => AnimatedLogo(
+                          svgAsset:
+                              'assets/images/logo/head000${c.logoFrame.value}.svg',
+                          onInit: (a) => _setAnimate(c, a),
                         ),
                       ),
                     ),
-                    WidgetButton(
-                      onPressed: () {
-                        Clipboard.setData(
-                          const ClipboardData(
-                            text: 'UnreadCounter',
-                          ),
-                        );
-                        MessagePopup.success('Technical name is copied');
-                      },
-                      child: const Text('UnreadCounter'),
-                    ),
                     const SizedBox(height: 16),
-                    InfoStackWidget(
+                    StyledContainer(
                       inverted: inverted,
+                      text: 'SpinKitDoubleBounce',
                       width: 80,
                       padding: const EdgeInsets.all(8),
                       child: SpinKitDoubleBounce(
@@ -103,51 +86,20 @@ class AnimationsColumn extends StatelessWidget {
                         duration: const Duration(milliseconds: 4500),
                       ),
                     ),
-                    WidgetButton(
-                      onPressed: () {
-                        Clipboard.setData(
-                          const ClipboardData(
-                            text: 'SpinKitDoubleBounce',
-                          ),
-                        );
-                        MessagePopup.success('Technical name is copied');
-                      },
-                      child: const Text('SpinKitDoubleBounce'),
-                    ),
                     const SizedBox(height: 16),
-                    InfoStackWidget(
+                    StyledContainer(
                       inverted: inverted,
+                      text: 'AnimatedTyping',
                       width: 82,
                       padding: const EdgeInsets.all(32),
                       child: const AnimatedTyping(),
                     ),
-                    WidgetButton(
-                      onPressed: () {
-                        Clipboard.setData(
-                          const ClipboardData(
-                            text: 'AnimatedTyping',
-                          ),
-                        );
-                        MessagePopup.success('Technical name is copied');
-                      },
-                      child: const Text('AnimatedTyping'),
-                    ),
                     const SizedBox(height: 16),
-                    InfoStackWidget(
+                    StyledContainer(
                       inverted: inverted,
+                      text: 'CustomProgressIndicator',
                       padding: const EdgeInsets.all(20),
                       child: const CustomProgressIndicator(),
-                    ),
-                    WidgetButton(
-                      onPressed: () {
-                        Clipboard.setData(
-                          const ClipboardData(
-                            text: 'CustomProgressIndicator',
-                          ),
-                        );
-                        MessagePopup.success('Technical name is copied');
-                      },
-                      child: const Text('CustomProgressIndicator'),
                     ),
                     const SizedBox(height: 16),
                   ],
@@ -158,14 +110,11 @@ class AnimationsColumn extends StatelessWidget {
         });
   }
 
-  /// Sets the [StyleController.blink] from the provided [Artboard] and invokes
-  /// a [StyleController.animate] to animate it.
-  Future<void> _setBlink(StyleController c, Artboard a) async {
+  /// Invokes a [StyleController.animate] to animate.
+  Future<void> _setAnimate(StyleController c, Artboard a) async {
     final StateMachineController machine =
         StateMachineController(a.stateMachines.first);
     a.addController(machine);
-
-    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
 
     await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }

@@ -46,9 +46,13 @@ class StyleCard extends StatelessWidget {
         child: OutlinedRoundedButton(
           color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
           onPressed: onPressed,
-          title: Icon(
-            icon,
-            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF1F3C5D),
+          title: Transform.translate(
+            offset: const Offset(0, -2),
+            child: Icon(
+              icon,
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF1F3C5D),
+            ),
           ),
         ),
       ),

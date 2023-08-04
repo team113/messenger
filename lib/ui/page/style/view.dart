@@ -108,9 +108,14 @@ class StyleView extends StatelessWidget {
         Obx(
           () => IconButton(
             onPressed: c.dense.toggle,
-            icon: Icon(
-              c.dense.value ? Icons.layers_clear_rounded : Icons.layers_rounded,
-              color: const Color(0xFF1F3C5D),
+            icon: Transform.translate(
+              offset: const Offset(0, -2),
+              child: Icon(
+                c.dense.value
+                    ? Icons.layers_clear_rounded
+                    : Icons.layers_rounded,
+                color: const Color(0xFF1F3C5D),
+              ),
             ),
           ),
         ),
@@ -118,13 +123,16 @@ class StyleView extends StatelessWidget {
         Obx(
           () => IconButton(
             onPressed: c.inverted.toggle,
-            icon: Icon(
-              c.inverted.value
-                  ? Icons.dark_mode_rounded
-                  : Icons.light_mode_rounded,
-              color: c.inverted.value
-                  ? const Color(0xFF1F3C5D)
-                  : const Color(0xFFFFB74D),
+            icon: Transform.translate(
+              offset: const Offset(0, -2),
+              child: Icon(
+                c.inverted.value
+                    ? Icons.dark_mode_rounded
+                    : Icons.light_mode_rounded,
+                color: c.inverted.value
+                    ? const Color(0xFF1F3C5D)
+                    : const Color(0xFFFFB74D),
+              ),
             ),
           ),
         ),

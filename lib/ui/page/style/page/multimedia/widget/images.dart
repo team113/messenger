@@ -16,14 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/style/page/multimedia/widget/info_stack.dart';
 
-import '../../../../../../util/message_popup.dart';
-import '../../../../../widget/widget_button.dart';
+import '/themes.dart';
 import '/ui/page/home/tab/chats/widget/unread_counter.dart';
 import '/ui/widget/svg/svg.dart';
+import 'styled_container.dart';
 
 /// [Column] with [Container]s which represents application images.
 class ImagesColumn extends StatelessWidget {
@@ -40,6 +37,8 @@ class ImagesColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
+    const EdgeInsetsGeometry padding = EdgeInsets.all(16);
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
       child: Align(
@@ -51,9 +50,9 @@ class ImagesColumn extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              InfoStackWidget(
+              StyledContainer(
                 inverted: inverted,
-                padding: const EdgeInsets.all(16),
+                padding: padding,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: SvgImage.asset(
@@ -62,64 +61,31 @@ class ImagesColumn extends StatelessWidget {
                   ),
                 ),
               ),
-              WidgetButton(
-                onPressed: () {
-                  Clipboard.setData(
-                    ClipboardData(
-                      text:
-                          'assets/images/background_${inverted ? 'dark' : 'light'}.svg',
-                    ),
-                  );
-                  MessagePopup.success('Path is copied');
-                },
-                child: const Text('background image'),
-              ),
               const SizedBox(height: 16),
-              InfoStackWidget(
+              StyledContainer(
                 inverted: inverted,
                 height: 300,
                 width: 200,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: padding,
                   child: SvgImage.asset('assets/images/logo/logo0000.svg'),
                 ),
               ),
-              WidgetButton(
-                onPressed: () {
-                  Clipboard.setData(
-                    const ClipboardData(
-                      text: 'assets/images/logo/logo0000.svg',
-                    ),
-                  );
-                  MessagePopup.success('Path is copied');
-                },
-                child: const Text('Full-length logo'),
-              ),
               const SizedBox(height: 16),
-              InfoStackWidget(
+              StyledContainer(
                 inverted: inverted,
                 height: 150,
                 width: 150,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: padding,
                   child: SvgImage.asset('assets/images/logo/head0000.svg'),
                 ),
               ),
-              WidgetButton(
-                onPressed: () {
-                  Clipboard.setData(
-                    const ClipboardData(
-                      text: 'assets/images/logo/head0000.svg',
-                    ),
-                  );
-                  MessagePopup.success('Path is copied');
-                },
-                child: const Text('Logo head'),
-              ),
               const SizedBox(height: 16),
-              InfoStackWidget(
+              StyledContainer(
                 inverted: inverted,
-                padding: const EdgeInsets.all(16),
+                text: 'UnreadCounter',
+                padding: padding,
                 width: 190,
                 child: Wrap(
                   spacing: 4,
@@ -130,15 +96,6 @@ class ImagesColumn extends StatelessWidget {
                     return UnreadCounter(number);
                   }),
                 ),
-              ),
-              WidgetButton(
-                onPressed: () {
-                  Clipboard.setData(
-                    const ClipboardData(text: 'UnreadCounter'),
-                  );
-                  MessagePopup.success('Technical name is copied');
-                },
-                child: const Text('UnreadCounter'),
               ),
               const SizedBox(height: 16),
             ],
