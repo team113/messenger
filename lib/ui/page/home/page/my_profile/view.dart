@@ -127,7 +127,7 @@ class MyProfileView extends StatelessWidget {
                     switch (ProfileTab.values[i]) {
                       case ProfileTab.public:
                         return Block(
-                          title: 'label_public_information'.l10n,
+                          title: 'label_profile'.l10n,
                           children: [
                             Stack(
                               alignment: Alignment.center,

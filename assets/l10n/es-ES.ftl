@@ -45,12 +45,8 @@ err_data_transfer =
     Error de transferencia de datos. Por favor, compruebe su conexión.
 label_sign_up_code_email_sent =
     El código de verificación ha sido enviado al correo electrónico {$text}
-
-    Por favor, a continuación introduzca el código
 label_sign_up_code_phone_sent =
     El código de verificación ha sido enviado al número de teléfono {$text}
-
-    Por favor, a continuación introduzca el código
 label_confirmation_code = Código de confirmación
 label_sign_up_email_already_occupied = El correo electrónico {$text} no se puede usar para registrar una nueva cuenta porque está conectado a una cuenta existente. ¿Continuar para iniciar sesión?
 label_sign_up_phone_already_occupied = El número de teléfono {$text} no se puede usar para registrar una nueva cuenta porque está conectado a una cuenta existente. ¿Continuar para iniciar sesión?
@@ -71,3 +67,8 @@ btn_ok = Ok
 label_num = Gapopa ID
 label_your_direct_link = Enlace directo para chatear con Usted
 label_waiting_response_from = Esperando la respuesta de {$from}
+label_didnt_recieve_code = ¿No recibió el código?
+label_code_sent_again = El código ha sido reenviado.
+label_wait_seconds = Espere {$for} seg
+btn_resend_code = Reenviar
+btn_send = Enviar

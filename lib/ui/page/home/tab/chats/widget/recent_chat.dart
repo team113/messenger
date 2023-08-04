@@ -286,12 +286,7 @@ class RecentChatTile extends StatelessWidget {
         selected: selected,
         highlight: paid,
         enableContextMenu: enableContextMenu,
-        onTap: onTap ??
-            () {
-              if (!isRoute) {
-                router.chat(chat.id);
-              }
-            },
+        onTap: onTap ?? () => router.chat(chat.id),
       );
     });
   }

@@ -118,6 +118,12 @@ class LoginController extends GetxController {
       }
     },
     onSubmitted: (s) async {
+      print(s.error.value);
+
+      if (s.error.value != null) {
+        return;
+      }
+
       stage.value = LoginViewStage.signUpWithEmailCode;
 
       final GraphQlProvider graphQlProvider = Get.find();
@@ -147,12 +153,13 @@ class LoginController extends GetxController {
         s.error.value = e.toMessage();
         _setResendEmailTimer(false);
         stage.value = LoginViewStage.signUpWithEmail;
-      } catch (_) {
+      } catch (e) {
         graphQlProvider.token = null;
         s.error.value = 'err_data_transfer'.l10n;
         _setResendEmailTimer(false);
         s.unsubmit();
         stage.value = LoginViewStage.signUpWithEmail;
+        print(e.toString());
       }
     },
   );

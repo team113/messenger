@@ -200,7 +200,7 @@ class ChatInfoView extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
                   Block(
-                    title: 'label_public_information'.l10n,
+                    title: 'label_profile'.l10n,
                     children: [
                       _avatar(c, context),
                       const SizedBox(height: 15),

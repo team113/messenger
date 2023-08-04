@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
@@ -345,6 +346,32 @@ class LoginView extends StatelessWidget {
                       .l10nfmt({'text': c.email.text}).parseLinks([], context),
                   style: fonts.titleLarge,
                 ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  return Text(
+                    c.resendEmailTimeout.value == 0
+                        ? 'label_didnt_recieve_code'.l10n
+                        : 'label_code_sent_again'.l10n,
+                    style: fonts.titleLarge,
+                  );
+                }),
+                Obx(() {
+                  final bool enabled = c.resendEmailTimeout.value == 0;
+
+                  return WidgetButton(
+                    onPressed: enabled ? c.resendEmail : null,
+                    child: Text(
+                      enabled
+                          ? 'btn_resend_code'.l10n
+                          : 'label_wait_seconds'
+                              .l10nfmt({'for': c.resendEmailTimeout.value}),
+                      style: fonts.titleLarge?.copyWith(
+                        color: enabled ? style.colors.primary : null,
+                      ),
+                    ),
+                  );
+                }),
+
                 // Text.rich(
                 //   'Проверочный код был отправлен на e-mail ${c.email.text}'
                 //       .parseLinks([], context),
@@ -367,29 +394,28 @@ class LoginView extends StatelessWidget {
                   label: 'label_confirmation_code'.l10n,
                   type: TextInputType.number,
                 ),
-                const SizedBox(height: 4),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  child: Obx(() {
-                    final bool enabled = c.resendEmailTimeout.value == 0;
+                // const SizedBox(height: 4),
+                // Padding(
+                //   padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                //   child: Obx(() {
+                //     final bool enabled = c.resendEmailTimeout.value == 0;
 
-                    return WidgetButton(
-                      onPressed: enabled ? c.resendEmail : null,
-                      child: Text(
-                        // 'btn_resend_email'.l10n,
-                        c.resendEmailTimeout.value == 0
-                            ? 'btn_resend_email'.l10n
-                            : 'btn_resend_email_timeout'
-                                .l10nfmt({'after': c.resendEmailTimeout.value}),
-                        style: fonts.labelMedium?.copyWith(
-                          color: enabled
-                              ? style.colors.primary
-                              : style.colors.secondary,
-                        ),
-                      ),
-                    );
-                  }),
-                ),
+                //     return WidgetButton(
+                //       onPressed: enabled ? c.resendEmail : null,
+                //       child: Text(
+                //         c.resendEmailTimeout.value == 0
+                //             ? 'btn_resend_email'.l10n
+                //             : 'btn_resend_email_timeout'
+                //                 .l10nfmt({'after': c.resendEmailTimeout.value}),
+                //         style: fonts.labelMedium?.copyWith(
+                //           color: enabled
+                //               ? style.colors.primary
+                //               : style.colors.secondary,
+                //         ),
+                //       ),
+                //     );
+                //   }),
+                // ),
                 const SizedBox(height: 25),
                 Obx(() {
                   final bool enabled =
@@ -398,7 +424,7 @@ class LoginView extends StatelessWidget {
                   return PrimaryButton(
                     key: const Key('Proceed'),
                     title: c.codeTimeout.value == 0
-                        ? 'btn_proceed'.l10n
+                        ? 'btn_send'.l10n
                         : 'Подождите ${c.codeTimeout.value} секунд',
                     dense: c.codeTimeout.value != 0,
                     onPressed: enabled ? c.emailCode.submit : null,

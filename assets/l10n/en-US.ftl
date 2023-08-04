@@ -749,7 +749,6 @@ label_presence_away = Away
 label_presence_hidden = Don't show
 label_presence_present = Online
 label_profile = Profile
-label_public_information = Public information
 label_public_section_hint = Avatar and name
 label_read_at = Read at: {$date}
 label_read_by = Read by
@@ -764,12 +763,8 @@ label_sign_in_code_sent1 = The verification code has been sent to the{" "}
 label_sign_in_code_sent2 = . Please, enter the code below.
 label_sign_up_code_email_sent =
     Verification code has been sent to the e-mail {$text}
-
-    Please, enter the code below
 label_sign_up_code_phone_sent =
     Verification code has been sent to the phone number {$text}
-
-    Please, enter the code below
 label_recovery_enter_new_password = Please enter the new password below.
 label_remove_member = Remove member
 label_repeat_password = Repeat password
@@ -1025,3 +1020,8 @@ label_linked_devices = Linked devices
 label_scan_qr_code = Scan QR code
 btn_resend_email = Resend
 btn_resend_email_timeout = Resend in {$after} s
+btn_send = Send
+label_didnt_recieve_code = Didn't receive the code?
+label_code_sent_again = The code has been re-sent.
+label_wait_seconds = Wait {$for} s
+btn_resend_code = Resend

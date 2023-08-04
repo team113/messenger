@@ -204,7 +204,7 @@ class UserView extends StatelessWidget {
                         children: [BlocklistRecordWidget(c.isBlocked!)],
                       ),
                     Block(
-                      title: 'label_public_information'.l10n,
+                      title: 'label_profile'.l10n,
                       children: [
                         WidgetButton(
                           onPressed: c.user?.user.value.avatar == null

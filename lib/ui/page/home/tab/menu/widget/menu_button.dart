@@ -88,14 +88,25 @@ class _MenuButtonState extends State<MenuButton> {
                   padding: const EdgeInsets.all(12),
                   child: Row(
                     children: [
-                      const SizedBox(width: 12),
-                      AnimatedScale(
-                        key: _key,
-                        duration: const Duration(milliseconds: 100),
-                        scale: _hovered ? 1.05 : 1,
-                        child: widget.icon,
+                      Container(
+                        constraints: BoxConstraints(minWidth: 56),
+                        child: Center(
+                          child: AnimatedScale(
+                            key: _key,
+                            duration: const Duration(milliseconds: 100),
+                            scale: _hovered ? 1.05 : 1,
+                            child: widget.icon,
+                          ),
+                        ),
                       ),
-                      const SizedBox(width: 18),
+                      // const SizedBox(width: 12),
+                      // AnimatedScale(
+                      //   key: _key,
+                      //   duration: const Duration(milliseconds: 100),
+                      //   scale: _hovered ? 1.05 : 1,
+                      //   child: widget.icon,
+                      // ),
+                      // const SizedBox(width: 18),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,

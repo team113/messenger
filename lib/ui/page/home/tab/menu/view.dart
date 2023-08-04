@@ -138,7 +138,7 @@ class MenuTabView extends StatelessWidget {
             ),
             leading: context.isNarrow
                 ? const [StyledBackButton()]
-                : [const SizedBox(width: 30)],
+                : [const SizedBox(width: 20)],
             actions: [
               WidgetButton(
                 behavior: HitTestBehavior.translucent,
@@ -258,10 +258,10 @@ class MenuTabView extends StatelessWidget {
                     child = card(
                       key: const Key('PublicInformation'),
                       icon: Icons.person,
-                      asset: 'public_information2',
-                      assetWidth: 22.5,
-                      assetHeight: 24.08,
-                      title: 'label_public_information'.l10n,
+                      asset: 'public_information5',
+                      assetWidth: 37,
+                      assetHeight: 28.66,
+                      title: 'label_profile'.l10n,
                       subtitle: 'label_public_section_hint'.l10n,
                     );
                     break;

@@ -534,7 +534,6 @@ class TextFieldState extends ReactiveFieldState {
     controller.addListener(() {
       if (controller.text != prevText) {
         prevText = controller.text;
-        print('controller.addListener');
         if (revalidateOnUnfocus) {
           error.value = null;
         }

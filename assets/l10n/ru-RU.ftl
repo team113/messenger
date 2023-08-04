@@ -208,7 +208,6 @@ btn_reply = Ответить
 btn_reply_message = Ответить на сообщение
 btn_report = Пожаловаться
 btn_resend = Повторить
-btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
 btn_save = Сохранить
 btn_save_to_gallery = Сохранить в галерею
@@ -761,7 +760,6 @@ label_presence_away = Отошёл
 label_presence_hidden = Не показывать
 label_presence_present = Онлайн
 label_profile = Профиль
-label_public_information = Публичная информация
 label_public_section_hint = Аватар и имя
 label_read_at = Прочитано: {$date}
 label_read_by = Прочитано
@@ -776,12 +774,8 @@ label_sign_in_code_sent1 = Проверочный код отправлен на
 label_sign_in_code_sent2 = . Пожалуйста, введите код ниже.
 label_sign_up_code_email_sent =
     Проверочный код был отправлен на e-mail {$text}
-
-    Пожалуйста, введите код ниже
 label_sign_up_code_phone_sent =
     Проверочный код был отправлен на номер телефона {$text}
-
-    Пожалуйста, введите код ниже
 label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
 label_remove_member = Удалить участника
 label_repeat_password = Повторите пароль
@@ -1047,3 +1041,9 @@ label_linked_devices = Связанные устройства
 label_scan_qr_code = Отсканировать QR код
 btn_resend_email = Отправить повторно
 btn_resend_email_timeout = Отправить повторно через {$after} с
+btn_resend = Отправить повторно
+btn_send = Отправить
+label_didnt_recieve_code = Не получили код?
+label_code_sent_again = Код отправлен повторно.
+label_wait_seconds = Подождите {$for} с
+btn_resend_code = Отправить повторно
