@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.10] · 2023-??-??
+[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+
+[Diff](/../../compare/v0.1.0-alpha.9.1...v0.1.0-alpha.10) | [Milestone](/../../milestone/6)
+
+### Added
+
+- Push notifications. ([#202], [#201])
+
+[#201]: /../../issues/201
+[#202]: /../../pull/202
+
+
+
+
 ## [0.1.0-alpha.9.2] · 2023-07-28
 [0.1.0-alpha.9.2]: /../../tree/v0.1.0-alpha.9.2
 
@@ -71,7 +86,6 @@ All user visible changes to this project will be documented in this file. This p
     - Video playback. ([#468], [#445], [#438])
 - Mobile:
     - Video rewinding indication. ([#468], [#452])
-- Push notifications. ([#202], [#201])
 
 ### Changed
 
@@ -109,8 +123,6 @@ All user visible changes to this project will be documented in this file. This p
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
-[#201]: /../../issues/201
-[#202]: /../../pull/202
 [#258]: /../../issues/258
 [#264]: /../../issues/264
 [#270]: /../../pull/270
