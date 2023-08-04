@@ -296,11 +296,9 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: style.fonts.labelMedium.copyWith(
-                    color: inverted
-                        ? style.colors.onPrimary
-                        : style.colors.primary,
-                  ),
+                  style: inverted
+                      ? style.fonts.labelMediumOnPrimary
+                      : style.fonts.labelMediumPrimary,
                 ),
                 const SizedBox(width: 3),
                 Padding(
@@ -321,11 +319,9 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: style.fonts.labelMedium.copyWith(
-                        color: inverted
-                            ? style.colors.onPrimary
-                            : style.colors.primary,
-                      ),
+                      style: inverted
+                          ? style.fonts.labelMediumOnPrimary
+                          : style.fonts.labelMediumPrimary,
                     ),
                   ),
                   const SizedBox(width: 3),
@@ -631,9 +627,9 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: style.fonts.bodyMedium.copyWith(
-          color: inverted ? style.colors.onPrimary : style.colors.secondary,
-        ),
+        style: inverted
+            ? style.fonts.bodyMediumOnPrimary
+            : style.fonts.bodyMediumSecondary,
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );

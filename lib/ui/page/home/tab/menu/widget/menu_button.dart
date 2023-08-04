@@ -92,11 +92,9 @@ class MenuButton extends StatelessWidget {
                             DefaultTextStyle(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: style.fonts.headlineLarge.copyWith(
-                                color: inverted
-                                    ? style.colors.onPrimary
-                                    : style.colors.onBackground,
-                              ),
+                              style: inverted
+                                  ? style.fonts.headlineLargeOnPrimary
+                                  : style.fonts.headlineLarge,
                               child: Text(title!),
                             ),
                           if (title != null && subtitle != null)
@@ -105,11 +103,9 @@ class MenuButton extends StatelessWidget {
                             DefaultTextStyle.merge(
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: style.fonts.labelMedium.copyWith(
-                                color: inverted
-                                    ? style.colors.onPrimary
-                                    : style.colors.onBackground,
-                              ),
+                              style: inverted
+                                  ? style.fonts.labelMediumOnPrimary
+                                  : style.fonts.labelMedium,
                               child: Text(subtitle!),
                             ),
                         ],

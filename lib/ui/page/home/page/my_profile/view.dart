@@ -1298,11 +1298,9 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
-          style: style.fonts.titleMedium.copyWith(
-            color: c.blacklist.isEmpty
-                ? style.colors.onBackground
-                : style.colors.primary,
-          ),
+          style: c.blacklist.isEmpty
+              ? style.fonts.titleMedium
+              : style.fonts.titleMediumPrimary,
         ),
       ),
     ],

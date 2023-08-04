@@ -678,11 +678,9 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style: style.fonts.labelMedium.copyWith(
-                    color: inverted
-                        ? style.colors.onPrimary
-                        : style.colors.secondary,
-                  ),
+                  style: inverted
+                      ? style.fonts.labelMediumOnPrimary
+                      : style.fonts.labelMediumSecondary,
                 );
               }
 

@@ -185,10 +185,10 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: style.fonts.titleMedium.copyWith(
-                  color: (isMouseOver && !context.isMobile)
-                      ? style.colors.onPrimary
-                      : style.colors.onBackground,
+                style: (isMouseOver && !context.isMobile
+                        ? style.fonts.titleMediumOnPrimary
+                        : style.fonts.titleMedium)
+                    .copyWith(
                   fontSize: context.isMobile
                       ? style.fonts.bodyLarge.fontSize
                       : style.fonts.bodySmall.fontSize,

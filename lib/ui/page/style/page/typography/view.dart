@@ -64,7 +64,7 @@ class TypographyView extends StatelessWidget {
 
     final Iterable<(TextStyle, String, String)> schema = [
       // Display large
-      (style.fonts.displayLarge, 'displayLarge', '0 uses by this color'),
+      (style.fonts.displayLarge, 'displayLarge', 'Unused'),
       (
         style.fonts.displayLargeOnPrimary,
         'displayLargeOnPrimary',
@@ -72,7 +72,7 @@ class TypographyView extends StatelessWidget {
       ),
 
       // Display medium
-      (style.fonts.displayMedium, 'displayMedium', '0 uses by this color'),
+      (style.fonts.displayMedium, 'displayMedium', 'Unused'),
       (
         style.fonts.displayMediumSecondary,
         'displayMediumSecondary',
@@ -80,7 +80,7 @@ class TypographyView extends StatelessWidget {
       ),
 
       // Display small
-      (style.fonts.displaySmall, 'displaySmall', '0 uses by this color'),
+      (style.fonts.displaySmall, 'displaySmall', 'Unused'),
       (
         style.fonts.displaySmallSecondary,
         'displaySmallSecondary',
@@ -120,7 +120,7 @@ class TypographyView extends StatelessWidget {
       ),
 
       // Headline small
-      (style.fonts.headlineSmall, 'headlineSmall', '0 uses of this color'),
+      (style.fonts.headlineSmall, 'headlineSmall', 'Unused'),
       (
         style.fonts.headlineSmallSecondary,
         'headlineSmallSecondary',
@@ -182,7 +182,7 @@ class TypographyView extends StatelessWidget {
       ),
 
       // Title small
-      (style.fonts.titleSmall, 'titleSmall', '0 uses of this color'),
+      (style.fonts.titleSmall, 'titleSmall', 'Unused'),
       (
         style.fonts.titleSmallOnPrimary,
         'titleSmallOnPrimary',
@@ -231,7 +231,7 @@ class TypographyView extends StatelessWidget {
       ),
 
       // Label small
-      (style.fonts.labelSmall, 'labelSmall', '0 uses of this color'),
+      (style.fonts.labelSmall, 'labelSmall', 'Unused'),
       (
         style.fonts.labelSmallPrimary,
         'labelSmallPrimary',
