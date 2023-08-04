@@ -21,9 +21,9 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import '/themes.dart';
 import '/l10n/l10n.dart';
 
-/// Text of the current position and duration of a [MeeduVideoPlayer].
+/// Current position and duration of the provided [controller].
 class CurrentPosition extends StatelessWidget {
-  const CurrentPosition({super.key, required this.controller});
+  const CurrentPosition(this.controller, {super.key});
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;

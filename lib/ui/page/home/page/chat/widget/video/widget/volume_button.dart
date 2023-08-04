@@ -21,11 +21,11 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
 
-/// Button-styled volume [Icon].
+/// Button-styled volume [Icon] controlling the [controller].
 class VolumeButton extends StatelessWidget {
-  const VolumeButton({
+  const VolumeButton(
+    this.controller, {
     super.key,
-    required this.controller,
     this.height,
     this.margin,
     this.padding,

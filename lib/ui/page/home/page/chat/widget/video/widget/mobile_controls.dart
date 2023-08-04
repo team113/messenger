@@ -208,9 +208,9 @@ class _MobileControlsState extends State<MobileControls>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      CurrentPosition(controller: widget.controller),
+                      CurrentPosition(widget.controller),
                       VolumeButton(
-                        controller: widget.controller,
+                        widget.controller,
                         height: widget.barHeight,
                         margin: const EdgeInsets.only(right: 12.0),
                         padding: const EdgeInsets.only(

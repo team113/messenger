@@ -254,7 +254,7 @@ class _DesktopControlsState extends State<DesktopControls>
                     onTap: _playPause,
                   ),
                   const SizedBox(width: 12),
-                  CurrentPosition(controller: widget.controller),
+                  CurrentPosition(widget.controller),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ProgressBar(
@@ -271,8 +271,8 @@ class _DesktopControlsState extends State<DesktopControls>
                   ),
                   const SizedBox(width: 12),
                   VolumeButton(
+                    widget.controller,
                     key: _volumeKey,
-                    controller: widget.controller,
                     height: widget.barHeight,
                     onTap: () {
                       _cancelAndRestartTimer();
@@ -295,7 +295,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
                         _volumeEntry = OverlayEntry(
                           builder: (_) => VolumeOverlay(
-                            controller: widget.controller,
+                            widget.controller,
                             offset: offset,
                             onExit: (d) {
                               if (mounted && !_dragging) {
