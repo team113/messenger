@@ -230,6 +230,13 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
+email_confirmation =
+    {$domain} verification code: {$token}
+    Valid until {$expiresAt}.
+
+    Best regards,
+    Administration of {$domain}
+email_confirmation_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
 err_call_already_exists = Call already exists
@@ -319,63 +326,87 @@ err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
-fcm_dialog_attachment =
-    {$kind ->
-        [image] [Image]
-        [video] [Video]
-        *[file] [File]
-    }
-fcm_dialog_message = {$text}
-fcm_dialog_title =
-    {$userName ->
+fcm_dialog_title = {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
+       *[other] {$userName}
     }
-fcm_group_attachment =
-    {$userName ->
+fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
-    }: {$kind ->
-        [image] [Image]
-        [video] [Video]
-        *[file] [File]
-    }
-fcm_group_message =
-    {$userName ->
+       *[other] {$userName}
+    } {$operation ->
+          [update] changed group image
+         *[delete] removed group image
+      }
+fcm_group_name_changed = {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
-    }: {$text}
+       *[other] {$userName}
+    } {$operation ->
+          [update] changed the group name to {$groupName}
+         *[delete] removed group name
+      }
 fcm_group_title =
     {$user1Name ->
         [x] {$user1Num ->
                 [x] {""}
-                *[other] {$user1Num}
+               *[other] {$user1Num}
             }
-        *[other] {$user1Name}
+       *[other] {$user1Name}
     }{$user2Name ->
         [x] {$user2Num ->
                 [x] {""}
-                *[other] {$user2Num}
+               *[other] {$user2Num}
             }
-        *[other] , {$user2Name}
+       *[other] , {$user2Name}
     }{$user3Name ->
         [x] {$user3Num ->
                 [x] {""}
-                *[other] {$user3Num}
+               *[other] {$user3Num}
             }
-        *[other] , {$user3Name}
+       *[other] , {$user3Name}
     } {$moreMembers ->
         [yes] ...
-        *[no] {""}
+       *[no] {""}
     }
 fcm_incoming_call = Incoming call
+fcm_message =
+    { $type ->
+        [dialog] {""}
+        *[group]
+            {$userName ->
+                [x] {$userNum}
+                *[other] {$userName}
+            }:{" "}
+    }{ $attachmentsCount ->
+          [0] {""}
+          *[other] [{$attachmentsType ->
+               [image] { $attachmentsCount ->
+                           [1] Image
+                           *[other] {$attachmentsCount} images
+                       }
+               [video] { $attachmentsCount ->
+                           [1] Video
+                           *[other] {$attachmentsCount} videos
+                       }
+               [file] { $attachmentsCount ->
+                          [1] File
+                          *[other] {$attachmentsCount} files
+                      }
+              *[attachments] {$attachmentsCount} attachments
+        }]
+    }{ $textLength ->
+        [0] {""}
+        *[other] { $attachmentsCount ->
+            [0] {$text}
+            *[other] {" "}{$text}
+        }
+    }
 fcm_user_added_user =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } added {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
+       *[other] {$userName}
     }
 fcm_user_added_you_to_group =
     {$authorName ->
@@ -385,21 +416,26 @@ fcm_user_added_you_to_group =
 fcm_user_joined_group_by_link =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } joined group by link
 fcm_user_left_group =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } left the group
 fcm_user_removed_user =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } removed {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
+       *[other] {$userName}
     }
+fcm_user_removed_you =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } removed you from group
 label_a_of_b = {$a} of {$b}
 label_account_created = Account is created
 label_actions = Actions
@@ -813,6 +849,13 @@ label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_blacklist = Your blacklist
 label_your_direct_link = Direct link to chat with you
+password_recovery =
+    {$domain} recovery code: {$token}
+    Valid until {$expiresAt}.
+
+    Best regards,
+    Administration of {$domain}
+password_recovery_subject = {$domain} recovery code
 plus = +
 space = {" "}
 space_or_space = {" "}or{" "}
