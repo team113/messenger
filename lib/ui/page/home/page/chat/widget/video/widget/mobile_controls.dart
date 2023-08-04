@@ -90,32 +90,45 @@ class _MobileControlsState extends State<MobileControls>
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    // Toggles the [_hideStuff].
+    void toggleStuff() {
+      if (!_hideStuff) {
+        setState(() => _hideStuff = true);
+      } else {
+        _cancelAndRestartTimer();
+      }
+    }
+
     return MouseRegion(
       onHover: PlatformUtils.isMobile ? null : (_) => _cancelAndRestartTimer(),
-      child: GestureDetector(
-        onTap: () {
-          if (!_hideStuff) {
-            setState(() => _hideStuff = true);
-          } else {
-            _cancelAndRestartTimer();
-          }
-        },
-        child: Stack(
-          children: [
-            RxBuilder((_) {
-              return widget.controller.isBuffering.value
-                  ? const Center(child: CustomProgressIndicator())
-                  : CenteredPlayPause(
-                      widget.controller,
-                      size: 56,
-                      show: !_dragging && !_hideStuff,
-                      onPressed: _playPause,
-                    );
-            }),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Shows and hides the interface.
+          GestureDetector(
+            onTap: toggleStuff,
+            child: Container(
+              color: Colors.transparent,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+          ),
 
-            // Seek backward indicator.
-            Align(
-              alignment: const Alignment(-0.8, 0),
+          RxBuilder((_) {
+            return widget.controller.isBuffering.value
+                ? const Center(child: CustomProgressIndicator())
+                : CenteredPlayPause(
+                    widget.controller,
+                    size: 56,
+                    show: !_dragging && !_hideStuff,
+                    onPressed: _playPause,
+                  );
+          }),
+
+          // Seek backward indicator.
+          Align(
+            alignment: const Alignment(-0.8, 0),
+            child: IgnorePointer(
               child: RewindIndicator(
                 seconds: _seekBackwardDuration.inSeconds,
                 forward: false,
@@ -125,10 +138,12 @@ class _MobileControlsState extends State<MobileControls>
                         : 0,
               ),
             ),
+          ),
 
-            // Seek forward indicator.
-            Align(
-              alignment: const Alignment(0.8, 0),
+          // Seek forward indicator.
+          Align(
+            alignment: const Alignment(0.8, 0),
+            child: IgnorePointer(
               child: RewindIndicator(
                 seconds: _seekForwardDuration.inSeconds,
                 forward: true,
@@ -137,43 +152,45 @@ class _MobileControlsState extends State<MobileControls>
                     : 0,
               ),
             ),
+          ),
 
-            // Double tap to [_seekBackward].
-            Align(
-              alignment: Alignment.topLeft,
-              child: GestureDetector(
-                onDoubleTap: _seekBackward,
-                child: Container(
-                  color: style.colors.transparent,
-                  width: MediaQuery.of(context).size.width / 4,
-                  height: double.infinity,
-                ),
+          // Double tap to [_seekBackward].
+          Align(
+            alignment: Alignment.topLeft,
+            child: GestureDetector(
+              onTap: toggleStuff,
+              onDoubleTap: _seekBackward,
+              child: Container(
+                color: style.colors.transparent,
+                width: MediaQuery.of(context).size.width / 4,
+                height: double.infinity,
               ),
             ),
+          ),
 
-            // Double tap to [_seekForward].
-            Align(
-              alignment: Alignment.topRight,
-              child: GestureDetector(
-                onDoubleTap: _seekForward,
-                child: Container(
-                  color: style.colors.transparent,
-                  width: MediaQuery.of(context).size.width / 4,
-                  height: double.infinity,
-                ),
+          // Double tap to [_seekForward].
+          Align(
+            alignment: Alignment.topRight,
+            child: GestureDetector(
+              onTap: toggleStuff,
+              onDoubleTap: _seekForward,
+              child: Container(
+                color: style.colors.transparent,
+                width: MediaQuery.of(context).size.width / 4,
+                height: double.infinity,
               ),
             ),
+          ),
 
-            // Bottom controls bar.
-            IgnorePointer(
-              ignoring: _hideStuff,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [_buildBottomBar(context)],
-              ),
+          // Bottom controls bar.
+          IgnorePointer(
+            ignoring: _hideStuff,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [_buildBottomBar(context)],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
