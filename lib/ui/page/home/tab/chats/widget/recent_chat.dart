@@ -272,11 +272,12 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final ChatItem? item;
+      ChatItem? item = chat.lastItem;
       if (rxChat.messages.isNotEmpty) {
-        item = rxChat.messages.last.value;
-      } else {
-        item = chat.lastItem;
+        final ChatItem last = rxChat.messages.last.value;
+        if (chat.lastItem?.at.isBefore(last.at) == true) {
+          item = last;
+        }
       }
 
       List<Widget> subtitle = [];

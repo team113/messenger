@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '/ui/page/home/page/chat/widget/chat_item.dart';
@@ -73,10 +71,8 @@ class RectangularCallButton extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   text,
-                  style: style.fonts.bodyMediumOnPrimary.copyWith(
-                    fontFeatures: [const FontFeature.tabularFigures()],
-                  ),
-                ),
+                  style: style.fonts.bodyMediumOnPrimary,
+                ).fixedDigits(),
               ],
             ),
           ),
