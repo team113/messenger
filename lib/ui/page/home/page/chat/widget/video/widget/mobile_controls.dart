@@ -19,32 +19,31 @@
 
 import 'dart:async';
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
-import '../widget/centered_play_pause.dart';
-import '../widget/position.dart';
-import '../widget/video_progress_bar.dart';
-import '../widget/volume_button.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
-import 'widget/rewind_indicator.dart';
+import 'centered_play_pause.dart';
+import 'position.dart';
+import 'rewind_indicator.dart';
+import 'video_progress_bar.dart';
+import 'volume_button.dart';
 
-/// Mobile video controls for a [Chewie] player.
+/// Mobile video controls for a [VideoView] player.
 class MobileControls extends StatefulWidget {
-  const MobileControls({super.key, required this.controller, this.barHeight});
+  const MobileControls(this.controller, {super.key, this.barHeight});
+
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
+  final MeeduPlayerController controller;
 
   /// Height of the bottom controls bar.
   final double? barHeight;
 
   /// [Duration] to seek forward or backward for.
   static const Duration seekDuration = Duration(seconds: 5);
-
-  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
-  final MeeduPlayerController controller;
 
   @override
   State<StatefulWidget> createState() => _MobileControlsState();
@@ -109,7 +108,7 @@ class _MobileControlsState extends State<MobileControls>
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
                   : CenteredPlayPause(
-                      controller: widget.controller,
+                      widget.controller,
                       size: 56,
                       show: !_dragging && !_hideStuff,
                       onPressed: _playPause,

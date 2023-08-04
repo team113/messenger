@@ -19,7 +19,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
-import 'package:chewie/src/helpers/utils.dart';
 
 import '/themes.dart';
 import '/l10n/l10n.dart';
@@ -36,11 +35,11 @@ class CurrentPosition extends StatelessWidget {
     final (style, fonts) = Theme.of(context).styles;
 
     return RxBuilder((_) {
-      final String position = formatDuration(controller.position.value);
-      final String duration = formatDuration(controller.duration.value);
+      final String position = controller.position.value.hhMmSs();
+      final String duration = controller.duration.value.hhMmSs();
 
       return Text(
-        'label_time_slash_time'.l10nfmt({'a': position, 'b': duration}),
+        'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
         style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
       );
     });

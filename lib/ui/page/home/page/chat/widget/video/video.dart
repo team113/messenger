@@ -29,8 +29,8 @@ import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
-import 'desktop_controls/view.dart';
-import 'mobile_controls/view.dart';
+import 'widget/desktop_controls.dart';
+import 'widget/mobile_controls.dart';
 
 /// Video player with controls.
 class VideoView extends StatefulWidget {
@@ -57,7 +57,7 @@ class VideoView extends StatefulWidget {
   /// Callback, called when a [MeeduPlayerController] is assigned or disposed.
   final void Function(MeeduPlayerController?)? onController;
 
-  /// Reactive indicator of whether this video is in fullscreen mode.
+  /// Reactive indicator whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
   /// Callback, called on the [MeeduPlayerController] initialization errors.
@@ -100,6 +100,7 @@ class _VideoViewState extends State<VideoView> {
     });
 
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
+
     super.initState();
   }
 
@@ -162,12 +163,9 @@ class _VideoViewState extends State<VideoView> {
                       ),
                     ),
                     PlatformUtils.isMobile
-                        ? MobileControls(
-                            controller: _controller,
-                            barHeight: _barHeight,
-                          )
+                        ? MobileControls(_controller, barHeight: _barHeight)
                         : DesktopControls(
-                            controller: _controller,
+                            _controller,
                             barHeight: _barHeight,
                             onClose: widget.onClose,
                             toggleFullscreen: widget.toggleFullscreen,

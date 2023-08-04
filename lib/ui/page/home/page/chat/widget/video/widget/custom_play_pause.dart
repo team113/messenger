@@ -17,20 +17,15 @@
 
 // ignore_for_file: implementation_imports
 
-import 'package:chewie/src/animated_play_pause.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
+import 'animated_play_pause.dart';
 
-/// Custom-styled [AnimatedPlayPause].
+/// Custom-styled [AnimatedPlayPause] displaying a state of the [controller].
 class CustomPlayPause extends StatelessWidget {
-  const CustomPlayPause({
-    super.key,
-    required this.controller,
-    this.height,
-    this.onTap,
-  });
+  const CustomPlayPause(this.controller, {super.key, this.height, this.onTap});
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
@@ -54,8 +49,8 @@ class CustomPlayPause extends StatelessWidget {
           color: style.colors.transparent,
           child: RxBuilder((_) {
             return AnimatedPlayPause(
+              controller.playerStatus.playing,
               size: 21,
-              playing: controller.playerStatus.playing,
               color: style.colors.onPrimary,
             );
           }),

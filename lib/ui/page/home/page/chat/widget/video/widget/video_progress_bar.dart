@@ -15,11 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
+import 'video_volume_bar.dart';
 
 /// Draggable video progress bar.
 class ProgressBar extends StatefulWidget {
@@ -86,11 +86,11 @@ class _ProgressBarState extends State<ProgressBar> {
                     ? _relativePosition(_latestDraggableOffset!)
                     : widget.controller.position.value,
                 buffered: widget.controller.buffered.value,
-                colors: ChewieProgressColors(
-                  playedColor: style.colors.primary,
-                  handleColor: style.colors.primary,
-                  bufferedColor: style.colors.background.withOpacity(0.5),
-                  backgroundColor: style.colors.secondary.withOpacity(0.5),
+                colors: ProgressBarColors(
+                  played: style.colors.primary,
+                  handle: style.colors.primary,
+                  buffered: style.colors.background.withOpacity(0.5),
+                  background: style.colors.secondary.withOpacity(0.5),
                 ),
                 barHeight: widget.barHeight,
                 handleHeight: widget.handleHeight,
@@ -179,8 +179,8 @@ class _ProgressBarPainter extends CustomPainter {
   /// [List] of buffered [DurationRange]s.
   List<DurationRange> buffered;
 
-  /// [ChewieProgressColors] theme of this [_ProgressBarPainter].
-  ChewieProgressColors colors;
+  /// [ProgressBarColors] theme of this [_ProgressBarPainter].
+  ProgressBarColors colors;
 
   /// Height of the progress bar.
   final double barHeight;
@@ -206,7 +206,7 @@ class _ProgressBarPainter extends CustomPainter {
         ),
         const Radius.circular(4.0),
       ),
-      colors.backgroundPaint,
+      colors.background,
     );
 
     final double playedPartPercent =
@@ -224,7 +224,7 @@ class _ProgressBarPainter extends CustomPainter {
           ),
           const Radius.circular(4.0),
         ),
-        colors.bufferedPaint,
+        colors.buffered,
       );
     }
     canvas.drawRRect(
@@ -235,7 +235,7 @@ class _ProgressBarPainter extends CustomPainter {
         ),
         const Radius.circular(4.0),
       ),
-      colors.playedPaint,
+      colors.played,
     );
 
     if (drawShadow) {
@@ -253,7 +253,7 @@ class _ProgressBarPainter extends CustomPainter {
     canvas.drawCircle(
       Offset(playedPart, baseOffset + barHeight / 2),
       handleHeight,
-      colors.handlePaint,
+      colors.handle,
     );
   }
 }

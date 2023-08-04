@@ -20,28 +20,27 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 
-import '../widget/centered_play_pause.dart';
-import '../widget/position.dart';
-import '../widget/video_progress_bar.dart';
-import '../widget/volume_button.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
-import 'widget/custom_play_pause.dart';
-import 'widget/expand_button.dart';
-import 'widget/volume_overlay.dart';
+import 'centered_play_pause.dart';
+import 'custom_play_pause.dart';
+import 'expand_button.dart';
+import 'position.dart';
+import 'video_progress_bar.dart';
+import 'volume_button.dart';
+import 'volume_overlay.dart';
 
-/// Desktop video controls for a [Chewie] player.
+/// Desktop video controls for a [VideoView] player.
 class DesktopControls extends StatefulWidget {
-  const DesktopControls({
+  const DesktopControls(
+    this.controller, {
     super.key,
-    required this.controller,
     this.onClose,
     this.toggleFullscreen,
     this.isFullscreen,
@@ -50,11 +49,11 @@ class DesktopControls extends StatefulWidget {
     this.barHeight,
   });
 
-  /// Height of the bottom controls bar.
-  final double? barHeight;
-
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
+
+  /// Height of the bottom controls bar.
+  final double? barHeight;
 
   /// Callback, called when a close video action is fired.
   final VoidCallback? onClose;
@@ -186,7 +185,7 @@ class _DesktopControlsState extends State<DesktopControls>
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
                   : CenteredPlayPause(
-                      controller: widget.controller,
+                      widget.controller,
                       show: (!_dragging && !_hideStuff || _showInterface) &&
                           !widget.controller.playerStatus.playing,
                       onPressed: _playPause,
@@ -252,7 +251,7 @@ class _DesktopControlsState extends State<DesktopControls>
                 children: [
                   const SizedBox(width: 7),
                   CustomPlayPause(
-                    controller: widget.controller,
+                    widget.controller,
                     height: widget.barHeight,
                     onTap: _playPause,
                   ),

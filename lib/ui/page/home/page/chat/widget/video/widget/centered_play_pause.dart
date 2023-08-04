@@ -17,17 +17,17 @@
 
 // ignore_for_file: implementation_imports
 
-import 'package:chewie/src/animated_play_pause.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
+import 'animated_play_pause.dart';
 
-/// Centered [AnimatedPlayPause].
+/// Centered [AnimatedPlayPause] displaying a state of the [controller].
 class CenteredPlayPause extends StatelessWidget {
-  const CenteredPlayPause({
+  const CenteredPlayPause(
+    this.controller, {
     super.key,
-    required this.controller,
     this.size = 48,
     this.onPressed,
     this.show = true,
@@ -42,7 +42,7 @@ class CenteredPlayPause extends StatelessWidget {
   /// Indicator whether to show this [CenteredPlayPause].
   final bool show;
 
-  /// Callback, called when this [CenteredPlayPause] is tapped.
+  /// Callback, called when this [CenteredPlayPause] is pressed.
   final void Function()? onPressed;
 
   @override
@@ -69,8 +69,8 @@ class CenteredPlayPause extends StatelessWidget {
               icon: isFinished
                   ? Icon(Icons.replay, color: style.colors.onPrimary)
                   : AnimatedPlayPause(
+                      controller.playerStatus.playing,
                       color: style.colors.onPrimary,
-                      playing: controller.playerStatus.playing,
                     ),
               onPressed: onPressed,
             ),

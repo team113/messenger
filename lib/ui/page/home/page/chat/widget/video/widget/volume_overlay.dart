@@ -17,7 +17,6 @@
 
 import 'dart:ui';
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
@@ -92,12 +91,12 @@ class VolumeOverlay extends StatelessWidget {
                                 controller,
                                 onDragStart: onDragStart,
                                 onDragEnd: onDragEnd,
-                                colors: ChewieProgressColors(
-                                  playedColor: style.colors.primary,
-                                  handleColor: style.colors.primary,
-                                  bufferedColor:
+                                colors: ProgressBarColors(
+                                  played: style.colors.primary,
+                                  handle: style.colors.primary,
+                                  buffered:
                                       style.colors.background.withOpacity(0.5),
-                                  backgroundColor:
+                                  background:
                                       style.colors.secondary.withOpacity(0.5),
                                 ),
                               ),
