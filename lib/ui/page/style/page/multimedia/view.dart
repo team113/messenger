@@ -26,7 +26,7 @@ import 'widget/media_container.dart';
 
 /// View of the [StyleTab.multimedia] page.
 class MultimediaView extends StatelessWidget {
-  const MultimediaView({super.key, this.inverted = false, this.dense = false});
+  const MultimediaView(this.inverted, this.dense, {super.key});
 
   /// Indicator whether this view should have its colors inverted.
   final bool inverted;

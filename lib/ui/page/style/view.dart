@@ -159,10 +159,7 @@ class StyleView extends StatelessWidget {
                   );
                 }),
               StyleTab.multimedia => Obx(() {
-                  return MultimediaView(
-                    inverted: c.inverted.value,
-                    dense: c.dense.value,
-                  );
+                  return MultimediaView(c.inverted.value, c.dense.value);
                 }),
 
               // TODO: Implement.
