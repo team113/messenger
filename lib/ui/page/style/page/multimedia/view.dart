@@ -18,10 +18,11 @@
 import 'package:flutter/material.dart';
 
 import '/ui/page/style/page/multimedia/widget/animations.dart';
-import '/ui/page/style/page/multimedia/widget/sounds.dart';
+import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/images.dart';
+import 'widget/media_container.dart';
 
 /// View of the [StyleTab.multimedia] page.
 class MultimediaView extends StatelessWidget {
@@ -35,6 +36,16 @@ class MultimediaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<(String, String)> sounds = [
+      ('chinese', 'Incoming call'),
+      ('chinese-web', 'Web incoming call'),
+      ('ringing', 'Outgoing call'),
+      ('reconnect', 'Call reconnection'),
+      ('message_sent', 'Sended message'),
+      ('notification', 'Notification sound'),
+      ('pop', 'Pop sound'),
+    ];
+
     return ScrollableColumn(
       children: [
         const SizedBox(height: 16),
@@ -44,7 +55,7 @@ class MultimediaView extends StatelessWidget {
         const SubHeader('Animation'),
         AnimationsColumn(inverted: inverted, dense: dense),
         const SubHeader('Sound'),
-        const SoundsWidget(),
+        BuilderWrap(sounds, (e) => MediaContainer(e.$1, subtitle: e.$2)),
         const SizedBox(height: 16),
       ],
     );
