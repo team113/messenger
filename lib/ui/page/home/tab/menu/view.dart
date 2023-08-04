@@ -258,7 +258,7 @@ class MenuTabView extends StatelessWidget {
                     child = card(
                       key: const Key('PublicInformation'),
                       icon: Icons.person,
-                      asset: 'public_information1',
+                      asset: 'public_information2',
                       assetWidth: 22.5,
                       assetHeight: 24.08,
                       title: 'label_public_information'.l10n,
