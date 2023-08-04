@@ -408,7 +408,9 @@ class _ChatViewState extends State<ChatView>
                                   childCount: c.elements.value.length,
                                   stickyAtTailer: true,
                                   keepPosition: true,
-                                  keepPositionOffset: c.active.isTrue ? 20 : 1,
+                                  keepPositionOffset: c.active.isTrue
+                                      ? c.keepPositionOffset.value
+                                      : 1,
                                   onItemKey: (i) => c.elements.values
                                       .elementAt(i)
                                       .id
@@ -572,6 +574,9 @@ class _ChatViewState extends State<ChatView>
       ListElement? previous;
       if (i < c.elements.length - 1) {
         previous = c.elements.values.elementAt(i + 1);
+        if (previous is LoaderElement && i < c.elements.length - 2) {
+          previous = c.elements.values.elementAt(i + 2);
+        }
       }
 
       if (previous != null) {
@@ -830,13 +835,13 @@ class _ChatViewState extends State<ChatView>
       return Obx(() {
         final Widget child;
 
-        if (c.bottomLoader.value) {
-          child = Center(
-            key: const ValueKey(1),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 12),
-              child: ConstrainedBox(
-                constraints: BoxConstraints.tight(const Size.square(40)),
+        if (c.showLoaders.value) {
+          child = SizedBox.square(
+            dimension: ChatController.loaderHeight,
+            child: Center(
+              key: const ValueKey(1),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 12),
                 child: Center(
                   child: ColoredBox(
                     color: style.colors.transparent,
@@ -853,7 +858,7 @@ class _ChatViewState extends State<ChatView>
                 ? isLast
                     ? ChatController.lastItemBottomOffset
                     : null
-                : 64,
+                : ChatController.loaderHeight,
           );
         }
 
