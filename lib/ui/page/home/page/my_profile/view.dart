@@ -120,10 +120,12 @@ class MyProfileView extends StatelessWidget {
                               ),
                             ),
                             _presence(context, c),
-                            StatusFieldButton(
-                              c.myUser.value?.status,
-                              onSubmit: c.updateUserStatus,
-                            ),
+                            Obx(() {
+                              return UserTextStatusWidget(
+                                c.myUser.value?.status,
+                                onSubmit: c.updateUserStatus,
+                              );
+                            }),
                           ],
                         );
 

@@ -30,8 +30,8 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [status].
-class StatusFieldButton extends StatefulWidget {
-  const StatusFieldButton(this.status, {super.key, this.onSubmit});
+class UserTextStatusWidget extends StatefulWidget {
+  const UserTextStatusWidget(this.status, {super.key, this.onSubmit});
 
   /// Status of an [User].
   final UserTextStatus? status;
@@ -40,11 +40,11 @@ class StatusFieldButton extends StatefulWidget {
   final Future<void> Function(UserTextStatus? status)? onSubmit;
 
   @override
-  State<StatusFieldButton> createState() => _StatusFieldButtonState();
+  State<UserTextStatusWidget> createState() => _UserTextStatusWidgetState();
 }
 
-/// State of a [StatusFieldButton] maintaining the [_state].
-class _StatusFieldButtonState extends State<StatusFieldButton> {
+/// State of a [UserTextStatusWidget] maintaining the [_state].
+class _UserTextStatusWidgetState extends State<UserTextStatusWidget> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.status?.val ?? '',
@@ -72,11 +72,12 @@ class _StatusFieldButtonState extends State<StatusFieldButton> {
       if (s.error.value == null) {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
+
         try {
           widget.onSubmit?.call(
             s.text.isNotEmpty ? UserTextStatus(s.text) : null,
           );
-          s.status.value = RxStatus.success();
+          s.status.value = RxStatus.empty();
         } catch (e) {
           s.error.value = 'err_data_transfer'.l10n;
           s.status.value = RxStatus.empty();
@@ -87,6 +88,17 @@ class _StatusFieldButtonState extends State<StatusFieldButton> {
       }
     },
   );
+
+  @override
+  void didUpdateWidget(UserTextStatusWidget oldWidget) {
+    if (!_state.focus.hasFocus &&
+        !_state.changed.value &&
+        _state.editable.value) {
+      _state.unchecked = widget.status?.val;
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
