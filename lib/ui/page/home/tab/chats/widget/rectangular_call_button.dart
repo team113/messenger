@@ -15,12 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 
 /// Rounded rectangular button representing an [OngoingCall] happening.
 class RectangularCallButton extends StatelessWidget {
@@ -75,11 +74,8 @@ class RectangularCallButton extends StatelessWidget {
                   text,
                   style: fonts.bodyMedium!.copyWith(
                     color: style.colors.onPrimary,
-                    fontFeatures: [
-                      const FontFeature.tabularFigures(),
-                    ],
                   ),
-                ),
+                ).fixedDigits(),
               ],
             ),
           ),

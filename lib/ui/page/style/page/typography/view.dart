@@ -67,34 +67,22 @@ class TypographyView extends StatelessWidget {
     return ScrollableColumn(
       children: [
         const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Header('Typography'),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Fonts'),
-        ),
+        const Header('Typography'),
+        const SubHeader('Fonts'),
         BuilderWrap(
           styles,
           inverted: inverted,
           dense: dense,
           (e) => FontWidget(e, inverted: inverted, dense: dense),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Families'),
-        ),
+        const SubHeader('Families'),
         BuilderWrap(
           families,
           inverted: inverted,
           dense: dense,
           (e) => FontFamily(e, inverted: inverted, dense: dense),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Styles'),
-        ),
+        const SubHeader('Styles'),
         BuilderWrap(
           styles,
           inverted: inverted,

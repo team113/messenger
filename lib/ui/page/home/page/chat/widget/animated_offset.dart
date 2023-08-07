@@ -20,13 +20,13 @@ import 'package:flutter/material.dart';
 /// Animated translation of the provided [child] on the [offset] changes.
 class AnimatedOffset extends ImplicitlyAnimatedWidget {
   const AnimatedOffset({
-    Key? key,
+    super.key,
     required this.offset,
     required this.child,
     Duration duration = const Duration(milliseconds: 250),
     Curve curve = Curves.linear,
     void Function()? onEnd,
-  }) : super(key: key, curve: curve, duration: duration, onEnd: onEnd);
+  }) : super(curve: curve, duration: duration, onEnd: onEnd);
 
   /// [Offset] to apply to the [child].
   final Offset offset;

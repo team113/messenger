@@ -16,31 +16,30 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
-/// Scrollable [Column] of [Widget]s.
-class ScrollableColumn extends StatelessWidget {
-  const ScrollableColumn({
-    super.key,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
-    this.children = const [],
-  });
+import '/themes.dart';
+import '/l10n/l10n.dart';
 
-  /// Alignment of [children] in their cross axis.
-  final CrossAxisAlignment crossAxisAlignment;
+/// Current position and duration of the provided [controller].
+class CurrentPosition extends StatelessWidget {
+  const CurrentPosition(this.controller, {super.key});
 
-  /// [Widget]s to display in this [ScrollableColumn].
-  final List<Widget> children;
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
+  final MeeduPlayerController controller;
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverList(
-          delegate: SliverChildListDelegate([
-            Column(crossAxisAlignment: crossAxisAlignment, children: children)
-          ]),
-        )
-      ],
-    );
+    final (style, fonts) = Theme.of(context).styles;
+
+    return RxBuilder((_) {
+      final String position = controller.position.value.hhMmSs();
+      final String duration = controller.duration.value.hhMmSs();
+
+      return Text(
+        'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
+        style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
+      );
+    });
   }
 }
