@@ -18,6 +18,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:messenger/ui/widget/context_menu/menu_overlay.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
@@ -129,29 +130,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion>
 
   /// [OverlayEntry] displaying a currently opened [ContextMenu].
   OverlayEntry? _entry;
-
-  late AnimationController _controller;
-  late Animation<double> _opacityAnimation;
-
-  @override
-  void initState() {
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
-    _opacityAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget builder() {
@@ -238,7 +216,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion>
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    final (style, fonts) = Theme.of(context).styles;
+    final (_, fonts) = Theme.of(context).styles;
     OverlayState overlayState = Overlay.of(context, rootOverlay: true);
 
     if (widget.actions.isEmpty) {
@@ -296,57 +274,25 @@ class _ContextMenuRegionState extends State<ContextMenuRegion>
       }
 
       _entry = OverlayEntry(builder: (_) {
-        return LayoutBuilder(builder: (_, constraints) {
-          double qx = 1, qy = 1;
-          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          final Alignment alignment = Alignment(qx, qy);
-
-          return Listener(
-            onPointerUp: (d) async {
-              if (mounted) {
-                await _controller.reverse();
-              }
-
-              _entry?.remove();
-
-              _displayed = false;
-              if (widget.indicateOpenedMenu) {
-                _darkened = false;
-              }
-            },
-            child: FadeTransition(
-              opacity: _opacityAnimation,
-              child: Container(
-                color: style.colors.transparent,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Positioned(
-                      left: position.dx +
-                          widget.margin.left -
-                          widget.margin.right,
-                      top: position.dy +
-                          widget.margin.top -
-                          widget.margin.bottom,
-                      child: FractionalTranslation(
-                        translation: Offset(
-                          alignment.x > 0 ? 0 : -1,
-                          alignment.y > 0 ? 0 : -1,
-                        ),
-                        child: ContextMenu(actions: widget.actions),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
+        return Listener(
+          onPointerUp: (d) {
+            _displayed = false;
+            if (widget.indicateOpenedMenu) {
+              _darkened = false;
+            }
+            if (mounted) {
+              setState(() {});
+            }
+          },
+          child: ContextMenuOverlay(
+            position: position,
+            margin: widget.margin,
+            actions: widget.actions,
+            onOverlayClose: () => _entry!.remove(),
+          ),
+        );
       });
 
-      overlayState.setState(() {});
-      _controller.forward();
       overlayState.insert(_entry!);
     }
   }
