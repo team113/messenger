@@ -51,9 +51,13 @@ class DirectLinkField extends StatefulWidget {
 
 /// State of an [DirectLinkField] maintaining the [_state].
 class _DirectLinkFieldState extends State<DirectLinkField> {
+  /// Generated [ChatDirectLinkSlug], used in the [_state], if any.
+  String? _generated;
+
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
-    text: widget.link?.slug.val ?? ChatDirectLinkSlug.generate(10).val,
+    text: widget.link?.slug.val ??
+        (_generated = ChatDirectLinkSlug.generate(10).val),
     approvable: true,
     submitted: widget.link != null,
     onChanged: (s) {
@@ -104,7 +108,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   @override
   void didUpdateWidget(DirectLinkField oldWidget) {
     if (!_state.focus.hasFocus &&
-        !_state.changed.value &&
+        (!_state.changed.value || _state.text == _generated) &&
         _state.editable.value) {
       _state.unchecked = widget.link?.slug.val;
     }
