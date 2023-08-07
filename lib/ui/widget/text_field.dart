@@ -22,6 +22,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';

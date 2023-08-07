@@ -30,8 +30,10 @@ import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:messenger/util/mime.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 
 import '/api/backend/schema.dart'
     show
@@ -59,6 +61,8 @@ import '/ui/widget/text_field.dart';
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
   oauth,
+  oauthOccupied,
+  oauthNoUser,
   recovery,
   recoveryCode,
   recoveryPassword,
@@ -215,12 +219,16 @@ class LoginController extends GetxController {
 
   Credentials? creds;
 
-  late final TextFieldState phone = TextFieldState(
+  late final PhoneFieldState phone = PhoneFieldState(
     revalidateOnUnfocus: true,
     onChanged: (s) {
       try {
-        if (s.text.isNotEmpty) {
-          UserPhone(s.text.toLowerCase());
+        if (!s.isEmpty.value) {
+          UserPhone(s.phone!.international);
+
+          if (!s.phone!.isValid()) {
+            throw const FormatException('Does not match validation RegExp');
+          }
         }
 
         s.error.value = null;
@@ -229,6 +237,10 @@ class LoginController extends GetxController {
       }
     },
     onSubmitted: (s) async {
+      if (s.error.value != null) {
+        return;
+      }
+
       final GraphQlProvider graphQlProvider = Get.find();
 
       try {
@@ -247,7 +259,8 @@ class LoginController extends GetxController {
         );
 
         graphQlProvider.token = creds!.session.token;
-        await graphQlProvider.addUserPhone(UserPhone(s.text));
+        await graphQlProvider
+            .addUserPhone(UserPhone(s.phone!.nsn.toLowerCase()));
         graphQlProvider.token = null;
 
         s.unsubmit();
@@ -263,6 +276,59 @@ class LoginController extends GetxController {
       stage.value = LoginViewStage.signUpWithPhoneCode;
     },
   );
+
+  // late final TextFieldState phone = TextFieldState(
+  //   revalidateOnUnfocus: true,
+  //   onChanged: (s) {
+  //     try {
+  //       if (s.text.isNotEmpty) {
+  //         UserPhone(s.text.toLowerCase());
+  //       }
+
+  //       s.error.value = null;
+  //     } on FormatException {
+  //       s.error.value = 'err_incorrect_phone'.l10n;
+  //     }
+  //   },
+  //   onSubmitted: (s) async {
+  //     if (s.error.value != null) {
+  //       return;
+  //     }
+
+  //     final GraphQlProvider graphQlProvider = Get.find();
+
+  //     try {
+  //       final response = await graphQlProvider.signUp();
+
+  //       creds = Credentials(
+  //         Session(
+  //           response.createUser.session.token,
+  //           response.createUser.session.expireAt,
+  //         ),
+  //         RememberedSession(
+  //           response.createUser.remembered!.token,
+  //           response.createUser.remembered!.expireAt,
+  //         ),
+  //         response.createUser.user.id,
+  //       );
+
+  //       graphQlProvider.token = creds!.session.token;
+  //       await graphQlProvider.addUserPhone(UserPhone(s.text));
+  //       graphQlProvider.token = null;
+
+  //       s.unsubmit();
+  //     } on AddUserPhoneException catch (e) {
+  //       graphQlProvider.token = null;
+  //       s.error.value = e.toMessage();
+  //     } catch (_) {
+  //       graphQlProvider.token = null;
+  //       s.error.value = 'err_data_transfer'.l10n;
+  //       s.unsubmit();
+  //     }
+
+  //     stage.value = LoginViewStage.signUpWithPhoneCode;
+  //   },
+  // );
 
   late final TextFieldState phoneCode = TextFieldState(
     revalidateOnUnfocus: true,
@@ -823,6 +889,16 @@ class LoginController extends GetxController {
     print(
       '[OAuth] Registering with the provided `UserCredential`:\n\n$credential\n\n',
     );
+
+    if (fallbackStage == LoginViewStage.signUp &&
+        credential.additionalUserInfo?.isNewUser == false) {
+      stage.value = LoginViewStage.oauthOccupied;
+      return;
+    } else if (fallbackStage == LoginViewStage.signIn &&
+        credential.additionalUserInfo?.isNewUser == true) {
+      stage.value = LoginViewStage.oauthNoUser;
+      return;
+    }
 
     await _authService.register();
     router.directLink = false;

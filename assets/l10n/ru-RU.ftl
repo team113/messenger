@@ -1047,3 +1047,4 @@ label_didnt_recieve_code = Не получили код?
 label_code_sent_again = Код отправлен повторно.
 label_wait_seconds = Подождите {$for} с
 btn_resend_code = Отправить повторно
+label_sign_up_oauth_already_occupied = Аккаунт {$provider} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?

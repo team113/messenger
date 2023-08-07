@@ -1025,3 +1025,4 @@ label_didnt_recieve_code = Didn't receive the code?
 label_code_sent_again = The code has been re-sent.
 label_wait_seconds = Wait {$for} s
 btn_resend_code = Resend
+label_sign_up_oauth_already_occupied = Account {$provider} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?

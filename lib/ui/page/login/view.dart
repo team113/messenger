@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
@@ -25,6 +24,8 @@ import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/phone_field.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '/l10n/l10n.dart';
@@ -65,6 +66,71 @@ class LoginView extends StatelessWidget {
           final List<Widget> children;
 
           switch (c.stage.value) {
+            case LoginViewStage.oauthNoUser:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signUp,
+                text: 'label_sign_up'.l10n,
+              );
+
+              children = [
+                Text(
+                  'Не существует пользователя, зарегистрированного через предоставленный аккаунт ${c.oAuthProvider!.name}. Зарегистрировать новый?',
+                  style: fonts.titleLarge,
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('SignUp'),
+                  title: 'btn_sign_up'.l10n,
+                  onPressed: () {},
+                ),
+              ];
+              break;
+
+            case LoginViewStage.oauthOccupied:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signUp,
+                text: 'label_sign_up'.l10n,
+              );
+
+              children = [
+                Text(
+                  'label_sign_up_oauth_already_occupied'
+                      .l10nfmt({'provider': c.oAuthProvider!.name}),
+                  style: fonts.titleLarge,
+                ),
+                const SizedBox(height: 25),
+                ContactTile(
+                  title: 'Name', // name ?? login ?? email/phone used to login
+                  myUser: MyUser(
+                    id: const UserId('123412'),
+                    num: UserNum('1234123412341234'),
+                    emails: MyUserEmails(confirmed: []),
+                    phones: MyUserPhones(confirmed: []),
+                    presenceIndex: 0,
+                    online: false,
+                  ),
+                  darken: 0.03,
+                  subtitle: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Text(
+                        'Gapopa ID: 1234 1234 1234 1234',
+                        style: fonts.labelMedium!.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('SignIn'),
+                  title: 'btn_sign_in'.l10n,
+                  onPressed: () {},
+                ),
+              ];
+              break;
+
             case LoginViewStage.oauth:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
@@ -371,22 +437,6 @@ class LoginView extends StatelessWidget {
                     ),
                   );
                 }),
-
-                // Text.rich(
-                //   'Проверочный код был отправлен на e-mail ${c.email.text}'
-                //       .parseLinks([], context),
-                //   style: fonts.titleLarge,
-                // ),
-                // WidgetButton(
-                //   onPressed: c.resendEmail,
-                //   child: Text(
-                //     '\nОтправить код подтверждения повторно'.l10n,
-                //     style: fonts.titleLarge?.copyWith(
-                //       color: style.colors.primary,
-                //     ),
-                //   ),
-                // ),
-                // Text('\nПожалуйста, введите его ниже', style: fonts.titleLarge),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
@@ -394,28 +444,6 @@ class LoginView extends StatelessWidget {
                   label: 'label_confirmation_code'.l10n,
                   type: TextInputType.number,
                 ),
-                // const SizedBox(height: 4),
-                // Padding(
-                //   padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                //   child: Obx(() {
-                //     final bool enabled = c.resendEmailTimeout.value == 0;
-
-                //     return WidgetButton(
-                //       onPressed: enabled ? c.resendEmail : null,
-                //       child: Text(
-                //         c.resendEmailTimeout.value == 0
-                //             ? 'btn_resend_email'.l10n
-                //             : 'btn_resend_email_timeout'
-                //                 .l10nfmt({'after': c.resendEmailTimeout.value}),
-                //         style: fonts.labelMedium?.copyWith(
-                //           color: enabled
-                //               ? style.colors.primary
-                //               : style.colors.secondary,
-                //         ),
-                //       ),
-                //     );
-                //   }),
-                // ),
                 const SizedBox(height: 25),
                 Obx(() {
                   final bool enabled =
@@ -486,10 +514,36 @@ class LoginView extends StatelessWidget {
 
               children = [
                 Text.rich(
-                  'label_sign_up_code_phone_sent'
-                      .l10nfmt({'text': c.phone.text}).parseLinks([], context),
+                  'label_sign_up_code_phone_sent'.l10nfmt({
+                    'text': c.phone.phone?.international,
+                  }).parseLinks([], context),
                   style: fonts.titleLarge,
                 ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  return Text(
+                    c.resendEmailTimeout.value == 0
+                        ? 'label_didnt_recieve_code'.l10n
+                        : 'label_code_sent_again'.l10n,
+                    style: fonts.titleLarge,
+                  );
+                }),
+                Obx(() {
+                  final bool enabled = c.resendEmailTimeout.value == 0;
+
+                  return WidgetButton(
+                    onPressed: enabled ? c.resendEmail : null,
+                    child: Text(
+                      enabled
+                          ? 'btn_resend_code'.l10n
+                          : 'label_wait_seconds'
+                              .l10nfmt({'for': c.resendEmailTimeout.value}),
+                      style: fonts.titleLarge?.copyWith(
+                        color: enabled ? style.colors.primary : null,
+                      ),
+                    ),
+                  );
+                }),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
@@ -514,14 +568,19 @@ class LoginView extends StatelessWidget {
               );
 
               children = [
-                ReactiveTextField(
+                ReactivePhoneField(
                   state: c.phone,
                   label: 'label_phone_number'.l10n,
-                  hint: '+12 345 678 90 12',
-                  style: fonts.bodyMedium,
-                  type: TextInputType.phone,
-                  treatErrorAsStatus: false,
                 ),
+
+                // ReactiveTextField(
+                //   state: c.phone,
+                //   label: 'label_phone_number'.l10n,
+                //   hint: '+12 345 678 90 12',
+                //   style: fonts.bodyMedium,
+                //   type: TextInputType.phone,
+                //   treatErrorAsStatus: false,
+                // ),
                 const SizedBox(height: 25),
                 Center(
                   child: Obx(() {
