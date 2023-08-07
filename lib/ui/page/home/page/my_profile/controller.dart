@@ -83,9 +83,6 @@ class MyProfileController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// Worker to react on [myUser] changes.
-  Worker? _myUserWorker;
-
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
@@ -156,7 +153,6 @@ class MyProfileController extends GetxController {
   @override
   void onClose() {
     _profileWorker?.dispose();
-    _myUserWorker?.dispose();
     _devicesSubscription?.cancel();
     super.onClose();
   }

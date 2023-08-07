@@ -37,13 +37,13 @@ class BackgroundPreview extends StatelessWidget {
     this.onRemove,
   });
 
-  /// [Uint8List] that returns the current background.
+  /// [Uint8List] to display as a background.
   final Uint8List? background;
 
-  /// Opens an image choose popup and sets the selected file as a [background].
+  /// Callback, called when picking of [background] is requested.
   final void Function()? onPick;
 
-  /// Removes the currently set [background].
+  /// Callback, called when the [background] should be removed.
   final void Function()? onRemove;
 
   @override

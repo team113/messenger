@@ -80,10 +80,10 @@ class BigAvatarWidget extends StatefulWidget {
   /// Indicator whether a [CustomProgressIndicator] should be displayed.
   final bool loading;
 
-  /// Callback, called when label was pressed.
+  /// Callback, called when an upload of [Avatar] is required.
   final void Function()? onUpload;
 
-  /// Callback, called when trailing label was pressed.
+  /// Callback, called when delete of [Avatar] is required.
   final void Function()? onDelete;
 
   @override

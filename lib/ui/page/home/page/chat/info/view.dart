@@ -201,6 +201,7 @@ class ChatInfoView extends StatelessWidget {
                     children: [
                       BigAvatarWidget.chat(
                         c.chat,
+                        key: Key('ChatAvatar_${c.chat!.id}'),
                         loading: c.avatar.value.isLoading,
                         onUpload: c.pickAvatar,
                         onDelete: c.chat?.avatar.value != null
