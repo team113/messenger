@@ -42,7 +42,6 @@ PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
 /// Helper providing platform related features.
 class PlatformUtilsImpl {
-
   /// [Dio] client to use in queries.
   ///
   /// May be overridden to be mocked in tests.

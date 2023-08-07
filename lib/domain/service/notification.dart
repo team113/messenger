@@ -263,17 +263,9 @@ class NotificationService extends DisposableService {
       _language = language;
 
       if (_token != null) {
-        await _graphQlProvider
-            .unregisterFcmDevice(FcmRegistrationToken(_token!));
+        await _unregisterFcmDevice();
 
-        _pushNotifications = false;
-
-        await _graphQlProvider.registerFcmDevice(
-          FcmRegistrationToken(_token!),
-          _language,
-        );
-
-        _pushNotifications = true;
+        await _registerFcmDevice();
       }
     }
   }
@@ -386,31 +378,37 @@ class NotificationService extends DisposableService {
 
       _onTokenRefresh =
           FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
-        if (_token != null) {
-          await _graphQlProvider
-              .unregisterFcmDevice(FcmRegistrationToken(_token!));
-        }
-
-        _pushNotifications = false;
+        await _unregisterFcmDevice();
 
         _token = token;
 
-        await _graphQlProvider.registerFcmDevice(
-          FcmRegistrationToken(_token!),
-          _language,
-        );
-
-        _pushNotifications = true;
+        await _registerFcmDevice();
       });
 
-      if (_token != null) {
-        await _graphQlProvider.registerFcmDevice(
-          FcmRegistrationToken(_token!),
-          _language,
-        );
+      await _registerFcmDevice();
+    }
+  }
 
-        _pushNotifications = true;
-      }
+  /// Registers a device (Android, iOS, or Web) for receiving notifications via
+  /// Firebase Cloud Messaging.
+  Future<void> _registerFcmDevice() async {
+    if (_token != null) {
+      await _graphQlProvider.registerFcmDevice(
+        FcmRegistrationToken(_token!),
+        _language,
+      );
+
+      _pushNotifications = true;
+    }
+  }
+
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
+  /// via Firebase Cloud Messaging.
+  Future<void> _unregisterFcmDevice() async {
+    if (_token != null) {
+      await _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(_token!));
+
+      _pushNotifications = false;
     }
   }
 }

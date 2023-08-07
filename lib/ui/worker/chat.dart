@@ -394,28 +394,26 @@ class _ChatWatchData {
 
       case ChatInfoActionKind.avatarUpdated:
         final action = info as ChatInfoActionAvatarUpdated;
-        final Map<String, dynamic> args = {
+
+        return 'fcm_group_avatar_changed'.l10nfmt({
           'userName':
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
           'userNum':
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
           'operation': action.avatar == null ? 'removed' : 'updated',
-        };
-
-        return 'fcm_group_avatar_changed'.l10nfmt(args);
+        });
 
       case ChatInfoActionKind.nameUpdated:
         final action = info as ChatInfoActionNameUpdated;
-        final Map<String, dynamic> args = {
+
+        return 'fcm_group_name_changed'.l10nfmt({
           'userName':
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
           'userNum':
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
           'operation': action.name == null ? 'removed' : 'updated',
           'groupName': action.name?.val ?? '',
-        };
-
-        return 'fcm_group_name_changed'.l10nfmt(args);
+        });
     }
   }
 }
