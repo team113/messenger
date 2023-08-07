@@ -24,6 +24,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '/config.dart';
 import '/routes.dart';
 import '/util/audio_utils.dart';
 import '/util/platform_utils.dart';
@@ -79,8 +80,7 @@ class NotificationService extends DisposableService {
               : File(r'data\flutter_assets\assets\icons\app_icon.ico')
                   .absolute
                   .path,
-          // TODO: Use a real clsid.
-          clsid: '00000000-0000-0000-0000-000000000000',
+          clsid: Config.clsid,
         );
 
         WinToast.instance().setActivatedCallback((event) async {
