@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
@@ -50,86 +49,82 @@ class BackgroundPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    return Paddings.dense(
-      Column(
-        children: [
-          WidgetButton(
-            onPressed: onPick,
-            child: Container(
-              decoration: BoxDecoration(
-                border: style.primaryBorder,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 120,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Positioned.fill(
-                        child: background == null
-                            ? SvgImage.asset(
-                                'assets/images/background_light.svg',
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.memory(
-                                background!,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: _MessageWidget(
-                                fromMe: false,
-                                text: 'label_hello'.l10n,
-                              ),
+    return Column(
+      children: [
+        WidgetButton(
+          onPressed: onPick,
+          child: Container(
+            decoration: BoxDecoration(
+              border: style.primaryBorder,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: double.infinity,
+                height: 120,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned.fill(
+                      child: background == null
+                          ? SvgImage.asset(
+                              'assets/images/background_light.svg',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.memory(
+                              background!,
+                              fit: BoxFit.cover,
                             ),
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: _MessageWidget(
-                                text: 'label_hello_reply'.l10n,
-                              ),
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: _MessageWidget(
+                              fromMe: false,
+                              text: 'label_hello'.l10n,
                             ),
-                          ],
-                        ),
+                          ),
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: _MessageWidget(
+                              text: 'label_hello_reply'.l10n,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          if (onPick != null && onRemove != null) ...[
-            const SizedBox(height: 10),
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WidgetButton(
-                    onPressed: background == null ? onPick : onRemove,
-                    child: Text(
-                      background == null
-                          ? 'btn_upload'.l10n
-                          : 'btn_delete'.l10n,
-                      style: fonts.labelSmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
+        ),
+        if (onPick != null && onRemove != null) ...[
+          const SizedBox(height: 10),
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                WidgetButton(
+                  onPressed: background == null ? onPick : onRemove,
+                  child: Text(
+                    background == null ? 'btn_upload'.l10n : 'btn_delete'.l10n,
+                    style: fonts.labelSmall!.copyWith(
+                      color: style.colors.primary,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 }

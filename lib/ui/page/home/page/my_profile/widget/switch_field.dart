@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
 /// Custom-styled [ReactiveTextField] with [Switch.adaptive].
@@ -43,37 +42,35 @@ class SwitchField extends StatelessWidget {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    return Paddings.dense(
-      Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(text: text, editable: false),
-              style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
-            ),
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: [
+        IgnorePointer(
+          child: ReactiveTextField(
+            state: TextFieldState(text: text, editable: false),
+            style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
           ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 5, bottom: 10),
-              child: Transform.scale(
-                scale: 0.7,
-                transformHitTests: false,
-                child: Theme(
-                  data: ThemeData(platform: TargetPlatform.macOS),
-                  child: Switch.adaptive(
-                    activeColor: style.colors.primary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: value,
-                    onChanged: onChanged,
-                  ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 5, bottom: 10),
+            child: Transform.scale(
+              scale: 0.7,
+              transformHitTests: false,
+              child: Theme(
+                data: ThemeData(platform: TargetPlatform.macOS),
+                child: Switch.adaptive(
+                  activeColor: style.colors.primary,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  value: value,
+                  onChanged: onChanged,
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

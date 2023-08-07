@@ -120,12 +120,14 @@ class MyProfileView extends StatelessWidget {
                               ),
                             ),
                             _presence(context, c),
-                            Obx(() {
-                              return UserTextStatusWidget(
-                                c.myUser.value?.status,
-                                onSubmit: c.updateUserStatus,
-                              );
-                            }),
+                            Paddings.basic(
+                              Obx(() {
+                                return UserTextStatusWidget(
+                                  c.myUser.value?.status,
+                                  onSubmit: c.updateUserStatus,
+                                );
+                              }),
+                            )
                           ],
                         );
 
@@ -165,12 +167,14 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_background'.l10n,
                           children: [
-                            Obx(
-                              () => BackgroundPreview(
-                                c.background.value,
-                                onPick: c.pickBackground,
-                                onRemove: c.removeBackground,
-                              ),
+                            Paddings.dense(
+                              Obx(() {
+                                return BackgroundPreview(
+                                  c.background.value,
+                                  onPick: c.pickBackground,
+                                  onRemove: c.removeBackground,
+                                );
+                              }),
                             )
                           ],
                         );
@@ -205,19 +209,21 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_audio_notifications'.l10n,
                           children: [
-                            Obx(() {
-                              final bool isMuted =
-                                  c.myUser.value?.muted == null;
+                            Paddings.dense(
+                              Obx(() {
+                                final bool isMuted =
+                                    c.myUser.value?.muted == null;
 
-                              return SwitchField(
-                                text: isMuted
-                                    ? 'label_enabled'.l10n
-                                    : 'label_disabled'.l10n,
-                                value: isMuted,
-                                onChanged:
-                                    c.isMuting.value ? null : c.toggleMute,
-                              );
-                            })
+                                return SwitchField(
+                                  text: isMuted
+                                      ? 'label_enabled'.l10n
+                                      : 'label_disabled'.l10n,
+                                  value: isMuted,
+                                  onChanged:
+                                      c.isMuting.value ? null : c.toggleMute,
+                                );
+                              }),
+                            )
                           ],
                         );
 
@@ -225,14 +231,16 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_storage'.l10n,
                           children: [
-                            Obx(
-                              () => SwitchField(
-                                text: 'label_load_images'.l10n,
-                                value: c.settings.value?.loadImages == true,
-                                onChanged: c.settings.value == null
-                                    ? null
-                                    : (enabled) => c.setLoadImages(enabled),
-                              ),
+                            Paddings.dense(
+                              Obx(() {
+                                return SwitchField(
+                                  text: 'label_load_images'.l10n,
+                                  value: c.settings.value?.loadImages == true,
+                                  onChanged: c.settings.value == null
+                                      ? null
+                                      : c.setLoadImages,
+                                );
+                              }),
                             ),
                           ],
                         );

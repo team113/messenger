@@ -23,7 +23,6 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -104,30 +103,28 @@ class _UserTextStatusWidgetState extends State<UserTextStatusWidget> {
   Widget build(BuildContext context) {
     final fonts = Theme.of(context).fonts;
 
-    return Paddings.basic(
-      ReactiveTextField(
-        key: const Key('StatusField'),
-        state: _state,
-        label: 'label_status'.l10n,
-        filled: true,
-        maxLength: 25,
-        onSuffixPressed: _state.text.isEmpty
-            ? null
-            : () {
-                PlatformUtils.copy(text: _state.text);
-                MessagePopup.success('label_copied'.l10n);
-              },
-        trailing: _state.text.isEmpty
-            ? null
-            : Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-                ),
+    return ReactiveTextField(
+      key: const Key('StatusField'),
+      state: _state,
+      label: 'label_status'.l10n,
+      filled: true,
+      maxLength: 25,
+      onSuffixPressed: _state.text.isEmpty
+          ? null
+          : () {
+              PlatformUtils.copy(text: _state.text);
+              MessagePopup.success('label_copied'.l10n);
+            },
+      trailing: _state.text.isEmpty
+          ? null
+          : Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
-        style: fonts.titleMedium,
-      ),
+            ),
+      style: fonts.titleMedium,
     );
   }
 }

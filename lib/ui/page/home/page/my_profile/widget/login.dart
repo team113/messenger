@@ -31,7 +31,7 @@ import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// [ReactiveTextField] with label to display user login.
+/// Custom-styled [ReactiveTextField] displaying editable [UserLogin].
 class ReactiveLoginField extends StatefulWidget {
   const ReactiveLoginField(this.login, {super.key, this.onSubmit});
 
@@ -45,11 +45,8 @@ class ReactiveLoginField extends StatefulWidget {
   State<ReactiveLoginField> createState() => _ReactiveLoginFieldState();
 }
 
-/// State of an [ReactiveLoginField] maintaining the [_state].
+/// State of a [ReactiveLoginField] maintaining the [_state].
 class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
-  /// [Timer] to set the `RxStatus.empty` status of the [login] field.
-  Timer? _loginTimer;
-
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
@@ -71,16 +68,11 @@ class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
     },
     onSubmitted: (s) async {
       if (s.error.value == null) {
-        _loginTimer?.cancel();
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {
           await widget.onSubmit?.call(UserLogin(s.text.toLowerCase()));
-          s.status.value = RxStatus.success();
-          _loginTimer = Timer(
-            const Duration(milliseconds: 1500),
-            () => s.status.value = RxStatus.empty(),
-          );
+          s.status.value = RxStatus.empty();
         } on UpdateUserLoginException catch (e) {
           s.error.value = e.toMessage();
           s.status.value = RxStatus.empty();
