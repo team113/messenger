@@ -144,20 +144,20 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           label: '${Config.origin}/',
           subtitle: RichText(
             text: TextSpan(
-              style: fonts.labelSmall,
+              style: fonts.labelMedium,
               children: [
                 TextSpan(
                   text: 'label_transition_count'.l10nfmt({
                         'count': widget.link?.usageCount ?? 0,
                       }) +
                       'dot_space'.l10n,
-                  style: fonts.labelSmall!.copyWith(
+                  style: fonts.labelMedium!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
                 TextSpan(
                   text: 'label_details'.l10n,
-                  style: fonts.labelSmall!.copyWith(
+                  style: fonts.labelMedium!.copyWith(
                     color: style.colors.primary,
                   ),
                   recognizer: TapGestureRecognizer()

@@ -33,10 +33,10 @@ class SwitchField extends StatelessWidget {
   /// Text of the [ReactiveTextField].
   final String? text;
 
-  /// Indicator whether this switch is `on` or `off`.
+  /// Indicator whether this switch is on or off.
   final bool value;
 
-  /// Callback, called when the user toggles the switch `on` or `off`.
+  /// Callback, called when the user toggles the switch.
   final void Function(bool)? onChanged;
 
   @override

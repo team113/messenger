@@ -154,13 +154,14 @@ class _FieldButtonState extends State<FieldButton> {
             ),
           ],
         ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: widget.subtitle,
+        if (widget.subtitle != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+              child: widget.subtitle,
+            ),
           ),
-        ),
       ],
     );
   }

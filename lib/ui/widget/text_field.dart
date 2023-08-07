@@ -392,7 +392,7 @@ class ReactiveTextField extends StatelessWidget {
               },
             ),
 
-            // Displays a [subtitle] or error, if any.
+            // Displays the [subtitle] or an error, if any.
             AnimatedSize(
               duration: 200.milliseconds,
               child: Align(
@@ -400,13 +400,13 @@ class ReactiveTextField extends StatelessWidget {
                 child: AnimatedSwitcher(
                   duration: 200.milliseconds,
                   child: state.error.value == null
-                      ? (subtitle != null)
+                      ? subtitle != null
                           ? Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
+                              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                              child: DefaultTextStyle(
+                                style: fonts.labelMedium!,
+                                child: subtitle!,
                               ),
-                              child: subtitle,
                             )
                           : const SizedBox(width: double.infinity, height: 1)
                       : Padding(

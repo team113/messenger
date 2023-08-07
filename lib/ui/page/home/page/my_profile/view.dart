@@ -33,12 +33,11 @@ import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -70,8 +69,6 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find()),
@@ -105,96 +102,22 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_public_information'.l10n,
                           children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                WidgetButton(
-                                  onPressed: c.myUser.value?.avatar == null
-                                      ? c.uploadAvatar
-                                      : () async {
-                                          await GalleryPopup.show(
-                                            context: context,
-                                            gallery: GalleryPopup(
-                                              initialKey: c.avatarKey,
-                                              children: [
-                                                GalleryItem.image(
-                                                  c.myUser.value!.avatar!
-                                                      .original.url,
-                                                  c.myUser.value!.num.val,
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                  child: AvatarWidget.fromMyUser(
-                                    c.myUser.value,
-                                    key: c.avatarKey,
-                                    radius: 100,
-                                    badge: false,
-                                  ),
-                                ),
-                                Positioned.fill(
-                                  child: Obx(() {
-                                    return AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: c.avatarUpload.value.isLoading
-                                          ? Container(
-                                              width: 200,
-                                              height: 200,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: style.colors
-                                                    .onBackgroundOpacity13,
-                                              ),
-                                              child: const Center(
-                                                child:
-                                                    CustomProgressIndicator(),
-                                              ),
-                                            )
-                                          : const SizedBox.shrink(),
-                                    );
-                                  }),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
                             Obx(() {
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  WidgetButton(
-                                    key: const Key('UploadAvatar'),
-                                    onPressed: c.uploadAvatar,
-                                    child: Text(
-                                      'btn_upload'.l10n,
-                                      style: fonts.labelSmall!.copyWith(
-                                        color: style.colors.primary,
-                                      ),
-                                    ),
-                                  ),
-                                  if (c.myUser.value?.avatar != null) ...[
-                                    Text(
-                                      'space_or_space'.l10n,
-                                      style: fonts.labelSmall,
-                                    ),
-                                    WidgetButton(
-                                      key: const Key('DeleteAvatar'),
-                                      onPressed: c.deleteAvatar,
-                                      child: Text(
-                                        'btn_delete'.l10n.toLowerCase(),
-                                        style: fonts.labelSmall!.copyWith(
-                                          color: style.colors.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
+                              return BigAvatarWidget.myUser(
+                                c.myUser.value,
+                                loading: c.avatarUpload.value.isLoading,
+                                onUpload: c.uploadAvatar,
+                                onDelete: c.myUser.value?.avatar != null
+                                    ? c.deleteAvatar
+                                    : null,
                               );
                             }),
-                            const SizedBox(height: 10),
-                            NameField(
-                              c.myUser.value?.name,
-                              onSubmit: c.updateUserName,
+                            const SizedBox(height: 12),
+                            Paddings.basic(
+                              NameField(
+                                c.myUser.value?.name,
+                                onSubmit: c.updateUserName,
+                              ),
                             ),
                             _presence(context, c),
                             StatusFieldButton(
@@ -208,13 +131,15 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_login_options'.l10n,
                           children: [
-                            UserNumCopyable(c.myUser.value?.num),
-                            const SizedBox(height: 10),
-                            ReactiveLoginField(
-                              c.myUser.value?.login,
-                              onSubmit: c.updateUserLogin,
+                            Paddings.basic(
+                              UserNumCopyable(c.myUser.value?.num),
                             ),
-                            const SizedBox(height: 10),
+                            Paddings.basic(
+                              ReactiveLoginField(
+                                c.myUser.value?.login,
+                                onSubmit: c.updateUserLogin,
+                              ),
+                            ),
                             _emails(context, c),
                             _phones(context, c),
                             _password(context, c),
@@ -436,45 +361,35 @@ Widget _emails(BuildContext context, MyProfileController c) {
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.emails.unconfirmed != null) {
       widgets.addAll([
-        Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme:
-                Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
-                        color: style.colors.primary,
-                      ),
-                    ),
+        FieldButton(
+          key: const Key('UnconfirmedEmail'),
+          text: c.myUser.value!.emails.unconfirmed!.val,
+          hint: 'label_verify_email'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -5),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
           ),
-          child: FieldButton(
-            key: const Key('UnconfirmedEmail'),
-            text: c.myUser.value!.emails.unconfirmed!.val,
-            hint: 'label_verify_email'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -5),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-            onPressed: () => AddEmailView.show(
-              context,
-              email: c.myUser.value!.emails.unconfirmed!,
-            ),
-            onTrailingPressed: () => _deleteEmail(
-              c,
-              context,
-              c.myUser.value!.emails.unconfirmed!,
-            ),
-            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+          onPressed: () => AddEmailView.show(
+            context,
+            email: c.myUser.value!.emails.unconfirmed!,
           ),
+          onTrailingPressed: () => _deleteEmail(
+            c,
+            context,
+            c.myUser.value!.emails.unconfirmed!,
+          ),
+          style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
         ),
       ]);
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.emails.unconfirmed == null) {
@@ -490,7 +405,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
           style: fonts.titleMedium!.copyWith(color: style.colors.primary),
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     return Column(
@@ -585,45 +500,35 @@ Widget _phones(BuildContext context, MyProfileController c) {
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.phones.unconfirmed != null) {
       widgets.addAll([
-        Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme:
-                Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
-                        color: style.colors.primary,
-                      ),
-                    ),
+        FieldButton(
+          key: const Key('UnconfirmedPhone'),
+          text: c.myUser.value!.phones.unconfirmed!.val,
+          hint: 'label_verify_number'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -5),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
           ),
-          child: FieldButton(
-            key: const Key('UnconfirmedPhone'),
-            text: c.myUser.value!.phones.unconfirmed!.val,
-            hint: 'label_verify_number'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -5),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-            onPressed: () => AddPhoneView.show(
-              context,
-              phone: c.myUser.value!.phones.unconfirmed!,
-            ),
-            onTrailingPressed: () => _deletePhone(
-              c,
-              context,
-              c.myUser.value!.phones.unconfirmed!,
-            ),
-            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+          onPressed: () => AddPhoneView.show(
+            context,
+            phone: c.myUser.value!.phones.unconfirmed!,
           ),
+          onTrailingPressed: () => _deletePhone(
+            c,
+            context,
+            c.myUser.value!.phones.unconfirmed!,
+          ),
+          style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
         ),
       ]);
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.phones.unconfirmed == null) {
@@ -639,7 +544,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
           style: fonts.titleMedium!.copyWith(color: style.colors.primary),
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     return Column(

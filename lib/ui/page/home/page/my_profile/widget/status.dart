@@ -29,7 +29,7 @@ import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// Custom-styled [ReactiveTextField] to display editable [status].
+/// Custom-styled [ReactiveTextField] displaying editable [status].
 class StatusFieldButton extends StatefulWidget {
   const StatusFieldButton(this.status, {super.key, this.onSubmit});
 
@@ -43,7 +43,7 @@ class StatusFieldButton extends StatefulWidget {
   State<StatusFieldButton> createState() => _StatusFieldButtonState();
 }
 
-/// State of an [StatusFieldButton] maintaining the [_state].
+/// State of a [StatusFieldButton] maintaining the [_state].
 class _StatusFieldButtonState extends State<StatusFieldButton> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(

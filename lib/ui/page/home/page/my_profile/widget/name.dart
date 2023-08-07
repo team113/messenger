@@ -22,13 +22,12 @@ import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// Custom-styled [ReactiveTextField] to display editable [name].
+/// Custom-styled [ReactiveTextField] displaying editable [name].
 class NameField extends StatefulWidget {
   const NameField(this.name, {super.key, this.onSubmit});
 
@@ -42,7 +41,7 @@ class NameField extends StatefulWidget {
   State<NameField> createState() => _NameFieldState();
 }
 
-/// State of an [NameField] maintaining the [_state].
+/// State of a [NameField] maintaining the [_state].
 class _NameFieldState extends State<NameField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
@@ -100,29 +99,27 @@ class _NameFieldState extends State<NameField> {
 
   @override
   Widget build(BuildContext context) {
-    return Paddings.basic(
-      ReactiveTextField(
-        key: const Key('NameField'),
-        state: _state,
-        label: 'label_name'.l10n,
-        hint: 'label_name_hint'.l10n,
-        filled: true,
-        onSuffixPressed: _state.text.isEmpty
-            ? null
-            : () {
-                PlatformUtils.copy(text: _state.text);
-                MessagePopup.success('label_copied'.l10n);
-              },
-        trailing: _state.text.isEmpty
-            ? null
-            : Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-                ),
+    return ReactiveTextField(
+      key: const Key('NameField'),
+      state: _state,
+      label: 'label_name'.l10n,
+      hint: 'label_name_hint'.l10n,
+      filled: true,
+      onSuffixPressed: _state.text.isEmpty
+          ? null
+          : () {
+              PlatformUtils.copy(text: _state.text);
+              MessagePopup.success('label_copied'.l10n);
+            },
+      trailing: _state.text.isEmpty
+          ? null
+          : Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
-      ),
+            ),
     );
   }
 }

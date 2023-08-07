@@ -29,15 +29,14 @@ import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/member_tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -200,8 +199,15 @@ class ChatInfoView extends StatelessWidget {
                   Block(
                     title: 'label_public_information'.l10n,
                     children: [
-                      _avatar(c, context),
-                      const SizedBox(height: 15),
+                      BigAvatarWidget.chat(
+                        c.chat,
+                        loading: c.avatar.value.isLoading,
+                        onUpload: c.pickAvatar,
+                        onDelete: c.chat?.avatar.value != null
+                            ? c.deleteAvatar
+                            : null,
+                      ),
+                      const SizedBox(height: 12),
                       _name(c, context),
                     ],
                   ),
@@ -237,94 +243,6 @@ class ChatInfoView extends StatelessWidget {
   /// Basic [Padding] wrapper.
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
-
-  /// Returns a [Chat.avatar] visual representation along with its manipulation
-  /// buttons.
-  Widget _avatar(ChatInfoController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            WidgetButton(
-              key: Key('ChatAvatar_${c.chat!.id}'),
-              onPressed: c.chat?.chat.value.avatar == null
-                  ? c.pickAvatar
-                  : () async {
-                      await GalleryPopup.show(
-                        context: context,
-                        gallery: GalleryPopup(
-                          initialKey: c.avatarKey,
-                          children: [
-                            GalleryItem.image(
-                              c.chat!.chat.value.avatar!.original.url,
-                              c.chat!.chat.value.id.val,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-              child: AvatarWidget.fromRxChat(
-                c.chat,
-                key: c.avatarKey,
-                radius: 100,
-              ),
-            ),
-            Positioned.fill(
-              child: Obx(() {
-                return AnimatedSwitcher(
-                  duration: 200.milliseconds,
-                  child: c.avatar.value.isLoading
-                      ? Container(
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: style.colors.onBackgroundOpacity13,
-                          ),
-                          child: const Center(child: CustomProgressIndicator()),
-                        )
-                      : const SizedBox.shrink(),
-                );
-              }),
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            WidgetButton(
-              key: const Key('UploadAvatar'),
-              onPressed: c.pickAvatar,
-              child: Text(
-                'btn_upload'.l10n,
-                style: fonts.bodySmall!.copyWith(color: style.colors.primary),
-              ),
-            ),
-            if (c.chat?.chat.value.avatar != null) ...[
-              Text(
-                'space_or_space'.l10n,
-                style: fonts.bodySmall!.copyWith(
-                  color: style.colors.onBackground,
-                ),
-              ),
-              WidgetButton(
-                key: const Key('DeleteAvatar'),
-                onPressed: c.deleteAvatar,
-                child: Text(
-                  'btn_delete'.l10n.toLowerCase(),
-                  style: fonts.bodySmall!.copyWith(color: style.colors.primary),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ],
-    );
-  }
 
   /// Returns a [Chat.name] editable field.
   Widget _name(ChatInfoController c, BuildContext context) {

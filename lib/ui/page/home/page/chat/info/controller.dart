@@ -83,9 +83,6 @@ class ChatInfoController extends GetxController {
   /// [Chat.name] field state.
   late final TextFieldState name;
 
-  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
-  final GlobalKey avatarKey = GlobalKey();
-
   /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
   Timer? _nameTimer;
 
@@ -357,8 +354,8 @@ class ChatInfoController extends GetxController {
   }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug]
-  /// and deletes the current active [ChatDirectLink] of the given
-  /// [Chat]-group (if any).
+  /// and deletes the current active [ChatDirectLink] of the given [Chat]-group
+  /// (if any).
   Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
     await _chatService.createChatDirectLink(chatId, slug!);
   }
