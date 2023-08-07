@@ -21,7 +21,6 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter/services.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -43,9 +42,6 @@ class NotificationService extends DisposableService {
 
   /// Indicator whether the application is active.
   bool _active = true;
-
-  /// Xml data used to show local notifications on Windows.
-  String? _notificationXml;
 
   /// Initializes this [NotificationService].
   ///
@@ -146,19 +142,31 @@ class NotificationService extends DisposableService {
         tag: tag,
       ).onError((_, __) => false);
     } else if (PlatformUtils.isWindows) {
-      _notificationXml ??= await rootBundle.loadString(
-        'assets/windows_notifications/notification.xml',
+      // TODO: Images should be downloaded to cache.
+      final File? file = await PlatformUtils.download(
+        icon!,
+        'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg',
+        null,
+        temporary: true,
       );
-
-      String xml = _notificationXml!
-          .replaceFirst('##title##', title)
-          .replaceFirst('##body##', body ?? '')
-          .replaceFirst('##launch##', payload ?? '');
 
       await WinToast.instance().showCustomToast(
-        xml: xml,
+        xml: '<?xml version="1.0" encoding="UTF-8"?>'
+            '<toast activationType="Foreground" launch="${payload ?? ''}">'
+            '  <visual addImageQuery="true">'
+            '      <binding template="ToastGeneric">'
+            '          <text>$title</text>'
+            '          <text>${body ?? ''}</text>'
+            '          <image placement="appLogoOverride" hint-crop="circle" id="1" src="${file?.path ?? ''}"/>'
+            '      </binding>'
+            '  </visual>'
+            '</toast>',
         tag: 'Gapopa',
       );
+
+      Future.delayed(const Duration(seconds: 1), () async {
+        await file?.delete();
+      });
     } else {
       await _plugin!.show(
         Random().nextInt(1 << 31),
