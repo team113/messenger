@@ -15,32 +15,29 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
-
-/// Scrollable [Column] of [Widget]s.
-class ScrollableColumn extends StatelessWidget {
-  const ScrollableColumn({
-    super.key,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
-    this.children = const [],
+/// Info of a [Page] in [Pagination].
+///
+/// Represents a [GraphQL Cursor Connections Specification][1] page info
+/// structure.
+///
+/// [1]: https://relay.dev/graphql/connections.htm
+class PageInfo<K> {
+  PageInfo({
+    this.hasNext = false,
+    this.hasPrevious = false,
+    this.startCursor,
+    this.endCursor,
   });
 
-  /// Alignment of [children] in their cross axis.
-  final CrossAxisAlignment crossAxisAlignment;
+  /// Indicator whether the next [Page] exists.
+  bool hasNext;
 
-  /// [Widget]s to display in this [ScrollableColumn].
-  final List<Widget> children;
+  /// Indicator whether the previous [Page] exists.
+  bool hasPrevious;
 
-  @override
-  Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverList(
-          delegate: SliverChildListDelegate([
-            Column(crossAxisAlignment: crossAxisAlignment, children: children)
-          ]),
-        )
-      ],
-    );
-  }
+  /// Cursor of the first item in the [Page] this [PageInfo] is about.
+  K? startCursor;
+
+  /// Cursor of the last item in the [Page] this [PageInfo] is about.
+  K? endCursor;
 }

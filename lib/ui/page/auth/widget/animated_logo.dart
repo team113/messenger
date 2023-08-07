@@ -26,7 +26,7 @@ import '/ui/widget/svg/svg.dart';
 class AnimatedLogo extends StatelessWidget {
   const AnimatedLogo({
     super.key,
-    required this.svgAsset,
+    this.svgAsset,
     this.riveAsset = 'assets/images/logo/logo.riv',
     this.onInit,
   });
@@ -38,7 +38,7 @@ class AnimatedLogo extends StatelessWidget {
   final void Function(Artboard)? onInit;
 
   /// Path to an asset to put into the [SvgImage].
-  final String svgAsset;
+  final String? svgAsset;
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +48,9 @@ class AnimatedLogo extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       final Widget child;
 
-      if (constraints.maxHeight < height) {
+      if (constraints.maxHeight < height && svgAsset != null) {
         child = SvgImage.asset(
-          svgAsset,
+          svgAsset!,
           fit: BoxFit.contain,
           placeholderBuilder: (context) {
             return const Center(child: CustomProgressIndicator());
