@@ -11,7 +11,6 @@ dependencies:
   async: ^2.10.0
   back_button_interceptor: ^6.0.2
   callkeep: ^0.3.3
-  chewie: ^1.5.0
   collection: ^1.17.0
   crypto: ^3.0.3
   desktop_drop: ^0.4.1
