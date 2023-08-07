@@ -21,36 +21,32 @@ import 'package:flutter/services.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
-/// Styled [AnimatedContainer] with [WidgetButton].
-class StyledContainer extends StatelessWidget {
-  const StyledContainer({
+/// [AnimatedContainer] with optional subtitle.
+class SubtitleContainer extends StatelessWidget {
+  const SubtitleContainer({
     super.key,
     this.height,
     this.width,
-    this.text,
-    this.padding,
+    this.subtitle,
     this.child,
     this.inverted = false,
   });
 
-  /// Indicator whether this [StyledContainer] should have its colors
+  /// Indicator whether this [SubtitleContainer] should have its colors
   /// inverted.
   final bool inverted;
 
-  /// Text for the [WidgetButton] displayed under the [AnimatedContainer].
-  final String? text;
-
-  /// Height of this [StyledContainer].
-  final double? height;
-
-  /// Width of this [StyledContainer].
+  /// Width of this [SubtitleContainer].
   final double? width;
 
-  /// Padding of a [child].
-  final EdgeInsetsGeometry? padding;
+  /// Height of this [SubtitleContainer].
+  final double? height;
 
-  /// Widget of this [StyledContainer].
+  /// [Widget] to put in the center of background.
   final Widget? child;
+
+  /// Text for the [WidgetButton] displayed under the [AnimatedContainer].
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +54,9 @@ class StyledContainer extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AnimatedContainer(
-          height: height,
           width: width,
-          padding: padding,
+          height: height,
+          padding: const EdgeInsets.all(16),
           duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
             color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
@@ -68,15 +64,15 @@ class StyledContainer extends StatelessWidget {
           ),
           child: child,
         ),
-        if (text != null)
+        if (subtitle != null)
           Padding(
-            padding: const EdgeInsets.only(left: 4),
+            padding: const EdgeInsets.fromLTRB(4, 8, 0, 4),
             child: WidgetButton(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: text!));
+                Clipboard.setData(ClipboardData(text: subtitle!));
                 MessagePopup.success('Technical name is copied');
               },
-              child: Text(text!),
+              child: Text(subtitle!),
             ),
           )
       ],

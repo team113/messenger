@@ -25,25 +25,30 @@ import '/ui/widget/widget_button.dart';
 import '/util/audio_utils.dart';
 import '/util/message_popup.dart';
 
-/// [Container] with [subtitle] and option to play the audio from [asset].
-class MediaContainer extends StatefulWidget {
-  const MediaContainer(this.asset, {super.key, this.subtitle});
+/// Playable [asset] with optional [subtitle] to put underneath the player.
+class PlayableAsset extends StatefulWidget {
+  const PlayableAsset(
+    this.asset, {
+    super.key,
+    this.subtitle,
+    this.once = true,
+  });
 
-  /// Name of the audio asset to play.
-  final String? asset;
+  /// Audio asset to play.
+  final String asset;
 
-  /// Subtitle of this [MediaContainer].
+  /// Subtitle to put under.
   final String? subtitle;
 
+  /// Indicator whether the sound should be played once.
+  final bool once;
+
   @override
-  State<MediaContainer> createState() => MediaContainerState();
+  State<PlayableAsset> createState() => _PlayableAssetState();
 }
 
-/// State of an [MediaContainer] maintaining the [_isPlaying] and [_audio].
-class MediaContainerState extends State<MediaContainer> {
-  /// Indicator whether the audio is currently playing.
-  bool _isPlaying = false;
-
+/// State of a [PlayableAsset] maintaining the [_audio].
+class _PlayableAssetState extends State<PlayableAsset> {
   /// [StreamSubscription] for the audio playback.
   StreamSubscription? _audio;
 
@@ -77,9 +82,11 @@ class MediaContainerState extends State<MediaContainer> {
               border: Border.all(color: const Color(0xFF1F3C5D)),
             ),
             child: GestureDetector(
-              onTap: _isPlaying ? _stopAudio : _playAudio,
+              onTap: _audio != null ? _stopAudio : _playAudio,
               child: Icon(
-                _isPlaying ? Icons.pause_outlined : Icons.play_arrow_rounded,
+                _audio != null
+                    ? Icons.pause_outlined
+                    : Icons.play_arrow_rounded,
                 size: 50,
                 color: const Color(0xFF1F3C5D),
               ),
@@ -95,17 +102,19 @@ class MediaContainerState extends State<MediaContainer> {
     );
   }
 
-  /// Starts playback of the audio asset.
+  /// Plays the audio.
   void _playAudio() {
-    _audio = AudioUtils.play(AudioSource.asset('audio/${widget.asset}.mp3'));
-    _isPlaying = true;
-    setState(() {});
+    if (widget.once) {
+      AudioUtils.once(AudioSource.asset('audio/${widget.asset}.mp3'));
+    } else {
+      _audio = AudioUtils.play(AudioSource.asset('audio/${widget.asset}.mp3'));
+      setState(() {});
+    }
   }
 
-  /// Stops playback of the audio asset.
+  /// Stops the audio.
   void _stopAudio() {
     _audio?.cancel();
-    _isPlaying = false;
     setState(() {});
   }
 }

@@ -348,6 +348,10 @@
     var narrow = undefined;
 
     function recalculate() {
+      if (canvas == null) {
+        return;
+      }
+
       narrow = window.innerHeight < 500;
       if (narrow != lastNarrow) {
         lastNarrow = narrow;
