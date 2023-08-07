@@ -78,9 +78,13 @@ class NotificationService extends DisposableService {
   /// received via the [_foregroundSubscription].
   final List<String> _tags = [];
 
+  /// Indicator whether the Firebase Cloud Messaging notifications are
+  /// successfully configured.
+  bool _pushNotifications = false;
+
   /// Indicates whether the Firebase Cloud Messaging notifications are
   /// successfully configured.
-  bool get pushNotifications => _onTokenRefresh != null;
+  bool get pushNotifications => _pushNotifications;
 
   /// Initializes this [NotificationService].
   ///
@@ -262,10 +266,14 @@ class NotificationService extends DisposableService {
         await _graphQlProvider
             .unregisterFcmDevice(FcmRegistrationToken(_token!));
 
+        _pushNotifications = false;
+
         await _graphQlProvider.registerFcmDevice(
           FcmRegistrationToken(_token!),
           _language,
         );
+
+        _pushNotifications = true;
       }
     }
   }
@@ -376,13 +384,6 @@ class NotificationService extends DisposableService {
       _token =
           await FirebaseMessaging.instance.getToken(vapidKey: Config.vapidKey);
 
-      if (_token != null) {
-        await _graphQlProvider.registerFcmDevice(
-          FcmRegistrationToken(_token!),
-          _language,
-        );
-      }
-
       _onTokenRefresh =
           FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
         if (_token != null) {
@@ -390,13 +391,26 @@ class NotificationService extends DisposableService {
               .unregisterFcmDevice(FcmRegistrationToken(_token!));
         }
 
+        _pushNotifications = false;
+
         _token = token;
 
         await _graphQlProvider.registerFcmDevice(
           FcmRegistrationToken(_token!),
           _language,
         );
+
+        _pushNotifications = true;
       });
+
+      if (_token != null) {
+        await _graphQlProvider.registerFcmDevice(
+          FcmRegistrationToken(_token!),
+          _language,
+        );
+
+        _pushNotifications = true;
+      }
     }
   }
 }

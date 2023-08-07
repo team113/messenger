@@ -42,8 +42,6 @@ PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
 /// Helper providing platform related features.
 class PlatformUtilsImpl {
-  /// Path to the temporary directory.
-  String? _temporaryDirectory;
 
   /// [Dio] client to use in queries.
   ///
@@ -52,6 +50,9 @@ class PlatformUtilsImpl {
 
   /// Path to the downloads directory.
   String? _downloadDirectory;
+
+  /// Path to the temporary directory.
+  String? _temporaryDirectory;
 
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
