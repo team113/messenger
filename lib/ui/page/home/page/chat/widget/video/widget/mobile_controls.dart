@@ -15,14 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports
-
 import 'dart:async';
 
-import 'package:chewie/chewie.dart';
-import 'package:chewie/src/center_play_button.dart';
-import 'package:chewie/src/helpers/utils.dart';
-import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
@@ -30,18 +24,24 @@ import 'package:get/get.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
+import 'centered_play_pause.dart';
+import 'position.dart';
 import 'rewind_indicator.dart';
 import 'video_progress_bar.dart';
+import 'volume_button.dart';
 
-/// Mobile video controls for a [Chewie] player.
+/// Mobile video controls for a [VideoView] player.
 class MobileControls extends StatefulWidget {
-  const MobileControls({Key? key, required this.controller}) : super(key: key);
-
-  /// [Duration] to seek forward or backward for.
-  static const Duration seekDuration = Duration(seconds: 5);
+  const MobileControls(this.controller, {super.key, this.barHeight});
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
+
+  /// Height of the bottom controls bar.
+  final double? barHeight;
+
+  /// [Duration] to seek forward or backward for.
+  static const Duration seekDuration = Duration(seconds: 5);
 
   @override
   State<StatefulWidget> createState() => _MobileControlsState();
@@ -50,9 +50,6 @@ class MobileControls extends StatefulWidget {
 /// State of [MobileControls], used to control a video.
 class _MobileControlsState extends State<MobileControls>
     with SingleTickerProviderStateMixin {
-  /// Height of the bottom controls bar.
-  final _barHeight = 48.0 * 1.5;
-
   /// Indicator whether user interface should be visible or not.
   bool _hideStuff = true;
 
@@ -93,27 +90,45 @@ class _MobileControlsState extends State<MobileControls>
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    // Toggles the [_hideStuff].
+    void toggleStuff() {
+      if (!_hideStuff) {
+        setState(() => _hideStuff = true);
+      } else {
+        _cancelAndRestartTimer();
+      }
+    }
+
     return MouseRegion(
       onHover: PlatformUtils.isMobile ? null : (_) => _cancelAndRestartTimer(),
-      child: GestureDetector(
-        onTap: () {
-          if (!_hideStuff) {
-            setState(() => _hideStuff = true);
-          } else {
-            _cancelAndRestartTimer();
-          }
-        },
-        child: Stack(
-          children: [
-            RxBuilder((_) {
-              return widget.controller.isBuffering.value
-                  ? const Center(child: CustomProgressIndicator())
-                  : _buildHitArea();
-            }),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Shows and hides the interface.
+          GestureDetector(
+            onTap: toggleStuff,
+            child: Container(
+              color: Colors.transparent,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+          ),
 
-            // Seek backward indicator.
-            Align(
-              alignment: const Alignment(-0.8, 0),
+          RxBuilder((_) {
+            return widget.controller.isBuffering.value
+                ? const Center(child: CustomProgressIndicator())
+                : CenteredPlayPause(
+                    widget.controller,
+                    size: 56,
+                    show: !_dragging && !_hideStuff,
+                    onPressed: _playPause,
+                  );
+          }),
+
+          // Seek backward indicator.
+          Align(
+            alignment: const Alignment(-0.8, 0),
+            child: IgnorePointer(
               child: RewindIndicator(
                 seconds: _seekBackwardDuration.inSeconds,
                 forward: false,
@@ -123,10 +138,12 @@ class _MobileControlsState extends State<MobileControls>
                         : 0,
               ),
             ),
+          ),
 
-            // Seek forward indicator.
-            Align(
-              alignment: const Alignment(0.8, 0),
+          // Seek forward indicator.
+          Align(
+            alignment: const Alignment(0.8, 0),
+            child: IgnorePointer(
               child: RewindIndicator(
                 seconds: _seekForwardDuration.inSeconds,
                 forward: true,
@@ -135,50 +152,52 @@ class _MobileControlsState extends State<MobileControls>
                     : 0,
               ),
             ),
+          ),
 
-            // Double tap to [_seekBackward].
-            Align(
-              alignment: Alignment.topLeft,
-              child: GestureDetector(
-                onDoubleTap: _seekBackward,
-                child: Container(
-                  color: style.colors.transparent,
-                  width: MediaQuery.of(context).size.width / 4,
-                  height: double.infinity,
-                ),
+          // Double tap to [_seekBackward].
+          Align(
+            alignment: Alignment.topLeft,
+            child: GestureDetector(
+              onTap: toggleStuff,
+              onDoubleTap: _seekBackward,
+              child: Container(
+                color: style.colors.transparent,
+                width: MediaQuery.of(context).size.width / 4,
+                height: double.infinity,
               ),
             ),
+          ),
 
-            // Double tap to [_seekForward].
-            Align(
-              alignment: Alignment.topRight,
-              child: GestureDetector(
-                onDoubleTap: _seekForward,
-                child: Container(
-                  color: style.colors.transparent,
-                  width: MediaQuery.of(context).size.width / 4,
-                  height: double.infinity,
-                ),
+          // Double tap to [_seekForward].
+          Align(
+            alignment: Alignment.topRight,
+            child: GestureDetector(
+              onTap: toggleStuff,
+              onDoubleTap: _seekForward,
+              child: Container(
+                color: style.colors.transparent,
+                width: MediaQuery.of(context).size.width / 4,
+                height: double.infinity,
               ),
             ),
+          ),
 
-            // Bottom controls bar.
-            IgnorePointer(
-              ignoring: _hideStuff,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [_buildBottomBar(context)],
-              ),
+          // Bottom controls bar.
+          IgnorePointer(
+            ignoring: _hideStuff,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [_buildBottomBar(context)],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   /// Returns the bottom controls bar.
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 1.0,
@@ -190,13 +209,13 @@ class _MobileControlsState extends State<MobileControls>
             end: Alignment.bottomCenter,
             colors: [
               style.colors.transparent,
-              style.colors.onBackgroundOpacity40
+              style.colors.onBackgroundOpacity40,
             ],
           ),
         ),
         child: SafeArea(
           child: Container(
-            height: _barHeight,
+            height: widget.barHeight,
             padding: const EdgeInsets.only(left: 20, bottom: 10),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -206,133 +225,55 @@ class _MobileControlsState extends State<MobileControls>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      _buildPosition(fonts.labelLarge!.color),
-                      _buildMuteButton(),
+                      CurrentPosition(widget.controller),
+                      VolumeButton(
+                        widget.controller,
+                        height: widget.barHeight,
+                        margin: const EdgeInsets.only(right: 12.0),
+                        padding: const EdgeInsets.only(
+                          left: 8.0,
+                          right: 8.0,
+                        ),
+                        onTap: () {
+                          _cancelAndRestartTimer();
+
+                          if (widget.controller.volume.value == 0) {
+                            widget.controller.setVolume(_latestVolume ?? 0.5);
+                          } else {
+                            _latestVolume = widget.controller.volume.value;
+                            widget.controller.setVolume(0.0);
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.only(right: 20),
-                    child: Row(children: [_buildProgressBar()]),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ProgressBar(
+                            widget.controller,
+                            drawShadow: false,
+                            onDragStart: () {
+                              setState(() => _dragging = true);
+                              _hideTimer?.cancel();
+                            },
+                            onDragEnd: () {
+                              setState(() => _dragging = false);
+                              _startHideTimer();
+                            },
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [Center]ed play/pause circular button.
-  Widget _buildHitArea() {
-    final style = Theme.of(context).style;
-
-    return RxBuilder((_) {
-      final bool isFinished =
-          widget.controller.position.value >= widget.controller.duration.value;
-
-      return CenterPlayButton(
-        backgroundColor: style.colors.onBackgroundOpacity13,
-        iconColor: style.colors.onPrimary,
-        isFinished: isFinished,
-        isPlaying: widget.controller.playerStatus.playing,
-        show: !_dragging && !_hideStuff,
-        onPressed: _playPause,
-      );
-    });
-  }
-
-  /// Returns the mute/unmute button.
-  GestureDetector _buildMuteButton() {
-    final style = Theme.of(context).style;
-
-    return GestureDetector(
-      onTap: () {
-        _cancelAndRestartTimer();
-
-        if (widget.controller.volume.value == 0) {
-          widget.controller.setVolume(_latestVolume ?? 0.5);
-        } else {
-          _latestVolume = widget.controller.volume.value;
-          widget.controller.setVolume(0.0);
-        }
-      },
-      child: AnimatedOpacity(
-        opacity: _hideStuff ? 0.0 : 1.0,
-        duration: const Duration(milliseconds: 300),
-        child: Container(
-          height: _barHeight,
-          margin: const EdgeInsets.only(right: 12.0),
-          padding: const EdgeInsets.only(
-            left: 8.0,
-            right: 8.0,
-          ),
-          child: Center(
-            child: RxBuilder((_) {
-              return Icon(
-                widget.controller.volume.value > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                color: style.colors.onPrimary,
-                size: 18,
-              );
-            }),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [RichText] of the current video position.
-  Widget _buildPosition(Color? iconColor) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    return RxBuilder((_) {
-      final position = widget.controller.position.value;
-      final duration = widget.controller.duration.value;
-
-      return RichText(
-        text: TextSpan(
-          text: '${formatDuration(position)} ',
-          children: <InlineSpan>[
-            TextSpan(
-              text: '/ ${formatDuration(duration)}',
-              style: fonts.labelMedium!.copyWith(
-                color: style.colors.onPrimaryOpacity50,
-              ),
-            )
-          ],
-          style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
-        ),
-      );
-    });
-  }
-
-  /// Returns the [VideoProgressBar] of the current video progression.
-  Widget _buildProgressBar() {
-    final style = Theme.of(context).style;
-
-    return Expanded(
-      child: ProgressBar(
-        widget.controller,
-        barHeight: 2,
-        handleHeight: 6,
-        drawShadow: true,
-        onDragStart: () {
-          setState(() => _dragging = true);
-          _hideTimer?.cancel();
-        },
-        onDragEnd: () {
-          setState(() => _dragging = false);
-          _startHideTimer();
-        },
-        colors: ChewieProgressColors(
-          playedColor: style.colors.primary,
-          handleColor: style.colors.primary,
-          bufferedColor: style.colors.background.withOpacity(0.5),
-          backgroundColor: style.colors.secondary.withOpacity(0.5),
         ),
       ),
     );

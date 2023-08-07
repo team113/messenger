@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
 
@@ -28,22 +27,21 @@ import '/themes.dart';
 class VideoVolumeBar extends StatelessWidget {
   VideoVolumeBar(
     this.controller, {
-    Key? key,
-    ChewieProgressColors? colors,
+    super.key,
+    ProgressBarColors? colors,
     this.onDragEnd,
     this.onDragStart,
     this.onDragUpdate,
     this.barHeight = 2,
     this.handleHeight = 6,
     this.drawShadow = false,
-  })  : colors = colors ?? ChewieProgressColors(),
-        super(key: key);
+  }) : colors = colors ?? ProgressBarColors();
 
   /// [MeeduPlayerController] used to control the volume.
   final MeeduPlayerController controller;
 
-  /// [ChewieProgressColors] theme of this [VideoVolumeBar].
-  final ChewieProgressColors colors;
+  /// [ProgressBarColors] theme of this [VideoVolumeBar].
+  final ProgressBarColors colors;
 
   /// Callback, called when volume drag started.
   final Function()? onDragStart;
@@ -127,8 +125,8 @@ class ProgressBarPainter extends CustomPainter {
   /// Current volume value.
   double volume;
 
-  /// [ChewieProgressColors] theme of the progress bar.
-  ChewieProgressColors colors;
+  /// [ProgressBarColors] theme of the progress bar.
+  ProgressBarColors colors;
 
   /// Height of the progress bar.
   final double barHeight;
@@ -156,7 +154,7 @@ class ProgressBarPainter extends CustomPainter {
         ),
         const Radius.circular(4.0),
       ),
-      colors.backgroundPaint,
+      colors.background,
     );
 
     final double playedPart = volume * size.width;
@@ -169,7 +167,7 @@ class ProgressBarPainter extends CustomPainter {
         ),
         const Radius.circular(4.0),
       ),
-      colors.playedPaint,
+      colors.played,
     );
 
     if (drawShadow) {
@@ -187,7 +185,32 @@ class ProgressBarPainter extends CustomPainter {
     canvas.drawCircle(
       Offset(playedPart, baseOffset + barHeight / 2),
       handleHeight,
-      colors.handlePaint,
+      colors.handle,
     );
   }
+}
+
+/// [Color]s to paint [ProgressBarPainter] with.
+class ProgressBarColors {
+  ProgressBarColors({
+    Color played = const Color.fromRGBO(255, 0, 0, 0.7),
+    Color buffered = const Color.fromRGBO(30, 30, 200, 0.2),
+    Color handle = const Color.fromRGBO(200, 200, 200, 1.0),
+    Color background = const Color.fromRGBO(200, 200, 200, 0.5),
+  })  : played = Paint()..color = played,
+        buffered = Paint()..color = buffered,
+        handle = Paint()..color = handle,
+        background = Paint()..color = background;
+
+  /// [Paint] to paint played part of [ProgressBarPainter] with.
+  final Paint played;
+
+  /// [Paint] to paint buffered part of [ProgressBarPainter] with.
+  final Paint buffered;
+
+  /// [Paint] to paint handle of [ProgressBarPainter] with.
+  final Paint handle;
+
+  /// [Paint] to paint background of [ProgressBarPainter] with.
+  final Paint background;
 }
