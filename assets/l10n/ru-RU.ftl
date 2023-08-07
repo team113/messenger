@@ -448,6 +448,7 @@ fcm_user_removed_you =
        *[other] {$userName}
     } удалил Вас из групы
 label_a_of_b = {$a} из {$b}
+label_a_slash_b = {$a} / {$b}
 label_account_created = Аккаунт создан
 label_actions = Действия
 label_add_additional_email = Добавить дополнительный E-mail

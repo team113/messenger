@@ -437,6 +437,7 @@ fcm_user_removed_you =
        *[other] {$userName}
     } removed you from group
 label_a_of_b = {$a} of {$b}
+label_a_slash_b = {$a} / {$b}
 label_account_created = Account is created
 label_actions = Actions
 label_add_additional_email = Add additional E-mail

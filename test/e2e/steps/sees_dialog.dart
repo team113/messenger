@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import 'package:collection/collection.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatKind;
 import 'package:messenger/provider/gql/graphql.dart';
