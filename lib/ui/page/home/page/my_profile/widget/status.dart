@@ -29,8 +29,8 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [status].
-class UserTextStatusWidget extends StatefulWidget {
-  const UserTextStatusWidget(this.status, {super.key, this.onSubmit});
+class UserTextStatusField extends StatefulWidget {
+  const UserTextStatusField(this.status, {super.key, this.onSubmit});
 
   /// Status of an [User].
   final UserTextStatus? status;
@@ -39,11 +39,11 @@ class UserTextStatusWidget extends StatefulWidget {
   final Future<void> Function(UserTextStatus? status)? onSubmit;
 
   @override
-  State<UserTextStatusWidget> createState() => _UserTextStatusWidgetState();
+  State<UserTextStatusField> createState() => _UserTextStatusFieldState();
 }
 
-/// State of a [UserTextStatusWidget] maintaining the [_state].
-class _UserTextStatusWidgetState extends State<UserTextStatusWidget> {
+/// State of a [UserTextStatusField] maintaining the [_state].
+class _UserTextStatusFieldState extends State<UserTextStatusField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.status?.val ?? '',
@@ -89,7 +89,7 @@ class _UserTextStatusWidgetState extends State<UserTextStatusWidget> {
   );
 
   @override
-  void didUpdateWidget(UserTextStatusWidget oldWidget) {
+  void didUpdateWidget(UserTextStatusField oldWidget) {
     if (!_state.focus.hasFocus &&
         !_state.changed.value &&
         _state.editable.value) {

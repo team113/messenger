@@ -32,8 +32,8 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [UserLogin].
-class ReactiveLoginField extends StatefulWidget {
-  const ReactiveLoginField(this.login, {super.key, this.onSubmit});
+class UserLoginField extends StatefulWidget {
+  const UserLoginField(this.login, {super.key, this.onSubmit});
 
   /// Unique login of an [User].
   final UserLogin? login;
@@ -42,11 +42,11 @@ class ReactiveLoginField extends StatefulWidget {
   final Future<void> Function(UserLogin login)? onSubmit;
 
   @override
-  State<ReactiveLoginField> createState() => _ReactiveLoginFieldState();
+  State<UserLoginField> createState() => _UserLoginFieldState();
 }
 
-/// State of a [ReactiveLoginField] maintaining the [_state].
-class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
+/// State of a [UserLoginField] maintaining the [_state].
+class _UserLoginFieldState extends State<UserLoginField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
@@ -88,7 +88,7 @@ class _ReactiveLoginFieldState extends State<ReactiveLoginField> {
   );
 
   @override
-  void didUpdateWidget(ReactiveLoginField oldWidget) {
+  void didUpdateWidget(UserLoginField oldWidget) {
     if (!_state.focus.hasFocus &&
         !_state.changed.value &&
         _state.editable.value) {

@@ -28,8 +28,8 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [name].
-class NameField extends StatefulWidget {
-  const NameField(this.name, {super.key, this.onSubmit});
+class UserNameField extends StatefulWidget {
+  const UserNameField(this.name, {super.key, this.onSubmit});
 
   /// Name of an [User].
   final UserName? name;
@@ -38,11 +38,11 @@ class NameField extends StatefulWidget {
   final FutureOr<void> Function(UserName? name)? onSubmit;
 
   @override
-  State<NameField> createState() => _NameFieldState();
+  State<UserNameField> createState() => _UserNameFieldState();
 }
 
-/// State of a [NameField] maintaining the [_state].
-class _NameFieldState extends State<NameField> {
+/// State of a [UserNameField] maintaining the [_state].
+class _UserNameFieldState extends State<UserNameField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.name?.val,
@@ -87,7 +87,7 @@ class _NameFieldState extends State<NameField> {
   );
 
   @override
-  void didUpdateWidget(NameField oldWidget) {
+  void didUpdateWidget(UserNameField oldWidget) {
     if (!_state.focus.hasFocus &&
         !_state.changed.value &&
         _state.editable.value) {

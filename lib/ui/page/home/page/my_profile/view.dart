@@ -114,7 +114,7 @@ class MyProfileView extends StatelessWidget {
                             }),
                             const SizedBox(height: 12),
                             Paddings.basic(
-                              NameField(
+                              UserNameField(
                                 c.myUser.value?.name,
                                 onSubmit: c.updateUserName,
                               ),
@@ -122,7 +122,7 @@ class MyProfileView extends StatelessWidget {
                             _presence(context, c),
                             Paddings.basic(
                               Obx(() {
-                                return UserTextStatusWidget(
+                                return UserTextStatusField(
                                   c.myUser.value?.status,
                                   onSubmit: c.updateUserStatus,
                                 );
@@ -139,10 +139,12 @@ class MyProfileView extends StatelessWidget {
                               UserNumCopyable(c.myUser.value?.num),
                             ),
                             Paddings.basic(
-                              ReactiveLoginField(
-                                c.myUser.value?.login,
-                                onSubmit: c.updateUserLogin,
-                              ),
+                              Obx(() {
+                                return UserLoginField(
+                                  c.myUser.value?.login,
+                                  onSubmit: c.updateUserLogin,
+                                );
+                              }),
                             ),
                             _emails(context, c),
                             _phones(context, c),
