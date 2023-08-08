@@ -243,6 +243,14 @@ class Themes {
               color: colors.secondaryHighlightDarkest,
             ),
           ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide(color: colors.dangerColor),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide(color: colors.dangerColor),
+          ),
         ),
         textSelectionTheme: theme.textSelectionTheme.copyWith(
           cursorColor: colors.primary,

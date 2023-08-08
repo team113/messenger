@@ -195,10 +195,7 @@ class LoginView extends StatelessWidget {
                         'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                         width: 17.07,
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-                      child: WidgetButton(
+                      subtitle: WidgetButton(
                         onPressed: () {
                           c.recovery.clear();
                           c.recoveryCode.clear();
