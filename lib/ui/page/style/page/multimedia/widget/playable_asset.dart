@@ -54,10 +54,10 @@ class _PlayableAssetState extends State<PlayableAsset> {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return DefaultTextStyle(
-      style: fonts.bodySmall!,
+      style: style.fonts.bodySmall,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

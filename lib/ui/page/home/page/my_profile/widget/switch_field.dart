@@ -40,7 +40,7 @@ class SwitchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Stack(
       alignment: Alignment.centerRight,
@@ -48,7 +48,7 @@ class SwitchField extends StatelessWidget {
         IgnorePointer(
           child: ReactiveTextField(
             state: TextFieldState(text: text, editable: false),
-            style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
+            style: style.fonts.bodyMediumSecondary,
           ),
         ),
         Align(

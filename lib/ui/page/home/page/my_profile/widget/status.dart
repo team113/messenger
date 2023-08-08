@@ -101,7 +101,7 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return ReactiveTextField(
       key: const Key('StatusField'),
@@ -124,7 +124,7 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
                 child: SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
-      style: fonts.titleMedium,
+      style: style.fonts.titleMedium,
     );
   }
 }

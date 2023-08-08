@@ -41,21 +41,83 @@ class TypographyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
-    final List<(TextStyle, String)> styles = [
-      (fonts.displayLarge!, 'displayLarge'),
-      (fonts.displayMedium!, 'displayMedium'),
-      (fonts.displaySmall!, 'displaySmall'),
-      (fonts.headlineLarge!, 'headlineLarge'),
-      (fonts.headlineMedium!, 'headlineMedium'),
-      (fonts.headlineSmall!, 'headlineSmall'),
-      (fonts.labelLarge!, 'labelLarge'),
-      (fonts.labelMedium!, 'labelMedium'),
-      (fonts.labelSmall!, 'labelSmall'),
-      (fonts.bodyLarge!, 'bodyLarge'),
-      (fonts.bodyMedium!, 'bodyMedium'),
-      (fonts.bodySmall!, 'bodySmall'),
+    final Iterable<(TextStyle, String)> styles = [
+      (style.fonts.displayLarge, 'displayLarge'),
+      (style.fonts.displayMedium, 'displayMedium'),
+      (style.fonts.displaySmall, 'displaySmall'),
+      (style.fonts.headlineLarge, 'headlineLarge'),
+      (style.fonts.headlineMedium, 'headlineMedium'),
+      (style.fonts.headlineSmall, 'headlineSmall'),
+      (style.fonts.titleLarge, 'titleLarge'),
+      (style.fonts.titleMedium, 'titleMedium'),
+      (style.fonts.titleSmall, 'titleSmall'),
+      (style.fonts.labelLarge, 'labelLarge'),
+      (style.fonts.labelMedium, 'labelMedium'),
+      (style.fonts.labelSmall, 'labelSmall'),
+      (style.fonts.bodyLarge, 'bodyLarge'),
+      (style.fonts.bodyMedium, 'bodyMedium'),
+      (style.fonts.bodySmall, 'bodySmall'),
+    ];
+
+    final Iterable<(TextStyle, String)> fonts = [
+      (style.fonts.displayLarge, 'displayLarge'),
+      (style.fonts.displayLargeOnPrimary, 'displayLargeOnPrimary'),
+      (style.fonts.displayMedium, 'displayMedium'),
+      (style.fonts.displayMediumSecondary, 'displayMediumSecondary'),
+      (style.fonts.displaySmall, 'displaySmall'),
+      (style.fonts.displaySmallOnPrimary, 'displaySmallOnPrimary'),
+      (style.fonts.displaySmallSecondary, 'displaySmallSecondary'),
+      (style.fonts.headlineLarge, 'headlineLarge'),
+      (style.fonts.headlineLargeOnPrimary, 'headlineLarge'),
+      (style.fonts.headlineMedium, 'headlineMedium'),
+      (style.fonts.headlineMediumOnPrimary, 'headlineMedium'),
+      (style.fonts.headlineSmall, 'headlineSmall'),
+      (style.fonts.headlineSmallOnPrimary, 'headlineSmallOnPrimary'),
+      (
+        style.fonts.headlineSmallOnPrimary.copyWith(
+          shadows: [
+            Shadow(blurRadius: 6, color: style.colors.onBackground),
+            Shadow(blurRadius: 6, color: style.colors.onBackground),
+          ],
+        ),
+        'headlineSmallOnPrimary (shadows)',
+      ),
+      (style.fonts.headlineSmallSecondary, 'headlineSmall'),
+      (style.fonts.titleLarge, 'titleLarge'),
+      (style.fonts.titleLargeOnPrimary, 'titleLarge'),
+      (style.fonts.titleLargeSecondary, 'titleLarge'),
+      (style.fonts.titleMedium, 'titleMedium'),
+      (style.fonts.titleMediumDanger, 'titleMediumDanger'),
+      (style.fonts.titleMediumOnPrimary, 'titleMediumOnPrimary'),
+      (style.fonts.titleMediumPrimary, 'titleMediumPrimary'),
+      (style.fonts.titleMediumSecondary, 'titleMediumSecondary'),
+      (style.fonts.titleSmall, 'titleSmall'),
+      (style.fonts.titleSmallOnPrimary, 'titleSmallOnPrimary'),
+      (style.fonts.labelLarge, 'labelLarge'),
+      (style.fonts.labelLargeOnPrimary, 'labelLargeOnPrimary'),
+      (style.fonts.labelLargePrimary, 'labelLargePrimary'),
+      (style.fonts.labelLargeSecondary, 'labelLargeSecondary'),
+      (style.fonts.labelMedium, 'labelMedium'),
+      (style.fonts.labelMediumOnPrimary, 'labelMediumOnPrimary'),
+      (style.fonts.labelMediumPrimary, 'labelMediumPrimary'),
+      (style.fonts.labelMediumSecondary, 'labelMediumSecondary'),
+      (style.fonts.labelSmall, 'labelSmall'),
+      (style.fonts.labelSmallOnPrimary, 'labelSmallOnPrimary'),
+      (style.fonts.labelSmallPrimary, 'labelSmallPrimary'),
+      (style.fonts.labelSmallSecondary, 'labelSmallSecondary'),
+      (style.fonts.bodyLarge, 'bodyLarge'),
+      (style.fonts.bodyLargePrimary, 'bodyLargePrimary'),
+      (style.fonts.bodyLargeSecondary, 'bodyLargeSecondary'),
+      (style.fonts.bodyMedium, 'bodyMedium'),
+      (style.fonts.bodyMediumOnPrimary, 'bodyMediumOnPrimary'),
+      (style.fonts.bodyMediumPrimary, 'bodyMediumPrimary'),
+      (style.fonts.bodyMediumSecondary, 'bodyMediumSecondary'),
+      (style.fonts.bodySmall, 'bodySmall'),
+      (style.fonts.bodySmallOnPrimary, 'bodySmallOnPrimary'),
+      (style.fonts.bodySmallPrimary, 'bodySmallPrimary'),
+      (style.fonts.bodySmallSecondary, 'bodySmallSecondary'),
     ];
 
     final List<(FontWeight, String)> families = [
@@ -70,10 +132,23 @@ class TypographyView extends StatelessWidget {
         const Header('Typography'),
         const SubHeader('Fonts'),
         BuilderWrap(
-          styles,
+          fonts,
           inverted: inverted,
           dense: dense,
           (e) => FontWidget(e, inverted: inverted, dense: dense),
+        ),
+        const SubHeader('Typefaces'),
+        BuilderWrap(
+          styles,
+          inverted: inverted,
+          dense: dense,
+          (e) => FontWidget((
+            e.$1.copyWith(
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+            ),
+            e.$2,
+          ), inverted: inverted, dense: dense),
         ),
         const SubHeader('Families'),
         BuilderWrap(
@@ -87,7 +162,7 @@ class TypographyView extends StatelessWidget {
           styles,
           inverted: inverted,
           dense: dense,
-          (e) => FontStyle(e, inverted: inverted),
+          (e) => FontStyleWidget(e, inverted: inverted),
         ),
         const SizedBox(height: 16),
       ],

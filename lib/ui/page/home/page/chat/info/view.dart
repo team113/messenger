@@ -292,7 +292,7 @@ class ChatInfoView extends StatelessWidget {
         members.insert(0, me);
       }
 
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       Widget bigButton({
         Key? key,
@@ -326,9 +326,7 @@ class ChatInfoView extends StatelessWidget {
                         child: DefaultTextStyle(
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.primary,
-                          ),
+                          style: style.fonts.bodyMediumPrimary,
                           child: title,
                         ),
                       ),
@@ -517,13 +515,13 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
+        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
@@ -535,13 +533,13 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
+        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
     );
@@ -556,13 +554,13 @@ class ChatInfoView extends StatelessWidget {
     ChatInfoController c,
     BuildContext context,
   ) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
+        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],
     );

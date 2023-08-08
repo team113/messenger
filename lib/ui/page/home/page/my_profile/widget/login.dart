@@ -100,7 +100,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return ReactiveTextField(
       key: const Key('LoginField'),
@@ -127,15 +127,11 @@ class _UserLoginFieldState extends State<UserLoginField> {
           children: [
             TextSpan(
               text: 'label_login_visible'.l10n,
-              style: fonts.labelMedium!.copyWith(
-                color: style.colors.secondary,
-              ),
+              style: style.fonts.labelMediumSecondary,
             ),
             TextSpan(
               text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-              style: fonts.labelMedium!.copyWith(
-                color: style.colors.primary,
-              ),
+              style: style.fonts.labelMediumPrimary,
               recognizer: TapGestureRecognizer()
                 ..onTap = () async {
                   await ConfirmDialog.show(
@@ -145,9 +141,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
                       Center(
                         child: Text(
                           'label_login_visibility_hint'.l10n,
-                          style: fonts.labelLarge!.copyWith(
-                            color: style.colors.secondary,
-                          ),
+                          style: style.fonts.labelLargeSecondary,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -155,7 +149,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'label_visible_to'.l10n,
-                          style: fonts.headlineMedium,
+                          style: style.fonts.headlineMedium,
                         ),
                       ),
                     ],

@@ -97,7 +97,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Column(
       children: [
@@ -134,16 +134,13 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                   onPressed: widget.onUpload,
                   child: Text(
                     'btn_upload'.l10n,
-                    style:
-                        fonts.labelSmall?.copyWith(color: style.colors.primary),
+                    style: style.fonts.labelSmallPrimary,
                   ),
                 ),
               if (widget.onUpload != null && widget.onDelete != null)
                 Text(
                   'space_or_space'.l10n,
-                  style: fonts.labelSmall?.copyWith(
-                    color: style.colors.onBackground,
-                  ),
+                  style: style.fonts.labelSmall,
                 ),
               if (widget.onDelete != null)
                 WidgetButton(
@@ -151,8 +148,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                   onPressed: widget.onDelete,
                   child: Text(
                     'btn_delete'.l10n.toLowerCase(),
-                    style:
-                        fonts.labelSmall?.copyWith(color: style.colors.primary),
+                    style: style.fonts.labelSmallPrimary,
                   ),
                 ),
             ],

@@ -47,7 +47,7 @@ class BackgroundPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Column(
       children: [
@@ -115,9 +115,7 @@ class BackgroundPreview extends StatelessWidget {
                   onPressed: background == null ? onPick : onRemove,
                   child: Text(
                     background == null ? 'btn_upload'.l10n : 'btn_delete'.l10n,
-                    style: fonts.labelSmall!.copyWith(
-                      color: style.colors.primary,
-                    ),
+                    style: style.fonts.labelSmallPrimary,
                   ),
                 ),
               ],
@@ -145,7 +143,7 @@ class _MessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
@@ -163,7 +161,7 @@ class _MessageWidget extends StatelessWidget {
               if (text != null)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                  child: Text(text!, style: fonts.bodyLarge),
+                  child: Text(text!, style: style.fonts.bodyLarge),
                 ),
             ],
           ),

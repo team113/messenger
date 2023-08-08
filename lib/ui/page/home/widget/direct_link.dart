@@ -128,7 +128,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,22 +158,18 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           label: '${Config.origin}/',
           subtitle: RichText(
             text: TextSpan(
-              style: fonts.labelMedium,
+              style: style.fonts.labelMedium,
               children: [
                 TextSpan(
                   text: 'label_transition_count'.l10nfmt({
                         'count': widget.link?.usageCount ?? 0,
                       }) +
                       'dot_space'.l10n,
-                  style: fonts.labelMedium!.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: style.fonts.labelMediumSecondary,
                 ),
                 TextSpan(
                   text: 'label_details'.l10n,
-                  style: fonts.labelMedium!.copyWith(
-                    color: style.colors.primary,
-                  ),
+                  style: style.fonts.labelMediumPrimary,
                   recognizer: TapGestureRecognizer()
                     ..onTap = () => LinkDetailsView.show(context),
                 ),

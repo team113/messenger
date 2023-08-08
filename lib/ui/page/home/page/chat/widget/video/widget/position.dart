@@ -30,7 +30,7 @@ class CurrentPosition extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return RxBuilder((_) {
       final String position = controller.position.value.hhMmSs();
@@ -38,7 +38,7 @@ class CurrentPosition extends StatelessWidget {
 
       return Text(
         'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
-        style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
+        style: style.fonts.labelMediumOnPrimary,
       );
     });
   }

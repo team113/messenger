@@ -181,7 +181,7 @@ class ReactiveTextField extends StatelessWidget {
 
     // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       return Obx(() {
         final bool hasSuffix = state.approvable ||
@@ -241,9 +241,7 @@ class ReactiveTextField extends StatelessWidget {
                                           key: const ValueKey('Approve'),
                                           child: Text(
                                             'btn_save'.l10n,
-                                            style: fonts.bodySmall!.copyWith(
-                                              color: style.colors.primary,
-                                            ),
+                                            style: style.fonts.bodySmallPrimary,
                                           ),
                                         )
                                       : SizedBox(
@@ -262,7 +260,7 @@ class ReactiveTextField extends StatelessWidget {
     }
 
     return Obx(() {
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       return Theme(
         data: Theme.of(context).copyWith(
@@ -332,7 +330,7 @@ class ReactiveTextField extends StatelessWidget {
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: fonts.bodyLarge?.copyWith(fontSize: 0),
+                errorStyle: style.fonts.bodyLarge.copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -404,7 +402,7 @@ class ReactiveTextField extends StatelessWidget {
                           ? Padding(
                               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
                               child: DefaultTextStyle(
-                                style: fonts.labelMedium!,
+                                style: style.fonts.labelMedium,
                                 child: subtitle!,
                               ),
                             )
@@ -413,7 +411,7 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Text(
                             state.error.value ?? '',
-                            style: fonts.labelMedium?.copyWith(
+                            style: style.fonts.labelMedium.copyWith(
                               color: style.colors.dangerColor,
                             ),
                           ),
