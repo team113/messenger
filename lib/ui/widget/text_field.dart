@@ -61,6 +61,7 @@ class ReactiveTextField extends StatelessWidget {
     this.trailing,
     this.treatErrorAsStatus = true,
     this.type,
+    this.subtitle,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -91,6 +92,9 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional trailing [Widget].
   final Widget? trailing;
+
+  /// Optional subtitle [Widget].
+  final Widget? subtitle;
 
   /// Optional label of this [ReactiveTextField].
   final String? label;
@@ -388,17 +392,25 @@ class ReactiveTextField extends StatelessWidget {
               },
             ),
 
-            // Displays an error, if any.
+            // Displays the [subtitle] or an error, if any.
             AnimatedSize(
               duration: 200.milliseconds,
-              child: AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: state.error.value == null
-                    ? const SizedBox(width: double.infinity, height: 1)
-                    : Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: AnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: state.error.value == null
+                      ? subtitle != null
+                          ? Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                              child: DefaultTextStyle(
+                                style: fonts.labelMedium!,
+                                child: subtitle!,
+                              ),
+                            )
+                          : const SizedBox(width: double.infinity, height: 1)
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Text(
                             state.error.value ?? '',
                             style: fonts.labelMedium?.copyWith(
@@ -406,7 +418,7 @@ class ReactiveTextField extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ),
+                ),
               ),
             ),
           ],

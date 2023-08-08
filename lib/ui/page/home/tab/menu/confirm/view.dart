@@ -139,7 +139,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 Center(
                   child: RichText(
                     text: TextSpan(
-                      style: fonts.titleLarge!.copyWith(
+                      style: fonts.labelLarge!.copyWith(
                         color: style.colors.secondary,
                       ),
                       children: [
@@ -147,7 +147,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           text: 'alert_are_you_sure_want_to_log_out1'.l10n,
                         ),
                         TextSpan(
-                          style: fonts.titleLarge,
+                          style: fonts.labelLarge,
                           text: c.myUser.value?.name?.val ??
                               c.myUser.value?.num.val ??
                               '',
@@ -226,10 +226,10 @@ class ConfirmLogoutView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Scrollbar(
+              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,
-                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
                 shrinkWrap: true,
                 children: [
                   header,
