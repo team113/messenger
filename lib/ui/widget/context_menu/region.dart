@@ -216,7 +216,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     if (widget.actions.isEmpty) {
       return;
