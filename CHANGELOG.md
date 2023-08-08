@@ -17,9 +17,14 @@ All user visible changes to this project will be documented in this file. This p
     - Application crashing when playing sounds. ([#496])
 - Web:
     - Default locale not detecting in Safari. ([#491])
-
+    
+### Changed
+- Web:
+    - Context menu with fading effect. ([#506])     
+     
 [#491]: /../../pull/491
 [#496]: /../../pull/496
+[#506]: /../../pull/506
 
 
 

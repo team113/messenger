@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 
+///[ContextMenuOverlay] displaying a currently opened [ContextMenu].
 class ContextMenuOverlay extends StatefulWidget {
   final Offset position;
   final EdgeInsets margin;

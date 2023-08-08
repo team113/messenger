@@ -128,7 +128,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion>
   /// Indicator whether [ContextMenu] is displayed.
   bool _displayed = false;
 
-  /// [OverlayEntry] displaying a currently opened [ContextMenu].
+  /// [OverlayEntry] displaying a currently opened [ContextMenuOverlay].
   OverlayEntry? _entry;
   @override
   Widget build(BuildContext context) {
