@@ -17,30 +17,45 @@
 
 import 'package:flutter/material.dart';
 
-/// Scrollable [Column] of [Widget]s.
-class ScrollableColumn extends StatelessWidget {
-  const ScrollableColumn({
+import '/themes.dart';
+
+/// Button-styled fullscreen [Icon].
+class ExpandButton extends StatelessWidget {
+  const ExpandButton({
     super.key,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
-    this.children = const [],
+    this.height,
+    this.onTap,
+    this.fullscreen = false,
   });
 
-  /// Alignment of [children] in their cross axis.
-  final CrossAxisAlignment crossAxisAlignment;
+  /// Height of this [ExpandButton].
+  final double? height;
 
-  /// [Widget]s to display in this [ScrollableColumn].
-  final List<Widget> children;
+  /// Indicator whether fullscreen mode is enabled.
+  final bool fullscreen;
+
+  /// Callback, called when this [ExpandButton] is tapped.
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverList(
-          delegate: SliverChildListDelegate([
-            Column(crossAxisAlignment: crossAxisAlignment, children: children)
-          ]),
-        )
-      ],
+    final style = Theme.of(context).style;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          height: height,
+          child: Center(
+            child: Icon(
+              fullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+              color: style.colors.onPrimary,
+              size: 21,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

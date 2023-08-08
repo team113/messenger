@@ -318,6 +318,7 @@ err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
 label_a_of_b = {$a} of {$b}
+label_a_slash_b = {$a} / {$b}
 label_account_created = Account is created
 label_actions = Actions
 label_add_additional_email = Add additional E-mail

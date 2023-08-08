@@ -15,32 +15,27 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
 import '/themes.dart';
+import 'video_volume_bar.dart';
 
 /// Draggable video progress bar.
 class ProgressBar extends StatefulWidget {
-  ProgressBar(
+  const ProgressBar(
     this.controller, {
-    ChewieProgressColors? colors,
     this.onDragEnd,
     this.onDragStart,
     this.onDragUpdate,
-    Key? key,
-    required this.barHeight,
-    required this.handleHeight,
-    required this.drawShadow,
-  })  : colors = colors ?? ChewieProgressColors(),
-        super(key: key);
+    super.key,
+    this.barHeight = 2,
+    this.handleHeight = 6,
+    this.drawShadow = true,
+  });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
-
-  /// [ChewieProgressColors] theme of this [ProgressBar].
-  final ChewieProgressColors colors;
 
   /// Callback, called when progress drag started.
   final Function()? onDragStart;
@@ -91,7 +86,12 @@ class _ProgressBarState extends State<ProgressBar> {
                     ? _relativePosition(_latestDraggableOffset!)
                     : widget.controller.position.value,
                 buffered: widget.controller.buffered.value,
-                colors: widget.colors,
+                colors: ProgressBarColors(
+                  played: style.colors.primary,
+                  handle: style.colors.primary,
+                  buffered: style.colors.background.withOpacity(0.5),
+                  background: style.colors.secondary.withOpacity(0.5),
+                ),
                 barHeight: widget.barHeight,
                 handleHeight: widget.handleHeight,
                 drawShadow: widget.drawShadow,
@@ -148,9 +148,13 @@ class _ProgressBarState extends State<ProgressBar> {
   /// Transforms the provided [globalPosition] into relative [Duration].
   Duration _relativePosition(Offset globalPosition) {
     final box = context.findRenderObject()! as RenderBox;
-    final Offset tapPos = box.globalToLocal(globalPosition);
-    final double relative = tapPos.dx / box.size.width;
-    return widget.controller.duration.value * relative;
+    final Offset position = box.globalToLocal(globalPosition);
+    if (position.dx > 0) {
+      final double relative = position.dx / box.size.width;
+      return widget.controller.duration.value * relative;
+    } else {
+      return Duration.zero;
+    }
   }
 }
 
@@ -175,8 +179,8 @@ class _ProgressBarPainter extends CustomPainter {
   /// [List] of buffered [DurationRange]s.
   List<DurationRange> buffered;
 
-  /// [ChewieProgressColors] theme of this [_ProgressBarPainter].
-  ChewieProgressColors colors;
+  /// [ProgressBarColors] theme of this [_ProgressBarPainter].
+  ProgressBarColors colors;
 
   /// Height of the progress bar.
   final double barHeight;
@@ -202,7 +206,7 @@ class _ProgressBarPainter extends CustomPainter {
         ),
         const Radius.circular(4.0),
       ),
-      colors.backgroundPaint,
+      colors.background,
     );
 
     final double playedPartPercent =
@@ -220,7 +224,7 @@ class _ProgressBarPainter extends CustomPainter {
           ),
           const Radius.circular(4.0),
         ),
-        colors.bufferedPaint,
+        colors.buffered,
       );
     }
     canvas.drawRRect(
@@ -231,7 +235,7 @@ class _ProgressBarPainter extends CustomPainter {
         ),
         const Radius.circular(4.0),
       ),
-      colors.playedPaint,
+      colors.played,
     );
 
     if (drawShadow) {
@@ -249,7 +253,7 @@ class _ProgressBarPainter extends CustomPainter {
     canvas.drawCircle(
       Offset(playedPart, baseOffset + barHeight / 2),
       handleHeight,
-      colors.handlePaint,
+      colors.handle,
     );
   }
 }

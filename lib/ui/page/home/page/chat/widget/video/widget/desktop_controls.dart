@@ -15,14 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: implementation_imports
-
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:chewie/chewie.dart';
-import 'package:chewie/src/animated_play_pause.dart';
-import 'package:chewie/src/helpers/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
@@ -31,23 +26,32 @@ import 'package:get/get.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/progress_indicator.dart';
+import 'centered_play_pause.dart';
+import 'custom_play_pause.dart';
+import 'expand_button.dart';
+import 'position.dart';
 import 'video_progress_bar.dart';
-import 'volume_bar.dart';
+import 'volume_button.dart';
+import 'volume_overlay.dart';
 
-/// Desktop video controls for a [Chewie] player.
+/// Desktop video controls for a [VideoView] player.
 class DesktopControls extends StatefulWidget {
-  const DesktopControls({
+  const DesktopControls(
+    this.controller, {
     super.key,
-    required this.controller,
     this.onClose,
     this.toggleFullscreen,
     this.isFullscreen,
     this.showInterfaceFor,
     this.size,
+    this.barHeight,
   });
 
   /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
   final MeeduPlayerController controller;
+
+  /// Height of the bottom controls bar.
+  final double? barHeight;
 
   /// Callback, called when a close video action is fired.
   final VoidCallback? onClose;
@@ -71,9 +75,6 @@ class DesktopControls extends StatefulWidget {
 /// State of [DesktopControls], used to control a video.
 class _DesktopControlsState extends State<DesktopControls>
     with SingleTickerProviderStateMixin {
-  /// Height of the bottom controls bar.
-  final _barHeight = 48.0 * 1.5;
-
   /// Indicator whether user interface should be hidden or not.
   bool _hideStuff = true;
 
@@ -181,7 +182,12 @@ class _DesktopControlsState extends State<DesktopControls>
             RxBuilder((_) {
               return widget.controller.isBuffering.value
                   ? const Center(child: CustomProgressIndicator())
-                  : _buildHitArea();
+                  : CenteredPlayPause(
+                      widget.controller,
+                      show: (!_dragging && !_hideStuff || _showInterface) &&
+                          !widget.controller.playerStatus.playing,
+                      onPressed: _playPause,
+                    );
             }),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -242,285 +248,91 @@ class _DesktopControlsState extends State<DesktopControls>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(width: 7),
-                  _buildPlayPause(widget.controller),
+                  CustomPlayPause(
+                    widget.controller,
+                    height: widget.barHeight,
+                    onTap: _playPause,
+                  ),
                   const SizedBox(width: 12),
-                  _buildPosition(style.fonts.labelLarge.color),
+                  CurrentPosition(widget.controller),
                   const SizedBox(width: 12),
-                  _buildProgressBar(),
-                  const SizedBox(width: 12),
-                  _buildMuteButton(widget.controller),
-                  const SizedBox(width: 12),
-                  _buildExpandButton(),
-                  const SizedBox(width: 12),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the fullscreen toggling button.
-  Widget _buildExpandButton() {
-    final style = Theme.of(context).style;
-
-    return Obx(
-      () => MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: _onExpandCollapse,
-          child: SizedBox(
-            height: _barHeight,
-            child: Center(
-              child: Icon(
-                widget.isFullscreen?.value == true
-                    ? Icons.fullscreen_exit
-                    : Icons.fullscreen,
-                color: style.colors.onPrimary,
-                size: 21,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [Center]ed play/pause circular button.
-  Widget _buildHitArea() {
-    final style = Theme.of(context).style;
-
-    return RxBuilder((_) {
-      final bool isFinished =
-          widget.controller.position.value >= widget.controller.duration.value;
-
-      return Center(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: widget.controller.playerStatus.playing
-              ? Container()
-              : AnimatedOpacity(
-                  opacity:
-                      !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: style.colors.onBackgroundOpacity13,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      iconSize: 32,
-                      icon: isFinished
-                          ? Icon(Icons.replay, color: style.colors.onPrimary)
-                          : AnimatedPlayPause(
-                              color: style.colors.onPrimary,
-                              playing: widget.controller.playerStatus.playing,
-                            ),
-                      onPressed: _playPause,
+                  Expanded(
+                    child: ProgressBar(
+                      widget.controller,
+                      onDragStart: () {
+                        setState(() => _dragging = true);
+                        _hideTimer?.cancel();
+                      },
+                      onDragEnd: () {
+                        setState(() => _dragging = false);
+                        _startHideTimer();
+                      },
                     ),
                   ),
-                ),
-        ),
-      );
-    });
-  }
+                  const SizedBox(width: 12),
+                  VolumeButton(
+                    widget.controller,
+                    key: _volumeKey,
+                    height: widget.barHeight,
+                    onTap: () {
+                      _cancelAndRestartTimer();
+                      if (widget.controller.volume.value == 0) {
+                        widget.controller.setVolume(_latestVolume ?? 0.5);
+                      } else {
+                        _latestVolume = widget.controller.volume.value;
+                        widget.controller.setVolume(0.0);
+                      }
+                    },
+                    onEnter: (_) {
+                      if (mounted && _volumeEntry == null) {
+                        Offset offset = Offset.zero;
+                        final keyContext = _volumeKey.currentContext;
+                        if (keyContext != null) {
+                          final box =
+                              keyContext.findRenderObject() as RenderBox;
+                          offset = box.localToGlobal(Offset.zero);
+                        }
 
-  /// Returns the play/pause button.
-  Widget _buildPlayPause(MeeduPlayerController controller) {
-    final style = Theme.of(context).style;
-
-    return Transform.translate(
-      offset: const Offset(0, 0),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: _playPause,
-          child: Container(
-            height: _barHeight,
-            color: style.colors.transparent,
-            child: RxBuilder((_) {
-              return AnimatedPlayPause(
-                size: 21,
-                playing: controller.playerStatus.playing,
-                color: style.colors.onPrimary,
-              );
-            }),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the mute/unmute button with a volume overlay above it.
-  Widget _buildMuteButton(MeeduPlayerController controller) {
-    final style = Theme.of(context).style;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) {
-        if (mounted && _volumeEntry == null) {
-          Offset offset = Offset.zero;
-          final keyContext = _volumeKey.currentContext;
-          if (keyContext != null) {
-            final box = keyContext.findRenderObject() as RenderBox;
-            offset = box.localToGlobal(Offset.zero);
-          }
-
-          _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
-          Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
-          setState(() {});
-        }
-      },
-      child: GestureDetector(
-        onTap: () {
-          _cancelAndRestartTimer();
-          if (widget.controller.volume.value == 0) {
-            controller.setVolume(_latestVolume ?? 0.5);
-          } else {
-            _latestVolume = controller.volume.value;
-            controller.setVolume(0.0);
-          }
-        },
-        child: ClipRect(
-          child: SizedBox(
-            key: _volumeKey,
-            height: _barHeight,
-            child: RxBuilder((_) {
-              return Icon(
-                widget.controller.volume.value > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
-                color: style.colors.onPrimary,
-                size: 18,
-              );
-            }),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns the [_volumeEntry] overlay.
-  Widget _volumeOverlay(Offset offset) {
-    final style = Theme.of(context).style;
-
-    return Stack(
-      children: [
-        Positioned(
-          left: offset.dx - 6,
-          bottom: 10,
-          child: MouseRegion(
-            opaque: false,
-            onExit: (d) {
-              if (mounted && !_dragging) {
-                _volumeEntry?.remove();
-                _volumeEntry = null;
-                setState(() {});
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                      child: Container(
-                        width: 15,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: style.colors.onBackgroundOpacity40,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: RotatedBox(
-                          quarterTurns: 3,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: VideoVolumeBar(
-                                widget.controller,
-                                onDragStart: () {
-                                  setState(() => _dragging = true);
-                                },
-                                onDragEnd: () {
-                                  if (!_showBottomBar) {
-                                    _volumeEntry?.remove();
-                                    _volumeEntry = null;
-                                  }
-                                  setState(() => _dragging = false);
-                                },
-                                colors: ChewieProgressColors(
-                                  playedColor: style.colors.primary,
-                                  handleColor: style.colors.primary,
-                                  bufferedColor:
-                                      style.colors.background.withOpacity(0.5),
-                                  backgroundColor:
-                                      style.colors.secondary.withOpacity(0.5),
-                                ),
-                              ),
-                            ),
+                        _volumeEntry = OverlayEntry(
+                          builder: (_) => VolumeOverlay(
+                            widget.controller,
+                            offset: offset,
+                            onExit: (d) {
+                              if (mounted && !_dragging) {
+                                _volumeEntry?.remove();
+                                _volumeEntry = null;
+                                setState(() {});
+                              }
+                            },
+                            onDragStart: () {
+                              setState(() => _dragging = true);
+                            },
+                            onDragEnd: () {
+                              if (!_showBottomBar) {
+                                _volumeEntry?.remove();
+                                _volumeEntry = null;
+                              }
+                              setState(() => _dragging = false);
+                            },
                           ),
-                        ),
-                      ),
-                    ),
+                        );
+                        Overlay.of(context, rootOverlay: true)
+                            .insert(_volumeEntry!);
+                        setState(() {});
+                      }
+                    },
                   ),
-                  const SizedBox(height: 27),
+                  const SizedBox(width: 12),
+                  ExpandButton(
+                    height: widget.barHeight,
+                    fullscreen: widget.isFullscreen?.value == true,
+                    onTap: _onExpandCollapse,
+                  ),
+                  const SizedBox(width: 12),
                 ],
               ),
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  /// Returns the [Text] of the current video position.
-  Widget _buildPosition(Color? iconColor) {
-    final style = Theme.of(context).style;
-
-    return RxBuilder((_) {
-      final position = widget.controller.position.value;
-      final duration = widget.controller.duration.value;
-
-      return Text(
-        '${formatDuration(position)} / ${formatDuration(duration)}',
-        style: style.fonts.headlineSmallOnPrimary,
-      );
-    });
-  }
-
-  /// Returns the [ProgressBar] of the current video progression.
-  Widget _buildProgressBar() {
-    final style = Theme.of(context).style;
-
-    return Expanded(
-      child: ProgressBar(
-        widget.controller,
-        barHeight: 2,
-        handleHeight: 6,
-        drawShadow: false,
-        onDragStart: () {
-          setState(() => _dragging = true);
-          _hideTimer?.cancel();
-        },
-        onDragEnd: () {
-          setState(() => _dragging = false);
-          _startHideTimer();
-        },
-        colors: ChewieProgressColors(
-          playedColor: style.colors.primary,
-          handleColor: style.colors.primary,
-          bufferedColor: style.colors.background.withOpacity(0.5),
-          backgroundColor: style.colors.secondary.withOpacity(0.5),
         ),
       ),
     );

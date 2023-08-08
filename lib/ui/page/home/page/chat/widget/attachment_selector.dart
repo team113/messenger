@@ -30,12 +30,12 @@ import '/util/platform_utils.dart';
 /// Intended to be displayed with the [show] method.
 class AttachmentSourceSelector extends StatelessWidget {
   const AttachmentSourceSelector({
-    Key? key,
+    super.key,
     this.onTakePhoto,
     this.onTakeVideo,
     this.onPickMedia,
     this.onPickFile,
-  }) : super(key: key);
+  });
 
   /// Callback, called when a take photo action is triggered.
   final void Function()? onTakePhoto;
@@ -75,34 +75,8 @@ class AttachmentSourceSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    Widget button({
-      required String text,
-      IconData? icon,
-      Widget? child,
-      void Function()? onPressed,
-    }) {
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        child: RoundFloatingButton(
-          text: text,
-          withBlur: false,
-          onPressed: () {
-            onPressed?.call();
-            Navigator.of(context).pop();
-          },
-          style: style.fonts.titleMedium,
-          color: style.colors.primary,
-          child: SizedBox(
-            width: 60,
-            height: 60,
-            child: child ?? Icon(icon, color: style.colors.onPrimary, size: 30),
-          ),
-        ),
-      );
-    }
-
     List<Widget> children = [
-      button(
+      _AttachmentButton(
         text:
             PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
         onPressed: onTakePhoto,
@@ -113,7 +87,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         ),
       ),
       if (PlatformUtils.isAndroid)
-        button(
+        _AttachmentButton(
           text: 'label_video'.l10n,
           onPressed: onTakeVideo,
           child: SvgImage.asset(
@@ -122,7 +96,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             height: 60,
           ),
         ),
-      button(
+      _AttachmentButton(
         text: 'label_gallery'.l10n,
         onPressed: onPickMedia,
         child: SvgImage.asset(
@@ -131,7 +105,7 @@ class AttachmentSourceSelector extends StatelessWidget {
           height: 60,
         ),
       ),
-      button(
+      _AttachmentButton(
         text: 'label_file'.l10n,
         onPressed: onPickFile,
         child: Center(
@@ -157,6 +131,40 @@ class AttachmentSourceSelector extends StatelessWidget {
         ),
         const SizedBox(height: 10),
       ],
+    );
+  }
+}
+
+/// Custom styled [RoundFloatingButton].
+class _AttachmentButton extends StatelessWidget {
+  const _AttachmentButton({this.text, this.child, this.onPressed});
+
+  /// Text displayed on this [_AttachmentButton].
+  final String? text;
+
+  /// [Widget] displayed on this [_AttachmentButton].
+  final Widget? child;
+
+  /// Callback, called when this [_AttachmentButton] is pressed.
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: RoundFloatingButton(
+        text: text,
+        withBlur: false,
+        onPressed: () {
+          onPressed?.call();
+          Navigator.of(context).pop();
+        },
+        style: style.fonts.titleMedium,
+        color: style.colors.primary,
+        child: SizedBox(width: 60, height: 60, child: child),
+      ),
     );
   }
 }
