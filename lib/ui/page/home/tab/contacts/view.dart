@@ -593,11 +593,9 @@ class ContactsTabView extends StatelessWidget {
                       }),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
-                      style: style.fonts.titleLarge.copyWith(
-                        color: c.selectedContacts.isEmpty
-                            ? style.colors.onBackground
-                            : style.colors.onPrimary,
-                      ),
+                      style: c.selectedContacts.isEmpty
+                          ? style.fonts.titleLarge
+                          : style.fonts.titleLargeOnPrimary,
                     ),
                   )
                 ],

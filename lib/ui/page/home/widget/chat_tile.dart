@@ -139,12 +139,9 @@ class ChatTile extends StatelessWidget {
                                         chat?.title.value ?? ('dot'.l10n * 3),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
-                                        style:
-                                            style.fonts.headlineLarge.copyWith(
-                                          color: selected
-                                              ? style.colors.onPrimary
-                                              : style.colors.onBackground,
-                                        ),
+                                        style: selected
+                                            ? style.fonts.headlineLargeOnPrimary
+                                            : style.fonts.headlineLarge,
                                       );
                                     }),
                                   ),

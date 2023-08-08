@@ -502,8 +502,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       style: style.systemMessageStyle,
                     ),
                   ],
-                  style: style.systemMessageStyle
-                      .copyWith(color: style.colors.primary),
+                  style: style.systemMessagePrimary,
                 ),
               );
             }
@@ -564,8 +563,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.systemMessageStyle
-                    .copyWith(color: style.colors.primary),
+                style: style.systemMessagePrimary,
               ),
             );
           });
@@ -590,8 +588,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   style: style.systemMessageStyle,
                 ),
               ],
-              style: style.systemMessageStyle
-                  .copyWith(color: style.colors.primary),
+              style: style.systemMessagePrimary,
             ),
           );
         }
@@ -628,8 +625,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.systemMessageStyle
-                    .copyWith(color: style.colors.primary),
+                style: style.systemMessagePrimary,
               ),
             );
           });
@@ -651,8 +647,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   style: style.systemMessageStyle,
                 ),
               ],
-              style: style.systemMessageStyle
-                  .copyWith(color: style.colors.primary),
+              style: style.systemMessagePrimary,
             ),
           );
         }
@@ -688,8 +683,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.systemMessageStyle,
               ),
             ],
-            style:
-                style.systemMessageStyle.copyWith(color: style.colors.primary),
+            style: style.systemMessagePrimary,
           ),
         );
         break;
@@ -725,8 +719,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.systemMessageStyle,
               ),
             ],
-            style:
-                style.systemMessageStyle.copyWith(color: style.colors.primary),
+            style: style.systemMessagePrimary,
           ),
         );
         break;

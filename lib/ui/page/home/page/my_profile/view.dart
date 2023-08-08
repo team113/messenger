@@ -860,11 +860,9 @@ Widget _password(BuildContext context, MyProfileController c) {
               ? 'btn_change_password'.l10n
               : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
-          style: style.fonts.titleMedium.copyWith(
-            color: c.myUser.value?.hasPassword != true
-                ? style.colors.dangerColor
-                : style.colors.primary,
-          ),
+          style: c.myUser.value?.hasPassword != true
+              ? style.fonts.titleMediumDanger
+              : style.fonts.titleMediumPrimary,
         ),
       ),
       const SizedBox(height: 10),

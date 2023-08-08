@@ -143,11 +143,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: style.fonts.headlineMedium.copyWith(
-                        color: _variant == variant
-                            ? style.colors.onPrimary
-                            : style.colors.onBackground,
-                      ),
+                      style: _variant == variant
+                          ? style.fonts.headlineMediumOnPrimary
+                          : style.fonts.headlineMedium,
                       child: variant.child,
                     ),
                   ),

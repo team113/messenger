@@ -90,11 +90,9 @@ class ConfirmLogoutView extends StatelessWidget {
                   key: const Key('ChangePasswordButton'),
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: style.fonts.bodyMedium.copyWith(
-                      color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? style.colors.onBackground
-                          : style.colors.onPrimary,
-                    ),
+                    style: c.password.isEmpty.value || c.repeat.isEmpty.value
+                        ? style.fonts.bodyMedium
+                        : style.fonts.bodyMediumOnPrimary,
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null

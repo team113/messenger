@@ -75,6 +75,7 @@ class Themes {
       primary: colors.primary,
       secondary: colors.secondary,
       onPrimary: colors.onPrimary,
+      danger: colors.dangerColor,
       displayLarge:
           textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.bold),
       displayMedium:
@@ -164,6 +165,7 @@ class Themes {
             ),
             systemMessageColor: colors.secondaryHighlight,
             systemMessageStyle: fonts.bodySmallSecondary,
+            systemMessagePrimary: fonts.bodySmallPrimary,
             unreadMessageColor: colors.backgroundAuxiliaryLightest,
           ),
         ],
@@ -382,6 +384,7 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.systemMessageStyle,
+    required this.systemMessagePrimary,
     required this.unreadMessageColor,
   });
 
@@ -449,6 +452,9 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] of system messages.
   final TextStyle systemMessageStyle;
 
+  /// [TextStyle] of system messages with a primary color.
+  final TextStyle systemMessagePrimary;
+
   /// Background [Color] of unread [ChatMessage]s, [ChatForward]s and
   /// [ChatCall]s posted by the authenticated [MyUser].
   final Color unreadMessageColor;
@@ -476,6 +482,7 @@ class Style extends ThemeExtension<Style> {
     Border? systemMessageBorder,
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
+    TextStyle? systemMessagePrimary,
     Color? unreadMessageColor,
   }) {
     return Style(
@@ -502,6 +509,7 @@ class Style extends ThemeExtension<Style> {
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
+      systemMessagePrimary: systemMessagePrimary ?? this.systemMessagePrimary,
       unreadMessageColor: unreadMessageColor ?? this.unreadMessageColor,
     );
   }
@@ -552,6 +560,11 @@ class Style extends ThemeExtension<Style> {
         other.systemMessageStyle,
         t,
       )!,
+      systemMessagePrimary: TextStyle.lerp(
+        systemMessagePrimary,
+        other.systemMessagePrimary,
+        t,
+      )!,
       unreadMessageColor:
           Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
     );
@@ -564,6 +577,7 @@ class Fonts {
     Color? primary,
     Color? secondary,
     Color? onPrimary,
+    Color? danger,
     required this.displayLarge,
     TextStyle? displayLargeOnPrimary,
     required this.displayMedium,
@@ -585,6 +599,7 @@ class Fonts {
     TextStyle? titleMediumPrimary,
     TextStyle? titleMediumSecondary,
     TextStyle? titleMediumOnPrimary,
+    TextStyle? titleMediumDanger,
     required this.titleSmall,
     TextStyle? titleSmallOnPrimary,
     required this.labelLarge,
@@ -639,6 +654,8 @@ class Fonts {
             titleMediumSecondary ?? titleMedium.copyWith(color: secondary),
         titleMediumOnPrimary =
             titleMediumOnPrimary ?? titleMedium.copyWith(color: onPrimary),
+        titleMediumDanger =
+            titleMediumDanger ?? titleMedium.copyWith(color: danger),
         titleSmallOnPrimary =
             titleSmallOnPrimary ?? titleSmall.copyWith(color: onPrimary),
         labelLargePrimary =
@@ -738,6 +755,9 @@ class Fonts {
 
   /// [titleMedium] of `onPrimary` color.
   final TextStyle titleMediumOnPrimary;
+
+  /// [titleMedium] of `danger` color.
+  final TextStyle titleMediumDanger;
 
   /// Small version of title text of `onBackground` color.
   final TextStyle titleSmall;

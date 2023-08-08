@@ -154,10 +154,9 @@ class RecentChatTile extends StatelessWidget {
           if (!chat.id.isLocalWith(me))
             Text(
               chat.updatedAt.val.toLocal().short,
-              style: style.fonts.labelLarge.copyWith(
-                color:
-                    inverted ? style.colors.onPrimary : style.colors.secondary,
-              ),
+              style: inverted
+                  ? style.fonts.labelLargeOnPrimary
+                  : style.fonts.labelLargeSecondary,
             ),
         ],
         subtitle: [
