@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.10]
+[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+
+[Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.10) | [Milestone](/../../milestone/8)
+
+### Changed
+
+- UI:
+    - Context menu with fading effect on desktop. ([#506])
+
+[#506]: /../../pull/506
+
+
+
+
 ## [0.1.0-alpha.9.2] · 2023-07-28
 [0.1.0-alpha.9.2]: /../../tree/v0.1.0-alpha.9.2
 
@@ -17,14 +32,9 @@ All user visible changes to this project will be documented in this file. This p
     - Application crashing when playing sounds. ([#496])
 - Web:
     - Default locale not detecting in Safari. ([#491])
-    
-### Changed
-- Web:
-    - Context menu with fading effect. ([#506])     
-     
+      
 [#491]: /../../pull/491
 [#496]: /../../pull/496
-[#506]: /../../pull/506
 
 
 

@@ -18,7 +18,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:messenger/ui/widget/context_menu/menu_overlay.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
@@ -26,6 +25,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
+import 'menu_overlay.dart';
 import 'mobile.dart';
 
 /// Region of a context menu over a [child], showed on a secondary mouse click
@@ -119,8 +119,7 @@ class ContextMenuRegion extends StatefulWidget {
 }
 
 /// State of a [ContextMenuRegion] keeping the [_darkened] indicator.
-class _ContextMenuRegionState extends State<ContextMenuRegion>
-    with TickerProviderStateMixin {
+class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Indicator whether a [ColoredBox] should be displayed above the provided
   /// child.
   bool _darkened = false;
@@ -130,6 +129,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion>
 
   /// [OverlayEntry] displaying a currently opened [ContextMenuOverlay].
   OverlayEntry? _entry;
+
   @override
   Widget build(BuildContext context) {
     Widget builder() {
@@ -216,8 +216,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion>
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    final (_, fonts) = Theme.of(context).styles;
-    OverlayState overlayState = Overlay.of(context, rootOverlay: true);
+    final fonts = Theme.of(context).fonts;
 
     if (widget.actions.isEmpty) {
       return;
@@ -286,14 +285,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion>
           },
           child: ContextMenuOverlay(
             position: position,
-            margin: widget.margin,
             actions: widget.actions,
-            onOverlayClose: () => _entry!.remove(),
+            onClosed: () => _entry!.remove(),
           ),
         );
       });
 
-      overlayState.insert(_entry!);
+      Overlay.of(context, rootOverlay: true).insert(_entry!);
     }
   }
 }

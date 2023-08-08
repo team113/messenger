@@ -16,31 +16,39 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
 
-///[ContextMenuOverlay] displaying a currently opened [ContextMenu].
+import '/themes.dart';
+import 'menu.dart';
+
+///[ContextMenuOverlay] displays a currently opened [ContextMenu].
 class ContextMenuOverlay extends StatefulWidget {
-  final Offset position;
-  final EdgeInsets margin;
-  final List<ContextMenuItem> actions;
-  final void Function() onOverlayClose;
-
   const ContextMenuOverlay({
     super.key,
     required this.position,
-    required this.margin,
     required this.actions,
-    required this.onOverlayClose,
+    required this.onClosed,
   });
 
+  /// Sets the position of [ContextMenu]
+  final Offset position;
+
+  /// [ContextMenuItem]s representing the actions of the context menu.
+  final List<ContextMenuItem> actions;
+
+  /// Callback to remove [OverlayEntry]
+  final void Function() onClosed;
+
+  /// State of [ContextMenuOverlay]
   @override
   State<ContextMenuOverlay> createState() => _ContextMenuOverlayState();
 }
 
 class _ContextMenuOverlayState extends State<ContextMenuOverlay>
     with TickerProviderStateMixin {
+  /// [AnimationController] of [FadeTransition]
   late AnimationController _controller;
+
+  /// [Animation] of [FadeTransition]
   late Animation<double> _opacityAnimation;
 
   @override
@@ -65,8 +73,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final (style, _) = Theme.of(context).styles;
-
+    final style = Theme.of(context).style;
     return LayoutBuilder(builder: (_, constraints) {
       double qx = 1, qy = 1;
       if (widget.position.dx > (constraints.maxWidth) / 2) qx = -1;
@@ -76,7 +83,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
       return Listener(
         onPointerUp: (_) async {
           await _controller.reverse();
-          widget.onOverlayClose();
+          widget.onClosed();
         },
         child: FadeTransition(
           opacity: _opacityAnimation,
@@ -86,12 +93,8 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
               fit: StackFit.expand,
               children: [
                 Positioned(
-                  left: widget.position.dx +
-                      widget.margin.left -
-                      widget.margin.right,
-                  top: widget.position.dy +
-                      widget.margin.top -
-                      widget.margin.bottom,
+                  left: widget.position.dx,
+                  top: widget.position.dy,
                   child: FractionalTranslation(
                     translation: Offset(
                       alignment.x > 0 ? 0 : -1,
