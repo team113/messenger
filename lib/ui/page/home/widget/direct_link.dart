@@ -118,7 +118,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   @override
   void didUpdateWidget(DirectLinkField oldWidget) {
     if (!_state.focus.hasFocus &&
-        (!_state.changed.value || _state.text == _generated) &&
+        !_state.changed.value &&
         _state.editable.value) {
       _state.unchecked = widget.link?.slug.val;
     }
