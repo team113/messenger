@@ -19,7 +19,14 @@ import 'package:flutter/material.dart';
 
 /// Scrollable [Column] of [Widget]s.
 class ScrollableColumn extends StatelessWidget {
-  const ScrollableColumn({super.key, this.children = const []});
+  const ScrollableColumn({
+    super.key,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.children = const [],
+  });
+
+  /// Alignment of [children] in their cross axis.
+  final CrossAxisAlignment crossAxisAlignment;
 
   /// [Widget]s to display in this [ScrollableColumn].
   final List<Widget> children;
@@ -29,7 +36,9 @@ class ScrollableColumn extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverList(
-          delegate: SliverChildListDelegate([Column(children: children)]),
+          delegate: SliverChildListDelegate([
+            Column(crossAxisAlignment: crossAxisAlignment, children: children)
+          ]),
         )
       ],
     );
