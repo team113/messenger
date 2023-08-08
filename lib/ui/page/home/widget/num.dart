@@ -32,7 +32,6 @@ class UserNumCopyable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CopyableTextField(
-      key: const Key('UserNum'),
       state: TextFieldState(
         text: num?.val
             .replaceAllMapped(
