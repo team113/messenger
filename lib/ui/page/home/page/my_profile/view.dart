@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -82,204 +82,204 @@ class MyProfileView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
             ),
-            body: Obx(() {
-              return Scrollbar(
-                controller: c.scrollController,
-                child: ScrollablePositionedList.builder(
-                  key: const Key('MyProfileScrollable'),
-                  initialScrollIndex: c.listInitIndex,
-                  scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  itemCount: ProfileTab.values.length,
-                  itemBuilder: (context, i) {
-                    switch (ProfileTab.values[i]) {
-                      case ProfileTab.public:
-                        return Block(
-                          title: 'label_public_information'.l10n,
-                          children: [
+            body: Scrollbar(
+              controller: c.scrollController,
+              child: ScrollablePositionedList.builder(
+                key: const Key('MyProfileScrollable'),
+                initialScrollIndex: c.listInitIndex,
+                scrollController: c.scrollController,
+                itemScrollController: c.itemScrollController,
+                itemPositionsListener: c.positionsListener,
+                itemCount: ProfileTab.values.length,
+                itemBuilder: (context, i) {
+                  switch (ProfileTab.values[i]) {
+                    case ProfileTab.public:
+                      return Block(
+                        title: 'label_public_information'.l10n,
+                        children: [
+                          Obx(() {
+                            return BigAvatarWidget.myUser(
+                              c.myUser.value,
+                              loading: c.avatarUpload.value.isLoading,
+                              onUpload: c.uploadAvatar,
+                              onDelete: c.myUser.value?.avatar != null
+                                  ? c.deleteAvatar
+                                  : null,
+                            );
+                          }),
+                          const SizedBox(height: 12),
+                          Paddings.basic(
                             Obx(() {
-                              return BigAvatarWidget.myUser(
-                                c.myUser.value,
-                                loading: c.avatarUpload.value.isLoading,
-                                onUpload: c.uploadAvatar,
-                                onDelete: c.myUser.value?.avatar != null
-                                    ? c.deleteAvatar
-                                    : null,
+                              return UserNameField(
+                                c.myUser.value?.name,
+                                onSubmit: c.updateUserName,
                               );
                             }),
-                            const SizedBox(height: 12),
-                            Paddings.basic(
-                              Obx(() {
-                                return UserNameField(
-                                  c.myUser.value?.name,
-                                  onSubmit: c.updateUserName,
-                                );
-                              }),
-                            ),
-                            _presence(context, c),
-                            Paddings.basic(
-                              Obx(() {
-                                return UserTextStatusField(
-                                  c.myUser.value?.status,
-                                  onSubmit: c.updateUserStatus,
-                                );
-                              }),
-                            )
-                          ],
-                        );
-
-                      case ProfileTab.signing:
-                        return Block(
-                          title: 'label_login_options'.l10n,
-                          children: [
-                            Paddings.basic(
-                              UserNumCopyable(c.myUser.value?.num),
-                            ),
-                            Paddings.basic(
-                              Obx(() {
-                                return UserLoginField(
-                                  c.myUser.value?.login,
-                                  onSubmit: c.updateUserLogin,
-                                );
-                              }),
-                            ),
-                            _emails(context, c),
-                            _phones(context, c),
-                            _password(context, c),
-                          ],
-                        );
-
-                      case ProfileTab.link:
-                        return Block(
-                          title: 'label_your_direct_link'.l10n,
-                          children: [
+                          ),
+                          _presence(context, c),
+                          Paddings.basic(
                             Obx(() {
-                              return DirectLinkField(
-                                c.myUser.value?.chatDirectLink,
-                                onSubmit: c.createChatDirectLink,
+                              return UserTextStatusField(
+                                c.myUser.value?.status,
+                                onSubmit: c.updateUserStatus,
                               );
                             }),
-                          ],
-                        );
+                          )
+                        ],
+                      );
 
-                      case ProfileTab.background:
-                        return Block(
-                          title: 'label_background'.l10n,
-                          children: [
-                            Paddings.dense(
-                              Obx(() {
-                                return BackgroundPreview(
-                                  c.background.value,
-                                  onPick: c.pickBackground,
-                                  onRemove: c.removeBackground,
-                                );
-                              }),
-                            )
-                          ],
-                        );
+                    case ProfileTab.signing:
+                      return Block(
+                        title: 'label_login_options'.l10n,
+                        children: [
+                          Paddings.basic(
+                            Obx(() {
+                              return UserNumCopyable(c.myUser.value?.num);
+                            }),
+                          ),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserLoginField(
+                                c.myUser.value?.login,
+                                onSubmit: c.updateUserLogin,
+                              );
+                            }),
+                          ),
+                          _emails(context, c),
+                          _phones(context, c),
+                          _password(context, c),
+                        ],
+                      );
 
-                      case ProfileTab.chats:
-                        return Block(
-                          title: 'label_chats'.l10n,
-                          children: [_chats(context, c)],
-                        );
+                    case ProfileTab.link:
+                      return Block(
+                        title: 'label_your_direct_link'.l10n,
+                        children: [
+                          Obx(() {
+                            return DirectLinkField(
+                              c.myUser.value?.chatDirectLink,
+                              onSubmit: c.createChatDirectLink,
+                            );
+                          }),
+                        ],
+                      );
 
-                      case ProfileTab.calls:
-                        if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
-                          return const SizedBox();
-                        }
+                    case ProfileTab.background:
+                      return Block(
+                        title: 'label_background'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              return BackgroundPreview(
+                                c.background.value,
+                                onPick: c.pickBackground,
+                                onRemove: c.removeBackground,
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
-                        return Block(
-                          title: 'label_calls'.l10n,
-                          children: [_call(context, c)],
-                        );
+                    case ProfileTab.chats:
+                      return Block(
+                        title: 'label_chats'.l10n,
+                        children: [_chats(context, c)],
+                      );
 
-                      case ProfileTab.media:
-                        if (PlatformUtils.isMobile) {
-                          return const SizedBox();
-                        }
-
-                        return Block(
-                          title: 'label_media'.l10n,
-                          children: [_media(context, c)],
-                        );
-
-                      case ProfileTab.notifications:
-                        return Block(
-                          title: 'label_audio_notifications'.l10n,
-                          children: [
-                            Paddings.dense(
-                              Obx(() {
-                                final bool isMuted =
-                                    c.myUser.value?.muted == null;
-
-                                return SwitchField(
-                                  text: isMuted
-                                      ? 'label_enabled'.l10n
-                                      : 'label_disabled'.l10n,
-                                  value: isMuted,
-                                  onChanged:
-                                      c.isMuting.value ? null : c.toggleMute,
-                                );
-                              }),
-                            )
-                          ],
-                        );
-
-                      case ProfileTab.storage:
-                        return Block(
-                          title: 'label_storage'.l10n,
-                          children: [
-                            Paddings.dense(
-                              Obx(() {
-                                return SwitchField(
-                                  text: 'label_load_images'.l10n,
-                                  value: c.settings.value?.loadImages == true,
-                                  onChanged: c.settings.value == null
-                                      ? null
-                                      : c.setLoadImages,
-                                );
-                              }),
-                            ),
-                          ],
-                        );
-
-                      case ProfileTab.language:
-                        return Block(
-                          title: 'label_language'.l10n,
-                          children: [_language(context, c)],
-                        );
-
-                      case ProfileTab.blocklist:
-                        return Block(
-                          title: 'label_blocked_users'.l10n,
-                          children: [_blockedUsers(context, c)],
-                        );
-
-                      case ProfileTab.download:
-                        if (!PlatformUtils.isWeb) {
-                          return const SizedBox();
-                        }
-
-                        return Block(
-                          title: 'label_download_application'.l10n,
-                          children: [_downloads(context, c)],
-                        );
-
-                      case ProfileTab.danger:
-                        return Block(
-                          title: 'label_danger_zone'.l10n,
-                          children: [_danger(context, c)],
-                        );
-
-                      case ProfileTab.logout:
+                    case ProfileTab.calls:
+                      if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
-                    }
-                  },
-                ),
-              );
-            }),
+                      }
+
+                      return Block(
+                        title: 'label_calls'.l10n,
+                        children: [_call(context, c)],
+                      );
+
+                    case ProfileTab.media:
+                      if (PlatformUtils.isMobile) {
+                        return const SizedBox();
+                      }
+
+                      return Block(
+                        title: 'label_media'.l10n,
+                        children: [_media(context, c)],
+                      );
+
+                    case ProfileTab.notifications:
+                      return Block(
+                        title: 'label_audio_notifications'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              final bool isMuted =
+                                  c.myUser.value?.muted == null;
+
+                              return SwitchField(
+                                text: isMuted
+                                    ? 'label_enabled'.l10n
+                                    : 'label_disabled'.l10n,
+                                value: isMuted,
+                                onChanged:
+                                    c.isMuting.value ? null : c.toggleMute,
+                              );
+                            }),
+                          )
+                        ],
+                      );
+
+                    case ProfileTab.storage:
+                      return Block(
+                        title: 'label_storage'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              return SwitchField(
+                                text: 'label_load_images'.l10n,
+                                value: c.settings.value?.loadImages == true,
+                                onChanged: c.settings.value == null
+                                    ? null
+                                    : c.setLoadImages,
+                              );
+                            }),
+                          ),
+                        ],
+                      );
+
+                    case ProfileTab.language:
+                      return Block(
+                        title: 'label_language'.l10n,
+                        children: [_language(context, c)],
+                      );
+
+                    case ProfileTab.blocklist:
+                      return Block(
+                        title: 'label_blocked_users'.l10n,
+                        children: [_blockedUsers(context, c)],
+                      );
+
+                    case ProfileTab.download:
+                      if (!PlatformUtils.isWeb) {
+                        return const SizedBox();
+                      }
+
+                      return Block(
+                        title: 'label_download_application'.l10n,
+                        children: [_downloads(context, c)],
+                      );
+
+                    case ProfileTab.danger:
+                      return Block(
+                        title: 'label_danger_zone'.l10n,
+                        children: [_danger(context, c)],
+                      );
+
+                    case ProfileTab.logout:
+                      return const SizedBox();
+                  }
+                },
+              ),
+            ),
             floatingActionButton: Obx(() {
               if (c.myUser.value != null) {
                 return const SizedBox();
@@ -329,13 +329,13 @@ Widget _emails(BuildContext context, MyProfileController c) {
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: fonts.labelSmall!.copyWith(
+                      style: fonts.labelMedium!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: fonts.labelSmall!.copyWith(
+                      style: fonts.labelMedium!.copyWith(
                         color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -468,13 +468,13 @@ Widget _phones(BuildContext context, MyProfileController c) {
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: fonts.labelSmall!.copyWith(
+                      style: fonts.labelMedium!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: fonts.labelSmall!.copyWith(
+                      style: fonts.labelMedium!.copyWith(
                         color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
