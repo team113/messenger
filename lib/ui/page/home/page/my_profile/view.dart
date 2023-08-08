@@ -83,10 +83,6 @@ class MyProfileView extends StatelessWidget {
               leading: const [StyledBackButton()],
             ),
             body: Obx(() {
-              if (c.myUser.value == null) {
-                return const Center(child: CustomProgressIndicator());
-              }
-
               return Scrollbar(
                 controller: c.scrollController,
                 child: ScrollablePositionedList.builder(
@@ -114,10 +110,12 @@ class MyProfileView extends StatelessWidget {
                             }),
                             const SizedBox(height: 12),
                             Paddings.basic(
-                              UserNameField(
-                                c.myUser.value?.name,
-                                onSubmit: c.updateUserName,
-                              ),
+                              Obx(() {
+                                return UserNameField(
+                                  c.myUser.value?.name,
+                                  onSubmit: c.updateUserName,
+                                );
+                              }),
                             ),
                             _presence(context, c),
                             Paddings.basic(
@@ -281,6 +279,13 @@ class MyProfileView extends StatelessWidget {
                   },
                 ),
               );
+            }),
+            floatingActionButton: Obx(() {
+              if (c.myUser.value != null) {
+                return const SizedBox();
+              }
+
+              return const CustomProgressIndicator();
             }),
           ),
         );
