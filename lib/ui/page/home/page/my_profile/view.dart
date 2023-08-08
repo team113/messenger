@@ -601,20 +601,22 @@ Widget _password(BuildContext context, MyProfileController c) {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Paddings.dense(
-        FieldButton(
-          key: c.myUser.value?.hasPassword == true
-              ? const Key('ChangePassword')
-              : const Key('SetPassword'),
-          text: c.myUser.value?.hasPassword == true
-              ? 'btn_change_password'.l10n
-              : 'btn_set_password'.l10n,
-          onPressed: () => ChangePasswordView.show(context),
-          style: fonts.titleMedium!.copyWith(
-            color: c.myUser.value?.hasPassword != true
-                ? style.colors.dangerColor
-                : style.colors.primary,
-          ),
-        ),
+        Obx(() {
+          return FieldButton(
+            key: c.myUser.value?.hasPassword == true
+                ? const Key('ChangePassword')
+                : const Key('SetPassword'),
+            text: c.myUser.value?.hasPassword == true
+                ? 'btn_change_password'.l10n
+                : 'btn_set_password'.l10n,
+            onPressed: () => ChangePasswordView.show(context),
+            style: fonts.titleMedium!.copyWith(
+              color: c.myUser.value?.hasPassword != true
+                  ? style.colors.dangerColor
+                  : style.colors.primary,
+            ),
+          );
+        }),
       ),
       const SizedBox(height: 10),
     ],
