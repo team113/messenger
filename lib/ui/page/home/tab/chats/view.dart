@@ -1036,19 +1036,22 @@ class ChatsTabView extends StatelessWidget {
       Color? color,
     }) {
       return Expanded(
-        child: OutlinedRoundedButton(
-          key: key,
-          leading: leading,
-          title: child,
-          onPressed: onPressed,
-          color: color,
-          shadows: [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: style.colors.onBackgroundOpacity13,
-              blurStyle: BlurStyle.outer,
-            ),
-          ],
+        child: SizedBox(
+          height: 42,
+          child: OutlinedRoundedButton(
+            key: key,
+            leading: leading,
+            title: child,
+            onPressed: onPressed,
+            color: color,
+            shadows: [
+              CustomBoxShadow(
+                blurRadius: 8,
+                color: style.colors.onBackgroundOpacity13,
+                blurStyle: BlurStyle.outer,
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -1115,37 +1118,44 @@ class ChatsTabView extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: OutlinedRoundedButton(
-              title: Text(
-                'btn_cancel'.l10n,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: TextStyle(color: style.colors.onBackground),
+            child: SizedBox(
+              height: 42,
+              child: OutlinedRoundedButton(
+                title: Text(
+                  'btn_cancel'.l10n,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(color: style.colors.onBackground),
+                ),
+                onPressed: c.toggleSelecting,
+                shadows: shadows,
               ),
-              onPressed: c.toggleSelecting,
-              shadows: shadows,
             ),
           ),
           const SizedBox(width: 10),
           Obx(() {
             return Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('DeleteChats'),
-                title: Text(
-                  'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: c.selectedChats.isEmpty
-                        ? style.colors.onBackground
-                        : style.colors.onPrimary,
+              child: SizedBox(
+                height: 42,
+                child: OutlinedRoundedButton(
+                  key: const Key('DeleteChats'),
+                  title: Text(
+                    'btn_delete_count'
+                        .l10nfmt({'count': c.selectedChats.length}),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: c.selectedChats.isEmpty
+                          ? style.colors.onBackground
+                          : style.colors.onPrimary,
+                    ),
                   ),
+                  onPressed: c.selectedChats.isEmpty
+                      ? null
+                      : () => _hideChats(context, c),
+                  color: style.colors.primary,
+                  shadows: shadows,
                 ),
-                onPressed: c.selectedChats.isEmpty
-                    ? null
-                    : () => _hideChats(context, c),
-                color: style.colors.primary,
-                shadows: shadows,
               ),
             );
           }),

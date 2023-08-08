@@ -118,15 +118,15 @@ class _ChatTileState extends State<ChatTile> {
   Widget build(BuildContext context) {
     final (style, fonts) = Theme.of(context).styles;
 
-    const Color normal = Colors.white;
+    final Color normal = style.colors.onPrimary;
     const Color paid = Color.fromRGBO(213, 232, 253, 1);
     final Color chosen =
         widget.active ? style.activeColor : style.selectedColor;
 
     final Border normalBorder =
-        Border.all(color: const Color(0xFFEBEBEB), width: 0.5);
+        Border.all(color: style.colors.secondaryHighlight, width: 0.5);
     final Border hoverBorder =
-        Border.all(color: const Color(0xFFCAE6FE), width: 0.5);
+        Border.all(color: style.colors.primaryHighlightShiniest, width: 0.5);
     final Border paidBorder =
         Border.all(color: const Color(0xFFDCEBFA), width: 0.5);
     final Border chosenBorder =

@@ -112,6 +112,9 @@ dependencies:
   webview_flutter: ^4.0.5
   qr_flutter: ^4.1.0
   phone_form_field: ^8.1.0
+  country_picker:
+    git:
+      url: https://github.com/SleepySquash/flutter_country_picker
 
 dev_dependencies:
   artemis: ^7.13.0-beta.1

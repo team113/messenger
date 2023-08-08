@@ -779,38 +779,44 @@ class ContactsTabView extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: OutlinedRoundedButton(
-              title: Text(
-                'btn_cancel'.l10n,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: fonts.titleLarge,
+            child: SizedBox(
+              height: 42,
+              child: OutlinedRoundedButton(
+                title: Text(
+                  'btn_cancel'.l10n,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: fonts.titleLarge,
+                ),
+                onPressed: c.toggleSelecting,
+                shadows: shadows,
               ),
-              onPressed: c.toggleSelecting,
-              shadows: shadows,
             ),
           ),
           const SizedBox(width: 10),
           Obx(() {
             return Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('DeleteContacts'),
-                title: Text(
-                  'btn_delete_count'
-                      .l10nfmt({'count': c.selectedContacts.length}),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: fonts.titleLarge!.copyWith(
-                    color: c.selectedContacts.isEmpty
-                        ? style.colors.onBackground
-                        : style.colors.onPrimary,
+              child: SizedBox(
+                height: 42,
+                child: OutlinedRoundedButton(
+                  key: const Key('DeleteContacts'),
+                  title: Text(
+                    'btn_delete_count'
+                        .l10nfmt({'count': c.selectedContacts.length}),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: fonts.titleLarge!.copyWith(
+                      color: c.selectedContacts.isEmpty
+                          ? style.colors.onBackground
+                          : style.colors.onPrimary,
+                    ),
                   ),
+                  onPressed: c.selectedContacts.isEmpty
+                      ? null
+                      : () => _removeContacts(context, c),
+                  color: style.colors.primary,
+                  shadows: shadows,
                 ),
-                onPressed: c.selectedContacts.isEmpty
-                    ? null
-                    : () => _removeContacts(context, c),
-                color: style.colors.primary,
-                shadows: shadows,
               ),
             );
           }),
