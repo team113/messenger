@@ -122,8 +122,8 @@ class Config {
     userAgentVersion =
         version.isNotEmpty ? version : (Pubspec.ref ?? Pubspec.version);
 
-    clsid = const bool.hasEnvironment('SOCAPP_CLSID')
-        ? const String.fromEnvironment('SOCAPP_CLSID')
+    clsid = const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
+        ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')
         : (document['windows']?['clsid'] ?? '');
 
     origin = url;
