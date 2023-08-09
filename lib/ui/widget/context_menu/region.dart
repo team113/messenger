@@ -286,7 +286,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           child: ContextMenuOverlay(
             position: position,
             actions: widget.actions,
-            onClosed: () => _entry!.remove(),
+            onClosed: _entry!.remove,
           ),
         );
       });

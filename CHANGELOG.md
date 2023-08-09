@@ -32,7 +32,7 @@ All user visible changes to this project will be documented in this file. This p
     - Application crashing when playing sounds. ([#496])
 - Web:
     - Default locale not detecting in Safari. ([#491])
-      
+
 [#491]: /../../pull/491
 [#496]: /../../pull/496
 

@@ -20,35 +20,35 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import 'menu.dart';
 
-///[ContextMenuOverlay] displays a currently opened [ContextMenu].
+/// [ContextMenuOverlay] is a content of [OverlayEntry].
 class ContextMenuOverlay extends StatefulWidget {
   const ContextMenuOverlay({
     super.key,
     required this.position,
     required this.actions,
-    required this.onClosed,
+    this.onClosed,
   });
 
-  /// Sets the position of [ContextMenu]
+  /// Position of [ContextMenu].
   final Offset position;
 
   /// [ContextMenuItem]s representing the actions of the context menu.
   final List<ContextMenuItem> actions;
 
-  /// Callback to remove [OverlayEntry]
-  final void Function() onClosed;
+  /// Removes [OverlayEntry].
+  final void Function()? onClosed;
 
-  /// State of [ContextMenuOverlay]
   @override
   State<ContextMenuOverlay> createState() => _ContextMenuOverlayState();
 }
 
+/// State of [ContextMenuOverlay].
 class _ContextMenuOverlayState extends State<ContextMenuOverlay>
     with TickerProviderStateMixin {
-  /// [AnimationController] of [FadeTransition]
+  /// Controller of [FadeTransition].
   late AnimationController _controller;
 
-  /// [Animation] of [FadeTransition]
+  /// Animation of [FadeTransition].
   late Animation<double> _opacityAnimation;
 
   @override
@@ -83,7 +83,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
       return Listener(
         onPointerUp: (_) async {
           await _controller.reverse();
-          widget.onClosed();
+          widget.onClosed?.call();
         },
         child: FadeTransition(
           opacity: _opacityAnimation,
