@@ -25,6 +25,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
+import 'menu_overlay.dart';
 import 'mobile.dart';
 
 /// Region of a context menu over a [child], showed on a secondary mouse click
@@ -126,7 +127,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Indicator whether [ContextMenu] is displayed.
   bool _displayed = false;
 
-  /// [OverlayEntry] displaying a currently opened [ContextMenu].
+  /// [OverlayEntry] displaying a currently opened [ContextMenuOverlay].
   OverlayEntry? _entry;
 
   @override
@@ -272,47 +273,22 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       }
 
       _entry = OverlayEntry(builder: (_) {
-        return LayoutBuilder(builder: (_, constraints) {
-          double qx = 1, qy = 1;
-          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          final Alignment alignment = Alignment(qx, qy);
-
-          return Listener(
-            onPointerUp: (d) {
-              _entry?.remove();
-
-              _displayed = false;
-              if (widget.indicateOpenedMenu) {
-                _darkened = false;
-              }
-
-              if (mounted) {
-                setState(() {});
-              }
-            },
-            child: Container(
-              color: style.colors.transparent,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned(
-                    left:
-                        position.dx + widget.margin.left - widget.margin.right,
-                    top: position.dy + widget.margin.top - widget.margin.bottom,
-                    child: FractionalTranslation(
-                      translation: Offset(
-                        alignment.x > 0 ? 0 : -1,
-                        alignment.y > 0 ? 0 : -1,
-                      ),
-                      child: ContextMenu(actions: widget.actions),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          );
-        });
+        return Listener(
+          onPointerUp: (d) {
+            _displayed = false;
+            if (widget.indicateOpenedMenu) {
+              _darkened = false;
+            }
+            if (mounted) {
+              setState(() {});
+            }
+          },
+          child: ContextMenuOverlay(
+            position: position,
+            actions: widget.actions,
+            onDismissed: _entry?.remove,
+          ),
+        );
       });
 
       Overlay.of(context, rootOverlay: true).insert(_entry!);
