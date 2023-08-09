@@ -65,7 +65,7 @@ class Config {
   /// Version identifier of `User-Agent` header to put in network queries.
   static String userAgentVersion = '';
 
-  /// Unique identifier of a Windows application.
+  /// Unique identifier of Windows application.
   static late String clsid;
 
   /// Initializes this [Config] by applying values from the following sources
