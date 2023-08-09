@@ -20,49 +20,49 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import 'menu.dart';
 
-/// [ContextMenuOverlay] is a content of [OverlayEntry] displaying [ContextMenu]
-/// for desktop.
+/// [ContextMenu] with [FadeTransition].
+///
+/// Intended to be used as an [OverlayEntry].
 class ContextMenuOverlay extends StatefulWidget {
   const ContextMenuOverlay({
     super.key,
     required this.position,
     required this.actions,
-    this.onClosed,
+    this.onDismissed,
   });
 
   /// Position of [ContextMenu].
   final Offset position;
 
-  /// [ContextMenuItem]s representing the actions of the context menu.
+  /// [ContextMenuItem]s representing the actions of the [ContextMenu].
   final List<ContextMenuItem> actions;
 
-  /// Removes [OverlayEntry].
-  final void Function()? onClosed;
+  /// Callback, called when animation of this [ContextMenuOverlay] is
+  /// [AnimationStatus.dismissed].
+  final void Function()? onDismissed;
 
   @override
   State<ContextMenuOverlay> createState() => _ContextMenuOverlayState();
 }
 
-/// State of [ContextMenuOverlay].
+/// State of a [ContextMenuOverlay] maintaining the [_controller].
 class _ContextMenuOverlayState extends State<ContextMenuOverlay>
     with TickerProviderStateMixin {
-  /// Controller of [FadeTransition].
+  /// Controller animating [FadeTransition].
   late AnimationController _controller;
 
   /// Animation of [FadeTransition].
-  late Animation<double> _opacityAnimation;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     _controller = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
-    );
-    _opacityAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
-    _controller.forward();
+    )..forward();
+
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+
     super.initState();
   }
 
@@ -75,6 +75,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
     return LayoutBuilder(builder: (_, constraints) {
       double qx = 1, qy = 1;
       if (widget.position.dx > (constraints.maxWidth) / 2) qx = -1;
@@ -84,10 +85,10 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
       return Listener(
         onPointerUp: (_) async {
           await _controller.reverse();
-          widget.onClosed?.call();
+          widget.onDismissed?.call();
         },
         child: FadeTransition(
-          opacity: _opacityAnimation,
+          opacity: _animation,
           child: Container(
             color: style.colors.transparent,
             child: Stack(
