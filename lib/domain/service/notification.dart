@@ -85,9 +85,14 @@ class NotificationService extends DisposableService {
 
         WinToast.instance().setActivatedCallback((event) async {
           await WindowManager.instance.focus();
-          if (event.argument.isNotEmpty) {
-            router.push(event.argument);
-          }
+
+          onNotificationResponse?.call(
+            NotificationResponse(
+              notificationResponseType:
+                  NotificationResponseType.selectedNotification,
+              payload: event.argument.isEmpty ? null : event.argument,
+            ),
+          );
         });
       } else if (_plugin == null) {
         _plugin = FlutterLocalNotificationsPlugin();
@@ -163,10 +168,6 @@ class NotificationService extends DisposableService {
             '</toast>',
         tag: 'Gapopa',
       );
-
-      Future.delayed(const Duration(seconds: 1), () async {
-        await file?.delete();
-      });
     } else {
       await _plugin!.show(
         Random().nextInt(1 << 31),
