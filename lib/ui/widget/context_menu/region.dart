@@ -27,6 +27,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
+import 'menu_overlay.dart';
 import 'mobile.dart';
 
 /// Region of a context menu over a [child], showed on a secondary mouse click
@@ -283,6 +284,28 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       if (mounted) {
         setState(() {});
       }
+
+      _entry = OverlayEntry(builder: (_) {
+        return Listener(
+          onPointerUp: (d) {
+            _displayed = false;
+            if (widget.indicateOpenedMenu) {
+              _darkened = false;
+            }
+            if (mounted) {
+              setState(() {});
+            }
+          },
+          child: ContextMenuOverlay(
+            position: position,
+            actions: widget.actions,
+            onDismissed: _entry?.remove,
+          ),
+        );
+      });
+
+      Overlay.of(context, rootOverlay: true).insert(_entry!);
+      return;
 
       await showDialog(
         context: context,

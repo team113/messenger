@@ -11,7 +11,7 @@ import 'text_field.dart';
 
 /// Reactive stylized [TextField] wrapper.
 class ReactivePhoneField extends StatelessWidget {
-  ReactivePhoneField({
+  const ReactivePhoneField({
     super.key,
     required this.state,
     this.label,
@@ -137,6 +137,7 @@ class PhoneFieldState extends ReactiveFieldState {
     bool submitted = true,
     bool revalidateOnUnfocus = false,
   }) : focus = focus ?? FocusNode() {
+    controller = TextEditingController();
     controller2 = PhoneController(null);
     isEmpty = RxBool(initial == null);
 

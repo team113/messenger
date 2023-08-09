@@ -1504,10 +1504,11 @@ packages:
   phone_form_field:
     dependency: "direct main"
     description:
-      name: phone_form_field
-      sha256: "0e02d5548b73b51c47ee3e68b6fc0752cfb6f2f59c1ff9b531dcead0083ccd74"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: dev
+      resolved-ref: "26110d8a591632906d942f08ec4360283fa26b0b"
+      url: "https://github.com/SleepySquash/phone_form_field"
+    source: git
     version: "8.1.0"
   phone_numbers_parser:
     dependency: transitive
