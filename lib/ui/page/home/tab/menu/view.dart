@@ -168,6 +168,7 @@ class MenuTabView extends StatelessWidget {
                               router.profileSection.value = tab;
                             }
                             router.me();
+                            c.highlightTile(i);
                           },
                     );
                   });

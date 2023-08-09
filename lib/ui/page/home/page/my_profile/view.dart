@@ -96,6 +96,7 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.public:
                       return Block(
                         title: 'label_public_information'.l10n,
+                        index: 0,
                         children: [
                           Obx(() {
                             return BigAvatarWidget.myUser(
@@ -131,6 +132,7 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.signing:
                       return Block(
                         title: 'label_login_options'.l10n,
+                        index: 1,
                         children: [
                           Paddings.basic(
                             Obx(() {
@@ -154,6 +156,7 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.link:
                       return Block(
                         title: 'label_your_direct_link'.l10n,
+                        index: 2,
                         children: [
                           Obx(() {
                             return DirectLinkField(
@@ -167,6 +170,7 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.background:
                       return Block(
                         title: 'label_background'.l10n,
+                        index: 3,
                         children: [
                           Paddings.dense(
                             Obx(() {
@@ -183,6 +187,7 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.chats:
                       return Block(
                         title: 'label_chats'.l10n,
+                        index: 4,
                         children: [_chats(context, c)],
                       );
 
@@ -193,6 +198,7 @@ class MyProfileView extends StatelessWidget {
 
                       return Block(
                         title: 'label_calls'.l10n,
+                        index: 5,
                         children: [_call(context, c)],
                       );
 
@@ -203,12 +209,14 @@ class MyProfileView extends StatelessWidget {
 
                       return Block(
                         title: 'label_media'.l10n,
+                        index: 6,
                         children: [_media(context, c)],
                       );
 
                     case ProfileTab.notifications:
                       return Block(
                         title: 'label_audio_notifications'.l10n,
+                        index: 7,
                         children: [
                           Paddings.dense(
                             Obx(() {
@@ -231,6 +239,7 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.storage:
                       return Block(
                         title: 'label_storage'.l10n,
+                        index: 8,
                         children: [
                           Paddings.dense(
                             Obx(() {
@@ -249,12 +258,14 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.language:
                       return Block(
                         title: 'label_language'.l10n,
+                        index: 9,
                         children: [_language(context, c)],
                       );
 
                     case ProfileTab.blocklist:
                       return Block(
                         title: 'label_blocked_users'.l10n,
+                        index: 10,
                         children: [_blockedUsers(context, c)],
                       );
 
@@ -265,12 +276,14 @@ class MyProfileView extends StatelessWidget {
 
                       return Block(
                         title: 'label_download_application'.l10n,
+                        index: 11,
                         children: [_downloads(context, c)],
                       );
 
                     case ProfileTab.danger:
                       return Block(
                         title: 'label_danger_zone'.l10n,
+                        index: 12,
                         children: [_danger(context, c)],
                       );
 

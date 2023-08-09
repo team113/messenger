@@ -48,6 +48,12 @@ class MenuTabController extends GetxController {
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  final RxnInt highlight = RxnInt(null);
+
+  static const Duration _highlightTimeout = Duration(seconds: 2);
+
+  Timer? _highlightTimer;
+
   /// Determines whether the [logout] action may be invoked or not.
   ///
   /// Shows a confirmation popup if there's any ongoing calls.
@@ -66,4 +72,13 @@ class MenuTabController extends GetxController {
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>
       _myUserService.updateUserPresence(presence);
+
+  Future<void> highlightTile(int index) async {
+    highlight.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlight.value = null;
+    });
+  }
 }
