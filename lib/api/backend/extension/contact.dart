@@ -19,7 +19,7 @@ import '../schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/provider/hive/contact.dart';
-import '/provider/hive/user.dart';
+import '/provider/isar/user.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [ChatContactMixin].
@@ -36,7 +36,7 @@ extension ChatContactConversion on ChatContactMixin {
       );
 
   /// Constructs a new list of [HiveUser]s from this [ChatContactMixin].
-  List<HiveUser> getHiveUsers() => users.map((e) => e.toHive()).toList();
+  List<IsarUser> getHiveUsers() => users.map((e) => e.toIsar()).toList();
 
   /// Constructs a new [HiveChatContact] from this [ChatContactMixin].
   HiveChatContact toHive() => HiveChatContact(toModel(), ver);

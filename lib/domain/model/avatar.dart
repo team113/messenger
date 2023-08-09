@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import 'crop_area.dart';
@@ -68,6 +69,7 @@ abstract class Avatar {
 
 /// [Avatar] of an [User].
 @HiveType(typeId: ModelTypeId.userAvatar)
+@JsonSerializable()
 class UserAvatar extends Avatar {
   UserAvatar({
     required super.full,
@@ -77,6 +79,14 @@ class UserAvatar extends Avatar {
     required super.original,
     super.crop,
   });
+
+  /// Connect the generated [_$UserAvatarFromJson] function to the `fromJson`
+  /// factory.
+  factory UserAvatar.fromJson(Map<String, dynamic> data) => _$UserAvatarFromJson(data);
+
+  /// Connect the generated [_$UserAvatarToJson] function to the `toJson`
+  /// method.
+  Map<String, dynamic> toJson() => _$UserAvatarToJson(this);
 }
 
 /// [Avatar] of a [Chat].

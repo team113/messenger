@@ -81,6 +81,7 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
+    Hive.maybeRegisterAdapter(UserNumAdapter());
   }
 
   /// Returns a list of [ChatItemKey]s stored in the [Hive].

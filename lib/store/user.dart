@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
+import 'package:isar/isar.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/user.dart';
@@ -30,11 +30,13 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/user.dart';
+import '/provider/isar/user.dart';
+import '/provider/isar/utils.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/user_rx.dart';
 import '/util/new_type.dart';
+import '/util/obs/obs.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
 
@@ -42,8 +44,8 @@ import 'event/my_user.dart'
 class UserRepository implements AbstractUserRepository {
   UserRepository(
     this._graphQlProvider,
-    this._userLocal,
-  );
+    this._isar,
+  ) : _userLocal = _isar.users;
 
   /// Callback, called when a [RxChat] with the provided [ChatId] is required
   /// by this [UserRepository].
@@ -54,8 +56,11 @@ class UserRepository implements AbstractUserRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  /// [User]s local [Hive] storage.
-  final UserHiveProvider _userLocal;
+  /// [User]s local [Isar] storage.
+  final IsarCollection<String, IsarUser> _userLocal;
+
+  /// [Isar] instance used to start write transaction.
+  final Isar _isar;
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
@@ -66,8 +71,8 @@ class UserRepository implements AbstractUserRepository {
   /// [Mutex]es guarding access to the [get] method.
   final Map<UserId, Mutex> _locks = {};
 
-  /// [UserHiveProvider.boxEvents] subscription.
-  StreamIterator? _localSubscription;
+  /// Subscription for the [_userLocal] changes.
+  StreamIterator<ListChangeNotification<IsarUser>>? _localSubscription;
 
   @override
   RxBool get isReady => _isReady;
@@ -77,9 +82,9 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<void> init() async {
-    if (!_userLocal.isEmpty) {
-      for (HiveUser c in _userLocal.users) {
-        _users[c.value.id] = HiveRxUser(this, _userLocal, c);
+    if (_userLocal.count() > 0) {
+      for (IsarUser c in await _userLocal.where().findAllAsync()) {
+        _users[c.value.id] = IsarRxUser(this, _isar, c);
       }
       isReady.value = true;
     }
@@ -88,7 +93,7 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> clearCache() => _userLocal.clear();
+  Future<void> clearCache() => _isar.writeAsync((isar) => isar.users.clear());
 
   @override
   void dispose() {
@@ -121,9 +126,9 @@ class UserRepository implements AbstractUserRepository {
       if (user == null) {
         var query = (await _graphQlProvider.getUser(id)).user;
         if (query != null) {
-          HiveUser stored = query.toHive();
+          IsarUser stored = query.toIsar();
           put(stored);
-          var fetched = HiveRxUser(this, _userLocal, stored);
+          var fetched = IsarRxUser(this, _isar, stored);
           users[id] = fetched;
           user = fetched;
         }
@@ -179,17 +184,17 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
-  /// Updates the locally stored [HiveUser] with the provided [user] value.
+  /// Updates the locally stored [IsarUser] with the provided [user] value.
   void update(User user) {
-    HiveUser? hiveUser = _userLocal.get(user.id);
-    if (hiveUser != null) {
-      hiveUser.value = user;
-      put(hiveUser, ignoreVersion: true);
+    IsarUser? isarUser = _userLocal.get(user.id.val);
+    if (isarUser != null) {
+      isarUser.value = user;
+      put(isarUser, ignoreVersion: true);
     }
   }
 
-  /// Puts the provided [user] into the local [Hive] storage.
-  void put(HiveUser user, {bool ignoreVersion = false}) {
+  /// Puts the provided [user] into the local [Isar] storage.
+  void put(IsarUser user, {bool ignoreVersion = false}) {
     _putUser(user, ignoreVersion: ignoreVersion);
   }
 
@@ -202,7 +207,7 @@ class UserRepository implements AbstractUserRepository {
         yield const UserEventsInitialized();
       } else if (events.$$typename == 'User') {
         var mixin = events as UserEvents$Subscription$UserEvents$User;
-        yield UserEventsUser(mixin.toHive());
+        yield UserEventsUser(mixin.toIsar());
       } else if (events.$$typename == 'UserEventsVersioned') {
         var mixin = events as UserEventsVersionedMixin;
         yield UserEventsEvent(UserEventsVersioned(
@@ -231,33 +236,48 @@ class UserRepository implements AbstractUserRepository {
     });
   }
 
-  /// Puts the provided [user] to [Hive].
-  Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
-    var saved = _userLocal.get(user.value.id);
+  /// Puts the provided [user] to [Isar].
+  Future<void> _putUser(IsarUser user, {bool ignoreVersion = false}) async {
+    var saved = _userLocal.get(user.value.id.val);
 
     if (saved == null ||
         saved.ver < user.ver ||
         saved.blacklistedVer < user.blacklistedVer ||
         ignoreVersion) {
-      await _userLocal.put(user);
+      await _isar.writeAsync((isar) => isar.users.put(user));
     }
   }
 
-  /// Initializes [ContactHiveProvider.boxEvents] subscription.
+  /// Initializes subscription for the [_userLocal] changes.
   Future<void> _initLocalSubscription() async {
-    _localSubscription = StreamIterator(_userLocal.boxEvents);
-    while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
-      if (event.deleted) {
-        _users.remove(UserId(event.key));
+    void add(IsarUser user) {
+      RxUser? rxUser = _users[user.value.id];
+      if (rxUser == null) {
+        _users[user.value.id] = IsarRxUser(this, _isar, user);
       } else {
-        RxUser? user = _users[UserId(event.key)];
-        if (user == null) {
-          _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
-        } else {
-          user.user.value = event.value.value;
-          user.user.refresh();
-        }
+        rxUser.user.value = user.value;
+        rxUser.user.refresh();
+      }
+    }
+
+    _localSubscription = StreamIterator(
+        _userLocal.where().watch(fireImmediately: true).changes((e) => e.id));
+    while (await _localSubscription!.moveNext()) {
+      final ListChangeNotification<IsarUser> event =
+          _localSubscription!.current;
+
+      switch (event.op) {
+        case OperationKind.added:
+          add(event.element);
+          break;
+
+        case OperationKind.removed:
+          _users.remove(event.element.value.id);
+          break;
+
+        case OperationKind.updated:
+          add(event.element);
+          break;
       }
     }
   }
@@ -273,7 +293,7 @@ class UserRepository implements AbstractUserRepository {
     ChatDirectLinkSlug? link,
   }) async {
     const maxInt = 120;
-    List<HiveUser> result = (await _graphQlProvider.searchUsers(
+    List<IsarUser> result = (await _graphQlProvider.searchUsers(
       first: maxInt,
       num: num,
       name: name,
@@ -282,10 +302,10 @@ class UserRepository implements AbstractUserRepository {
     ))
         .searchUsers
         .nodes
-        .map((c) => c.toHive())
+        .map((c) => c.toIsar())
         .toList();
 
-    for (HiveUser user in result) {
+    for (IsarUser user in result) {
       put(user);
     }
     await Future.delayed(Duration.zero);
@@ -354,12 +374,12 @@ class UserRepository implements AbstractUserRepository {
       var node =
           e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
       return EventBlocklistRecordAdded(
-        e.user.toHive(),
+        e.user.toIsar(),
         e.at,
         node.reason,
       );
     } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
-      return EventBlocklistRecordRemoved(e.user.toHive(), e.at);
+      return EventBlocklistRecordRemoved(e.user.toIsar(), e.at);
     } else {
       throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
     }

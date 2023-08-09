@@ -19,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -29,7 +30,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -41,11 +42,15 @@ import 'contact_rename_test.mocks.dart';
 void main() async {
   Hive.init('./test/.temp_hive/contact_rename_unit');
 
+  final Isar isar = Isar.open(
+    schemas: [IsarUserSchema],
+    directory: Isar.sqliteInMemory,
+  );
+  isar.write((isar) => isar.clear());
+
   var sessionData = Get.put(SessionDataHiveProvider());
   await sessionData.init();
   await sessionData.clear();
-  var userHiveProvider = Get.put(UserHiveProvider());
-  await userHiveProvider.init();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -96,7 +101,7 @@ void main() async {
   };
 
   Future<ContactService> init(GraphQlProvider graphQlProvider) async {
-    UserRepository userRepo = UserRepository(graphQlProvider, userHiveProvider);
+    UserRepository userRepo = UserRepository(graphQlProvider, isar);
 
     AbstractContactRepository contactRepository =
         Get.put<AbstractContactRepository>(

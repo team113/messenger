@@ -32,6 +32,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
 import 'package:flutter_meedu_videoplayer/src/video_player_used.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
@@ -59,6 +60,9 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
+  if(PlatformUtils.isWeb) {
+    Isar.initialize();
+  }
 
   // TODO: iOS should use `video_player`:
   //       https://github.com/flutter/flutter/issues/56665
@@ -207,6 +211,7 @@ Future<void> _initHive() async {
   // If mismatch is detected, then clean the existing [Hive] cache.
   if (stored != version) {
     await Hive.close();
+    // TODO: Clean [Isar] too.
     await Hive.clean('hive');
     await Hive.initFlutter('hive');
     Hive.openBox('version').then((box) async {

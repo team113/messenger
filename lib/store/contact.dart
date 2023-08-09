@@ -32,7 +32,7 @@ import '/domain/repository/contact.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/session.dart';
-import '/provider/hive/user.dart';
+import '/provider/isar/user.dart';
 import '/store/contact_rx.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -446,7 +446,7 @@ class ContactRepository implements AbstractContactRepository {
 
     HashMap<ChatContactId, HiveChatContact> contacts = HashMap();
     for (var c in query.nodes) {
-      List<HiveUser> users = c.getHiveUsers();
+      List<IsarUser> users = c.getHiveUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -554,7 +554,7 @@ class ContactRepository implements AbstractContactRepository {
     } else if (e.$$typename == 'EventChatContactUserAdded') {
       var node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
-      _userRepo.put(e.user.toHive());
+      _userRepo.put(e.user.toIsar());
       return EventChatContactUserAdded(
           node.contactId, node.at, node.user.toModel());
     } else if (e.$$typename == 'EventChatContactUserRemoved') {

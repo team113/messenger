@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import 'crop_area.dart';
@@ -28,6 +29,7 @@ part 'user_call_cover.g.dart';
 /// Specified as relative paths on a files storage. Prepend them with a files
 /// storage URL to obtain a link to the concrete image.
 @HiveType(typeId: ModelTypeId.userCallCover)
+@JsonSerializable()
 class UserCallCover extends HiveObject {
   UserCallCover({
     required this.full,
@@ -37,24 +39,33 @@ class UserCallCover extends HiveObject {
     this.crop,
   });
 
+  /// Connect the generated [_$UserCallCoverFromJson] function to the `fromJson`
+  /// factory.
+  factory UserCallCover.fromJson(Map<String, dynamic> data) =>
+      _$UserCallCoverFromJson(data);
+
+  /// Connect the generated [_$UserCallCoverToJson] function to the `toJson`
+  /// method.
+  Map<String, dynamic> toJson() => _$UserCallCoverToJson(this);
+
   /// Original image [StorageFile] representing this [UserCallCover].
   @HiveField(0)
-  final StorageFile original;
+  final ImageFile original;
 
   /// Full-sized [UserCallCover]'s image [StorageFile], keeping the original
   /// sizes.
   @HiveField(1)
-  final StorageFile full;
+  final ImageFile full;
 
   /// Vertical [UserCallCover]'s view image [StorageFile] of `675px`x`900px`
   /// size.
   @HiveField(2)
-  final StorageFile vertical;
+  final ImageFile vertical;
 
   /// Square [[UserCallCover]]'s view image [StorageFile] of `300px`x`300px`
   /// size.
   @HiveField(3)
-  final StorageFile square;
+  final ImageFile square;
 
   /// [CropArea] applied to the original [ImageFile] for creating this
   /// [UserCallCover].

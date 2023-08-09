@@ -18,6 +18,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
@@ -41,7 +42,7 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -57,6 +58,12 @@ void main() async {
   setUp(Get.reset);
 
   Hive.init('./test/.temp_hive/chat_delete_message_unit');
+
+  final Isar isar = Isar.open(
+    schemas: [IsarUserSchema],
+    directory: Isar.sqliteInMemory,
+  );
+  isar.write((isar) => isar.clear());
 
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -78,8 +85,6 @@ void main() async {
       const UserId('me'),
     ),
   );
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
@@ -173,7 +178,7 @@ void main() async {
   await authService.init();
 
   UserRepository userRepository =
-      Get.put(UserRepository(graphQlProvider, userProvider));
+      Get.put(UserRepository(graphQlProvider, isar));
   CallRepository callRepository = Get.put(
     CallRepository(
       graphQlProvider,

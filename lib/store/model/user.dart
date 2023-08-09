@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/util/new_type.dart';
 import '/domain/model_type_id.dart';
@@ -25,8 +26,18 @@ part 'user.g.dart';
 
 /// Version of an [User]'s state.
 @HiveType(typeId: ModelTypeId.userVersion)
+@JsonSerializable()
 class UserVersion extends Version {
   UserVersion(String val) : super(val);
+
+  /// Connect the generated [_$UserVersionFromJson] function to the `fromJson`
+  /// factory.
+  factory UserVersion.fromJson(Map<String, dynamic> data) =>
+      _$UserVersionFromJson(data);
+
+  /// Connect the generated [_$UserVersionToJson] function to the `toJson`
+  /// method.
+  Map<String, dynamic> toJson() => _$UserVersionToJson(this);
 }
 
 /// Cursor used for [User]s pagination.

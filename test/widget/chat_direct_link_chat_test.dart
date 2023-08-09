@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/precise_date_time/src/non_web.dart';
@@ -48,7 +49,7 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -100,6 +101,12 @@ void main() async {
     }
   };
 
+  final Isar isar = Isar.open(
+    schemas: [IsarUserSchema],
+    directory: Isar.sqliteInMemory,
+  );
+  isar.write((isar) => isar.clear());
+
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
 
@@ -144,9 +151,6 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = Get.put(UserHiveProvider());
-  await userProvider.init();
-  await userProvider.clear();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -283,7 +287,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
@@ -314,7 +318,7 @@ void main() async {
     AbstractContactRepository contactRepository = ContactRepository(
       graphQlProvider,
       contactProvider,
-      UserRepository(graphQlProvider, userProvider),
+      UserRepository(graphQlProvider, isar),
       sessionProvider,
     );
 
@@ -358,6 +362,6 @@ void main() async {
   });
 
   await contactProvider.clear();
-  await userProvider.clear();
   await chatProvider.clear();
+  isar.write((isar) => isar.clear());
 }

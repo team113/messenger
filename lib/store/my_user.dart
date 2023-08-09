@@ -40,7 +40,7 @@ import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
-import '/provider/hive/user.dart';
+import '/provider/isar/user.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
 import 'event/my_user.dart';
@@ -115,7 +115,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       blacklist.addAll(users.whereNotNull());
     }
 
-    final List<HiveUser> blacklisted = await _fetchBlocklist();
+    final List<IsarUser> blacklisted = await _fetchBlocklist();
 
     for (UserId c in _blocklistLocal.blocked) {
       if (blacklisted.none((e) => e.value.id == c)) {
@@ -123,7 +123,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       }
     }
 
-    for (HiveUser c in blacklisted) {
+    for (IsarUser c in blacklisted) {
       _blocklistLocal.put(c.value.id);
     }
   }
@@ -496,9 +496,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   // TODO: Blocklist can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ blacklisted [User]s from the remote.
-  Future<List<HiveUser>> _fetchBlocklist() async {
+  Future<List<IsarUser>> _fetchBlocklist() async {
     final query = await _graphQlProvider.getBlocklist(first: 120);
-    final users = query.edges.map((e) => e.node.user.toHive()).toList();
+    final users = query.edges.map((e) => e.node.user.toIsar()).toList();
     users.forEach(_userRepo.put);
 
     return users;
@@ -894,14 +894,14 @@ class MyUserRepository implements AbstractMyUserRepository {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordAdded;
       return EventBlocklistRecordAdded(
-        node.user.toHive(),
+        node.user.toIsar(),
         node.at,
         node.reason,
       );
     } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordRemoved;
-      return EventBlocklistRecordRemoved(node.user.toHive(), node.at);
+      return EventBlocklistRecordRemoved(node.user.toIsar(), node.at);
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

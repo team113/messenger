@@ -22,6 +22,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -46,7 +47,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -119,6 +120,12 @@ void main() async {
     }
   };
 
+  final Isar isar = Isar.open(
+    schemas: [IsarUserSchema],
+    directory: Isar.sqliteInMemory,
+  );
+  isar.write((isar) => isar.clear());
+
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -147,9 +154,6 @@ void main() async {
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
-  await userProvider.clear();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
@@ -173,7 +177,6 @@ void main() async {
 
   Get.put(myUserProvider);
   Get.put(contactProvider);
-  Get.put(userProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
   Get.put(sessionProvider);
   Get.put(chatProvider);
@@ -360,7 +363,7 @@ void main() async {
     await authService.init();
 
     UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider);
+        UserRepository(graphQlProvider, isar);
     Get.put(UserService(userRepository));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,

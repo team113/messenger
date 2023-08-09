@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model_type_id.dart';
 import '/api/backend/schema.dart';
@@ -28,7 +29,15 @@ part 'crop_area.g.dart';
 /// coordinates start point. So, obviously, [CropArea.bottomRight] point's
 /// coordinates should be bigger than the ones of [CropArea.topLeft] point.
 @HiveType(typeId: ModelTypeId.cropArea)
+@JsonSerializable()
 class CropArea {
+  /// Connect the generated [_$CropAreaFromJson] function to the `fromJson`
+  /// factory.
+  factory CropArea.fromJson(Map<String, dynamic> data) => _$CropAreaFromJson(data);
+
+  /// Connect the generated [_$CropAreaToJson] function to the `toJson` method.
+  Map<String, dynamic> toJson() => _$CropAreaToJson(this);
+
   /// Point of a top left corner of this [CropArea].
   @HiveField(0)
   CropPoint topLeft;
@@ -50,7 +59,15 @@ class CropArea {
 
 /// Point in `(X, Y)` coordinates for an image cropping.
 @HiveType(typeId: ModelTypeId.cropPoint)
+@JsonSerializable()
 class CropPoint {
+  /// Connect the generated [_$CropPointFromJson] function to the `fromJson`
+  /// factory.
+  factory CropPoint.fromJson(Map<String, dynamic> data) => _$CropPointFromJson(data);
+
+  /// Connect the generated [_$CropPointToJson] function to the `toJson` method.
+  Map<String, dynamic> toJson() => _$CropPointToJson(this);
+
   /// X coordinate of this [CropPoint] in pixels.
   @HiveField(0)
   int x;

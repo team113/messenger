@@ -19,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -42,7 +43,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -60,6 +61,12 @@ void main() async {
 
   Hive.init('./test/.temp_hive/chat_direct_link_unit');
 
+  final Isar isar = Isar.open(
+    schemas: [IsarUserSchema],
+    directory: Isar.sqliteInMemory,
+  );
+  isar.write((isar) => isar.clear());
+
   final graphQlProvider = Get.put(MockGraphQlProvider());
 
   var chatProvider = Get.put(ChatHiveProvider());
@@ -71,8 +78,6 @@ void main() async {
   await myUserProvider.clear();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -175,7 +180,7 @@ void main() async {
   await authService.init();
 
   UserRepository userRepository =
-      Get.put(UserRepository(graphQlProvider, userProvider));
+      Get.put(UserRepository(graphQlProvider, isar));
   AbstractMyUserRepository myUserRepository = MyUserRepository(
     graphQlProvider,
     myUserProvider,
@@ -263,7 +268,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -320,7 +325,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -397,7 +402,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -451,7 +456,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -516,7 +521,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -572,7 +577,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,

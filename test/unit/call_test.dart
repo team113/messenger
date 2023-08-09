@@ -16,11 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
@@ -44,7 +46,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -89,10 +91,15 @@ void main() async {
   setUp(() => Get.reset());
   Hive.init('./test/.temp_hive/unit_call');
 
+  await Directory('./test/.temp_isar/unit_call').create(recursive: true);
+  final Isar isar = Isar.open(
+    schemas: [IsarUserSchema],
+    directory: './test/.temp_isar/unit_call',
+  );
+  isar.write((isar) => isar.clear());
+
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
   var provider = SessionDataHiveProvider();
   await provider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -114,7 +121,6 @@ void main() async {
   await monologProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
-    await userProvider.clear();
     provider.setCredentials(
       Credentials(
         Session(
@@ -158,7 +164,7 @@ void main() async {
     await authService.init();
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
@@ -287,7 +293,7 @@ void main() async {
     await authService.init();
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
@@ -367,7 +373,7 @@ void main() async {
       ),
     );
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+        Get.put(UserRepository(graphQlProvider, isar));
 
     CallRepository callRepository = Get.put(
       CallRepository(

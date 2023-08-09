@@ -16,11 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
+part 'non_web.g.dart';
+
 /// [DateTime] considering the microseconds on any platform, including Web.
+@JsonSerializable()
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
   PreciseDateTime(super.val, {int microsecond = 0});
@@ -40,6 +44,13 @@ class PreciseDateTime extends NewType<DateTime>
           microsecondsSinceEpoch,
           isUtc: true,
         ));
+
+  /// Connect the generated [_$PreciseDateTimeFromJson] function to the `fromJson`
+  /// factory.
+  factory PreciseDateTime.fromJson(Map<String, dynamic> data) => _$PreciseDateTimeFromJson(data);
+
+  /// Connect the generated [_$PreciseDateTimeToJson] function to the `toJson` method.
+  Map<String, dynamic> toJson() => _$PreciseDateTimeToJson(this);
 
   /// Returns the number of microseconds since the "Unix epoch"
   /// 1970-01-01T00:00:00Z (UTC).

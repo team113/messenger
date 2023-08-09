@@ -19,24 +19,26 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:get/get.dart';
+import 'package:isar/isar.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/provider/hive/user.dart';
+import '/provider/isar/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
 
-/// [RxUser] implementation backed by local [Hive] storage.
-class HiveRxUser extends RxUser {
-  HiveRxUser(
+/// [RxUser] implementation backed by local [Isar] storage.
+class IsarRxUser extends RxUser {
+  IsarRxUser(
     this._userRepository,
-    this._userLocal,
-    HiveUser hiveUser,
-  ) : user = Rx<User>(hiveUser.value);
+    this._isar,
+    IsarUser isarUser,
+  )   : user = Rx<User>(isarUser.value),
+        _userLocal = _isar.users;
 
   @override
   final Rx<User> user;
@@ -44,8 +46,11 @@ class HiveRxUser extends RxUser {
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
 
-  /// [User]s local [Hive] storage.
-  final UserHiveProvider _userLocal;
+  /// [User]s local [Isar] storage.
+  final IsarCollection<String, IsarUser> _userLocal;
+
+  /// [Isar] instance used to start write transaction.
+  final Isar _isar;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].
   final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
@@ -90,7 +95,10 @@ class HiveRxUser extends RxUser {
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
-      _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
+      _userRepository.userEvents(
+        this.id,
+        () => _userLocal.get(this.id.val)?.ver,
+      ),
     );
     await _remoteSubscription!.execute(_userEvent);
   }
@@ -104,14 +112,14 @@ class HiveRxUser extends RxUser {
 
       case UserEventsKind.user:
         events as UserEventsUser;
-        var saved = _userLocal.get(id);
+        var saved = _userLocal.get(this.id.val);
         if (saved == null || saved.ver < events.user.ver) {
-          await _userLocal.put(events.user);
+          await _isar.writeAsync((isar) => isar.users.put(events.user));
         }
         break;
 
       case UserEventsKind.event:
-        var userEntity = _userLocal.get(id);
+        var userEntity = _userLocal.get(this.id.val);
         var versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver <= userEntity.ver) {
           return;
@@ -176,12 +184,12 @@ class HiveRxUser extends RxUser {
               break;
           }
 
-          _userLocal.put(userEntity);
+          await _isar.writeAsync((isar) => isar.users.put(userEntity));
         }
         break;
 
       case UserEventsKind.blocklistEvent:
-        var userEntity = _userLocal.get(id);
+        var userEntity = _userLocal.get(this.id.val);
         var versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
@@ -190,13 +198,13 @@ class HiveRxUser extends RxUser {
         }
 
         for (var event in versioned.events) {
-          _userLocal.put(event.user);
+          _isar.writeAsync((isar) => isar.users.put(event.user));
         }
         break;
 
       case UserEventsKind.isBlocked:
         var versioned = events as UserEventsIsBlocked;
-        var userEntity = _userLocal.get(id);
+        var userEntity = _userLocal.get(this.id.val);
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.
@@ -206,7 +214,7 @@ class HiveRxUser extends RxUser {
 
           userEntity.value.isBlocked = versioned.record;
           userEntity.blacklistedVer = versioned.ver;
-          _userLocal.put(userEntity);
+          _isar.writeAsync((isar) => isar.users.put(userEntity));
         }
         break;
     }
