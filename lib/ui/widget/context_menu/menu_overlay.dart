@@ -20,7 +20,8 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import 'menu.dart';
 
-/// [ContextMenuOverlay] is a content of [OverlayEntry].
+/// [ContextMenuOverlay] is a content of [OverlayEntry] displaying [ContextMenu]
+/// for desktop.
 class ContextMenuOverlay extends StatefulWidget {
   const ContextMenuOverlay({
     super.key,
