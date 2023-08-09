@@ -79,7 +79,7 @@
 #   version = "$(git describe --tags --dirty)"
 
 [windows]
-# Unique identifier of a Windows application.
+# Unique identifier of Windows application.
 #
 # Default:
 #   clsid = "00000000-0000-0000-0000-000000000000"
