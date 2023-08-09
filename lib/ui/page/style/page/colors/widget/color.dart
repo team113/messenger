@@ -52,7 +52,7 @@ class ColorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return SizedBox(
       width: size,
@@ -69,7 +69,7 @@ class ColorWidget extends StatelessWidget {
                 child: Text(
                   color.toHex(),
                   textAlign: TextAlign.start,
-                  style: fonts.bodySmall!.copyWith(
+                  style: style.fonts.bodySmall.copyWith(
                     color: inverted
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF000000),
@@ -110,7 +110,7 @@ class ColorWidget extends StatelessWidget {
                 child: Text(
                   subtitle!,
                   textAlign: TextAlign.left,
-                  style: fonts.labelSmall!.copyWith(
+                  style: style.fonts.labelSmall.copyWith(
                     color: inverted
                         ? const Color(0xFFFFFFFF)
                         : const Color(0xFF000000),
