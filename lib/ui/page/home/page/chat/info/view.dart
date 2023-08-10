@@ -43,7 +43,7 @@ import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
 class ChatInfoView extends StatelessWidget {
-  const ChatInfoView(this.id, {Key? key}) : super(key: key);
+  const ChatInfoView(this.id, {super.key});
 
   /// ID of the [Chat] of this info page.
   final ChatId id;
