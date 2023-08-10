@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-/// Controller of highlight animation.
+/// Controller of [HighlightAnimation].
 class HighlightController extends GetxController {
   HighlightController();
 
