@@ -148,12 +148,15 @@ class NotificationService extends DisposableService {
       ).onError((_, __) => false);
     } else if (PlatformUtils.isWindows) {
       // TODO: Images should be downloaded to cache.
-      final File? file = await PlatformUtils.download(
-        icon!,
-        'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg',
-        null,
-        temporary: true,
-      );
+      File? file;
+      if (icon != null) {
+        file = await PlatformUtils.download(
+          icon,
+          'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg',
+          null,
+          temporary: true,
+        );
+      }
 
       await WinToast.instance().showCustomToast(
         xml: '<?xml version="1.0" encoding="UTF-8"?>'
@@ -168,6 +171,10 @@ class NotificationService extends DisposableService {
             '</toast>',
         tag: 'Gapopa',
       );
+
+      Future.delayed(const Duration(seconds: 1), () async {
+        await file?.delete();
+      });
     } else {
       await _plugin!.show(
         Random().nextInt(1 << 31),
