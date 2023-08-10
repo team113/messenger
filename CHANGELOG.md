@@ -15,8 +15,10 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Context menu with fading effect on desktop. ([#506])
+    - Profile blocks with highlighting effect. ([#513])
 
 [#506]: /../../pull/506
+[#513]: /../../pull/513
 
 
 
