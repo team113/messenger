@@ -35,10 +35,9 @@ import '/util/stream_utils.dart';
 class IsarRxUser extends RxUser {
   IsarRxUser(
     this._userRepository,
-    this._isar,
+    this._userLocal,
     IsarUser isarUser,
-  )   : user = Rx<User>(isarUser.value),
-        _userLocal = _isar.users;
+  ) : user = Rx<User>(isarUser.value);
 
   @override
   final Rx<User> user;
@@ -47,10 +46,7 @@ class IsarRxUser extends RxUser {
   final UserRepository _userRepository;
 
   /// [User]s local [Isar] storage.
-  final IsarCollection<String, IsarUser> _userLocal;
-
-  /// [Isar] instance used to start write transaction.
-  final Isar _isar;
+  final UserIsarProvider _userLocal;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].
   final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
@@ -114,7 +110,7 @@ class IsarRxUser extends RxUser {
         events as UserEventsUser;
         var saved = _userLocal.get(this.id.val);
         if (saved == null || saved.ver < events.user.ver) {
-          await _isar.writeAsync((isar) => isar.users.put(events.user));
+          await _userLocal.put(events.user);
         }
         break;
 
@@ -184,7 +180,7 @@ class IsarRxUser extends RxUser {
               break;
           }
 
-          await _isar.writeAsync((isar) => isar.users.put(userEntity));
+          await _userLocal.put(userEntity);
         }
         break;
 
@@ -198,7 +194,7 @@ class IsarRxUser extends RxUser {
         }
 
         for (var event in versioned.events) {
-          _isar.writeAsync((isar) => isar.users.put(event.user));
+          _userLocal.put(event.user);
         }
         break;
 
@@ -214,7 +210,7 @@ class IsarRxUser extends RxUser {
 
           userEntity.value.isBlocked = versioned.record;
           userEntity.blacklistedVer = versioned.ver;
-          _isar.writeAsync((isar) => isar.users.put(userEntity));
+          _userLocal.put(userEntity);
         }
         break;
     }

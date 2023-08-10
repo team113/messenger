@@ -15,13 +15,67 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:collection/collection.dart';
 import 'package:isar/isar.dart';
 
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 part 'user.g.dart';
+
+/// [Isar] storage for [User]s.
+class UserIsarProvider {
+  UserIsarProvider(this._isar);
+
+  /// [Isar] storing [IsarUser]s.
+  final Isar _isar;
+
+  /// [StreamController] of changes of this [UserIsarProvider].
+  final _changes =
+      StreamController<ListChangeNotification<IsarUser>>.broadcast();
+
+  /// Returns a list of [User]s from [Isar].
+  Future<List<IsarUser>> get users => _isar.users.where().findAllAsync();
+
+  /// Returns count of the stored [User]s.
+  int get count => _isar.users.count();
+
+  /// Returns stream of changes of this [UserIsarProvider].
+  Stream<ListChangeNotification<IsarUser>> watch() => _changes.stream;
+
+  /// Returns a [User] from [Isar] by its [id].
+  IsarUser? get(String id) => _isar.users.get(id);
+
+  /// Puts the provide [user] to [Isar].
+  Future<void> put(IsarUser user) async {
+    _changes.add(ListChangeNotification.added(user, 0));
+    if (PlatformUtils.isWeb) {
+      _isar.write((isar) => isar.users.put(user));
+    } else {
+      await _isar.writeAsync((isar) => isar.users.put(user));
+    }
+  }
+
+  /// Clears this [UserIsarProvider].
+  Future<void> clear() async {
+    final List<IsarUser> users = await _isar.users.where().findAllAsync();
+
+    if (PlatformUtils.isWeb) {
+      _isar.write((isar) => isar.users.clear());
+    } else {
+      await _isar.writeAsync((isar) => isar.users.clear());
+    }
+
+    users.forEachIndexed((int index, IsarUser user) {
+      _changes.add(ListChangeNotification.removed(user, index));
+    });
+  }
+}
 
 /// Persisted in [Isar] storage [User]'s [value].
 @Collection(accessor: 'users')

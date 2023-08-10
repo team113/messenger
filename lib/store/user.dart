@@ -31,7 +31,6 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/isar/user.dart';
-import '/provider/isar/utils.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/user_rx.dart';
@@ -44,8 +43,8 @@ import 'event/my_user.dart'
 class UserRepository implements AbstractUserRepository {
   UserRepository(
     this._graphQlProvider,
-    this._isar,
-  ) : _userLocal = _isar.users;
+    this._userLocal,
+  );
 
   /// Callback, called when a [RxChat] with the provided [ChatId] is required
   /// by this [UserRepository].
@@ -56,11 +55,8 @@ class UserRepository implements AbstractUserRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  /// [User]s local [Isar] storage.
-  final IsarCollection<String, IsarUser> _userLocal;
-
   /// [Isar] instance used to start write transaction.
-  final Isar _isar;
+  final UserIsarProvider _userLocal;
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
@@ -82,9 +78,9 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<void> init() async {
-    if (_userLocal.count() > 0) {
-      for (IsarUser c in await _userLocal.where().findAllAsync()) {
-        _users[c.value.id] = IsarRxUser(this, _isar, c);
+    if (_userLocal.count > 0) {
+      for (IsarUser c in await _userLocal.users) {
+        _users[c.value.id] = IsarRxUser(this, _userLocal, c);
       }
       isReady.value = true;
     }
@@ -93,7 +89,7 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> clearCache() => _isar.writeAsync((isar) => isar.users.clear());
+  Future<void> clearCache() => _userLocal.clear();
 
   @override
   void dispose() {
@@ -128,7 +124,7 @@ class UserRepository implements AbstractUserRepository {
         if (query != null) {
           IsarUser stored = query.toIsar();
           put(stored);
-          var fetched = IsarRxUser(this, _isar, stored);
+          var fetched = IsarRxUser(this, _userLocal, stored);
           users[id] = fetched;
           user = fetched;
         }
@@ -194,8 +190,15 @@ class UserRepository implements AbstractUserRepository {
   }
 
   /// Puts the provided [user] into the local [Isar] storage.
-  void put(IsarUser user, {bool ignoreVersion = false}) {
-    _putUser(user, ignoreVersion: ignoreVersion);
+  Future<void> put(IsarUser user, {bool ignoreVersion = false}) async {
+    var saved = _userLocal.get(user.value.id.val);
+
+    if (saved == null ||
+        saved.ver < user.ver ||
+        saved.blacklistedVer < user.blacklistedVer ||
+        ignoreVersion) {
+      await _userLocal.put(user);
+    }
   }
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
@@ -236,32 +239,19 @@ class UserRepository implements AbstractUserRepository {
     });
   }
 
-  /// Puts the provided [user] to [Isar].
-  Future<void> _putUser(IsarUser user, {bool ignoreVersion = false}) async {
-    var saved = _userLocal.get(user.value.id.val);
-
-    if (saved == null ||
-        saved.ver < user.ver ||
-        saved.blacklistedVer < user.blacklistedVer ||
-        ignoreVersion) {
-      await _isar.writeAsync((isar) => isar.users.put(user));
-    }
-  }
-
   /// Initializes subscription for the [_userLocal] changes.
   Future<void> _initLocalSubscription() async {
     void add(IsarUser user) {
       RxUser? rxUser = _users[user.value.id];
       if (rxUser == null) {
-        _users[user.value.id] = IsarRxUser(this, _isar, user);
+        _users[user.value.id] = IsarRxUser(this, _userLocal, user);
       } else {
         rxUser.user.value = user.value;
         rxUser.user.refresh();
       }
     }
 
-    _localSubscription = StreamIterator(
-        _userLocal.where().watch(fireImmediately: true).changes((e) => e.id));
+    _localSubscription = StreamIterator(_userLocal.watch());
     while (await _localSubscription!.moveNext()) {
       final ListChangeNotification<IsarUser> event =
           _localSubscription!.current;

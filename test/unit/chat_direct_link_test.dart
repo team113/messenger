@@ -82,6 +82,7 @@ void main() async {
   await myUserProvider.clear();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -184,7 +185,7 @@ void main() async {
   await authService.init();
 
   UserRepository userRepository =
-      Get.put(UserRepository(graphQlProvider, isar));
+      Get.put(UserRepository(graphQlProvider, userProvider));
   AbstractMyUserRepository myUserRepository = MyUserRepository(
     graphQlProvider,
     myUserProvider,
@@ -272,7 +273,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -329,7 +330,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -406,7 +407,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -460,7 +461,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -525,7 +526,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -581,7 +582,7 @@ void main() async {
     );
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,

@@ -69,6 +69,7 @@ void main() async {
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var chatHiveProvider = Get.put(ChatHiveProvider());
   await chatHiveProvider.init();
   var credentialsProvider = Get.put(ChatCallCredentialsHiveProvider());
@@ -164,7 +165,8 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository = UserRepository(graphQlProvider, isar);
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider);
 
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
@@ -221,7 +223,8 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository = UserRepository(graphQlProvider, isar);
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider);
 
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,

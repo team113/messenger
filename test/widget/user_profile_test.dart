@@ -121,7 +121,8 @@ void main() async {
     }
   };
 
-  await Directory('./test/.temp_isar/user_profile_widget').create(recursive: true);
+  await Directory('./test/.temp_isar/user_profile_widget')
+      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: './test/.temp_isar/user_profile_widget',
@@ -156,6 +157,7 @@ void main() async {
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
   await contactProvider.clear();
+  var userProvider = UserIsarProvider(isar);
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
@@ -364,7 +366,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(graphQlProvider, isar);
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider);
     Get.put(UserService(userRepository));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,

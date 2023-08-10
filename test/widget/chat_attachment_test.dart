@@ -122,7 +122,8 @@ void main() async {
     }
   };
 
-  await Directory('./test/.temp_isar/chat_attachment_widget').create(recursive: true);
+  await Directory('./test/.temp_isar/chat_attachment_widget')
+      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: './test/.temp_isar/chat_attachment_widget',
@@ -307,6 +308,7 @@ void main() async {
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   await draftProvider.clear();
+  var userProvider = UserIsarProvider(isar);
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -361,7 +363,7 @@ void main() async {
     router.provider = MockPlatformRouteInformationProvider();
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,

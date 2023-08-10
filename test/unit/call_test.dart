@@ -100,6 +100,7 @@ void main() async {
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var provider = SessionDataHiveProvider();
   await provider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -164,7 +165,7 @@ void main() async {
     await authService.init();
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
@@ -293,7 +294,7 @@ void main() async {
     await authService.init();
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
@@ -373,7 +374,7 @@ void main() async {
       ),
     );
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
 
     CallRepository callRepository = Get.put(
       CallRepository(

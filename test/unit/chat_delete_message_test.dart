@@ -61,7 +61,8 @@ void main() async {
 
   Hive.init('./test/.temp_hive/chat_delete_message_unit');
 
-  await Directory('./test/.temp_isar/chat_delete_message_unit').create(recursive: true);
+  await Directory('./test/.temp_isar/chat_delete_message_unit')
+      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: './test/.temp_isar/chat_delete_message_unit',
@@ -88,6 +89,7 @@ void main() async {
       const UserId('me'),
     ),
   );
+  var userProvider = UserIsarProvider(isar);
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
@@ -181,7 +183,7 @@ void main() async {
   await authService.init();
 
   UserRepository userRepository =
-      Get.put(UserRepository(graphQlProvider, isar));
+      Get.put(UserRepository(graphQlProvider, userProvider));
   CallRepository callRepository = Get.put(
     CallRepository(
       graphQlProvider,

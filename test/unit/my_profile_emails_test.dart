@@ -70,7 +70,8 @@ void main() async {
     }
   };
 
-  await Directory('./test/.temp_isar/my_profile_emails_unit').create(recursive: true);
+  await Directory('./test/.temp_isar/my_profile_emails_unit')
+      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: './test/.temp_isar/my_profile_emails_unit',
@@ -85,6 +86,7 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
+  var userProvider = UserIsarProvider(isar);
   var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
 
@@ -187,7 +189,7 @@ void main() async {
       ),
     );
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
@@ -244,7 +246,7 @@ void main() async {
       ),
     );
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,

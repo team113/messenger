@@ -442,6 +442,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ]);
 
               final Isar isar = await _openIsar();
+              deps.put(UserIsarProvider(isar));
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
@@ -459,7 +460,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               GraphQlProvider graphQlProvider = Get.find();
               UserRepository userRepository =
-                  UserRepository(graphQlProvider, isar);
+                  UserRepository(graphQlProvider, Get.find());
               deps.put<AbstractUserRepository>(userRepository);
               AbstractCallRepository callRepository =
                   deps.put<AbstractCallRepository>(
@@ -551,6 +552,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             ]);
 
             final Isar isar = await _openIsar();
+            deps.put(UserIsarProvider(isar));
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
@@ -568,7 +570,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             GraphQlProvider graphQlProvider = Get.find();
             UserRepository userRepository =
-                UserRepository(graphQlProvider, isar);
+                UserRepository(graphQlProvider, Get.find());
             deps.put<AbstractUserRepository>(userRepository);
             CallRepository callRepository = CallRepository(
               graphQlProvider,

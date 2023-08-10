@@ -61,7 +61,8 @@ void main() async {
 
   final graphQlProvider = MockGraphQlProvider();
 
-  await Directory('./test/.temp_isar/chat_edit_message_unit').create(recursive: true);
+  await Directory('./test/.temp_isar/chat_edit_message_unit')
+      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: './test/.temp_isar/chat_edit_message_unit',
@@ -70,6 +71,7 @@ void main() async {
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
@@ -167,7 +169,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(graphQlProvider, isar);
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider);
 
     CallRepository callRepository = Get.put(
       CallRepository(
@@ -236,7 +239,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(graphQlProvider, isar);
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider);
 
     CallRepository callRepository = Get.put(
       CallRepository(

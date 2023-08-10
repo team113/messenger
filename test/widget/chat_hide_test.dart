@@ -148,6 +148,7 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.clear();
   await contactProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -261,7 +262,8 @@ void main() async {
       (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
 
-    UserRepository userRepository = UserRepository(graphQlProvider, isar);
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider);
     Get.put(UserService(userRepository));
 
     Get.put(

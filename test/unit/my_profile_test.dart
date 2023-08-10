@@ -49,6 +49,7 @@ void main() async {
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
 
@@ -61,7 +62,7 @@ void main() async {
     Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     var profileService = Get.put(
       MyUserService(
         Get.find(),

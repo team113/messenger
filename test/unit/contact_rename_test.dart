@@ -44,7 +44,8 @@ import 'contact_rename_test.mocks.dart';
 void main() async {
   Hive.init('./test/.temp_hive/contact_rename_unit');
 
-  await Directory('./test/.temp_isar/contact_rename_unit').create(recursive: true);
+  await Directory('./test/.temp_isar/contact_rename_unit')
+      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: './test/.temp_isar/contact_rename_unit',
@@ -54,6 +55,7 @@ void main() async {
   var sessionData = Get.put(SessionDataHiveProvider());
   await sessionData.init();
   await sessionData.clear();
+  var userProvider = UserIsarProvider(isar);
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -104,7 +106,7 @@ void main() async {
   };
 
   Future<ContactService> init(GraphQlProvider graphQlProvider) async {
-    UserRepository userRepo = UserRepository(graphQlProvider, isar);
+    UserRepository userRepo = UserRepository(graphQlProvider, userProvider);
 
     AbstractContactRepository contactRepository =
         Get.put<AbstractContactRepository>(

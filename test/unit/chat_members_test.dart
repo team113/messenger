@@ -57,7 +57,8 @@ void main() async {
 
   Hive.init('./test/.temp_hive/chat_members_unit');
 
-  await Directory('./test/.temp_isar/chat_members_unit').create(recursive: true);
+  await Directory('./test/.temp_isar/chat_members_unit')
+      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: './test/.temp_isar/chat_members_unit',
@@ -73,6 +74,7 @@ void main() async {
   await chatProvider.init();
   var chatHiveProvider = Get.put(ChatHiveProvider());
   await chatHiveProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
   var draftProvider = DraftHiveProvider();
@@ -267,7 +269,7 @@ void main() async {
     await authService.init();
 
     UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, isar));
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
