@@ -129,7 +129,10 @@ class AuthView extends StatelessWidget {
             OutlinedRoundedButton(
               title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
               leading: PlatformUtils.isMacOS
-                  ? const SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
+                  ? const SvgImage.asset(
+                      'assets/icons/apple.svg',
+                      width: 22 * 0.7,
+                    )
                   : (PlatformUtils.isWindows)
                       ? const SvgImage.asset(
                           'assets/icons/windows.svg',
