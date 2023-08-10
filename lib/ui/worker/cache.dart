@@ -48,6 +48,9 @@ class CacheWorker extends DisposableService {
   /// [CacheWorker] singleton instance.
   static late CacheWorker instance;
 
+  /// Maximum allowed cache size in bytes.
+  static const int maxSize = CacheInfo.maxSize;
+
   /// [CacheInfo] describing the cache properties.
   late final Rx<CacheInfo> info;
 
@@ -260,8 +263,6 @@ class CacheWorker extends DisposableService {
       if (PlatformUtils.isWeb) {
         return;
       }
-
-      final int maxSize = info.value.maxSize;
 
       int overflow = info.value.size - maxSize;
       if (overflow > 0) {

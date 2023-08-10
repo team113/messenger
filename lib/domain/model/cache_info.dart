@@ -31,7 +31,6 @@ class CacheInfo extends HiveObject {
     HashSet<String>? checksums,
     this.size = 0,
     this.modified,
-    this.maxSize = GB,
   }) : checksums = checksums ?? HashSet();
 
   /// Checksums of the stored in cache files.
@@ -44,7 +43,7 @@ class CacheInfo extends HiveObject {
   int size;
 
   /// Maximum allowed cache size in bytes.
-  int maxSize;
+  static const int maxSize = GB;
 }
 
 /// [Hive] adapter for a [CacheInfo].
@@ -58,7 +57,6 @@ class CacheInfoAdapter extends TypeAdapter<CacheInfo> {
       checksums: HashSet()..addAll(reader.read() as List<String>),
       size: reader.read() as int,
       modified: reader.read() as DateTime?,
-      maxSize: reader.read() as int,
     );
   }
 
@@ -67,8 +65,7 @@ class CacheInfoAdapter extends TypeAdapter<CacheInfo> {
     writer
       ..write(obj.checksums.toList())
       ..write(obj.size)
-      ..write(obj.modified)
-      ..write(obj.maxSize);
+      ..write(obj.modified);
   }
 
   @override
