@@ -133,6 +133,10 @@ jobs:
               ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Unshallow the repository in order for `PubspecBuilder` and its
+          # `git describe` to work.
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -145,8 +149,6 @@ jobs:
                           ninja-build
                           libunwind-dev
                           libgtk-3-dev
-                          libgstreamer1.0-dev
-                          libgstreamer-plugins-base1.0-dev
                           libpulse-dev
                           libmpv-dev
                           mpv
@@ -157,6 +159,14 @@ jobs:
              || matrix.platform == 'macos'
              || matrix.platform == 'windows' }}
 
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
       - run: make flutter.pub
 
       - run: make flutter.build platform=${{ matrix.platform }}
@@ -165,7 +175,8 @@ jobs:
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
-                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}'
+                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name
@@ -343,10 +354,25 @@ jobs:
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
       # passed to the `chromedriver` does.
-      - uses: nanasess/setup-chromedriver@v1
+      #
+      # Use `grep` to remove the meaningless logs from the output.
+      - uses: nanasess/setup-chromedriver@v2
+        with:
+          # TODO: Unpin when nanasess/setup-chromedriver#200 is fixed
+          #       https://github.com/nanasess/setup-chromedriver/issues/200
+          chromedriver-version: '115.0.5790.102'
       - run: |
-          chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
+          chromedriver --port=4444 --enable-chrome-logs \
+                       --disable-dev-shm-usage \
+                       2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+        env:
+          OMIT: |
+            [
+              ":INFO:CONSOLE\\(52564\\)] ",
+              "\"Got object store box in database",
+              "\\[CONFIG\\]: Remote configuration fetch failed"
+            ]
 
       # Grant permissions to `.cache/` dir created in the previous step, since
       # `hashFile` may fail: https://github.com/actions/runner/issues/449

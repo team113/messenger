@@ -35,11 +35,12 @@ abstract class ChatItem {
   ChatItem(
     this.id,
     this.chatId,
-    this.authorId,
+    this.author,
     this.at, {
     SendingStatus? status,
   }) : status = Rx(
-            status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent));
+          status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent),
+        );
 
   /// Unique ID of this [ChatItem].
   @HiveField(0)
@@ -49,9 +50,9 @@ abstract class ChatItem {
   @HiveField(1)
   ChatId chatId;
 
-  /// ID of the [User] who posted this [ChatItem].
+  /// [User] who posted this [ChatItem].
   @HiveField(2)
-  final UserId authorId;
+  final User author;
 
   /// [PreciseDateTime] when this [ChatItem] was posted.
   @HiveField(3)
@@ -60,9 +61,10 @@ abstract class ChatItem {
   /// [SendingStatus] of this [ChatItem].
   final Rx<SendingStatus> status;
 
-  /// Returns number of microseconds since the "Unix epoch" till
-  /// [PreciseDateTime] when this [ChatItem] was posted.
-  String get timestamp => at.microsecondsSinceEpoch.toString();
+  /// Returns combined [at] and [id] unique identifier of this [ChatItem].
+  ///
+  /// Meant to be used as a key sorted by posting [DateTime] of this [ChatItem].
+  ChatItemKey get key => ChatItemKey(at, id);
 }
 
 /// Message in a [Chat].
@@ -71,7 +73,7 @@ class ChatMessage extends ChatItem {
   ChatMessage(
     super.id,
     super.chatId,
-    super.authorId,
+    super.author,
     super.at, {
     super.status,
     this.repliesTo = const [],
@@ -97,7 +99,7 @@ class ChatMessage extends ChatItem {
   final List<Attachment> attachments;
 
   /// Indicates whether the [other] message shares the same [text], [repliesTo],
-  /// [authorId], [chatId] and [attachments] as this [ChatMessage].
+  /// [author], [chatId] and [attachments] as this [ChatMessage].
   bool isEquals(ChatMessage other) {
     return text == other.text &&
         repliesTo.every(
@@ -109,7 +111,7 @@ class ChatMessage extends ChatItem {
                 m.original?.id == e.original?.id,
           ),
         ) &&
-        authorId == other.authorId &&
+        author.id == other.author.id &&
         chatId == other.chatId &&
         attachments.every(
           (e) => other.attachments.any(
@@ -127,7 +129,7 @@ class ChatForward extends ChatItem {
   ChatForward(
     super.id,
     super.chatId,
-    super.authorId,
+    super.author,
     super.at, {
     required this.quote,
   });
@@ -146,10 +148,10 @@ class ChatItemId extends NewType<String> {
   const ChatItemId(String val) : super(val);
 
   /// Constructs a dummy [ChatItemId].
-  factory ChatItemId.local() => ChatItemId('local_${const Uuid().v4()}');
+  factory ChatItemId.local() => ChatItemId('local.${const Uuid().v4()}');
 
   /// Indicates whether this [ChatItemId] is a dummy ID.
-  bool get isLocal => val.startsWith('local_');
+  bool get isLocal => val.startsWith('local.');
 }
 
 /// Text of a [ChatMessage].
@@ -187,4 +189,42 @@ class ChatMessageText extends NewType<String> {
 
     return chunks.map((e) => ChatMessageText(e)).toList();
   }
+}
+
+/// Combined [at] and [id] unique identifier of a [ChatItem].
+class ChatItemKey implements Comparable<ChatItemKey> {
+  const ChatItemKey(this.at, this.id);
+
+  /// Constructs a [ChatItemKey] from the provided [String].
+  factory ChatItemKey.fromString(String value) {
+    final List<String> split = value.split('_');
+
+    if (split.length != 2) {
+      throw const FormatException('Invalid format');
+    }
+
+    return ChatItemKey(
+      PreciseDateTime.fromMicrosecondsSinceEpoch(int.parse(split[0])),
+      ChatItemId(split[1]),
+    );
+  }
+
+  /// [ChatItemId] part of this [ChatItemKey].
+  final ChatItemId id;
+
+  /// [PreciseDateTime] part of this [ChatItemKey].
+  final PreciseDateTime at;
+
+  @override
+  String toString() => '${at.microsecondsSinceEpoch}_$id';
+
+  @override
+  bool operator ==(Object other) =>
+      other is ChatItemKey && id == other.id && at == other.at;
+
+  @override
+  int compareTo(ChatItemKey other) => toString().compareTo(other.toString());
+
+  @override
+  int get hashCode => Object.hash(id, at);
 }

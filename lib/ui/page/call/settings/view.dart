@@ -49,7 +49,7 @@ class CallSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final EdgeInsetsGeometry padding = Insets.dense.add(
       const EdgeInsets.symmetric(horizontal: 30),
@@ -97,9 +97,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: fonts.titleMedium!.copyWith(
-                              color: style.colors.primary,
-                            ),
+                            style: style.fonts.titleMediumPrimary,
                           );
                         }),
                       ),
@@ -132,9 +130,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: fonts.titleMedium!.copyWith(
-                              color: style.colors.primary,
-                            ),
+                            style: style.fonts.titleMediumPrimary,
                           );
                         }),
                       ),
@@ -167,9 +163,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: fonts.titleMedium!.copyWith(
-                              color: style.colors.primary,
-                            ),
+                            style: style.fonts.titleMediumPrimary,
                           );
                         }),
                       ),
@@ -189,9 +183,7 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: fonts.titleMedium!.copyWith(
-                            color: style.colors.primary,
-                          ),
+                          style: style.fonts.titleMediumPrimary,
                         ),
                       ),
                     ),

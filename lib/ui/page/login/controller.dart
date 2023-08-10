@@ -27,7 +27,6 @@ import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
         CreateSessionException,
-        RecoverUserPasswordException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
@@ -280,8 +279,6 @@ class LoginController extends GetxController {
       recovery.error.value = 'err_account_not_found'.l10n;
     } on ArgumentError {
       recovery.error.value = 'err_account_not_found'.l10n;
-    } on RecoverUserPasswordException catch (e) {
-      recovery.error.value = e.toMessage();
     } catch (e) {
       recovery.unsubmit();
       recovery.error.value = 'err_data_transfer'.l10n;

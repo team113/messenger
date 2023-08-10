@@ -70,7 +70,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
       builder: (BuildContext context, _) {
         final Color begin =
             widget.inverted ? style.colors.onPrimary : style.colors.primary;
-        const Color end = Color(0xFFB6DCFF);
+        final Color end = style.colors.primaryHighlightLightest;
 
         const double size = 4;
         const double spacing = 1.6;
@@ -83,6 +83,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
             sin(pi * const Interval(0.6, 1).transform(_controller.value)));
 
         return Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: size,

@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -36,6 +37,7 @@ class FieldButton extends StatefulWidget {
     this.trailing,
     this.prefix,
     this.style,
+    this.subtitle,
   });
 
   /// Optional label of this [FieldButton].
@@ -60,6 +62,9 @@ class FieldButton extends StatefulWidget {
 
   /// Optional trailing [Widget].
   final Widget? trailing;
+
+  /// Optional subtitle [Widget].
+  final Widget? subtitle;
 
   /// Optional prefix [Widget].
   final Widget? prefix;
@@ -96,7 +101,16 @@ class _FieldButtonState extends State<FieldButton> {
             state: TextFieldState(text: widget.text, editable: false),
             label: widget.hint,
             maxLines: widget.maxLines,
-            trailing: widget.trailing,
+            trailing: widget.onTrailingPressed == null
+                ? AnimatedScale(
+                    duration: const Duration(milliseconds: 100),
+                    scale: _hovered ? AnimatedButton.scale : 1,
+                    child: Transform.translate(
+                      offset: const Offset(0, 1),
+                      child: widget.trailing,
+                    ),
+                  )
+                : null,
             prefix: widget.prefix,
             style: widget.style,
             fillColor: _hovered && widget.onPressed != null
@@ -111,19 +125,43 @@ class _FieldButtonState extends State<FieldButton> {
       return child;
     }
 
-    return Stack(
-      alignment: Alignment.centerRight,
+    return Column(
       children: [
-        child,
-        Positioned.fill(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: WidgetButton(
-              onPressed: widget.onTrailingPressed,
-              child: const SizedBox(width: 50, height: double.infinity),
+        Stack(
+          alignment: Alignment.centerRight,
+          children: [
+            child,
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: AnimatedButton(
+                  onPressed: widget.onTrailingPressed,
+                  enabled: widget.onTrailingPressed != null,
+                  decorator: (child) {
+                    return SizedBox(
+                      width: 50,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8, top: 8),
+                          child: child,
+                        ),
+                      ),
+                    );
+                  },
+                  child: widget.trailing!,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (widget.subtitle != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+              child: widget.subtitle,
             ),
           ),
-        ),
       ],
     );
   }

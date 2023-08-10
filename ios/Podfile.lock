@@ -8,6 +8,8 @@ PODS:
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
+  - device_info_plus (0.0.1):
+    - Flutter
   - DKImagePickerController/Core (4.3.4):
     - DKImagePickerController/ImageDataManager
     - DKImagePickerController/Resource
@@ -63,7 +65,7 @@ PODS:
     - Flutter
     - instrumentisto-libwebrtc-bin (= 112.0.5615.165)
     - libyuv-iOS
-  - medea_jason (0.3.0-dev):
+  - medea_jason (0.4.0):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -85,9 +87,9 @@ PODS:
     - Flutter
   - screen_brightness_ios (0.1.0):
     - Flutter
-  - SDWebImage (5.16.0):
-    - SDWebImage/Core (= 5.16.0)
-  - SDWebImage/Core (5.16.0)
+  - SDWebImage (5.17.0):
+    - SDWebImage/Core (= 5.17.0)
+  - SDWebImage/Core (5.17.0)
   - sensors (0.0.1):
     - Flutter
   - Sentry/HybridSDK (8.5.0):
@@ -113,12 +115,15 @@ PODS:
     - Flutter
   - wakelock (0.0.1):
     - Flutter
+  - wakelock_plus (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
   - auto_orientation (from `.symlinks/plugins/auto_orientation/ios`)
   - callkeep (from `.symlinks/plugins/callkeep/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_app_badger (from `.symlinks/plugins/flutter_app_badger/ios`)
@@ -148,6 +153,7 @@ DEPENDENCIES:
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/ios`)
   - volume_controller (from `.symlinks/plugins/volume_controller/ios`)
   - wakelock (from `.symlinks/plugins/wakelock/ios`)
+  - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
 
 SPEC REPOS:
   trunk:
@@ -170,6 +176,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/callkeep/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
@@ -228,12 +236,15 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/volume_controller/ios"
   wakelock:
     :path: ".symlinks/plugins/wakelock/ios"
+  wakelock_plus:
+    :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
   audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
   auto_orientation: 102ed811a5938d52c86520ddd7ecd3a126b5d39d
   callkeep: 6b21abbd46786a36e482190816db99b391ada1e3
   connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
+  device_info_plus: 7545d84d8d1b896cb16a4ff98c19f07ec4b298ea
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: ce3938a0df3cc1ef404671531facef740d03f920
@@ -248,10 +259,10 @@ SPEC CHECKSUMS:
   integration_test: 13825b8a9334a850581300559b8839134b124670
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
   medea_flutter_webrtc: 3b18686832c51cd46bf794e4e3ec94551a6dd664
-  medea_jason: 1088dc4572d2b14026ce84d44af0e7757dccc891
+  medea_jason: 05d8174fd71ee885e68e40a50816d609d971f7b5
   media_kit_libs_ios_video: 96259eccffaa309b63a7ee610c2c7786a3b335e5
-  media_kit_native_event_loop: 9f9eb778d0d806ab9486eff7513f7f90f07d50f8
-  media_kit_video: c6ae801433b484912087b519b45f1beac97b960b
+  media_kit_native_event_loop: 1eac6db2378101404392c80606103b42f7c2c491
+  media_kit_video: 6c61501e3ab980488d80df6d705905d14b150b63
   open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
   package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
@@ -259,7 +270,7 @@ SPEC CHECKSUMS:
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   rive_common: b5b1aa30c63b8f0f00f32cddc9ea394d3d3473b5
   screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
-  SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
+  SDWebImage: 750adf017a315a280c60fde706ab1e552a3ae4e9
   sensors: 84eb7a30e47a649e4172b71d6e81be614c280336
   Sentry: 3be3f42e40e5a552935552e115744d5810a216d9
   sentry_flutter: c75806c304706163b2c129394c4621a786ad84e9
@@ -272,6 +283,7 @@ SPEC CHECKSUMS:
   video_player_avfoundation: e489aac24ef5cf7af82702979ed16f2a5ef84cff
   volume_controller: 531ddf792994285c9b17f9d8a7e4dcdd29b3eae9
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
+  wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
 
 PODFILE CHECKSUM: 13075f12a629e738fabd4965041425a1171e064f
 

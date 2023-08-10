@@ -29,6 +29,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -44,7 +45,6 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -76,7 +76,6 @@ class ChatItemWidget extends StatefulWidget {
     required this.me,
     this.user,
     this.avatar = true,
-    this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
     this.reads = const [],
     this.loadImages = true,
     this.animation,
@@ -111,9 +110,6 @@ class ChatItemWidget extends StatefulWidget {
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
 
-  /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
-  final EdgeInsets margin;
-
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
 
@@ -130,7 +126,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
-  final Future<RxUser?> Function(UserId userId)? getUser;
+  final FutureOr<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final void Function()? onHide;
@@ -397,7 +393,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Returns the [UserId] of [User] posted this [ChatItem].
-  UserId get _author => widget.item.value.authorId;
+  UserId get _author => widget.item.value.author.id;
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the
   /// authenticated [MyUser].
@@ -433,10 +429,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return DefaultTextStyle(
-      style: fonts.bodyLarge!,
+      style: style.fonts.bodyLarge,
       child: Obx(() {
         if (widget.item.value is ChatMessage) {
           return _renderAsChatMessage(context);
@@ -456,7 +452,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatInfo].
   Widget _renderAsChatInfo() {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final ChatInfo message = widget.item.value as ChatInfo;
 
@@ -467,11 +463,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       UserId id,
       Widget Function(BuildContext context, User? user) builder,
     ) {
+      final FutureOr<RxUser?>? user = widget.getUser?.call(id);
+
       return FutureBuilder(
-        future: widget.getUser?.call(id),
+        future: user is Future<RxUser?> ? user : null,
         builder: (context, snapshot) {
-          if (snapshot.data != null) {
-            return Obx(() => builder(context, snapshot.data!.user.value));
+          final RxUser? data = snapshot.data ?? (user is RxUser? ? user : null);
+          if (data != null) {
+            return Obx(() => builder(context, data.user.value));
           }
 
           return builder(context, null);
@@ -484,7 +483,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final action = message.action as ChatInfoActionCreated;
 
         if (widget.chat.value?.isGroup == true) {
-          content = userBuilder(message.authorId, (context, user) {
+          content = userBuilder(message.author.id, (context, user) {
             if (user != null) {
               final Map<String, dynamic> args = {
                 'author': user.name?.val ?? user.num.val,
@@ -503,8 +502,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       style: style.systemMessageStyle,
                     ),
                   ],
-                  style: style.systemMessageStyle
-                      .copyWith(color: style.colors.primary),
+                  style: style.systemMessagePrimary,
                 ),
               );
             }
@@ -537,7 +535,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       case ChatInfoActionKind.memberAdded:
         final action = message.action as ChatInfoActionMemberAdded;
 
-        if (action.user.id != message.authorId) {
+        if (action.user.id != message.author.id) {
           content = userBuilder(action.user.id, (context, user) {
             final User author = widget.user?.user.value ?? message.author;
             user ??= action.user;
@@ -565,14 +563,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.systemMessageStyle
-                    .copyWith(color: style.colors.primary),
+                style: style.systemMessagePrimary,
               ),
             );
           });
         } else {
           final Map<String, dynamic> args = {
-            'author': action.user.name?.val ?? action.user.num.val,
+            'author': widget.user?.user.value.name?.val ??
+                widget.user?.user.value.num.val ??
+                action.user.name?.val ??
+                action.user.num.val,
           };
 
           content = Text.rich(
@@ -588,8 +588,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   style: style.systemMessageStyle,
                 ),
               ],
-              style: style.systemMessageStyle
-                  .copyWith(color: style.colors.primary),
+              style: style.systemMessagePrimary,
             ),
           );
         }
@@ -598,7 +597,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       case ChatInfoActionKind.memberRemoved:
         final action = message.action as ChatInfoActionMemberRemoved;
 
-        if (action.user.id != message.authorId) {
+        if (action.user.id != message.author.id) {
           content = userBuilder(action.user.id, (context, user) {
             final User author = widget.user?.user.value ?? message.author;
             user ??= action.user;
@@ -626,8 +625,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.systemMessageStyle
-                    .copyWith(color: style.colors.primary),
+                style: style.systemMessagePrimary,
               ),
             );
           });
@@ -649,8 +647,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   style: style.systemMessageStyle,
                 ),
               ],
-              style: style.systemMessageStyle
-                  .copyWith(color: style.colors.primary),
+              style: style.systemMessagePrimary,
             ),
           );
         }
@@ -686,8 +683,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.systemMessageStyle,
               ),
             ],
-            style:
-                style.systemMessageStyle.copyWith(color: style.colors.primary),
+            style: style.systemMessagePrimary,
           ),
         );
         break;
@@ -723,8 +719,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.systemMessageStyle,
               ),
             ],
-            style:
-                style.systemMessageStyle.copyWith(color: style.colors.primary),
+            style: style.systemMessagePrimary,
           ),
         );
         break;
@@ -746,7 +741,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               border: style.systemMessageBorder,
               color: style.systemMessageColor,
             ),
-            child: DefaultTextStyle(style: fonts.bodySmall!, child: content),
+            child: DefaultTextStyle(
+              style: style.fonts.bodySmall,
+              child: content,
+            ),
           ),
         ),
       ),
@@ -755,7 +753,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final ChatMessage msg = widget.item.value as ChatMessage;
 
@@ -807,7 +805,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onSelecting: widget.onSelecting,
                       onChanged: (a) => _selection = a,
-                      style: fonts.bodyLarge!.copyWith(color: color),
+                      style: style.fonts.bodyLarge.copyWith(color: color),
                     ),
                   ),
                 ),
@@ -850,6 +848,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             const SizedBox(height: 6),
           ],
           if (media.isNotEmpty) ...[
+            // TODO: Replace `ClipRRect` with rounded `DecoratedBox`s when
+            //       `ImageAttachment` sizes are known.
             ClipRRect(
               borderRadius: BorderRadius.only(
                 topLeft: msg.repliesTo.isNotEmpty ||
@@ -959,7 +959,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             (PlatformUtils.isDesktop || menu) && _text != null,
                         onSelecting: widget.onSelecting,
                         onChanged: (a) => _selection = a,
-                        style: fonts.bodyLarge,
+                        style: style.fonts.bodyLarge,
                       ),
                     ),
                   ),
@@ -971,7 +971,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ];
 
         return Container(
-          padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
+          padding: const EdgeInsets.fromLTRB(5, 0, 2, 0),
           child: Stack(
             children: [
               IntrinsicWidth(
@@ -1004,16 +1004,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   right: timeInBubble ? 6 : 8,
                   bottom: 4,
                   child: timeInBubble
-                      ? ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.only(left: 4, right: 4),
-                            decoration: BoxDecoration(
-                              color: style.colors.onBackgroundOpacity27,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: _timestamp(msg, true),
+                      ? Container(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          decoration: BoxDecoration(
+                            color: style.colors.onBackgroundOpacity50,
+                            borderRadius: BorderRadius.circular(20),
                           ),
+                          child: _timestamp(msg, true),
                         )
                       : _timestamp(msg),
                 )
@@ -1026,13 +1023,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     var message = widget.item.value as ChatCall;
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
 
-    if (isOngoing) {
+    if (isOngoing && !Config.disableInfiniteAnimations) {
       _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
         if (mounted) {
           setState(() {});
@@ -1075,7 +1072,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onSelecting: widget.onSelecting,
                         onChanged: (a) => _selection = a,
-                        style: fonts.bodyLarge!.copyWith(color: color),
+                        style: style.fonts.bodyLarge.copyWith(color: color),
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -1121,7 +1118,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       (menu, __) => Padding(
-        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
+        padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
@@ -1140,10 +1137,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 : style.messageColor,
             borderRadius: BorderRadius.circular(15),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: child(menu),
-          ),
+          child: child(menu),
         ),
       ),
     );
@@ -1151,7 +1145,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItemQuote item, BoxConstraints constraints) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     bool fromMe = item.author == widget.me;
 
@@ -1225,9 +1219,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: fonts.titleMedium!.copyWith(
-                      color: style.colors.secondary,
-                    ),
+                    style: style.fonts.titleMediumSecondary,
                   ),
                 ),
               ),
@@ -1240,26 +1232,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (item.text != null && item.text!.val.isNotEmpty) {
         content = SelectionContainer.disabled(
-          child: Text(item.text!.val, maxLines: 1, style: fonts.titleMedium),
+          child:
+              Text(item.text!.val, maxLines: 1, style: style.fonts.titleMedium),
         );
       }
     } else if (item is ChatCallQuote) {
       content = _call(item.original as ChatCall?);
     } else if (item is ChatInfoQuote) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: fonts.headlineMedium);
+      content = Text(item.action.toString(), style: style.fonts.headlineMedium);
     } else {
-      content = Text('err_unknown'.l10n, style: fonts.headlineMedium);
+      content = Text('err_unknown'.l10n, style: style.fonts.headlineMedium);
     }
 
+    final FutureOr<RxUser?>? user = widget.getUser?.call(item.author);
+
     return FutureBuilder<RxUser?>(
-      future: widget.getUser?.call(item.author),
-      builder: (context, snapshot) {
-        final Color color = snapshot.data?.user.value.id == widget.me
+      future: user is Future<RxUser?> ? user : null,
+      builder: (_, snapshot) {
+        final RxUser? data = snapshot.data ?? (user is RxUser? ? user : null);
+
+        final Color color = data?.user.value.id == widget.me
             ? style.colors.primary
-            : style.colors.userColors[
-                (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    style.colors.userColors.length];
+            : style.colors.userColors[(data?.user.value.num.val.sum() ?? 3) %
+                style.colors.userColors.length];
 
         return ClipRRect(
           borderRadius: style.cardRadius,
@@ -1269,38 +1265,34 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.fromLTRB(8, 8, 0, 8),
-            child: Stack(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            snapshot.data?.user.value.name?.val ??
-                                snapshot.data?.user.value.num.val ??
-                                'dot'.l10n * 3,
-                            style: fonts.bodyLarge!.copyWith(color: color),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (additional.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      ...additional,
-                    ],
-                    if (content != null) ...[
-                      const SizedBox(height: 2),
-                      DefaultTextStyle.merge(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        child: content,
+                    Expanded(
+                      child: Text(
+                        data?.user.value.name?.val ??
+                            data?.user.value.num.val ??
+                            'dot'.l10n * 3,
+                        style: style.fonts.bodyLarge.copyWith(color: color),
                       ),
-                    ],
+                    ),
                   ],
                 ),
+                if (additional.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  ...additional,
+                ],
+                if (content != null) ...[
+                  const SizedBox(height: 2),
+                  DefaultTextStyle.merge(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    child: content,
+                  ),
+                ],
               ],
             ),
           ),
@@ -1311,7 +1303,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Returns the visual representation of the provided [call].
   Widget _call(ChatCall? call) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final bool isOngoing =
         call?.finishReason == null && call?.conversationStartedAt != null;
@@ -1336,7 +1328,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .localizedString();
       }
     } else {
-      title = call?.authorId == widget.me
+      title = call?.author.id == widget.me
           ? 'label_outgoing_call'.l10n
           : 'label_incoming_call'.l10n;
     }
@@ -1366,7 +1358,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: fonts.bodyLarge,
+                  style: style.fonts.bodyLarge,
                 ),
               ),
               if (time != null) ...[
@@ -1380,9 +1372,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         time,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: fonts.labelLarge!.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                        style: style.fonts.labelLargeSecondary,
                       ).fixedDigits(),
                     ],
                   ),
@@ -1429,14 +1419,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
 
+        final FutureOr<RxUser?>? member = widget.getUser?.call(m.memberId);
+
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: FutureBuilder<RxUser?>(
-              future: widget.getUser?.call(m.memberId),
+              future: member is Future<RxUser?> ? member : null,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                final RxUser? data =
+                    snapshot.data ?? (member is RxUser? ? member : null);
+
+                if (data != null) {
+                  return AvatarWidget.fromRxUser(data, radius: 10);
                 }
                 return AvatarWidget.fromUser(user, radius: 10);
               },
@@ -1464,7 +1459,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           builder(menu, constraints),
           if (avatars.isNotEmpty)
             Transform.translate(
-              offset: Offset(-12, -widget.margin.bottom),
+              offset: const Offset(-12, 0),
               child: WidgetButton(
                 onPressed: () => MessageInfo.show(
                   context,
@@ -1496,9 +1491,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(item.at.val.toLocal().hm),
-      padding: EdgeInsets.only(
-        bottom: (avatars.isNotEmpty ? 28 : 7) + widget.margin.bottom,
-      ),
+      padding: EdgeInsets.only(bottom: avatars.isNotEmpty ? 28 : 7),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -1603,7 +1596,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   child: widget.avatar
                       ? InkWell(
                           customBorder: const CircleBorder(),
-                          onTap: () => router.user(item.authorId, push: true),
+                          onTap: () => router.user(item.author.id, push: true),
                           child:
                               AvatarWidget.fromRxUser(widget.user, radius: 17),
                         )
@@ -1897,69 +1890,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 }
 
-/// Extension adding a string representation of a [Duration] in
-/// `HH h, MM m, SS s` format.
-extension LocalizedDurationExtension on Duration {
-  /// Returns a string representation of this [Duration] in `HH:MM:SS` format.
-  ///
-  /// `HH` part is omitted if this [Duration] is less than an one hour.
-  String hhMmSs() {
-    var microseconds = inMicroseconds;
-
-    var hours = microseconds ~/ Duration.microsecondsPerHour;
-    microseconds = microseconds.remainder(Duration.microsecondsPerHour);
-    var hoursPadding = hours < 10 ? '0' : '';
-
-    if (microseconds < 0) microseconds = -microseconds;
-
-    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
-    microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
-    var minutesPadding = minutes < 10 ? '0' : '';
-
-    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
-    microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
-    var secondsPadding = seconds < 10 ? '0' : '';
-
-    if (hours == 0) {
-      return '$minutesPadding$minutes:$secondsPadding$seconds';
-    }
-
-    return '$hoursPadding$hours:$minutesPadding$minutes:$secondsPadding$seconds';
-  }
-
-  /// Returns localized string representing this [Duration] in
-  /// `HH h, MM m, SS s` format.
-  ///
-  /// `MM` part is omitted if this [Duration] is less than an one minute.
-  /// `HH` part is omitted if this [Duration] is less than an one hour.
-  String localizedString() {
-    var microseconds = inMicroseconds;
-
-    if (microseconds < 0) microseconds = -microseconds;
-
-    var hours = microseconds ~/ Duration.microsecondsPerHour;
-    microseconds = microseconds.remainder(Duration.microsecondsPerHour);
-
-    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
-    microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
-
-    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
-    microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
-
-    String result = '$seconds ${'label_duration_second_short'.l10n}';
-
-    if (minutes != 0) {
-      result = '$minutes ${'label_duration_minute_short'.l10n} $result';
-    }
-
-    if (hours != 0) {
-      result = '$hours ${'label_duration_hour_short'.l10n} $result';
-    }
-
-    return result;
-  }
-}
-
 /// Extension adding an ability to parse links and e-mails from a [String].
 extension LinkParsingExtension on String {
   /// [RegExp] detecting links and e-mails in a [parseLinks] method.
@@ -2043,6 +1973,9 @@ extension LinkParsingExtension on String {
   }
 }
 
+// TODO: Remove and use [FontFeature.tabularFigures] when flutter/flutter#118485
+//       is fixed:
+//       https://github.com/flutter/flutter/issues/118485
 /// Extension adding a fixed-length digits [Text] transformer.
 extension FixedDigitsExtension on Text {
   /// [RegExp] detecting numbers.

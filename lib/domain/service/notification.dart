@@ -18,11 +18,10 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter/services.dart';
 
 import '/routes.dart';
+import '/util/audio_utils.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -33,15 +32,12 @@ class NotificationService extends DisposableService {
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
 
-  /// [AudioPlayer] playing a notification sound.
-  AudioPlayer? _audioPlayer;
+  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
+  /// [_active].
+  StreamSubscription? _onActivityChanged;
 
-  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
-  /// [_focused].
-  StreamSubscription? _onFocusChanged;
-
-  /// Indicator whether the application's window is in focus.
-  bool _focused = true;
+  /// Indicator whether the application is active.
+  bool _active = true;
 
   /// Initializes this [NotificationService].
   ///
@@ -58,10 +54,12 @@ class NotificationService extends DisposableService {
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
   }) async {
-    PlatformUtils.isFocused.then((value) => _focused = value);
-    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
+    PlatformUtils.isActive.then((value) => _active = value);
+    _onActivityChanged =
+        PlatformUtils.onActivityChanged.listen((v) => _active = v);
 
-    _initAudio();
+    AudioUtils.ensureInitialized();
+
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
       // a browser's policy to ask for notifications permission only after
@@ -89,10 +87,7 @@ class NotificationService extends DisposableService {
 
   @override
   void onClose() {
-    _onFocusChanged?.cancel();
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
-    AudioCache.instance.clear('audio/notification.mp3');
+    _onActivityChanged?.cancel();
   }
 
   // TODO: Implement icons and attachments on non-web platforms.
@@ -109,20 +104,10 @@ class NotificationService extends DisposableService {
   }) async {
     // If application is in focus and the payload is the current route, then
     // don't show a local notification.
-    if (_focused && payload == router.route) return;
+    if (_active && payload == router.route) return;
 
     if (playSound) {
-      runZonedGuarded(() async {
-        await _audioPlayer?.play(
-          AssetSource('audio/notification.mp3'),
-          position: Duration.zero,
-          mode: PlayerMode.lowLatency,
-        );
-      }, (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      });
+      AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
     }
 
     if (PlatformUtils.isWeb) {
@@ -151,24 +136,5 @@ class NotificationService extends DisposableService {
         payload: payload,
       );
     }
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    // [AudioPlayer] constructor creates a hanging [Future], which can't be
-    // awaited.
-    await runZonedGuarded(
-      () async {
-        _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
-        await AudioCache.instance.loadAll(['audio/notification.mp3']);
-      },
-      (e, _) {
-        if (e is MissingPluginException) {
-          _audioPlayer = null;
-        } else {
-          throw e;
-        }
-      },
-    );
   }
 }

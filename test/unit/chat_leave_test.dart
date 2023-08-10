@@ -34,7 +34,6 @@ import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -62,8 +61,6 @@ void main() async {
   await sessionProvider.init();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
@@ -81,31 +78,30 @@ void main() async {
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
 
+  var chatData = {
+    'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
+    'name': 'null',
+    'avatar': null,
+    'members': {'nodes': []},
+    'kind': 'GROUP',
+    'isHidden': false,
+    'muted': null,
+    'directLink': null,
+    'createdAt': '2021-12-15T15:11:18.316846+00:00',
+    'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+    'lastReads': [],
+    'lastDelivery': '1970-01-01T00:00:00+00:00',
+    'lastItem': null,
+    'lastReadItem': null,
+    'unreadCount': 0,
+    'totalCount': 0,
+    'ongoingCall': null,
+    'ver': '0'
+  };
+
   var recentChats = {
     'recentChats': {
-      'nodes': [
-        {
-          'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-          'name': 'null',
-          'avatar': null,
-          'members': {'nodes': []},
-          'kind': 'GROUP',
-          'isHidden': false,
-          'muted': null,
-          'directLink': null,
-          'createdAt': '2021-12-15T15:11:18.316846+00:00',
-          'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-          'lastReads': [],
-          'lastDelivery': '1970-01-01T00:00:00+00:00',
-          'lastItem': null,
-          'lastReadItem': null,
-          'gallery': {'nodes': []},
-          'unreadCount': 0,
-          'totalCount': 0,
-          'ongoingCall': null,
-          'ver': '0'
-        }
-      ]
+      'nodes': [chatData],
     }
   };
 
@@ -156,8 +152,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -216,10 +212,8 @@ void main() async {
                       'num': '1234567890123456',
                       'login': null,
                       'name': null,
-                      'bio': null,
                       'emails': {'confirmed': []},
                       'phones': {'confirmed': []},
-                      'gallery': {'nodes': []},
                       'chatDirectLink': null,
                       'hasPassword': false,
                       'unreadChatsCount': 0,
@@ -228,7 +222,7 @@ void main() async {
                       'online': {'__typename': 'UserOnline'},
                       'mutualContactsCount': 0,
                       'isDeleted': false,
-                      'isBlacklisted': {
+                      'isBlocked': {
                         'blacklisted': false,
                         'ver': '0',
                       },
@@ -241,10 +235,8 @@ void main() async {
                         'num': '1234567890123456',
                         'login': null,
                         'name': null,
-                        'bio': null,
                         'emails': {'confirmed': []},
                         'phones': {'confirmed': []},
-                        'gallery': {'nodes': []},
                         'chatDirectLink': null,
                         'hasPassword': false,
                         'unreadChatsCount': 0,
@@ -253,7 +245,7 @@ void main() async {
                         'online': {'__typename': 'UserOnline'},
                         'mutualContactsCount': 0,
                         'isDeleted': false,
-                        'isBlacklisted': {
+                        'isBlocked': {
                           'blacklisted': false,
                           'ver': '0',
                         },

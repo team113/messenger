@@ -23,8 +23,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -39,11 +38,9 @@ void main() async {
   Hive.init('./test/.temp_hive/profile_unit');
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
 
   test('MyProfile test', () async {
@@ -54,8 +51,8 @@ void main() async {
 
     Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     var profileService = Get.put(
       MyUserService(
         Get.find(),
@@ -63,7 +60,6 @@ void main() async {
           graphQlProvider,
           myUserProvider,
           blacklistedUsersProvider,
-          galleryItemProvider,
           userRepository,
         ),
       ),
@@ -85,10 +81,8 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'num': '1234567890123456',
     'login': null,
     'name': null,
-    'bio': null,
     'emails': {'confirmed': []},
     'phones': {'confirmed': []},
-    'gallery': {'nodes': []},
     'chatDirectLink': null,
     'hasPassword': false,
     'unreadChatsCount': 0,
@@ -126,12 +120,12 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Future<GetBlacklist$Query$Blacklist> getBlacklist({
-    BlacklistCursor? after,
-    BlacklistCursor? before,
+  Future<GetBlocklist$Query$Blocklist> getBlocklist({
+    BlocklistCursor? after,
+    BlocklistCursor? before,
     int? first,
     int? last,
   }) {
-    return Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist));
+    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist));
   }
 }

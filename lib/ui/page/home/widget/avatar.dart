@@ -378,7 +378,7 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       final Color gradient;
@@ -442,10 +442,9 @@ class AvatarWidget extends StatelessWidget {
                     SelectionContainer.disabled(
                       child: Text(
                         (title ?? '??').initials(),
-                        style: fonts.titleSmall!.copyWith(
-                          fontSize:
-                              fonts.bodyMedium!.fontSize! * (maxWidth / 40.0),
-                          color: style.colors.onPrimary,
+                        style: style.fonts.titleSmallOnPrimary.copyWith(
+                          fontSize: style.fonts.bodyMedium.fontSize! *
+                              (maxWidth / 40.0),
                         ),
 
                         // Disable the accessibility size settings for this [Text].
@@ -458,16 +457,20 @@ class AvatarWidget extends StatelessWidget {
               Positioned.fill(
                 child: ClipOval(
                   child: RetryImage(
-                    maxWidth > 70
+                    maxWidth > 250
                         ? avatar!.full.url
-                        : maxWidth > 26
+                        : maxWidth > 100
                             ? avatar!.big.url
-                            : avatar!.medium.url,
-                    checksum: maxWidth > 70
+                            : maxWidth > 46
+                                ? avatar!.medium.url
+                                : avatar!.small.url,
+                    checksum: maxWidth > 250
                         ? avatar!.full.checksum
-                        : maxWidth > 26
+                        : maxWidth > 100
                             ? avatar!.big.checksum
-                            : avatar!.medium.checksum,
+                            : maxWidth > 46
+                                ? avatar!.medium.checksum
+                                : avatar!.small.checksum,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,

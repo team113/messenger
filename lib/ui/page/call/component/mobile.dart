@@ -25,11 +25,12 @@ import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
+import '../widget/animated_cliprrect.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
-import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
+import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
@@ -42,8 +43,6 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/animated_cliprrect.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -327,33 +326,29 @@ Widget mobileCall(CallController c, BuildContext context) {
       }));
     }
 
-    // If there's any error to show, display it.
+    // If there's any notifications to show, display them.
     overlay.add(
-      Obx(() {
-        return AnimatedSwitcher(
-          duration: 200.milliseconds,
-          child: c.errorTimeout.value != 0 &&
-                  c.minimizing.isFalse &&
-                  c.minimized.isFalse
-              ? SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10, right: 10),
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: SizedBox(
-                        width: 280,
-                        child: HintWidget(
-                          text: '${c.error}.',
-                          onTap: () => c.errorTimeout.value = 0,
-                          isError: true,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              : Container(),
-        );
-      }),
+      Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: EdgeInsets.only(top: 8 + context.mediaQueryPadding.top),
+          child: Obx(() {
+            if (c.notifications.isEmpty) {
+              return const SizedBox();
+            }
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: c.notifications.reversed.take(3).map((e) {
+                return CallNotificationWidget(
+                  e,
+                  onClose: () => c.notifications.remove(e),
+                );
+              }).toList(),
+            );
+          }),
+        ),
+      ),
     );
 
     Widget padding(Widget child) => Padding(
@@ -766,7 +761,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 /// Builds a tile representation of the [CallController.chat].
 Widget _chat(BuildContext context, CallController c) {
   return Obx(() {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final RxChat? chat = c.chat.value;
 
@@ -804,16 +799,12 @@ Widget _chat(BuildContext context, CallController c) {
                                 chat?.title.value ?? 'dot'.l10n * 3,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: fonts.headlineLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
+                                style: style.fonts.headlineLargeOnPrimary,
                               ),
                             ),
                             Text(
                               c.duration.value.hhMmSs(),
-                              style: fonts.labelLarge!.copyWith(
-                                color: style.colors.onPrimary,
-                              ),
+                              style: style.fonts.labelLargeOnPrimary,
                             ),
                           ],
                         ),
@@ -831,9 +822,7 @@ Widget _chat(BuildContext context, CallController c) {
                                         .status
                                         ?.val ??
                                     'label_online'.l10n,
-                                style: fonts.labelLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
+                                style: style.fonts.labelLargeOnPrimary,
                               ),
                               const Spacer(),
                               Text(
@@ -841,9 +830,7 @@ Widget _chat(BuildContext context, CallController c) {
                                   'a': '${actualMembers.length}',
                                   'b': '${c.chat.value?.members.length}',
                                 }),
-                                style: fonts.labelLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
+                                style: style.fonts.labelLargeOnPrimary,
                               ),
                             ],
                           ),

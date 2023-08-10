@@ -30,6 +30,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/menu_button.dart';
 
 /// View of the `HomeTab.menu` tab.
 class MenuTabView extends StatelessWidget {
@@ -41,7 +42,7 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        final (style, fonts) = Theme.of(context).styles;
+        final style = Theme.of(context).style;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -110,15 +111,13 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: fonts.headlineMedium,
+                              style: style.fonts.headlineMedium,
                             ),
                             Obx(() {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: fonts.labelMedium!.copyWith(
-                                  color: style.colors.secondary,
-                                ),
+                                style: style.fonts.labelMediumSecondary,
                               );
                             }),
                           ],
@@ -149,94 +148,27 @@ class MenuTabView extends StatelessWidget {
                   required String title,
                   required String subtitle,
                   required IconData icon,
-                  VoidCallback? onTap,
+                  void Function()? onPressed,
                 }) {
                   return Obx(() {
                     final bool inverted = tab == router.profileSection.value &&
                         router.route == Routes.me;
 
-                    return Padding(
+                    return MenuButton(
                       key: key,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: SizedBox(
-                        height: 73,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: style.cardRadius,
-                            border: style.cardBorder,
-                            color: style.colors.transparent,
-                          ),
-                          child: Material(
-                            type: MaterialType.card,
-                            borderRadius: style.cardRadius,
-                            color: inverted
-                                ? style.colors.primary
-                                : style.cardColor,
-                            child: InkWell(
-                              borderRadius: style.cardRadius,
-                              onTap: onTap ??
-                                  () {
-                                    if (router.profileSection.value == tab) {
-                                      router.profileSection.refresh();
-                                    } else {
-                                      router.profileSection.value = tab;
-                                    }
-                                    router.me();
-                                  },
-                              hoverColor: inverted
-                                  ? style.colors.primary
-                                  : style.cardColor.darken(0.03),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width: 12),
-                                    Icon(
-                                      icon,
-                                      color: inverted
-                                          ? style.colors.onPrimary
-                                          : style.colors.primary,
-                                    ),
-                                    const SizedBox(width: 18),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          DefaultTextStyle(
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style:
-                                                fonts.headlineLarge!.copyWith(
-                                              color: inverted
-                                                  ? style.colors.onPrimary
-                                                  : style.colors.onBackground,
-                                            ),
-                                            child: Text(title),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          DefaultTextStyle.merge(
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: fonts.labelMedium!.copyWith(
-                                              color: inverted
-                                                  ? style.colors.onPrimary
-                                                  : style.colors.onBackground,
-                                            ),
-                                            child: Text(subtitle),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      icon: icon,
+                      title: title,
+                      subtitle: subtitle,
+                      inverted: inverted,
+                      onPressed: onPressed ??
+                          () {
+                            if (router.profileSection.value == tab) {
+                              router.profileSection.refresh();
+                            } else {
+                              router.profileSection.value = tab;
+                            }
+                            router.me();
+                          },
                     );
                   });
                 }
@@ -334,7 +266,7 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
-                  case ProfileTab.blacklist:
+                  case ProfileTab.blocklist:
                     child = card(
                       key: const Key('Blocked'),
                       icon: Icons.block,
@@ -370,7 +302,7 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.logout,
                       title: 'btn_logout'.l10n,
                       subtitle: 'label_end_session'.l10n,
-                      onTap: () async {
+                      onPressed: () async {
                         if (await c.confirmLogout()) {
                           router.go(await c.logout());
                           router.tab = HomeTab.chats;

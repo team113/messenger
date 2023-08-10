@@ -31,7 +31,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
-import '/ui/page/home/page/chat/widget/video.dart';
+import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -463,7 +463,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               disableGestures: e.isVideo,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: Video(
+                child: VideoView(
                   e.link,
                   showInterfaceFor: _isInitialPage ? 3.seconds : null,
                   onClose: _dismiss,
@@ -539,7 +539,7 @@ class _GalleryPopupState extends State<GalleryPopup>
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: e.isVideo
-                ? Video(
+                ? VideoView(
                     e.link,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
@@ -567,16 +567,25 @@ class _GalleryPopupState extends State<GalleryPopup>
                       node.requestFocus();
                       _toggleFullscreen();
                     },
-                    child: PlatformUtils.isWeb
-                        ? WebImage(
-                            e.link,
-                            onForbidden: e.onError,
-                          )
-                        : RetryImage(
-                            e.link,
-                            checksum: e.checksum,
-                            onForbidden: e.onError,
-                          ),
+                    child: FittedBox(
+                      fit: _isFullscreen.isTrue
+                          ? BoxFit.contain
+                          : BoxFit.scaleDown,
+                      child: ConstrainedBox(
+                        constraints:
+                            const BoxConstraints(minWidth: 1, minHeight: 1),
+                        child: PlatformUtils.isWeb
+                            ? WebImage(
+                                e.link,
+                                onForbidden: e.onError,
+                              )
+                            : RetryImage(
+                                e.link,
+                                checksum: e.checksum,
+                                onForbidden: e.onError,
+                              ),
+                      ),
+                    ),
                   ),
           ),
         );

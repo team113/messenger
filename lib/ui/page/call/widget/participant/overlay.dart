@@ -53,12 +53,12 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       bool isMuted;
 
-      if (participant.source == MediaSourceKind.Display ||
+      if (participant.source == MediaSourceKind.display ||
           participant.member.isDialing.isTrue) {
         isMuted = false;
       } else {
@@ -71,7 +71,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       bool isAudioDisabled = participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
-          participant.source != MediaSourceKind.Display &&
+          participant.source != MediaSourceKind.display &&
           participant.member.owner == MediaOwnerKind.remote;
 
       final List<Widget> additionally = [];
@@ -112,7 +112,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
-      if (participant.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 4));
         }
@@ -160,7 +160,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.user.value?.user.value.name?.val ??
               participant.user.value?.user.value.num.val ??
               'dot'.l10n * 3,
-          style: fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
+          style: style.fonts.bodyMediumOnPrimary,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

@@ -42,7 +42,7 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: AuthController(Get.find()),
@@ -64,7 +64,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: fonts.displayMedium!.copyWith(color: style.colors.secondary),
+            style: style.fonts.displayMediumSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -72,7 +72,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: fonts.labelLarge!.copyWith(color: style.colors.secondary),
+            style: style.fonts.labelLargeSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -87,7 +87,7 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: fonts.titleLarge!.copyWith(color: style.colors.onPrimary),
+              style: style.fonts.titleLargeOnPrimary,
             ),
             leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: c.register,
@@ -96,7 +96,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n, style: fonts.titleLarge),
+            title: Text('btn_login'.l10n, style: style.fonts.titleLarge),
             leading: SvgImage.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
@@ -106,7 +106,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           if (isIosWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: fonts.titleLarge),
+              title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
                 child:
@@ -116,7 +116,7 @@ class AuthView extends StatelessWidget {
             ),
           if (isAndroidWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: fonts.titleLarge),
+              title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
                 child:
@@ -126,7 +126,7 @@ class AuthView extends StatelessWidget {
             ),
           if (isDesktopWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: fonts.titleLarge),
+              title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
               leading: PlatformUtils.isMacOS
                   ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
                   : (PlatformUtils.isWindows)

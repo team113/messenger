@@ -34,7 +34,7 @@ import 'base.dart';
 part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
-class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
+class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
   ChatItemHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
@@ -83,17 +83,22 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
   }
 
+  /// Returns a list of [ChatItemKey]s stored in the [Hive].
+  Iterable<ChatItemKey> get keys =>
+      keysSafe.map((e) => ChatItemKey.fromString(e));
+
   /// Returns a list of [ChatItem]s from [Hive].
-  Iterable<HiveChatItem> get messages => valuesSafe;
+  Future<Iterable<HiveChatItem>> get messages => valuesSafe;
 
   /// Puts the provided [ChatItem] to [Hive].
-  Future<void> put(HiveChatItem item) => putSafe(item.value.timestamp, item);
+  Future<void> put(HiveChatItem item) =>
+      putSafe(item.value.key.toString(), item);
 
-  /// Returns a [ChatItem] from [Hive] by its [timestamp].
-  HiveChatItem? get(String timestamp) => getSafe(timestamp);
+  /// Returns a [ChatItem] from [Hive] by its [key].
+  Future<HiveChatItem?> get(ChatItemKey key) => getSafe(key.toString());
 
-  /// Removes a [ChatItem] from [Hive] by the provided [timestamp].
-  Future<void> remove(String timestamp) => deleteSafe(timestamp);
+  /// Removes a [ChatItem] from [Hive] by the provided [key].
+  Future<void> remove(ChatItemKey key) => deleteSafe(key.toString());
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].
@@ -106,7 +111,7 @@ abstract class HiveChatItem extends HiveObject {
 
   /// Cursor of a [ChatItem] this [HiveChatItem] represents.
   @HiveField(1)
-  ChatItemsCursor cursor;
+  ChatItemsCursor? cursor;
 
   /// Version of a [ChatItem]'s state.
   ///
@@ -143,7 +148,7 @@ class HiveChatMessage extends HiveChatItem {
     super.value,
     super.cursor,
     super.ver,
-    this.repliesToCursor,
+    this.repliesToCursors,
   );
 
   /// Constructs a [HiveChatMessage] in a [SendingStatus.sending] state.
@@ -160,21 +165,36 @@ class HiveChatMessage extends HiveChatItem {
         ChatMessage(
           existingId ?? ChatItemId.local(),
           chatId,
-          me,
+          User(me, UserNum('1234123412341234')),
           existingDateTime ?? PreciseDateTime.now(),
           text: text,
           repliesTo: repliesTo,
           attachments: attachments,
           status: SendingStatus.sending,
         ),
-        const ChatItemsCursor(''),
+        null,
         ChatItemVersion('0'),
         [],
       );
 
   /// Cursors of the [ChatMessage.repliesTo] list.
   @HiveField(3)
-  List<ChatItemsCursor?>? repliesToCursor;
+  List<ChatItemsCursor?>? repliesToCursors;
+
+  /// Returns a copy of this [HiveChatMessage] with the provided parameters.
+  HiveChatMessage copyWith({
+    ChatItem? value,
+    ChatItemsCursor? cursor,
+    ChatItemVersion? ver,
+    List<ChatItemsCursor?>? repliesToCursors,
+  }) {
+    return HiveChatMessage(
+      value ?? this.value,
+      cursor ?? this.cursor,
+      ver ?? this.ver,
+      repliesToCursors ?? this.repliesToCursors,
+    );
+  }
 }
 
 /// Persisted in [Hive] storage [ChatForward]'s [value].

@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -30,6 +31,7 @@ import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
+import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
@@ -57,7 +59,7 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return LayoutBuilder(
     builder: (context, constraints) {
@@ -232,6 +234,41 @@ Widget desktopCall(CallController c, BuildContext context) {
           }
 
           return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+        }),
+
+        // Reconnection indicator.
+        Obx(() {
+          final Widget child = IgnorePointer(
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: style.colors.onBackgroundOpacity70,
+              padding: const EdgeInsets.all(21.0),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SpinKitDoubleBounce(
+                      color: style.colors.secondaryHighlightDark,
+                      size: 100 / 1.5,
+                      duration: const Duration(milliseconds: 4500),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'label_reconnecting_ellipsis'.l10n,
+                      style: style.fonts.bodyMediumOnPrimary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+
+          return AnimatedOpacity(
+            opacity: c.connectionLost.isTrue ? 1 : 0,
+            duration: 200.milliseconds,
+            child: child,
+          );
         }),
 
         possibleContainer(),
@@ -486,9 +523,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: fonts.labelSmall!.copyWith(
-                                          color: style.colors.onPrimary,
-                                        ),
+                                        style: style.fonts.labelSmallOnPrimary,
                                         textAlign: TextAlign.center,
                                       )
                                     ],
@@ -697,9 +732,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: fonts.labelMedium!.copyWith(
-                          color: style.colors.onPrimary,
-                        ),
+                        style: style.fonts.labelMediumOnPrimary,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -813,41 +846,28 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // If there's any error to show, display it.
-        Obx(() {
-          return AnimatedSwitcher(
-            duration: 150.milliseconds,
-            child: c.errorTimeout.value != 0
-                ? Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.topCenter
-                            ? 10 + c.secondaryHeight.value
-                            : 10,
-                        right: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.centerRight
-                            ? 10 + c.secondaryWidth.value
-                            : 10,
-                      ),
-                      child: SizedBox(
-                        width: 320,
-                        child: HintWidget(
-                          text: '${c.error}.',
-                          onTap: () {
-                            c.errorTimeout.value = 0;
-                          },
-                          isError: true,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(),
-          );
-        }),
+        // If there's any notifications to show, display them.
+        Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Obx(() {
+              if (c.notifications.isEmpty) {
+                return const SizedBox();
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: c.notifications.reversed.take(3).map((e) {
+                  return CallNotificationWidget(
+                    e,
+                    onClose: () => c.notifications.remove(e),
+                  );
+                }).toList(),
+              );
+            }),
+          ),
+        ),
 
         Obx(() {
           if (c.minimized.value && !c.fullscreen.value) {
@@ -1119,7 +1139,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       return Container(
         key: const ValueKey('TitleBar'),
@@ -1158,9 +1178,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: fonts.labelMedium!.copyWith(
-                            color: style.colors.onPrimary,
-                          ),
+                          style: style.fonts.labelMediumOnPrimary,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -1222,7 +1240,7 @@ Widget _primaryView(CallController c) {
             if (d?.chatId == c.chatId.value) {
               if (d?.participant.member.id.userId != c.me.id.userId ||
                   d?.participant.video.value?.source !=
-                      MediaSourceKind.Display) {
+                      MediaSourceKind.display) {
                 c.primaryTargets.value = 1;
               }
 
@@ -1311,7 +1329,7 @@ Widget _primaryView(CallController c) {
                       actions: [
                         if (participant.video.value?.renderer.value !=
                             null) ...[
-                          if (participant.source == MediaSourceKind.Device)
+                          if (participant.source == MediaSourceKind.device)
                             ContextMenuButton(
                               label: fit == null || fit == BoxFit.cover
                                   ? 'btn_call_do_not_cut_video'.l10n
@@ -1472,7 +1490,7 @@ Widget _primaryView(CallController c) {
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
@@ -2071,9 +2089,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: fonts.labelMedium!.copyWith(
-                                          color: style.colors.onPrimary,
-                                        ),
+                                        style: style.fonts.labelMediumOnPrimary,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

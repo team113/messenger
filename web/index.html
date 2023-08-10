@@ -21,18 +21,31 @@
 <html>
 
 <head>
-  <base href="/">
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Mobile Front-End Application of Social Platform.">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Messenger.">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Gapopa">
 
+  <!-- Favicons -->
   <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
   <link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
@@ -195,100 +208,59 @@
       }
     }
   </script>
+
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    var serviceWorkerVersion = null;
+  </script>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter.js" defer></script>
 </head>
 
 <body>
   <div id="loader" class="container content">
     <div style="vertical-align: middle;">
       <div style="display: flex; justify-content: center; margin-bottom: 12px;">
-        <div style="color:#888888; font-weight: 300; font-size:18pt; font-family: SF UI Display, system-ui;">Messenger</div>
+        <div style="color:#888888; font-weight: 300; font-size:18pt; font-family: SF UI Display, system-ui;">Messenger
+        </div>
       </div>
       <div style="display: flex; justify-content: center; margin-bottom: 24px;">
-        <div style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui; transform: translate(0px, -8px);">by Gapopa</div>
+        <div
+          style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui; transform: translate(0px, -8px);">
+          by Gapopa
+        </div>
       </div>
       <div style="display: flex; justify-content: center;">
         <canvas class="gapopa" id="canvas"></canvas>
       </div>
       <div style="display: flex; justify-content: center; margin-top: 24px;">
-        <div class="col-auto h4 shimmer" style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui;">Downloading</div>
+        <div class="col-auto h4 shimmer"
+          style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui;">
+          Downloading
+        </div>
       </div>
     </div>
   </div>
-  <!-- This script installs service_worker.js to provide PWA functionality to
-       application. For more information, see:
-       https://developers.google.com/web/fundamentals/primers/service-workers
-  -->
   <script>
-    var serviceWorkerVersion = null;
-    var scriptLoaded = false;
-    async function loadMainDartJs() {
-      try {
-        await window.jasonLoaded;
-      } catch (e) {
-        console.error(e);
-      }
-
-      if (scriptLoaded) {
-        return;
-      }
-      scriptLoaded = true;
-      var scriptTag = document.createElement('script');
-      scriptTag.src = 'main.dart.js';
-      scriptTag.type = 'application/javascript';
-      document.body.append(scriptTag);
-    }
-
-    if ('serviceWorker' in navigator) {
-      // Service workers are supported. Use them.
-      window.addEventListener('load', function () {
-        // Wait for registration to finish before dropping the <script> tag.
-        // Otherwise, the browser will load the script multiple times,
-        // potentially different versions.
-        var serviceWorkerUrl = 'flutter_service_worker.js?v=' +
-                               serviceWorkerVersion;
-        navigator.serviceWorker.register(serviceWorkerUrl)
-          .then((reg) => {
-            function waitForActivation(serviceWorker) {
-              serviceWorker.addEventListener('statechange', () => {
-                if (serviceWorker.state == 'activated') {
-                  console.log('Installed new service worker.');
-                  loadMainDartJs();
-                }
-              });
-            }
-            if (!reg.active && (reg.installing || reg.waiting)) {
-              // No active web worker and we have installed or are installing
-              // one for the first time. Simply wait for it to activate.
-              waitForActivation(reg.installing || reg.waiting);
-            } else if (!reg.active.scriptURL.endsWith(serviceWorkerVersion)) {
-              // When the app updates the serviceWorkerVersion changes, so we
-              // need to ask the service worker to update.
-              console.log('New service worker available.');
-              reg.update();
-              waitForActivation(reg.installing);
-            } else {
-              // Existing service worker is still good.
-              console.log('Loading app from service worker.');
-              loadMainDartJs();
-            }
-          });
-
-        // If service worker doesn't succeed in a reasonable amount of time,
-        // fallback to plaint <script> tag.
-        setTimeout(() => {
-          if (!scriptLoaded) {
-            console.warn(
-              'Failed to load app from service worker. ' +
-              'Falling back to plain <script> tag.',
-            );
-            loadMainDartJs();
+    window.addEventListener('load', function (ev) {
+      // Download main.dart.js
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: async function (engineInitializer) {
+          try {
+            await window.jasonLoaded;
+          } catch (e) {
+            console.error(e);
           }
-        }, 4000);
+
+          engineInitializer.initializeEngine().then(function (appRunner) {
+            appRunner.runApp();
+          });
+        }
       });
-    } else {
-      // Service workers not supported. Just drop the <script> tag.
-      loadMainDartJs();
-    }
+    });
   </script>
   <!-- Request notifications permission on the first user interaction. -->
   <script>
@@ -376,6 +348,10 @@
     var narrow = undefined;
 
     function recalculate() {
+      if (canvas == null) {
+        return;
+      }
+
       narrow = window.innerHeight < 500;
       if (narrow != lastNarrow) {
         lastNarrow = narrow;

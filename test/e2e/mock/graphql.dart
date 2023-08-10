@@ -49,7 +49,7 @@ class MockGraphQlProvider extends GraphQlProvider {
   set token(AccessToken? value) => _client.token = value;
 
   @override
-  void reconnect() => _client.reconnect();
+  Future<void> reconnect() => _client.reconnect();
 
   @override
   void disconnect() => _client.disconnect();
