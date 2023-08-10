@@ -35,7 +35,7 @@ extension ChatContactConversion on ChatContactMixin {
         favoritePosition: favoritePosition,
       );
 
-  /// Constructs a new list of [HiveUser]s from this [ChatContactMixin].
+  /// Constructs a new list of [IsarUser]s from this [ChatContactMixin].
   List<IsarUser> getHiveUsers() => users.map((e) => e.toIsar()).toList();
 
   /// Constructs a new [HiveChatContact] from this [ChatContactMixin].

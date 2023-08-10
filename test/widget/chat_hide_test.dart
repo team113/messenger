@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -108,9 +109,10 @@ void main() async {
     }
   };
 
+  await Directory('./test/.temp_isar/chat_hide_widget').create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
+    directory: './test/.temp_isar/chat_hide_widget',
   );
   isar.write((isar) => isar.clear());
 
@@ -259,8 +261,7 @@ void main() async {
       (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, isar);
+    UserRepository userRepository = UserRepository(graphQlProvider, isar);
     Get.put(UserService(userRepository));
 
     Get.put(

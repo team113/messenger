@@ -47,7 +47,8 @@ class PreciseDateTime extends NewType<DateTime>
 
   /// Connect the generated [_$PreciseDateTimeFromJson] function to the `fromJson`
   /// factory.
-  factory PreciseDateTime.fromJson(Map<String, dynamic> data) => _$PreciseDateTimeFromJson(data);
+  factory PreciseDateTime.fromJson(Map<String, dynamic> data) =>
+      _$PreciseDateTimeFromJson(data);
 
   /// Connect the generated [_$PreciseDateTimeToJson] function to the `toJson` method.
   Map<String, dynamic> toJson() => _$PreciseDateTimeToJson(this);

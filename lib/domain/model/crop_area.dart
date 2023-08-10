@@ -33,7 +33,8 @@ part 'crop_area.g.dart';
 class CropArea {
   /// Connect the generated [_$CropAreaFromJson] function to the `fromJson`
   /// factory.
-  factory CropArea.fromJson(Map<String, dynamic> data) => _$CropAreaFromJson(data);
+  factory CropArea.fromJson(Map<String, dynamic> data) =>
+      _$CropAreaFromJson(data);
 
   /// Connect the generated [_$CropAreaToJson] function to the `toJson` method.
   Map<String, dynamic> toJson() => _$CropAreaToJson(this);
@@ -63,7 +64,8 @@ class CropArea {
 class CropPoint {
   /// Connect the generated [_$CropPointFromJson] function to the `fromJson`
   /// factory.
-  factory CropPoint.fromJson(Map<String, dynamic> data) => _$CropPointFromJson(data);
+  factory CropPoint.fromJson(Map<String, dynamic> data) =>
+      _$CropPointFromJson(data);
 
   /// Connect the generated [_$CropPointToJson] function to the `toJson` method.
   Map<String, dynamic> toJson() => _$CropPointToJson(this);

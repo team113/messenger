@@ -60,7 +60,7 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
-  if(PlatformUtils.isWeb) {
+  if (PlatformUtils.isWeb) {
     Isar.initialize();
   }
 

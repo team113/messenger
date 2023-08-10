@@ -84,7 +84,8 @@ class PlainFile extends StorageFile {
 
   /// Connect the generated [_$PlainFileFromJson] function to the `fromJson`
   /// factory.
-  factory PlainFile.fromJson(Map<String, dynamic> data) => _$PlainFileFromJson(data);
+  factory PlainFile.fromJson(Map<String, dynamic> data) =>
+      _$PlainFileFromJson(data);
 
   /// Connect the generated [_$PlainFileToJson] function to the `toJson` method.
   Map<String, dynamic> toJson() => _$PlainFileToJson(this);
@@ -104,7 +105,8 @@ class ImageFile extends StorageFile {
 
   /// Connect the generated [_$ImageFileFromJson] function to the `fromJson`
   /// factory.
-  factory ImageFile.fromJson(Map<String, dynamic> data) => _$ImageFileFromJson(data);
+  factory ImageFile.fromJson(Map<String, dynamic> data) =>
+      _$ImageFileFromJson(data);
 
   /// Connect the generated [_$ImageFileToJson] function to the `toJson` method.
   Map<String, dynamic> toJson() => _$ImageFileToJson(this);

@@ -82,7 +82,8 @@ class UserAvatar extends Avatar {
 
   /// Connect the generated [_$UserAvatarFromJson] function to the `fromJson`
   /// factory.
-  factory UserAvatar.fromJson(Map<String, dynamic> data) => _$UserAvatarFromJson(data);
+  factory UserAvatar.fromJson(Map<String, dynamic> data) =>
+      _$UserAvatarFromJson(data);
 
   /// Connect the generated [_$UserAvatarToJson] function to the `toJson`
   /// method.

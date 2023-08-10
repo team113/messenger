@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -72,9 +73,10 @@ void main() async {
     'ver': '2'
   };
 
+  await Directory('./test/.temp_isar/chat_avatar_unit').create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
+    directory: './test/.temp_isar/chat_avatar_unit',
   );
   isar.write((isar) => isar.clear());
 
@@ -178,8 +180,7 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, isar);
+    UserRepository userRepository = UserRepository(graphQlProvider, isar);
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -268,8 +269,7 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, isar);
+    UserRepository userRepository = UserRepository(graphQlProvider, isar);
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,

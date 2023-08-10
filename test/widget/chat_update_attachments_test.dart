@@ -17,6 +17,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +107,7 @@ void main() async {
   );
 
   TestWidgetsFlutterBinding.ensureInitialized();
-  Hive.init('./test/.temp_hive/chat_update_image');
+  Hive.init('./test/.temp_hive/chat_update_image_widget');
   Config.files = '';
 
   var chatData = {
@@ -148,9 +149,10 @@ void main() async {
     }
   };
 
+  await Directory('./test/.temp_isar/chat_update_image_widget').create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
+    directory: './test/.temp_isar/chat_update_image_widget',
   );
   isar.write((isar) => isar.clear());
 

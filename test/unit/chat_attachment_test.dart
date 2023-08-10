@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -60,9 +61,10 @@ void main() async {
 
   Hive.init('./test/.temp_hive/chat_attachment_unit');
 
+  await Directory('./test/.temp_isar/chat_attachment_unit').create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
+    directory: './test/.temp_isar/chat_attachment_unit',
   );
   isar.write((isar) => isar.clear());
 

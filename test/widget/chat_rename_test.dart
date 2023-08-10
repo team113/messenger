@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -99,9 +100,10 @@ void main() async {
     }
   };
 
+  await Directory('./test/.temp_isar/chat_rename_widget').create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
+    directory: './test/.temp_isar/chat_rename_widget',
   );
   isar.write((isar) => isar.clear());
 

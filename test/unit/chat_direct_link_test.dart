@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -61,9 +63,11 @@ void main() async {
 
   Hive.init('./test/.temp_hive/chat_direct_link_unit');
 
+  await Directory('./test/.temp_isar/chat_direct_link_unit')
+      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
+    directory: './test/.temp_isar/chat_direct_link_unit',
   );
   isar.write((isar) => isar.clear());
 

@@ -51,3 +51,5 @@ app.*.map.json
 /test/e2e/reports/
 /test_driver/build/
 /test_driver/report.json
+*.isar
+*.isar-lck

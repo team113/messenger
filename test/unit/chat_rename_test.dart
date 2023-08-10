@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -53,11 +55,12 @@ import 'chat_rename_test.mocks.dart';
 void main() async {
   setUp(Get.reset);
 
-  Hive.init('./test/.temp_hive/chat_renamte_unit');
+  Hive.init('./test/.temp_hive/chat_rename_unit');
 
+  await Directory('./test/.temp_isar/chat_rename_unit').create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
+    directory: './test/.temp_isar/chat_rename_unit',
   );
   isar.write((isar) => isar.clear());
 
