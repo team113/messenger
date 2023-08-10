@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-/// Controller of highlight animation
+/// Controller of highlight animation.
 class HighlightController extends GetxController {
   HighlightController();
 
@@ -29,8 +29,8 @@ class HighlightController extends GetxController {
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
 
-  /// [Timer] resetting of the [highlightIndex] value after the
-  /// [_highlightTimeout] has passed.
+  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// has passed.
   Timer? _highlightTimer;
 
   /// Highlights the item with the provided [index].

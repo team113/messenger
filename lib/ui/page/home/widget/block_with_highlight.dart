@@ -22,7 +22,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/widget/highlight_animation/controller.dart';
 
-/// [Block] wrapped by highlight animation
+/// [Block] with [AnimatedContainer] representing highlight animation.
 class BlockWithHighlight extends StatelessWidget {
   const BlockWithHighlight({
     super.key,
@@ -31,13 +31,13 @@ class BlockWithHighlight extends StatelessWidget {
     this.title,
   });
 
-  /// Optional header of this [Block].
+  /// Optional header of this [BlockWithHighlight].
   final String? title;
 
   /// [Widget]s to display.
   final List<Widget> children;
 
-  /// Index of this [Block]
+  /// Index of this [BlockWithHighlight].
   final int index;
 
   @override

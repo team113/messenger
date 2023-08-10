@@ -426,7 +426,7 @@ class ChatController extends GetxController {
     super.onClose();
   }
 
-  /// Executes [HighlightController]'s highlight method
+  /// Executes [HighlightController]'s highlight method.
   Future<void> _highlight(int index) =>
       Get.find<HighlightController>().highlight(index);
 
