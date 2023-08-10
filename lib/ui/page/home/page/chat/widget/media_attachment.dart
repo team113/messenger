@@ -72,7 +72,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       final Uint8List? bytes =
           (oldWidget.attachment as LocalAttachment).file.bytes.value;
       if (bytes != null && size == bytes.length) {
-        CacheWorker.instance.save(bytes);
+        CacheWorker.instance.add(bytes);
       }
     }
 

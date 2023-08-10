@@ -115,12 +115,7 @@ Future<void> main() async {
     await authService.init();
     await L10n.init();
 
-    if (Get.isRegistered<CacheInfoHiveProvider>()) {
-      Get.put<CacheWorker>(CacheWorker(Get.find<CacheInfoHiveProvider>()));
-    } else {
-      Get.put<CacheWorker>(CacheWorker(null));
-    }
-
+    Get.put(CacheWorker(Get.findOrNull()));
     Get.put(BackgroundWorker(Get.find()));
 
     WebUtils.deleteLoader();
@@ -225,6 +220,7 @@ Future<void> _initHive() async {
 
   await Get.put(SessionDataHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
+
   if (!PlatformUtils.isWeb) {
     await Get.put(CacheInfoHiveProvider()).init();
   }
@@ -245,5 +241,18 @@ extension HiveClean on HiveInterface {
         // No-op.
       }
     }
+  }
+}
+
+/// Extension adding ability to find non-strict dependencies from a
+/// [GetInterface].
+extension on GetInterface {
+  /// Returns the [S] dependency, if it [isRegistered].
+  S? findOrNull<S>({String? tag}) {
+    if (isRegistered<S>(tag: tag)) {
+      return find<S>(tag: tag);
+    }
+
+    return null;
   }
 }

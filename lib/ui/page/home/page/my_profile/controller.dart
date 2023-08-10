@@ -287,9 +287,7 @@ class MyProfileController extends GetxController {
   }
 
   /// Deletes the cache used by the application.
-  Future<void> clearCache() async {
-    await CacheWorker.instance.clear();
-  }
+  Future<void> clearCache() => CacheWorker.instance.clear();
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///

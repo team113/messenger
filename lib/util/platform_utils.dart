@@ -411,6 +411,7 @@ class PlatformUtilsImpl {
               await Backoff.run(
                 () async {
                   try {
+                    // TODO: Cache the response.
                     await (await dio).download(
                       url,
                       file!.path,
@@ -460,6 +461,7 @@ class PlatformUtilsImpl {
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
       final File file = File(path);
+
       if (data == null) {
         await (await dio).download(url, path);
       } else {

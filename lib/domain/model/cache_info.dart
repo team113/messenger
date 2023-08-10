@@ -25,7 +25,7 @@ import '../model_type_id.dart';
 // ignore: constant_identifier_names
 const int GB = 1024 * 1024 * 1024;
 
-/// Info about the cache.
+/// Info about some cache.
 class CacheInfo extends HiveObject {
   CacheInfo({
     HashSet<String>? checksums,
@@ -34,16 +34,16 @@ class CacheInfo extends HiveObject {
     this.maxSize = GB,
   }) : checksums = checksums ?? HashSet();
 
-  /// Checksums of the files stored in the cache.
+  /// Checksums of the stored in cache files.
   HashSet<String> checksums;
-
-  /// Size of all files stored in the cache.
-  int size;
 
   /// [DateTime] of the last cache modification.
   DateTime? modified;
 
-  /// Max size of all files stored in the cache.
+  /// Occupied cache size in bytes.
+  int size;
+
+  /// Maximum allowed cache size in bytes.
   int maxSize;
 }
 
@@ -54,30 +54,20 @@ class CacheInfoAdapter extends TypeAdapter<CacheInfo> {
 
   @override
   CacheInfo read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-
     return CacheInfo(
-      checksums: HashSet()..addAll(fields[0] as List<String>),
-      size: fields[1] as int,
-      modified: fields[2] as DateTime?,
-      maxSize: fields[3] as int,
+      checksums: HashSet()..addAll(reader.read() as List<String>),
+      size: reader.read() as int,
+      modified: reader.read() as DateTime?,
+      maxSize: reader.read() as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, CacheInfo obj) {
     writer
-      ..writeByte(4)
-      ..writeByte(0)
       ..write(obj.checksums.toList())
-      ..writeByte(1)
       ..write(obj.size)
-      ..writeByte(2)
       ..write(obj.modified)
-      ..writeByte(3)
       ..write(obj.maxSize);
   }
 
