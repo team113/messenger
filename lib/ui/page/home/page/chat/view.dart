@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/ui/widget/highlight_animation/controller.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
@@ -96,6 +97,7 @@ class _ChatViewState extends State<ChatView>
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+    HighlightController h = Get.put(HighlightController());
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
@@ -403,7 +405,8 @@ class _ChatViewState extends State<ChatView>
                                     : const BouncingScrollPhysics(),
                                 reverse: true,
                                 delegate: FlutterListViewDelegate(
-                                  (context, i) => _listElement(context, c, i),
+                                  (context, i) =>
+                                      _listElement(context, c, i, h),
                                   // ignore: invalid_use_of_protected_member
                                   childCount: c.elements.value.length,
                                   stickyAtTailer: true,
@@ -559,7 +562,8 @@ class _ChatViewState extends State<ChatView>
 
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
-  Widget _listElement(BuildContext context, ChatController c, int i) {
+  Widget _listElement(
+      BuildContext context, ChatController c, int i, HighlightController h) {
     final style = Theme.of(context).style;
 
     ListElement element = c.elements.values.elementAt(i);
@@ -639,7 +643,7 @@ class _ChatViewState extends State<ChatView>
             return AnimatedContainer(
               duration: 400.milliseconds,
               curve: Curves.ease,
-              color: c.highlight.value == i
+              color: h.highlightIndex.value == i
                   ? style.colors.primaryOpacity20
                   : style.colors.primaryOpacity20.withOpacity(0),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
@@ -707,7 +711,7 @@ class _ChatViewState extends State<ChatView>
             return AnimatedContainer(
               duration: 400.milliseconds,
               curve: Curves.ease,
-              color: c.highlight.value == i
+              color: h.highlightIndex.value == i
                   ? style.colors.primaryOpacity20
                   : style.colors.primaryOpacity20.withOpacity(0),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),

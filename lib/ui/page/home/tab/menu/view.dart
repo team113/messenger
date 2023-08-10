@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/ui/widget/highlight_animation/controller.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -38,6 +39,8 @@ class MenuTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    HighlightController h = Get.put(HighlightController());
+
     return GetBuilder(
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
@@ -168,7 +171,7 @@ class MenuTabView extends StatelessWidget {
                               router.profileSection.value = tab;
                             }
                             router.me();
-                            c.highlightTile(i);
+                            h.highlight(i);
                           },
                     );
                   });

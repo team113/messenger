@@ -16,9 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import '../tab/menu/controller.dart';
 import '/themes.dart';
 import '/util/platform_utils.dart';
 
@@ -28,7 +26,6 @@ class Block extends StatelessWidget {
     super.key,
     this.children = const [],
     this.title,
-    this.index,
   });
 
   /// Optional header of this [Block].
@@ -37,53 +34,40 @@ class Block extends StatelessWidget {
   /// [Widget]s to display.
   final List<Widget> children;
 
-  final int? index;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-    final MenuTabController c = Get.put(MenuTabController(Get.find(), Get.find()));
-    
 
-    return Obx(() {
-      return AnimatedContainer(
-        duration: 500.milliseconds,
-        curve: Curves.easeIn,
-        color: c.highlight.value == index
-            ? style.colors.primaryOpacity20
-            : style.colors.primaryOpacity20.withOpacity(0),
-        child: Center(
-          child: Container(
-            width: double.infinity,
-            margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-            decoration: BoxDecoration(
-              border: style.primaryBorder,
-              color: style.messageColor,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            constraints:
-                context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
-            padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (title != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        child: Text(title!, style: style.fonts.headlineMedium),
-                      ),
-                    ),
-                  ),
-                ...children,
-              ],
-            ),
-          ),
+    return Center(
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+        decoration: BoxDecoration(
+          border: style.primaryBorder,
+          color: style.messageColor,
+          borderRadius: BorderRadius.circular(15),
         ),
-      );
-    });
+        constraints:
+            context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
+        padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (title != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+                child: Center(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    child: Text(title!, style: style.fonts.headlineMedium),
+                  ),
+                ),
+              ),
+            ...children,
+          ],
+        ),
+      ),
+    );
   }
 }

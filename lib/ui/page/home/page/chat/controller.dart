@@ -28,6 +28,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/ui/widget/highlight_animation/controller.dart';
 import '/api/backend/schema.dart' hide ChatItemQuoteInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
@@ -277,13 +278,6 @@ class ChatController extends GetxController {
   /// Worker capturing any [status] changes.
   Worker? _statusWorker;
 
-  /// [Duration] of the highlighting.
-  static const Duration _highlightTimeout = Duration(seconds: 2);
-
-  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
-  /// passed.
-  Timer? _highlightTimer;
-
   /// [Timer] adding the [_bottomLoader] to the [elements] list.
   Timer? _bottomLoaderStartTimer;
 
@@ -431,6 +425,10 @@ class ChatController extends GetxController {
 
     super.onClose();
   }
+
+  /// Executes [HighlightController]'s highlight method
+  Future<void> _highlight(int index) =>
+      Get.find<HighlightController>().highlight(index);
 
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
@@ -1131,14 +1129,6 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Highlights the item with the provided [index].
-  Future<void> _highlight(int index) async {
-    highlight.value = index;
-
-    _highlightTimer?.cancel();
-    _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
-  }
-
   /// Invokes [_updateSticky] and [_updateFabStates].
   ///
   /// Intended to be called as a listener of a [FlutterListViewController].
@@ -1301,7 +1291,7 @@ class ChatController extends GetxController {
     if (itemId != null) {
       int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
-        _highlight(i);
+        _highlight(index);
         index = i;
         offset = (MediaQuery.of(router.context!).size.height) / 3;
       }
