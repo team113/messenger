@@ -43,7 +43,7 @@ class VacancyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),

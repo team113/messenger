@@ -137,7 +137,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Indicator whether [ContextMenu] is displayed.
   bool _displayed = false;
 
-  /// [OverlayEntry] displaying a currently opened [ContextMenu].
+  /// [OverlayEntry] displaying a currently opened [ContextMenuOverlay].
   OverlayEntry? _entry;
 
   @override
@@ -226,7 +226,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     if (widget.actions.isEmpty) {
       return;
@@ -257,7 +257,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   b.leading!,
                   const SizedBox(width: 12),
                 ],
-                Text(b.label, style: fonts.labelLarge),
+                Text(b.label, style: style.fonts.labelLarge),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,
@@ -302,106 +302,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             onDismissed: _entry?.remove,
           ),
         );
-      });
-
-      Overlay.of(context, rootOverlay: true).insert(_entry!);
-      return;
-
-      await showDialog(
-        context: context,
-        barrierColor: style.colors.transparent,
-        builder: (context) {
-          return LayoutBuilder(builder: (_, constraints) {
-            double qx = 1, qy = 1;
-            if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-            if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-            final Alignment alignment = Alignment(qx, qy);
-
-            return Listener(
-              onPointerUp: (d) {
-                Navigator.of(context).pop();
-                // _entry?.remove();
-
-                _displayed = false;
-                if (widget.indicateOpenedMenu) {
-                  _darkened = false;
-                }
-
-                if (mounted) {
-                  setState(() {});
-                }
-              },
-              child: Container(
-                color: style.colors.transparent,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Positioned(
-                      left: position.dx +
-                          widget.margin.left -
-                          widget.margin.right,
-                      top: position.dy +
-                          widget.margin.top -
-                          widget.margin.bottom,
-                      child: FractionalTranslation(
-                        translation: Offset(
-                          alignment.x > 0 ? 0 : -1,
-                          alignment.y > 0 ? 0 : -1,
-                        ),
-                        child: ContextMenu(actions: widget.actions),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            );
-          });
-        },
-      );
-      return;
-
-      _entry = OverlayEntry(builder: (_) {
-        return LayoutBuilder(builder: (_, constraints) {
-          double qx = 1, qy = 1;
-          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          final Alignment alignment = Alignment(qx, qy);
-
-          return Listener(
-            onPointerUp: (d) {
-              _entry?.remove();
-
-              _displayed = false;
-              if (widget.indicateOpenedMenu) {
-                _darkened = false;
-              }
-
-              if (mounted) {
-                setState(() {});
-              }
-            },
-            child: Container(
-              color: style.colors.transparent,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned(
-                    left:
-                        position.dx + widget.margin.left - widget.margin.right,
-                    top: position.dy + widget.margin.top - widget.margin.bottom,
-                    child: FractionalTranslation(
-                      translation: Offset(
-                        alignment.x > 0 ? 0 : -1,
-                        alignment.y > 0 ? 0 : -1,
-                      ),
-                      child: ContextMenu(actions: widget.actions),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          );
-        });
       });
 
       Overlay.of(context, rootOverlay: true).insert(_entry!);

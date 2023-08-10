@@ -36,7 +36,7 @@ class PartnerTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: PartnerTabController(Get.find()),
@@ -190,12 +190,12 @@ class PartnerTabView extends StatelessWidget {
                           children: [
                             TextSpan(
                               text: 'Новых транзакций: ',
-                              style: fonts.bodySmall
+                              style: style.fonts.bodySmall
                                   ?.copyWith(color: style.colors.secondary),
                             ),
                             TextSpan(
                               text: '4',
-                              style: fonts.bodySmall
+                              style: style.fonts.bodySmall
                                   ?.copyWith(color: style.colors.dangerColor),
                             ),
                           ],

@@ -155,6 +155,7 @@ btn_call_video_on_desc =
 btn_change = Сменить
 btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
+btn_clear_cache = Очистить кэш
 btn_clear_history = Очистить историю
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -405,6 +406,7 @@ fcm_user_removed_user =
         *[other] {$userName}
     }
 label_a_of_b = {$a} из {$b}
+label_a_slash_b = {$a} / {$b}
 label_account_created = Аккаунт создан
 label_actions = Действия
 label_add_additional_email = Добавить дополнительный E-mail
@@ -505,6 +507,7 @@ label_biography_hint = Несколько слов о Вас
 label_block = Заблокировать
 label_blocked = Заблокировано
 label_blocked_users = Заблокированные пользователи
+label_cache = Кэш
 label_cache_and_downloads = Кэш и загрузки
 label_call_active = Активный звонок
 label_call_calling = Звоним
@@ -637,6 +640,7 @@ label_forwarded_messages = {$count ->
    *[other] Forwarded messages
 }
 label_gallery = Галерея
+label_gb_slash_gb = {$a} GB / {$b} GB
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
 label_group_created_by1 = {$author}
@@ -1048,3 +1052,4 @@ label_code_sent_again = Код отправлен повторно.
 label_wait_seconds = Подождите {$for} с
 btn_resend_code = Отправить повторно
 label_sign_up_oauth_already_occupied = Аккаунт {$provider} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
+label_country = Страна

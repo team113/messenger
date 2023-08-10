@@ -39,7 +39,7 @@ class Block extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Center(
       child: Container(
@@ -66,7 +66,7 @@ class Block extends StatelessWidget {
                     child: Text(
                       title!,
                       textAlign: TextAlign.center,
-                      style: fonts.headlineMedium,
+                      style: style.fonts.headlineMedium,
                     ),
                   ),
                 ),

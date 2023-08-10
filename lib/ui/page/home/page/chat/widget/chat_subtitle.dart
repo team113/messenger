@@ -89,7 +89,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final Chat chat = widget.chat.chat.value;
 
@@ -123,7 +123,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         return Text.rich(
           TextSpan(
             children: spans,
-            style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+            style:
+                style.fonts.bodySmall!.copyWith(color: style.colors.secondary),
           ),
         );
       }
@@ -138,7 +139,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
             children: [
               Text(
                 'label_typing'.l10n,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+                style: style.fonts.labelMedium!
+                    .copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -162,7 +164,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: fonts.labelMedium!.copyWith(color: style.colors.primary),
+                style: style.fonts.labelMedium!
+                    .copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -178,7 +181,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
     if (chat.isGroup) {
       return Text(
         chat.getSubtitle()!,
-        style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        style: style.fonts.bodySmall!.copyWith(color: style.colors.secondary),
       );
     } else if (chat.isDialog) {
       final RxUser? member = widget.chat.members.values
@@ -201,7 +204,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
             child = Text(
               buffer.toString(),
-              style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+              style: style.fonts.bodySmall!
+                  .copyWith(color: style.colors.secondary),
             );
           } else {
             child = const SizedBox();

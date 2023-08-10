@@ -49,7 +49,7 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
@@ -104,7 +104,7 @@ class LanguageSelectionView extends StatelessWidget {
               //     maxWidth: double.infinity,
               //     title: Text(
               //       'btn_proceed'.l10n,
-              //       style: fonts.bodyMedium!.copyWith(
+              //       style: style.fonts.bodyMedium!.copyWith(
               //         color: style.colors.onPrimary,
               //       ),
               //     ),

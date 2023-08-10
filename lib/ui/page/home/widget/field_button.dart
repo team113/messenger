@@ -38,6 +38,7 @@ class FieldButton extends StatefulWidget {
     this.trailing,
     this.prefix,
     this.style,
+    this.subtitle,
     this.border,
     this.prefixText,
     this.prefixStyle,
@@ -69,6 +70,9 @@ class FieldButton extends StatefulWidget {
   /// Optional trailing [Widget].
   final Widget? trailing;
 
+  /// Optional subtitle [Widget].
+  final Widget? subtitle;
+
   /// Optional prefix [Widget].
   final Widget? prefix;
 
@@ -93,40 +97,49 @@ class _FieldButtonState extends State<FieldButton> {
   /// Indicator whether this [FieldButton] is hovered.
   bool _hovered = false;
 
-  final GlobalKey _key = GlobalKey();
-
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     if (!widget.old) {
-      return OutlinedRoundedButton(
-        title: Text(widget.text ?? '', maxLines: widget.maxLines),
-        maxWidth: double.infinity,
-        // color: style.colors.backgroundAuxiliaryLighter,
-        color: style.colors.onPrimary,
-        disabled: style.colors.onPrimary,
-        onPressed: widget.onPressed,
-        style: fonts.titleLarge?.copyWith(
-          color: widget.onPressed == null
-              ? style.colors.onBackgroundOpacity40
-              : style.colors.onBackground,
-        ),
-        height: 46,
-        trailing: AnimatedScale(
-          duration: const Duration(milliseconds: 100),
-          scale: _hovered ? 1.05 : 1,
-          child: Transform.translate(
-            offset: const Offset(0, 1),
-            child: widget.trailing,
+      return Column(
+        children: [
+          OutlinedRoundedButton(
+            title: Text(widget.text ?? '', maxLines: widget.maxLines),
+            maxWidth: double.infinity,
+            color: style.colors.onPrimary,
+            disabled: style.colors.onPrimary,
+            onPressed: widget.onPressed,
+            style: style.fonts.titleLarge.copyWith(
+              color: widget.onPressed == null
+                  ? style.colors.onBackgroundOpacity40
+                  : style.colors.onBackground,
+            ),
+            height: 46,
+            trailing: AnimatedScale(
+              duration: const Duration(milliseconds: 100),
+              scale: _hovered ? 1.05 : 1,
+              child: Transform.translate(
+                offset: const Offset(0, 1),
+                child: widget.trailing,
+              ),
+            ),
+            leading: widget.prefix,
+            maxHeight: double.infinity,
+            border: Border.all(
+              width: 0.5,
+              color: style.colors.secondary,
+            ),
           ),
-        ),
-        leading: widget.prefix,
-        maxHeight: double.infinity,
-        border: Border.all(
-          width: 0.5,
-          color: style.colors.secondary,
-        ),
+          if (widget.subtitle != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                child: widget.subtitle,
+              ),
+            ),
+        ],
       );
     }
 
@@ -149,15 +162,16 @@ class _FieldButtonState extends State<FieldButton> {
               state: TextFieldState(text: widget.text, editable: false),
               label: widget.label,
               maxLines: widget.maxLines,
-              // trailing: AnimatedScale(
-              //   key: _key,
-              //   duration: const Duration(milliseconds: 100),
-              //   scale: _hovered ? 1.05 : 1,
-              //   child: Transform.translate(
-              //     offset: const Offset(0, 1),
-              //     child: widget.trailing,
-              //   ),
-              // ),
+              trailing: widget.onTrailingPressed == null
+                  ? AnimatedScale(
+                      duration: const Duration(milliseconds: 100),
+                      scale: _hovered ? AnimatedButton.scale : 1,
+                      child: Transform.translate(
+                        offset: const Offset(0, 1),
+                        child: widget.trailing,
+                      ),
+                    )
+                  : null,
               prefixStyle: widget.prefixStyle,
               prefixText: widget.prefixText,
               floatingLabelBehavior: widget.floatingLabelBehavior,
@@ -177,19 +191,43 @@ class _FieldButtonState extends State<FieldButton> {
       return child;
     }
 
-    return Stack(
-      alignment: Alignment.centerRight,
+    return Column(
       children: [
-        child,
-        Positioned.fill(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: AnimatedButton(
-              onPressed: widget.onTrailingPressed,
-              child: const SizedBox(width: 50, height: double.infinity),
+        Stack(
+          alignment: Alignment.centerRight,
+          children: [
+            child,
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: AnimatedButton(
+                  onPressed: widget.onTrailingPressed,
+                  enabled: widget.onTrailingPressed != null,
+                  decorator: (child) {
+                    return SizedBox(
+                      width: 50,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8, top: 8),
+                          child: child,
+                        ),
+                      ),
+                    );
+                  },
+                  child: widget.trailing!,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (widget.subtitle != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+              child: widget.subtitle,
             ),
           ),
-        ),
       ],
     );
   }

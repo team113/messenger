@@ -48,7 +48,7 @@ class VacancyContactView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('AccountsView'),
@@ -62,7 +62,8 @@ class VacancyContactView extends StatelessWidget {
               children = [
                 ModalPopupHeader(
                   header: Center(
-                    child: Text('Register'.l10n, style: fonts.headlineMedium),
+                    child: Text('Register'.l10n,
+                        style: style.fonts.headlineMedium),
                   ),
                   onBack: () => c.stage.value = null,
                 ),
@@ -76,7 +77,7 @@ class VacancyContactView extends StatelessWidget {
                         c.resent.value
                             ? 'label_add_email_confirmation_sent_again'.l10n
                             : 'label_add_email_confirmation_sent'.l10n,
-                        style: fonts.bodyMedium!.copyWith(
+                        style: style.fonts.bodyMedium!.copyWith(
                           color: style.colors.secondary,
                         ),
                       );
@@ -89,7 +90,7 @@ class VacancyContactView extends StatelessWidget {
                   child: ReactiveTextField(
                     state: c.emailCode,
                     label: 'label_confirmation_code'.l10n,
-                    style: fonts.bodyMedium,
+                    style: style.fonts.bodyMedium,
                     treatErrorAsStatus: false,
                     formatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
@@ -110,7 +111,7 @@ class VacancyContactView extends StatelessWidget {
                                   : 'label_resend_timeout'.l10nfmt(
                                       {'timeout': c.resendEmailTimeout.value},
                                     ),
-                              style: fonts.bodyMedium!.copyWith(
+                              style: style.fonts.bodyMedium!.copyWith(
                                 color: c.resendEmailTimeout.value == 0
                                     ? style.colors.onPrimary
                                     : style.colors.onBackground,
@@ -129,7 +130,7 @@ class VacancyContactView extends StatelessWidget {
                             maxWidth: double.infinity,
                             title: Text(
                               'btn_proceed'.l10n,
-                              style: fonts.bodyMedium!.copyWith(
+                              style: style.fonts.bodyMedium!.copyWith(
                                 color: c.emailCode.isEmpty.value
                                     ? style.colors.onBackground
                                     : style.colors.onPrimary,
@@ -155,10 +156,10 @@ class VacancyContactView extends StatelessWidget {
                 //       return OutlinedRoundedButton(
                 //         title: Text(
                 //           'Proceed'.l10n,
-                //           style: fonts.titleLarge!.copyWith(
+                //           style: style.fonts.titleLarge!.copyWith(
                 //             color: enabled
                 //                 ? style.colors.onPrimary
-                //                 : fonts.titleLarge!.color,
+                //                 : style.fonts.titleLarge!.color,
                 //           ),
                 //         ),
                 //         onPressed: enabled ? c.emailCode.submit : null,
@@ -175,7 +176,8 @@ class VacancyContactView extends StatelessWidget {
               children = [
                 ModalPopupHeader(
                   header: Center(
-                    child: Text('Register'.l10n, style: fonts.headlineMedium),
+                    child: Text('Register'.l10n,
+                        style: style.fonts.headlineMedium),
                   ),
                   onBack: () => c.stage.value = null,
                 ),
@@ -185,7 +187,7 @@ class VacancyContactView extends StatelessWidget {
                   child: ReactiveTextField(
                     state: c.email,
                     label: 'label_email'.l10n,
-                    style: fonts.bodyMedium,
+                    style: style.fonts.bodyMedium,
                     treatErrorAsStatus: false,
                   ),
                 ),
@@ -196,7 +198,7 @@ class VacancyContactView extends StatelessWidget {
                     state: c.newPassword,
                     label: 'label_password'.l10n,
                     obscure: c.obscureNewPassword.value,
-                    style: fonts.bodyMedium,
+                    style: style.fonts.bodyMedium,
                     onSuffixPressed: c.obscureNewPassword.toggle,
                     treatErrorAsStatus: false,
                     trailing: SvgImage.asset(
@@ -212,7 +214,7 @@ class VacancyContactView extends StatelessWidget {
                     state: c.repeatPassword,
                     label: 'label_repeat_password'.l10n,
                     obscure: c.obscureRepeatPassword.value,
-                    style: fonts.bodyMedium,
+                    style: style.fonts.bodyMedium,
                     onSuffixPressed: c.obscureRepeatPassword.toggle,
                     treatErrorAsStatus: false,
                     trailing: SvgImage.asset(
@@ -236,10 +238,10 @@ class VacancyContactView extends StatelessWidget {
                       return OutlinedRoundedButton(
                         title: Text(
                           'Proceed'.l10n,
-                          style: fonts.titleLarge!.copyWith(
+                          style: style.fonts.titleLarge!.copyWith(
                             color: enabled
                                 ? style.colors.onPrimary
-                                : fonts.titleLarge!.color,
+                                : style.fonts.titleLarge!.color,
                           ),
                         ),
                         onPressed: enabled ? c.repeatPassword.submit : null,
@@ -256,7 +258,8 @@ class VacancyContactView extends StatelessWidget {
               children = [
                 ModalPopupHeader(
                   header: Center(
-                    child: Text('Contact us'.l10n, style: fonts.headlineMedium),
+                    child: Text('Contact us'.l10n,
+                        style: style.fonts.headlineMedium),
                   ),
                 ),
                 const SizedBox(height: 25 - 12),
@@ -266,7 +269,7 @@ class VacancyContactView extends StatelessWidget {
                     key: const Key('LoginField'),
                     state: c.login,
                     label: 'label_login'.l10n,
-                    style: fonts.bodyMedium,
+                    style: style.fonts.bodyMedium,
                     treatErrorAsStatus: false,
                   ),
                 ),
@@ -278,7 +281,7 @@ class VacancyContactView extends StatelessWidget {
                     state: c.password,
                     label: 'label_password'.l10n,
                     obscure: c.obscurePassword.value,
-                    style: fonts.bodyMedium,
+                    style: style.fonts.bodyMedium,
                     onSuffixPressed: c.obscurePassword.toggle,
                     treatErrorAsStatus: false,
                     trailing: SvgImage.asset(
@@ -294,10 +297,10 @@ class VacancyContactView extends StatelessWidget {
                     child: OutlinedRoundedButton(
                       title: Text(
                         'Login'.l10n,
-                        style: fonts.titleLarge!.copyWith(
+                        style: style.fonts.titleLarge!.copyWith(
                           color:
                               c.login.isEmpty.value || c.password.isEmpty.value
-                                  ? fonts.titleLarge!.color
+                                  ? style.fonts.titleLarge!.color
                                   : style.colors.onPrimary,
                         ),
                       ),
@@ -325,7 +328,7 @@ class VacancyContactView extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text('OR', style: fonts.headlineSmall),
+                    Text('OR', style: style.fonts.headlineSmall),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Container(
@@ -344,7 +347,7 @@ class VacancyContactView extends StatelessWidget {
                     child: OutlinedRoundedButton(
                       title: Text(
                         'Create account'.l10n,
-                        style: fonts.titleLarge!.copyWith(
+                        style: style.fonts.titleLarge!.copyWith(
                           color: style.colors.onPrimary,
                         ),
                       ),

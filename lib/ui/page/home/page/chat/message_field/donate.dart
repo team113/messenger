@@ -156,7 +156,7 @@ class _MenuButtonState extends State<_MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     if (widget.button == 0) {
       return Container(
@@ -207,10 +207,10 @@ class _MenuButtonState extends State<_MenuButton> {
                     onChanged: () => setState(() {}),
                     formatters: [FilteringTextInputFormatter.digitsOnly],
                     // prefixText: 'G',
-                    style: fonts.bodyLarge,
+                    style: style.fonts.bodyLarge,
                     withTrailing: false,
-                    prefixStyle:
-                        fonts.bodyLarge!.copyWith(color: style.colors.primary),
+                    prefixStyle: style.fonts.bodyLarge!
+                        .copyWith(color: style.colors.primary),
                   ),
                 ),
               ),
@@ -289,7 +289,7 @@ class _MenuButtonState extends State<_MenuButton> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Text(
                   '${widget.button} ¤',
-                  style: fonts.titleLarge!.copyWith(
+                  style: style.fonts.titleLarge!.copyWith(
                     color: style.colors.primary,
                   ),
                 ),

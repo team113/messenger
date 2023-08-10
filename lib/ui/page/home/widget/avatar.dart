@@ -393,7 +393,7 @@ class _AvatarWidgetState extends State<AvatarWidget> {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       final Color gradient;
@@ -457,9 +457,9 @@ class _AvatarWidgetState extends State<AvatarWidget> {
                     SelectionContainer.disabled(
                       child: Text(
                         (widget.title ?? '??').initials(),
-                        style: fonts.titleSmall!.copyWith(
-                          fontSize:
-                              fonts.bodyMedium!.fontSize! * (maxWidth / 40.0),
+                        style: style.fonts.titleSmall!.copyWith(
+                          fontSize: style.fonts.bodyMedium!.fontSize! *
+                              (maxWidth / 40.0),
                           color: style.colors.onPrimary,
                         ),
 

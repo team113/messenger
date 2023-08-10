@@ -136,7 +136,7 @@ class ModalPopupHeader extends StatelessWidget {
     this.onBack,
     this.onClose,
     this.header,
-    this.close = true,
+    this.close = false,
   });
 
   /// [Widget] to put as a title of this [ModalPopupHeader].
@@ -156,7 +156,7 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
@@ -180,7 +180,9 @@ class ModalPopupHeader extends StatelessWidget {
             Expanded(child: header!)
           else if (text != null)
             Expanded(
-              child: Center(child: Text(text!, style: fonts.headlineMedium)),
+              child: Center(
+                child: Text(text!, style: style.fonts.headlineMedium),
+              ),
             )
           else
             const Spacer(),

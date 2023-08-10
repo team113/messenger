@@ -48,11 +48,11 @@ class ContextMenuOverlay extends StatefulWidget {
 /// State of a [ContextMenuOverlay] maintaining the [_controller].
 class _ContextMenuOverlayState extends State<ContextMenuOverlay>
     with TickerProviderStateMixin {
-  /// Controller of [FadeTransition].
+  /// Controller animating [FadeTransition].
   late AnimationController _controller;
 
   /// Animation of [FadeTransition].
-  late Animation<double> _opacityAnimation;
+  late Animation<double> _animation;
 
   @override
   void initState() {
@@ -61,10 +61,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
       vsync: this,
     )..forward();
 
-    _opacityAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
     super.initState();
   }
@@ -91,7 +88,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
           widget.onDismissed?.call();
         },
         child: FadeTransition(
-          opacity: _opacityAnimation,
+          opacity: _animation,
           child: Container(
             color: style.colors.transparent,
             child: Stack(

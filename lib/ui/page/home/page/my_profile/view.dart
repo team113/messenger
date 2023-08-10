@@ -28,18 +28,16 @@ import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
-import 'package:messenger/ui/page/home/page/user/widget/num.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../chat/message_field/view.dart';
 import '/api/backend/schema.dart' show Presence;
-import '/config.dart';
+import '/domain/model/cache_info.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -50,15 +48,18 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
+import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/num.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -69,15 +70,18 @@ import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'language/view.dart';
-import 'link_details/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'paid_list/view.dart';
 import 'password/view.dart';
 import 'timeline_switch/view.dart';
 import 'welcome_message/view.dart';
-import 'widget/copyable.dart';
+import 'widget/background_preview.dart';
 import 'widget/download_button.dart';
+import 'widget/login.dart';
+import 'widget/name.dart';
+import 'widget/status.dart';
+import 'widget/switch_field.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -85,8 +89,6 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find(), Get.find()),
@@ -109,368 +111,348 @@ class MyProfileView extends StatelessWidget {
                 ),
               ],
             ),
-            body: Obx(() {
-              if (c.myUser.value == null) {
-                return const Center(child: CustomProgressIndicator());
-              }
-
-              return Scrollbar(
-                controller: c.scrollController,
-                child: ScrollablePositionedList.builder(
-                  key: const Key('MyProfileScrollable'),
-                  initialScrollIndex: c.listInitIndex,
-                  scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  itemCount: ProfileTab.values.length,
-                  itemBuilder: (context, i) {
-                    switch (ProfileTab.values[i]) {
-                      case ProfileTab.public:
-                        return Block(
-                          title: 'label_profile'.l10n,
-                          children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                WidgetButton(
-                                  onPressed: c.myUser.value?.avatar == null
-                                      ? c.uploadAvatar
-                                      : () async {
-                                          await GalleryPopup.show(
-                                            context: context,
-                                            gallery: GalleryPopup(
-                                              initialKey: c.avatarKey,
-                                              children: [
-                                                GalleryItem.image(
-                                                  c.myUser.value!.avatar!
-                                                      .original.url,
-                                                  c.myUser.value!.num.val,
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                  child: AvatarWidget.fromMyUser(
-                                    c.myUser.value,
-                                    key: c.avatarKey,
-                                    radius: 100,
-                                    badge: false,
-                                  ),
-                                ),
-                                Positioned.fill(
-                                  child: Obx(() {
-                                    return AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: c.avatarUpload.value.isLoading
-                                          ? Container(
-                                              width: 200,
-                                              height: 200,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: style.colors
-                                                    .onBackgroundOpacity13,
-                                              ),
-                                              child: const Center(
-                                                child:
-                                                    CustomProgressIndicator(),
-                                              ),
-                                            )
-                                          : const SizedBox.shrink(),
-                                    );
-                                  }),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
+            body: Scrollbar(
+              controller: c.scrollController,
+              child: ScrollablePositionedList.builder(
+                key: const Key('MyProfileScrollable'),
+                initialScrollIndex: c.listInitIndex,
+                scrollController: c.scrollController,
+                itemScrollController: c.itemScrollController,
+                itemPositionsListener: c.positionsListener,
+                itemCount: ProfileTab.values.length,
+                itemBuilder: (context, i) {
+                  switch (ProfileTab.values[i]) {
+                    case ProfileTab.public:
+                      return Block(
+                        title: 'label_profile'.l10n,
+                        children: [
+                          Obx(() {
+                            return BigAvatarWidget.myUser(
+                              c.myUser.value,
+                              loading: c.avatarUpload.value.isLoading,
+                              onUpload: c.uploadAvatar,
+                              onDelete: c.myUser.value?.avatar != null
+                                  ? c.deleteAvatar
+                                  : null,
+                            );
+                          }),
+                          const SizedBox(height: 12),
+                          Paddings.basic(
                             Obx(() {
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  WidgetButton(
-                                    key: const Key('UploadAvatar'),
-                                    onPressed: c.uploadAvatar,
-                                    child: Text(
-                                      'btn_upload'.l10n,
-                                      style: fonts.labelSmall!.copyWith(
-                                        color: style.colors.primary,
-                                      ),
-                                    ),
-                                  ),
-                                  if (c.myUser.value?.avatar != null) ...[
-                                    Text(
-                                      'space_or_space'.l10n,
-                                      style: fonts.bodySmall,
-                                    ),
-                                    WidgetButton(
-                                      key: const Key('DeleteAvatar'),
-                                      onPressed: c.deleteAvatar,
-                                      child: Text(
-                                        'btn_delete'.l10n.toLowerCase(),
-                                        style: fonts.bodySmall!.copyWith(
-                                          color: style.colors.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
+                              return UserNameField(
+                                c.myUser.value?.name,
+                                onSubmit: c.updateUserName,
                               );
                             }),
-                            const SizedBox(height: 10),
-                            _name(c),
-                            _presence(c, context),
-                            _status(c, context),
-                          ],
-                        );
+                          ),
+                          _presence(context, c),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserTextStatusField(
+                                c.myUser.value?.status,
+                                onSubmit: c.updateUserStatus,
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
-                      case ProfileTab.signing:
-                        return Block(
-                          title: 'label_login_options'.l10n,
-                          children: [
-                            _num(c),
-                            _login(c, context),
-                            const SizedBox(height: 10),
-                            _emails(c, context),
-                            _phones(c, context),
-                            _password(context, c),
-                          ],
-                        );
+                    case ProfileTab.signing:
+                      return Block(
+                        title: 'label_login_options'.l10n,
+                        children: [
+                          Paddings.basic(
+                            Obx(() => UserNumCopyable(c.myUser.value?.num)),
+                          ),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserLoginField(
+                                c.myUser.value?.login,
+                                onSubmit: c.updateUserLogin,
+                              );
+                            }),
+                          ),
+                          _emails(context, c),
+                          _phones(context, c),
+                          _password(context, c),
+                        ],
+                      );
 
-                      case ProfileTab.link:
-                        return Block(
-                          title: 'label_your_direct_link'.l10n,
-                          children: [_link(context, c)],
-                        );
+                    case ProfileTab.link:
+                      return Block(
+                        title: 'label_your_direct_link'.l10n,
+                        children: [
+                          Obx(() {
+                            return DirectLinkField(
+                              c.myUser.value?.chatDirectLink,
+                              onSubmit: c.createChatDirectLink,
+                            );
+                          }),
+                        ],
+                      );
 
-                      case ProfileTab.background:
-                        return Block(
-                          title: 'label_background'.l10n,
-                          children: [_background(context, c)],
-                        );
+                    case ProfileTab.background:
+                      return Block(
+                        title: 'label_background'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              return BackgroundPreview(
+                                c.background.value,
+                                onPick: c.pickBackground,
+                                onRemove: c.removeBackground,
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
-                      case ProfileTab.chats:
-                        return Block(
-                          title: 'label_chats'.l10n,
-                          children: [_chats(context, c)],
-                        );
+                    case ProfileTab.chats:
+                      return Block(
+                        title: 'label_chats'.l10n,
+                        children: [_chats(context, c)],
+                      );
 
-                      case ProfileTab.calls:
-                        return Block(
-                          title: 'label_calls'.l10n,
-                          children: [_call(context, c)],
-                        );
+                    case ProfileTab.calls:
+                      return Block(
+                        title: 'label_calls'.l10n,
+                        children: [_call(context, c)],
+                      );
 
-                      case ProfileTab.media:
-                        if (!PlatformUtils.isMobile) {
-                          return Block(
-                            title: 'label_media'.l10n,
-                            children: [_media(context, c)],
-                          );
-                        }
-
+                    case ProfileTab.media:
+                      if (PlatformUtils.isMobile) {
                         return const SizedBox();
+                      }
 
-                      case ProfileTab.welcome:
-                        return Block(
-                          title: 'label_welcome_message'.l10n,
-                          padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                          children: [_welcome(context, c)],
-                        );
+                      return Block(
+                        title: 'label_media'.l10n,
+                        children: [_media(context, c)],
+                      );
 
-                      case ProfileTab.getPaid:
-                        return Stack(
-                          children: [
-                            Block(
-                              title: 'label_get_paid_for_incoming'.l10n,
-                              children: [_getPaid(context, c)],
-                            ),
-                            Positioned.fill(
-                              child: Obx(() {
-                                return IgnorePointer(
-                                  ignoring: c.verified.value,
-                                  child: Center(
-                                    child: AnimatedContainer(
-                                      margin:
-                                          const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                                      duration: 200.milliseconds,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: c.verified.value
-                                            ? const Color(0x00000000)
-                                            : const Color(0x0A000000),
-                                      ),
-                                      constraints: context.isNarrow
-                                          ? null
-                                          : const BoxConstraints(maxWidth: 400),
+                    case ProfileTab.welcome:
+                      return Block(
+                        title: 'label_welcome_message'.l10n,
+                        padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                        children: [_welcome(context, c)],
+                      );
+
+                    case ProfileTab.getPaid:
+                      return Stack(
+                        children: [
+                          Block(
+                            title: 'label_get_paid_for_incoming'.l10n,
+                            children: [_getPaid(context, c)],
+                          ),
+                          Positioned.fill(
+                            child: Obx(() {
+                              return IgnorePointer(
+                                ignoring: c.verified.value,
+                                child: Center(
+                                  child: AnimatedContainer(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                                    duration: 200.milliseconds,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: c.verified.value
+                                          ? const Color(0x00000000)
+                                          : const Color(0x0A000000),
                                     ),
+                                    constraints: context.isNarrow
+                                        ? null
+                                        : const BoxConstraints(maxWidth: 400),
                                   ),
+                                ),
+                              );
+                            }),
+                          ),
+                          Positioned.fill(
+                            child: Center(
+                              child: Obx(() {
+                                return AnimatedSwitcher(
+                                  duration: 200.milliseconds,
+                                  child: c.verified.value
+                                      ? const SizedBox()
+                                      : Container(
+                                          key: const Key('123'),
+                                          alignment: Alignment.bottomCenter,
+                                          padding: const EdgeInsets.fromLTRB(
+                                            32,
+                                            16,
+                                            32,
+                                            16,
+                                          ),
+                                          margin: const EdgeInsets.fromLTRB(
+                                              8, 4, 8, 4),
+                                          constraints: context.isNarrow
+                                              ? null
+                                              : const BoxConstraints(
+                                                  maxWidth: 400),
+                                          child: Column(
+                                            children: [
+                                              const Spacer(),
+                                              _verification(context, c),
+                                            ],
+                                          ),
+                                        ),
                                 );
                               }),
                             ),
-                            Positioned.fill(
-                              child: Center(
-                                child: Obx(() {
-                                  return AnimatedSwitcher(
-                                    duration: 200.milliseconds,
-                                    child: c.verified.value
-                                        ? const SizedBox()
-                                        : Container(
-                                            key: const Key('123'),
-                                            alignment: Alignment.bottomCenter,
-                                            padding: const EdgeInsets.fromLTRB(
-                                              32,
-                                              16,
-                                              32,
-                                              16,
-                                            ),
-                                            margin: const EdgeInsets.fromLTRB(
-                                                8, 4, 8, 4),
-                                            constraints: context.isNarrow
-                                                ? null
-                                                : const BoxConstraints(
-                                                    maxWidth: 400),
-                                            child: Column(
-                                              children: [
-                                                const Spacer(),
-                                                _verification(context, c),
-                                              ],
-                                            ),
-                                          ),
-                                  );
-                                }),
-                              ),
-                            ),
-                          ],
-                        );
+                          ),
+                        ],
+                      );
 
-                      case ProfileTab.donates:
-                        return Stack(
-                          children: [
-                            Block(
-                              title: 'label_donates'.l10n,
-                              children: [_donates(context, c)],
-                            ),
-                            Positioned.fill(
-                              child: Obx(() {
-                                return IgnorePointer(
-                                  ignoring: c.verified.value,
-                                  child: Center(
-                                    child: AnimatedContainer(
-                                      margin:
-                                          const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                                      duration: 200.milliseconds,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: c.verified.value
-                                            ? const Color(0x00000000)
-                                            : const Color(0x0A000000),
-                                      ),
-                                      constraints: context.isNarrow
-                                          ? null
-                                          : const BoxConstraints(maxWidth: 400),
+                    case ProfileTab.donates:
+                      return Stack(
+                        children: [
+                          Block(
+                            title: 'label_donates'.l10n,
+                            children: [_donates(context, c)],
+                          ),
+                          Positioned.fill(
+                            child: Obx(() {
+                              return IgnorePointer(
+                                ignoring: c.verified.value,
+                                child: Center(
+                                  child: AnimatedContainer(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                                    duration: 200.milliseconds,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: c.verified.value
+                                          ? const Color(0x00000000)
+                                          : const Color(0x0A000000),
                                     ),
+                                    constraints: context.isNarrow
+                                        ? null
+                                        : const BoxConstraints(maxWidth: 400),
                                   ),
+                                ),
+                              );
+                            }),
+                          ),
+                          Positioned.fill(
+                            child: Center(
+                              child: Obx(() {
+                                return AnimatedSwitcher(
+                                  duration: 200.milliseconds,
+                                  child: c.verified.value
+                                      ? const SizedBox()
+                                      : Container(
+                                          key: const Key('123'),
+                                          alignment: Alignment.bottomCenter,
+                                          padding: const EdgeInsets.fromLTRB(
+                                            32,
+                                            16,
+                                            32,
+                                            16,
+                                          ),
+                                          margin: const EdgeInsets.fromLTRB(
+                                            8,
+                                            4,
+                                            8,
+                                            4,
+                                          ),
+                                          constraints: context.isNarrow
+                                              ? null
+                                              : const BoxConstraints(
+                                                  maxWidth: 400,
+                                                ),
+                                          child: Column(
+                                            children: [
+                                              const Spacer(),
+                                              _verification(context, c),
+                                            ],
+                                          ),
+                                        ),
                                 );
                               }),
                             ),
-                            Positioned.fill(
-                              child: Center(
-                                child: Obx(() {
-                                  return AnimatedSwitcher(
-                                    duration: 200.milliseconds,
-                                    child: c.verified.value
-                                        ? const SizedBox()
-                                        : Container(
-                                            key: const Key('123'),
-                                            alignment: Alignment.bottomCenter,
-                                            padding: const EdgeInsets.fromLTRB(
-                                              32,
-                                              16,
-                                              32,
-                                              16,
-                                            ),
-                                            margin: const EdgeInsets.fromLTRB(
-                                              8,
-                                              4,
-                                              8,
-                                              4,
-                                            ),
-                                            constraints: context.isNarrow
-                                                ? null
-                                                : const BoxConstraints(
-                                                    maxWidth: 400,
-                                                  ),
-                                            child: Column(
-                                              children: [
-                                                const Spacer(),
-                                                _verification(context, c),
-                                              ],
-                                            ),
-                                          ),
-                                  );
-                                }),
-                              ),
-                            ),
-                          ],
-                        );
+                          ),
+                        ],
+                      );
 
-                      case ProfileTab.notifications:
-                        return Block(
-                          title: 'label_audio_notifications'.l10n,
-                          children: [_notifications(context, c)],
-                        );
+                    case ProfileTab.notifications:
+                      return Block(
+                        title: 'label_audio_notifications'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              final bool isMuted =
+                                  c.myUser.value?.muted == null;
 
-                      // case ProfileTab.devices:
-                      //   return Block(
-                      //     title: 'label_linked_devices'.l10n,
-                      //     children: [_devices(context, c)],
-                      //   );
+                              return SwitchField(
+                                text: isMuted
+                                    ? 'label_enabled'.l10n
+                                    : 'label_disabled'.l10n,
+                                value: isMuted,
+                                onChanged:
+                                    c.isMuting.value ? null : c.toggleMute,
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
-                      case ProfileTab.storage:
-                        return Block(
-                          title: 'label_storage'.l10n,
-                          children: [_storage(context, c)],
-                        );
+                    // case ProfileTab.devices:
+                    //   return Block(
+                    //     title: 'label_linked_devices'.l10n,
+                    //     children: [_devices(context, c)],
+                    //   );
 
-                      case ProfileTab.language:
-                        return Block(
-                          title: 'label_language'.l10n,
-                          children: [_language(context, c)],
-                        );
+                    case ProfileTab.storage:
+                      return Block(
+                        title: 'label_storage'.l10n,
+                        children: [_storage(context, c)],
+                      );
 
-                      case ProfileTab.blacklist:
-                        return Block(
-                          title: 'label_blocked_users'.l10n,
-                          children: [_blockedUsers(context, c)],
-                        );
+                    case ProfileTab.language:
+                      return Block(
+                        title: 'label_language'.l10n,
+                        children: [_language(context, c)],
+                      );
 
-                      case ProfileTab.download:
-                        if (PlatformUtils.isWeb) {
-                          return Block(
-                            title: 'label_download_application'.l10n,
-                            children: [_downloads(context, c)],
-                          );
-                        }
+                    case ProfileTab.blacklist:
+                      return Block(
+                        title: 'label_blocked_users'.l10n,
+                        children: [_blockedUsers(context, c)],
+                      );
 
+                    case ProfileTab.download:
+                      if (!PlatformUtils.isWeb) {
                         return const SizedBox();
+                      }
 
-                      case ProfileTab.danger:
-                        return Block(
-                          title: 'label_danger_zone'.l10n,
-                          children: [_danger(context, c)],
-                        );
+                      return Block(
+                        title: 'label_download_application'.l10n,
+                        children: [_downloads(context, c)],
+                      );
 
-                      case ProfileTab.vacancies:
-                        return const SizedBox();
+                    case ProfileTab.danger:
+                      return Block(
+                        title: 'label_danger_zone'.l10n,
+                        children: [_danger(context, c)],
+                      );
 
-                      case ProfileTab.styles:
-                        return const SizedBox();
+                    case ProfileTab.vacancies:
+                      return const SizedBox();
 
-                      case ProfileTab.logout:
-                        return const SizedBox();
-                    }
-                  },
-                ),
-              );
+                    case ProfileTab.styles:
+                      return const SizedBox();
+
+                    case ProfileTab.logout:
+                      return const SizedBox();
+                  }
+                },
+              ),
+            ),
+            floatingActionButton: Obx(() {
+              if (c.myUser.value != null) {
+                return const SizedBox();
+              }
+
+              return const CustomProgressIndicator();
             }),
           ),
         );
@@ -487,269 +469,9 @@ Widget _padding(Widget child) =>
 Widget _dense(Widget child) =>
     Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
 
-/// Returns [MyUser.name] editable field.
-Widget _name(MyProfileController c) {
-  return _padding(
-    ReactiveTextField(
-      key: const Key('NameField'),
-      state: c.name,
-      label: 'label_name'.l10n,
-      hint: 'label_name_hint'.l10n,
-      filled: true,
-      onSuffixPressed: c.name.text.isEmpty
-          ? null
-          : () {
-              PlatformUtils.copy(text: c.name.text);
-              MessagePopup.success('label_copied'.l10n);
-            },
-      trailing: c.name.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-              ),
-            ),
-    ),
-  );
-}
-
-/// Returns [MyUser.status] editable field.
-Widget _status(MyProfileController c, BuildContext context) {
-  final fonts = Theme.of(context).fonts;
-
-  return _padding(
-    ReactiveTextField(
-      key: const Key('StatusField'),
-      state: c.status,
-      label: 'label_status'.l10n,
-      filled: true,
-      maxLength: 25,
-      onSuffixPressed: c.status.text.isEmpty
-          ? null
-          : () {
-              PlatformUtils.copy(text: c.status.text);
-              MessagePopup.success('label_copied'.l10n);
-            },
-      trailing: c.status.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-              ),
-            ),
-      style: fonts.titleMedium,
-    ),
-  );
-}
-
-/// Returns [WidgetButton] displaying the [MyUser.presence].
-Widget _presence(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
-
-  return Obx(() {
-    final Presence? presence = c.myUser.value?.presence;
-
-    return _padding(
-      FieldButton(
-        onPressed: () => StatusView.show(context, expanded: false),
-        hint: 'label_presence'.l10n,
-        text: presence?.localizedString(),
-        trailing:
-            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: fonts.titleMedium!.copyWith(color: style.colors.primary),
-      ),
-    );
-  });
-}
-
-/// Returns [MyUser.num] copyable field.
-Widget _num(MyProfileController c) => _padding(
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          UserNumCopyable(c.myUser.value?.num),
-          const SizedBox(height: 10),
-        ],
-      ),
-    );
-
-/// Returns [MyUser.chatDirectLink] editable field.
-Widget _link(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
-
-  return Obx(() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReactiveTextField(
-          key: const Key('LinkField'),
-          state: c.link,
-          onSuffixPressed: c.link.isEmpty.value
-              ? null
-              : () {
-                  PlatformUtils.copy(
-                    text:
-                        '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
-                  );
-
-                  MessagePopup.success('label_copied'.l10n);
-                },
-          trailing: c.link.isEmpty.value
-              ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-                  ),
-                ),
-          label: '${Config.origin}/',
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-          child: Row(
-            children: [
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'label_transition_count'.l10nfmt({
-                            'count':
-                                c.myUser.value?.chatDirectLink?.usageCount ?? 0
-                          }) +
-                          'dot_space'.l10n,
-                      style: fonts.labelSmall!.copyWith(
-                        color: style.colors.secondary,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'label_details'.l10n,
-                      style: fonts.labelSmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          await LinkDetailsView.show(context);
-                        },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  });
-}
-
-/// Returns [MyUser.login] editable field.
-Widget _login(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
-
-  return _padding(
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReactiveTextField(
-          key: const Key('LoginField'),
-          state: c.login,
-          onSuffixPressed: c.login.text.isEmpty
-              ? null
-              : () {
-                  PlatformUtils.copy(text: c.login.text);
-                  MessagePopup.success('label_copied'.l10n);
-                },
-          trailing: c.login.text.isEmpty
-              ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-                  ),
-                ),
-          label: 'label_login'.l10n,
-          hint: c.myUser.value?.login == null
-              ? 'label_login_hint'.l10n
-              : c.myUser.value!.login!.val,
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'label_login_visible'.l10n,
-                  style: fonts.labelSmall!.copyWith(
-                    color: style.colors.secondary,
-                  ),
-                ),
-                TextSpan(
-                  text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                  style: fonts.labelSmall!.copyWith(
-                    color: style.colors.primary,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () async {
-                      await ConfirmDialog.show(
-                        context,
-                        title: 'label_login'.l10n,
-                        additional: [
-                          Center(
-                            child: Text(
-                              'label_login_visibility_hint'.l10n,
-                              style: fonts.labelLarge!.copyWith(
-                                color: style.colors.secondary,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'label_visible_to'.l10n,
-                              style: fonts.headlineMedium,
-                            ),
-                          ),
-                        ],
-                        label: 'label_confirm'.l10n,
-                        initial: 2,
-                        variants: [
-                          ConfirmDialogVariant(
-                            onProceed: () {},
-                            child: Text('label_all'.l10n),
-                          ),
-                          ConfirmDialogVariant(
-                            onProceed: () {},
-                            child: Text('label_my_contacts'.l10n),
-                          ),
-                          ConfirmDialogVariant(
-                            onProceed: () {},
-                            child: Text('label_nobody'.l10n),
-                          ),
-                        ],
-                      );
-                    },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 /// Returns addable list of [MyUser.emails].
-Widget _emails(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+Widget _emails(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
 
   return Obx(() {
     final List<Widget> widgets = [];
@@ -785,13 +507,13 @@ Widget _emails(MyProfileController c, BuildContext context) {
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: fonts.bodySmall!.copyWith(
+                      style: style.fonts.bodySmall!.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: fonts.bodySmall!.copyWith(
+                      style: style.fonts.bodySmall!.copyWith(
                         color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -804,7 +526,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: fonts.headlineMedium,
+                                  style: style.fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -834,7 +556,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.emails.unconfirmed != null) {
@@ -843,7 +565,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
           data: Theme.of(context).copyWith(
             inputDecorationTheme:
                 Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
+                      floatingLabelStyle: style.fonts.bodyMedium!.copyWith(
                         color: style.colors.primary,
                       ),
                     ),
@@ -868,7 +590,8 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.emails.unconfirmed!,
             ),
-            style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+            style:
+                style.fonts.titleMedium!.copyWith(color: style.colors.primary),
           ),
         ),
         Padding(
@@ -878,7 +601,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               children: [
                 TextSpan(
                   text: 'E-mail не верифицирован. '.l10n,
-                  style: fonts.bodySmall!.copyWith(
+                  style: style.fonts.bodySmall!.copyWith(
                     fontSize: 11,
                     color: style.colors.dangerColor,
                   ),
@@ -888,7 +611,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
           ),
         ),
       ]);
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.emails.unconfirmed == null) {
@@ -905,10 +628,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ? style.colors.dangerColor
               : null,
           onPressed: () => AddEmailView.show(context),
-          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMedium!.copyWith(color: style.colors.primary),
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     return Column(
@@ -920,8 +643,8 @@ Widget _emails(MyProfileController c, BuildContext context) {
 }
 
 /// Returns addable list of [MyUser.emails].
-Widget _phones(MyProfileController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+Widget _phones(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
 
   return Obx(() {
     final List<Widget> widgets = [];
@@ -938,7 +661,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               hint: 'label_phone_number'.l10n,
               trailing: Transform.translate(
                 key: const Key('DeletePhone'),
-                offset: const Offset(0, -1),
+                offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
                   child: SvgImage.asset('assets/icons/delete.svg', height: 14),
@@ -949,23 +672,16 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 MessagePopup.success('label_copied'.l10n);
               },
               onTrailingPressed: () => _deletePhone(c, context, e),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-              child: RichText(
+              subtitle: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: fonts.bodySmall!.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: style.fonts.labelMediumSecondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: fonts.bodySmall!.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.labelMediumPrimary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -976,7 +692,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: fonts.headlineMedium,
+                                  style: style.fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -1006,7 +722,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.phones.unconfirmed != null) {
@@ -1015,7 +731,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
           data: Theme.of(context).copyWith(
             inputDecorationTheme:
                 Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle: fonts.bodyMedium!.copyWith(
+                      floatingLabelStyle: style.fonts.bodyMedium!.copyWith(
                         color: style.colors.primary,
                       ),
                     ),
@@ -1040,11 +756,12 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: fonts.titleMedium!.copyWith(color: style.colors.secondary),
+            style: style.fonts.titleMedium!
+                .copyWith(color: style.colors.secondary),
           ),
         ),
       ]);
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.phones.unconfirmed == null) {
@@ -1061,16 +778,36 @@ Widget _phones(MyProfileController c, BuildContext context) {
                   c.myUser.value?.emails.unconfirmed == null
               ? style.colors.dangerColor
               : null,
-          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMedium!.copyWith(color: style.colors.primary),
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets.map((e) => _dense(e)).toList(),
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
+    );
+  });
+}
+
+/// Returns [WidgetButton] displaying the [MyUser.presence].
+Widget _presence(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Obx(() {
+    final Presence? presence = c.myUser.value?.presence;
+
+    return Paddings.basic(
+      FieldButton(
+        onPressed: () => StatusView.show(context, expanded: false),
+        hint: 'label_presence'.l10n,
+        text: presence?.localizedString(),
+        trailing:
+            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
+        style: style.fonts.titleMediumPrimary,
+      ),
     );
   });
 }
@@ -1078,7 +815,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
 /// Returns the buttons changing or setting the password of the currently
 /// authenticated [MyUser].
 Widget _password(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1095,11 +832,8 @@ Widget _password(BuildContext context, MyProfileController c) {
           border: c.myUser.value?.hasPassword != true
               ? style.colors.dangerColor
               : null,
-          style: fonts.titleMedium!.copyWith(
+          style: style.fonts.titleMedium!.copyWith(
             color: style.colors.primary,
-            // color: c.myUser.value?.hasPassword != true
-            //     ? style.colors.dangerColor
-            //     : style.colors.primary,
           ),
         ),
       ),
@@ -1110,7 +844,7 @@ Widget _password(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.danger] section.
 Widget _danger(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Column(
     children: [
@@ -1126,7 +860,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
-          style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMedium!.copyWith(color: style.colors.primary),
         ),
       ),
     ],
@@ -1135,7 +869,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.background] section.
 Widget _background(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   Widget message({
     bool fromMe = true,
@@ -1168,7 +902,7 @@ Widget _background(BuildContext context, MyProfileController c) {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                child: Text(text, style: fonts.bodyLarge),
+                child: Text(text, style: style.fonts.bodyLarge),
               ),
             ],
           ),
@@ -1386,7 +1120,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      _dense(
+      Paddings.dense(
         Align(
           alignment: Alignment.centerLeft,
           child: Padding(
@@ -1403,7 +1137,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
         ),
       ),
       const SizedBox(height: 4),
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
             text: (c.settings.value?.timelineEnabled ?? true)
@@ -1426,7 +1160,7 @@ Widget _media(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
             text: (c.devices.video().firstWhereOrNull((e) =>
@@ -1445,12 +1179,12 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: TextStyle(color: style.colors.primary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
       const SizedBox(height: 16),
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
             text: (c.devices.audio().firstWhereOrNull((e) =>
@@ -1469,12 +1203,12 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: TextStyle(color: style.colors.primary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
       const SizedBox(height: 16),
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
             text: (c.devices.output().firstWhereOrNull((e) =>
@@ -1493,7 +1227,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: TextStyle(color: style.colors.primary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1502,7 +1236,7 @@ Widget _media(BuildContext context, MyProfileController c) {
 }
 
 Widget _welcome(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   final TextStyle? thin = Theme.of(context)
       .textTheme
@@ -1596,7 +1330,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                               ),
                           ],
                         ),
-                        style: fonts.bodyLarge,
+                        style: style.fonts.bodyLarge,
                       ),
                     ),
                   if (files.isNotEmpty)
@@ -1957,7 +1691,7 @@ Widget _verification(BuildContext context, MyProfileController c) {
 }
 
 Widget _getPaid(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   Widget title(String label, [bool enabled = true]) {
     return _dense(
@@ -2075,7 +1809,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
                 : () => PaidListView.show(context),
             trailing: Text(
               '${c.blacklist.length}',
-              style: fonts.bodyLarge!.copyWith(
+              style: style.fonts.bodyLarge!.copyWith(
                 fontSize: 15,
                 color: !c.verified.value
                     ? style.colors.secondary
@@ -2200,7 +1934,7 @@ Widget _donates(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.notifications] section.
 Widget _notifications(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Obx(() {
     return _dense(
@@ -2216,7 +1950,8 @@ Widget _notifications(BuildContext context, MyProfileController c) {
                     .l10n,
                 editable: false,
               ),
-              style: fonts.bodyMedium!.copyWith(color: style.colors.secondary),
+              style: style.fonts.bodyMedium!
+                  .copyWith(color: style.colors.secondary),
             ),
           ),
           Align(
@@ -2317,7 +2052,7 @@ Widget _language(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.blacklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return Column(
     children: [
@@ -2326,7 +2061,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           text: 'label_users'.l10n,
           trailing: Text(
             '${c.blacklist.length}',
-            style: fonts.titleMedium!.copyWith(
+            style: style.fonts.titleMedium!.copyWith(
               color: c.blacklist.isEmpty
                   ? style.colors.onBackground
                   : style.colors.primary,
@@ -2334,7 +2069,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           ),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
-          style: fonts.titleMedium!.copyWith(
+          style: style.fonts.titleMedium!.copyWith(
             color: c.blacklist.isEmpty
                 ? style.colors.onBackground
                 : style.colors.primary,
@@ -2345,62 +2080,70 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
   );
 }
 
-Widget _devices(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
-  return _dense(
-    Column(
-      children: [
-        FieldButton(
-          onPressed: () {},
-          text: 'Scan QR code',
-        ),
-      ],
-    ),
-  );
-}
-
 /// Returns the contents of a [ProfileTab.storage] section.
 Widget _storage(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  return Obx(() {
-    return _dense(
-      Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: 'label_load_images'.l10n,
-                editable: false,
-              ),
-            ),
-          ),
+  return Paddings.dense(
+    Column(
+      children: [
+        Obx(() {
+          return SwitchField(
+            text: 'label_load_images'.l10n,
+            value: c.settings.value?.loadImages == true,
+            onChanged: c.settings.value == null ? null : c.setLoadImages,
+          );
+        }),
+        if (!PlatformUtils.isWeb) ...[
+          const SizedBox(height: 16),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Transform.scale(
-                scale: 0.7,
-                transformHitTests: false,
-                child: Theme(
-                  data: ThemeData(platform: TargetPlatform.macOS),
-                  child: Switch.adaptive(
-                    activeColor: style.colors.primary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: c.settings.value?.loadImages == true,
-                    onChanged:
-                        c.settings.value == null ? null : c.setLoadImages,
-                  ),
-                ),
+              padding: const EdgeInsets.only(left: 21.0),
+              child: Text(
+                'label_cache'.l10n,
+                style: style.fonts.titleMediumSecondary,
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          Obx(() {
+            final int size = CacheWorker.instance.info.value.size;
+            const int max = CacheWorker.maxSize;
+
+            return Column(
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    LinearProgressIndicator(
+                      value: size / max,
+                      minHeight: 32,
+                      color: style.colors.primary,
+                      backgroundColor: style.colors.background,
+                    ),
+                    Text(
+                      'label_gb_slash_gb'.l10nfmt({
+                        'a': (size / GB).toPrecision(2),
+                        'b': (max ~/ GB).toDouble().toPrecision(2),
+                      }),
+                      style: style.fonts.labelSmall,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                FieldButton(
+                  onPressed: c.clearCache,
+                  text: 'btn_clear_cache'.l10n,
+                  style: style.fonts.titleMediumPrimary,
+                ),
+              ],
+            );
+          }),
         ],
-      ),
-    );
-  });
+      ],
+    ),
+  );
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the

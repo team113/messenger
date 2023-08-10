@@ -120,10 +120,10 @@ class _PostWidgetState extends State<PostWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final (_, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return DefaultTextStyle(
-      style: fonts.bodyLarge!,
+      style: style.fonts.bodyLarge,
       child: Obx(() {
         if (widget.item.value is ChatMessage) {
           return _renderAsChatMessage(context);
@@ -138,7 +138,7 @@ class _PostWidgetState extends State<PostWidget> {
 
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     var msg = widget.item.value as ChatMessage;
 
@@ -244,7 +244,7 @@ class _PostWidgetState extends State<PostWidget> {
                         ),
                         child: SelectableText(
                           text,
-                          style: fonts.bodyLarge,
+                          style: style.fonts.bodyLarge,
                         ),
                       ),
                     if (files.isNotEmpty)
@@ -968,7 +968,7 @@ class _PostWidgetState extends State<PostWidget> {
     // Style style = Theme.of(context).extension<Style>()!;
 
     // return DefaultTextStyle(
-    //   style: fonts.bodyLarge,
+    //   style: style.fonts.bodyLarge,
     //   child: Row(
     //     crossAxisAlignment: CrossAxisAlignment.start,
     //     mainAxisAlignment: MainAxisAlignment.start,
@@ -1044,7 +1044,7 @@ class _PostWidgetState extends State<PostWidget> {
   }
 
   Widget _forwardedMessage(ChatItem item) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1107,7 +1107,7 @@ class _PostWidgetState extends State<PostWidget> {
       if (desc.isNotEmpty) {
         content = Text(
           desc.toString(),
-          style: fonts.bodyLarge,
+          style: style.fonts.bodyLarge,
         );
       }
     }
@@ -1162,7 +1162,8 @@ class _PostWidgetState extends State<PostWidget> {
                                 snapshot.data?.user.value.name?.val ??
                                     snapshot.data?.user.value.num.val ??
                                     '...',
-                                style: fonts.bodyLarge!.copyWith(color: color),
+                                style: style.fonts.bodyLarge!
+                                    .copyWith(color: color),
                               ),
                             ),
                           ],

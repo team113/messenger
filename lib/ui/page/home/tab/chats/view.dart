@@ -61,7 +61,7 @@ class ChatsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -115,7 +115,7 @@ class ChatsTabView extends StatelessWidget {
                               filled: false,
                               dense: true,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: fonts.bodyLarge,
+                              style: style.fonts.bodyLarge,
                               onChanged: () => c.search.value!.query.value =
                                   c.search.value!.search.text,
                             ),
@@ -148,7 +148,7 @@ class ChatsTabView extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'label_synchronization'.l10n,
-                              style: fonts.labelMedium!.copyWith(
+                              style: style.fonts.labelMedium!.copyWith(
                                 color: style.colors.secondary,
                               ),
                             ),
@@ -449,7 +449,7 @@ class ChatsTabView extends StatelessWidget {
                           key: UniqueKey(),
                           child: Text(
                             'label_nothing_found'.l10n,
-                            style: fonts.labelMedium,
+                            style: style.fonts.labelMedium,
                           ),
                         );
                       } else {
@@ -526,7 +526,7 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style: fonts.bodySmall!.copyWith(
+                                      style: style.fonts.bodySmall!.copyWith(
                                         color: style.colors.onPrimary,
                                       ),
                                     ),
@@ -570,7 +570,8 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                   width: double.infinity,
                                   child: Center(
-                                    child: Text(text, style: fonts.labelLarge),
+                                    child: Text(text,
+                                        style: style.fonts.labelLarge),
                                   ),
                                 ),
                               );
@@ -657,7 +658,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         element.category.name.capitalizeFirst!,
-                                        style: fonts.labelLarge,
+                                        style: style.fonts.labelLarge,
                                       ),
                                     ),
                                   ),
@@ -695,7 +696,7 @@ class ChatsTabView extends StatelessWidget {
                           key: const Key('NothingFound'),
                           child: Text(
                             'label_nothing_found'.l10n,
-                            style: fonts.labelMedium,
+                            style: style.fonts.labelMedium,
                           ),
                         ),
                       );

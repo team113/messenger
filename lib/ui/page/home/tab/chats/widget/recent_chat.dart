@@ -154,7 +154,7 @@ class RecentChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
@@ -175,7 +175,7 @@ class RecentChatTile extends StatelessWidget {
           if (!chat.id.isLocalWith(me))
             Text(
               chat.updatedAt.val.toLocal().short,
-              style: fonts.labelLarge!.copyWith(
+              style: style.fonts.labelLarge!.copyWith(
                 color:
                     inverted ? style.colors.onPrimary : style.colors.secondary,
               ),
@@ -294,7 +294,7 @@ class RecentChatTile extends StatelessWidget {
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context, bool selected, bool inverted) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -322,7 +322,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: fonts.labelMedium!.copyWith(
+                  style: style.fonts.labelMedium!.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.primary,
@@ -347,7 +347,7 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: fonts.labelMedium!.copyWith(
+                      style: style.fonts.labelMedium!.copyWith(
                         color: inverted
                             ? style.colors.onPrimary
                             : style.colors.primary,
@@ -661,7 +661,7 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: fonts.bodyMedium!.copyWith(
+        style: style.fonts.bodyMedium!.copyWith(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
         ),
         overflow: TextOverflow.ellipsis,
@@ -819,7 +819,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context, {bool paid = false}) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -873,7 +873,7 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: fonts.bodyMedium!.copyWith(
+                          style: style.fonts.bodyMedium!.copyWith(
                             color: style.colors.onPrimary,
                           ),
                         ).fixedDigits();

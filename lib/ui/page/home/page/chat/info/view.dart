@@ -238,7 +238,7 @@ class ChatInfoView extends StatelessWidget {
   /// Returns a [Chat.avatar] visual representation along with its manipulation
   /// buttons.
   Widget _avatar(ChatInfoController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Column(
       children: [
@@ -298,22 +298,21 @@ class ChatInfoView extends StatelessWidget {
               onPressed: c.pickAvatar,
               child: Text(
                 'btn_upload'.l10n,
-                style: fonts.bodySmall!.copyWith(color: style.colors.primary),
+                style: style.fonts.bodySmallPrimary,
               ),
             ),
             if (c.chat?.chat.value.avatar != null) ...[
               Text(
                 'space_or_space'.l10n,
-                style: fonts.bodySmall!.copyWith(
-                  color: style.colors.onBackground,
-                ),
+                style: style.fonts.bodySmall,
               ),
               WidgetButton(
                 key: const Key('DeleteAvatar'),
                 onPressed: c.deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
-                  style: fonts.bodySmall!.copyWith(color: style.colors.primary),
+                  style: style.fonts.bodySmall!
+                      .copyWith(color: style.colors.primary),
                 ),
               ),
             ],
@@ -356,7 +355,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a [Chat.directLink] editable field.
   Widget _link(ChatInfoController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       return Column(
@@ -401,13 +400,13 @@ class ChatInfoView extends StatelessWidget {
                                   c.chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
-                        style: fonts.labelSmall!.copyWith(
+                        style: style.fonts.labelSmall!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: fonts.labelSmall!.copyWith(
+                        style: style.fonts.labelSmall!.copyWith(
                           color: style.colors.primary,
                         ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
@@ -612,13 +611,13 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
+        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge!),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
@@ -630,13 +629,13 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
+        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge!),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
     );
@@ -651,13 +650,13 @@ class ChatInfoView extends StatelessWidget {
     ChatInfoController c,
     BuildContext context,
   ) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: fonts.labelLarge!),
+        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge!),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],
     );
@@ -689,7 +688,7 @@ class _BigButtonState extends State<BigButton> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       opaque: false,
@@ -720,7 +719,7 @@ class _BigButtonState extends State<BigButton> {
                       child: DefaultTextStyle(
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: fonts.bodyMedium!.copyWith(
+                        style: style.fonts.bodyMedium!.copyWith(
                           color: style.colors.primary,
                         ),
                         child: widget.title,

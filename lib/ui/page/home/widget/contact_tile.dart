@@ -122,7 +122,7 @@ class ContactTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final Color chosen = active ? style.activeColor : style.selectedColor;
 
@@ -198,7 +198,7 @@ class ContactTile extends StatelessWidget {
                                       : 'btn_your_profile'.l10n),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: fonts.headlineLarge!.copyWith(
+                              style: style.fonts.headlineLarge!.copyWith(
                                 color: selected
                                     ? style.colors.onPrimary
                                     : style.colors.onBackground,

@@ -16,20 +16,42 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import 'controller.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 
-class StyleView extends StatelessWidget {
-  const StyleView({Key? key}) : super(key: key);
+/// Small rounded [OutlinedRoundedButton] with a single [icon].
+class StyleCard extends StatelessWidget {
+  const StyleCard({
+    super.key,
+    this.icon,
+    this.onPressed,
+    this.inverted = false,
+  });
+
+  /// [IconData] to display.
+  final IconData? icon;
+
+  /// Indicator whether this [StyleCard] should have its colors inverted.
+  final bool inverted;
+
+  /// Callback, called when this [StyleCard] is pressed.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-      init: StyleController(),
-      builder: (StyleController c) {
-        return Container();
-      },
+    return Padding(
+      padding: const EdgeInsets.all(6),
+      child: SizedBox(
+        width: 70,
+        child: OutlinedRoundedButton(
+          color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
+          onPressed: onPressed,
+          title: Icon(
+            icon,
+            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF1F3C5D),
+          ),
+        ),
+      ),
     );
   }
 }

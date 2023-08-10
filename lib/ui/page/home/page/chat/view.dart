@@ -106,7 +106,7 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
@@ -648,7 +648,7 @@ class _ChatViewState extends State<ChatView>
                                                         .l10n
                                                     : 'label_no_messages'.l10n,
                                                 textAlign: TextAlign.center,
-                                                style: fonts.labelMedium,
+                                                style: style.fonts.labelMedium,
                                               ),
                                             ),
                                           );
@@ -745,7 +745,7 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == 0;
@@ -1164,7 +1164,7 @@ class _ChatViewState extends State<ChatView>
                                   12,
                                   10,
                                 ),
-                                child: Text(text, style: fonts.bodyLarge),
+                                child: Text(text, style: style.fonts.bodyLarge),
                               ),
                             ],
                           ),
@@ -1329,7 +1329,7 @@ class _ChatViewState extends State<ChatView>
 //   }
 
   Widget _pinned(ChatController c, BoxConstraints constraints) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     Widget preview(Attachment attachment) {
       if (attachment is ImageAttachment) {
@@ -1389,7 +1389,7 @@ class _ChatViewState extends State<ChatView>
                     // WidgetSpan(child: Opacity(opacity: 1, child: pin)),
                   ],
                 ),
-                style: fonts.bodyLarge,
+                style: style.fonts.bodyLarge,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1402,7 +1402,7 @@ class _ChatViewState extends State<ChatView>
           Expanded(
             child: Text(
               'Call',
-              style: fonts.bodyLarge,
+              style: style.fonts.bodyLarge,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1433,7 +1433,7 @@ class _ChatViewState extends State<ChatView>
                   children: [
                     TextSpan(
                       text: 'label_forwarded_message'.l10n,
-                      style: fonts.bodyLarge!.copyWith(
+                      style: style.fonts.bodyLarge!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
@@ -1442,7 +1442,7 @@ class _ChatViewState extends State<ChatView>
                     if (quote.text != null) TextSpan(text: quote.text!.val),
                   ],
                 ),
-                style: fonts.bodyLarge,
+                style: style.fonts.bodyLarge,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1453,7 +1453,7 @@ class _ChatViewState extends State<ChatView>
             Expanded(
               child: Text(
                 'Forwarded message',
-                style: fonts.bodyLarge,
+                style: style.fonts.bodyLarge,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

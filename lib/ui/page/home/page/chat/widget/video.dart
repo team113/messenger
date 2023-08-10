@@ -122,7 +122,7 @@ class _VideoState extends State<Video> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -186,7 +186,7 @@ class _VideoState extends State<Video> {
                           _controller.errorText == null
                               ? 'err_unknown'.l10n
                               : _controller.errorText!,
-                          style: fonts.bodyMedium!.copyWith(
+                          style: style.fonts.bodyMedium!.copyWith(
                             color: style.colors.onPrimary,
                           ),
                           textAlign: TextAlign.center,

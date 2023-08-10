@@ -33,7 +33,7 @@ class DonateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final bar = Container(
       height: height,
@@ -87,9 +87,9 @@ class DonateWidget extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 small: true,
-                                style: fonts.bodyLarge!.copyWith(
+                                style: style.fonts.bodyLarge!.copyWith(
                                   color: DonateWidget.font,
-                                  fontSize: fonts.bodyLarge!.fontSize! *
+                                  fontSize: style.fonts.bodyLarge!.fontSize! *
                                       (height / 100),
                                   // color: color,
                                 ),
@@ -108,7 +108,7 @@ class DonateWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ...'$donate'.embossedDigits(
-                            style: fonts.bodyLarge!.copyWith(
+                            style: style.fonts.bodyLarge!.copyWith(
                               fontSize: 32 * (height / 100),
                               color: font,
                             ),
@@ -119,7 +119,7 @@ class DonateWidget extends StatelessWidget {
                             offset: const Offset(0, 0),
                             child: EmbossedText(
                               ' ¤',
-                              style: fonts.bodyLarge!.copyWith(
+                              style: style.fonts.bodyLarge!.copyWith(
                                 fontSize: 32 * (height / 100),
                                 // fontFamily: 'Gapopa',
                                 color: font,
@@ -166,7 +166,7 @@ class DonateWidget extends StatelessWidget {
       return child;
     }
 
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Tooltip(
       message: 'Transaction #$transaction',
@@ -186,9 +186,9 @@ class DonateWidget extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.all(8),
-      textStyle: fonts.titleMedium!.copyWith(
+      textStyle: style.fonts.titleMedium!.copyWith(
         color: style.colors.onBackground,
-        fontSize: fonts.bodySmall!.fontSize,
+        fontSize: style.fonts.bodySmall!.fontSize,
       ),
       child: child,
     );

@@ -24,7 +24,7 @@ class ReactivePhoneField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     EdgeInsets? contentPadding;
 
@@ -88,7 +88,7 @@ class ReactivePhoneField extends StatelessWidget {
               showFlagInInput: true,
               validator: PhoneValidator.compose([PhoneValidator.valid()]),
               autovalidateMode: AutovalidateMode.disabled,
-              countryCodeStyle: fonts.titleMedium,
+              countryCodeStyle: style.fonts.titleMedium,
               onSaved: (p) => print('saved $p'),
               onSubmitted: (s) => state.submit(),
               onChanged: (s) {
@@ -110,7 +110,7 @@ class ReactivePhoneField extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                       child: Text(
                         state.error.value ?? '',
-                        style: fonts.labelMedium?.copyWith(
+                        style: style.fonts.labelMedium?.copyWith(
                           color: style.colors.dangerColor,
                         ),
                       ),

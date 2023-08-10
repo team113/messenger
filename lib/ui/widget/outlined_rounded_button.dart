@@ -101,75 +101,7 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    // return Container(
-    //   alignment: Alignment.center,
-    //   constraints: BoxConstraints(
-    //     maxWidth: maxWidth,
-    //     minHeight: (height ?? 0) + 10,
-    //     maxHeight: (height ?? double.infinity) + 10,
-    //   ),
-    //   child: NeumorphicButton(
-    //     onPressed: onPressed,
-    //     style: NeumorphicStyle(
-    //       color: onPressed == null
-    //           ? style.colors.secondaryHighlight
-    //           : color ?? style.colors.onPrimary,
-    //     ),
-    //     child: Padding(
-    //       padding: const EdgeInsets.symmetric(
-    //         horizontal: 16 * 0.7,
-    //         vertical: 6 * 0.7,
-    //       ),
-    //       child: Stack(
-    //         alignment: Alignment.centerLeft,
-    //         children: [
-    //           if (leading != null)
-    //             Row(
-    //               children: [
-    //                 Expanded(child: Center(child: leading)),
-    //                 Expanded(flex: 4, child: Container()),
-    //                 Expanded(child: Container()),
-    //               ],
-    //             ),
-    //           Padding(
-    //             padding: EdgeInsets.symmetric(
-    //                 // horizontal: leading == null ? 0 : 16,
-    //                 // vertical: 8,
-    //                 ),
-    //             child: DefaultTextStyle.merge(
-    //               maxLines: 2,
-    //               overflow: TextOverflow.ellipsis,
-    //               textAlign: TextAlign.center,
-    //               style: this.style ?? fonts.titleLarge,
-    //               child: Center(
-    //                 child: Padding(
-    //                   padding: leading == null
-    //                       ? EdgeInsets.zero
-    //                       : const EdgeInsets.only(left: 10 * 0.7),
-    //                   child: Column(
-    //                     mainAxisAlignment: MainAxisAlignment.center,
-    //                     crossAxisAlignment: CrossAxisAlignment.center,
-    //                     children: [
-    //                       title ?? Container(),
-    //                       if (subtitle != null) const SizedBox(height: 1 * 0.7),
-    //                       if (subtitle != null)
-    //                         DefaultTextStyle.merge(
-    //                           style: fonts.labelSmall,
-    //                           child: subtitle!,
-    //                         ),
-    //                     ],
-    //                   ),
-    //                 ),
-    //               ),
-    //             ),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   ),
-    // );
+    final style = Theme.of(context).style;
 
     final BorderRadius borderRadius = BorderRadius.circular(
       15 * 0.7 * ((height ?? 42) / 42),
@@ -217,7 +149,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: this.style ?? fonts.titleLarge,
+                    style: this.style ?? style.fonts.titleLarge,
                     child: Center(
                       child: Padding(
                         padding: leading == null
@@ -232,7 +164,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                               const SizedBox(height: 1 * 0.7),
                             if (subtitle != null)
                               DefaultTextStyle.merge(
-                                style: fonts.labelMedium,
+                                style: style.fonts.labelMedium,
                                 child: subtitle!,
                               ),
                           ],
@@ -268,7 +200,7 @@ class OutlinedRoundedButton extends StatelessWidget {
             //       maxLines: 2,
             //       overflow: TextOverflow.ellipsis,
             //       textAlign: TextAlign.center,
-            //       style: this.style ?? fonts.titleLarge,
+            //       style: this.style ?? style.fonts.titleLarge,
             //       child: Center(
             //         child: Padding(
             //           padding: leading == null
@@ -282,7 +214,7 @@ class OutlinedRoundedButton extends StatelessWidget {
             //               if (subtitle != null) const SizedBox(height: 1 * 0.7),
             //               if (subtitle != null)
             //                 DefaultTextStyle.merge(
-            //                   style: fonts.labelLarge,
+            //                   style: style.fonts.labelLarge,
             //                   child: subtitle!,
             //                 ),
             //             ],

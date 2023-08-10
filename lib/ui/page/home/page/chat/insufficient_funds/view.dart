@@ -47,7 +47,7 @@ class InsufficientFundsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: InsufficientFundsController(Get.find()),
@@ -60,7 +60,7 @@ class InsufficientFundsView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_insufficient_funds'.l10n,
-                  style: fonts.headlineMedium,
+                  style: style.fonts.headlineMedium,
                 ),
               ),
             ),
@@ -69,7 +69,7 @@ class InsufficientFundsView extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 shrinkWrap: true,
-                children: [Text(description, style: fonts.titleLarge)],
+                children: [Text(description, style: style.fonts.titleLarge)],
               ),
             ),
             const SizedBox(height: 25),
@@ -95,7 +95,8 @@ class InsufficientFundsView extends StatelessWidget {
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_add_funds'.l10n,
-                        style: fonts.bodyMedium?.copyWith(color: Colors.white),
+                        style: style.fonts.bodyMedium
+                            ?.copyWith(color: Colors.white),
                       ),
                       onPressed: () {
                         Navigator.of(context).pop();

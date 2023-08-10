@@ -129,7 +129,7 @@ class CountrySelectorState extends State<CountrySelector> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -137,7 +137,7 @@ class CountrySelectorState extends State<CountrySelector> {
       child: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          const ModalPopupHeader(text: 'Country'),
+          ModalPopupHeader(text: 'label_country'.l10n),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -190,11 +190,12 @@ class CountrySelectorState extends State<CountrySelector> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(country.name, style: fonts.titleLarge),
+                                  Text(country.name,
+                                      style: style.fonts.titleLarge),
                                   const SizedBox(height: 2),
                                   Text(
                                     country.displayCountryCode,
-                                    style: fonts.labelMedium,
+                                    style: style.fonts.labelMedium,
                                   ),
                                 ],
                               ),
@@ -228,13 +229,13 @@ class _SearchFieldState extends State<SearchField> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return ReactiveTextField(
       key: const Key('SearchTextField'),
       state: search,
       label: 'label_search'.l10n,
-      style: fonts.titleMedium,
+      style: style.fonts.titleMedium,
       onChanged: () => widget.onChanged?.call(search.text),
     );
 
@@ -254,7 +255,7 @@ class _SearchFieldState extends State<SearchField> {
     //           filled: false,
     //           dense: true,
     //           padding: const EdgeInsets.symmetric(vertical: 8),
-    //           style: fonts.bodyLarge,
+    //           style: style.fonts.bodyLarge,
     //           onChanged: () => widget.onChanged?.call(search.text),
     //         ),
     //       ),

@@ -46,7 +46,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
 
   @override
   Widget build(BuildContext context) {
-    final (_, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final FileAttachment e = widget.attachment;
 
@@ -186,8 +186,8 @@ class _DownloadableFileState extends State<DownloadableFile> {
                               child: Text(
                                 p.basenameWithoutExtension(e.filename),
                                 // style: const TextStyle(fontSize: 15),
-                                style:
-                                    fonts.bodyLarge, //.copyWith(fontSize: 15),
+                                style: style
+                                    .fonts.bodyLarge, //.copyWith(fontSize: 15),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -195,7 +195,8 @@ class _DownloadableFileState extends State<DownloadableFile> {
                             Text(
                               p.extension(e.filename),
                               // style: const TextStyle(fontSize: 15),
-                              style: fonts.bodyLarge, //.copyWith(fontSize: 15),
+                              style: style
+                                  .fonts.bodyLarge, //.copyWith(fontSize: 15),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -210,7 +211,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
                           }),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: fonts.bodyLarge!.copyWith(
+                          style: style.fonts.bodyLarge!.copyWith(
                             // style: TextStyle(
                             fontSize: 13,
                             color: const Color(0xFF888888),

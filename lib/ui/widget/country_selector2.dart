@@ -77,7 +77,7 @@ class CountrySelectorState extends State<CountrySelector> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -85,7 +85,7 @@ class CountrySelectorState extends State<CountrySelector> {
       child: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          const ModalPopupHeader(text: 'Country'),
+          ModalPopupHeader(text: 'label_country'.l10n),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -153,12 +153,12 @@ class CountrySelectorState extends State<CountrySelector> {
                                             )
                                             ?.replaceAll(RegExp(r"\s+"), " ") ??
                                         country.name,
-                                    style: fonts.titleLarge,
+                                    style: style.fonts.titleLarge,
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     '+${country.phoneCode}',
-                                    style: fonts.labelMedium,
+                                    style: style.fonts.labelMedium,
                                   ),
                                 ],
                               ),
@@ -192,13 +192,13 @@ class _SearchFieldState extends State<SearchField> {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return ReactiveTextField(
       key: const Key('SearchTextField'),
       state: search,
       label: 'label_search'.l10n,
-      style: fonts.titleMedium,
+      style: style.fonts.titleMedium,
       onChanged: () => widget.onChanged?.call(search.text),
     );
   }

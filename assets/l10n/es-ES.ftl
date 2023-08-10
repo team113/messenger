@@ -73,3 +73,5 @@ label_wait_seconds = Espere {$for} seg
 btn_resend_code = Reenviar
 btn_send = Enviar
 label_sign_up_oauth_already_occupied = Cuenta {$provider} no se puede usar para registrar una nueva cuenta porque está conectado a una cuenta existente. ¿Continuar para iniciar sesión?
+label_search = Search
+label_country = Country

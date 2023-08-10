@@ -50,7 +50,6 @@ class AuthView extends StatelessWidget {
         bool isWeb = PlatformUtils.isWeb || true;
 
         Widget? icon;
-        const double modifier = 1;
 
         if (isWeb) {
           icon = Obx(() {
@@ -99,7 +98,7 @@ class AuthView extends StatelessWidget {
           color: style.colors.onBackground,
         );
 
-        final Widget status = Container(
+        final Widget status = SizedBox(
           width: double.infinity,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -316,7 +315,7 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     await ModalPopup.show(
       context: context,
@@ -327,10 +326,7 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: fonts.headlineMedium?.copyWith(
-                  color: style.colors.onBackground,
-                  fontSize: 18,
-                ),
+                style: style.fonts.headlineMedium.copyWith(fontSize: 18),
               ),
             ),
           ),

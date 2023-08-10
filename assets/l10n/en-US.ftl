@@ -154,6 +154,7 @@ btn_call_video_on_desc =
 btn_change = Change
 btn_change_avatar = Change avatar
 btn_change_password = Change password
+btn_clear_cache = Clear cache
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
@@ -412,6 +413,7 @@ fcm_user_removed_user =
         *[other] {$userName}
     }
 label_a_of_b = {$a} of {$b}
+label_a_slash_b = {$a} / {$b}
 label_account_created = Account is created
 label_actions = Actions
 label_add_additional_email = Add additional E-mail
@@ -499,6 +501,7 @@ label_biography_hint = Write about yourself
 label_block = Block
 label_blocked = Blocked
 label_blocked_users = Blocked users
+label_cache = Cache
 label_cache_and_downloads = Cache and downloads
 label_call_active = Active call
 label_call_calling = Calling
@@ -629,6 +632,7 @@ label_forwarded_messages = {$count ->
    *[other] Пересланные сообщения
 }
 label_gallery = Gallery
+label_gb_slash_gb = {$a} GB / {$b} GB
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
@@ -1026,3 +1030,4 @@ label_code_sent_again = The code has been re-sent.
 label_wait_seconds = Wait {$for} s
 btn_resend_code = Resend
 label_sign_up_oauth_already_occupied = Account {$provider} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
+label_country = Country

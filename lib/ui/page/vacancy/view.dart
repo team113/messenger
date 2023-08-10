@@ -25,7 +25,7 @@ class VacancyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: VacancyController(Get.find()),
@@ -109,7 +109,7 @@ class VacancyView extends StatelessWidget {
   }
 
   Widget _vacancy(VacancyController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       final Widget child;

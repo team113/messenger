@@ -39,7 +39,7 @@ class TransactionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       final bool selected =
@@ -106,7 +106,7 @@ class TransactionWidget extends StatelessWidget {
                                         TransactionCurrency.inter)
                                       TextSpan(
                                         text: ' ¤',
-                                        style: fonts.bodyLarge!.copyWith(
+                                        style: style.fonts.bodyLarge!.copyWith(
                                           color: selected ? Colors.white : null,
                                         ),
                                       ),
@@ -115,7 +115,7 @@ class TransactionWidget extends StatelessWidget {
                                       text: '${transaction.amount.abs()}',
                                     ),
                                   ],
-                                  style: fonts.bodyLarge!.copyWith(
+                                  style: style.fonts.bodyLarge!.copyWith(
                                     color: selected ? Colors.white : null,
                                   ),
                                 ),
@@ -123,7 +123,7 @@ class TransactionWidget extends StatelessWidget {
                             ),
                             Text(
                               transaction.at.short,
-                              style: fonts.labelLarge?.copyWith(
+                              style: style.fonts.labelLarge?.copyWith(
                                 color: selected
                                     ? Colors.white
                                     : style.colors.secondary,
@@ -137,14 +137,14 @@ class TransactionWidget extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 'SWIFT transfer',
-                                style: fonts.labelLarge?.copyWith(
+                                style: style.fonts.labelLarge?.copyWith(
                                   color: selected ? Colors.white : null,
                                 ),
                               ),
                             ),
                             Text(
                               '${transaction.status.name.capitalizeFirst}',
-                              style: fonts.labelLarge!.copyWith(
+                              style: style.fonts.labelLarge!.copyWith(
                                 color: selected
                                     ? Colors.white
                                     : transaction.status ==

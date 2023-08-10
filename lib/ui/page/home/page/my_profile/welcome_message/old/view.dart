@@ -75,7 +75,7 @@ class WelcomeMessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     Widget info({
       required Widget child,
@@ -162,7 +162,7 @@ class WelcomeMessageView extends StatelessWidget {
                                 ),
                             ],
                           ),
-                          style: fonts.bodyLarge,
+                          style: style.fonts.bodyLarge,
                         ),
                       ),
                     if (files.isNotEmpty)

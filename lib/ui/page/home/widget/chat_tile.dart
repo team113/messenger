@@ -116,7 +116,7 @@ class _ChatTileState extends State<ChatTile> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final Color normal = style.colors.onPrimary;
     const Color paid = Color.fromRGBO(213, 232, 253, 1);
@@ -199,7 +199,8 @@ class _ChatTileState extends State<ChatTile> {
                                               ('dot'.l10n * 3),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
-                                          style: fonts.headlineLarge!.copyWith(
+                                          style: style.fonts.headlineLarge!
+                                              .copyWith(
                                             color:
                                                 widget.selected || widget.active
                                                     ? style.colors.onPrimary

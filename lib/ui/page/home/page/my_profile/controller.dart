@@ -42,6 +42,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/worker/cache.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/media_utils.dart';
@@ -602,6 +603,36 @@ class MyProfileController extends GetxController {
 
   Future<void> setLeaveWhenAlone(bool enabled) =>
       _settingsRepo.setLeaveWhenAlone(enabled);
+
+  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
+  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
+  /// (if any).
+  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
+    await _myUserService.createChatDirectLink(slug);
+  }
+
+  /// Updates [MyUser.name] field for the authenticated [MyUser].
+  ///
+  /// If [name] is null, then resets [MyUser.name] field.
+  Future<void> updateUserName(UserName? name) async {
+    await _myUserService.updateUserName(name);
+  }
+
+  /// Updates or resets the [MyUser.status] field of the authenticated
+  /// [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    await _myUserService.updateUserStatus(status);
+  }
+
+  /// Updates [MyUser.login] field for the authenticated [MyUser].
+  ///
+  /// Throws [UpdateUserLoginException].
+  Future<void> updateUserLogin(UserLogin login) async {
+    await _myUserService.updateUserLogin(login);
+  }
+
+  /// Deletes the cache used by the application.
+  Future<void> clearCache() => CacheWorker.instance.clear();
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///

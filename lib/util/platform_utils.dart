@@ -33,6 +33,7 @@ import 'package:window_manager/window_manager.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/worker/cache.dart';
 import 'backoff.dart';
 import 'web/web_utils.dart';
 
@@ -373,6 +374,7 @@ class PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
     bool temporary = false,
@@ -431,6 +433,11 @@ class PlatformUtilsImpl {
           );
 
           if (file == null) {
+            Uint8List? data;
+            if (checksum != null && CacheWorker.instance.exists(checksum)) {
+              data = await CacheWorker.instance.get(checksum: checksum);
+            }
+
             final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
             final String path = temporary
@@ -442,23 +449,28 @@ class PlatformUtilsImpl {
               file = File('$path/$name ($i)$extension');
             }
 
-            // Retry the downloading unless any other that `404` error is
-            // thrown.
-            await Backoff.run(
-              () async {
-                try {
-                  await (await dio).download(
-                    url,
-                    file!.path,
-                    onReceiveProgress: onReceiveProgress,
-                    cancelToken: cancelToken,
-                  );
-                } catch (e) {
-                  onError(e);
-                }
-              },
-              cancelToken,
-            );
+            if (data == null) {
+              // Retry the downloading unless any other that `404` error is
+              // thrown.
+              await Backoff.run(
+                () async {
+                  try {
+                    // TODO: Cache the response.
+                    await (await dio).download(
+                      url,
+                      file!.path,
+                      onReceiveProgress: onReceiveProgress,
+                      cancelToken: cancelToken,
+                    );
+                  } catch (e) {
+                    onError(e);
+                  }
+                },
+                cancelToken,
+              );
+            } else {
+              await file.writeAsBytes(data);
+            }
           }
 
           return file;
@@ -479,23 +491,47 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
-  Future<void> saveToGallery(String url, String name) async {
+  Future<void> saveToGallery(
+    String url,
+    String name, {
+    String? checksum,
+  }) async {
     if (isMobile && !isWeb) {
+      Uint8List? data;
+      if (checksum != null && CacheWorker.instance.exists(checksum)) {
+        data = await CacheWorker.instance.get(checksum: checksum);
+      }
+
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
-      await (await dio).download(url, path);
+      final File file = File(path);
+
+      if (data == null) {
+        await (await dio).download(url, path);
+      } else {
+        await file.writeAsBytes(data);
+      }
       await ImageGallerySaver.saveFile(path, name: name);
-      File(path).delete();
+      file.delete();
     }
   }
 
   /// Downloads a file from the provided [url] and opens [Share] dialog with it.
-  Future<void> share(String url, String name) async {
-    final Directory temp = await getTemporaryDirectory();
-    final String path = '${temp.path}/$name';
-    await (await dio).download(url, path);
-    await Share.shareXFiles([XFile(path)]);
-    File(path).delete();
+  Future<void> share(String url, String name, {String? checksum}) async {
+    Uint8List? data;
+    if (checksum != null && CacheWorker.instance.exists(checksum)) {
+      data = await CacheWorker.instance.get(checksum: checksum);
+    }
+
+    if (data == null) {
+      final Directory temp = await getTemporaryDirectory();
+      final String path = '${temp.path}/$name';
+      await (await dio).download(url, path);
+      await Share.shareXFiles([XFile(path)]);
+      File(path).delete();
+    } else {
+      await Share.shareXFiles([XFile.fromData(data, name: name)]);
+    }
   }
 
   /// Stores the provided [text] on the [Clipboard].
@@ -525,15 +561,15 @@ extension MobileExtensionOnContext on BuildContext {
   /// Returns `true` if [PlatformUtilsImpl.isMobile] and [MediaQuery]'s shortest
   /// side is less than `600p`, or otherwise always returns `false`.
   bool get isMobile => PlatformUtils.isMobile
-      ? MediaQuery.of(this).size.shortestSide < 600
+      ? MediaQuery.sizeOf(this).shortestSide < 600
       : false;
   // bool get isMobile => true;
 
   /// Returns `true` if [MediaQuery]'s width is less than `600p` on desktop and
   /// [MediaQuery]'s shortest side is less than `600p` on mobile.
   bool get isNarrow => PlatformUtils.isDesktop
-      ? MediaQuery.of(this).size.width < 600
-      : MediaQuery.of(this).size.shortestSide < 600;
+      ? MediaQuery.sizeOf(this).width < 600
+      : MediaQuery.sizeOf(this).shortestSide < 600;
   // bool get isNarrow => true;
 }
 

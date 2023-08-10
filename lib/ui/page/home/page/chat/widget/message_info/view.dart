@@ -60,7 +60,7 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
@@ -85,7 +85,7 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: fonts.bodySmall,
+                        style: style.fonts.bodySmall,
                       ),
                       const SizedBox(width: 8),
                       SvgImage.asset('assets/icons/copy.svg', height: 12),
@@ -120,7 +120,7 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: fonts.bodyLarge,
+                          style: style.fonts.bodyLarge,
                           onChanged: () => c.query.value = c.search.text,
                         ),
                       ),
@@ -189,7 +189,7 @@ class MessageInfo extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   'label_nothing_found'.l10n,
-                                  style: fonts.labelMedium,
+                                  style: style.fonts.labelMedium,
                                 ),
                               ),
                             )
@@ -209,7 +209,7 @@ class MessageInfo extends StatelessWidget {
                                   Text(
                                     'label_read_at'
                                         .l10nfmt({'date': time.yMdHm}),
-                                    style: fonts.bodySmall!.copyWith(
+                                    style: style.fonts.bodySmall!.copyWith(
                                       color: style.colors.secondary,
                                     ),
                                   ),

@@ -58,7 +58,7 @@ class _MenuButtonState extends State<MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -116,7 +116,7 @@ class _MenuButtonState extends State<MenuButton> {
                               DefaultTextStyle(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: fonts.headlineLarge!.copyWith(
+                                style: style.fonts.headlineLarge!.copyWith(
                                   color: widget.inverted
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,
@@ -129,7 +129,7 @@ class _MenuButtonState extends State<MenuButton> {
                               DefaultTextStyle.merge(
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: fonts.labelMedium!.copyWith(
+                                style: style.fonts.labelMedium!.copyWith(
                                   color: widget.inverted
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,

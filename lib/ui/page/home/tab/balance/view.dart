@@ -35,7 +35,7 @@ class BalanceTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: BalanceTabController(Get.find()),
@@ -133,7 +133,7 @@ class BalanceTabView extends StatelessWidget {
                                     header: Center(
                                       child: Text(
                                         'What is  ¤ (Gapopa coin)?',
-                                        style: fonts.headlineMedium,
+                                        style: style.fonts.headlineMedium,
                                       ),
                                     ),
                                   ),
@@ -147,7 +147,7 @@ class BalanceTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         ' ¤ (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.\n\n ¤100 = €1.00',
-                                        style: fonts.labelLarge,
+                                        style: style.fonts.labelLarge,
                                       ),
                                     ),
                                   ),

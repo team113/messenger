@@ -55,7 +55,7 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('LoginView'),
@@ -75,7 +75,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'Не существует пользователя, зарегистрированного через предоставленный аккаунт ${c.oAuthProvider!.name}. Зарегистрировать новый?',
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
@@ -96,7 +96,7 @@ class LoginView extends StatelessWidget {
                 Text(
                   'label_sign_up_oauth_already_occupied'
                       .l10nfmt({'provider': c.oAuthProvider!.name}),
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 ContactTile(
@@ -115,7 +115,7 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 5),
                       child: Text(
                         'Gapopa ID: 1234 1234 1234 1234',
-                        style: fonts.labelMedium!.copyWith(
+                        style: style.fonts.labelMedium!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -152,7 +152,7 @@ class LoginView extends StatelessWidget {
                   child: Text(
                     'label_waiting_response_from'
                         .l10nfmt({'from': provider.$1}),
-                    style: fonts.titleLarge!,
+                    style: style.fonts.titleLarge!,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -169,7 +169,7 @@ class LoginView extends StatelessWidget {
                 // const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: fonts.titleLarge!.copyWith(
+                  style: style.fonts.titleLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -202,19 +202,19 @@ class LoginView extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'label_sign_in_code_sent1'.l10n,
-                        style: fonts.titleLarge!.copyWith(
+                        style: style.fonts.titleLarge!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: c.login.text,
-                        style: fonts.titleLarge!.copyWith(
+                        style: style.fonts.titleLarge!.copyWith(
                           color: style.colors.onBackground,
                         ),
                       ),
                       TextSpan(
                         text: 'label_sign_in_code_sent2'.l10n,
-                        style: fonts.titleLarge!.copyWith(
+                        style: style.fonts.titleLarge!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -250,7 +250,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: fonts.titleLarge!.copyWith(
+                  style: style.fonts.titleLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -280,7 +280,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: fonts.titleLarge!.copyWith(
+                  style: style.fonts.titleLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -312,7 +312,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: fonts.titleLarge!.copyWith(
+                  style: style.fonts.titleLarge!.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -365,7 +365,7 @@ class LoginView extends StatelessWidget {
                 Text.rich(
                   'label_sign_up_email_already_occupied'
                       .l10nfmt({'text': c.email.text}).parseLinks([], context),
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 ContactTile(
@@ -384,7 +384,7 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 5),
                       child: Text(
                         'Gapopa ID: 1234 1234 1234 1234',
-                        style: fonts.labelMedium!.copyWith(
+                        style: style.fonts.labelMedium!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -410,7 +410,7 @@ class LoginView extends StatelessWidget {
                 Text.rich(
                   'label_sign_up_code_email_sent'
                       .l10nfmt({'text': c.email.text}).parseLinks([], context),
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
@@ -418,7 +418,7 @@ class LoginView extends StatelessWidget {
                     c.resendEmailTimeout.value == 0
                         ? 'label_didnt_recieve_code'.l10n
                         : 'label_code_sent_again'.l10n,
-                    style: fonts.titleLarge,
+                    style: style.fonts.titleLarge,
                   );
                 }),
                 Obx(() {
@@ -431,7 +431,7 @@ class LoginView extends StatelessWidget {
                           ? 'btn_resend_code'.l10n
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendEmailTimeout.value}),
-                      style: fonts.titleLarge?.copyWith(
+                      style: style.fonts.titleLarge?.copyWith(
                         color: enabled ? style.colors.primary : null,
                       ),
                     ),
@@ -471,7 +471,7 @@ class LoginView extends StatelessWidget {
                 Text.rich(
                   'label_sign_up_phone_already_occupied'
                       .l10nfmt({'text': c.email.text}).parseLinks([], context),
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 ContactTile(
@@ -490,7 +490,7 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 5),
                       child: Text(
                         'Gapopa ID: 1234 1234 1234 1234',
-                        style: fonts.labelMedium!.copyWith(
+                        style: style.fonts.labelMedium!.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -517,7 +517,7 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_code_phone_sent'.l10nfmt({
                     'text': c.phone.phone?.international,
                   }).parseLinks([], context),
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
@@ -525,7 +525,7 @@ class LoginView extends StatelessWidget {
                     c.resendEmailTimeout.value == 0
                         ? 'label_didnt_recieve_code'.l10n
                         : 'label_code_sent_again'.l10n,
-                    style: fonts.titleLarge,
+                    style: style.fonts.titleLarge,
                   );
                 }),
                 Obx(() {
@@ -538,7 +538,7 @@ class LoginView extends StatelessWidget {
                           ? 'btn_resend_code'.l10n
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendEmailTimeout.value}),
-                      style: fonts.titleLarge?.copyWith(
+                      style: style.fonts.titleLarge?.copyWith(
                         color: enabled ? style.colors.primary : null,
                       ),
                     ),
@@ -577,7 +577,7 @@ class LoginView extends StatelessWidget {
                 //   state: c.phone,
                 //   label: 'label_phone_number'.l10n,
                 //   hint: '+12 345 678 90 12',
-                //   style: fonts.bodyMedium,
+                //   style: style.fonts.bodyMedium,
                 //   type: TextInputType.phone,
                 //   treatErrorAsStatus: false,
                 // ),
@@ -589,10 +589,10 @@ class LoginView extends StatelessWidget {
                     return OutlinedRoundedButton(
                       title: Text(
                         'btn_proceed'.l10n,
-                        style: fonts.titleLarge!.copyWith(
+                        style: style.fonts.titleLarge!.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
-                              : fonts.titleLarge!.color,
+                              : style.fonts.titleLarge!.color,
                         ),
                       ),
                       onPressed: enabled ? c.phone.submit : null,
@@ -619,7 +619,7 @@ class LoginView extends StatelessWidget {
                   state: c.email,
                   label: 'label_email'.l10n,
                   hint: 'example@domain.com',
-                  style: fonts.bodyMedium,
+                  style: style.fonts.bodyMedium,
                   treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 25),
@@ -630,10 +630,10 @@ class LoginView extends StatelessWidget {
                     return OutlinedRoundedButton(
                       title: Text(
                         'btn_proceed'.l10n,
-                        style: fonts.titleLarge!.copyWith(
+                        style: style.fonts.titleLarge!.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
-                              : fonts.titleLarge!.color,
+                              : style.fonts.titleLarge!.color,
                         ),
                       ),
                       onPressed: enabled ? c.email.submit : null,
@@ -712,7 +712,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_qr_code_sign_in_description'.l10n,
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -735,7 +735,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_one_time_code_sent_description'.l10n,
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -763,7 +763,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_one_time_code_sent_description'.l10n,
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -791,7 +791,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_one_time_code_sent_description'.l10n,
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -986,12 +986,12 @@ class LoginView extends StatelessWidget {
     EdgeInsets padding = EdgeInsets.zero,
     void Function()? onPressed,
   }) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Center(
       child: PrefixButton(
         text: text,
-        style: fonts.titleMedium!.copyWith(color: style.colors.primary),
+        style: style.fonts.titleMedium!.copyWith(color: style.colors.primary),
         onPressed: onPressed ?? () {},
         prefix: Padding(
           padding: const EdgeInsets.only(left: 16, bottom: 0).add(padding),

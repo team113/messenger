@@ -37,7 +37,7 @@ class BalanceProviderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
     final ColorScheme colors = Theme.of(context).colorScheme;
 
     return SizedBox(
@@ -82,7 +82,7 @@ class BalanceProviderWidget extends StatelessWidget {
                               title,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: fonts.bodyLarge,
+                              style: style.fonts.bodyLarge,
                             ),
                           ),
                         ],

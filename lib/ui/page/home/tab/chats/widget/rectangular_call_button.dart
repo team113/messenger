@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/themes.dart';
 
@@ -40,7 +41,7 @@ class RectangularCallButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final Duration duration = DateTime.now().difference(at);
     final String text = duration.hhMmSs();
@@ -71,8 +72,8 @@ class RectangularCallButton extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   text,
-                  style:
-                      fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
+                  style: style.fonts.bodyMedium!
+                      .copyWith(color: style.colors.onPrimary),
                 ).fixedDigits(),
               ],
             ),

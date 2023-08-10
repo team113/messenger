@@ -68,7 +68,7 @@ class MessageTimestamp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final bool isSent = status == SendingStatus.sent;
     final bool isDelivered = isSent && delivered;
@@ -160,8 +160,8 @@ class MessageTimestamp extends StatelessWidget {
           SelectionContainer.disabled(
             child: Text(
               date ? at!.val.toLocal().yMdHm : at!.val.toLocal().hm,
-              style: fonts.labelSmall!.copyWith(
-                fontSize: fontSize ?? fonts.labelSmall!.fontSize,
+              style: style.fonts.labelSmall!.copyWith(
+                fontSize: fontSize ?? style.fonts.labelSmall!.fontSize,
                 color: inverted
                     ? style.colors.secondaryHighlightDark
                     : style.colors.secondary,

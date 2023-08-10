@@ -178,7 +178,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the bottom controls bar.
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 1.0,
@@ -206,7 +206,7 @@ class _MobileControlsState extends State<MobileControls>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      _buildPosition(fonts.labelLarge!.color),
+                      _buildPosition(style.fonts.labelLarge!.color),
                       _buildMuteButton(),
                     ],
                   ),
@@ -287,7 +287,7 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Returns the [RichText] of the current video position.
   Widget _buildPosition(Color? iconColor) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return RxBuilder((_) {
       final position = widget.controller.position.value;
@@ -299,12 +299,13 @@ class _MobileControlsState extends State<MobileControls>
           children: <InlineSpan>[
             TextSpan(
               text: '/ ${formatDuration(duration)}',
-              style: fonts.labelMedium!.copyWith(
+              style: style.fonts.labelMedium!.copyWith(
                 color: style.colors.onPrimaryOpacity50,
               ),
             )
           ],
-          style: fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
+          style:
+              style.fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
         ),
       );
     });

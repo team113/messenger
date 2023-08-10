@@ -43,7 +43,7 @@ class TooltipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     Widget button = InkWell(
       hoverColor: style.colors.transparent,
@@ -58,7 +58,7 @@ class TooltipButton extends StatelessWidget {
         : Tooltip(
             verticalOffset: verticalOffset,
             message: hint!,
-            textStyle: fonts.headlineSmall!.copyWith(
+            textStyle: style.fonts.headlineSmall!.copyWith(
               color: style.colors.onPrimary,
               shadows: [
                 Shadow(blurRadius: 6, color: style.colors.onBackground),

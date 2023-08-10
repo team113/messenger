@@ -106,8 +106,8 @@ class Language {
     return L10n.languages.firstWhereOrNull((e) => e.toString() == tag);
   }
 
-  /// Returns a [Language] identified by its [locale] from the [L10n.languages],
-  /// if any.
+  /// Returns a [Language] from the [L10n.languages] matching the provided
+  /// [locale], if any.
   static Language? fromLocale(Locale locale) {
     return L10n.languages.firstWhereOrNull((e) => e.locale == locale);
   }
@@ -207,5 +207,67 @@ extension L10nDateExtension on DateTime {
         (((153 * x1) + 2) / 5).floor() +
         day +
         1721119;
+  }
+}
+
+/// Extension adding an ability to get [Duration] formatted according to [L10n].
+extension L10nDurationExtension on Duration {
+  /// Returns a string representation of this [Duration] in `HH:MM:SS` format.
+  ///
+  /// `HH` part is omitted if this [Duration] is less than an one hour.
+  String hhMmSs() {
+    var microseconds = inMicroseconds;
+
+    var hours = microseconds ~/ Duration.microsecondsPerHour;
+    microseconds = microseconds.remainder(Duration.microsecondsPerHour);
+    var hoursPadding = hours < 10 ? '0' : '';
+
+    if (microseconds < 0) microseconds = -microseconds;
+
+    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
+    microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
+    var minutesPadding = minutes < 10 ? '0' : '';
+
+    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
+    microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
+    var secondsPadding = seconds < 10 ? '0' : '';
+
+    if (hours == 0) {
+      return '$minutesPadding$minutes:$secondsPadding$seconds';
+    }
+
+    return '$hoursPadding$hours:$minutesPadding$minutes:$secondsPadding$seconds';
+  }
+
+  /// Returns localized string representing this [Duration] in
+  /// `HH h, MM m, SS s` format.
+  ///
+  /// `MM` part is omitted if this [Duration] is less than an one minute.
+  /// `HH` part is omitted if this [Duration] is less than an one hour.
+  String localizedString() {
+    var microseconds = inMicroseconds;
+
+    if (microseconds < 0) microseconds = -microseconds;
+
+    var hours = microseconds ~/ Duration.microsecondsPerHour;
+    microseconds = microseconds.remainder(Duration.microsecondsPerHour);
+
+    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
+    microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
+
+    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
+    microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
+
+    String result = '$seconds ${'label_duration_second_short'.l10n}';
+
+    if (minutes != 0) {
+      result = '$minutes ${'label_duration_minute_short'.l10n} $result';
+    }
+
+    if (hours != 0) {
+      result = '$hours ${'label_duration_hour_short'.l10n} $result';
+    }
+
+    return result;
   }
 }

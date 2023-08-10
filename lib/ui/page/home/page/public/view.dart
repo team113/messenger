@@ -330,7 +330,7 @@ class _PublicViewState extends State<PublicView>
   }
 
   Widget _sendField(BuildContext context, PublicController c) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     const double iconSize = 22;
 
@@ -553,7 +553,7 @@ class _PublicViewState extends State<PublicView>
                             filled: false,
                             dense: true,
                             padding: const EdgeInsets.symmetric(vertical: 8),
-                            style: fonts.bodyLarge,
+                            style: style.fonts.bodyLarge,
                             type: TextInputType.multiline,
                             textInputAction: TextInputAction.newline,
                           ),
