@@ -902,8 +902,8 @@ Widget _storage(BuildContext context, MyProfileController c) {
                     ),
                     Text(
                       'label_gb_slash_gb'.l10nfmt({
-                        'a': size / GB,
-                        'b': max ~/ GB,
+                        'a': (size / GB).toPrecision(2),
+                        'b': (max ~/ GB).toDouble().toPrecision(2),
                       }),
                       style: style.fonts.labelSmall,
                     ),
