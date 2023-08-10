@@ -178,7 +178,7 @@ class IntroductionView extends StatelessWidget {
                             text: c.num.text,
                             label: 'label_num'.l10n,
                             share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                            trailing: SvgImage.asset(
+                            trailing: const SvgImage.asset(
                               'assets/icons/share.svg',
                               width: 18,
                             ),
