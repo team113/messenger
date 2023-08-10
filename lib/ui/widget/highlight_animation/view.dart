@@ -23,13 +23,14 @@ import '/ui/widget/highlight_animation/controller.dart';
 
 /// Animation of highlighting the [child].
 class HighlightAnimation extends StatelessWidget {
-  const HighlightAnimation({super.key, required this.child, this.index});
+  const HighlightAnimation(
+      {super.key, required this.child, required this.index});
 
   /// [Widget] to animate to.
   final Widget child;
 
   /// Index of an item that should be highlighted.
-  final int? index;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
