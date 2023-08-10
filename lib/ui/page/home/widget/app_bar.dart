@@ -60,7 +60,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final double top = MediaQuery.of(context).padding.top;
 
@@ -108,9 +108,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ...leading,
                       Expanded(
                         child: DefaultTextStyle.merge(
-                          style: fonts.headlineMedium,
-                          child:
-                              Center(child: title ?? const SizedBox.shrink()),
+                          style: style.fonts.headlineMedium,
+                          child: Center(
+                            child: title ?? const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                       ...actions,

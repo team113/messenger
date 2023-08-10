@@ -105,7 +105,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     Widget button = Container(
       color: style.colors.transparent,
@@ -167,10 +167,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
               Text(
                 widget.text!,
                 textAlign: TextAlign.center,
-                style: widget.style ??
-                    fonts.headlineSmall!.copyWith(
-                      color: style.colors.onPrimary,
-                    ),
+                style: widget.style ?? style.fonts.headlineSmallOnPrimary,
                 maxLines: 2,
               ),
             ],
@@ -206,7 +203,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
         firstLayout = false;
       }
 
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       return IgnorePointer(
         child: Stack(
@@ -222,8 +219,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   child: Text(
                     widget.hint!,
                     textAlign: TextAlign.center,
-                    style: fonts.headlineSmall!.copyWith(
-                      color: style.colors.onPrimary,
+                    style: style.fonts.headlineSmallOnPrimary.copyWith(
                       shadows: [
                         Shadow(blurRadius: 6, color: style.colors.onBackground),
                         Shadow(blurRadius: 6, color: style.colors.onBackground),

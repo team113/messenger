@@ -321,6 +321,7 @@ err_you_already_has_unconfirmed_phone = Вы имеете неподтвержд
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
 label_a_of_b = {$a} из {$b}
+label_a_slash_b = {$a} / {$b}
 label_account_created = Аккаунт создан
 label_actions = Действия
 label_add_additional_email = Добавить дополнительный E-mail

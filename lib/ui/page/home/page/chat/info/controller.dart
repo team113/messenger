@@ -83,17 +83,8 @@ class ChatInfoController extends GetxController {
   /// [Chat.name] field state.
   late final TextFieldState name;
 
-  /// [Chat.directLink] field state.
-  late final TextFieldState link;
-
-  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
-  final GlobalKey avatarKey = GlobalKey();
-
   /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
   Timer? _nameTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [link] field.
-  Timer? _linkTimer;
 
   /// [Timer] to set the `RxStatus.empty` status of the [avatar] field.
   Timer? _avatarTimer;
@@ -165,52 +156,6 @@ class ChatInfoController extends GetxController {
       },
     );
 
-    link = TextFieldState(
-      approvable: true,
-      editable: true,
-      text: chat?.chat.value.directLink?.slug.val ??
-          ChatDirectLinkSlug.generate(10).val,
-      submitted: chat?.chat.value.directLink != null,
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
-        ChatDirectLinkSlug? slug;
-        try {
-          slug = ChatDirectLinkSlug(s.text);
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (slug == chat?.chat.value.directLink?.slug) {
-          return;
-        }
-
-        if (s.error.value == null) {
-          _linkTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await _chatService.createChatDirectLink(chatId, slug!);
-            s.status.value = RxStatus.success();
-            _linkTimer = Timer(
-              const Duration(seconds: 1),
-              () => s.status.value = RxStatus.empty(),
-            );
-          } on CreateChatDirectLinkException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
     super.onInit();
   }
 
@@ -224,7 +169,6 @@ class ChatInfoController extends GetxController {
   onClose() {
     _worker?.dispose();
     _nameTimer?.cancel();
-    _linkTimer?.cancel();
     _avatarTimer?.cancel();
     super.onClose();
   }
@@ -409,6 +353,13 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug]
+  /// and deletes the current active [ChatDirectLink] of the given [Chat]-group
+  /// (if any).
+  Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
+    await _chatService.createChatDirectLink(chatId, slug!);
+  }
+
   /// Fetches the [chat].
   void _fetchChat() async {
     status.value = RxStatus.loading();
@@ -418,12 +369,6 @@ class ChatInfoController extends GetxController {
     } else {
       name.unchecked = chat!.chat.value.name?.val;
 
-      if (chat!.chat.value.directLink?.slug.val == null) {
-        link.text = ChatDirectLinkSlug.generate(10).val;
-      } else {
-        link.unchecked = chat!.chat.value.directLink?.slug.val;
-      }
-
       _worker = ever(
         chat!.chat,
         (Chat chat) {
@@ -431,11 +376,6 @@ class ChatInfoController extends GetxController {
               !name.changed.value &&
               name.editable.value) {
             name.unchecked = chat.name?.val;
-          }
-          if (!link.focus.hasFocus &&
-              !link.changed.value &&
-              link.editable.value) {
-            link.unchecked = chat.directLink?.slug.val;
           }
         },
       );
