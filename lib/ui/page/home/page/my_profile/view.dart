@@ -872,18 +872,18 @@ Widget _storage(BuildContext context, MyProfileController c) {
             onChanged: c.settings.value == null ? null : c.setLoadImages,
           );
         }),
-        const SizedBox(height: 16),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 21.0),
-            child: Text(
-              'label_cache'.l10n,
-              style: style.fonts.titleMediumSecondary,
+        if (!PlatformUtils.isWeb) ...[
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 21.0),
+              child: Text(
+                'label_cache'.l10n,
+                style: style.fonts.titleMediumSecondary,
+              ),
             ),
           ),
-        ),
-        if (!PlatformUtils.isWeb) ...[
           const SizedBox(height: 8),
           Obx(() {
             final int size = CacheWorker.instance.info.value.size;
