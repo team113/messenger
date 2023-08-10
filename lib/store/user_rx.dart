@@ -180,7 +180,7 @@ class IsarRxUser extends RxUser {
               break;
           }
 
-          await _userLocal.put(userEntity);
+          _userLocal.put(userEntity);
         }
         break;
 

@@ -16,11 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:isar/isar.dart';
 
 import '/domain/model/user.dart';
+import '/provider/isar/utils.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
 import '/util/obs/obs.dart';
@@ -46,7 +48,13 @@ class UserIsarProvider {
   int get count => _isar.users.count();
 
   /// Returns stream of changes of this [UserIsarProvider].
-  Stream<ListChangeNotification<IsarUser>> watch() => _changes.stream;
+  Stream<ListChangeNotification<IsarUser>> watch() {
+    if (PlatformUtils.isWeb) {
+      return _changes.stream;
+    } else {
+      return _isar.users.where().watch(fireImmediately: true).changes((e) => e.id);
+    }
+  }
 
   /// Returns a [User] from [Isar] by its [id].
   IsarUser? get(String id) => _isar.users.get(id);
@@ -100,4 +108,15 @@ class IsarUser {
   /// It increases monotonically, so may be used (and is intended to) for
   /// tracking state's actuality.
   MyUserVersion blacklistedVer;
+
+  @override
+  bool operator ==(Object other) {
+    return other is IsarUser &&
+        jsonEncode(other.value.toJson()) == jsonEncode(value.toJson()) &&
+        other.ver == ver &&
+        other.blacklistedVer == blacklistedVer;
+  }
+
+  @override
+  int get hashCode => Object.hash(ver, blacklistedVer, value);
 }
