@@ -16,36 +16,35 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '/ui/page/home/widget/block.dart';
-import '/ui/widget/highlight_animation/view.dart';
+import '/themes.dart';
+import '/ui/widget/highlight_animation/controller.dart';
 
-/// [Block] with [HighlightAnimation].
-class BlockWithHighlight extends StatelessWidget {
-  const BlockWithHighlight({
-    super.key,
-    required this.index,
-    this.children = const [],
-    this.title,
-  });
+/// Animation of highlighting the [child].
+class HighlightAnimation extends StatelessWidget {
+  const HighlightAnimation({super.key, required this.child, this.index});
 
-  /// Optional header of this [BlockWithHighlight].
-  final String? title;
+  /// [Widget] to animate to.
+  final Widget child;
 
-  /// [Widget]s to display.
-  final List<Widget> children;
-
-  /// Index of this [BlockWithHighlight].
-  final int index;
+  /// Index of an item that should be highlighted.
+  final int? index;
 
   @override
   Widget build(BuildContext context) {
-    return HighlightAnimation(
-      index: index,
-      child: Block(
-        title: title,
-        children: children,
-      ),
-    );
+    final style = Theme.of(context).style;
+    HighlightController h = Get.put(HighlightController());
+
+    return Obx(() {
+      return AnimatedContainer(
+        duration: 400.milliseconds,
+        curve: Curves.ease,
+        color: h.highlightIndex.value == index
+            ? style.colors.primaryOpacity20
+            : style.colors.primaryOpacity20.withOpacity(0),
+        child: child,
+      );
+    });
   }
 }

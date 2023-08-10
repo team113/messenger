@@ -23,7 +23,7 @@ import 'package:get/get.dart';
 class HighlightController extends GetxController {
   HighlightController();
 
-  /// Index of an item from the elements that should be highlighted.
+  /// Index of an item that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
   /// [Duration] of the highlighting.

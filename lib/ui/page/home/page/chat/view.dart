@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/ui/widget/highlight_animation/view.dart';
 import '/ui/widget/highlight_animation/controller.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -640,13 +641,8 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.author.id),
           builder: (_, snapshot) => Obx(() {
-            return AnimatedContainer(
-              duration: 400.milliseconds,
-              curve: Curves.ease,
-              color: h.highlightIndex.value == i
-                  ? style.colors.primaryOpacity20
-                  : style.colors.primaryOpacity20.withOpacity(0),
-              padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
+            return HighlightAnimation(
+              index: i,
               child: ChatItemWidget(
                 chat: c.chat!.chat,
                 item: e,
@@ -708,13 +704,8 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {
-            return AnimatedContainer(
-              duration: 400.milliseconds,
-              curve: Curves.ease,
-              color: h.highlightIndex.value == i
-                  ? style.colors.primaryOpacity20
-                  : style.colors.primaryOpacity20.withOpacity(0),
-              padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
+            return HighlightAnimation(
+              index: i,
               child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
                 chat: c.chat!.chat,
