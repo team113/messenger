@@ -171,10 +171,6 @@ class NotificationService extends DisposableService {
             '</toast>',
         tag: 'Gapopa',
       );
-
-      Future.delayed(const Duration(seconds: 1), () async {
-        await file?.delete();
-      });
     } else {
       await _plugin!.show(
         Random().nextInt(1 << 31),
