@@ -144,7 +144,7 @@ class CustomNavigationBar extends StatelessWidget {
                                               textAlign: TextAlign.center,
                                             ),
                                           ),
-                                    textStyle: style.fonts.bodySmall!.copyWith(
+                                    textStyle: style.fonts.bodySmall.copyWith(
                                       color: style.colors.onPrimary,
                                       fontSize: 9,
                                     ),

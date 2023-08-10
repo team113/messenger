@@ -1162,8 +1162,7 @@ class _PostWidgetState extends State<PostWidget> {
                                 snapshot.data?.user.value.name?.val ??
                                     snapshot.data?.user.value.num.val ??
                                     '...',
-                                style: style.fonts.bodyLarge!
-                                    .copyWith(color: color),
+                                style: style.fonts.bodyLarge.copyWith(color: color),
                               ),
                             ),
                           ],

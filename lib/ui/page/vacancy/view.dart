@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/vacancy.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
@@ -135,7 +132,7 @@ class VacancyView extends StatelessWidget {
                   title: 'О проекте',
                   children: [
                     Paddings.basic(
-                      VacancyDescription(
+                      const VacancyDescription(
                         '''- мессенджер Gapopa;
 - фронтэнд часть с открытым исходным кодом;
 - используется GetX в качестве DI и State Management;

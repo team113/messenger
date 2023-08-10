@@ -17,7 +17,6 @@
 
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
@@ -443,7 +442,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final style = Theme.of(context).style;
 
     return DefaultTextStyle(
-      style: style.fonts.bodyLarge!,
+      style: style.fonts.bodyLarge,
       child: Obx(() {
         if (widget.item.value is ChatMessage) {
           return _renderAsChatMessage(context);
@@ -834,7 +833,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             onSelecting: widget.onSelecting,
                             onChanged: (a) => _selection = a,
                             style:
-                                style.fonts.bodyLarge!.copyWith(color: color),
+                                style.fonts.bodyLarge.copyWith(color: color),
                           ),
                         ),
                       ],
@@ -1159,7 +1158,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onSelecting: widget.onSelecting,
                         onChanged: (a) => _selection = a,
-                        style: style.fonts.bodyLarge!.copyWith(color: color),
+                        style: style.fonts.bodyLarge.copyWith(color: color),
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -1307,7 +1306,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: style.fonts.titleMedium!.copyWith(
+                    style: style.fonts.titleMedium.copyWith(
                       color: style.colors.secondary,
                     ),
                   ),
@@ -1381,7 +1380,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         data?.user.value.name?.val ??
                             data?.user.value.num.val ??
                             'dot'.l10n * 3,
-                        style: style.fonts.bodyLarge!.copyWith(color: color),
+                        style: style.fonts.bodyLarge.copyWith(color: color),
                       ),
                     ),
                   ],
@@ -1489,7 +1488,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         time,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: style.fonts.labelLarge!.copyWith(
+                        style: style.fonts.labelLarge.copyWith(
                           color: style.colors.secondary,
                         ),
                       ).fixedDigits(),

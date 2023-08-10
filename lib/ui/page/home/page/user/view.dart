@@ -137,7 +137,7 @@ class UserView extends StatelessWidget {
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
-                                  style: style.fonts.bodySmall!.copyWith(
+                                  style: style.fonts.bodySmall.copyWith(
                                     color: style.colors.secondary,
                                   ),
                                 )

@@ -175,7 +175,7 @@ class RecentChatTile extends StatelessWidget {
           if (!chat.id.isLocalWith(me))
             Text(
               chat.updatedAt.val.toLocal().short,
-              style: style.fonts.labelLarge!.copyWith(
+              style: style.fonts.labelLarge.copyWith(
                 color:
                     inverted ? style.colors.onPrimary : style.colors.secondary,
               ),
@@ -322,7 +322,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: style.fonts.labelMedium!.copyWith(
+                  style: style.fonts.labelMedium.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.primary,
@@ -347,7 +347,7 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: style.fonts.labelMedium!.copyWith(
+                      style: style.fonts.labelMedium.copyWith(
                         color: inverted
                             ? style.colors.onPrimary
                             : style.colors.primary,
@@ -661,7 +661,7 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: style.fonts.bodyMedium!.copyWith(
+        style: style.fonts.bodyMedium.copyWith(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
         ),
         overflow: TextOverflow.ellipsis,
@@ -873,7 +873,7 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: style.fonts.bodyMedium!.copyWith(
+                          style: style.fonts.bodyMedium.copyWith(
                             color: style.colors.onPrimary,
                           ),
                         ).fixedDigits();

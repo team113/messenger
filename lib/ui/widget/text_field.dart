@@ -380,7 +380,7 @@ class ReactiveTextField extends StatelessWidget {
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: style.fonts.bodyLarge?.copyWith(fontSize: 0),
+                errorStyle: style.fonts.bodyLarge.copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -458,7 +458,7 @@ class ReactiveTextField extends StatelessWidget {
                             )
                           : const SizedBox(width: double.infinity, height: 1)
                       : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value ?? '',
                             style: style.fonts.labelMedium.copyWith(

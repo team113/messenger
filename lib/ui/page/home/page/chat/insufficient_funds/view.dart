@@ -96,7 +96,7 @@ class InsufficientFundsView extends StatelessWidget {
                       title: Text(
                         'btn_add_funds'.l10n,
                         style: style.fonts.bodyMedium
-                            ?.copyWith(color: Colors.white),
+                            .copyWith(color: Colors.white),
                       ),
                       onPressed: () {
                         Navigator.of(context).pop();

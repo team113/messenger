@@ -19,10 +19,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/config.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/util/message_popup.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';

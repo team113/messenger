@@ -211,7 +211,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
                           }),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: style.fonts.bodyLarge!.copyWith(
+                          style: style.fonts.bodyLarge.copyWith(
                             // style: TextStyle(
                             fontSize: 13,
                             color: const Color(0xFF888888),

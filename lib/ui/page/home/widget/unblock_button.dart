@@ -62,8 +62,7 @@ class UnblockButton extends StatelessWidget {
                 child: Text(
                   text ?? 'btn_unblock'.l10n,
                   textAlign: TextAlign.center,
-                  style: style.fonts.bodyLarge!
-                      .copyWith(color: style.colors.primary),
+                  style: style.fonts.bodyLarge.copyWith(color: style.colors.primary),
                 ),
               ),
             ],

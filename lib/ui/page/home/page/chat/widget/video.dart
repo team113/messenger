@@ -186,7 +186,7 @@ class _VideoState extends State<Video> {
                           _controller.errorText == null
                               ? 'err_unknown'.l10n
                               : _controller.errorText!,
-                          style: style.fonts.bodyMedium!.copyWith(
+                          style: style.fonts.bodyMedium.copyWith(
                             color: style.colors.onPrimary,
                           ),
                           textAlign: TextAlign.center,

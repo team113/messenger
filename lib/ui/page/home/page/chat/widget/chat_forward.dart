@@ -286,7 +286,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             style.colors.userColors.length];
 
     return DefaultTextStyle(
-      style: style.fonts.bodyLarge!,
+      style: style.fonts.bodyLarge,
       child: Obx(() {
         return _rounded(
           context,
@@ -337,7 +337,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             onChanged: (a) => _selection = a,
                             onSelecting: widget.onSelecting,
                             style:
-                                style.fonts.bodyLarge!.copyWith(color: color),
+                                style.fonts.bodyLarge.copyWith(color: color),
                           ),
                         ),
                       ],
@@ -347,7 +347,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         child: Text(
                           'label_forwarded_messages'
                               .l10nfmt({'count': widget.forwards.length}),
-                          style: style.fonts.headlineSmall!.copyWith(
+                          style: style.fonts.headlineSmall.copyWith(
                             color: style.colors.secondary,
                           ),
                         ),
@@ -459,7 +459,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             onChanged: (a) => _selection = a,
                             onSelecting: widget.onSelecting,
                             style:
-                                style.fonts.bodyLarge!.copyWith(color: color),
+                                style.fonts.bodyLarge.copyWith(color: color),
                           ),
                         ),
                       ),
@@ -781,7 +781,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: style.fonts.bodyLarge!.copyWith(color: color),
+                      style: style.fonts.bodyLarge.copyWith(color: color),
                     ),
                   ),
                 ),

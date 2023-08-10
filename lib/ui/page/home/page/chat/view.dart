@@ -1433,7 +1433,7 @@ class _ChatViewState extends State<ChatView>
                   children: [
                     TextSpan(
                       text: 'label_forwarded_message'.l10n,
-                      style: style.fonts.bodyLarge!.copyWith(
+                      style: style.fonts.bodyLarge.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),

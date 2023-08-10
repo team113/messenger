@@ -29,7 +29,6 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -124,7 +123,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
           TextSpan(
             children: spans,
             style:
-                style.fonts.bodySmall!.copyWith(color: style.colors.secondary),
+                style.fonts.bodySmall.copyWith(color: style.colors.secondary),
           ),
         );
       }
@@ -139,8 +138,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
             children: [
               Text(
                 'label_typing'.l10n,
-                style: style.fonts.labelMedium!
-                    .copyWith(color: style.colors.primary),
+                style: style.fonts.labelMedium.copyWith(color: style.colors.primary),
               ),
               const SizedBox(width: 3),
               const Padding(
@@ -164,8 +162,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.fonts.labelMedium!
-                    .copyWith(color: style.colors.primary),
+                style: style.fonts.labelMedium.copyWith(color: style.colors.primary),
               ),
             ),
             const SizedBox(width: 3),
@@ -181,7 +178,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
     if (chat.isGroup) {
       return Text(
         chat.getSubtitle()!,
-        style: style.fonts.bodySmall!.copyWith(color: style.colors.secondary),
+        style: style.fonts.bodySmall.copyWith(color: style.colors.secondary),
       );
     } else if (chat.isDialog) {
       final RxUser? member = widget.chat.members.values
@@ -204,8 +201,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
             child = Text(
               buffer.toString(),
-              style: style.fonts.bodySmall!
-                  .copyWith(color: style.colors.secondary),
+              style: style.fonts.bodySmall.copyWith(color: style.colors.secondary),
             );
           } else {
             child = const SizedBox();

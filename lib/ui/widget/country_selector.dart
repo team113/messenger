@@ -5,10 +5,7 @@ import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 import 'package:phone_form_field/src/widgets/country_selector/country_finder.dart';
-import 'package:phone_form_field/src/widgets/country_selector/country_list.dart';
-import 'package:phone_form_field/l10n/generated/phone_field_localization.dart';
 import 'package:phone_form_field/l10n/generated/phone_field_localization_en.dart';
-import 'package:phone_form_field/src/widgets/country_selector/localized_country_registry.dart';
 import 'package:circle_flags/circle_flags.dart';
 
 import 'animated_delayed_switcher.dart';

@@ -68,7 +68,6 @@ import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'insufficient_funds/view.dart';

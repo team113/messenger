@@ -65,7 +65,7 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: style.fonts.labelLarge!.copyWith(
+                  style: style.fonts.labelLarge.copyWith(
                     color: selected
                         ? style.colors.onPrimary
                         : style.colors.onBackground,

@@ -209,8 +209,7 @@ class _MenuButtonState extends State<_MenuButton> {
                     // prefixText: 'G',
                     style: style.fonts.bodyLarge,
                     withTrailing: false,
-                    prefixStyle: style.fonts.bodyLarge!
-                        .copyWith(color: style.colors.primary),
+                    prefixStyle: style.fonts.bodyLarge.copyWith(color: style.colors.primary),
                   ),
                 ),
               ),
@@ -289,7 +288,7 @@ class _MenuButtonState extends State<_MenuButton> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Text(
                   '${widget.button} ¤',
-                  style: style.fonts.titleLarge!.copyWith(
+                  style: style.fonts.titleLarge.copyWith(
                     color: style.colors.primary,
                   ),
                 ),
@@ -313,7 +312,7 @@ class _MenuButtonState extends State<_MenuButton> {
               else
                 WidgetButton(
                   onPressed: () => widget.onSend?.call(null),
-                  child: Container(
+                  child: SizedBox(
                     // color: Colors.red,
                     height: 40,
                     width: 50,

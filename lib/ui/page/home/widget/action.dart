@@ -48,7 +48,7 @@ class ActionButton extends StatelessWidget {
       child: FieldButton(
         onPressed: onPressed,
         text: text,
-        style: style.fonts.titleMedium!.copyWith(
+        style: style.fonts.titleMedium.copyWith(
           color: style.colors.primary,
         ),
         trailing: trailing != null

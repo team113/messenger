@@ -114,7 +114,7 @@ class ContactsTabView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'label_synchronization'.l10n,
-                        style: style.fonts.labelMedium!.copyWith(
+                        style: style.fonts.labelMedium.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -687,7 +687,7 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style: style.fonts.labelMedium!.copyWith(
+                  style: style.fonts.labelMedium.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.secondary,
@@ -805,7 +805,7 @@ class ContactsTabView extends StatelessWidget {
                         .l10nfmt({'count': c.selectedContacts.length}),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
-                    style: style.fonts.titleLarge!.copyWith(
+                    style: style.fonts.titleLarge.copyWith(
                       color: c.selectedContacts.isEmpty
                           ? style.colors.onBackground
                           : style.colors.onPrimary,

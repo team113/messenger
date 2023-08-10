@@ -87,9 +87,9 @@ class DonateWidget extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 small: true,
-                                style: style.fonts.bodyLarge!.copyWith(
+                                style: style.fonts.bodyLarge.copyWith(
                                   color: DonateWidget.font,
-                                  fontSize: style.fonts.bodyLarge!.fontSize! *
+                                  fontSize: style.fonts.bodyLarge.fontSize! *
                                       (height / 100),
                                   // color: color,
                                 ),
@@ -108,7 +108,7 @@ class DonateWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ...'$donate'.embossedDigits(
-                            style: style.fonts.bodyLarge!.copyWith(
+                            style: style.fonts.bodyLarge.copyWith(
                               fontSize: 32 * (height / 100),
                               color: font,
                             ),
@@ -119,7 +119,7 @@ class DonateWidget extends StatelessWidget {
                             offset: const Offset(0, 0),
                             child: EmbossedText(
                               ' ¤',
-                              style: style.fonts.bodyLarge!.copyWith(
+                              style: style.fonts.bodyLarge.copyWith(
                                 fontSize: 32 * (height / 100),
                                 // fontFamily: 'Gapopa',
                                 color: font,
@@ -186,9 +186,9 @@ class DonateWidget extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.all(8),
-      textStyle: style.fonts.titleMedium!.copyWith(
+      textStyle: style.fonts.titleMedium.copyWith(
         color: style.colors.onBackground,
-        fontSize: style.fonts.bodySmall!.fontSize,
+        fontSize: style.fonts.bodySmall.fontSize,
       ),
       child: child,
     );

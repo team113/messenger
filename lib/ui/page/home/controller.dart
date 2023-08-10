@@ -29,14 +29,12 @@ import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
-import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
-import '/util/message_popup.dart';
 
 export 'view.dart';
 

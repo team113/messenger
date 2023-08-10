@@ -77,7 +77,7 @@ class SearchUserTile extends StatelessWidget {
                 RegExp(r'.{4}'),
                 (match) => '${match.group(0)} ',
               )}',
-              style: style.fonts.labelMedium!.copyWith(
+              style: style.fonts.labelMedium.copyWith(
                 color:
                     selected ? style.colors.onPrimary : style.colors.secondary,
               ),

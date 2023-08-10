@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 
@@ -77,7 +76,7 @@ class VacancyContactView extends StatelessWidget {
                         c.resent.value
                             ? 'label_add_email_confirmation_sent_again'.l10n
                             : 'label_add_email_confirmation_sent'.l10n,
-                        style: style.fonts.bodyMedium!.copyWith(
+                        style: style.fonts.bodyMedium.copyWith(
                           color: style.colors.secondary,
                         ),
                       );
@@ -111,7 +110,7 @@ class VacancyContactView extends StatelessWidget {
                                   : 'label_resend_timeout'.l10nfmt(
                                       {'timeout': c.resendEmailTimeout.value},
                                     ),
-                              style: style.fonts.bodyMedium!.copyWith(
+                              style: style.fonts.bodyMedium.copyWith(
                                 color: c.resendEmailTimeout.value == 0
                                     ? style.colors.onPrimary
                                     : style.colors.onBackground,
@@ -130,7 +129,7 @@ class VacancyContactView extends StatelessWidget {
                             maxWidth: double.infinity,
                             title: Text(
                               'btn_proceed'.l10n,
-                              style: style.fonts.bodyMedium!.copyWith(
+                              style: style.fonts.bodyMedium.copyWith(
                                 color: c.emailCode.isEmpty.value
                                     ? style.colors.onBackground
                                     : style.colors.onPrimary,
@@ -238,10 +237,10 @@ class VacancyContactView extends StatelessWidget {
                       return OutlinedRoundedButton(
                         title: Text(
                           'Proceed'.l10n,
-                          style: style.fonts.titleLarge!.copyWith(
+                          style: style.fonts.titleLarge.copyWith(
                             color: enabled
                                 ? style.colors.onPrimary
-                                : style.fonts.titleLarge!.color,
+                                : style.fonts.titleLarge.color,
                           ),
                         ),
                         onPressed: enabled ? c.repeatPassword.submit : null,
@@ -297,10 +296,10 @@ class VacancyContactView extends StatelessWidget {
                     child: OutlinedRoundedButton(
                       title: Text(
                         'Login'.l10n,
-                        style: style.fonts.titleLarge!.copyWith(
+                        style: style.fonts.titleLarge.copyWith(
                           color:
                               c.login.isEmpty.value || c.password.isEmpty.value
-                                  ? style.fonts.titleLarge!.color
+                                  ? style.fonts.titleLarge.color
                                   : style.colors.onPrimary,
                         ),
                       ),
@@ -347,7 +346,7 @@ class VacancyContactView extends StatelessWidget {
                     child: OutlinedRoundedButton(
                       title: Text(
                         'Create account'.l10n,
-                        style: style.fonts.titleLarge!.copyWith(
+                        style: style.fonts.titleLarge.copyWith(
                           color: style.colors.onPrimary,
                         ),
                       ),

@@ -110,7 +110,7 @@ class ReactivePhoneField extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                       child: Text(
                         state.error.value ?? '',
-                        style: style.fonts.labelMedium?.copyWith(
+                        style: style.fonts.labelMedium.copyWith(
                           color: style.colors.dangerColor,
                         ),
                       ),

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -33,7 +32,6 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:messenger/util/mime.dart';
 import 'package:messenger/util/platform_utils.dart';
-import 'package:phone_form_field/phone_form_field.dart';
 
 import '/api/backend/schema.dart'
     show
@@ -53,6 +51,7 @@ import '/provider/gql/exceptions.dart'
         ConnectionException,
         CreateSessionException,
         ResendUserEmailConfirmationException,
+        ResendUserPhoneConfirmationException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
@@ -67,10 +66,14 @@ enum LoginViewStage {
   recoveryCode,
   recoveryPassword,
   signIn,
-  signInWithPassword,
   signInWithCode,
+  signInWithPassword,
+  signInWithEmail,
   signInWithEmailCode,
+  signInWithEmailOccupied,
+  signInWithPhone,
   signInWithPhoneCode,
+  signInWithPhoneOccupied,
   signInWithQr,
   signUp,
   signUpWithEmail,
@@ -81,6 +84,22 @@ enum LoginViewStage {
   signUpWithPhoneOccupied,
   noPassword,
   noPasswordCode,
+}
+
+extension on LoginViewStage {
+  bool get registering => switch (this) {
+        LoginViewStage.signIn ||
+        LoginViewStage.signInWithPassword ||
+        LoginViewStage.signInWithEmail ||
+        LoginViewStage.signInWithEmailCode ||
+        LoginViewStage.signInWithEmailOccupied ||
+        LoginViewStage.signInWithPhone ||
+        LoginViewStage.signInWithPhoneCode ||
+        LoginViewStage.signInWithPhoneOccupied ||
+        LoginViewStage.signInWithQr =>
+          false,
+        (_) => true,
+      };
 }
 
 /// [GetxController] of a [LoginView].
@@ -128,42 +147,53 @@ class LoginController extends GetxController {
         return;
       }
 
-      stage.value = LoginViewStage.signUpWithEmailCode;
+      stage.value = stage.value.registering
+          ? LoginViewStage.signUpWithEmailCode
+          : LoginViewStage.signInWithEmailCode;
 
       final GraphQlProvider graphQlProvider = Get.find();
 
       try {
-        final response = await graphQlProvider.signUp();
+        if (stage.value.registering) {
+          final response = await graphQlProvider.signUp();
 
-        creds = Credentials(
-          Session(
-            response.createUser.session.token,
-            response.createUser.session.expireAt,
-          ),
-          RememberedSession(
-            response.createUser.remembered!.token,
-            response.createUser.remembered!.expireAt,
-          ),
-          response.createUser.user.id,
-        );
+          creds = Credentials(
+            Session(
+              response.createUser.session.token,
+              response.createUser.session.expireAt,
+            ),
+            RememberedSession(
+              response.createUser.remembered!.token,
+              response.createUser.remembered!.expireAt,
+            ),
+            response.createUser.user.id,
+          );
 
-        graphQlProvider.token = creds!.session.token;
-        await graphQlProvider.addUserEmail(UserEmail(email.text));
-        graphQlProvider.token = null;
+          graphQlProvider.token = creds!.session.token;
+          await graphQlProvider.addUserEmail(UserEmail(email.text));
+          graphQlProvider.token = null;
+        }
 
         s.unsubmit();
       } on AddUserEmailException catch (e) {
         graphQlProvider.token = null;
         s.error.value = e.toMessage();
         _setResendEmailTimer(false);
-        stage.value = LoginViewStage.signUpWithEmail;
+
+        stage.value = stage.value.registering
+            ? LoginViewStage.signUpWithEmail
+            : LoginViewStage.signInWithEmail;
       } catch (e) {
         graphQlProvider.token = null;
         s.error.value = 'err_data_transfer'.l10n;
         _setResendEmailTimer(false);
         s.unsubmit();
-        stage.value = LoginViewStage.signUpWithEmail;
-        print(e.toString());
+
+        stage.value = stage.value.registering
+            ? LoginViewStage.signUpWithEmail
+            : LoginViewStage.signInWithEmail;
+
+        rethrow;
       }
     },
   );
@@ -171,44 +201,74 @@ class LoginController extends GetxController {
   late final TextFieldState emailCode = TextFieldState(
     revalidateOnUnfocus: true,
     onChanged: (s) {
-      try {
-        if (s.text.isNotEmpty) {
-          ConfirmationCode(s.text);
-        }
+      // try {
+      //   if (s.text.isNotEmpty) {
+      //     ConfirmationCode(s.text);
+      //   }
 
-        s.error.value = null;
-      } on FormatException catch (_) {
-        s.error.value = 'err_wrong_recovery_code'.l10n;
-      }
+      //   s.error.value = null;
+      // } on FormatException catch (_) {
+      //   s.error.value = 'err_wrong_recovery_code'.l10n;
+      // }
     },
     onSubmitted: (s) async {
       final GraphQlProvider graphQlProvider = Get.find();
 
       try {
-        graphQlProvider.token = creds!.session.token;
-        await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
+        if (stage.value.registering) {
+          graphQlProvider.token = creds!.session.token;
+          await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
 
-        await _authService.authorizeWith(creds!);
+          await _authService.authorizeWith(creds!);
 
-        router.noIntroduction = false;
-        router.signUp = true;
-        router.home();
-      } on ConfirmUserEmailException catch (e) {
-        if (e.code == ConfirmUserEmailErrorCode.occupied) {
-          stage.value = LoginViewStage.signUpWithEmailOccupied;
+          router.noIntroduction = false;
+          router.signUp = true;
+          router.home();
         } else {
-          graphQlProvider.token = null;
-          s.error.value = e.toMessage();
-
-          ++codeAttempts;
-          if (codeAttempts >= 3) {
-            codeAttempts = 0;
-            _setCodeTimer();
+          if (s.text == '1111') {
+            // No-op.
+          } else if (s.text == '2222') {
+            throw const ConfirmUserEmailException(
+              ConfirmUserEmailErrorCode.occupied,
+            );
+          } else {
+            throw const ConfirmUserEmailException(
+              ConfirmUserEmailErrorCode.wrongCode,
+            );
           }
+        }
+      } on ConfirmUserEmailException catch (e) {
+        switch (e.code) {
+          case ConfirmUserEmailErrorCode.occupied:
+            stage.value = stage.value.registering
+                ? LoginViewStage.signUpWithEmailOccupied
+                : LoginViewStage.signInWithEmailOccupied;
+            break;
+
+          case ConfirmUserEmailErrorCode.wrongCode:
+            graphQlProvider.token = null;
+            s.error.value = e.toMessage();
+
+            ++codeAttempts;
+            if (codeAttempts >= 3) {
+              codeAttempts = 0;
+              _setCodeTimer();
+            }
+            break;
+
+          default:
+            s.error.value = 'err_wrong_recovery_code'.l10n;
+            break;
         }
       } on FormatException catch (_) {
         graphQlProvider.token = null;
         s.error.value = 'err_wrong_recovery_code'.l10n;
+
+        ++codeAttempts;
+        if (codeAttempts >= 3) {
+          codeAttempts = 0;
+          _setCodeTimer();
+        }
       } catch (_) {
         graphQlProvider.token = null;
         s.error.value = 'err_data_transfer'.l10n;
@@ -241,39 +301,53 @@ class LoginController extends GetxController {
         return;
       }
 
+      stage.value = stage.value.registering
+          ? LoginViewStage.signUpWithPhoneCode
+          : LoginViewStage.signInWithPhoneCode;
+
       final GraphQlProvider graphQlProvider = Get.find();
 
       try {
-        final response = await graphQlProvider.signUp();
+        if (stage.value.registering) {
+          final response = await graphQlProvider.signUp();
 
-        creds = Credentials(
-          Session(
-            response.createUser.session.token,
-            response.createUser.session.expireAt,
-          ),
-          RememberedSession(
-            response.createUser.remembered!.token,
-            response.createUser.remembered!.expireAt,
-          ),
-          response.createUser.user.id,
-        );
+          creds = Credentials(
+            Session(
+              response.createUser.session.token,
+              response.createUser.session.expireAt,
+            ),
+            RememberedSession(
+              response.createUser.remembered!.token,
+              response.createUser.remembered!.expireAt,
+            ),
+            response.createUser.user.id,
+          );
 
-        graphQlProvider.token = creds!.session.token;
-        await graphQlProvider
-            .addUserPhone(UserPhone(s.phone!.nsn.toLowerCase()));
-        graphQlProvider.token = null;
+          graphQlProvider.token = creds!.session.token;
+          await graphQlProvider
+              .addUserPhone(UserPhone(s.phone!.nsn.toLowerCase()));
+          graphQlProvider.token = null;
+        }
 
         s.unsubmit();
       } on AddUserPhoneException catch (e) {
         graphQlProvider.token = null;
         s.error.value = e.toMessage();
+        stage.value = stage.value.registering
+            ? LoginViewStage.signUpWithPhone
+            : LoginViewStage.signInWithPhone;
       } catch (_) {
         graphQlProvider.token = null;
         s.error.value = 'err_data_transfer'.l10n;
         s.unsubmit();
+        stage.value = stage.value.registering
+            ? LoginViewStage.signUpWithPhone
+            : LoginViewStage.signInWithPhone;
       }
 
-      stage.value = LoginViewStage.signUpWithPhoneCode;
+      stage.value = stage.value.registering
+          ? LoginViewStage.signUpWithPhoneCode
+          : LoginViewStage.signInWithPhoneCode;
     },
   );
 
@@ -333,38 +407,64 @@ class LoginController extends GetxController {
   late final TextFieldState phoneCode = TextFieldState(
     revalidateOnUnfocus: true,
     onChanged: (s) {
-      try {
-        if (s.text.isNotEmpty) {
-          ConfirmationCode(s.text);
-        }
+      // try {
+      //   if (s.text.isNotEmpty) {
+      //     ConfirmationCode(s.text);
+      //   }
 
-        s.error.value = null;
-      } on FormatException catch (_) {
-        s.error.value = 'err_wrong_recovery_code'.l10n;
-      }
+      //   s.error.value = null;
+      // } on FormatException catch (_) {
+      //   s.error.value = 'err_wrong_recovery_code'.l10n;
+      // }
     },
     onSubmitted: (s) async {
       try {
         if (ConfirmationCode(s.text).val == '1111') {
-          await _authService.authorizeWith(creds!);
-          router.noIntroduction = false;
-          router.signUp = true;
-          router.home();
+          if (stage.value.registering) {
+            await _authService.authorizeWith(creds!);
+            router.noIntroduction = false;
+            router.signUp = true;
+            router.home();
+          }
         } else if (ConfirmationCode(s.text).val == '2222') {
           throw const ConfirmUserPhoneException(
             ConfirmUserPhoneErrorCode.occupied,
           );
         } else {
-          throw const FormatException('Error');
+          throw const ConfirmUserPhoneException(
+            ConfirmUserPhoneErrorCode.wrongCode,
+          );
         }
       } on ConfirmUserPhoneException catch (e) {
-        if (e.code == ConfirmUserPhoneErrorCode.occupied) {
-          stage.value = LoginViewStage.signUpWithPhoneOccupied;
-        } else {
-          s.error.value = e.toMessage();
+        switch (e.code) {
+          case ConfirmUserPhoneErrorCode.occupied:
+            stage.value = stage.value.registering
+                ? LoginViewStage.signUpWithPhoneOccupied
+                : LoginViewStage.signInWithPhoneOccupied;
+            break;
+
+          case ConfirmUserPhoneErrorCode.wrongCode:
+            s.error.value = e.toMessage();
+
+            ++codeAttempts;
+            if (codeAttempts >= 3) {
+              codeAttempts = 0;
+              _setCodeTimer();
+            }
+            break;
+
+          default:
+            s.error.value = 'err_wrong_recovery_code'.l10n;
+            break;
         }
       } on FormatException catch (_) {
         s.error.value = 'err_wrong_recovery_code'.l10n;
+
+        ++codeAttempts;
+        if (codeAttempts >= 3) {
+          codeAttempts = 0;
+          _setCodeTimer();
+        }
       } catch (_) {
         s.error.value = 'err_data_transfer'.l10n;
         s.unsubmit();
@@ -491,7 +591,8 @@ class LoginController extends GetxController {
     password.error.value = null;
 
     if (login.text.isEmpty) {
-      login.error.value = 'err_account_not_found'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
+      password.unsubmit();
       return;
     }
 
@@ -520,12 +621,14 @@ class LoginController extends GetxController {
     }
 
     if (password.text.isEmpty) {
-      password.error.value = 'err_password_empty'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
+      password.unsubmit();
       return;
     }
 
     if (userLogin == null && num == null && email == null && phone == null) {
-      login.error.value = 'err_account_not_found'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
+      password.unsubmit();
       return;
     }
 
@@ -542,7 +645,7 @@ class LoginController extends GetxController {
 
       router.home();
     } on FormatException {
-      password.error.value = 'err_incorrect_password'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
       switch (e.code) {
         case CreateSessionErrorCode.wrongPassword:
@@ -1029,11 +1132,13 @@ class LoginController extends GetxController {
     try {
       final GraphQlProvider graphQlProvider = Get.find();
 
-      graphQlProvider.token = creds!.session.token;
-      await graphQlProvider.resendEmail();
-      graphQlProvider.token = null;
+      if (stage.value.registering) {
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.resendEmail();
+        graphQlProvider.token = null;
+      }
     } on ResendUserEmailConfirmationException catch (e) {
-      email.error.value = e.toMessage();
+      emailCode.error.value = e.toMessage();
     } catch (e) {
       emailCode.error.value = 'err_data_transfer'.l10n;
       resent.value = false;
@@ -1060,6 +1165,56 @@ class LoginController extends GetxController {
       codeTimeout.value = 0;
       _codeTimer?.cancel();
       _codeTimer = null;
+    }
+  }
+
+  /// Timeout of a [resendPhone].
+  final RxInt resendPhoneTimeout = RxInt(0);
+
+  /// [Timer] decreasing the [resendPhoneTimeout].
+  Timer? _resendPhoneTimer;
+
+  /// Starts or stops the [_resendPhoneTimer] based on [enabled] value.
+  void _setResendPhoneTimer([bool enabled = true]) {
+    if (enabled) {
+      resendPhoneTimeout.value = 30;
+      _resendPhoneTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          resendPhoneTimeout.value--;
+          if (resendPhoneTimeout.value <= 0) {
+            resendPhoneTimeout.value = 0;
+            _resendPhoneTimer?.cancel();
+            _resendPhoneTimer = null;
+          }
+        },
+      );
+    } else {
+      resendPhoneTimeout.value = 0;
+      _resendPhoneTimer?.cancel();
+      _resendPhoneTimer = null;
+    }
+  }
+
+  Future<void> resendPhone() async {
+    resent.value = true;
+    _setResendPhoneTimer();
+
+    try {
+      final GraphQlProvider graphQlProvider = Get.find();
+
+      if (stage.value.registering) {
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.resendPhone();
+        graphQlProvider.token = null;
+      }
+    } on ResendUserPhoneConfirmationException catch (e) {
+      phoneCode.error.value = e.toMessage();
+    } catch (e) {
+      phoneCode.error.value = 'err_data_transfer'.l10n;
+      resent.value = false;
+      _setResendPhoneTimer(false);
+      rethrow;
     }
   }
 }

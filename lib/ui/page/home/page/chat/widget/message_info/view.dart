@@ -209,7 +209,7 @@ class MessageInfo extends StatelessWidget {
                                   Text(
                                     'label_read_at'
                                         .l10nfmt({'date': time.yMdHm}),
-                                    style: style.fonts.bodySmall!.copyWith(
+                                    style: style.fonts.bodySmall.copyWith(
                                       color: style.colors.secondary,
                                     ),
                                   ),

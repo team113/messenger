@@ -26,7 +26,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/ui/page/home/page/chat/message_field/more.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';

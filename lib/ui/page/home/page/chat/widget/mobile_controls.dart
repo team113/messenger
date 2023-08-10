@@ -206,7 +206,7 @@ class _MobileControlsState extends State<MobileControls>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      _buildPosition(style.fonts.labelLarge!.color),
+                      _buildPosition(style.fonts.labelLarge.color),
                       _buildMuteButton(),
                     ],
                   ),
@@ -299,13 +299,13 @@ class _MobileControlsState extends State<MobileControls>
           children: <InlineSpan>[
             TextSpan(
               text: '/ ${formatDuration(duration)}',
-              style: style.fonts.labelMedium!.copyWith(
+              style: style.fonts.labelMedium.copyWith(
                 color: style.colors.onPrimaryOpacity50,
               ),
             )
           ],
           style:
-              style.fonts.labelMedium!.copyWith(color: style.colors.onPrimary),
+              style.fonts.labelMedium.copyWith(color: style.colors.onPrimary),
         ),
       );
     });

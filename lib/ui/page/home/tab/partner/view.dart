@@ -26,7 +26,6 @@ import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/page/home/widget/transaction.dart';
 import 'package:messenger/ui/page/home/widget/vacancy.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'controller.dart';
@@ -191,12 +190,12 @@ class PartnerTabView extends StatelessWidget {
                             TextSpan(
                               text: 'Новых транзакций: ',
                               style: style.fonts.bodySmall
-                                  ?.copyWith(color: style.colors.secondary),
+                                  .copyWith(color: style.colors.secondary),
                             ),
                             TextSpan(
                               text: '4',
                               style: style.fonts.bodySmall
-                                  ?.copyWith(color: style.colors.dangerColor),
+                                  .copyWith(color: style.colors.dangerColor),
                             ),
                           ],
                         ),

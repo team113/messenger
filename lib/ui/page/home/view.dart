@@ -24,7 +24,6 @@ import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 
 import '/api/backend/schema.dart' show Presence;
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -38,8 +37,6 @@ import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
-import 'tab/chats/controller.dart';
-import 'tab/contacts/controller.dart';
 import 'tab/chats_contacts/controller.dart';
 import 'tab/chats_contacts/view.dart';
 import 'tab/partner/view.dart';

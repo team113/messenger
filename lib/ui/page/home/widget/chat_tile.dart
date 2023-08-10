@@ -199,8 +199,7 @@ class _ChatTileState extends State<ChatTile> {
                                               ('dot'.l10n * 3),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
-                                          style: style.fonts.headlineLarge!
-                                              .copyWith(
+                                          style: style.fonts.headlineLarge.copyWith(
                                             color:
                                                 widget.selected || widget.active
                                                     ? style.colors.onPrimary

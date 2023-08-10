@@ -25,7 +25,6 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
@@ -311,8 +310,7 @@ class ChatInfoView extends StatelessWidget {
                 onPressed: c.deleteAvatar,
                 child: Text(
                   'btn_delete'.l10n.toLowerCase(),
-                  style: style.fonts.bodySmall!
-                      .copyWith(color: style.colors.primary),
+                  style: style.fonts.bodySmall.copyWith(color: style.colors.primary),
                 ),
               ),
             ],
@@ -400,13 +398,13 @@ class ChatInfoView extends StatelessWidget {
                                   c.chat?.chat.value.directLink?.usageCount ?? 0
                             }) +
                             'dot_space'.l10n,
-                        style: style.fonts.labelSmall!.copyWith(
+                        style: style.fonts.labelSmall.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: 'label_details'.l10n,
-                        style: style.fonts.labelSmall!.copyWith(
+                        style: style.fonts.labelSmall.copyWith(
                           color: style.colors.primary,
                         ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
@@ -617,7 +615,7 @@ class ChatInfoView extends StatelessWidget {
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge!),
+        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
@@ -635,7 +633,7 @@ class ChatInfoView extends StatelessWidget {
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge!),
+        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
     );
@@ -656,7 +654,7 @@ class ChatInfoView extends StatelessWidget {
       'label_block'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge!),
+        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],
     );
@@ -719,7 +717,7 @@ class _BigButtonState extends State<BigButton> {
                       child: DefaultTextStyle(
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: style.fonts.bodyMedium!.copyWith(
+                        style: style.fonts.bodyMedium.copyWith(
                           color: style.colors.primary,
                         ),
                         child: widget.title,

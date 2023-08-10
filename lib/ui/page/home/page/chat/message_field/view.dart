@@ -25,7 +25,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/donate.dart';
 import 'package:messenger/ui/page/home/widget/animated_button.dart';
-import 'package:messenger/ui/widget/rive_asset.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -39,7 +38,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -984,7 +982,7 @@ class MessageFieldView extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Редактирование сообщения'.l10n,
-                  style: style.fonts.bodyLarge!.copyWith(
+                  style: style.fonts.bodyLarge.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
@@ -994,7 +992,7 @@ class MessageFieldView extends StatelessWidget {
                 onPressed: onClose,
                 child: Text(
                   'Cancel',
-                  style: style.fonts.bodyLarge!.copyWith(
+                  style: style.fonts.bodyLarge.copyWith(
                     fontSize: 13,
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -1101,7 +1099,7 @@ class MessageFieldView extends StatelessWidget {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.fonts.bodyLarge!.copyWith(
+                style: style.fonts.bodyLarge.copyWith(
                   color: style.colors.secondary,
                   fontSize: 13,
                 ),
@@ -1144,8 +1142,7 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: style.fonts.bodyLarge!
-                        .copyWith(color: style.colors.primary),
+                    style: style.fonts.bodyLarge.copyWith(color: style.colors.primary),
                   ),
                   if (content != null) ...[
                     const SizedBox(height: 2),
@@ -1187,12 +1184,12 @@ class MessageFieldView extends StatelessWidget {
                         return Text(
                           snapshot.data!.user.value.name?.val ??
                               snapshot.data!.user.value.num.val,
-                          style: style.fonts.bodyLarge!.copyWith(color: color),
+                          style: style.fonts.bodyLarge.copyWith(color: color),
                         );
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style: style.fonts.bodyLarge!.copyWith(
+                        style: style.fonts.bodyLarge.copyWith(
                           color: style.colors.primary,
                         ),
                       ),

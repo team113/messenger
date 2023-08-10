@@ -765,10 +765,8 @@ label_recovery_code = Recovery code
 label_recovery_code_sent = The verification code has been sent to the verified E-mail/phone linked to this account. Please, enter the code below.
 label_sign_in_code_sent1 = The verification code has been sent to the{" "}
 label_sign_in_code_sent2 = . Please, enter the code below.
-label_sign_up_code_email_sent =
-    Verification code has been sent to the e-mail {$text}
-label_sign_up_code_phone_sent =
-    Verification code has been sent to the phone number {$text}
+label_sign_up_code_email_sent = Verification code has been sent to the e-mail {$text}
+label_sign_up_code_phone_sent = Verification code has been sent to the phone number {$text}
 label_recovery_enter_new_password = Please enter the new password below.
 label_remove_member = Remove member
 label_repeat_password = Repeat password
@@ -1029,5 +1027,8 @@ label_didnt_recieve_code = Didn't receive the code?
 label_code_sent_again = The code has been re-sent.
 label_wait_seconds = Wait {$for} s
 btn_resend_code = Resend
-label_sign_up_oauth_already_occupied = Account {$provider} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
+label_sign_up_oauth_already_occupied = {$provider} account {$text} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
 label_country = Country
+err_incorrect_login_or_password = Invalid login or password
+label_sign_in_email_already_occupied = label_sign_in_email_already_occupied
+label_sign_in_phone_already_occupied = label_sign_in_phone_already_occupied

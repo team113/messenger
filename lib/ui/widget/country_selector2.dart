@@ -151,7 +151,7 @@ class CountrySelectorState extends State<CountrySelector> {
                                             .countryName(
                                               countryCode: country.countryCode,
                                             )
-                                            ?.replaceAll(RegExp(r"\s+"), " ") ??
+                                            ?.replaceAll(RegExp(r'\s+'), ' ') ??
                                         country.name,
                                     style: style.fonts.titleLarge,
                                   ),

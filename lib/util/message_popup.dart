@@ -76,7 +76,7 @@ class MessagePopup {
                           child: RichText(
                             text: TextSpan(
                               children: description,
-                              style: style.fonts.labelLarge!.copyWith(
+                              style: style.fonts.labelLarge.copyWith(
                                 color: style.colors.secondary,
                               ),
                             ),
@@ -100,7 +100,7 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: style.fonts.bodyMedium!.copyWith(
+                    style: style.fonts.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
                     ),
                   ),

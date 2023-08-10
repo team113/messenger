@@ -24,7 +24,6 @@ import 'package:get/get.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -114,7 +113,7 @@ class IntroductionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_ok'.l10n,
-                    style: style.fonts.bodyMedium!.copyWith(
+                    style: style.fonts.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
                     ),
                   ),
@@ -136,7 +135,7 @@ class IntroductionView extends StatelessWidget {
                       c.resent.value
                           ? 'label_add_email_confirmation_sent_again'.l10n
                           : 'label_add_email_confirmation_sent'.l10n,
-                      style: style.fonts.bodyMedium!.copyWith(
+                      style: style.fonts.bodyMedium.copyWith(
                         color: style.colors.secondary,
                       ),
                     );
@@ -164,7 +163,7 @@ class IntroductionView extends StatelessWidget {
                                 : 'label_resend_timeout'.l10nfmt(
                                     {'timeout': c.resendEmailTimeout.value},
                                   ),
-                            style: style.fonts.bodyMedium!.copyWith(
+                            style: style.fonts.bodyMedium.copyWith(
                               color: c.resendEmailTimeout.value == 0
                                   ? style.colors.onPrimary
                                   : style.colors.onBackground,
@@ -183,7 +182,7 @@ class IntroductionView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_proceed'.l10n,
-                            style: style.fonts.bodyMedium!.copyWith(
+                            style: style.fonts.bodyMedium.copyWith(
                               color: c.emailCode.isEmpty.value
                                   ? style.colors.onBackground
                                   : style.colors.onPrimary,
@@ -248,7 +247,7 @@ class IntroductionView extends StatelessWidget {
                   key: const Key('ChangePasswordButton'),
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: style.fonts.bodyMedium!.copyWith(
+                    style: style.fonts.bodyMedium.copyWith(
                       color: c.password.isEmpty.value || c.repeat.isEmpty.value
                           ? style.colors.onBackground
                           : style.colors.onPrimary,
@@ -271,7 +270,7 @@ class IntroductionView extends StatelessWidget {
                 ...numId(),
                 Text(
                   'label_password_set'.l10n,
-                  style: style.fonts.bodyMedium!.copyWith(
+                  style: style.fonts.bodyMedium.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -282,7 +281,7 @@ class IntroductionView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: style.fonts.bodyMedium!.copyWith(
+                      style: style.fonts.bodyMedium.copyWith(
                         color: style.colors.onPrimary,
                       ),
                     ),
@@ -312,7 +311,7 @@ class IntroductionView extends StatelessWidget {
                       TextSpan(
                         text: 'label_introduction_description2'.l10n,
                         style: style.fonts.titleLarge
-                            ?.copyWith(color: style.colors.primary),
+                            .copyWith(color: style.colors.primary),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             Navigator.of(context).pop();
@@ -332,7 +331,7 @@ class IntroductionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_ok'.l10n,
-                    style: style.fonts.bodyMedium!.copyWith(
+                    style: style.fonts.bodyMedium.copyWith(
                       color: style.colors.onPrimary,
                     ),
                   ),

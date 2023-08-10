@@ -89,7 +89,7 @@ class _MenuButtonState extends State<MenuButton> {
                   child: Row(
                     children: [
                       Container(
-                        constraints: BoxConstraints(minWidth: 56),
+                        constraints: const BoxConstraints(minWidth: 56),
                         child: Center(
                           child: AnimatedScale(
                             key: _key,
@@ -116,7 +116,7 @@ class _MenuButtonState extends State<MenuButton> {
                               DefaultTextStyle(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: style.fonts.headlineLarge!.copyWith(
+                                style: style.fonts.headlineLarge.copyWith(
                                   color: widget.inverted
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,
@@ -129,7 +129,7 @@ class _MenuButtonState extends State<MenuButton> {
                               DefaultTextStyle.merge(
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: style.fonts.labelMedium!.copyWith(
+                                style: style.fonts.labelMedium.copyWith(
                                   color: widget.inverted
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,

@@ -148,7 +148,7 @@ class ChatsTabView extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'label_synchronization'.l10n,
-                              style: style.fonts.labelMedium!.copyWith(
+                              style: style.fonts.labelMedium.copyWith(
                                 color: style.colors.secondary,
                               ),
                             ),
@@ -526,7 +526,7 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style: style.fonts.bodySmall!.copyWith(
+                                      style: style.fonts.bodySmall.copyWith(
                                         color: style.colors.onPrimary,
                                       ),
                                     ),

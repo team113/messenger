@@ -507,13 +507,13 @@ Widget _emails(BuildContext context, MyProfileController c) {
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: style.fonts.bodySmall!.copyWith(
+                      style: style.fonts.bodySmall.copyWith(
                         color: style.colors.secondary,
                       ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: style.fonts.bodySmall!.copyWith(
+                      style: style.fonts.bodySmall.copyWith(
                         color: style.colors.primary,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -565,7 +565,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
           data: Theme.of(context).copyWith(
             inputDecorationTheme:
                 Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle: style.fonts.bodyMedium!.copyWith(
+                      floatingLabelStyle: style.fonts.bodyMedium.copyWith(
                         color: style.colors.primary,
                       ),
                     ),
@@ -591,7 +591,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
               c.myUser.value!.emails.unconfirmed!,
             ),
             style:
-                style.fonts.titleMedium!.copyWith(color: style.colors.primary),
+                style.fonts.titleMedium.copyWith(color: style.colors.primary),
           ),
         ),
         Padding(
@@ -601,7 +601,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
               children: [
                 TextSpan(
                   text: 'E-mail не верифицирован. '.l10n,
-                  style: style.fonts.bodySmall!.copyWith(
+                  style: style.fonts.bodySmall.copyWith(
                     fontSize: 11,
                     color: style.colors.dangerColor,
                   ),
@@ -628,7 +628,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
               ? style.colors.dangerColor
               : null,
           onPressed: () => AddEmailView.show(context),
-          style: style.fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 8));
@@ -731,7 +731,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
           data: Theme.of(context).copyWith(
             inputDecorationTheme:
                 Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle: style.fonts.bodyMedium!.copyWith(
+                      floatingLabelStyle: style.fonts.bodyMedium.copyWith(
                         color: style.colors.primary,
                       ),
                     ),
@@ -756,8 +756,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: style.fonts.titleMedium!
-                .copyWith(color: style.colors.secondary),
+            style: style.fonts.titleMedium.copyWith(color: style.colors.secondary),
           ),
         ),
       ]);
@@ -778,7 +777,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
                   c.myUser.value?.emails.unconfirmed == null
               ? style.colors.dangerColor
               : null,
-          style: style.fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
         ),
       );
       widgets.add(const SizedBox(height: 8));
@@ -832,7 +831,7 @@ Widget _password(BuildContext context, MyProfileController c) {
           border: c.myUser.value?.hasPassword != true
               ? style.colors.dangerColor
               : null,
-          style: style.fonts.titleMedium!.copyWith(
+          style: style.fonts.titleMedium.copyWith(
             color: style.colors.primary,
           ),
         ),
@@ -860,7 +859,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
-          style: style.fonts.titleMedium!.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
         ),
       ),
     ],
@@ -1809,7 +1808,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
                 : () => PaidListView.show(context),
             trailing: Text(
               '${c.blacklist.length}',
-              style: style.fonts.bodyLarge!.copyWith(
+              style: style.fonts.bodyLarge.copyWith(
                 fontSize: 15,
                 color: !c.verified.value
                     ? style.colors.secondary
@@ -1950,8 +1949,7 @@ Widget _notifications(BuildContext context, MyProfileController c) {
                     .l10n,
                 editable: false,
               ),
-              style: style.fonts.bodyMedium!
-                  .copyWith(color: style.colors.secondary),
+              style: style.fonts.bodyMedium.copyWith(color: style.colors.secondary),
             ),
           ),
           Align(
@@ -2061,7 +2059,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           text: 'label_users'.l10n,
           trailing: Text(
             '${c.blacklist.length}',
-            style: style.fonts.titleMedium!.copyWith(
+            style: style.fonts.titleMedium.copyWith(
               color: c.blacklist.isEmpty
                   ? style.colors.onBackground
                   : style.colors.primary,
@@ -2069,7 +2067,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           ),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
-          style: style.fonts.titleMedium!.copyWith(
+          style: style.fonts.titleMedium.copyWith(
             color: c.blacklist.isEmpty
                 ? style.colors.onBackground
                 : style.colors.primary,

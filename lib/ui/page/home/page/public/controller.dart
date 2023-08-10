@@ -46,7 +46,6 @@ import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/obs/obs.dart';
-import 'package:messenger/util/obs/rxsplay.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 class PublicController extends GetxController {

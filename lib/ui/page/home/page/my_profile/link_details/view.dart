@@ -53,7 +53,7 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style: style.fonts.bodyMedium!.copyWith(
+                style: style.fonts.bodyMedium.copyWith(
                   color: style.colors.secondary,
                 ),
               ),

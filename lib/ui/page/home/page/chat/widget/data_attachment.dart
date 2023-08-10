@@ -234,7 +234,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                             }),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: style.fonts.headlineSmall!.copyWith(
+                            style: style.fonts.headlineSmall.copyWith(
                               color: style.colors.secondary,
                             ),
                           ),

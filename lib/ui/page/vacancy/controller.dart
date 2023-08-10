@@ -1,6 +1,4 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/gestures.dart' show TapGestureRecognizer;
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';

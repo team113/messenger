@@ -457,8 +457,8 @@ class _AvatarWidgetState extends State<AvatarWidget> {
                     SelectionContainer.disabled(
                       child: Text(
                         (widget.title ?? '??').initials(),
-                        style: style.fonts.titleSmall!.copyWith(
-                          fontSize: style.fonts.bodyMedium!.fontSize! *
+                        style: style.fonts.titleSmall.copyWith(
+                          fontSize: style.fonts.bodyMedium.fontSize! *
                               (maxWidth / 40.0),
                           color: style.colors.onPrimary,
                         ),

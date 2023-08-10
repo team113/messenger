@@ -17,23 +17,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/attachment.dart';
-import 'package:messenger/domain/model/file.dart';
-import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/model/vacancy.dart';
-import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/data_attachment.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'controller.dart';
