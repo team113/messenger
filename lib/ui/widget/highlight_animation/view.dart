@@ -34,6 +34,7 @@ class HighlightAnimation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+    
     HighlightController h = Get.put(HighlightController());
 
     return Obx(() {
