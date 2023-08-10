@@ -52,7 +52,10 @@ class UserIsarProvider {
     if (PlatformUtils.isWeb) {
       return _changes.stream;
     } else {
-      return _isar.users.where().watch(fireImmediately: true).changes((e) => e.id);
+      return _isar.users
+          .where()
+          .watch(fireImmediately: true)
+          .changes((e) => e.id);
     }
   }
 
