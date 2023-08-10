@@ -113,7 +113,7 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'nodes': [chatData]
+      'nodes': [chatData],
     }
   };
 
@@ -161,7 +161,7 @@ void main() async {
 
     when(graphQlProvider.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatItemId(''),
+      const ChatItemId('1'),
     )).thenAnswer((_) =>
         Future.value(ReadChat$Mutation$ReadChat$ChatEventsVersioned.fromJson(
           {
@@ -236,12 +236,12 @@ void main() async {
     await chatService.get(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
     await chatService.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatItemId(''),
+      const ChatItemId('1'),
     );
 
     verify(graphQlProvider.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatItemId(''),
+      const ChatItemId('1'),
     ));
   });
 

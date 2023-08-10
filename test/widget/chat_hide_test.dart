@@ -72,30 +72,30 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_hide_widget');
 
+  var chatData = {
+    'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
+    'name': 'chatname',
+    'avatar': null,
+    'members': {'nodes': []},
+    'kind': 'GROUP',
+    'isHidden': false,
+    'muted': null,
+    'directLink': null,
+    'createdAt': '2021-12-15T15:11:18.316846+00:00',
+    'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+    'lastReads': [],
+    'lastDelivery': '1970-01-01T00:00:00+00:00',
+    'lastItem': null,
+    'lastReadItem': null,
+    'unreadCount': 0,
+    'totalCount': 0,
+    'ongoingCall': null,
+    'ver': '0'
+  };
+
   var recentChats = {
     'recentChats': {
-      'nodes': [
-        {
-          'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-          'name': 'chatname',
-          'avatar': null,
-          'members': {'nodes': []},
-          'kind': 'GROUP',
-          'isHidden': false,
-          'muted': null,
-          'directLink': null,
-          'createdAt': '2021-12-15T15:11:18.316846+00:00',
-          'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-          'lastReads': [],
-          'lastDelivery': '1970-01-01T00:00:00+00:00',
-          'lastItem': null,
-          'lastReadItem': null,
-          'unreadCount': 0,
-          'totalCount': 0,
-          'ongoingCall': null,
-          'ver': '0'
-        }
-      ]
+      'nodes': [chatData],
     }
   };
 
@@ -130,7 +130,7 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.myUserEvents(any))
-      .thenAnswer((realInvocation) => const Stream.empty());
+      .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.getUser(any))
       .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));

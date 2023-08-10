@@ -41,10 +41,10 @@ class FontFamily extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return DefaultTextStyle(
-      style: fonts.displayLarge!.copyWith(
+      style: style.fonts.displayLarge.copyWith(
         color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
         fontWeight: family.$1,
       ),

@@ -165,13 +165,21 @@ void main() async {
       .thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.chatItems(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          first: 120))
-      .thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
-            'chat': {
-              'items': {'edges': []}
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    last: 50,
+  )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
+        'chat': {
+          'items': {
+            'edges': [],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
             }
-          })));
+          }
+        }
+      })));
 
   when(
     graphQlProvider.postChatMessage(

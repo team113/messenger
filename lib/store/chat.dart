@@ -52,6 +52,7 @@ import '/provider/hive/draft.dart';
 import '/provider/hive/monolog.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
+import '/store/model/chat_item.dart';
 import '/store/user.dart';
 import '/util/backoff.dart';
 import '/util/new_type.dart';
@@ -61,6 +62,7 @@ import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
 import 'model/chat.dart';
+import 'pagination.dart';
 
 /// Implementation of an [AbstractChatRepository].
 class ChatRepository extends DisposableInterface
@@ -386,15 +388,6 @@ class ChatRepository extends DisposableInterface
         repliesTo:
             item.repliesTo.map((e) => e.original).whereNotNull().toList(),
       );
-    }
-  }
-
-  /// Puts the provided [item] to [Hive].
-  Future<void> putChatItem(HiveChatItem item) async {
-    HiveRxChat? entry =
-        _chats[item.value.chatId] ?? (await get(item.value.chatId));
-    if (entry != null) {
-      await entry.put(item);
     }
   }
 
@@ -816,13 +809,27 @@ class ChatRepository extends DisposableInterface
     }
   }
 
-  // TODO: Messages list can be huge, so we should implement pagination and
-  //       loading on demand.
-  /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
-  Future<List<HiveChatItem>> messages(ChatId id) async {
-    const maxInt = 120;
-    var query = await _graphQlProvider.chatItems(id, first: maxInt);
-    return query.chat?.items.edges.map((e) => e.toHive()).toList() ?? [];
+  /// Fetches [ChatItem]s of the [Chat] with the provided [id] ordered by their
+  /// posting time with pagination.
+  Future<Page<HiveChatItem, ChatItemsCursor>> messages(
+    ChatId id, {
+    int? first,
+    ChatItemsCursor? after,
+    int? last,
+    ChatItemsCursor? before,
+  }) async {
+    var query = await _graphQlProvider.chatItems(
+      id,
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+
+    return Page(
+      RxList(query.chat!.items.edges.map((e) => e.toHive()).toList()),
+      query.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c)),
+    );
   }
 
   /// Fetches the [Attachment]s of the provided [item].

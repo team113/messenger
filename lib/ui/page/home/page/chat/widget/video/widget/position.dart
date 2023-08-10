@@ -16,33 +16,30 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 
-import '/domain/model/user.dart';
+import '/themes.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/widget/text_field.dart';
 
-/// [CopyableTextField] representation of the provided [UserNum].
-class UserNumCopyable extends StatelessWidget {
-  const UserNumCopyable(this.num, {super.key});
+/// Current position and duration of the provided [controller].
+class CurrentPosition extends StatelessWidget {
+  const CurrentPosition(this.controller, {super.key});
 
-  /// [UserNum] to display.
-  final UserNum? num;
+  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
+  final MeeduPlayerController controller;
 
   @override
   Widget build(BuildContext context) {
-    return CopyableTextField(
-      key: const Key('UserNum'),
-      state: TextFieldState(
-        text: num?.val
-            .replaceAllMapped(
-              RegExp(r'.{4}'),
-              (match) => '${match.group(0)}${'space'.l10n}',
-            )
-            .trim(),
-        editable: false,
-      ),
-      label: 'label_num'.l10n,
-    );
+    final style = Theme.of(context).style;
+
+    return RxBuilder((_) {
+      final String position = controller.position.value.hhMmSs();
+      final String duration = controller.duration.value.hhMmSs();
+
+      return Text(
+        'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
+        style: style.fonts.labelMediumOnPrimary,
+      );
+    });
   }
 }

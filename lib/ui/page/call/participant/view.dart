@@ -62,7 +62,7 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: ParticipantController(
@@ -167,9 +167,7 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: fonts.titleLarge!.copyWith(
-                            color: style.colors.onPrimary,
-                          ),
+                          style: style.fonts.titleLargeOnPrimary,
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();

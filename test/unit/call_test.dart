@@ -87,6 +87,12 @@ var chatData = {
   'ver': '0'
 };
 
+var chatsQuery = {
+  'recentChats': {
+    'nodes': [chatData],
+  }
+};
+
 void main() async {
   setUp(() => Get.reset());
   Hive.init('./test/.temp_hive/unit_call');
@@ -628,11 +634,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     bool noFavorite = false,
     bool? withOngoingCalls,
   }) async {
-    return RecentChats$Query.fromJson({
-      'recentChats': {
-        'nodes': [chatData]
-      }
-    });
+    return RecentChats$Query.fromJson(chatsQuery);
   }
 
   @override
