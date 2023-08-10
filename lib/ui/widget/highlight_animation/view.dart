@@ -43,6 +43,7 @@ class HighlightAnimation extends StatelessWidget {
         color: h.highlightIndex.value == index
             ? style.colors.primaryOpacity20
             : style.colors.primaryOpacity20.withOpacity(0),
+        padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
         child: child,
       );
     });
