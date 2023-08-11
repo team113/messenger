@@ -230,11 +230,16 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
-email_confirmation =
+email_password_recovery =
+    Код восстановления {$domain}: {$token}
+    Действителен до {$expiresAt}.
+    {$domain}
+email_password_recovery_subject = Код восстановления {$domain}
+email_verification_code =
     Код подтверждения {$domain}: {$token}
     Действителен до {$expiresAt}.
     {$domain}
-email_confirmation_subject = Код подтверждения {$domain}
+email_verification_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
 err_blacklisted = Пользователь в чёрном списке
 err_call_already_exists = Звонок уже активен
@@ -878,13 +883,6 @@ label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 label_your_blacklist = Ваш чёрный список
 label_your_direct_link = Прямая ссылка на чат с Вами
-password_recovery =
-    Код восстановления {$domain}: {$token}
-    Действителен до {$expiresAt}.
-
-    С наилучшими пожеланиями,
-    Администрация {$domain}
-password_recovery_subject = Код восстановления {$domain}
 plus = +
 space = {" "}
 space_or_space = {" "}или{" "}
