@@ -26,7 +26,7 @@ import 'controller.dart';
 // TODO: Implement [Routes.contact] page.
 /// View of the [Routes.contacts] page.
 class ContactView extends StatelessWidget {
-  const ContactView(this.id, {Key? key}) : super(key: key);
+  const ContactView(this.id, {super.key});
 
   /// ID of a [ChatContact] this [ContactView] represents.
   final ChatContactId id;

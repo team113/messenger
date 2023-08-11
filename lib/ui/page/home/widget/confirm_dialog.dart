@@ -39,15 +39,14 @@ class ConfirmDialogVariant<T> {
 /// Intended to be displayed with the [show] method.
 class ConfirmDialog extends StatefulWidget {
   ConfirmDialog({
-    Key? key,
+    super.key,
     this.description,
     required this.title,
     required this.variants,
     this.initial = 0,
     this.label,
     this.additional = const [],
-  })  : assert(variants.isNotEmpty),
-        super(key: key);
+  }) : assert(variants.isNotEmpty);
 
   /// [ConfirmDialogVariant]s of this [ConfirmDialog].
   final List<ConfirmDialogVariant> variants;

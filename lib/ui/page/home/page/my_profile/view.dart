@@ -311,7 +311,10 @@ Widget _emails(BuildContext context, MyProfileController c) {
                 offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                  child: const SvgImage.asset(
+                    'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
               subtitle: RichText(
@@ -377,7 +380,8 @@ Widget _emails(BuildContext context, MyProfileController c) {
             offset: const Offset(0, -5),
             child: Transform.scale(
               scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
           onPressed: () => AddEmailView.show(
@@ -441,7 +445,10 @@ Widget _phones(BuildContext context, MyProfileController c) {
                 offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                  child: const SvgImage.asset(
+                    'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
               onPressed: () {
@@ -512,7 +519,8 @@ Widget _phones(BuildContext context, MyProfileController c) {
             offset: const Offset(0, -5),
             child: Transform.scale(
               scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
           onPressed: () => AddPhoneView.show(
@@ -847,7 +855,8 @@ Widget _danger(BuildContext context, MyProfileController c) {
             offset: const Offset(0, -1),
             child: Transform.scale(
               scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
           onPressed: () => _deleteAccount(c, context),

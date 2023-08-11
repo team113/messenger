@@ -113,13 +113,13 @@ class GalleryItem {
 /// Animated gallery of [GalleryItem]s.
 class GalleryPopup extends StatefulWidget {
   const GalleryPopup({
-    Key? key,
+    super.key,
     this.children = const [],
     this.initial = 0,
     this.initialKey,
     this.onPageChanged,
     this.onTrashPressed,
-  }) : super(key: key);
+  });
 
   /// [List] of [GalleryItem]s to display in a gallery.
   final List<GalleryItem> children;

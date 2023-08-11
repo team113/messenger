@@ -241,7 +241,7 @@ class ChatsTabView extends StatelessWidget {
                                   size: 20,
                                   color: style.colors.primary,
                                 )
-                              : SvgImage.asset(
+                              : const SvgImage.asset(
                                   'assets/icons/search.svg',
                                   width: 17.77,
                                 ),
@@ -255,17 +255,17 @@ class ChatsTabView extends StatelessWidget {
 
                       if (c.searching.value) {
                         if (c.search.value?.search.isEmpty.value == false) {
-                          child = SvgImage.asset(
+                          child = const SvgImage.asset(
                             'assets/icons/search_exit.svg',
-                            key: const Key('CloseSearch'),
+                            key: Key('CloseSearch'),
                             height: 11,
                           );
                         }
                       } else {
                         if (c.groupCreating.value || c.selecting.value) {
-                          child = SvgImage.asset(
+                          child = const SvgImage.asset(
                             'assets/icons/close_primary.svg',
-                            key: const Key('CloseGroupSearching'),
+                            key: Key('CloseGroupSearching'),
                             height: 15,
                           );
                         }
