@@ -198,7 +198,7 @@ class _FileSvgLoader implements _SvgLoader {
 /// `html` renderer and through [SvgPicture.memory] on `CanvasKit` renderer.
 class _BrowserSvg extends StatefulWidget {
   const _BrowserSvg({
-    Key? key,
+    super.key,
     required this.loader,
     required this.width,
     required this.height,
@@ -207,7 +207,7 @@ class _BrowserSvg extends StatefulWidget {
     required this.fit,
     required this.placeholderBuilder,
     required this.semanticsLabel,
-  }) : super(key: key);
+  });
 
   /// Loader to load the SVG from.
   final _SvgLoader loader;

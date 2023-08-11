@@ -378,7 +378,7 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
       final Color gradient;
@@ -442,10 +442,9 @@ class AvatarWidget extends StatelessWidget {
                     SelectionContainer.disabled(
                       child: Text(
                         (title ?? '??').initials(),
-                        style: fonts.titleSmall!.copyWith(
-                          fontSize:
-                              fonts.bodyMedium!.fontSize! * (maxWidth / 40.0),
-                          color: style.colors.onPrimary,
+                        style: style.fonts.titleSmallOnPrimary.copyWith(
+                          fontSize: style.fonts.bodyMedium.fontSize! *
+                              (maxWidth / 40.0),
                         ),
 
                         // Disable the accessibility size settings for this [Text].

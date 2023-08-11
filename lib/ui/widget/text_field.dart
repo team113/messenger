@@ -61,6 +61,7 @@ class ReactiveTextField extends StatelessWidget {
     this.trailing,
     this.treatErrorAsStatus = true,
     this.type,
+    this.subtitle,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -91,6 +92,9 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional trailing [Widget].
   final Widget? trailing;
+
+  /// Optional subtitle [Widget].
+  final Widget? subtitle;
 
   /// Optional label of this [ReactiveTextField].
   final String? label;
@@ -177,7 +181,7 @@ class ReactiveTextField extends StatelessWidget {
 
     // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       return Obx(() {
         final bool hasSuffix = state.approvable ||
@@ -205,7 +209,7 @@ class ReactiveTextField extends StatelessWidget {
                     height: 24,
                     child: ElasticAnimatedSwitcher(
                       child: state.status.value.isLoading
-                          ? SvgImage.asset(
+                          ? const SvgImage.asset(
                               'assets/icons/timer.svg',
                               width: 17,
                               height: 17,
@@ -237,9 +241,7 @@ class ReactiveTextField extends StatelessWidget {
                                           key: const ValueKey('Approve'),
                                           child: Text(
                                             'btn_save'.l10n,
-                                            style: fonts.bodySmall!.copyWith(
-                                              color: style.colors.primary,
-                                            ),
+                                            style: style.fonts.bodySmallPrimary,
                                           ),
                                         )
                                       : SizedBox(
@@ -258,7 +260,7 @@ class ReactiveTextField extends StatelessWidget {
     }
 
     return Obx(() {
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       return Theme(
         data: Theme.of(context).copyWith(
@@ -328,7 +330,7 @@ class ReactiveTextField extends StatelessWidget {
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: fonts.bodyLarge?.copyWith(fontSize: 0),
+                errorStyle: style.fonts.bodyLarge.copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -388,25 +390,33 @@ class ReactiveTextField extends StatelessWidget {
               },
             ),
 
-            // Displays an error, if any.
+            // Displays the [subtitle] or an error, if any.
             AnimatedSize(
               duration: 200.milliseconds,
-              child: AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: state.error.value == null
-                    ? const SizedBox(width: double.infinity, height: 1)
-                    : Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: AnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: state.error.value == null
+                      ? subtitle != null
+                          ? Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                              child: DefaultTextStyle(
+                                style: style.fonts.labelMedium,
+                                child: subtitle!,
+                              ),
+                            )
+                          : const SizedBox(width: double.infinity, height: 1)
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Text(
                             state.error.value ?? '',
-                            style: fonts.labelMedium?.copyWith(
+                            style: style.fonts.labelMedium.copyWith(
                               color: style.colors.dangerColor,
                             ),
                           ),
                         ),
-                      ),
+                ),
               ),
             ),
           ],

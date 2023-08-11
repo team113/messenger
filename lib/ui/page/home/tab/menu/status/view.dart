@@ -51,7 +51,7 @@ class StatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: StatusController(Get.find()),
@@ -90,7 +90,7 @@ class StatusView extends StatelessWidget {
                                   offset: const Offset(0, -1),
                                   child: Transform.scale(
                                     scale: 1.15,
-                                    child: SvgImage.asset(
+                                    child: const SvgImage.asset(
                                       'assets/icons/copy.svg',
                                       height: 15,
                                     ),
@@ -104,7 +104,7 @@ class StatusView extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'label_presence'.l10n,
-                            style: fonts.headlineMedium,
+                            style: style.fonts.headlineMedium,
                           ),
                         ),
                       ),

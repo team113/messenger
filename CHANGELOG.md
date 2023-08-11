@@ -6,17 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.10] · 2023-??-??
+## [0.1.0-alpha.10]
 [0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
 
-[Diff](/../../compare/v0.1.0-alpha.9.1...v0.1.0-alpha.10) | [Milestone](/../../milestone/6)
+[Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.10) | [Milestone](/../../milestone/8)
 
 ### Added
 
 - Push notifications. ([#202], [#201])
 
+### Changed
+
+- UI:
+    - Context menu with fading effect on desktop. ([#506])
+
 [#201]: /../../issues/201
 [#202]: /../../pull/202
+[#506]: /../../pull/506
 
 
 

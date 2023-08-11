@@ -40,12 +40,12 @@ class CallCoverWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Stack(
       children: [
         if (cover == null)
-          SvgImage.asset(
+          const SvgImage.asset(
             'assets/images/background_dark.svg',
             width: double.infinity,
             height: double.infinity,
@@ -83,12 +83,11 @@ class CallCoverWidget extends StatelessWidget {
                 child: Text(
                   title ?? '??',
                   textAlign: TextAlign.center,
-                  style: fonts.titleSmall!.copyWith(
-                    fontSize: (fonts.titleSmall!.fontSize! *
+                  style: style.fonts.titleSmallOnPrimary.copyWith(
+                    fontSize: (style.fonts.titleSmall.fontSize! *
                             constraints.biggest.shortestSide /
                             100)
                         .clamp(15, 108),
-                    color: style.colors.onPrimary,
                   ),
 
                   // Disable the accessibility size settings for this [Text].

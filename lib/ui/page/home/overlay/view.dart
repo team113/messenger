@@ -26,7 +26,7 @@ import 'controller.dart';
 ///
 /// Builds [CallView]s in a [Stack] with a [child] as a first element.
 class CallOverlayView extends StatelessWidget {
-  const CallOverlayView({required this.child, Key? key}) : super(key: key);
+  const CallOverlayView({required this.child, super.key});
 
   /// Overlay's [Stack] first child.
   final Widget child;

@@ -138,7 +138,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
             );
           } else {
             return VideoThumbnail.bytes(
-              bytes: attachment.file.bytes.value!,
+              attachment.file.bytes.value!,
               height: widget.height,
               width: widget.width,
             );
@@ -146,7 +146,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         });
       } else {
         return VideoThumbnail.url(
-          url: attachment.original.url,
+          attachment.original.url,
           checksum: attachment.original.checksum,
           height: widget.height,
           width: widget.width,

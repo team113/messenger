@@ -80,7 +80,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         text:
             PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
         onPressed: onTakePhoto,
-        child: SvgImage.asset(
+        child: const SvgImage.asset(
           'assets/icons/make_photo.svg',
           width: 60,
           height: 60,
@@ -90,7 +90,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         _AttachmentButton(
           text: 'label_video'.l10n,
           onPressed: onTakeVideo,
-          child: SvgImage.asset(
+          child: const SvgImage.asset(
             'assets/icons/video_on.svg',
             width: 60,
             height: 60,
@@ -99,7 +99,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       _AttachmentButton(
         text: 'label_gallery'.l10n,
         onPressed: onPickMedia,
-        child: SvgImage.asset(
+        child: const SvgImage.asset(
           'assets/icons/gallery.svg',
           width: 60,
           height: 60,
@@ -108,7 +108,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       _AttachmentButton(
         text: 'label_file'.l10n,
         onPressed: onPickFile,
-        child: Center(
+        child: const Center(
           child: SvgImage.asset('assets/icons/file.svg', height: 29),
         ),
       ),
@@ -150,7 +150,7 @@ class _AttachmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return FittedBox(
       fit: BoxFit.scaleDown,
@@ -161,7 +161,7 @@ class _AttachmentButton extends StatelessWidget {
           onPressed?.call();
           Navigator.of(context).pop();
         },
-        style: fonts.titleMedium!,
+        style: style.fonts.titleMedium,
         color: style.colors.primary,
         child: SizedBox(width: 60, height: 60, child: child),
       ),

@@ -42,7 +42,7 @@ class RewindIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return AnimatedOpacity(
       opacity: opacity,
@@ -64,8 +64,7 @@ class RewindIndicator extends StatelessWidget {
               ),
               Text(
                 'label_count_seconds'.l10nfmt({'count': seconds}),
-                style:
-                    fonts.bodyMedium?.copyWith(color: style.colors.onPrimary),
+                style: style.fonts.bodyMediumOnPrimary,
               ),
             ],
           ),

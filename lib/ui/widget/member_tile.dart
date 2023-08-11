@@ -60,7 +60,7 @@ class MemberTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return ContactTile(
       user: user,
@@ -88,8 +88,8 @@ class MemberTile extends StatelessWidget {
                   height: 22,
                   child: Center(
                     child: inCall == true
-                        ? SvgImage.asset('assets/icons/call_end.svg')
-                        : SvgImage.asset(
+                        ? const SvgImage.asset('assets/icons/call_end.svg')
+                        : const SvgImage.asset(
                             'assets/icons/audio_call_start.svg',
                             width: 11,
                             height: 11,
@@ -112,7 +112,7 @@ class MemberTile extends StatelessWidget {
                   TextSpan(text: 'alert_user_will_be_removed1'.l10n),
                   TextSpan(
                     text: user.user.value.name?.val ?? user.user.value.num.val,
-                    style: fonts.labelLarge,
+                    style: style.fonts.labelLarge,
                   ),
                   TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                 ],
@@ -126,14 +126,12 @@ class MemberTile extends StatelessWidget {
           child: canLeave
               ? Text(
                   'btn_leave'.l10n,
-                  style: fonts.labelLarge!.copyWith(
-                    color: style.colors.primary,
-                  ),
+                  style: style.fonts.labelLargePrimary,
                 )
-              : SvgImage.asset(
+              : const SvgImage.asset(
                   'assets/icons/delete.svg',
                   height: 14 * 1.5,
-                  key: const Key('DeleteMemberButton'),
+                  key: Key('DeleteMemberButton'),
                 ),
         ),
         const SizedBox(width: 6),

@@ -26,20 +26,19 @@ import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
 import 'widget/name.dart';
-import 'widget/num.dart';
 import 'widget/presence.dart';
 import 'widget/status.dart';
 
@@ -52,7 +51,7 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
@@ -120,9 +119,7 @@ class UserView extends StatelessWidget {
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
-                                  style: fonts.bodySmall!.copyWith(
-                                    color: style.colors.secondary,
-                                  ),
+                                  style: style.fonts.bodySmallSecondary,
                                 )
                             ],
                           );
@@ -139,7 +136,7 @@ class UserView extends StatelessWidget {
                     onPressed: c.openChat,
                     child: Transform.translate(
                       offset: const Offset(0, 1),
-                      child: SvgImage.asset(
+                      child: const SvgImage.asset(
                         'assets/icons/chat.svg',
                         width: 20.12,
                         height: 21.62,
@@ -158,7 +155,7 @@ class UserView extends StatelessWidget {
                           const SizedBox(width: 28),
                           AnimatedButton(
                             onPressed: () => c.call(true),
-                            child: SvgImage.asset(
+                            child: const SvgImage.asset(
                               'assets/icons/chat_video_call.svg',
                               height: 17,
                             ),
@@ -167,7 +164,7 @@ class UserView extends StatelessWidget {
                         const SizedBox(width: 28),
                         AnimatedButton(
                           onPressed: () => c.call(false),
-                          child: SvgImage.asset(
+                          child: const SvgImage.asset(
                             'assets/icons/chat_audio_call.svg',
                             height: 19,
                           ),
@@ -193,32 +190,8 @@ class UserView extends StatelessWidget {
                       Block(
                         title: 'label_public_information'.l10n,
                         children: [
-                          WidgetButton(
-                            onPressed: c.user?.user.value.avatar == null
-                                ? null
-                                : () async {
-                                    await GalleryPopup.show(
-                                      context: context,
-                                      gallery: GalleryPopup(
-                                        initialKey: c.avatarKey,
-                                        children: [
-                                          GalleryItem.image(
-                                            c.user!.user.value.avatar!.original
-                                                .url,
-                                            c.user!.id.val,
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                            child: AvatarWidget.fromRxUser(
-                              c.user,
-                              key: c.avatarKey,
-                              radius: 100,
-                              badge: false,
-                            ),
-                          ),
-                          const SizedBox(height: 15),
+                          BigAvatarWidget.user(c.user),
+                          const SizedBox(height: 12),
                           UserNameCopyable(
                             c.user!.user.value.name,
                             c.user!.user.value.num,
@@ -236,7 +209,10 @@ class UserView extends StatelessWidget {
                         title: 'label_contact_information'.l10n,
                         children: [
                           Paddings.basic(
-                            UserNumCopyable(c.user!.user.value.num),
+                            UserNumCopyable(
+                              key: const Key('UserNum'),
+                              c.user!.user.value.num,
+                            ),
                           )
                         ],
                       ),
@@ -308,12 +284,12 @@ class UserView extends StatelessWidget {
             return ActionButton(
               text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
               trailing: isMuted
-                  ? SvgImage.asset(
+                  ? const SvgImage.asset(
                       'assets/icons/btn_mute.svg',
                       width: 18.68,
                       height: 15,
                     )
-                  : SvgImage.asset(
+                  : const SvgImage.asset(
                       'assets/icons/btn_unmute.svg',
                       width: 17.86,
                       height: 15,
@@ -323,13 +299,15 @@ class UserView extends StatelessWidget {
           }),
           ActionButton(
             text: 'btn_hide_chat'.l10n,
-            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            trailing:
+                const SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _hideChat(c, context),
           ),
           ActionButton(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
-            trailing: SvgImage.asset('assets/icons/delete.svg', height: 14),
+            trailing:
+                const SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _clearChat(c, context),
           ),
         ],
@@ -365,7 +343,7 @@ class UserView extends StatelessWidget {
     UserController c,
     BuildContext context,
   ) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
@@ -373,7 +351,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: fonts.labelLarge,
+          style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -386,7 +364,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
   Future<void> _hideChat(UserController c, BuildContext context) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
@@ -394,7 +372,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: fonts.labelLarge,
+          style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
@@ -407,7 +385,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
@@ -415,7 +393,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: fonts.labelLarge,
+          style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
@@ -428,7 +406,7 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup blacklisting the [User].
   Future<void> _blacklistUser(UserController c, BuildContext context) async {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
@@ -436,7 +414,7 @@ class UserView extends StatelessWidget {
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: fonts.labelLarge,
+          style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],
