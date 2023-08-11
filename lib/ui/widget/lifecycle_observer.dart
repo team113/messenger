@@ -20,10 +20,10 @@ import 'package:flutter/material.dart';
 /// Reporter of [AppLifecycleState] changes via a [didChangeAppLifecycleState].
 class LifecycleObserver extends StatefulWidget {
   const LifecycleObserver({
-    Key? key,
+    super.key,
     required this.child,
     this.didChangeAppLifecycleState,
-  }) : super(key: key);
+  });
 
   /// [Widget] to wrap this [LifecycleObserver] into.
   final Widget child;

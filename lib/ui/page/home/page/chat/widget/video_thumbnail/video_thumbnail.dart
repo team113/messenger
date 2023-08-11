@@ -35,49 +35,25 @@ import 'src/interface.dart'
 
 /// Thumbnail displaying the first frame of the provided video.
 class VideoThumbnail extends StatefulWidget {
-  const VideoThumbnail._({
+  /// Constructs a [VideoThumbnail] from the provided [url].
+  const VideoThumbnail.url(
+    this.url, {
     super.key,
-    this.url,
-    this.bytes,
     this.checksum,
     this.height,
     this.width,
     this.onError,
-  }) : assert(bytes != null || url != null);
-
-  /// Constructs a [VideoThumbnail] from the provided [url].
-  factory VideoThumbnail.url({
-    Key? key,
-    required String url,
-    String? checksum,
-    double? height,
-    double? width,
-    Future<void> Function()? onError,
-  }) =>
-      VideoThumbnail._(
-        key: key,
-        url: url,
-        checksum: checksum,
-        height: height,
-        width: width,
-        onError: onError,
-      );
+  }) : bytes = null;
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
-  factory VideoThumbnail.bytes({
-    Key? key,
-    required Uint8List bytes,
-    double? height,
-    double? width,
-    Future<void> Function()? onError,
-  }) =>
-      VideoThumbnail._(
-        key: key,
-        bytes: bytes,
-        height: height,
-        width: width,
-        onError: onError,
-      );
+  const VideoThumbnail.bytes(
+    this.bytes, {
+    super.key,
+    this.height,
+    this.width,
+    this.onError,
+  })  : url = null,
+        checksum = null;
 
   /// URL of the video to display.
   final String? url;

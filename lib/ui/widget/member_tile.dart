@@ -88,8 +88,8 @@ class MemberTile extends StatelessWidget {
                   height: 22,
                   child: Center(
                     child: inCall == true
-                        ? SvgImage.asset('assets/icons/call_end.svg')
-                        : SvgImage.asset(
+                        ? const SvgImage.asset('assets/icons/call_end.svg')
+                        : const SvgImage.asset(
                             'assets/icons/audio_call_start.svg',
                             width: 11,
                             height: 11,
@@ -128,10 +128,10 @@ class MemberTile extends StatelessWidget {
                   'btn_leave'.l10n,
                   style: style.fonts.labelLargePrimary,
                 )
-              : SvgImage.asset(
+              : const SvgImage.asset(
                   'assets/icons/delete.svg',
                   height: 14 * 1.5,
-                  key: const Key('DeleteMemberButton'),
+                  key: Key('DeleteMemberButton'),
                 ),
         ),
         const SizedBox(width: 6),

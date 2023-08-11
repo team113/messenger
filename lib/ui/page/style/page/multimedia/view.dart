@@ -98,14 +98,14 @@ class MultimediaView extends StatelessWidget {
             inverted: inverted,
             height: 300,
             width: 200,
-            child: SvgImage.asset('assets/images/logo/logo0000.svg'),
+            child: const SvgImage.asset('assets/images/logo/logo0000.svg'),
           ),
           const SizedBox(height: 16),
           SubtitleContainer(
             inverted: inverted,
             height: 150,
             width: 150,
-            child: SvgImage.asset('assets/images/logo/head0000.svg'),
+            child: const SvgImage.asset('assets/images/logo/head0000.svg'),
           ),
           const SizedBox(height: 16),
           SubtitleContainer(
