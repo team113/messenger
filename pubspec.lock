@@ -891,7 +891,7 @@ packages:
     description:
       path: "packages/isar"
       ref: HEAD
-      resolved-ref: "43f1e06e686208e2d07f8878e9d8ffd2e68bf924"
+      resolved-ref: ac647f1e8289b572fd034ff7a1a53a2c1074e096
       url: "https://github.com/krida2000/isar.git"
     source: git
     version: "0.0.0-placeholder"
@@ -900,7 +900,7 @@ packages:
     description:
       path: "packages/isar_flutter_libs"
       ref: HEAD
-      resolved-ref: "43f1e06e686208e2d07f8878e9d8ffd2e68bf924"
+      resolved-ref: ac647f1e8289b572fd034ff7a1a53a2c1074e096
       url: "https://github.com/krida2000/isar.git"
     source: git
     version: "0.0.0-placeholder"
