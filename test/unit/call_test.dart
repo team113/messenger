@@ -98,7 +98,6 @@ void main() async {
   Hive.init('./test/.temp_hive/unit_call');
 
   await Directory('./test/.temp_isar/unit_call').create(recursive: true);
-  await Isar.initialize();
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: './test/.temp_isar/unit_call',

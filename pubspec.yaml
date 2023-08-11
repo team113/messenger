@@ -127,9 +127,11 @@ dependency_overrides:
   #       `pub.dev`:
   #       https://github.com/creativecreatorormaybenot/wakelock/pull/195
   win32: ^4.1.3
+  # TODO: Remove when isar/isar#1375 is fixed:
+  #       https://github.com/isar/isar/issues/1375
   isar:
     git:
-      url: https://github.com/krida2000/isar.git
+      url: https://github.com/krida2000/git-isar.git
       path: packages/isar/
 
 flutter:
