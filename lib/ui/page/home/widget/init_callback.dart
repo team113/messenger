@@ -19,7 +19,7 @@ import 'package:flutter/widgets.dart';
 
 /// [Widget] invoking the provided [callback] in its [State.initState].
 class InitCallback extends StatefulWidget {
-  const InitCallback({Key? key, this.callback, this.child}) : super(key: key);
+  const InitCallback({super.key, this.callback, this.child});
 
   /// Callback, called in the [State.initState] of this [Widget].
   final void Function()? callback;
