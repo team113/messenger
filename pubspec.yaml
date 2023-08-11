@@ -51,8 +51,14 @@ dependencies:
     git:
       url: https://github.com/krida2000/image_picker.git
   intl: ^0.17.0
-  isar: ^4.0.0-dev.9
-  isar_flutter_libs: ^4.0.0-dev.9
+  isar:
+    git:
+      url: https://github.com/krida2000/isar.git
+      path: packages/isar/
+  isar_flutter_libs:
+    git:
+      url: https://github.com/krida2000/isar.git
+      path: packages/isar_flutter_libs/
   js: ^0.6.5
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.8.2
@@ -127,6 +133,10 @@ dependency_overrides:
   #       `pub.dev`:
   #       https://github.com/creativecreatorormaybenot/wakelock/pull/195
   win32: ^4.1.3
+  isar:
+    git:
+      url: https://github.com/krida2000/isar.git
+      path: packages/isar/
 
 flutter:
   uses-material-design: true
