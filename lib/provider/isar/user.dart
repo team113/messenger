@@ -42,7 +42,13 @@ class UserIsarProvider {
       StreamController<ListChangeNotification<IsarUser>>.broadcast();
 
   /// Returns a list of [User]s from [Isar].
-  Future<List<IsarUser>> get users => _isar.users.where().findAllAsync();
+  Future<List<IsarUser>> get users async {
+    if (PlatformUtils.isWeb) {
+      return _isar.users.where().findAll();
+    } else {
+      return await _isar.users.where().findAllAsync();
+    }
+  }
 
   /// Returns count of the stored [User]s.
   int get count => _isar.users.count();
