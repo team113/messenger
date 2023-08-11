@@ -236,7 +236,7 @@ email_password_recovery =
     {$domain}
 email_password_recovery_subject = {$domain} recovery code
 email_verification_code =
-    {$domain} verification code: {$token}
+    {$domain} verification code is: {$token}
     Valid until {$expiresAt}.
     {$domain}
 email_verification_code_subject = {$domain} verification code
