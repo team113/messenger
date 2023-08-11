@@ -299,7 +299,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make test.unit dockerized=no
 else
-	flutter test
+	flutter test -j 1
 endif
 
 
