@@ -233,9 +233,7 @@ dot_space = .{" "}
 email_confirmation =
     Код подтверждения {$domain}: {$token}
     Действителен до {$expiresAt}.
-
-    С наилучшими пожеланиями,
-    Администрация {$domain}
+    {$domain}
 email_confirmation_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
 err_blacklisted = Пользователь в чёрном списке
@@ -337,15 +335,15 @@ fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
-          [update] изменил изображение групы
-         *[delete] удалил изображение групы
+          [update] обновил аватар
+         *[delete] удалил аватар
       }
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
-          [update] изменил название групы на {$groupName}
-         *[delete] удалил название групы
+          [update] переименовал чат на {$groupName}
+         *[delete] удалил имя
       }
 fcm_group_title =
     {$user1Name ->
@@ -438,7 +436,7 @@ fcm_user_removed_user =
     {$authorName ->
         [x] {$authorNum}
        *[other] {$authorName}
-    } удалил {$userName ->
+    } исключил {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     }
@@ -446,7 +444,7 @@ fcm_user_removed_you =
     {$userName ->
         [x] {$userNum}
        *[other] {$userName}
-    } удалил Вас из групы
+    } исключил Вас из группы
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_account_created = Аккаунт создан

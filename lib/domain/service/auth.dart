@@ -297,7 +297,7 @@ class AuthService extends GetxService {
     _status.value = RxStatus.loading();
 
     try {
-      FcmRegistrationToken? fcmRegistrationToken;
+      FcmRegistrationToken? fcmToken;
 
       if (PlatformUtils.pushNotifications) {
         final NotificationSettings settings =
@@ -309,12 +309,12 @@ class AuthService extends GetxService {
           );
 
           if (token != null) {
-            fcmRegistrationToken = FcmRegistrationToken(token);
+            fcmToken = FcmRegistrationToken(token);
           }
         }
       }
 
-      await _authRepository.logout(fcmRegistrationToken);
+      await _authRepository.logout(fcmToken);
     } catch (e) {
       printError(info: e.toString());
     }

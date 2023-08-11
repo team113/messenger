@@ -66,7 +66,8 @@ class IntroductionController extends GetxController {
   void onInit() {
     num = TextFieldState(
       text: _myUser.myUser.value!.num.val
-          .replaceAllMapped(RegExp(r'.{4}'), (match) => '${match.group(0)} '),
+          .replaceAllMapped(RegExp(r'.{4}'), (match) => '${match.group(0)} ')
+          .trim(),
       editable: false,
     );
 

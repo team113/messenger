@@ -177,7 +177,7 @@ class IntroductionView extends StatelessWidget {
                             key: const Key('NumCopyable'),
                             text: c.num.text,
                             label: 'label_num'.l10n,
-                            share: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                            share: 'Gapopa ID: ${c.num.text}',
                             trailing: const SvgImage.asset(
                               'assets/icons/share.svg',
                               width: 18,

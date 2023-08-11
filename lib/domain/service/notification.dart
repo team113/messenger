@@ -264,7 +264,6 @@ class NotificationService extends DisposableService {
 
       if (_token != null) {
         await _unregisterFcmDevice();
-
         await _registerFcmDevice();
       }
     }
@@ -355,11 +354,15 @@ class NotificationService extends DisposableService {
     // Create a notification channel on Android to play custom notification
     // sound.
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
-      await AndroidUtils.createNotificationChannel(
-        id: 'default',
-        name: 'Default',
-        sound: 'notification',
-      );
+      try {
+        await AndroidUtils.createNotificationChannel(
+          id: 'default',
+          name: 'Default',
+          sound: 'notification',
+        );
+      } catch (e) {
+        Log.error(e);
+      }
     }
 
     NotificationSettings settings =
@@ -379,9 +382,7 @@ class NotificationService extends DisposableService {
       _onTokenRefresh =
           FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
         await _unregisterFcmDevice();
-
         _token = token;
-
         await _registerFcmDevice();
       });
 
@@ -392,6 +393,8 @@ class NotificationService extends DisposableService {
   /// Registers a device (Android, iOS, or Web) for receiving notifications via
   /// Firebase Cloud Messaging.
   Future<void> _registerFcmDevice() async {
+    _pushNotifications = false;
+
     if (_token != null) {
       await _graphQlProvider.registerFcmDevice(
         FcmRegistrationToken(_token!),
@@ -407,7 +410,6 @@ class NotificationService extends DisposableService {
   Future<void> _unregisterFcmDevice() async {
     if (_token != null) {
       await _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(_token!));
-
       _pushNotifications = false;
     }
   }

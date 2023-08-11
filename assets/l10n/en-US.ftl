@@ -233,9 +233,7 @@ dot_space = .{" "}
 email_confirmation =
     {$domain} verification code: {$token}
     Valid until {$expiresAt}.
-
-    Best regards,
-    Administration of {$domain}
+    {$domain}
 email_confirmation_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
@@ -334,15 +332,15 @@ fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
-          [update] changed group image
-         *[delete] removed group image
+          [update] updated avatar
+         *[delete] removed avatar
       }
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
-          [update] changed the group name to {$groupName}
-         *[delete] removed group name
+          [update] renamed chat to {$groupName}
+         *[delete] removed name
       }
 fcm_group_title =
     {$user1Name ->
@@ -417,7 +415,7 @@ fcm_user_joined_group_by_link =
     {$authorName ->
         [x] {$authorNum}
        *[other] {$authorName}
-    } joined group by link
+    } joined via link
 fcm_user_left_group =
     {$authorName ->
         [x] {$authorNum}
@@ -851,11 +849,9 @@ label_you_were_added_to_group = You were added to the group
 label_your_blacklist = Your blacklist
 label_your_direct_link = Direct link to chat with you
 password_recovery =
-    {$domain} recovery code: {$token}
+    {$domain} recovery code is: {$token}
     Valid until {$expiresAt}.
-
-    Best regards,
-    Administration of {$domain}
+    {$domain}
 password_recovery_subject = {$domain} recovery code
 plus = +
 space = {" "}

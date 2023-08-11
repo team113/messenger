@@ -112,7 +112,7 @@ class FileAttachment extends Attachment {
 
   /// Indicates whether this [FileAttachment] represents a video.
   bool get isVideo {
-    String file = filename.toLowerCase();
+    final String file = filename.toLowerCase();
     return file.endsWith('.mp4') ||
         file.endsWith('.mov') ||
         file.endsWith('.webm') ||

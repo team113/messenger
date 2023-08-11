@@ -316,7 +316,7 @@ class _ChatWatchData {
   }) {
     final String name = author?.name?.val ?? 'x';
     final String num = author?.num.val ?? 'err_unknown_user'.l10n;
-    String type = isGroup ? 'group' : 'dialog';
+    final String type = isGroup ? 'group' : 'dialog';
     String attachmentsType = attachments.every((e) => e is ImageAttachment)
         ? 'image'
         : attachments.every((e) => e is FileAttachment && e.isVideo)

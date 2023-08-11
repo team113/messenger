@@ -1166,8 +1166,9 @@ mixin UserGraphQlMixin {
         },
       ),
       onException: (data) => RegisterFcmDeviceException(
-          RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
-              as RegisterFcmDeviceErrorCode),
+        RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
+            as RegisterFcmDeviceErrorCode,
+      ),
     );
   }
 
