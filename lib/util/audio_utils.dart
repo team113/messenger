@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:media_kit/media_kit.dart';
 
-// import 'audio_utils_2.dart';
+import 'log.dart';
 import 'platform_utils.dart';
 
 /// Global variable to access [AudioUtilsImpl].
@@ -39,20 +39,19 @@ class AudioUtilsImpl {
   /// Ensures the underlying resources are initialized to reduce possible delays
   /// when playing [once].
   void ensureInitialized() {
-    _player ??= Player();
+    try {
+      _player ??= Player();
+    } catch (e) {
+      // If [Player] isn't available on the current platform, this throws a
+      // `null check operator used on a null value`.
+      if (e is! TypeError) {
+        Log.error('Failed to initialize `Player`: ${e.toString()}');
+      }
+    }
   }
 
   /// Plays the provided [sound] once.
   Future<void> once(AudioSource sound, {double? volume}) async {
-    // if (PlatformUtils.isWeb) {
-    //   if (sound is AssetAudioSource) {
-    //     final String asset = sound.asset.split('/').last;
-    //     await WebUtils.play(asset);
-    //   }
-
-    //   return;
-    // }
-
     ensureInitialized();
 
     await _player?.open(sound.media);
@@ -78,16 +77,16 @@ class AudioUtilsImpl {
 
       controller = StreamController.broadcast(
         onListen: () async {
-          // if (PlatformUtils.isWeb) {
-          //   if (music is AssetAudioSource) {
-          //     final String asset = music.asset.split('/').last;
-          //     await WebUtils.play(asset);
-          //   }
+          try {
+            player = Player();
+          } catch (e) {
+            // If [Player] isn't available on the current platform, this throws
+            // a `null check operator used on a null value`.
+            if (e is! TypeError) {
+              Log.error('Failed to initialize `Player`: ${e.toString()}');
+            }
+          }
 
-          //   return;
-          // }
-
-          player = Player();
           await player?.open(music.media);
 
           // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
@@ -115,13 +114,6 @@ class AudioUtilsImpl {
           }
         },
         onCancel: () async {
-          // if (PlatformUtils.isWeb) {
-          //   if (music is AssetAudioSource) {
-          //     final String asset = music.asset.split('/').last;
-          //     WebUtils.stop(asset);
-          //   }
-          // }
-
           _players.remove(music);
           position?.cancel();
           timer?.cancel();

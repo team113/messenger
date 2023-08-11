@@ -53,6 +53,9 @@ class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
+  /// Path to the temporary directory.
+  String? _temporaryDirectory;
+
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
 
@@ -279,29 +282,18 @@ class PlatformUtilsImpl {
     return _downloadDirectory!;
   }
 
-  /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
-  /// instance to initialize it.
-  Map<String, dynamic> get callKeep {
-    return {
-      'ios': {'appName': 'Gapopa'},
-      'android': {
-        'alertTitle': 'label_call_permissions_title'.l10n,
-        'alertDescription': 'label_call_permissions_description'.l10n,
-        'cancelButton': 'btn_dismiss'.l10n,
-        'okButton': 'btn_allow'.l10n,
-        'foregroundService': {
-          'channelId': 'default',
-          'channelName': 'Default',
-          'notificationTitle': 'My app is running on background',
-          'notificationIcon': 'mipmap/ic_notification_launcher',
-        },
-        'additionalPermissions': <String>[],
-      },
-    };
-  }
-
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
+
+  /// Returns a path to the temporary directory.
+  Future<String> get temporaryDirectory async {
+    if (_temporaryDirectory != null) {
+      return _temporaryDirectory!;
+    }
+
+    _temporaryDirectory = (await getTemporaryDirectory()).path;
+    return _temporaryDirectory!;
+  }
 
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
@@ -345,20 +337,22 @@ class PlatformUtilsImpl {
     String filename, {
     int? size,
     String? url,
+    bool temporary = false,
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
       size = size ??
           int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
-      String downloads = await PlatformUtils.downloadsDirectory;
+      String directory =
+          temporary ? await temporaryDirectory : await downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
-      File file = File('$downloads/$filename');
+      File file = File('$directory/$filename');
 
       // TODO: Compare hashes instead of sizes.
       for (int i = 1; await file.exists() && await file.length() != size; ++i) {
-        file = File('$downloads/$name ($i)$ext');
+        file = File('$directory/$name ($i)$ext');
       }
 
       if (await file.exists()) {
@@ -422,7 +416,12 @@ class PlatformUtilsImpl {
           file = await Backoff.run(
             () async {
               try {
-                return await fileExists(filename, size: size, url: url);
+                return await fileExists(
+                  filename,
+                  size: size,
+                  url: url,
+                  temporary: temporary,
+                );
               } catch (e) {
                 onError(e);
               }
@@ -440,9 +439,8 @@ class PlatformUtilsImpl {
 
             final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
-            final String path = temporary
-                ? (await getTemporaryDirectory()).path
-                : await downloadsDirectory;
+            final String path =
+                temporary ? await temporaryDirectory : await downloadsDirectory;
 
             file = File('$path/$filename');
             for (int i = 1; await file!.exists(); ++i) {

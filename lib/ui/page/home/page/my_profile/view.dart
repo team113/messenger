@@ -395,12 +395,6 @@ class MyProfileView extends StatelessWidget {
                         ],
                       );
 
-                    // case ProfileTab.devices:
-                    //   return Block(
-                    //     title: 'label_linked_devices'.l10n,
-                    //     children: [_devices(context, c)],
-                    //   );
-
                     case ProfileTab.storage:
                       return Block(
                         title: 'label_storage'.l10n,
@@ -417,6 +411,12 @@ class MyProfileView extends StatelessWidget {
                       return Block(
                         title: 'label_blocked_users'.l10n,
                         children: [_blockedUsers(context, c)],
+                      );
+
+                    case ProfileTab.devices:
+                      return Block(
+                        title: 'label_linked_devices'.l10n,
+                        children: [_devices(context, c)],
                       );
 
                     case ProfileTab.download:
@@ -756,7 +756,8 @@ Widget _phones(BuildContext context, MyProfileController c) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style: style.fonts.titleMedium.copyWith(color: style.colors.secondary),
+            style:
+                style.fonts.titleMedium.copyWith(color: style.colors.secondary),
           ),
         ),
       ]);
@@ -1949,7 +1950,8 @@ Widget _notifications(BuildContext context, MyProfileController c) {
                     .l10n,
                 editable: false,
               ),
-              style: style.fonts.bodyMedium.copyWith(color: style.colors.secondary),
+              style: style.fonts.bodyMedium
+                  .copyWith(color: style.colors.secondary),
             ),
           ),
           Align(
@@ -2139,6 +2141,26 @@ Widget _storage(BuildContext context, MyProfileController c) {
             );
           }),
         ],
+      ],
+    ),
+  );
+}
+
+Widget _devices(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Paddings.dense(
+    Column(
+      children: [
+        FieldButton(
+          text: 'btn_scan_qr_code'.l10n,
+          onPressed: () {},
+        ),
+        const SizedBox(height: 16),
+        FieldButton(
+          text: 'btn_show_qr_code'.l10n,
+          onPressed: () {},
+        ),
       ],
     ),
   );

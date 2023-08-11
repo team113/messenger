@@ -121,10 +121,10 @@ enum ProfileTab {
   getPaid,
   donates,
   notifications,
-  // devices,
   storage,
   language,
   blacklist,
+  devices,
   download,
   danger,
   vacancies,
@@ -714,12 +714,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
             ));
 
-            deps.put(ChatWorker(
-              chatService,
-              userService,
-              myUserService,
-              Get.find(),
-            ));
+            deps.put(ChatWorker(chatService, myUserService, Get.find()));
 
             deps.put(MyUserWorker(myUserService));
             deps.put<BalanceService>(BalanceService());

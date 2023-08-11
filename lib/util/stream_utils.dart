@@ -20,10 +20,10 @@ import 'dart:async';
 import 'package:async/async.dart';
 
 /// Extension adding convenient execution wrapper to [StreamQueue].
-extension StreamQueueExtension on StreamQueue {
+extension StreamQueueExtension<T> on StreamQueue<T> {
   /// Executes this [StreamQueue] in an async loop invoking the provided
   /// [onEvent] on every [T] event happening.
-  Future<void> execute<T>(
+  Future<void> execute(
     FutureOr<void> Function(T) onEvent, {
     Future<void> Function(Object e)? onError,
   }) async {

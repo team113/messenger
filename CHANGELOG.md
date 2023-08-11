@@ -6,6 +6,64 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.10]
+[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+
+[Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.10) | [Milestone](/../../milestone/8)
+
+### Added
+
+- Push notifications. ([#202], [#201])
+
+### Changed
+
+- UI:
+    - Context menu with fading effect on desktop. ([#506])
+
+[#201]: /../../issues/201
+[#202]: /../../pull/202
+[#506]: /../../pull/506
+
+
+
+
+## [0.1.0-alpha.9.2] · 2023-07-28
+[0.1.0-alpha.9.2]: /../../tree/v0.1.0-alpha.9.2
+
+[Diff](/../../compare/v0.1.0-alpha.9.1...v0.1.0-alpha.9.2) | [Milestone](/../../milestone/6)
+
+### Fixed
+
+- Linux:
+    - Application crashing when playing sounds. ([#496])
+- Web:
+    - Default locale not detecting in Safari. ([#491])
+
+[#491]: /../../pull/491
+[#496]: /../../pull/496
+
+
+
+
+## [0.1.0-alpha.9.1] · 2023-07-20
+[0.1.0-alpha.9.1]: /../../tree/v0.1.0-alpha.9.1
+
+[Diff](/../../compare/v0.1.0-alpha.9...v0.1.0-alpha.9.1) | [Milestone](/../../milestone/7)
+
+### Fixed
+
+- Performance:
+    - Spamming backend API when reading a chat. ([#487])
+- iOS:
+    - Unreadable status bar text color. ([#487])
+- Web:
+    - Avatar not uploading due to simultaneous file read. ([#487])
+
+[#487]: /../../pull/487
+
+
+
+
 ## [0.1.0-alpha.9] · 2023-07-17
 [0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
 

@@ -21,8 +21,8 @@ import 'dart:math';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -57,14 +57,20 @@ class NotificationService extends DisposableService {
   /// [_focused].
   StreamSubscription? _onFocusChanged;
 
-  /// Subscription to the [FirebaseMessaging.onTokenRefresh].
+  /// Subscription to the [FirebaseMessaging.onTokenRefresh] refreshing the
+  /// [_token].
   StreamSubscription? _onTokenRefresh;
 
-  /// [StreamSubscription] to the [FirebaseMessaging.onMessage] stream.
+  /// [StreamSubscription] to the [FirebaseMessaging.onMessage] handling the
+  /// push notifications in foreground.
   StreamSubscription? _foregroundSubscription;
 
-  /// Indicator whether the application's window is in focus.
-  bool _focused = true;
+  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
+  /// [_active].
+  StreamSubscription? _onActivityChanged;
+
+  /// Indicator whether the application is active.
+  bool _active = true;
 
   /// Tags of the local notifications that were displayed.
   ///
@@ -72,10 +78,13 @@ class NotificationService extends DisposableService {
   /// received via the [_foregroundSubscription].
   final List<String> _tags = [];
 
+  /// Indicator whether the Firebase Cloud Messaging notifications are
+  /// successfully configured.
+  bool _pushNotifications = false;
+
   /// Indicates whether the Firebase Cloud Messaging notifications are
-  /// configured.
-  // bool get pushNotifications => _onTokenRefresh != null;
-  bool get pushNotifications => false;
+  /// successfully configured.
+  bool get pushNotifications => _pushNotifications;
 
   /// Initializes this [NotificationService].
   ///
@@ -93,10 +102,15 @@ class NotificationService extends DisposableService {
     void Function(String)? onResponse,
     Future<void> Function(RemoteMessage message)? onBackground,
   }) async {
+    if (WebUtils.isPopup) {
+      return;
+    }
+
     _language = language ?? _language;
 
-    PlatformUtils.isFocused.then((value) => _focused = value);
-    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
+    PlatformUtils.isActive.then((value) => _active = value);
+    _onActivityChanged =
+        PlatformUtils.onActivityChanged.listen((v) => _active = v);
 
     AudioUtils.ensureInitialized();
 
@@ -108,21 +122,23 @@ class NotificationService extends DisposableService {
       },
     );
 
-    try {
-      await _initPushNotifications(
-        options: firebaseOptions,
-        onResponse: (RemoteMessage message) {
-          if (message.data['chatId'] != null) {
-            onResponse?.call('${Routes.chats}/${message.data['chatId']}');
-          }
-        },
-        onBackground: onBackground,
-      );
-    } catch (e) {
-      Log.print(
-        'Failed to initialize push notifications: $e',
-        'NotificationService',
-      );
+    if (PlatformUtils.pushNotifications) {
+      try {
+        await _initPushNotifications(
+          options: firebaseOptions,
+          onResponse: (RemoteMessage message) {
+            if (message.data['chatId'] != null) {
+              onResponse?.call('${Routes.chats}/${message.data['chatId']}');
+            }
+          },
+          onBackground: onBackground,
+        );
+      } catch (e) {
+        Log.print(
+          'Failed to initialize push notifications: $e',
+          'NotificationService',
+        );
+      }
     }
   }
 
@@ -131,7 +147,7 @@ class NotificationService extends DisposableService {
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
-    // AudioCache.instance.clear('audio/notification2.mp3');
+    _onActivityChanged?.cancel();
   }
 
   // TODO: Implement icons and attachments on non-web platforms.
@@ -160,15 +176,21 @@ class NotificationService extends DisposableService {
 
     // If application is in focus and the payload is the current route, then
     // don't show a local notification.
-    if (_focused && payload == router.route) {
+    if (_active && payload == router.route) {
       return;
     }
 
-    if (PlatformUtils.isWeb) {
+    // Play a notification sound on Web and on Windows.
+    //
+    // Other platforms don't require playing a sound explicitly, as the local or
+    // push notification displayed plays it instead.
+    if (PlatformUtils.isWeb || PlatformUtils.isWindows) {
       AudioUtils.once(
         AudioSource.asset('audio/${sound ?? 'notification2'}.mp3'),
       );
+    }
 
+    if (PlatformUtils.isWeb) {
       WebUtils.showNotification(
         title,
         body: body,
@@ -183,6 +205,7 @@ class NotificationService extends DisposableService {
       // first to a [File] and then pass the path to it to the plugin.
       if (image != null) {
         try {
+          // TODO: Images should be downloaded to cache.
           final File? file = await PlatformUtils.download(
             image,
             'notification_${DateTime.now()}.jpg',
@@ -201,7 +224,7 @@ class NotificationService extends DisposableService {
       await _plugin!.show(
         // On Android notifications are replaced when ID and tag are the same,
         // and FCM notifications always have ID of zero, so in order for push
-        // notifications to replace local, we set there zero as well.
+        // notifications to replace local, we set its ID as zero as well.
         PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
         title,
         body,
@@ -243,13 +266,8 @@ class NotificationService extends DisposableService {
       _language = language;
 
       if (_token != null) {
-        await _graphQlProvider
-            .unregisterFcmDevice(FcmRegistrationToken(_token!));
-
-        await _graphQlProvider.registerFcmDevice(
-          FcmRegistrationToken(_token!),
-          _language,
-        );
+        await _unregisterFcmDevice();
+        await _registerFcmDevice();
       }
     }
   }
@@ -300,86 +318,102 @@ class NotificationService extends DisposableService {
     void Function(RemoteMessage message)? onResponse,
     Future<void> Function(RemoteMessage message)? onBackground,
   }) async {
-    if (PlatformUtils.pushNotifications && !WebUtils.isPopup) {
-      FirebaseMessaging.onMessageOpenedApp.listen(onResponse);
+    FirebaseMessaging.onMessageOpenedApp.listen(onResponse);
 
-      if (onBackground != null) {
-        FirebaseMessaging.onBackgroundMessage(onBackground);
+    if (onBackground != null) {
+      FirebaseMessaging.onBackgroundMessage(onBackground);
+    }
+
+    final RemoteMessage? initial =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initial != null) {
+      onResponse?.call(initial);
+    }
+
+    // Display a local notification, if there's any push notifications received
+    // while application is in foreground.
+    _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
+      print('[NOTIFICATIONS] onMessage ${message.notification?.title}');
+      if (message.notification?.title != null) {
+        show(
+          message.notification!.title!,
+          body: message.notification?.body,
+          payload: message.data['chatId'] != null
+              ? '${Routes.chats}/${message.data['chatId']}'
+              : null,
+          image: message.notification?.android?.imageUrl ??
+              message.notification?.apple?.imageUrl ??
+              message.notification?.web?.image,
+          tag: message.data['chatId'] != null &&
+                  message.data['chatItemId'] != null
+              ? '${message.data['chatId']}_${message.data['chatItemId']}'
+              : null,
+        );
       }
+    });
 
-      final RemoteMessage? initial =
-          await FirebaseMessaging.instance.getInitialMessage();
-
-      if (initial != null) {
-        onResponse?.call(initial);
-      }
-
-      _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
-        print('[NOTIFICATIONS] onMessage ${message.notification?.title}');
-        if (message.notification?.title != null) {
-          show(
-            message.notification!.title!,
-            body: message.notification?.body,
-            payload: message.data['chatId'] != null
-                ? '${Routes.chats}/${message.data['chatId']}'
-                : null,
-            image: message.notification?.android?.imageUrl ??
-                message.notification?.apple?.imageUrl ??
-                message.notification?.web?.image,
-            tag: message.data['chatId'] != null &&
-                    message.data['chatItemId'] != null
-                ? '${message.data['chatId']}_${message.data['chatItemId']}'
-                : null,
-          );
-        }
-      });
-
-      if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+    // Create a notification channel on Android to play custom notification
+    // sound.
+    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+      try {
         await AndroidUtils.createNotificationChannel(
           id: 'default',
           name: 'Default',
           sound: 'notification',
         );
+      } catch (e) {
+        Log.error(e);
       }
+    }
 
-      NotificationSettings settings =
-          await FirebaseMessaging.instance.requestPermission();
+    NotificationSettings settings =
+        await FirebaseMessaging.instance.requestPermission();
 
-      // On Android first attempt is always [AuthorizationStatus.denied] due to
-      // notifications request popping while invoking a
-      // [AndroidUtils.createNotificationChannel], so try again on failure.
-      if (settings.authorizationStatus != AuthorizationStatus.authorized) {
-        settings = await FirebaseMessaging.instance.requestPermission();
-      }
+    // On Android first attempt is always [AuthorizationStatus.denied] due to
+    // notifications request popping while invoking a
+    // [AndroidUtils.createNotificationChannel], so try again on failure.
+    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+      settings = await FirebaseMessaging.instance.requestPermission();
+    }
 
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        _token = await FirebaseMessaging.instance.getToken(
-          vapidKey: Config.vapidKey,
-        );
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      _token =
+          await FirebaseMessaging.instance.getToken(vapidKey: Config.vapidKey);
 
-        if (_token != null) {
-          _onTokenRefresh =
-              FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
-            if (_token != null) {
-              await _graphQlProvider
-                  .unregisterFcmDevice(FcmRegistrationToken(_token!));
-            }
+      _onTokenRefresh =
+          FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+        await _unregisterFcmDevice();
+        _token = token;
+        await _registerFcmDevice();
+      });
 
-            _token = token;
+      await _registerFcmDevice();
+      print('[NOTIFICAITIONS] done');
+    }
+  }
 
-            await _graphQlProvider.registerFcmDevice(
-              FcmRegistrationToken(_token!),
-              _language,
-            );
-          });
+  /// Registers a device (Android, iOS, or Web) for receiving notifications via
+  /// Firebase Cloud Messaging.
+  Future<void> _registerFcmDevice() async {
+    _pushNotifications = false;
 
-          await _graphQlProvider.registerFcmDevice(
-            FcmRegistrationToken(_token!),
-            _language,
-          );
-          print('[NOTIFICAITIONS] done');
-        }
-      }
+    if (_token != null) {
+      await _graphQlProvider.registerFcmDevice(
+        FcmRegistrationToken(_token!),
+        _language,
+      );
+
+      _pushNotifications = true;
+    }
+  }
+
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
+  /// via Firebase Cloud Messaging.
+  Future<void> _unregisterFcmDevice() async {
+    if (_token != null) {
+      await _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(_token!));
+      _pushNotifications = false;
     }
   }
 }

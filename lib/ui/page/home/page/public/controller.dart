@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -82,15 +81,11 @@ class PublicController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
-  /// [AudioPlayer] playing a sent message sound.
-  AudioPlayer? _audioPlayer;
-
   UserId? get me => _authService.userId;
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
-    _initAudio();
     _fetchChat();
 
     send = TextFieldState(
@@ -103,7 +98,6 @@ class PublicController extends GetxController {
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
                 attachments: attachments,
               )
-              .then((_) => _playMessageSent())
               .onError<PostChatMessageException>(
                   (e, _) => MessagePopup.error(e))
               .onError<UploadAttachmentException>(
@@ -169,8 +163,7 @@ class PublicController extends GetxController {
   @override
   void onClose() {
     _messagesSubscription.cancel();
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
+
     // AudioCache.instance.clear('audio/message_sent.mp3');
   }
 
@@ -445,31 +438,5 @@ class PublicController extends GetxController {
       // await chat!.fetchMessages();
       status.value = RxStatus.success();
     }
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'profile');
-      await AudioCache.instance.loadAll(['audio/message_sent.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
-  }
-
-  /// Plays the message sent sound.
-  void _playMessageSent() {
-    runZonedGuarded(
-      () => _audioPlayer?.play(
-        AssetSource('audio/message_sent.mp3'),
-        position: Duration.zero,
-        mode: PlayerMode.lowLatency,
-      ),
-      (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      },
-    );
   }
 }

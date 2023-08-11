@@ -324,87 +324,125 @@ err_you_already_has_unconfirmed_email = Вы имеете неподтвержд
 err_you_already_has_unconfirmed_phone = Вы имеете неподтвержденный телефон.
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
-fcm_dialog_attachment =
-    {$kind ->
-        [image] [Изображение]
-        [video] [Видео]
-        *[file] [Файл]
-    }
-fcm_dialog_message = {$text}
 fcm_dialog_title =
     {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
+       *[other] {$userName}
     }
-fcm_group_attachment =
-    {$userName ->
+fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
-    }: {$kind ->
-        [image] [Изображение]
-        [video] [Видео]
-        *[file] [Файл]
-    }
-fcm_group_message =
-    {$userName ->
+       *[other] {$userName}
+    } {$operation ->
+          [update] обновил аватар
+         *[delete] удалил аватар
+      }
+fcm_group_name_changed = {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
-    }: {$text}
+       *[other] {$userName}
+    } {$operation ->
+          [update] переименовал чат на {$groupName}
+         *[delete] удалил имя
+      }
 fcm_group_title =
     {$user1Name ->
         [x] {$user1Num ->
                 [x] {""}
-                *[other] {$user1Num}
+               *[other] {$user1Num}
             }
-        *[other] {$user1Name}
+       *[other] {$user1Name}
     }{$user2Name ->
         [x] {$user2Num ->
                 [x] {""}
-                *[other] {$user2Num}
+               *[other] {$user2Num}
             }
-        *[other] , {$user2Name}
+       *[other] , {$user2Name}
     }{$user3Name ->
         [x] {$user3Num ->
                 [x] {""}
-                *[other] {$user3Num}
+               *[other] {$user3Num}
             }
-        *[other] , {$user3Name}
+       *[other] , {$user3Name}
     } {$moreMembers ->
         [yes] ...
-        *[no] {""}
+       *[no] {""}
     }
 fcm_incoming_call = Входящий звонок
+fcm_message =
+    { $type ->
+        [dialog] {""}
+        *[group]
+           { $userName ->
+               [x] {$userNum}
+               *[other] {$userName}
+           }:{" "}
+    }{ $attachmentsCount ->
+          [0] {""}
+          *[other] [{ $attachmentsType ->
+              [image] { $attachmentsCount ->
+                          [1] Изображение
+                          [one] {$attachmentsCount} изображение
+                          [few] {$attachmentsCount} изображения
+                          *[other] {$attachmentsCount} изображений
+                      }
+              [video] { $attachmentsCount ->
+                          [1] Видео
+                          *[other] {$attachmentsCount} видео
+                      }
+              [file] { $attachmentsCount ->
+                         [1] Файл
+                         [one] {$attachmentsCount} файл
+                         [few] {$attachmentsCount} файла
+                         *[other] {$attachmentsCount} файлов
+                     }
+              *[attachments] { $attachmentsCount ->
+                                 [one] {$attachmentsCount} прикреплениe
+                                 [few] {$attachmentsCount} прикрепления
+                                 *[other] {$attachmentsCount} прикреплений
+                             }
+        }]
+    }{ $textLength ->
+        [0] {""}
+        *[other] { $attachmentsCount ->
+            [0] {$text}
+            *[other] {" "}{$text}
+        }
+    }
 fcm_user_added_user =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } добавил {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
+       *[other] {$userName}
     }
 fcm_user_added_you_to_group =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } добавил Вас в группу
 fcm_user_joined_group_by_link =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } присоединился к группе по ссылке
 fcm_user_left_group =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } покинул группу
 fcm_user_removed_user =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
-    } удалил {$userName ->
+       *[other] {$authorName}
+    } исключил {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
+       *[other] {$userName}
     }
+fcm_user_removed_you =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } исключил Вас из группы
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_account_created = Аккаунт создан
@@ -1035,8 +1073,6 @@ label_sign_in_with_password = Войти с паролем
 label_email_or_phone = E-mail или номер телефона
 label_sign_in_with_code = Войти с кодом
 label_one_time_code_sent_description = Укажите E-mail или номер телефона ниже.
-label_qr_code_sign_in_description = Отсканируйте QR код, чтобы войти.
-label_sign_in_with_qr_code = Войти с QR кодом
 label_sign_up_email_already_occupied = E-mail {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
 label_sign_up_phone_already_occupied = Номер телефона {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
 label_account_created = Аккаунт создан
@@ -1047,12 +1083,22 @@ btn_resend_email = Отправить повторно
 btn_resend_email_timeout = Отправить повторно через {$after} с
 btn_resend = Отправить повторно
 btn_send = Отправить
-label_didnt_recieve_code = Не получили код?
+label_didnt_receive_code = Не получили код?
 label_code_sent_again = Код отправлен повторно.
 label_wait_seconds = Подождите {$for} с
 btn_resend_code = Отправить повторно
 label_sign_up_oauth_already_occupied = {$provider} аккаунт {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
 label_country = Страна
 err_incorrect_login_or_password = Неверный логин или пароль
-label_sign_in_email_already_occupied = E-mail {$text} не верифицирован и не может быть использован для входа. Зарегистрировать новый аккаунт?
-label_sign_in_phone_already_occupied = Номер телефона {$text} не верифицирован и не может быть использован для входа. Зарегистрировать новый аккаунт?
+label_sign_in_email_already_occupied = E-mail {$text} не верифицирован и не может быть использован для входа. Создать новый аккаунт?
+label_sign_in_phone_already_occupied = Номер телефона {$text} не верифицирован и не может быть использован для входа. Создать новый аккаунт?
+btn_create = Создать
+label_sign_in_oauth_already_occupied = {$provider} аккаунт {$text} не может быть использован для входа, т.к. он не привязан к существующему аккаунту. Создать новый аккаунт?
+btn_scan_qr_code = Сканировать QR код
+btn_show_qr_code = Показать QR код
+label_sign_in_with_qr_code = Войти с QR кодом
+label_scan_qr_code_to_sign_in1 = Пожалуйста, откройте сканер QR кода на Вашем другом устройстве:
+label_scan_qr_code_to_sign_in2 = Настройки -> Связанные устройства -> Сканировать QR код.
+label_show_qr_code_to_sign_in1 = Пожалуйста, покажите QR код на Вашем другом устройстве:
+label_show_qr_code_to_sign_in2 = Настройки -> Связанные устройства -> Показать QR код.
+label_or = ИЛИ

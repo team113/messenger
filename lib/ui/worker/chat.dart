@@ -30,12 +30,10 @@ import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
-import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -45,16 +43,12 @@ import '/util/platform_utils.dart';
 class ChatWorker extends DisposableService {
   ChatWorker(
     this._chatService,
-    this._userService,
     this._myUserService,
     this._notificationService,
   );
 
   /// [ChatService], used to get the [Chat]s list.
   final ChatService _chatService;
-
-  /// [User]s service fetching the [User]s.
-  final UserService _userService;
 
   /// [MyUserService] used to getting [MyUser.muted] status.
   final MyUserService _myUserService;
@@ -113,7 +107,7 @@ class ChatWorker extends DisposableService {
 
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) async {
       _focused = focused;
-      if (_focused && PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      if (_focused) {
         _flashed = false;
       }
     });
@@ -181,7 +175,6 @@ class ChatWorker extends DisposableService {
         }
       },
       me: () => _chatService.me,
-      getUser: (id) => _userService.get(id),
     );
   }
 
@@ -211,9 +204,8 @@ class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
     void Function(String, String?, String?, String?)? onNotification,
-    UserId? Function()? me,
-    required Future<RxUser?> Function(UserId) getUser,
-  }) : updatedAt = PreciseDateTime.now() {
+    this.me,
+  }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
     worker = ever(
       c,
       (Chat chat) async {
@@ -233,7 +225,7 @@ class _ChatWatchData {
             if (msg is ChatMessage) {
               final String? text = _message(
                 isGroup: chat.isGroup,
-                author: await getUser(msg.author.id),
+                author: msg.author,
                 text: msg.text,
                 attachments: msg.attachments,
               );
@@ -254,7 +246,7 @@ class _ChatWatchData {
               if (quote is ChatMessageQuote) {
                 final String? text = _message(
                   isGroup: chat.isGroup,
-                  author: await getUser(msg.author.id),
+                  author: msg.author,
                   text: quote.text,
                   attachments: quote.attachments,
                 );
@@ -271,7 +263,7 @@ class _ChatWatchData {
               } else if (quote is ChatInfoQuote) {
                 if (quote.action != null) {
                   final String? text = _info(
-                    author: (await getUser(msg.author.id))?.user.value,
+                    author: msg.author,
                     info: quote.action!,
                   );
 
@@ -312,6 +304,10 @@ class _ChatWatchData {
   /// [PreciseDateTime] the [Chat.lastItem] was updated at.
   PreciseDateTime updatedAt;
 
+  /// Callback, called to get the [UserId] of the currently authenticated
+  /// [MyUser].
+  UserId? Function()? me;
+
   /// Disposes the [worker].
   void dispose() => worker.dispose();
 
@@ -319,12 +315,20 @@ class _ChatWatchData {
   /// [text] and [attachments].
   String? _message({
     required bool isGroup,
-    RxUser? author,
+    User? author,
     ChatMessageText? text,
     List<Attachment> attachments = const [],
   }) {
-    final String name = author?.user.value.name?.val ?? 'x';
-    final String num = author?.user.value.num.val ?? 'err_unknown_user'.l10n;
+    final String name = author?.name?.val ?? 'x';
+    final String num = author?.num.val ?? 'err_unknown_user'.l10n;
+    final String type = isGroup ? 'group' : 'dialog';
+    String attachmentsType = attachments.every((e) => e is ImageAttachment)
+        ? 'image'
+        : attachments.every((e) => e is FileAttachment && e.isVideo)
+            ? 'video'
+            : attachments.every((e) => e is FileAttachment && !e.isVideo)
+                ? 'file'
+                : 'attachments';
 
     int? donate;
     final index = text?.val.lastIndexOf('?donate=');
@@ -344,35 +348,15 @@ class _ChatWatchData {
       }
     }
 
-    if (text != null) {
-      if (isGroup) {
-        return 'fcm_group_message'.l10nfmt({
-          'text': text.val,
-          'userName': name,
-          'userNum': num,
-        });
-      } else {
-        return 'fcm_dialog_message'.l10nfmt({'text': text.val});
-      }
-    } else if (attachments.isNotEmpty) {
-      final String kind = attachments.first is ImageAttachment
-          ? 'image'
-          : (attachments.first as FileAttachment).isVideo
-              ? 'video'
-              : 'file';
-
-      if (isGroup) {
-        return 'fcm_group_attachment'.l10nfmt({
-          'userName': name,
-          'userNum': num,
-          'kind': kind,
-        });
-      } else {
-        return 'fcm_dialog_attachment'.l10nfmt({'kind': kind});
-      }
-    }
-
-    return null;
+    return 'fcm_message'.l10nfmt({
+      'type': type,
+      'text': text?.val ?? '',
+      'textLength': text?.val.length ?? 0,
+      'userName': name,
+      'userNum': num,
+      'attachmentsCount': attachments.length,
+      'attachmentsType': attachmentsType,
+    });
   }
 
   /// Returns a localized body of a [ChatInfo] notification with provided
@@ -393,6 +377,11 @@ class _ChatWatchData {
               'authorNum': action.user.num.val,
             },
           );
+        } else if (action.user.id == me?.call()) {
+          return 'fcm_user_added_you_to_group'.l10nfmt({
+            'authorName': author?.name?.val ?? 'x',
+            'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
+          });
         } else {
           return 'fcm_user_added_user'.l10nfmt({
             'authorName': author?.name?.val ?? 'x',
@@ -412,6 +401,11 @@ class _ChatWatchData {
               'authorNum': action.user.num.val,
             },
           );
+        } else if (action.user.id == me?.call()) {
+          return 'fcm_user_removed_you'.l10nfmt({
+            'authorName': author?.name?.val ?? 'x',
+            'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
+          });
         } else {
           return 'fcm_user_removed_user'.l10nfmt({
             'authorName': author?.name?.val ?? 'x',
@@ -423,30 +417,26 @@ class _ChatWatchData {
 
       case ChatInfoActionKind.avatarUpdated:
         final action = info as ChatInfoActionAvatarUpdated;
-        final Map<String, dynamic> args = {
-          'author':
-              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
-        };
 
-        if (action.avatar == null) {
-          return 'label_avatar_removed'.l10nfmt(args);
-        } else {
-          return 'label_avatar_updated'.l10nfmt(args);
-        }
+        return 'fcm_group_avatar_changed'.l10nfmt({
+          'userName':
+              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          'userNum':
+              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          'operation': action.avatar == null ? 'removed' : 'updated',
+        });
 
       case ChatInfoActionKind.nameUpdated:
         final action = info as ChatInfoActionNameUpdated;
-        final Map<String, dynamic> args = {
-          'author':
-              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
-          if (action.name != null) 'name': action.name?.val,
-        };
 
-        if (action.name == null) {
-          return 'label_name_removed'.l10nfmt(args);
-        } else {
-          return 'label_name_updated'.l10nfmt(args);
-        }
+        return 'fcm_group_name_changed'.l10nfmt({
+          'userName':
+              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          'userNum':
+              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          'operation': action.name == null ? 'removed' : 'updated',
+          'groupName': action.name?.val ?? '',
+        });
     }
   }
 }

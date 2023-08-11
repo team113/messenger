@@ -36,7 +36,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.util.Locale
 
-class MainActivity: FlutterActivity() {
+class MainActivity : FlutterActivity() {
     private val utilsChannel = "team113.flutter.dev/android_utils"
 
     override fun onCreate(savedInstanceState: Bundle?) {

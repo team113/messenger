@@ -32,6 +32,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:messenger/util/mime.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '/api/backend/schema.dart'
     show
@@ -74,7 +75,8 @@ enum LoginViewStage {
   signInWithPhone,
   signInWithPhoneCode,
   signInWithPhoneOccupied,
-  signInWithQr,
+  signInWithQrScan,
+  signInWithQrShow,
   signUp,
   signUpWithEmail,
   signUpWithEmailCode,
@@ -96,7 +98,8 @@ extension on LoginViewStage {
         LoginViewStage.signInWithPhone ||
         LoginViewStage.signInWithPhoneCode ||
         LoginViewStage.signInWithPhoneOccupied ||
-        LoginViewStage.signInWithQr =>
+        LoginViewStage.signInWithQrScan ||
+        LoginViewStage.signInWithQrShow =>
           false,
         (_) => true,
       };
@@ -127,6 +130,8 @@ class LoginController extends GetxController {
   /// [TextFieldState] of a repeat password text input.
   late final TextFieldState repeatPassword;
 
+  final RxList<Barcode> barcodes = RxList();
+
   late final TextFieldState email = TextFieldState(
     revalidateOnUnfocus: true,
     onChanged: (s) {
@@ -154,25 +159,23 @@ class LoginController extends GetxController {
       final GraphQlProvider graphQlProvider = Get.find();
 
       try {
-        if (stage.value.registering) {
-          final response = await graphQlProvider.signUp();
+        final response = await graphQlProvider.signUp();
 
-          creds = Credentials(
-            Session(
-              response.createUser.session.token,
-              response.createUser.session.expireAt,
-            ),
-            RememberedSession(
-              response.createUser.remembered!.token,
-              response.createUser.remembered!.expireAt,
-            ),
-            response.createUser.user.id,
-          );
+        creds = Credentials(
+          Session(
+            response.createUser.session.token,
+            response.createUser.session.expireAt,
+          ),
+          RememberedSession(
+            response.createUser.remembered!.token,
+            response.createUser.remembered!.expireAt,
+          ),
+          response.createUser.user.id,
+        );
 
-          graphQlProvider.token = creds!.session.token;
-          await graphQlProvider.addUserEmail(UserEmail(email.text));
-          graphQlProvider.token = null;
-        }
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.addUserEmail(UserEmail(email.text));
+        graphQlProvider.token = null;
 
         s.unsubmit();
       } on AddUserEmailException catch (e) {
@@ -200,43 +203,24 @@ class LoginController extends GetxController {
 
   late final TextFieldState emailCode = TextFieldState(
     revalidateOnUnfocus: true,
-    onChanged: (s) {
-      // try {
-      //   if (s.text.isNotEmpty) {
-      //     ConfirmationCode(s.text);
-      //   }
-
-      //   s.error.value = null;
-      // } on FormatException catch (_) {
-      //   s.error.value = 'err_wrong_recovery_code'.l10n;
-      // }
-    },
     onSubmitted: (s) async {
       final GraphQlProvider graphQlProvider = Get.find();
 
       try {
-        if (stage.value.registering) {
-          graphQlProvider.token = creds!.session.token;
-          await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
-
-          await _authService.authorizeWith(creds!);
-
-          router.noIntroduction = false;
-          router.signUp = true;
-          router.home();
-        } else {
-          if (s.text == '1111') {
-            // No-op.
-          } else if (s.text == '2222') {
-            throw const ConfirmUserEmailException(
-              ConfirmUserEmailErrorCode.occupied,
-            );
-          } else {
-            throw const ConfirmUserEmailException(
-              ConfirmUserEmailErrorCode.wrongCode,
-            );
-          }
+        if (!stage.value.registering && s.text == '2222') {
+          throw const ConfirmUserEmailException(
+            ConfirmUserEmailErrorCode.occupied,
+          );
         }
+
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
+
+        await _authService.authorizeWith(creds!);
+
+        router.noIntroduction = false;
+        router.signUp = true;
+        router.home();
       } on ConfirmUserEmailException catch (e) {
         switch (e.code) {
           case ConfirmUserEmailErrorCode.occupied:
@@ -308,26 +292,25 @@ class LoginController extends GetxController {
       final GraphQlProvider graphQlProvider = Get.find();
 
       try {
-        if (stage.value.registering) {
-          final response = await graphQlProvider.signUp();
+        final response = await graphQlProvider.signUp();
 
-          creds = Credentials(
-            Session(
-              response.createUser.session.token,
-              response.createUser.session.expireAt,
-            ),
-            RememberedSession(
-              response.createUser.remembered!.token,
-              response.createUser.remembered!.expireAt,
-            ),
-            response.createUser.user.id,
-          );
+        creds = Credentials(
+          Session(
+            response.createUser.session.token,
+            response.createUser.session.expireAt,
+          ),
+          RememberedSession(
+            response.createUser.remembered!.token,
+            response.createUser.remembered!.expireAt,
+          ),
+          response.createUser.user.id,
+        );
 
-          graphQlProvider.token = creds!.session.token;
-          await graphQlProvider
-              .addUserPhone(UserPhone(s.phone!.nsn.toLowerCase()));
-          graphQlProvider.token = null;
-        }
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.addUserPhone(
+          UserPhone(phone.controller2.value!.international.toLowerCase()),
+        );
+        graphQlProvider.token = null;
 
         s.unsubmit();
       } on AddUserPhoneException catch (e) {
@@ -351,72 +334,8 @@ class LoginController extends GetxController {
     },
   );
 
-  // late final TextFieldState phone = TextFieldState(
-  //   revalidateOnUnfocus: true,
-  //   onChanged: (s) {
-  //     try {
-  //       if (s.text.isNotEmpty) {
-  //         UserPhone(s.text.toLowerCase());
-  //       }
-
-  //       s.error.value = null;
-  //     } on FormatException {
-  //       s.error.value = 'err_incorrect_phone'.l10n;
-  //     }
-  //   },
-  //   onSubmitted: (s) async {
-  //     if (s.error.value != null) {
-  //       return;
-  //     }
-
-  //     final GraphQlProvider graphQlProvider = Get.find();
-
-  //     try {
-  //       final response = await graphQlProvider.signUp();
-
-  //       creds = Credentials(
-  //         Session(
-  //           response.createUser.session.token,
-  //           response.createUser.session.expireAt,
-  //         ),
-  //         RememberedSession(
-  //           response.createUser.remembered!.token,
-  //           response.createUser.remembered!.expireAt,
-  //         ),
-  //         response.createUser.user.id,
-  //       );
-
-  //       graphQlProvider.token = creds!.session.token;
-  //       await graphQlProvider.addUserPhone(UserPhone(s.text));
-  //       graphQlProvider.token = null;
-
-  //       s.unsubmit();
-  //     } on AddUserPhoneException catch (e) {
-  //       graphQlProvider.token = null;
-  //       s.error.value = e.toMessage();
-  //     } catch (_) {
-  //       graphQlProvider.token = null;
-  //       s.error.value = 'err_data_transfer'.l10n;
-  //       s.unsubmit();
-  //     }
-
-  //     stage.value = LoginViewStage.signUpWithPhoneCode;
-  //   },
-  // );
-
   late final TextFieldState phoneCode = TextFieldState(
     revalidateOnUnfocus: true,
-    onChanged: (s) {
-      // try {
-      //   if (s.text.isNotEmpty) {
-      //     ConfirmationCode(s.text);
-      //   }
-
-      //   s.error.value = null;
-      // } on FormatException catch (_) {
-      //   s.error.value = 'err_wrong_recovery_code'.l10n;
-      // }
-    },
     onSubmitted: (s) async {
       try {
         if (ConfirmationCode(s.text).val == '1111') {
@@ -988,19 +907,24 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<void> registerWithCredentials(UserCredential credential) async {
+  Future<void> registerWithCredentials(
+    UserCredential credential, [
+    bool ignore = false,
+  ]) async {
     print(
       '[OAuth] Registering with the provided `UserCredential`:\n\n$credential\n\n',
     );
 
-    if (fallbackStage == LoginViewStage.signUp &&
-        credential.additionalUserInfo?.isNewUser == false) {
-      stage.value = LoginViewStage.oauthOccupied;
-      return;
-    } else if (fallbackStage == LoginViewStage.signIn &&
-        credential.additionalUserInfo?.isNewUser == true) {
-      stage.value = LoginViewStage.oauthNoUser;
-      return;
+    if (!ignore) {
+      if (fallbackStage == LoginViewStage.signUp &&
+          credential.additionalUserInfo?.isNewUser == false) {
+        stage.value = LoginViewStage.oauthOccupied;
+        return;
+      } else if (fallbackStage == LoginViewStage.signIn &&
+          (credential.additionalUserInfo?.isNewUser == true || true)) {
+        stage.value = LoginViewStage.oauthNoUser;
+        return;
+      }
     }
 
     await _authService.register();
@@ -1216,6 +1140,22 @@ class LoginController extends GetxController {
       _setResendPhoneTimer(false);
       rethrow;
     }
+  }
+
+  Future<void> registerOccupied() async {
+    final GraphQlProvider graphQlProvider = Get.find();
+
+    graphQlProvider.token = creds!.session.token;
+
+    if (stage.value == LoginViewStage.signInWithEmailOccupied) {
+      // await graphQlProvider.confirmEmailCode(ConfirmationCode(emailCode.text));
+    } else if (stage.value == LoginViewStage.signInWithPhoneOccupied) {}
+
+    await _authService.authorizeWith(creds!);
+
+    router.noIntroduction = false;
+    router.signUp = true;
+    router.home();
   }
 }
 

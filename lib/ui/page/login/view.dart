@@ -25,6 +25,7 @@ import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.da
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '/l10n/l10n.dart';
@@ -71,16 +72,27 @@ class LoginView extends StatelessWidget {
                 text: 'label_sign_up'.l10n,
               );
 
+              final String provider = switch (c.oAuthProvider) {
+                OAuthProvider.apple => 'Apple',
+                OAuthProvider.google => 'Google',
+                OAuthProvider.github => 'GitHub',
+                _ => '',
+              };
+
               children = [
                 Text(
-                  'Не существует пользователя, зарегистрированного через предоставленный аккаунт ${c.oAuthProvider!.name}. Зарегистрировать новый?',
+                  'label_sign_in_oauth_already_occupied'.l10nfmt({
+                    'provider': provider,
+                    'text': c.credential?.user?.email ??
+                        c.credential?.user?.phoneNumber,
+                  }),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
-                  key: const Key('SignUp'),
-                  title: 'btn_sign_up'.l10n,
-                  onPressed: () {},
+                  title: 'btn_create'.l10n,
+                  onPressed: () =>
+                      c.registerWithCredentials(c.credential!, true),
                 ),
               ];
               break;
@@ -426,7 +438,7 @@ class LoginView extends StatelessWidget {
                 Obx(() {
                   return Text(
                     c.resendPhoneTimeout.value == 0
-                        ? 'label_didnt_recieve_code'.l10n
+                        ? 'label_didnt_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
                     style: style.fonts.titleLarge,
                   );
@@ -568,7 +580,7 @@ class LoginView extends StatelessWidget {
                 Obx(() {
                   return Text(
                     c.resendEmailTimeout.value == 0
-                        ? 'label_didnt_recieve_code'.l10n
+                        ? 'label_didnt_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
                     style: style.fonts.titleLarge,
                   );
@@ -711,26 +723,115 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
-            case LoginViewStage.signInWithQr:
+            case LoginViewStage.signInWithQrScan:
+            case LoginViewStage.signInWithQrShow:
+              final bool scan =
+                  c.stage.value == LoginViewStage.signInWithQrScan;
+
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signIn,
                 text: 'label_sign_in_with_qr_code'.l10n,
               );
 
               children = [
-                Text(
-                  'label_qr_code_sign_in_description'.l10n,
-                  style: style.fonts.titleLarge,
-                ),
-                const SizedBox(height: 25),
-                Center(
-                  child: QrImageView(
-                    data: 'https://flutter.dev/',
-                    version: QrVersions.auto,
-                    size: 300.0,
+                if (scan) ...[
+                  Text(
+                    'label_scan_qr_code_to_sign_in1'.l10n,
+                    style: style.fonts.titleLarge,
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'label_scan_qr_code_to_sign_in2'.l10n,
+                    style: style.fonts.labelMediumSecondary,
+                  ),
+                ] else ...[
+                  Text(
+                    'label_show_qr_code_to_sign_in1'.l10n,
+                    style: style.fonts.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'label_show_qr_code_to_sign_in2'.l10n,
+                    style: style.fonts.labelMediumSecondary,
+                  ),
+                ],
+                const SizedBox(height: 25),
+                if (scan)
+                  Center(
+                    child: QrImageView(
+                      data: 'https://flutter.dev/',
+                      version: QrVersions.auto,
+                      size: 300.0,
+                    ),
+                  )
+                else ...[
+                  Center(
+                    child: SizedBox(
+                      // color: Colors.red,
+                      width: 300,
+                      height: 300,
+                      child: MobileScanner(
+                        // fit: BoxFit.contain,
+                        onDetect: (capture) {
+                          c.barcodes.value = capture.barcodes;
+
+                          // final List<Barcode> barcodes = capture.barcodes;
+                          // // final Uint8List? image = capture.image;
+                          // for (final barcode in barcodes) {
+                          //   debugPrint('Barcode found! ${barcode.rawValue}');
+                          // }
+                        },
+                      ),
+                      // child: const Center(child: Text('Тут будет камера')),
+                    ),
+                  ),
+                  Obx(() {
+                    return Column(
+                      children: [
+                        ...c.barcodes.map(
+                          (e) => Text('${e.type}: ${e.rawValue}'),
+                        ),
+                      ],
+                    );
+                  }),
+                ],
+                const SizedBox(height: 25 / 2),
+                Row(
+                  children: [
+                    const SizedBox(width: 32),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('label_or'.l10n, style: style.fonts.headlineSmall),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: style.colors.secondaryHighlight,
+                      ),
+                    ),
+                    const SizedBox(width: 32),
+                  ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 25 / 2),
+                _signButton(
+                  context,
+                  text:
+                      scan ? 'btn_scan_qr_code'.l10n : 'btn_show_qr_code'.l10n,
+                  asset: 'qr_code2',
+                  assetWidth: 20,
+                  assetHeight: 20,
+                  onPressed: () => c.stage.value = scan
+                      ? LoginViewStage.signInWithQrShow
+                      : LoginViewStage.signInWithQrScan,
+                ),
+                // const SizedBox(height: 16),
               ];
               break;
 
@@ -776,31 +877,10 @@ class LoginView extends StatelessWidget {
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
-                ContactTile(
-                  title: 'Name', // name ?? login ?? email/phone used to login
-                  myUser: MyUser(
-                    id: const UserId('123412'),
-                    num: UserNum('1234123412341234'),
-                    emails: MyUserEmails(confirmed: []),
-                    phones: MyUserPhones(confirmed: []),
-                    presenceIndex: 0,
-                    online: false,
-                  ),
-                  darken: 0.03,
-                  subtitle: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Text(
-                        'Gapopa ID: 1234 1234 1234 1234',
-                        style: style.fonts.labelMedium.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                    ),
-                  ],
+                PrimaryButton(
+                  title: 'btn_create'.l10n,
+                  onPressed: c.registerOccupied,
                 ),
-                const SizedBox(height: 25),
-                PrimaryButton(title: 'btn_sign_up'.l10n, onPressed: () {}),
               ];
               break;
 
@@ -821,7 +901,7 @@ class LoginView extends StatelessWidget {
                 Obx(() {
                   return Text(
                     c.resendPhoneTimeout.value == 0
-                        ? 'label_didnt_recieve_code'.l10n
+                        ? 'label_didnt_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
                     style: style.fonts.titleLarge,
                   );
@@ -915,33 +995,9 @@ class LoginView extends StatelessWidget {
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
-                ContactTile(
-                  title: 'Name', // name ?? login ?? email/phone used to login
-                  myUser: MyUser(
-                    id: const UserId('123412'),
-                    num: UserNum('1234123412341234'),
-                    emails: MyUserEmails(confirmed: []),
-                    phones: MyUserPhones(confirmed: []),
-                    presenceIndex: 0,
-                    online: false,
-                  ),
-                  darken: 0.03,
-                  subtitle: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Text(
-                        'Gapopa ID: 1234 1234 1234 1234',
-                        style: style.fonts.labelMedium.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 25),
                 PrimaryButton(
-                  title: 'btn_sign_up'.l10n,
-                  onPressed: () {},
+                  title: 'btn_create'.l10n,
+                  onPressed: c.registerOccupied,
                 ),
               ];
               break;
@@ -962,7 +1018,7 @@ class LoginView extends StatelessWidget {
                 Obx(() {
                   return Text(
                     c.resendEmailTimeout.value == 0
-                        ? 'label_didnt_recieve_code'.l10n
+                        ? 'label_didnt_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
                     style: style.fonts.titleLarge,
                   );
@@ -1137,7 +1193,8 @@ class LoginView extends StatelessWidget {
                 _signButton(
                   context,
                   text: 'btn_qr_code'.l10n,
-                  onPressed: () => c.stage.value = LoginViewStage.signInWithQr,
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signInWithQrScan,
                   asset: 'qr_code2',
                   assetWidth: 20,
                   assetHeight: 20,

@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/video/video.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -31,7 +32,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
-import '/ui/page/home/page/chat/widget/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -463,7 +463,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               disableGestures: e.isVideo,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: Video(
+                child: VideoView(
                   e.link,
                   showInterfaceFor: _isInitialPage ? 3.seconds : null,
                   onClose: _dismiss,
@@ -539,7 +539,7 @@ class _GalleryPopupState extends State<GalleryPopup>
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: e.isVideo
-                ? Video(
+                ? VideoView(
                     e.link,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,

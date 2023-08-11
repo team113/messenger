@@ -933,7 +933,8 @@ class HiveRxChat extends RxChat {
         replace(a);
       }
 
-      put(stored, ignoreVersion: true);
+      // put(stored, ignoreVersion: true);
+      _pagination.put(stored);
     }
   }
 

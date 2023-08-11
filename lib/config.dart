@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:toml/toml.dart';
 
+import '/l10n/l10n.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'pubspec.g.dart';
@@ -70,6 +71,27 @@ class Config {
 
   static String googleClientId = '';
 
+  /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
+  /// instance to initialize it.
+  static Map<String, dynamic> get callKeep {
+    return {
+      'ios': {'appName': 'Gapopa'},
+      'android': {
+        'alertTitle': 'label_call_permissions_title'.l10n,
+        'alertDescription': 'label_call_permissions_description'.l10n,
+        'cancelButton': 'btn_dismiss'.l10n,
+        'okButton': 'btn_allow'.l10n,
+        'foregroundService': {
+          'channelId': 'default',
+          'channelName': 'Default',
+          'notificationTitle': 'My app is running on background',
+          'notificationIcon': 'mipmap/ic_notification_launcher',
+        },
+        'additionalPermissions': <String>[],
+      },
+    };
+  }
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - default values;
@@ -113,11 +135,6 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         : (document['downloads']?['directory'] ?? '');
 
-    vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
-        ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
-        : (document['fcm']?['vapidKey'] ??
-            'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
-
     userAgentProduct = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
         : (document['user']?['agent']?['product'] ?? 'Gapopa');
@@ -128,6 +145,11 @@ class Config {
 
     userAgentVersion =
         version.isNotEmpty ? version : (Pubspec.ref ?? Pubspec.version);
+
+    vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
+        ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
+        : (document['fcm']?['vapidKey'] ??
+            'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
 
     googleClientId = const bool.hasEnvironment('SOCAPP_GOOGLE_CLIENT_ID')
         ? const String.fromEnvironment('SOCAPP_GOOGLE_CLIENT_ID')
@@ -188,11 +210,11 @@ class Config {
             files = remote['files']?['url'] ?? files;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
-            vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             userAgentProduct =
                 remote['user']?['agent']?['product'] ?? userAgentProduct;
             userAgentVersion =
                 remote['user']?['agent']?['version'] ?? userAgentVersion;
+            vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             origin = url;
           }
         }

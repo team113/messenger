@@ -26,6 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -87,13 +88,6 @@ class CallWorker extends DisposableService {
   /// [Worker] reacting on the [RouterState.lifecycle] changes.
   Worker? _lifecycleWorker;
 
-  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
-  /// [_focused].
-  StreamSubscription? _onFocusChanged;
-
-  /// Indicator whether the application's window is in focus.
-  bool _focused = true;
-
   /// [StreamSubscription] for canceling the [_outgoing] sound playing.
   StreamSubscription? _outgoingAudio;
 
@@ -109,6 +103,13 @@ class CallWorker extends DisposableService {
 
   /// Returns the name of an outgoing call sound asset.
   String get _outgoing => 'ringing.mp3';
+
+  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
+  /// [_focused].
+  StreamSubscription? _onFocusChanged;
+
+  /// Indicator whether the application's window is in focus.
+  bool _focused = true;
 
   @override
   void onInit() {
@@ -201,6 +202,7 @@ class CallWorker extends DisposableService {
                         body: title == null ? null : 'label_incoming_call'.l10n,
                         payload: '${Routes.chats}/${c.chatId}',
                         icon: chat?.avatar.value?.original.url,
+                        tag: '${c.chatId}_${c.call.value?.id}',
                       );
                     }
                   });
@@ -240,7 +242,7 @@ class CallWorker extends DisposableService {
   void onReady() {
     if (PlatformUtils.isMobile) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        _callKeep.setup(router.context!, PlatformUtils.callKeep);
+        _callKeep.setup(router.context!, Config.callKeep);
 
         _callKeep.on(CallKeepPerformAnswerCallAction(), (event) {
           if (event.callUUID != null) {

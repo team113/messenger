@@ -331,63 +331,87 @@ err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
-fcm_dialog_attachment =
-    {$kind ->
-        [image] [Image]
-        [video] [Video]
-        *[file] [File]
-    }
-fcm_dialog_message = {$text}
-fcm_dialog_title =
-    {$userName ->
+fcm_dialog_title = {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
+       *[other] {$userName}
     }
-fcm_group_attachment =
-    {$userName ->
+fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
-    }: {$kind ->
-        [image] [Image]
-        [video] [Video]
-        *[file] [File]
-    }
-fcm_group_message =
-    {$userName ->
+       *[other] {$userName}
+    } {$operation ->
+          [update] updated avatar
+         *[delete] removed avatar
+      }
+fcm_group_name_changed = {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
-    }: {$text}
+       *[other] {$userName}
+    } {$operation ->
+          [update] renamed chat to {$groupName}
+         *[delete] removed name
+      }
 fcm_group_title =
     {$user1Name ->
         [x] {$user1Num ->
                 [x] {""}
-                *[other] {$user1Num}
+               *[other] {$user1Num}
             }
-        *[other] {$user1Name}
+       *[other] {$user1Name}
     }{$user2Name ->
         [x] {$user2Num ->
                 [x] {""}
-                *[other] {$user2Num}
+               *[other] {$user2Num}
             }
-        *[other] , {$user2Name}
+       *[other] , {$user2Name}
     }{$user3Name ->
         [x] {$user3Num ->
                 [x] {""}
-                *[other] {$user3Num}
+               *[other] {$user3Num}
             }
-        *[other] , {$user3Name}
+       *[other] , {$user3Name}
     } {$moreMembers ->
         [yes] ...
-        *[no] {""}
+       *[no] {""}
     }
 fcm_incoming_call = Incoming call
+fcm_message =
+    { $type ->
+        [dialog] {""}
+        *[group]
+            {$userName ->
+                [x] {$userNum}
+                *[other] {$userName}
+            }:{" "}
+    }{ $attachmentsCount ->
+          [0] {""}
+          *[other] [{$attachmentsType ->
+               [image] { $attachmentsCount ->
+                           [1] Image
+                           *[other] {$attachmentsCount} images
+                       }
+               [video] { $attachmentsCount ->
+                           [1] Video
+                           *[other] {$attachmentsCount} videos
+                       }
+               [file] { $attachmentsCount ->
+                          [1] File
+                          *[other] {$attachmentsCount} files
+                      }
+              *[attachments] {$attachmentsCount} attachments
+        }]
+    }{ $textLength ->
+        [0] {""}
+        *[other] { $attachmentsCount ->
+            [0] {$text}
+            *[other] {" "}{$text}
+        }
+    }
 fcm_user_added_user =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } added {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
+       *[other] {$userName}
     }
 fcm_user_added_you_to_group =
     {$authorName ->
@@ -397,21 +421,26 @@ fcm_user_added_you_to_group =
 fcm_user_joined_group_by_link =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
-    } joined group by link
+       *[other] {$authorName}
+    } joined via link
 fcm_user_left_group =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } left the group
 fcm_user_removed_user =
     {$authorName ->
         [x] {$authorNum}
-        *[other] {$authorName}
+       *[other] {$authorName}
     } removed {$userName ->
         [x] {$userNum}
-        *[other] {$userName}
+       *[other] {$userName}
     }
+fcm_user_removed_you =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } removed you from group
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_account_created = Account is created
@@ -1013,9 +1042,8 @@ label_email_or_phone = E-mail or phone number
 label_sign_in_with_code = Sign in with code
 label_one_time_code_sent_description = Indicate E-mail or phone number below.
 label_qr_code_sign_in_description = Scan the displayed QR code to sign in.
-label_sign_in_with_qr_code = Sign in with QR code
-label_sign_up_email_already_occupied = E-mail {$text} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
-label_sign_up_phone_already_occupied = Phone number {$text} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
+label_sign_up_email_already_occupied = E-mail {$text} cannot be used to register a new account because it is connected to an existing account. Proceed to sign in?
+label_sign_up_phone_already_occupied = Phone number {$text} cannot be used to register a new account because it is connected to an existing account. Proceed to sign in?
 label_account_created = Account created
 label_waiting_response_from = Waiting for the response from {$from}
 label_linked_devices = Linked devices
@@ -1023,12 +1051,22 @@ label_scan_qr_code = Scan QR code
 btn_resend_email = Resend
 btn_resend_email_timeout = Resend in {$after} s
 btn_send = Send
-label_didnt_recieve_code = Didn't receive the code?
+label_didnt_receive_code = Didn't receive the code?
 label_code_sent_again = The code has been re-sent.
 label_wait_seconds = Wait {$for} s
 btn_resend_code = Resend
-label_sign_up_oauth_already_occupied = {$provider} account {$text} cannot be used to register a new account because it is conncted to an existing account. Proceed to sign in?
+label_sign_up_oauth_already_occupied = {$provider} account {$text} cannot be used to register a new account because it is connected to an existing account. Proceed to sign in?
 label_country = Country
 err_incorrect_login_or_password = Invalid login or password
-label_sign_in_email_already_occupied = label_sign_in_email_already_occupied
-label_sign_in_phone_already_occupied = label_sign_in_phone_already_occupied
+label_sign_in_email_already_occupied = E-mail {$text} is not verified and can not be used for sign-in. Create new account?
+label_sign_in_phone_already_occupied = Phone number {$text} is not verified and cannot be used for sign-in. Create new account?
+btn_create = Create
+label_sign_in_oauth_already_occupied = {$provider} account {$text} cannot be used for sign-in because it is not connected to an existing account. Create new account?
+btn_scan_qr_code = Scan QR code
+btn_show_qr_code = Show QR code
+label_sign_in_with_qr_code = Sign in with QR code
+label_scan_qr_code_to_sign_in = label_scan_qr_code_to_sign_in
+label_scan_qr_code_to_sign_in1 = label_scan_qr_code_to_sign_in1
+label_scan_qr_code_to_sign_in2 = label_scan_qr_code_to_sign_in2
+label_show_qr_code_to_sign_in = label_show_qr_code_to_sign_in
+label_or = OR

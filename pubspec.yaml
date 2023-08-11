@@ -9,10 +9,8 @@ environment:
 dependencies:
   animated_size_and_fade: ^3.0.0
   async: ^2.10.0
-  audioplayers: ^4.0.1
   back_button_interceptor: ^6.0.2
   callkeep: ^0.3.3
-  chewie: ^1.5.0
   collection: ^1.17.0
   crypto: ^3.0.3
   desktop_drop: ^0.4.1
@@ -115,6 +113,7 @@ dependencies:
   country_picker:
     git:
       url: https://github.com/SleepySquash/flutter_country_picker
+  mobile_scanner: ^3.4.1
 
 dev_dependencies:
   artemis: ^7.13.0-beta.1
