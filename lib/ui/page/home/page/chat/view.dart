@@ -27,8 +27,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/ui/widget/highlight_animation/view.dart';
-import '/ui/widget/highlight_animation/controller.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
@@ -43,6 +41,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/highlight_animation/view.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -98,12 +97,12 @@ class _ChatViewState extends State<ChatView>
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-    HighlightController h = Get.put(HighlightController());
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
       init: ChatController(
         widget.id,
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -406,8 +405,7 @@ class _ChatViewState extends State<ChatView>
                                     : const BouncingScrollPhysics(),
                                 reverse: true,
                                 delegate: FlutterListViewDelegate(
-                                  (context, i) =>
-                                      _listElement(context, c, i, h),
+                                  (context, i) => _listElement(context, c, i),
                                   // ignore: invalid_use_of_protected_member
                                   childCount: c.elements.value.length,
                                   stickyAtTailer: true,
@@ -563,8 +561,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
-  Widget _listElement(
-      BuildContext context, ChatController c, int i, HighlightController h) {
+  Widget _listElement(BuildContext context, ChatController c, int i) {
     final style = Theme.of(context).style;
 
     ListElement element = c.elements.values.elementAt(i);
@@ -642,7 +639,7 @@ class _ChatViewState extends State<ChatView>
           future: c.getUser(e.value.author.id),
           builder: (_, snapshot) => Obx(() {
             return HighlightAnimation(
-              index: i,
+              isHighlighted: c.highlightIndex?.value == i,
               child: ChatItemWidget(
                 chat: c.chat!.chat,
                 item: e,
@@ -705,7 +702,7 @@ class _ChatViewState extends State<ChatView>
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {
             return HighlightAnimation(
-              index: i,
+              isHighlighted: c.highlightIndex?.value == i,
               child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
                 chat: c.chat!.chat,

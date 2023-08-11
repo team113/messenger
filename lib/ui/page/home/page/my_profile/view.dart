@@ -21,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '/ui/page/home/widget/block_with_highlight.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -40,6 +39,7 @@ import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/home/widget/block.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -71,7 +71,7 @@ class MyProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find()),
+      init: MyProfileController(Get.find(), Get.find(), Get.find()),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -94,198 +94,202 @@ class MyProfileView extends StatelessWidget {
                 itemBuilder: (context, i) {
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
-                      return BlockWithHighlight(
-                        title: 'label_public_information'.l10n,
-                        index: 0,
-                        children: [
-                          Obx(() {
-                            return BigAvatarWidget.myUser(
+                      return Obx(() {
+                        return Block(
+                          title: 'label_public_information'.l10n,
+                          isHighlighted: c.highlightIndex?.value == 0,
+                          children: [
+                            BigAvatarWidget.myUser(
                               c.myUser.value,
                               loading: c.avatarUpload.value.isLoading,
                               onUpload: c.uploadAvatar,
                               onDelete: c.myUser.value?.avatar != null
                                   ? c.deleteAvatar
                                   : null,
-                            );
-                          }),
-                          const SizedBox(height: 12),
-                          Paddings.basic(
-                            Obx(() {
-                              return UserNameField(
+                            ),
+                            const SizedBox(height: 12),
+                            Paddings.basic(
+                              UserNameField(
                                 c.myUser.value?.name,
                                 onSubmit: c.updateUserName,
-                              );
-                            }),
-                          ),
-                          _presence(context, c),
-                          Paddings.basic(
-                            Obx(() {
-                              return UserTextStatusField(
+                              ),
+                            ),
+                            _presence(context, c),
+                            Paddings.basic(
+                              UserTextStatusField(
                                 c.myUser.value?.status,
                                 onSubmit: c.updateUserStatus,
-                              );
-                            }),
-                          )
-                        ],
-                      );
+                              ),
+                            )
+                          ],
+                        );
+                      });
 
                     case ProfileTab.signing:
-                      return BlockWithHighlight(
-                        title: 'label_login_options'.l10n,
-                        index: 1,
-                        children: [
-                          Paddings.basic(
-                            Obx(() {
-                              return UserNumCopyable(c.myUser.value?.num);
-                            }),
-                          ),
-                          Paddings.basic(
-                            Obx(() {
-                              return UserLoginField(
-                                c.myUser.value?.login,
-                                onSubmit: c.updateUserLogin,
-                              );
-                            }),
-                          ),
-                          _emails(context, c),
-                          _phones(context, c),
-                          _password(context, c),
-                        ],
+                      return Obx(
+                        () {
+                          return Block(
+                            title: 'label_login_options'.l10n,
+                            isHighlighted: c.highlightIndex?.value == 1,
+                            children: [
+                              Paddings.basic(
+                                UserNumCopyable(c.myUser.value?.num),
+                              ),
+                              Paddings.basic(
+                                UserLoginField(
+                                  c.myUser.value?.login,
+                                  onSubmit: c.updateUserLogin,
+                                ),
+                              ),
+                              _emails(context, c),
+                              _phones(context, c),
+                              _password(context, c),
+                            ],
+                          );
+                        },
                       );
 
                     case ProfileTab.link:
-                      return BlockWithHighlight(
-                        title: 'label_your_direct_link'.l10n,
-                        index: 2,
-                        children: [
-                          Obx(() {
-                            return DirectLinkField(
-                              c.myUser.value?.chatDirectLink,
-                              onSubmit: c.createChatDirectLink,
-                            );
-                          }),
-                        ],
+                      return Obx(
+                        () {
+                          return Block(
+                            title: 'label_your_direct_link'.l10n,
+                            isHighlighted: c.highlightIndex?.value == 2,
+                            children: [
+                              DirectLinkField(
+                                c.myUser.value?.chatDirectLink,
+                                onSubmit: c.createChatDirectLink,
+                              ),
+                            ],
+                          );
+                        },
                       );
 
                     case ProfileTab.background:
-                      return BlockWithHighlight(
-                        title: 'label_background'.l10n,
-                        index: 3,
-                        children: [
-                          Paddings.dense(
-                            Obx(() {
-                              return BackgroundPreview(
-                                c.background.value,
-                                onPick: c.pickBackground,
-                                onRemove: c.removeBackground,
-                              );
-                            }),
-                          )
-                        ],
+                      return Obx(
+                        () {
+                          return Block(
+                            title: 'label_background'.l10n,
+                            isHighlighted: c.highlightIndex?.value == 3,
+                            children: [
+                              Paddings.dense(
+                                BackgroundPreview(
+                                  c.background.value,
+                                  onPick: c.pickBackground,
+                                  onRemove: c.removeBackground,
+                                ),
+                              )
+                            ],
+                          );
+                        },
                       );
 
                     case ProfileTab.chats:
-                      return BlockWithHighlight(
-                        title: 'label_chats'.l10n,
-                        index: 4,
-                        children: [_chats(context, c)],
-                      );
+                      return Obx(() {
+                        return Block(
+                          title: 'label_chats'.l10n,
+                          isHighlighted: c.highlightIndex?.value == 4,
+                          children: [_chats(context, c)],
+                        );
+                      });
 
                     case ProfileTab.calls:
                       if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
 
-                      return BlockWithHighlight(
-                        title: 'label_calls'.l10n,
-                        index: 5,
-                        children: [_call(context, c)],
-                      );
+                      return Obx(() {
+                        return Block(
+                          title: 'label_calls'.l10n,
+                          isHighlighted: c.highlightIndex?.value == 5,
+                          children: [_call(context, c)],
+                        );
+                      });
 
                     case ProfileTab.media:
                       if (PlatformUtils.isMobile) {
                         return const SizedBox();
                       }
 
-                      return BlockWithHighlight(
-                        title: 'label_media'.l10n,
-                        index: 6,
-                        children: [_media(context, c)],
-                      );
+                      return Obx(() {
+                        return Block(
+                          title: 'label_media'.l10n,
+                          isHighlighted: c.highlightIndex?.value == 6,
+                          children: [_media(context, c)],
+                        );
+                      });
 
                     case ProfileTab.notifications:
-                      return BlockWithHighlight(
-                        title: 'label_audio_notifications'.l10n,
-                        index: 7,
-                        children: [
-                          Paddings.dense(
-                            Obx(() {
-                              final bool isMuted =
-                                  c.myUser.value?.muted == null;
-
-                              return SwitchField(
+                      return Obx(() {
+                        final bool isMuted = c.myUser.value?.muted == null;
+                        return Block(
+                          title: 'label_audio_notifications'.l10n,
+                          isHighlighted: c.highlightIndex?.value == 7,
+                          children: [
+                            Paddings.dense(
+                              SwitchField(
                                 text: isMuted
                                     ? 'label_enabled'.l10n
                                     : 'label_disabled'.l10n,
                                 value: isMuted,
                                 onChanged:
                                     c.isMuting.value ? null : c.toggleMute,
-                              );
-                            }),
-                          )
-                        ],
-                      );
+                              ),
+                            )
+                          ],
+                        );
+                      });
 
                     case ProfileTab.storage:
-                      return BlockWithHighlight(
-                        title: 'label_storage'.l10n,
-                        index: 8,
-                        children: [
-                          Paddings.dense(
-                            Obx(() {
-                              return SwitchField(
+                      return Obx(() {
+                        return Block(
+                          title: 'label_storage'.l10n,
+                          isHighlighted: c.highlightIndex?.value == 8,
+                          children: [
+                            Paddings.dense(
+                              SwitchField(
                                 text: 'label_load_images'.l10n,
                                 value: c.settings.value?.loadImages == true,
                                 onChanged: c.settings.value == null
                                     ? null
                                     : c.setLoadImages,
-                              );
-                            }),
-                          ),
-                        ],
-                      );
+                              ),
+                            ),
+                          ],
+                        );
+                      });
 
                     case ProfileTab.language:
-                      return BlockWithHighlight(
-                        title: 'label_language'.l10n,
-                        index: 9,
-                        children: [_language(context, c)],
-                      );
+                      return Obx(() => Block(
+                            title: 'label_language'.l10n,
+                            isHighlighted: c.highlightIndex?.value == 9,
+                            children: [_language(context, c)],
+                          ));
 
                     case ProfileTab.blocklist:
-                      return BlockWithHighlight(
-                        title: 'label_blocked_users'.l10n,
-                        index: 10,
-                        children: [_blockedUsers(context, c)],
-                      );
+                      return Obx(() => Block(
+                            title: 'label_blocked_users'.l10n,
+                            isHighlighted: c.highlightIndex?.value == 10,
+                            children: [_blockedUsers(context, c)],
+                          ));
 
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
 
-                      return BlockWithHighlight(
-                        title: 'label_download_application'.l10n,
-                        index: 11,
-                        children: [_downloads(context, c)],
-                      );
+                      return Obx(() => Block(
+                            title: 'label_download_application'.l10n,
+                            isHighlighted: c.highlightIndex?.value == 11,
+                            children: [_downloads(context, c)],
+                          ));
 
                     case ProfileTab.danger:
-                      return BlockWithHighlight(
-                        title: 'label_danger_zone'.l10n,
-                        index: 12,
-                        children: [_danger(context, c)],
-                      );
+                      return Obx(() => Block(
+                            title: 'label_danger_zone'.l10n,
+                            isHighlighted: c.highlightIndex?.value == 12,
+                            children: [_danger(context, c)],
+                          ));
 
                     case ProfileTab.logout:
                       return const SizedBox();

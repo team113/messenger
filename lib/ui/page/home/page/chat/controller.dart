@@ -28,7 +28,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/ui/widget/highlight_animation/controller.dart';
 import '/api/backend/schema.dart' hide ChatItemQuoteInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
@@ -61,6 +60,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/ui/widget/highlight_animation/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
@@ -82,7 +82,8 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
-    this._settingsRepository, {
+    this._settingsRepository,
+    this._highlightController, {
     this.itemId,
   });
 
@@ -265,6 +266,9 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
+  /// [HighlightController] used to get [highlightIndex] value and [_highlight].
+  final HighlightController _highlightController;
+
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
@@ -283,6 +287,9 @@ class ChatController extends GetxController {
 
   /// [Timer] deleting the [_bottomLoader] from the [elements] list.
   Timer? _bottomLoaderEndTimer;
+
+  /// Returns index of an item that should be highlighted.
+  RxnInt? get highlightIndex => _highlightController.highlightIndex;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -426,9 +433,8 @@ class ChatController extends GetxController {
     super.onClose();
   }
 
-  /// Executes [HighlightController]'s highlight method.
-  Future<void> _highlight(int index) =>
-      Get.find<HighlightController>().highlight(index);
+  /// Highlights the item with the provided [index].
+  Future<void> _highlight(int index) => _highlightController.highlight(index);
 
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.

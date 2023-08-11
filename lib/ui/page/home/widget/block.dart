@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/widget/highlight_animation/view.dart';
 import '/util/platform_utils.dart';
 
 /// Stylized grouped section of the provided [children].
@@ -26,6 +27,7 @@ class Block extends StatelessWidget {
     super.key,
     this.children = const [],
     this.title,
+    this.isHighlighted,
   });
 
   /// Optional header of this [Block].
@@ -34,38 +36,43 @@ class Block extends StatelessWidget {
   /// [Widget]s to display.
   final List<Widget> children;
 
+  final bool? isHighlighted;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Center(
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-        decoration: BoxDecoration(
-          border: style.primaryBorder,
-          color: style.messageColor,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        constraints:
-            context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (title != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-                child: Center(
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    child: Text(title!, style: style.fonts.headlineMedium),
+    return HighlightAnimation(
+      isHighlighted: isHighlighted != null ? isHighlighted! : false,
+      child: Center(
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          decoration: BoxDecoration(
+            border: style.primaryBorder,
+            color: style.messageColor,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          constraints:
+              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (title != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      child: Text(title!, style: style.fonts.headlineMedium),
+                    ),
                   ),
                 ),
-              ),
-            ...children,
-          ],
+              ...children,
+            ],
+          ),
         ),
       ),
     );

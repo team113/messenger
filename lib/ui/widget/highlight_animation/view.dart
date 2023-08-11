@@ -19,35 +19,33 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
-import '/ui/widget/highlight_animation/controller.dart';
 
 /// Animation of highlighting the [child].
 class HighlightAnimation extends StatelessWidget {
-  const HighlightAnimation(
-      {super.key, required this.child, required this.index});
+  const HighlightAnimation({
+    super.key,
+    required this.child,
+    required this.isHighlighted,
+  });
 
   /// [Widget] to animate to.
   final Widget child;
 
-  /// Index of an item that should be highlighted.
-  final int index;
+  /// Indicator whether this [child] is highlighted.
+  final bool isHighlighted;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    HighlightController h = Get.put(HighlightController());
-
-    return Obx(() {
-      return AnimatedContainer(
-        duration: 400.milliseconds,
-        curve: Curves.ease,
-        color: h.highlightIndex.value == index
-            ? style.colors.primaryOpacity20
-            : style.colors.primaryOpacity20.withOpacity(0),
-        padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
-        child: child,
-      );
-    });
+    return AnimatedContainer(
+      duration: 600.milliseconds,
+      curve: Curves.ease,
+      color: isHighlighted
+          ? style.colors.primaryOpacity20
+          : style.colors.primaryOpacity20.withOpacity(0),
+      padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
+      child: child,
+    );
   }
 }

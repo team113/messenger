@@ -25,13 +25,18 @@ import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
+import '/ui/widget/highlight_animation/controller.dart';
 import 'confirm/view.dart';
 
 export 'view.dart';
 
 /// Controller of the `HomeTab.menu` tab.
 class MenuTabController extends GetxController {
-  MenuTabController(this._authService, this._myUserService);
+  MenuTabController(
+    this._authService,
+    this._myUserService,
+    this._highlightController,
+  );
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -44,6 +49,9 @@ class MenuTabController extends GetxController {
 
   /// Service managing [MyUser].
   final MyUserService _myUserService;
+
+  /// [HighlightController] used in a [highlight].
+  final HighlightController _highlightController;
 
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -62,6 +70,9 @@ class MenuTabController extends GetxController {
 
   /// Logs out the current session and go to the [Routes.auth] page.
   Future<String> logout() => _authService.logout();
+
+  /// Highlights the item with the provided [index].
+  Future<void> highlight(int index) => _highlightController.highlight(index);
 
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>

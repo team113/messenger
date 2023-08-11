@@ -38,6 +38,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/ui/widget/highlight_animation/controller.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -46,7 +47,11 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(this._myUserService, this._settingsRepo);
+  MyProfileController(
+    this._myUserService,
+    this._settingsRepo,
+    this._highlightController,
+  );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
@@ -83,6 +88,9 @@ class MyProfileController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
+  /// [HighlightController] used to get [highlightIndex] value.
+  final HighlightController _highlightController;
+
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
@@ -104,6 +112,8 @@ class MyProfileController extends GetxController {
 
   /// Returns the [User]s blacklisted by the authenticated [MyUser].
   RxList<RxUser> get blacklist => _myUserService.blacklist;
+
+  RxnInt? get highlightIndex => _highlightController.highlightIndex;
 
   @override
   void onInit() {
