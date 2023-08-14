@@ -32,6 +32,7 @@ import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import 'package:messenger/ui/page/login/qr_code/view.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -2154,12 +2155,26 @@ Widget _devices(BuildContext context, MyProfileController c) {
       children: [
         FieldButton(
           text: 'btn_scan_qr_code'.l10n,
-          onPressed: () {},
+          onPressed: () {
+            QrCodeView.show(
+              context,
+              title: 'btn_scan_qr_code'.l10n,
+              scanning: false,
+              path: 'label_show_qr_code_to_sign_in3'.l10n,
+            );
+          },
         ),
         const SizedBox(height: 16),
         FieldButton(
           text: 'btn_show_qr_code'.l10n,
-          onPressed: () {},
+          onPressed: () {
+            QrCodeView.show(
+              context,
+              title: 'btn_show_qr_code'.l10n,
+              scanning: true,
+              path: 'label_show_qr_code_to_sign_in3'.l10n,
+            );
+          },
         ),
       ],
     ),

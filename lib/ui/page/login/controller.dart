@@ -131,6 +131,7 @@ class LoginController extends GetxController {
   late final TextFieldState repeatPassword;
 
   final RxList<Barcode> barcodes = RxList();
+  final GlobalKey scannerKey = GlobalKey();
 
   late final TextFieldState email = TextFieldState(
     revalidateOnUnfocus: true,

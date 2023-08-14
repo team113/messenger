@@ -241,6 +241,25 @@ class WebUtils {
     return controller.stream;
   }
 
+  /// Returns a stream broadcasting the browser's `BroadcastChannel` changes.
+  static Stream<dynamic> get onBroadcastMessage {
+    StreamController<dynamic>? controller;
+    StreamSubscription? subscription;
+
+    final channel = html.BroadcastChannel('fcm');
+
+    controller = StreamController(
+      onListen: () {
+        subscription = channel.onMessage.listen((e) {
+          controller?.add(e.data);
+        });
+      },
+      onCancel: () => subscription?.cancel(),
+    );
+
+    return controller.stream;
+  }
+
   /// Sets the provided [Credentials] to the browser's storage.
   static set credentials(Credentials? creds) {
     if (creds == null) {

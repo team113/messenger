@@ -21,10 +21,10 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -35,7 +35,9 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
+import 'qr_code/view.dart';
 import 'widget/primary_button.dart';
+import 'widget/sign_button.dart';
 
 /// View for logging in or recovering access on.
 ///
@@ -62,6 +64,24 @@ class LoginView extends StatelessWidget {
       init: LoginController(Get.find(), stage: stage),
       builder: (LoginController c) {
         return Obx(() {
+          Widget Function(Widget, List<Widget>) builder = (header, children) {
+            return ListView(
+              controller: c.scrollController,
+              shrinkWrap: true,
+              children: [
+                header,
+                const SizedBox(height: 12),
+                ...children.map(
+                  (e) => Padding(
+                    padding: ModalPopup.padding(context),
+                    child: e,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            );
+          };
+
           final Widget header;
           final List<Widget> children;
 
@@ -670,8 +690,7 @@ class LoginView extends StatelessWidget {
               header = ModalPopupHeader(text: 'label_sign_up'.l10n);
 
               children = [
-                _signButton(
-                  context,
+                SignButton(
                   text: 'btn_email'.l10n,
                   asset: 'email',
                   assetWidth: 21.93,
@@ -680,8 +699,7 @@ class LoginView extends StatelessWidget {
                       c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   text: 'btn_phone_number'.l10n,
                   asset: 'phone6',
                   assetWidth: 17.61,
@@ -691,8 +709,7 @@ class LoginView extends StatelessWidget {
                       c.stage.value = LoginViewStage.signUpWithPhone,
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   text: 'Google'.l10n,
                   asset: 'google_logo1',
                   assetWidth: 21.56,
@@ -701,8 +718,7 @@ class LoginView extends StatelessWidget {
                   onPressed: c.continueWithGoogle,
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   text: 'Apple'.l10n,
                   asset: 'apple7',
                   assetWidth: 21.07,
@@ -711,8 +727,7 @@ class LoginView extends StatelessWidget {
                   onPressed: c.continueWithApple,
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   text: 'GitHub'.l10n,
                   asset: 'github1',
                   assetHeight: 26,
@@ -725,114 +740,14 @@ class LoginView extends StatelessWidget {
 
             case LoginViewStage.signInWithQrScan:
             case LoginViewStage.signInWithQrShow:
-              final bool scan =
-                  c.stage.value == LoginViewStage.signInWithQrScan;
+              builder = (_, __) {
+                return QrCodeView(
+                  onBack: () => c.stage.value = LoginViewStage.signIn,
+                );
+              };
 
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signIn,
-                text: 'label_sign_in_with_qr_code'.l10n,
-              );
-
-              children = [
-                if (scan) ...[
-                  Text(
-                    'label_scan_qr_code_to_sign_in1'.l10n,
-                    style: style.fonts.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'label_scan_qr_code_to_sign_in2'.l10n,
-                    style: style.fonts.labelMediumSecondary,
-                  ),
-                ] else ...[
-                  Text(
-                    'label_show_qr_code_to_sign_in1'.l10n,
-                    style: style.fonts.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'label_show_qr_code_to_sign_in2'.l10n,
-                    style: style.fonts.labelMediumSecondary,
-                  ),
-                ],
-                const SizedBox(height: 25),
-                if (scan)
-                  Center(
-                    child: QrImageView(
-                      data: 'https://flutter.dev/',
-                      version: QrVersions.auto,
-                      size: 300.0,
-                    ),
-                  )
-                else ...[
-                  Center(
-                    child: SizedBox(
-                      // color: Colors.red,
-                      width: 300,
-                      height: 300,
-                      child: MobileScanner(
-                        // fit: BoxFit.contain,
-                        onDetect: (capture) {
-                          c.barcodes.value = capture.barcodes;
-
-                          // final List<Barcode> barcodes = capture.barcodes;
-                          // // final Uint8List? image = capture.image;
-                          // for (final barcode in barcodes) {
-                          //   debugPrint('Barcode found! ${barcode.rawValue}');
-                          // }
-                        },
-                      ),
-                      // child: const Center(child: Text('Тут будет камера')),
-                    ),
-                  ),
-                  Obx(() {
-                    return Column(
-                      children: [
-                        ...c.barcodes.map(
-                          (e) => Text('${e.type}: ${e.rawValue}'),
-                        ),
-                      ],
-                    );
-                  }),
-                ],
-                const SizedBox(height: 25 / 2),
-                Row(
-                  children: [
-                    const SizedBox(width: 32),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('label_or'.l10n, style: style.fonts.headlineSmall),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                    const SizedBox(width: 32),
-                  ],
-                ),
-                const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
-                  text:
-                      scan ? 'btn_scan_qr_code'.l10n : 'btn_show_qr_code'.l10n,
-                  asset: 'qr_code2',
-                  assetWidth: 20,
-                  assetHeight: 20,
-                  onPressed: () => c.stage.value = scan
-                      ? LoginViewStage.signInWithQrShow
-                      : LoginViewStage.signInWithQrScan,
-                ),
-                // const SizedBox(height: 16),
-              ];
+              header = const SizedBox();
+              children = [];
               break;
 
             case LoginViewStage.signInWithCode:
@@ -1158,8 +1073,7 @@ class LoginView extends StatelessWidget {
               header = ModalPopupHeader(text: 'label_sign_in'.l10n);
 
               children = [
-                _signButton(
-                  context,
+                SignButton(
                   text: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
@@ -1169,8 +1083,7 @@ class LoginView extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   text: 'btn_email'.l10n,
                   asset: 'email',
                   assetWidth: 21.93,
@@ -1179,8 +1092,7 @@ class LoginView extends StatelessWidget {
                       c.stage.value = LoginViewStage.signInWithEmail,
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPhone,
                   text: 'btn_phone_number'.l10n,
@@ -1190,19 +1102,18 @@ class LoginView extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 2),
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   text: 'btn_qr_code'.l10n,
-                  onPressed: () =>
-                      c.stage.value = LoginViewStage.signInWithQrScan,
+                  onPressed: () => c.stage.value = PlatformUtils.isMobile
+                      ? LoginViewStage.signInWithQrShow
+                      : LoginViewStage.signInWithQrScan,
                   asset: 'qr_code2',
                   assetWidth: 20,
                   assetHeight: 20,
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   text: 'Google',
                   asset: 'google_logo1',
                   assetWidth: 21.56,
@@ -1211,8 +1122,7 @@ class LoginView extends StatelessWidget {
                   onPressed: c.continueWithGoogle,
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   text: 'Apple',
                   asset: 'apple7',
                   assetWidth: 21.07,
@@ -1221,8 +1131,7 @@ class LoginView extends StatelessWidget {
                   onPressed: c.continueWithApple,
                 ),
                 const SizedBox(height: 25 / 2),
-                _signButton(
-                  context,
+                SignButton(
                   text: 'GitHub',
                   asset: 'github1',
                   assetHeight: 26,
@@ -1243,62 +1152,11 @@ class LoginView extends StatelessWidget {
             child: Scrollbar(
               key: Key('${c.stage.value}'),
               controller: c.scrollController,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: ListView(
-                      controller: c.scrollController,
-                      shrinkWrap: true,
-                      children: [
-                        header,
-                        const SizedBox(height: 12),
-                        ...children.map(
-                          (e) => Padding(
-                            padding: ModalPopup.padding(context),
-                            child: e,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              child: builder(header, children),
             ),
           );
         });
       },
-    );
-  }
-
-  Widget _signButton(
-    BuildContext context, {
-    String text = '',
-    Widget? leading,
-    String asset = '',
-    double assetWidth = 20,
-    double assetHeight = 20,
-    EdgeInsets padding = EdgeInsets.zero,
-    void Function()? onPressed,
-  }) {
-    final style = Theme.of(context).style;
-
-    return Center(
-      child: PrefixButton(
-        text: text,
-        style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
-        onPressed: onPressed ?? () {},
-        prefix: Padding(
-          padding: const EdgeInsets.only(left: 16, bottom: 0).add(padding),
-          child: leading ??
-              SvgImage.asset(
-                'assets/icons/$asset.svg',
-                width: assetWidth,
-                height: assetHeight,
-              ),
-        ),
-      ),
     );
   }
 }

@@ -91,7 +91,7 @@ class VacancyView extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(8),
         children: [
-          ...Vacancies.all.skip(1).map((e) {
+          ...Vacancies.all.map((e) {
             return Obx(() {
               return VacancyWidget(
                 e.title,

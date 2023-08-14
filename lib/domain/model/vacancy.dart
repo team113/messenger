@@ -13,11 +13,6 @@ class Vacancy {
 class Vacancies {
   static const List<Vacancy> all = [
     Vacancy(
-      id: 'parner',
-      title: 'Партнёрская программа',
-      description: '...',
-    ),
-    Vacancy(
       id: 'dart',
       title: 'Flutter/Dart Developer',
       description: '''Обязанности:
@@ -93,6 +88,16 @@ class Vacancies {
 - оказывается помощь при переезде в одну из штаб-квартир компании.''',
     ),
     Vacancy(
+      id: 'media',
+      title: 'Media Streaming Developer',
+      description: '...',
+    ),
+    Vacancy(
+      id: 'devops',
+      title: 'DevOps Инженер',
+      description: '...',
+    ),
+    Vacancy(
       id: 'ui',
       title: 'UI/UX Designer',
       description: '''Обязанности:
@@ -117,6 +122,41 @@ class Vacancies {
 Дополнительно:
 
 - оказывается помощь при переезде в одну из штаб-квартир компании.''',
+    ),
+    Vacancy(
+      id: 'neuro',
+      title: 'Специалист по нейросетям / оператор нейросетей',
+      description: '...',
+    ),
+    Vacancy(
+      id: 'smm',
+      title: 'SMM менеджер',
+      description: '...',
+    ),
+    Vacancy(
+      id: 'secretary',
+      title: 'Секретарь со знанием английского языка',
+      description: '...',
+    ),
+    Vacancy(
+      id: 'growth',
+      title: 'Менеджер по развитию',
+      description: '...',
+    ),
+    Vacancy(
+      id: 'freelance',
+      title: 'Фрилансерам',
+      description: '...',
+    ),
+    Vacancy(
+      id: 'parner',
+      title: 'Контент провайдерам',
+      description: '...',
+    ),
+    Vacancy(
+      id: 'promoter',
+      title: 'Промоутерам',
+      description: '...',
     ),
   ];
 }

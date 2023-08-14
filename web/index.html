@@ -392,6 +392,11 @@
   </script>
   <!-- Initialize the Firebase Cloud Messaging. -->
   <script>
+    const broadcastChannel = new BroadcastChannel("fcm");
+    broadcastChannel.onmessage = (event) => {
+      console.log(event.data);
+    };
+
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
         navigator.serviceWorker.register("/firebase-messaging-sw.js");
