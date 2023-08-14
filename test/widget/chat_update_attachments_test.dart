@@ -26,6 +26,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/cache_info.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
@@ -82,6 +83,7 @@ void main() async {
   PlatformUtils.client = dio;
 
   CacheWorker.instance = CacheWorker(null);
+  CacheWorker.instance.info = CacheInfo().obs;
 
   dioAdapter.onGet(
     'oldRef.png',
@@ -206,10 +208,22 @@ void main() async {
                     '__typename': 'ImageAttachment',
                     'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
                     'filename': 'filename.png',
-                    'original': {'relativeRef': 'oldRef.png'},
-                    'big': {'relativeRef': 'oldRef.png'},
-                    'medium': {'relativeRef': 'oldRef.png'},
-                    'small': {'relativeRef': 'oldRef.png'},
+                    'original': {
+                      'relativeRef': 'oldRef.png',
+                      'checksum': 'oldChecksum1',
+                    },
+                    'big': {
+                      'relativeRef': 'oldRef.png',
+                      'checksum': 'oldChecksum2',
+                    },
+                    'medium': {
+                      'relativeRef': 'oldRef.png',
+                      'checksum': 'oldChecksum3',
+                    },
+                    'small': {
+                      'relativeRef': 'oldRef.png',
+                      'checksum': 'oldChecksum4',
+                    },
                   }
                 ]
               },
@@ -237,11 +251,23 @@ void main() async {
             {
               '__typename': 'ImageAttachment',
               'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
-              'original': {'relativeRef': 'updatedRef.png'},
               'filename': 'filename.png',
-              'big': {'relativeRef': 'updatedRef.png'},
-              'medium': {'relativeRef': 'updatedRef.png'},
-              'small': {'relativeRef': 'updatedRef.png'}
+              'original': {
+                'relativeRef': 'updatedRef.png',
+                'checksum': 'updatedChecksum1',
+              },
+              'big': {
+                'relativeRef': 'updatedRef.png',
+                'checksum': 'updatedChecksum2',
+              },
+              'medium': {
+                'relativeRef': 'updatedRef.png',
+                'checksum': 'updatedChecksum3',
+              },
+              'small': {
+                'relativeRef': 'updatedRef.png',
+                'checksum': 'updatedChecksum4',
+              }
             }
           ]
         }
