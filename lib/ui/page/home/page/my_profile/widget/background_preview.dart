@@ -68,7 +68,7 @@ class BackgroundPreview extends StatelessWidget {
                   children: [
                     Positioned.fill(
                       child: background == null
-                          ? SvgImage.asset(
+                          ? const SvgImage.asset(
                               'assets/images/background_light.svg',
                               width: double.infinity,
                               height: double.infinity,

@@ -396,7 +396,7 @@ class _FloatingPanel<T> extends StatelessWidget {
           child: Stack(
             children: [
               Container(color: style.colors.backgroundAuxiliary),
-              SvgImage.asset(
+              const SvgImage.asset(
                 'assets/images/background_dark.svg',
                 width: double.infinity,
                 height: double.infinity,

@@ -26,7 +26,7 @@ import 'controller.dart';
 
 /// View of the [Routes.chatDirectLink] page.
 class ChatDirectLinkView extends StatelessWidget {
-  const ChatDirectLinkView(this._slug, {Key? key}) : super(key: key);
+  const ChatDirectLinkView(this._slug, {super.key});
 
   /// [String] to be parsed as a [ChatDirectLinkSlug] of this page.
   final String _slug;
