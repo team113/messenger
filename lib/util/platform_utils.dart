@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
-import 'package:callkeep/callkeep.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -31,7 +30,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import 'backoff.dart';

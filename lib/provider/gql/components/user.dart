@@ -1158,7 +1158,7 @@ mixin UserGraphQlMixin {
       encodedBody,
       options: dio.Options(
         headers: {
-          if (locale != null) 'Accept-Language': locale,
+          // if (locale != null) 'Accept-Language': locale,
         },
       ),
       onException: (data) => RegisterFcmDeviceException(
