@@ -15,8 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-importScripts("https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js");
-importScripts("https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js");
+importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
+importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js");
 
 firebase.initializeApp({
   apiKey: "AIzaSyBbttYFbYjucn8BY-p5tlWomcd5V9h8zWc",
@@ -30,3 +30,8 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
+const broadcastChannel = new BroadcastChannel("fcm");
+
+messaging.onBackgroundMessage((payload) => {
+  broadcastChannel.postMessage(payload);
+});

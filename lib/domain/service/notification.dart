@@ -69,6 +69,10 @@ class NotificationService extends DisposableService {
   /// [_active].
   StreamSubscription? _onActivityChanged;
 
+  /// Subscription to the [WebUtils.onBroadcastMessage] playing the notification
+  /// sound on web platforms.
+  StreamSubscription? _onBroadcastMessage;
+
   /// Indicator whether the application is active.
   bool _active = true;
 
@@ -148,6 +152,7 @@ class NotificationService extends DisposableService {
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
     _onActivityChanged?.cancel();
+    _onBroadcastMessage?.cancel();
   }
 
   // TODO: Implement icons and attachments on non-web platforms.
@@ -376,6 +381,14 @@ class NotificationService extends DisposableService {
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      // On Web push notifications don't support playing any sounds, it's up to
+      // operating system to decide, whether to play sound at all. Thus this
+      // listens to `BroadcastChannel` fired from FCM Service Worker to play a
+      // sound by ourselves.
+      _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((_) {
+        AudioUtils.once(AudioSource.asset('audio/notification2.mp3'));
+      });
+
       _token =
           await FirebaseMessaging.instance.getToken(vapidKey: Config.vapidKey);
 
