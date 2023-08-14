@@ -175,10 +175,6 @@ class _RetryImageState extends State<RetryImage> {
       _canceled = true;
     }
 
-    if (widget.checksum == null || widget.fallbackChecksum == null) {
-      widget.onForbidden?.call();
-    }
-
     super.initState();
   }
 
