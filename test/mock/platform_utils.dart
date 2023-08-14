@@ -40,7 +40,12 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
       File('test/path');
 
   @override
-  Future<String> get downloadsDirectory => Future.value('.temp_hive/downloads');
+  Future<Directory> get downloadsDirectory =>
+      Future.value(Directory('.temp_hive/downloads'));
+
+  @override
+  Future<Directory> get cacheDirectory =>
+      Future.value(Directory('.temp_cache'));
 
   @override
   void keepActive([bool active = true]) {

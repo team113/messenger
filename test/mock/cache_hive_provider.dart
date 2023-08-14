@@ -15,39 +15,45 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:collection';
 
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
+import 'package:messenger/domain/model/cache_info.dart';
+import 'package:messenger/provider/hive/cache.dart';
 
-import '/domain/model/cache_info.dart';
-import 'base.dart';
+/// Mocked [CacheInfoHiveProvider] to use in the tests.
+class CacheInfoHiveProviderMock extends CacheInfoHiveProvider {
+  /// Stored [CacheInfo].
+  final CacheInfo _cacheInfo = CacheInfo(maxSize: 1024 * 1024);
 
-/// [Hive] storage for [CacheInfo].
-class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
+  final StreamController<BoxEvent> _boxEvents =
+      StreamController<BoxEvent>.broadcast();
+
   @override
-  Stream<BoxEvent> get boxEvents => box.watch();
+  Stream<BoxEvent> get boxEvents => _boxEvents.stream;
 
   @override
   String get boxName => 'cacheInfo';
 
   @override
-  void registerAdapters() {
-    Hive.maybeRegisterAdapter(CacheInfoAdapter());
-  }
+  void registerAdapters() {}
 
   /// Returns the stored [CacheInfo] from [Hive].
-  CacheInfo get cacheInfo => getSafe(0) ?? CacheInfo();
+  @override
+  CacheInfo get cacheInfo => _cacheInfo;
 
-  /// Updates the stored [CacheInfo] with the provided data.
+  /// Stores a new [CacheInfo] value to [Hive].
+  @override
   Future<void> update({
     HashSet<String>? checksums,
     int? size,
     DateTime? modified,
-  }) {
+  }) async {
     CacheInfo cacheInfo = this.cacheInfo;
     cacheInfo.checksums = checksums ?? cacheInfo.checksums;
     cacheInfo.size = size ?? cacheInfo.size;
     cacheInfo.modified = modified ?? cacheInfo.modified;
-    return putSafe(0, cacheInfo);
+    _boxEvents.add(BoxEvent(0, _cacheInfo, false));
   }
 }

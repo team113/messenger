@@ -49,7 +49,10 @@ class PlatformUtilsImpl {
   Dio? client;
 
   /// Path to the downloads directory.
-  String? _downloadDirectory;
+  Directory? _downloadDirectory;
+
+  /// Path to the cache directory.
+  Directory? _cacheDirectory;
 
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
@@ -254,7 +257,7 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a path to the downloads directory.
-  Future<String> get downloadsDirectory async {
+  Future<Directory> get downloadsDirectory async {
     if (_downloadDirectory != null) {
       return _downloadDirectory!;
     }
@@ -266,8 +269,14 @@ class PlatformUtilsImpl {
       path = (await getDownloadsDirectory())!.path;
     }
 
-    _downloadDirectory = '$path${Config.downloads}';
+    _downloadDirectory = Directory('$path${Config.downloads}');
     return _downloadDirectory!;
+  }
+
+  /// Returns a path to the cache directory.
+  Future<Directory> get cacheDirectory async {
+    _cacheDirectory ??= await getApplicationSupportDirectory();
+    return _cacheDirectory!;
   }
 
   /// Indicates whether the application is in active state.
@@ -321,7 +330,7 @@ class PlatformUtilsImpl {
           int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
-      String downloads = await PlatformUtils.downloadsDirectory;
+      String downloads = (await PlatformUtils.downloadsDirectory).path;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
       File file = File('$downloads/$filename');
@@ -398,7 +407,7 @@ class PlatformUtilsImpl {
 
             final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
-            final String path = await downloadsDirectory;
+            final String path = (await downloadsDirectory).path;
 
             file = File('$path/$filename');
             for (int i = 1; await file!.exists(); ++i) {

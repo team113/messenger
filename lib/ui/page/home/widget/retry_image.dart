@@ -175,6 +175,10 @@ class _RetryImageState extends State<RetryImage> {
       _canceled = true;
     }
 
+    if (widget.checksum == null || widget.fallbackChecksum == null) {
+      widget.onForbidden?.call();
+    }
+
     super.initState();
   }
 
@@ -375,9 +379,9 @@ class _RetryImageState extends State<RetryImage> {
     );
 
     if (result is Uint8List?) {
-      _fallback = result;
+      _fallback = result ?? _fallback;
     } else {
-      _fallback = await result;
+      _fallback = await result ?? _fallback;
     }
 
     if (mounted) {
@@ -405,9 +409,9 @@ class _RetryImageState extends State<RetryImage> {
     );
 
     if (result is Uint8List?) {
-      _image = result;
+      _image = result ?? _image;
     } else {
-      _image = await result;
+      _image = await result ?? _image;
     }
 
     _isSvg = false;
