@@ -71,9 +71,10 @@ class CacheWorker extends DisposableService {
     _initCacheSubscription();
 
     if (!PlatformUtils.isWeb) {
+      final Directory? cache = await PlatformUtils.cacheDirectory;
       // Recalculate the [info], if [FileStat.modified] mismatch is detected.
-      if (info.value.modified !=
-          (await (await PlatformUtils.cacheDirectory).stat()).modified) {
+      if (cache != null &&
+          info.value.modified != (await cache.stat()).modified) {
         _updateInfo();
       }
     }
@@ -106,13 +107,15 @@ class CacheWorker extends DisposableService {
 
     return Future(() async {
       if (checksum != null && !PlatformUtils.isWeb) {
-        final File file =
-            File('${(await PlatformUtils.cacheDirectory).path}/$checksum');
+        final Directory? cache = await PlatformUtils.cacheDirectory;
+        if (cache != null) {
+          final File file = File('${cache.path}/$checksum');
 
-        if (await file.exists()) {
-          final Uint8List bytes = await file.readAsBytes();
-          FIFOCache.set(checksum, bytes);
-          return bytes;
+          if (await file.exists()) {
+            final Uint8List bytes = await file.readAsBytes();
+            FIFOCache.set(checksum, bytes);
+            return bytes;
+          }
         }
       }
 
@@ -166,9 +169,9 @@ class CacheWorker extends DisposableService {
 
     if (!PlatformUtils.isWeb) {
       return _cacheMutex.protect(() async {
-        try {
-          final Directory cache = await PlatformUtils.cacheDirectory;
+        final Directory? cache = await PlatformUtils.cacheDirectory;
 
+        if (cache != null) {
           final File file = File('${cache.path}/$checksum');
           if (!(await file.exists())) {
             await file.writeAsBytes(data);
@@ -183,8 +186,6 @@ class CacheWorker extends DisposableService {
 
             _optimizeCache();
           }
-        } on MissingPluginException {
-          // No-op.
         }
       });
     }
@@ -194,35 +195,37 @@ class CacheWorker extends DisposableService {
   bool exists(String checksum) =>
       FIFOCache.exists(checksum) || info.value.checksums.contains(checksum);
 
-  /// Clears the cache.
+  /// Clears the cache in [PlatformUtils.cacheDirectory].
   Future<void> clear() {
     return _cacheMutex.protect(() async {
       if (PlatformUtils.isWeb) {
         return;
       }
 
-      final Directory cache = await PlatformUtils.cacheDirectory;
-      final List<File> files =
-          info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
+      final Directory? cache = await PlatformUtils.cacheDirectory;
+      if (cache != null) {
+        final List<File> files =
+            info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
 
-      final List<Future> futures = [];
-      for (var file in files) {
-        futures.add(
-          Future(
-            () async {
-              try {
-                await file.delete();
-              } catch (_) {
-                // No-op.
-              }
-            },
-          ),
-        );
+        final List<Future> futures = [];
+        for (var file in files) {
+          futures.add(
+            Future(
+              () async {
+                try {
+                  await file.delete();
+                } catch (_) {
+                  // No-op.
+                }
+              },
+            ),
+          );
+        }
+
+        await Future.wait(futures);
+
+        _updateInfo();
       }
-
-      await Future.wait(futures);
-
-      _updateInfo();
     });
   }
 
@@ -249,19 +252,19 @@ class CacheWorker extends DisposableService {
   ///
   /// Uses LRU (Least Recently Used) approach sorting [File]s by their
   /// [FileStat.accessed] times.
-  Future<void> _optimizeCache() async {
-    await _cacheMutex.protect(() async {
+  Future<void> _optimizeCache() {
+    return _cacheMutex.protect(() async {
       if (PlatformUtils.isWeb) {
         return;
       }
 
+      final Directory? cache = await PlatformUtils.cacheDirectory;
+
       final int maxSize = info.value.maxSize;
 
       int overflow = info.value.size - maxSize;
-      if (overflow > 0) {
+      if (overflow > 0 && cache != null) {
         overflow += (maxSize * 0.05).floor();
-
-        final Directory cache = await PlatformUtils.cacheDirectory;
 
         final List<File> files =
             info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
@@ -312,35 +315,37 @@ class CacheWorker extends DisposableService {
 
   /// Updates the [CacheInfo.size] and [CacheInfo.checksums] values.
   void _updateInfo() async {
-    final Directory cache = await PlatformUtils.cacheDirectory;
+    final Directory? cache = await PlatformUtils.cacheDirectory;
 
-    final HashSet<String> checksums = HashSet();
-    int size = 0;
+    if (cache != null) {
+      final HashSet<String> checksums = HashSet();
+      int size = 0;
 
-    _cacheSubscription?.cancel();
-    _cacheSubscription = cache.list(recursive: true).listen(
-      (FileSystemEntity file) async {
-        if (file is File) {
-          checksums.add(p.basename(file.path));
-          final FileStat stat = await file.stat();
-          size += stat.size;
-        }
-      },
-      onDone: () async {
-        await _setMutex.protect(() async {
-          await _cacheLocal?.update(
-            checksums: checksums,
-            size: size,
-            modified: (await cache.stat()).modified,
-          );
-        });
+      _cacheSubscription?.cancel();
+      _cacheSubscription = cache.list(recursive: true).listen(
+        (FileSystemEntity file) async {
+          if (file is File) {
+            checksums.add(p.basename(file.path));
+            final FileStat stat = await file.stat();
+            size += stat.size;
+          }
+        },
+        onDone: () async {
+          await _setMutex.protect(() async {
+            await _cacheLocal?.update(
+              checksums: checksums,
+              size: size,
+              modified: (await cache.stat()).modified,
+            );
+          });
 
-        _optimizeCache();
+          _optimizeCache();
 
-        _cacheSubscription?.cancel();
-        _cacheSubscription = null;
-      },
-    );
+          _cacheSubscription?.cancel();
+          _cacheSubscription = null;
+        },
+      );
+    }
   }
 }
 

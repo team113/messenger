@@ -274,9 +274,13 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a path to the cache directory.
-  Future<Directory> get cacheDirectory async {
-    _cacheDirectory ??= await getApplicationSupportDirectory();
-    return _cacheDirectory!;
+  Future<Directory?> get cacheDirectory async {
+    try {
+      _cacheDirectory ??= await getApplicationSupportDirectory();
+      return _cacheDirectory!;
+    } on MissingPluginException {
+      return null;
+    }
   }
 
   /// Indicates whether the application is in active state.

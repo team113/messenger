@@ -27,7 +27,7 @@ import '../mock/platform_utils.dart';
 
 void main() async {
   PlatformUtils = PlatformUtilsMock();
-  final Directory cache = await PlatformUtils.cacheDirectory;
+  final Directory cache = (await PlatformUtils.cacheDirectory)!;
   cache.create();
 
   test('CacheWorker adds files', () async {
