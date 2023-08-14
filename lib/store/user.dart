@@ -55,7 +55,7 @@ class UserRepository implements AbstractUserRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  /// [Isar] instance used to start write transaction.
+  /// [User]s local [Isar] storage.
   final UserIsarProvider _userLocal;
 
   /// [isReady] value.

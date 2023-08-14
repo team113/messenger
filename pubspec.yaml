@@ -121,18 +121,18 @@ dependency_overrides:
   hive:
     git:
       url: https://github.com/krida2000/git-hive.git
-  # TODO: Remove when `sentry_flutter` updates.
-  package_info_plus: ^4.0.0
-  # TODO: Remove when creativecreatorormaybenot/wakelock#195 is released to
-  #       `pub.dev`:
-  #       https://github.com/creativecreatorormaybenot/wakelock/pull/195
-  win32: ^4.1.3
   # TODO: Remove when isar/isar#1375 is fixed:
   #       https://github.com/isar/isar/issues/1375
   isar:
     git:
       url: https://github.com/krida2000/git-isar.git
       path: packages/isar/
+  # TODO: Remove when `sentry_flutter` updates.
+  package_info_plus: ^4.0.0
+  # TODO: Remove when creativecreatorormaybenot/wakelock#195 is released to
+  #       `pub.dev`:
+  #       https://github.com/creativecreatorormaybenot/wakelock/pull/195
+  win32: ^4.1.3
 
 flutter:
   uses-material-design: true

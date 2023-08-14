@@ -71,6 +71,7 @@ class UserIsarProvider {
   /// Puts the provide [user] to [Isar].
   Future<void> put(IsarUser user) async {
     _changes.add(ListChangeNotification.added(user, 0));
+
     if (PlatformUtils.isWeb) {
       _isar.write((isar) => isar.users.put(user));
     } else {
