@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/style/page/element/view.dart';
 
 import '/routes.dart';
 import '/ui/page/home/widget/keep_alive.dart';
@@ -95,9 +96,7 @@ class StyleView extends StatelessWidget {
                                 ? Icons.widgets
                                 : Icons.widgets_outlined,
                             inverted: selected,
-
-                            // TODO: Implement.
-                            onPressed: null,
+                            onPressed: () => c.pages.jumpToPage(i),
                           ),
                       };
                     });
@@ -164,9 +163,11 @@ class StyleView extends StatelessWidget {
                     dense: c.dense.value,
                   );
                 }),
+              StyleTab.elements => Obx(() {
+                  return ElementsView(c.inverted.value, c.dense.value);
+                }),
 
-              // TODO: Implement.
-              StyleTab.elements => Container(),
+
             },
           );
         }).toList(),
