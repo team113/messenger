@@ -27,6 +27,7 @@ class CacheInfoHiveProviderMock extends CacheInfoHiveProvider {
   /// Stored [CacheInfo].
   final CacheInfo _cacheInfo = CacheInfo(maxSize: 1024 * 1024);
 
+  /// [StreamController] simulating [BoxEvent]s.
   final StreamController<BoxEvent> _boxEvents =
       StreamController<BoxEvent>.broadcast();
 
@@ -34,16 +35,11 @@ class CacheInfoHiveProviderMock extends CacheInfoHiveProvider {
   Stream<BoxEvent> get boxEvents => _boxEvents.stream;
 
   @override
-  String get boxName => 'cacheInfo';
-
-  @override
   void registerAdapters() {}
 
-  /// Returns the stored [CacheInfo] from [Hive].
   @override
   CacheInfo get cacheInfo => _cacheInfo;
 
-  /// Stores a new [CacheInfo] value to [Hive].
   @override
   Future<void> update({
     HashSet<String>? checksums,
