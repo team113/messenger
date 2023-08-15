@@ -31,10 +31,7 @@ export 'view.dart';
 
 /// Controller of the `HomeTab.menu` tab.
 class MenuTabController extends GetxController {
-  MenuTabController(
-    this._authService,
-    this._myUserService,
-  );
+  MenuTabController(this._authService, this._myUserService);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();

@@ -46,10 +46,7 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(
-    this._myUserService,
-    this._settingsRepo,
-  );
+  MyProfileController(this._myUserService, this._settingsRepo);
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
