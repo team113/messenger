@@ -48,10 +48,10 @@ class PlatformUtilsImpl {
   /// May be overridden to be mocked in tests.
   Dio? client;
 
-  /// Path to the downloads directory.
+  /// Downloads directory.
   Directory? _downloadDirectory;
 
-  /// Path to the cache directory.
+  /// Cache directory.
   Directory? _cacheDirectory;
 
   /// `User-Agent` header to put in the network requests.
@@ -274,7 +274,7 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a path to the cache directory.
-  Future<Directory?> get cacheDirectory async {
+  FutureOr<Directory?> get cacheDirectory async {
     try {
       _cacheDirectory ??= await getApplicationSupportDirectory();
       return _cacheDirectory!;

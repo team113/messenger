@@ -26,7 +26,7 @@ import '../mock/cache_hive_provider.dart';
 import '../mock/platform_utils.dart';
 
 void main() async {
-  PlatformUtils = PlatformUtilsMock();
+  PlatformUtils = PlatformUtilsMock(Directory('.temp_cache'));
   final Directory cache = (await PlatformUtils.cacheDirectory)!;
   cache.create();
 
