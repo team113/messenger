@@ -18,7 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/widget/highlight_animation/view.dart';
+import '/ui/widget/highlight_animation.dart';
 import '/util/platform_utils.dart';
 
 /// Stylized grouped section of the provided [children].
@@ -36,15 +36,19 @@ class Block extends StatelessWidget {
   /// [Widget]s to display.
   final List<Widget> children;
 
+  /// Indicator whether this [Block] is highlighted.
   final bool? isHighlighted;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return HighlightAnimation(
-      isHighlighted: isHighlighted != null ? isHighlighted! : false,
-      child: Center(
+    return Stack(children: [
+      Positioned.fill(
+        child: HighlightAnimation(
+            isHighlighted: isHighlighted != null ? isHighlighted! : false),
+      ),
+      Center(
         child: Container(
           width: double.infinity,
           margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
@@ -75,6 +79,6 @@ class Block extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ]);
   }
 }
