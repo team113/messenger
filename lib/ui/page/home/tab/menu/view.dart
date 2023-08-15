@@ -40,7 +40,10 @@ class MenuTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MenuTab'),
-      init: MenuTabController(Get.find(), Get.find(), Get.find()),
+      init: MenuTabController(
+        Get.find(),
+        Get.find(),
+      ),
       builder: (MenuTabController c) {
         final style = Theme.of(context).style;
 
@@ -168,7 +171,6 @@ class MenuTabView extends StatelessWidget {
                               router.profileSection.value = tab;
                             }
                             router.me();
-                            c.highlight(i);
                           },
                     );
                   });

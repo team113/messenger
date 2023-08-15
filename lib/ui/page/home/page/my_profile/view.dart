@@ -66,12 +66,13 @@ import 'widget/status.dart';
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
   const MyProfileView({super.key});
-
   @override
   Widget build(BuildContext context) {
+    final route = router.profileSection;
+
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find(), Get.find()),
+      init: MyProfileController(Get.find(), Get.find()),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -97,7 +98,7 @@ class MyProfileView extends StatelessWidget {
                       return Obx(() {
                         return Block(
                           title: 'label_public_information'.l10n,
-                          isHighlighted: c.highlightIndex?.value == 0,
+                          isHighlighted: route.value == ProfileTab.values[i],
                           children: [
                             BigAvatarWidget.myUser(
                               c.myUser.value,
@@ -130,7 +131,7 @@ class MyProfileView extends StatelessWidget {
                         () {
                           return Block(
                             title: 'label_login_options'.l10n,
-                            isHighlighted: c.highlightIndex?.value == 1,
+                            isHighlighted: route.value == ProfileTab.values[i],
                             children: [
                               Paddings.basic(
                                 UserNumCopyable(c.myUser.value?.num),
@@ -154,7 +155,7 @@ class MyProfileView extends StatelessWidget {
                         () {
                           return Block(
                             title: 'label_your_direct_link'.l10n,
-                            isHighlighted: c.highlightIndex?.value == 2,
+                            isHighlighted: route.value == ProfileTab.values[i],
                             children: [
                               DirectLinkField(
                                 c.myUser.value?.chatDirectLink,
@@ -170,7 +171,7 @@ class MyProfileView extends StatelessWidget {
                         () {
                           return Block(
                             title: 'label_background'.l10n,
-                            isHighlighted: c.highlightIndex?.value == 3,
+                            isHighlighted: route.value == ProfileTab.values[i],
                             children: [
                               Paddings.dense(
                                 BackgroundPreview(
@@ -188,7 +189,7 @@ class MyProfileView extends StatelessWidget {
                       return Obx(() {
                         return Block(
                           title: 'label_chats'.l10n,
-                          isHighlighted: c.highlightIndex?.value == 4,
+                          isHighlighted: route.value == ProfileTab.values[i],
                           children: [_chats(context, c)],
                         );
                       });
@@ -201,7 +202,7 @@ class MyProfileView extends StatelessWidget {
                       return Obx(() {
                         return Block(
                           title: 'label_calls'.l10n,
-                          isHighlighted: c.highlightIndex?.value == 5,
+                          isHighlighted: route.value == ProfileTab.values[i],
                           children: [_call(context, c)],
                         );
                       });
@@ -214,7 +215,7 @@ class MyProfileView extends StatelessWidget {
                       return Obx(() {
                         return Block(
                           title: 'label_media'.l10n,
-                          isHighlighted: c.highlightIndex?.value == 6,
+                          isHighlighted: route.value == ProfileTab.values[i],
                           children: [_media(context, c)],
                         );
                       });
@@ -224,7 +225,7 @@ class MyProfileView extends StatelessWidget {
                         final bool isMuted = c.myUser.value?.muted == null;
                         return Block(
                           title: 'label_audio_notifications'.l10n,
-                          isHighlighted: c.highlightIndex?.value == 7,
+                          isHighlighted: route.value == ProfileTab.values[i],
                           children: [
                             Paddings.dense(
                               SwitchField(
@@ -244,7 +245,7 @@ class MyProfileView extends StatelessWidget {
                       return Obx(() {
                         return Block(
                           title: 'label_storage'.l10n,
-                          isHighlighted: c.highlightIndex?.value == 8,
+                          isHighlighted: route.value == ProfileTab.values[i],
                           children: [
                             Paddings.dense(
                               SwitchField(
@@ -260,36 +261,44 @@ class MyProfileView extends StatelessWidget {
                       });
 
                     case ProfileTab.language:
-                      return Obx(() => Block(
-                            title: 'label_language'.l10n,
-                            isHighlighted: c.highlightIndex?.value == 9,
-                            children: [_language(context, c)],
-                          ));
+                      return Obx(() {
+                        return Block(
+                          title: 'label_language'.l10n,
+                          isHighlighted: route.value == ProfileTab.values[i],
+                          children: [_language(context, c)],
+                        );
+                      });
 
                     case ProfileTab.blocklist:
-                      return Obx(() => Block(
-                            title: 'label_blocked_users'.l10n,
-                            isHighlighted: c.highlightIndex?.value == 10,
-                            children: [_blockedUsers(context, c)],
-                          ));
+                      return Obx(() {
+                        return Block(
+                          title: 'label_blocked_users'.l10n,
+                          isHighlighted: route.value == ProfileTab.values[i],
+                          children: [_blockedUsers(context, c)],
+                        );
+                      });
 
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
 
-                      return Obx(() => Block(
-                            title: 'label_download_application'.l10n,
-                            isHighlighted: c.highlightIndex?.value == 11,
-                            children: [_downloads(context, c)],
-                          ));
+                      return Obx(() {
+                        return Block(
+                          title: 'label_download_application'.l10n,
+                          isHighlighted: route.value == ProfileTab.values[i],
+                          children: [_downloads(context, c)],
+                        );
+                      });
 
                     case ProfileTab.danger:
-                      return Obx(() => Block(
-                            title: 'label_danger_zone'.l10n,
-                            isHighlighted: c.highlightIndex?.value == 12,
-                            children: [_danger(context, c)],
-                          ));
+                      return Obx(() {
+                        return Block(
+                          title: 'label_danger_zone'.l10n,
+                          isHighlighted: route.value == ProfileTab.values[i],
+                          children: [_danger(context, c)],
+                        );
+                      });
 
                     case ProfileTab.logout:
                       return const SizedBox();

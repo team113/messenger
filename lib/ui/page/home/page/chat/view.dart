@@ -41,7 +41,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/highlight_animation/view.dart';
+import '/ui/widget/highlight_animation.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -102,7 +102,6 @@ class _ChatViewState extends State<ChatView>
       key: const Key('ChatView'),
       init: ChatController(
         widget.id,
-        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -638,9 +637,11 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.author.id),
           builder: (_, snapshot) => Obx(() {
-            return HighlightAnimation(
-              isHighlighted: c.highlightIndex?.value == i,
-              child: ChatItemWidget(
+            return Stack(children: [
+              Positioned.fill(
+                  child: HighlightAnimation(
+                      isHighlighted: c.highlightIndex.value == i)),
+              ChatItemWidget(
                 chat: c.chat!.chat,
                 item: e,
                 me: c.me!,
@@ -688,7 +689,7 @@ class _ChatViewState extends State<ChatView>
                 },
                 onSelecting: (s) => c.isSelecting.value = s,
               ),
-            );
+            ]);
           }),
         ),
       );
@@ -701,9 +702,12 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {
-            return HighlightAnimation(
-              isHighlighted: c.highlightIndex?.value == i,
-              child: ChatForwardWidget(
+            return Stack(children: [
+              Positioned.fill(
+                child: HighlightAnimation(
+                    isHighlighted: c.highlightIndex.value == i),
+              ),
+              ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
                 chat: c.chat!.chat,
                 forwards: element.forwards,
@@ -807,7 +811,7 @@ class _ChatViewState extends State<ChatView>
                 },
                 onSelecting: (s) => c.isSelecting.value = s,
               ),
-            );
+            ]);
           }),
         ),
       );

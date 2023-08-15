@@ -60,7 +60,6 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
-import '/ui/widget/highlight_animation/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
@@ -82,8 +81,7 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
-    this._settingsRepository,
-    this._highlightController, {
+    this._settingsRepository, {
     this.itemId,
   });
 
@@ -231,7 +229,14 @@ class ChatController extends GetxController {
   final RxBool active = RxBool(true);
 
   /// Index of an item from the [elements] that should be highlighted.
-  final RxnInt highlight = RxnInt(null);
+  final RxnInt highlightIndex = RxnInt(null);
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
+
+  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// has passed.
+  Timer? _highlightTimer;
 
   /// Height of a [LoaderElement] displayed in the message list.
   static const double loaderHeight = 64;
@@ -266,9 +271,6 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
-  /// [HighlightController] used to get [highlightIndex] value and [_highlight].
-  final HighlightController _highlightController;
-
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
@@ -287,9 +289,6 @@ class ChatController extends GetxController {
 
   /// [Timer] deleting the [_bottomLoader] from the [elements] list.
   Timer? _bottomLoaderEndTimer;
-
-  /// Returns index of an item that should be highlighted.
-  RxnInt? get highlightIndex => _highlightController.highlightIndex;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -434,7 +433,14 @@ class ChatController extends GetxController {
   }
 
   /// Highlights the item with the provided [index].
-  Future<void> _highlight(int index) => _highlightController.highlight(index);
+  Future<void> _highlight(int index) async {
+    highlightIndex.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
+  }
 
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.

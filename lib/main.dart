@@ -50,7 +50,6 @@ import 'routes.dart';
 import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
-import 'ui/widget/highlight_animation/controller.dart';
 import 'ui/worker/background/background.dart';
 import 'ui/worker/window.dart';
 import 'util/log.dart';
@@ -115,8 +114,6 @@ Future<void> main() async {
     await L10n.init();
 
     Get.put(BackgroundWorker(Get.find()));
-
-    Get.put(HighlightController());
 
     WebUtils.deleteLoader();
 

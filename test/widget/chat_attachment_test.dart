@@ -66,7 +66,6 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
-import 'package:messenger/ui/widget/highlight_animation/controller.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -404,7 +403,6 @@ void main() async {
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
-    Get.put(HighlightController());
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
