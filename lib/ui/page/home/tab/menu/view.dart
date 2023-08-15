@@ -411,9 +411,9 @@ class MenuTabView extends StatelessWidget {
                     child = card(
                       key: const Key('VacanciesButton'),
                       icon: Icons.work,
-                      title: 'Vacancies'.l10n,
-                      subtitle: 'Work with us'.l10n,
-                      onPressed: () => router.vacancy(null),
+                      title: 'label_work_with_us'.l10n,
+                      subtitle: 'label_vacancies_and_partnership'.l10n,
+                      // onPressed: () => router.vacancy(null),
                     );
                     break;
 

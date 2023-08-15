@@ -166,6 +166,14 @@ class SettingsRepository extends DisposableInterface
   Future<void> setLeaveWhenAlone(bool enabled) =>
       _settingsLocal.setLeaveWhenAlone(enabled);
 
+  @override
+  Future<void> setBalanceTabEnabled(bool enabled) =>
+      _settingsLocal.setBalanceTabEnabled(enabled);
+
+  @override
+  Future<void> setPartnerTabEnabled(bool enabled) =>
+      _settingsLocal.setPartnerTabEnabled(enabled);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);

@@ -170,11 +170,18 @@ class _SelectorState<T> extends State<Selector<T>> {
       double? left, right;
       double? top, bottom;
 
+      RenderBox? buttonBox;
+
       Offset offset =
           Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
       final keyContext = widget.buttonKey?.currentContext;
       if (keyContext != null) {
-        final buttonBox = keyContext.findRenderObject() as RenderBox?;
+        if (keyContext.mounted) {
+          try {
+            buttonBox = keyContext.findRenderObject() as RenderBox?;
+          } catch (_) {}
+        }
+
         offset = buttonBox?.localToGlobal(Offset.zero) ?? offset;
 
         RenderBox? contextBox;
@@ -298,27 +305,31 @@ class _SelectorState<T> extends State<Selector<T>> {
             right: right,
             top: top,
             bottom: bottom,
-            child: Listener(
-              onPointerUp: (d) => Navigator.of(context).pop(),
-              child: Container(
-                margin: widget.margin,
-                decoration: BoxDecoration(
-                  color: style.contextMenuBackgroundColor,
-                  borderRadius: style.contextMenuRadius,
-                  border: Border.all(color: style.colors.secondary, width: 0.5),
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 12,
-                      color: style.colors.onBackgroundOpacity27,
-                      blurStyle: BlurStyle.outer,
-                    )
-                  ],
-                ),
-                child: IntrinsicWidth(
-                  key: _itemsKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: widget.items.mapIndexed(button).toList(),
+            child: Opacity(
+              opacity: buttonBox == null ? 0 : 1,
+              child: Listener(
+                onPointerUp: (d) => Navigator.of(context).pop(),
+                child: Container(
+                  margin: widget.margin,
+                  decoration: BoxDecoration(
+                    color: style.contextMenuBackgroundColor,
+                    borderRadius: style.contextMenuRadius,
+                    border:
+                        Border.all(color: style.colors.secondary, width: 0.5),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 12,
+                        color: style.colors.onBackgroundOpacity27,
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  child: IntrinsicWidth(
+                    key: _itemsKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: widget.items.mapIndexed(button).toList(),
+                    ),
                   ),
                 ),
               ),

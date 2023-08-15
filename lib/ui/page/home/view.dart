@@ -173,12 +173,29 @@ class _HomeViewState extends State<HomeView> {
                             c.page.value = router.tab;
                           },
                           // [KeepAlivePage] used to keep the tabs' states.
-                          children: const [
-                            KeepAlivePage(child: BalanceTabView()),
-                            KeepAlivePage(child: PartnerTabView()),
-                            KeepAlivePage(child: PublicsTabView()),
-                            KeepAlivePage(child: ChatsContactsTabView()),
-                            KeepAlivePage(child: MenuTabView()),
+                          children: [
+                            if (c.settings.value?.balanceTabEnabled != false)
+                              KeepAlivePage(
+                                key: c.keys[HomeTab.funds],
+                                child: const BalanceTabView(),
+                              ),
+                            if (c.settings.value?.partnerTabEnabled != false)
+                              KeepAlivePage(
+                                key: c.keys[HomeTab.contacts],
+                                child: const PartnerTabView(),
+                              ),
+                            KeepAlivePage(
+                              key: c.keys[HomeTab.public],
+                              child: const PublicsTabView(),
+                            ),
+                            KeepAlivePage(
+                              key: c.keys[HomeTab.chats],
+                              child: const ChatsContactsTabView(),
+                            ),
+                            KeepAlivePage(
+                              key: c.keys[HomeTab.menu],
+                              child: const MenuTabView(),
+                            ),
                           ],
                         );
                       }),
@@ -193,78 +210,87 @@ class _HomeViewState extends State<HomeView> {
                           translate: false,
                           child: CustomNavigationBar(
                             items: [
-                              CustomNavigationBarItem(
-                                key: const Key('BalanceButton'),
-                                child: ContextMenuRegion(
-                                  selector: c.balanceKey,
-                                  alignment: Alignment.bottomLeft,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 32 + 8,
-                                  ),
-                                  actions: [
-                                    if (c.displayFunds)
-                                      ContextMenuButton(
-                                        label: 'btn_hide_balance'.l10n,
-                                        onPressed: () {
-                                          c.setDisplayFunds(false);
-                                        },
-                                      )
-                                    else
-                                      ContextMenuButton(
-                                        label: 'btn_display_balance'.l10n,
-                                        onPressed: () {
-                                          c.setDisplayFunds(true);
-                                        },
-                                      ),
-                                  ],
-                                  child: WalletWidget(
-                                    key: c.balanceKey,
-                                    balance: c.balance.value,
-                                    visible: c.displayFunds,
-                                  ),
-                                ),
-                              ),
-                              CustomNavigationBarItem(
-                                key: const Key('PartnerButton'),
-                                badge: c.displayTransactions
-                                    ? '${c.transactions.length}'
-                                    : null,
-                                // child: RmbDetector(
-                                //   onPressed: () =>
-                                //       PartnerMoreView.show(context),
-                                //   child:
-                                child: ContextMenuRegion(
-                                  selector: c.partnerKey,
-                                  alignment: Alignment.bottomCenter,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 40,
-                                  ),
-                                  actions: [
-                                    if (c.displayTransactions)
-                                      ContextMenuButton(
-                                        label: 'btn_hide_transactions'.l10n,
-                                        onPressed: () {
-                                          c.setDisplayTransactions(false);
-                                        },
-                                      )
-                                    else
-                                      ContextMenuButton(
-                                        label: 'btn_display_transactions'.l10n,
-                                        onPressed: () {
-                                          c.setDisplayTransactions(true);
-                                        },
-                                      ),
-                                  ],
-                                  child: SvgImage.asset(
-                                    'assets/icons/partner16.svg',
-                                    key: c.partnerKey,
-                                    width: 36,
-                                    height: 28,
+                              if (c.settings.value?.balanceTabEnabled != false)
+                                CustomNavigationBarItem(
+                                  key: const Key('BalanceButton'),
+                                  child: ContextMenuRegion(
+                                    selector: c.balanceKey,
+                                    alignment: Alignment.bottomLeft,
+                                    margin: const EdgeInsets.only(
+                                      bottom: 4,
+                                      right: 32 + 8,
+                                    ),
+                                    actions: [
+                                      if (c.displayFunds)
+                                        ContextMenuButton(
+                                          label: 'btn_hide_balance'.l10n,
+                                          onPressed: () {
+                                            c.setDisplayFunds(false);
+                                          },
+                                        )
+                                      else
+                                        ContextMenuButton(
+                                          label: 'btn_display_balance'.l10n,
+                                          onPressed: () {
+                                            c.setDisplayFunds(true);
+                                          },
+                                        ),
+                                    ],
+                                    child: WalletWidget(
+                                      key: c.balanceKey,
+                                      balance: c.balance.value,
+                                      visible: c.displayFunds,
+                                    ),
                                   ),
                                 ),
-                              ),
+                              if (c.settings.value?.partnerTabEnabled != false)
+                                CustomNavigationBarItem(
+                                  key: const Key('PartnerButton'),
+                                  badge: c.displayTransactions
+                                      ? '${c.transactions.length}'
+                                      : null,
+                                  // child: RmbDetector(
+                                  //   onPressed: () =>
+                                  //       PartnerMoreView.show(context),
+                                  //   child:
+                                  child: ContextMenuRegion(
+                                    selector: c.partnerKey,
+                                    alignment: Alignment.bottomCenter,
+                                    margin: const EdgeInsets.only(
+                                      bottom: 4,
+                                      right: 10,
+                                    ),
+                                    actions: [
+                                      ContextMenuButton(
+                                        label: 'btn_hide_section'.l10n,
+                                        onPressed: () {
+                                          c.setPartnerTabEnabled(false);
+                                        },
+                                      ),
+                                      if (c.displayTransactions)
+                                        ContextMenuButton(
+                                          label: 'btn_hide_transactions'.l10n,
+                                          onPressed: () {
+                                            c.setDisplayTransactions(false);
+                                          },
+                                        )
+                                      else
+                                        ContextMenuButton(
+                                          label:
+                                              'btn_display_transactions'.l10n,
+                                          onPressed: () {
+                                            c.setDisplayTransactions(true);
+                                          },
+                                        ),
+                                    ],
+                                    child: SvgImage.asset(
+                                      'assets/icons/partner16.svg',
+                                      key: c.partnerKey,
+                                      width: 36,
+                                      height: 28,
+                                    ),
+                                  ),
+                                ),
                               CustomNavigationBarItem(
                                 key: const Key('PublicButton'),
                                 // child: RmbDetector(

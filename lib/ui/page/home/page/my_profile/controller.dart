@@ -604,6 +604,13 @@ class MyProfileController extends GetxController {
   Future<void> setLeaveWhenAlone(bool enabled) =>
       _settingsRepo.setLeaveWhenAlone(enabled);
 
+  Future<void> setPartnerTabEnabled(bool enabled) async {
+    await _settingsRepo.setPartnerTabEnabled(enabled);
+  }
+
+  Future<void> setBalanceTabEnabled(bool enabled) =>
+      _settingsRepo.setBalanceTabEnabled(enabled);
+
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
   /// (if any).

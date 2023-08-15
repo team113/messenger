@@ -38,6 +38,8 @@ class ApplicationSettings extends HiveObject {
     this.displayTransactions = true,
     this.timelineEnabled = false,
     this.leaveWhenAlone = false,
+    this.balanceTabEnabled = true,
+    this.partnerTabEnabled = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -93,4 +95,10 @@ class ApplicationSettings extends HiveObject {
 
   @HiveField(12)
   bool leaveWhenAlone;
+
+  @HiveField(13)
+  bool balanceTabEnabled;
+
+  @HiveField(14)
+  bool partnerTabEnabled;
 }

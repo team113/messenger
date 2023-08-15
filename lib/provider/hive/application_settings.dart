@@ -114,4 +114,14 @@ class ApplicationSettingsHiveProvider
         0,
         (box.get(0) ?? ApplicationSettings())..leaveWhenAlone = enabled,
       );
+
+  Future<void> setBalanceTabEnabled(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..balanceTabEnabled = enabled,
+      );
+
+  Future<void> setPartnerTabEnabled(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..partnerTabEnabled = enabled,
+      );
 }

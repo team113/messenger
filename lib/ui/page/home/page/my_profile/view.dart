@@ -437,7 +437,10 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.vacancies:
-                      return const SizedBox();
+                      return Block(
+                        title: 'label_work_with_us'.l10n,
+                        children: [_workWithUs(context, c)],
+                      );
 
                     case ProfileTab.styles:
                       return const SizedBox();
@@ -863,6 +866,25 @@ Widget _danger(BuildContext context, MyProfileController c) {
           onPressed: () => _deleteAccount(c, context),
           style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
         ),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.danger] section.
+Widget _workWithUs(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Column(
+    children: [
+      _dense(
+        Obx(() {
+          return SwitchField(
+            text: 'btn_show'.l10n,
+            value: c.settings.value?.partnerTabEnabled == true,
+            onChanged: c.settings.value == null ? null : c.setPartnerTabEnabled,
+          );
+        }),
       ),
     ],
   );

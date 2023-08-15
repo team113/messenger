@@ -93,3 +93,5 @@ label_show_qr_code_to_sign_in2 = Configuración -> Dispositivos conectados -> Mo
 label_show_qr_code_to_sign_in3 = Ingresa -> Código QR.
 label_linked_devices = Dispositivos vinculados
 label_scan_qr_code = Escanear código QR
+label_work_with_us = Trabaja con nosotros
+btn_hide_tab = Ocultar pestaña

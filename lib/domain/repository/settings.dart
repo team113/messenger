@@ -95,4 +95,7 @@ abstract class AbstractSettingsRepository {
   Future<void> setTimelineEnabled(bool enabled);
 
   Future<void> setLeaveWhenAlone(bool enabled);
+
+  Future<void> setBalanceTabEnabled(bool enabled);
+  Future<void> setPartnerTabEnabled(bool enabled);
 }

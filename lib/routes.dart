@@ -125,9 +125,9 @@ enum ProfileTab {
   language,
   blacklist,
   devices,
+  vacancies,
   download,
   danger,
-  vacancies,
   styles,
   logout,
 }

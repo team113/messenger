@@ -16,9 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/mute_duration.dart';
@@ -86,6 +88,13 @@ class HomeController extends GetxController {
 
   final RxBool publicsToggle = RxBool(false);
 
+  final Map<HomeTab, GlobalKey> keys = Map.fromEntries(
+    List.generate(
+      HomeTab.values.length,
+      (i) => MapEntry(HomeTab.values[i], GlobalKey()),
+    ),
+  );
+
   /// Authentication service to determine auth status.
   final AuthService _auth;
 
@@ -124,6 +133,9 @@ class HomeController extends GetxController {
   RxDouble get balance => _balanceService.balance;
   RxList<Transaction> get transactions => _partnerService.transactions;
 
+  /// Returns the current [ApplicationSettings] value.
+  Rx<ApplicationSettings?> get settings => _settings.applicationSettings;
+
   @override
   void onInit() {
     super.onInit();
@@ -136,6 +148,35 @@ class HomeController extends GetxController {
 
     sideBarWidth =
         RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);
+
+    bool partner = settings.value?.partnerTabEnabled != false;
+    bool balance = settings.value?.balanceTabEnabled != false;
+
+    ever(settings, (ApplicationSettings? settings) {
+      if (partner != settings?.partnerTabEnabled) {
+        partner = settings?.partnerTabEnabled ?? false;
+
+        if (partner) {
+          if (router.tab.index < HomeTab.contacts.index) {
+          } else {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              pages.jumpToPage(
+                min(router.tab.index + 1, HomeTab.values.length - 1),
+              );
+            });
+          }
+        } else {
+          if (router.tab.index <= HomeTab.contacts.index) {
+          } else {
+            pages.jumpToPage(max(router.tab.index - 1, 0));
+          }
+        }
+      }
+
+      if (balance != settings?.balanceTabEnabled) {
+        balance = settings?.balanceTabEnabled ?? false;
+      }
+    });
 
     router.addListener(_onRouterChanged);
   }
@@ -217,6 +258,8 @@ class HomeController extends GetxController {
   void setDisplayTransactions(bool b) => _settings.setDisplayTransactions(b);
 
   void setDisplayFunds(bool b) => _settings.setDisplayFunds(b);
+
+  void setPartnerTabEnabled(bool b) => _settings.setPartnerTabEnabled(b);
 
   /// Refreshes the controller on [router] change.
   ///
