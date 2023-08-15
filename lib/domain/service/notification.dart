@@ -386,7 +386,7 @@ class NotificationService extends DisposableService {
       // listens to `BroadcastChannel` fired from FCM Service Worker to play a
       // sound by ourselves.
       _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((_) {
-        AudioUtils.once(AudioSource.asset('audio/notification2.mp3'));
+        AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
       });
 
       _token =
