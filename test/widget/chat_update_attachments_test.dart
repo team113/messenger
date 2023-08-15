@@ -83,7 +83,6 @@ void main() async {
   PlatformUtils.client = dio;
 
   CacheWorker.instance = CacheWorker(null);
-  CacheWorker.instance.info = CacheInfo().obs;
 
   dioAdapter.onGet(
     'oldRef.png',
@@ -208,22 +207,10 @@ void main() async {
                     '__typename': 'ImageAttachment',
                     'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
                     'filename': 'filename.png',
-                    'original': {
-                      'relativeRef': 'oldRef.png',
-                      'checksum': 'oldChecksum1',
-                    },
-                    'big': {
-                      'relativeRef': 'oldRef.png',
-                      'checksum': 'oldChecksum2',
-                    },
-                    'medium': {
-                      'relativeRef': 'oldRef.png',
-                      'checksum': 'oldChecksum3',
-                    },
-                    'small': {
-                      'relativeRef': 'oldRef.png',
-                      'checksum': 'oldChecksum4',
-                    },
+                    'original': {'relativeRef': 'oldRef.png'},
+                    'big': {'relativeRef': 'oldRef.png'},
+                    'medium': {'relativeRef': 'oldRef.png'},
+                    'small': {'relativeRef': 'oldRef.png'},
                   }
                 ]
               },
@@ -252,22 +239,10 @@ void main() async {
               '__typename': 'ImageAttachment',
               'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
               'filename': 'filename.png',
-              'original': {
-                'relativeRef': 'updatedRef.png',
-                'checksum': 'updatedChecksum1',
-              },
-              'big': {
-                'relativeRef': 'updatedRef.png',
-                'checksum': 'updatedChecksum2',
-              },
-              'medium': {
-                'relativeRef': 'updatedRef.png',
-                'checksum': 'updatedChecksum3',
-              },
-              'small': {
-                'relativeRef': 'updatedRef.png',
-                'checksum': 'updatedChecksum4',
-              }
+              'original': {'relativeRef': 'updatedRef.png'},
+              'big': {'relativeRef': 'updatedRef.png'},
+              'medium': {'relativeRef': 'updatedRef.png'},
+              'small': {'relativeRef': 'updatedRef.png'}
             }
           ]
         }
