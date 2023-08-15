@@ -917,7 +917,9 @@ class ChatController extends GetxController {
       }
     }
 
-    _ensureScrollable();
+    if(chat!.hasNext.isTrue || chat!.hasPrevious.isTrue) {
+      _ensureScrollable();
+    }
     _ignorePositionChanges = false;
   }
 
