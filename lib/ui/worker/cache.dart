@@ -60,10 +60,7 @@ class CacheWorker extends DisposableService {
   StreamIterator? _localSubscription;
 
   /// [Mutex] guarding saving and deleting files in the cache [directory].
-  final Mutex _cacheMutex = Mutex();
-
-  /// [Mutex] guarding access to the [CacheInfoHiveProvider.update] method.
-  final Mutex _setMutex = Mutex();
+  final Mutex _mutex = Mutex();
 
   @override
   Future<void> onInit() async {
@@ -168,7 +165,7 @@ class CacheWorker extends DisposableService {
     FIFOCache.set(checksum, data);
 
     if (!PlatformUtils.isWeb) {
-      return _cacheMutex.protect(() async {
+      return _mutex.protect(() async {
         final Directory? cache = await PlatformUtils.cacheDirectory;
 
         if (cache != null) {
@@ -176,13 +173,11 @@ class CacheWorker extends DisposableService {
           if (!(await file.exists())) {
             await file.writeAsBytes(data);
 
-            await _setMutex.protect(() async {
               await _cacheLocal?.update(
                 checksums: info.value.checksums..add(checksum!),
                 size: info.value.size + data.length,
                 modified: (await cache.stat()).modified,
               );
-            });
 
             _optimizeCache();
           }
@@ -195,9 +190,9 @@ class CacheWorker extends DisposableService {
   bool exists(String checksum) =>
       FIFOCache.exists(checksum) || info.value.checksums.contains(checksum);
 
-  /// Clears the cache in [PlatformUtils.cacheDirectory].
+  /// Clears the cache in the cache directory.
   Future<void> clear() {
-    return _cacheMutex.protect(() async {
+    return _mutex.protect(() async {
       if (PlatformUtils.isWeb) {
         return;
       }
@@ -247,13 +242,13 @@ class CacheWorker extends DisposableService {
     }
   }
 
-  /// Deletes files from the [directory], if it occupies more than
+  /// Deletes files from the cache directory, if it occupies more than
   /// [CacheInfo.maxSize].
   ///
   /// Uses LRU (Least Recently Used) approach sorting [File]s by their
   /// [FileStat.accessed] times.
   Future<void> _optimizeCache() {
-    return _cacheMutex.protect(() async {
+    return _mutex.protect(() async {
       if (PlatformUtils.isWeb) {
         return;
       }
@@ -301,14 +296,12 @@ class CacheWorker extends DisposableService {
           }
         }
 
-        _setMutex.protect(() async {
           await _cacheLocal?.update(
             checksums: info.value.checksums
               ..removeWhere((e) => removed.contains(e)),
             size: info.value.size - deleted,
             modified: (await cache.stat()).modified,
           );
-        });
       }
     });
   }
@@ -331,13 +324,11 @@ class CacheWorker extends DisposableService {
           }
         },
         onDone: () async {
-          await _setMutex.protect(() async {
             await _cacheLocal?.update(
               checksums: checksums,
               size: size,
               modified: (await cache.stat()).modified,
             );
-          });
 
           _optimizeCache();
 

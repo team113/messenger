@@ -26,7 +26,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
-import 'package:messenger/domain/model/cache_info.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
