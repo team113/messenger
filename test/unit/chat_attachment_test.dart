@@ -61,6 +61,13 @@ void main() async {
 
   Hive.init('./test/.temp_hive/chat_attachment_unit');
 
+  final binaryName = Platform.isWindows
+      ? 'isar.dll'
+      : Platform.isMacOS
+      ? 'libisar.dylib'
+      : 'libisar.so';
+
+  await Isar.initialize('${Directory.current.path}\\$binaryName');
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: Isar.sqliteInMemory,

@@ -889,11 +889,10 @@ packages:
   isar:
     dependency: "direct main"
     description:
-      path: "packages/isar"
-      ref: HEAD
-      resolved-ref: cd134c07ffde405e565cde4e8e0338690b182fde
-      url: "https://github.com/krida2000/git-isar.git"
-    source: git
+      name: isar
+      sha256: "3d0b8ee997e9784b2508c1119ef54cfcd5aad369848b90031889159e53cbae69"
+      url: "https://pub.dev"
+    source: hosted
     version: "4.0.0-dev.9"
   isar_flutter_libs:
     dependency: "direct main"
