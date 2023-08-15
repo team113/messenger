@@ -67,9 +67,9 @@ void main() async {
       .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: './test/.temp_isar/chat_direct_link_unit',
+    directory: Isar.sqliteInMemory,
+    engine: IsarEngine.sqlite,
   );
-  isar.write((isar) => isar.clear());
 
   final graphQlProvider = Get.put(MockGraphQlProvider());
 

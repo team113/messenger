@@ -40,12 +40,11 @@ import '../mock/graphql_provider.dart';
 void main() async {
   Hive.init('./test/.temp_hive/profile_unit');
 
-  await Directory('./test/.temp_isar/profile_unit').create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: './test/.temp_isar/profile_unit',
+    directory: Isar.sqliteInMemory,
+    engine: IsarEngine.sqlite,
   );
-  isar.write((isar) => isar.clear());
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();

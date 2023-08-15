@@ -82,12 +82,11 @@ class PlainFile extends StorageFile {
     super.size,
   });
 
-  /// Connect the generated [_$PlainFileFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [PlainFile] from JSON.
   factory PlainFile.fromJson(Map<String, dynamic> data) =>
       _$PlainFileFromJson(data);
 
-  /// Connect the generated [_$PlainFileToJson] function to the `toJson` method.
+  /// Converts this [PlainFile] to JSON.
   Map<String, dynamic> toJson() => _$PlainFileToJson(this);
 }
 
@@ -103,12 +102,11 @@ class ImageFile extends StorageFile {
     this.height,
   });
 
-  /// Connect the generated [_$ImageFileFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [ImageFile] from JSON.
   factory ImageFile.fromJson(Map<String, dynamic> data) =>
       _$ImageFileFromJson(data);
 
-  /// Connect the generated [_$ImageFileToJson] function to the `toJson` method.
+  /// Converts this [ImageFile] to JSON.
   Map<String, dynamic> toJson() => _$ImageFileToJson(this);
 
   /// Width of this [ImageFile] in pixels.

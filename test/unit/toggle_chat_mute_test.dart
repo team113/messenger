@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -58,12 +56,11 @@ void main() async {
 
   Hive.init('./test/.temp_hive/toggle_chat_mute');
 
-  await Directory('./test/.temp_isar/toggle_chat_mute').create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: './test/.temp_isar/toggle_chat_mute',
+    directory: Isar.sqliteInMemory,
+    engine: IsarEngine.sqlite,
   );
-  isar.write((isar) => isar.clear());
 
   final graphQlProvider = MockGraphQlProvider();
 

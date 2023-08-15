@@ -80,13 +80,11 @@ class UserAvatar extends Avatar {
     super.crop,
   });
 
-  /// Connect the generated [_$UserAvatarFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [UserAvatar] from JSON.
   factory UserAvatar.fromJson(Map<String, dynamic> data) =>
       _$UserAvatarFromJson(data);
 
-  /// Connect the generated [_$UserAvatarToJson] function to the `toJson`
-  /// method.
+  /// Converts this [UserAvatar] to JSON.
   Map<String, dynamic> toJson() => _$UserAvatarToJson(this);
 }
 

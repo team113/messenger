@@ -21,6 +21,7 @@ import '/util/obs/obs.dart';
 
 /// Extension adding an ability to get [ListChangeNotification]s from [Stream].
 extension ChangesExtension<T> on Stream<List<T>> {
+  /// Gets [ListChangeNotification]s from [Stream].
   Stream<ListChangeNotification<T>> changes(dynamic Function(T) getId) {
     List<T> last = [];
 

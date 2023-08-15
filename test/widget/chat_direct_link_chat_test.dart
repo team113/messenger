@@ -102,13 +102,11 @@ void main() async {
     }
   };
 
-  await Directory('./test/.temp_isar/chat_direct_link_widget')
-      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: './test/.temp_isar/chat_direct_link_widget',
+    directory: Isar.sqliteInMemory,
+    engine: IsarEngine.sqlite,
   );
-  isar.write((isar) => isar.clear());
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
@@ -367,5 +365,4 @@ void main() async {
 
   await contactProvider.clear();
   await chatProvider.clear();
-  isar.write((isar) => isar.clear());
 }

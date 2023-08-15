@@ -63,13 +63,11 @@ void main() async {
   PlatformUtils = PlatformUtilsMock();
   Hive.init('./test/.temp_hive/chat_split_message_unit');
 
-  await Directory('./test/.temp_isar/chat_split_message_unit')
-      .create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: './test/.temp_isar/chat_split_message_unit',
+    directory: Isar.sqliteInMemory,
+    engine: IsarEngine.sqlite,
   );
-  isar.write((isar) => isar.clear());
 
   Config.files = 'test';
 

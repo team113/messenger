@@ -39,13 +39,11 @@ class UserCallCover extends HiveObject {
     this.crop,
   });
 
-  /// Connect the generated [_$UserCallCoverFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [UserCallCover] from JSON.
   factory UserCallCover.fromJson(Map<String, dynamic> data) =>
       _$UserCallCoverFromJson(data);
 
-  /// Connect the generated [_$UserCallCoverToJson] function to the `toJson`
-  /// method.
+  /// Converts this [UserCallCover] to JSON.
   Map<String, dynamic> toJson() => _$UserCallCoverToJson(this);
 
   /// Original image [StorageFile] representing this [UserCallCover].

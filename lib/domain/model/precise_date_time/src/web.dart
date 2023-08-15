@@ -46,12 +46,11 @@ class PreciseDateTime extends NewType<DateTime>
           isUtc: true,
         ));
 
-  /// Connect the generated [_$PreciseDateTimeFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [PreciseDateTime] from JSON.
   factory PreciseDateTime.fromJson(Map<String, dynamic> data) =>
       _$PreciseDateTimeFromJson(data);
 
-  /// Connect the generated [_$PreciseDateTimeToJson] function to the `toJson` method.
+  /// Converts this [PreciseDateTime] to JSON.
   Map<String, dynamic> toJson() => _$PreciseDateTimeToJson(this);
 
   /// Microsecond part of this [PreciseDateTime].

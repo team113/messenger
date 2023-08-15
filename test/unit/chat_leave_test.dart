@@ -57,12 +57,11 @@ void main() async {
 
   Hive.init('./test/.temp_hive/chat_leave_unit');
 
-  await Directory('./test/.temp_isar/chat_leave_unit').create(recursive: true);
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
-    directory: './test/.temp_isar/chat_leave_unit',
+    directory: Isar.sqliteInMemory,
+    engine: IsarEngine.sqlite,
   );
-  isar.write((isar) => isar.clear());
 
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});

@@ -734,7 +734,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       name: _state._auth.userId!.val,
       schemas: [IsarUserSchema],
       directory: path ?? Isar.sqliteInMemory,
-      engine: PlatformUtils.isWeb ? IsarEngine.sqlite : IsarEngine.isar,
+      engine: PlatformUtils.isWeb || path == null
+          ? IsarEngine.sqlite
+          : IsarEngine.isar,
     );
   }
 }

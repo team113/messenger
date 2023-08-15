@@ -31,12 +31,11 @@ part 'crop_area.g.dart';
 @HiveType(typeId: ModelTypeId.cropArea)
 @JsonSerializable()
 class CropArea {
-  /// Connect the generated [_$CropAreaFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [CropArea] from JSON.
   factory CropArea.fromJson(Map<String, dynamic> data) =>
       _$CropAreaFromJson(data);
 
-  /// Connect the generated [_$CropAreaToJson] function to the `toJson` method.
+  /// Converts this [CropArea] to JSON.
   Map<String, dynamic> toJson() => _$CropAreaToJson(this);
 
   /// Point of a top left corner of this [CropArea].
@@ -62,12 +61,11 @@ class CropArea {
 @HiveType(typeId: ModelTypeId.cropPoint)
 @JsonSerializable()
 class CropPoint {
-  /// Connect the generated [_$CropPointFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [CropPoint] from JSON.
   factory CropPoint.fromJson(Map<String, dynamic> data) =>
       _$CropPointFromJson(data);
 
-  /// Connect the generated [_$CropPointToJson] function to the `toJson` method.
+  /// Converts this [CropPoint] to JSON.
   Map<String, dynamic> toJson() => _$CropPointToJson(this);
 
   /// X coordinate of this [CropPoint] in pixels.

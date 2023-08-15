@@ -280,11 +280,10 @@ class ChatId extends NewType<String> {
   /// local [Chat] is created.
   factory ChatId.local(UserId id) => ChatId('local_${id.val}');
 
-  /// Connect the generated [_$ChatIdFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [ChatId] from JSON.
   factory ChatId.fromJson(Map<String, dynamic> data) => _$ChatIdFromJson(data);
 
-  /// Connect the generated [_$ChatIdToJson] function to the `toJson` method.
+  /// Converts this [ChatId] to JSON.
   Map<String, dynamic> toJson() => _$ChatIdToJson(this);
 
   /// Indicates whether this [ChatId] is a dummy ID.

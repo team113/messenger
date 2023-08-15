@@ -52,11 +52,10 @@ class User {
     this.lastSeenAt,
   }) : _dialog = dialog;
 
-  /// Connect the generated [_$UserFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [User] from JSON.
   factory User.fromJson(Map<String, dynamic> data) => _$UserFromJson(data);
 
-  /// Connect the generated [_$UserToJson] function to the `toJson` method.
+  /// Converts this [User] to JSON.
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
   /// Unique ID of this [User].
@@ -153,11 +152,10 @@ class User {
 class UserId extends NewType<String> {
   const UserId(String val) : super(val);
 
-  /// Connect the generated [_$UserIdFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [UserId] from JSON.
   factory UserId.fromJson(Map<String, dynamic> data) => _$UserIdFromJson(data);
 
-  /// Connect the generated [_$UserIdToJson] function to the `toJson` method.
+  /// Converts this [UserId] to JSON.
   Map<String, dynamic> toJson() => _$UserIdToJson(this);
 }
 
@@ -184,12 +182,11 @@ class UserNum extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserNum.unchecked(String val) = UserNum._;
 
-  /// Connect the generated [_$UserNumFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [UserNum] from JSON.
   factory UserNum.fromJson(Map<String, dynamic> data) =>
       _$UserNumFromJson(data);
 
-  /// Connect the generated [_$UserNumToJson] function to the `toJson` method.
+  /// Converts this [UserNum] to JSON.
   Map<String, dynamic> toJson() => _$UserNumToJson(this);
 }
 
@@ -213,12 +210,11 @@ class UserLogin extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserLogin.unchecked(String val) = UserLogin._;
 
-  /// Connect the generated [_$UserLoginFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [UserLogin] from JSON.
   factory UserLogin.fromJson(Map<String, dynamic> data) =>
       _$UserLoginFromJson(data);
 
-  /// Connect the generated [_$UserLoginToJson] function to the `toJson` method.
+  /// Converts this [UserLogin] to JSON.
   Map<String, dynamic> toJson() => _$UserLoginToJson(this);
 
   /// Regular expression for basic [UserLogin] validation.
@@ -242,12 +238,11 @@ class UserName extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserName.unchecked(String val) = UserName._;
 
-  /// Connect the generated [_$UserNameFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [UserName] from JSON.
   factory UserName.fromJson(Map<String, dynamic> data) =>
       _$UserNameFromJson(data);
 
-  /// Connect the generated [_$UserNameToJson] function to the `toJson` method.
+  /// Converts this [UserName] to JSON.
   Map<String, dynamic> toJson() => _$UserNameToJson(this);
 
   /// Regular expression for basic [UserName] validation.
@@ -275,13 +270,11 @@ class UserPassword extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPassword.unchecked(String val) = UserPassword._;
 
-  /// Connect the generated [_$UserPasswordFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [UserPassword] from JSON.
   factory UserPassword.fromJson(Map<String, dynamic> data) =>
       _$UserPasswordFromJson(data);
 
-  /// Connect the generated [_$UserPasswordToJson] function to the `toJson`
-  /// method.
+  /// Converts this [UserPassword] to JSON.
   Map<String, dynamic> toJson() => _$UserPasswordToJson(this);
 
   /// Regular expression for basic [UserPassword] validation.
@@ -303,12 +296,11 @@ class UserEmail extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserEmail.unchecked(String val) = UserEmail._;
 
-  /// Connect the generated [_$UserEmailFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [UserEmail] from JSON.
   factory UserEmail.fromJson(Map<String, dynamic> data) =>
       _$UserEmailFromJson(data);
 
-  /// Connect the generated [_$UserEmailToJson] function to the `toJson` method.
+  /// Converts this [UserEmail] to JSON.
   Map<String, dynamic> toJson() => _$UserEmailToJson(this);
 }
 
@@ -335,12 +327,11 @@ class UserPhone extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPhone.unchecked(String val) = UserPhone._;
 
-  /// Connect the generated [_$UserPhoneFromJson] function to the `fromJson`
-  /// factory.
+  /// Constructs an [UserPhone] from JSON.
   factory UserPhone.fromJson(Map<String, dynamic> data) =>
       _$UserPhoneFromJson(data);
 
-  /// Connect the generated [_$UserPhoneToJson] function to the `toJson` method.
+  /// Converts this [UserPhone] to JSON.
   Map<String, dynamic> toJson() => _$UserPhoneToJson(this);
 
   /// Regular expression for basic [UserPhone] validation.
@@ -425,13 +416,11 @@ class UserTextStatus extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
 
-  /// Connect the generated [_$UserTextStatusFromJson] function to the
-  /// `fromJson` factory.
+  /// Constructs an [UserTextStatus] from JSON.
   factory UserTextStatus.fromJson(Map<String, dynamic> data) =>
       _$UserTextStatusFromJson(data);
 
-  /// Connect the generated [_$UserTextStatusToJson] function to the `toJson`
-  /// method.
+  /// Converts this [UserTextStatus] to JSON.
   Map<String, dynamic> toJson() => _$UserTextStatusToJson(this);
 }
 
@@ -445,13 +434,11 @@ class BlocklistRecord {
     required this.at,
   });
 
-  /// Connect the generated [_$BlocklistRecordFromJson] function to the
-  /// `fromJson` factory.
+  /// Constructs an [BlocklistRecord] from JSON.
   factory BlocklistRecord.fromJson(Map<String, dynamic> data) =>
       _$BlocklistRecordFromJson(data);
 
-  /// Connect the generated [_$BlocklistRecordToJson] function to the `toJson`
-  /// method.
+  /// Converts this [BlocklistRecord] to JSON.
   Map<String, dynamic> toJson() => _$BlocklistRecordToJson(this);
 
   /// Blocked [User].
@@ -480,12 +467,10 @@ class BlocklistRecord {
 class BlocklistReason extends NewType<String> {
   const BlocklistReason(super.val);
 
-  /// Connect the generated [_$BlocklistReasonFromJson] function to the
-  /// `fromJson` factory.
+  /// Constructs an [BlocklistReason] from JSON.
   factory BlocklistReason.fromJson(Map<String, dynamic> data) =>
       _$BlocklistReasonFromJson(data);
 
-  /// Connect the generated [_$BlocklistReasonToJson] function to the `toJson`
-  /// method.
+  /// Converts this [BlocklistReason] to JSON.
   Map<String, dynamic> toJson() => _$BlocklistReasonToJson(this);
 }
