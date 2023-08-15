@@ -173,11 +173,11 @@ class CacheWorker extends DisposableService {
           if (!(await file.exists())) {
             await file.writeAsBytes(data);
 
-              await _cacheLocal?.update(
-                checksums: info.value.checksums..add(checksum!),
-                size: info.value.size + data.length,
-                modified: (await cache.stat()).modified,
-              );
+            await _cacheLocal?.update(
+              checksums: info.value.checksums..add(checksum!),
+              size: info.value.size + data.length,
+              modified: (await cache.stat()).modified,
+            );
 
             _optimizeCache();
           }
@@ -296,12 +296,12 @@ class CacheWorker extends DisposableService {
           }
         }
 
-          await _cacheLocal?.update(
-            checksums: info.value.checksums
-              ..removeWhere((e) => removed.contains(e)),
-            size: info.value.size - deleted,
-            modified: (await cache.stat()).modified,
-          );
+        await _cacheLocal?.update(
+          checksums: info.value.checksums
+            ..removeWhere((e) => removed.contains(e)),
+          size: info.value.size - deleted,
+          modified: (await cache.stat()).modified,
+        );
       }
     });
   }
@@ -324,11 +324,11 @@ class CacheWorker extends DisposableService {
           }
         },
         onDone: () async {
-            await _cacheLocal?.update(
-              checksums: checksums,
-              size: size,
-              modified: (await cache.stat()).modified,
-            );
+          await _cacheLocal?.update(
+            checksums: checksums,
+            size: size,
+            modified: (await cache.stat()).modified,
+          );
 
           _optimizeCache();
 
