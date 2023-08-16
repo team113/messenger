@@ -283,15 +283,15 @@ class ChatController extends GetxController {
   /// [Timer] deleting the [_bottomLoader] from the [elements] list.
   Timer? _bottomLoaderEndTimer;
 
-  /// Returns [MyUser]'s [UserId].
-  UserId? get me => _authService.userId;
-
   /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
   /// has passed.
   Timer? _highlightTimer;
 
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
+
+  /// Returns [MyUser]'s [UserId].
+  UserId? get me => _authService.userId;
 
   /// Returns the [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
@@ -1293,7 +1293,7 @@ class ChatController extends GetxController {
     if (itemId != null) {
       int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
-        _highlight(index);
+        _highlight(i);
         index = i;
         offset = (MediaQuery.of(router.context!).size.height) / 3;
       }
