@@ -537,15 +537,12 @@ class TextFieldState extends ReactiveFieldState {
   @override
   final RxBool changed = RxBool(false);
 
-  /// [TextEditingController] of this [TextFieldState].
   @override
   late final TextEditingController controller;
 
-  /// Reactive [RxStatus] of this [TextFieldState].
   @override
   late final Rx<RxStatus> status;
 
-  /// Indicator whether this [TextFieldState] should be editable or not.
   @override
   late final RxBool editable;
 
@@ -589,7 +586,6 @@ class TextFieldState extends ReactiveFieldState {
   /// more text editing was done since then.
   bool get isValidated => controller.text == _previousText;
 
-  /// Submits this [TextFieldState].
   @override
   void submit() {
     if (editable.value) {
