@@ -466,22 +466,11 @@ class PlatformUtilsImpl {
     String? checksum,
   }) async {
     if (isMobile && !isWeb) {
-      Uint8List? data;
-      if (checksum != null && CacheWorker.instance.exists(checksum)) {
-        data = await CacheWorker.instance.get(checksum: checksum);
+      Uint8List? data =
+          await CacheWorker.instance.get(checksum: checksum, url: url);
+      if (data != null) {
+        ImageGallerySaver.saveImage(data, name: name);
       }
-
-      final Directory temp = await getTemporaryDirectory();
-      final String path = '${temp.path}/$name';
-      final File file = File(path);
-
-      if (data == null) {
-        await (await dio).download(url, path);
-      } else {
-        await file.writeAsBytes(data);
-      }
-      await ImageGallerySaver.saveFile(path, name: name);
-      file.delete();
     }
   }
 
