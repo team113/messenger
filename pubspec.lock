@@ -1972,6 +1972,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  win_toast:
+    dependency: "direct main"
+    description:
+      name: win_toast
+      sha256: "371d62b17b30489cad41e831e6340c2777202d2b4b2fd55a14ffc566b3df7518"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   window_manager:
     dependency: "direct main"
     description:
