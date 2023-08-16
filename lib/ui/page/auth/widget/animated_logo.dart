@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
@@ -29,6 +31,7 @@ class AnimatedLogo extends StatelessWidget {
     this.svgAsset,
     this.riveAsset = 'assets/images/logo/logo.riv',
     this.onInit,
+    this.height = 190 * 0.75 + 25,
   });
 
   /// Path to an asset to put into the [RiveAnimation].
@@ -40,12 +43,14 @@ class AnimatedLogo extends StatelessWidget {
   /// Path to an asset to put into the [SvgImage].
   final String? svgAsset;
 
+  final double height;
+
   @override
   Widget build(BuildContext context) {
     if (svgAsset != null) {
       return SvgImage.asset(
         svgAsset!,
-        height: 190 * 0.75 + 25,
+        height: height,
         fit: BoxFit.contain,
         placeholderBuilder: (context) {
           return const Center(child: CustomProgressIndicator());
@@ -63,6 +68,70 @@ class AnimatedLogo extends StatelessWidget {
           ),
         ),
       );
+    }
+  }
+}
+
+class InteractiveLogo extends StatefulWidget {
+  const InteractiveLogo({
+    super.key,
+    this.height = 190 * 0.75 + 25,
+  });
+
+  final double height;
+
+  @override
+  State<InteractiveLogo> createState() => _InteractiveLogoState();
+}
+
+class _InteractiveLogoState extends State<InteractiveLogo> {
+  int _frame = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    _animate();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerDown: (_) => _animate(),
+      child: SvgImage.asset(
+        'assets/images/logo/head000$_frame.svg',
+        height: widget.height,
+        fit: BoxFit.contain,
+        placeholderBuilder: (context) {
+          return const Center(child: CustomProgressIndicator());
+        },
+      ),
+    );
+  }
+
+  void _animate() {
+    _frame = 0;
+    _timer?.cancel();
+    _timer = Timer.periodic(
+      const Duration(milliseconds: 45),
+      (t) {
+        ++_frame;
+        if (_frame >= 9) t.cancel();
+
+        if (mounted) {
+          setState(() {});
+        }
+      },
+    );
+
+    if (mounted) {
+      setState(() {});
     }
   }
 }

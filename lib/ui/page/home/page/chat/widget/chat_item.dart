@@ -832,8 +832,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             selectable: PlatformUtils.isDesktop || menu,
                             onSelecting: widget.onSelecting,
                             onChanged: (a) => _selection = a,
-                            style:
-                                style.fonts.bodyLarge.copyWith(color: color),
+                            style: style.fonts.bodyLarge.copyWith(color: color),
                           ),
                         ),
                       ],
@@ -2153,7 +2152,11 @@ extension LinkParsingExtension on String {
       spans.add(
         TextSpan(
           text: link,
-          style: style?.linkStyle,
+          style: TextStyle(
+            color: style?.linkStyle.color,
+            // decoration: TextDecoration.underline,
+            // decorationThickness: 2,
+          ),
           recognizer: recognizer
             ..onTap = () async {
               final Uri uri;

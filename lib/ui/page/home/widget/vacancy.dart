@@ -73,17 +73,23 @@ class VacancyWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        text,
-                        style: TextStyle(
-                            color: selected ? style.colors.onPrimary : null),
-                      ),
-                      ...subtitle,
-                    ],
+                  child: DefaultTextStyle(
+                    style: selected
+                        ? style.fonts.labelMediumOnPrimary
+                        : style.fonts.labelMediumSecondary,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          text,
+                          style: selected
+                              ? style.fonts.labelLargeOnPrimary
+                              : style.fonts.labelLarge,
+                        ),
+                        ...subtitle,
+                      ],
+                    ),
                   ),
                 ),
                 ...trailing,

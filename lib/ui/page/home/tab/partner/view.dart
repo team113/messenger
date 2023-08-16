@@ -142,7 +142,10 @@ class PartnerTabView extends StatelessWidget {
                       onPressed: () async {
                         await launchUrl(
                           Uri.https(
-                              'google.com', 'search', {'q': 'transactions'}),
+                            'google.com',
+                            'search',
+                            {'q': 'transactions'},
+                          ),
                         );
                       },
                     ),
@@ -158,6 +161,12 @@ class PartnerTabView extends StatelessWidget {
 
                         return VacancyWidget(
                           e.title,
+                          subtitle: [
+                            if (e.subtitle != null) ...[
+                              const SizedBox(height: 4),
+                              Text(e.subtitle!),
+                            ],
+                          ],
                           selected: selected,
                           onPressed: () => router.vacancy(e.id),
                         );

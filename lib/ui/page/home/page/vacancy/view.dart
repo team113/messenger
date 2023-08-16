@@ -24,6 +24,8 @@ import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
+import 'package:messenger/ui/page/vacancy/body/view.dart';
+import 'package:messenger/ui/page/vacancy/widget/vacancy_description.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -56,34 +58,38 @@ class VacancyView extends StatelessWidget {
             title: Text(e.title),
             leading: const [StyledBackButton()],
           ),
-          body: Center(
-            child: ListView(
-              shrinkWrap: !context.isNarrow,
-              children: [
-                const SizedBox(height: 4),
-                Block(
-                  title: 'Details',
-                  children: [
-                    Paddings.basic(Text(e.description)),
-                    const SizedBox(height: 4),
-                  ],
-                ),
-                Block(
-                  title: 'Actions',
-                  children: [
-                    Paddings.basic(
-                      FieldButton(
-                        text: 'Связаться',
-                        style: TextStyle(color: style.colors.primary),
-                        onPressed: c.contact,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-              ],
-            ),
-          ),
+          body: VacancyBodyView(e),
+          // Center(
+          //   child: ListView(
+          //     shrinkWrap: !context.isNarrow,
+          //     children: [
+          //       const SizedBox(height: 4),
+          //       ...e.blocks.map((e) {
+          //         return Block(
+          //           title: e.title,
+          //           children: [
+          //             VacancyDescription(e.description),
+          //             // Paddings.dense(VacancyDescription(e.description)),
+          //             const SizedBox(height: 4),
+          //           ],
+          //         );
+          //       }),
+          //       Block(
+          //         title: 'Actions',
+          //         children: [
+          //           Paddings.basic(
+          //             FieldButton(
+          //               text: 'Связаться',
+          //               style: TextStyle(color: style.colors.primary),
+          //               onPressed: c.contact,
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //       const SizedBox(height: 4),
+          //     ],
+          //   ),
+          // ),
         );
       },
     );

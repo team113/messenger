@@ -155,8 +155,8 @@ class Themes {
             contextMenuRadius: BorderRadius.circular(10),
             linkStyle: textStyle.copyWith(
               color: colors.primary,
-              decoration: TextDecoration.underline,
-              decorationThickness: 2,
+              // decoration: TextDecoration.underline,
+              // decorationThickness: 2,
             ),
             messageColor: colors.onPrimary,
             primaryBorder: Border.all(

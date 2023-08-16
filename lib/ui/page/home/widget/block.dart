@@ -58,7 +58,7 @@ class Block extends StatelessWidget {
           children: [
             if (title != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                 child: Center(
                   child: Container(
                     padding:
