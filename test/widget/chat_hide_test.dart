@@ -64,6 +64,7 @@ import 'package:messenger/ui/page/home/tab/chats/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../utils/utils.dart';
 import 'chat_hide_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -108,11 +109,7 @@ void main() async {
     }
   };
 
-  final Isar isar = Isar.open(
-    schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
-    engine: IsarEngine.sqlite,
-  );
+  final Isar isar = await initializeIsar();
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();

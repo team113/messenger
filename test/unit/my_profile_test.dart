@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -36,15 +34,12 @@ import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
+import '../utils/utils.dart';
 
 void main() async {
   Hive.init('./test/.temp_hive/profile_unit');
 
-  final Isar isar = Isar.open(
-    schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
-    engine: IsarEngine.sqlite,
-  );
+  final Isar isar = await initializeIsar();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();

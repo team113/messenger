@@ -19,10 +19,11 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:isar/isar.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 /// Initializes [Isar] for the tests.
-initializeIsar() async {
+Future<Isar> initializeIsar({String? path}) async {
   final binaryUrl = PlatformUtils.isWindows
       ? 'https://github.com/isar/isar/releases/download/4.0.0-dev.9/isar_windows_x64.dll'
       : PlatformUtils.isMacOS
@@ -38,6 +39,11 @@ initializeIsar() async {
   final binaryPath = '${Directory.current.path}/$binaryName';
 
   await Dio().download(binaryUrl, binaryPath);
-
   await Isar.initialize('${Directory.current.path}/$binaryName');
+
+  return Isar.open(
+    schemas: [IsarUserSchema],
+    directory: path ?? Isar.sqliteInMemory,
+    engine: path == null ? IsarEngine.sqlite : IsarEngine.isar,
+  );
 }

@@ -73,6 +73,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
+import '../utils/utils.dart';
 import 'chat_attachment_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -121,11 +122,7 @@ void main() async {
     }
   };
 
-  final Isar isar = Isar.open(
-    schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
-    engine: IsarEngine.sqlite,
-  );
+  final Isar isar = await initializeIsar();
 
   var graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);

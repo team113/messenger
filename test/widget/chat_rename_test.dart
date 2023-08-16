@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,6 +64,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
+import '../utils/utils.dart';
 import 'chat_rename_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -100,11 +100,7 @@ void main() async {
     }
   };
 
-  final Isar isar = Isar.open(
-    schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
-    engine: IsarEngine.sqlite,
-  );
+  final Isar isar = await initializeIsar();
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();

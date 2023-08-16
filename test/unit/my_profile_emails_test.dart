@@ -39,6 +39,7 @@ import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../utils/utils.dart';
 import 'my_profile_emails_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
@@ -68,11 +69,7 @@ void main() async {
     }
   };
 
-  final Isar isar = Isar.open(
-    schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
-    engine: IsarEngine.sqlite,
-  );
+  final Isar isar = await initializeIsar();
 
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();

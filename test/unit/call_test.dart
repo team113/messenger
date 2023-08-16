@@ -55,6 +55,7 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
+import '../utils/utils.dart';
 
 Map<String, dynamic> _caller([String? id]) => {
       'id': id ?? 'id',
@@ -98,10 +99,7 @@ void main() async {
   Hive.init('./test/.temp_hive/unit_call');
 
   await Directory('./test/.temp_isar/unit_call').create(recursive: true);
-  final Isar isar = Isar.open(
-    schemas: [IsarUserSchema],
-    directory: './test/.temp_isar/unit_call',
-  );
+  final Isar isar = await initializeIsar(path: './test/.temp_isar/unit_call');
   isar.write((isar) => isar.clear());
 
   var myUserProvider = MyUserHiveProvider();

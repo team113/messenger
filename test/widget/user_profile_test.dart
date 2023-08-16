@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -63,6 +62,7 @@ import 'package:messenger/ui/page/home/page/user/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../utils/utils.dart';
 import 'user_profile_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -121,13 +121,7 @@ void main() async {
     }
   };
 
-  await Directory('./test/.temp_isar/user_profile_widget')
-      .create(recursive: true);
-  final Isar isar = Isar.open(
-    schemas: [IsarUserSchema],
-    directory: Isar.sqliteInMemory,
-    engine: IsarEngine.sqlite,
-  );
+  final Isar isar = await initializeIsar();
 
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
