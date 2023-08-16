@@ -54,6 +54,7 @@ import 'package:messenger/ui/worker/background/background.dart';
 
 import '../mock/graphql_provider.dart';
 import '../mock/route_information_provider.dart';
+import '../utils/utils.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -94,6 +95,8 @@ void main() async {
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
+    await tester.runAsync(() => initializeIsar());
+
     Get.put(myUserProvider);
     Get.put(contactProvider);
     Get.put<GraphQlProvider>(graphQlProvider);

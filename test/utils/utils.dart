@@ -38,7 +38,7 @@ Future<Isar> initializeIsar({String? path}) async {
 
   final binaryPath = '${Directory.current.path}/$binaryName';
 
-  if(!File(binaryPath).existsSync()) {
+  if (!File(binaryPath).existsSync()) {
     await Dio().download(binaryUrl, binaryPath);
   }
   await Isar.initialize(binaryPath);
