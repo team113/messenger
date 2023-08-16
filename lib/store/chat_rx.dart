@@ -586,7 +586,6 @@ class HiveRxChat extends RxChat {
     return message.value;
   }
 
-
   /// Adds the provided [item] to [Pagination] and [Hive].
   Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) {
     // Use [_guard] to synchronize [put] with the [remove].
