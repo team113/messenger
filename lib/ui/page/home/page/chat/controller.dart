@@ -277,18 +277,18 @@ class ChatController extends GetxController {
   /// Worker capturing any [status] changes.
   Worker? _statusWorker;
 
-  /// [Timer] adding the [_bottomLoader] to the [elements] list.
-  Timer? _bottomLoaderStartTimer;
-
-  /// [Timer] deleting the [_bottomLoader] from the [elements] list.
-  Timer? _bottomLoaderEndTimer;
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
 
   /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
   /// has passed.
   Timer? _highlightTimer;
 
-  /// [Duration] of the highlighting.
-  static const Duration _highlightTimeout = Duration(seconds: 1);
+  /// [Timer] adding the [_bottomLoader] to the [elements] list.
+  Timer? _bottomLoaderStartTimer;
+
+  /// [Timer] deleting the [_bottomLoader] from the [elements] list.
+  Timer? _bottomLoaderEndTimer;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -1131,6 +1131,16 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Highlights the item with the provided [index].
+  Future<void> _highlight(int index) async {
+    highlightIndex.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
+  }
+
   /// Invokes [_updateSticky] and [_updateFabStates].
   ///
   /// Intended to be called as a listener of a [FlutterListViewController].
@@ -1369,16 +1379,6 @@ class ChatController extends GetxController {
       } else {
         _scrollToLastRead();
       }
-    });
-  }
-
-  /// Highlights the item with the provided [index].
-  Future<void> _highlight(int index) async {
-    highlightIndex.value = index;
-
-    _highlightTimer?.cancel();
-    _highlightTimer = Timer(_highlightTimeout, () {
-      highlightIndex.value = null;
     });
   }
 }

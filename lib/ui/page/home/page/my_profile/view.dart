@@ -93,14 +93,15 @@ class MyProfileView extends StatelessWidget {
                 itemBuilder: (context, i) {
                   Widget child;
 
-                  Widget tile({
+                  // Builds a [Block] wrapped with [Obx] to highlight it.
+                  Widget block({
                     required String title,
                     required List<Widget> children,
                   }) {
                     return Obx(() {
                       return Block(
                         title: title,
-                        isHighlighted: c.highlightIndex.value == i,
+                        highlight: c.highlightIndex.value == i,
                         children: children,
                       );
                     });
@@ -108,7 +109,7 @@ class MyProfileView extends StatelessWidget {
 
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
-                      child = tile(
+                      child = block(
                         title: 'label_public_information'.l10n,
                         children: [
                           Obx(() {
@@ -143,7 +144,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.signing:
-                      child = tile(
+                      child = block(
                         title: 'label_login_options'.l10n,
                         children: [
                           Paddings.basic(
@@ -166,7 +167,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.link:
-                      child = tile(
+                      child = block(
                         title: 'label_your_direct_link'.l10n,
                         children: [
                           Obx(() {
@@ -179,7 +180,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.background:
-                      child = tile(
+                      child = block(
                         title: 'label_background'.l10n,
                         children: [
                           Paddings.dense(
@@ -195,7 +196,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.chats:
-                      child = tile(
+                      child = block(
                         title: 'label_chats'.l10n,
                         children: [_chats(context, c)],
                       );
@@ -204,7 +205,7 @@ class MyProfileView extends StatelessWidget {
                       if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
-                      child = tile(
+                      child = block(
                         title: 'label_calls'.l10n,
                         children: [_call(context, c)],
                       );
@@ -213,13 +214,13 @@ class MyProfileView extends StatelessWidget {
                       if (PlatformUtils.isMobile) {
                         return const SizedBox();
                       }
-                      child = tile(
+                      child = block(
                         title: 'label_media'.l10n,
                         children: [_media(context, c)],
                       );
 
                     case ProfileTab.notifications:
-                      child = tile(
+                      child = block(
                         title: 'label_audio_notifications'.l10n,
                         children: [
                           Obx(() {
@@ -237,7 +238,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.storage:
-                      child = tile(
+                      child = block(
                         title: 'label_storage'.l10n,
                         children: [
                           Paddings.dense(
@@ -255,13 +256,13 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.language:
-                      child = tile(
+                      child = block(
                         title: 'label_language'.l10n,
                         children: [_language(context, c)],
                       );
 
                     case ProfileTab.blocklist:
-                      child = tile(
+                      child = block(
                         title: 'label_blocked_users'.l10n,
                         children: [_blockedUsers(context, c)],
                       );
@@ -270,13 +271,13 @@ class MyProfileView extends StatelessWidget {
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
-                      child = tile(
+                      child = block(
                         title: 'label_download_application'.l10n,
                         children: [_downloads(context, c)],
                       );
 
                     case ProfileTab.danger:
-                      child = tile(
+                      child = block(
                         title: 'label_danger_zone'.l10n,
                         children: [_danger(context, c)],
                       );

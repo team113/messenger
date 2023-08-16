@@ -18,33 +18,33 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/widget/highlight_animation.dart';
 import '/util/platform_utils.dart';
+import 'highlighted_container.dart';
 
 /// Stylized grouped section of the provided [children].
 class Block extends StatelessWidget {
   const Block({
     super.key,
-    this.children = const [],
     this.title,
-    this.isHighlighted,
+    this.highlight,
+    this.children = const [],
   });
 
   /// Optional header of this [Block].
   final String? title;
 
+  /// Indicator whether this [Block] should be highlighted.
+  final bool? highlight;
+
   /// [Widget]s to display.
   final List<Widget> children;
-
-  /// Indicator whether this [Block] is highlighted.
-  final bool? isHighlighted;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return HighlightAnimation(
-      isHighlighted: isHighlighted != null ? isHighlighted! : false,
+    return HighlightedContainer(
+      highlight: highlight != null ? highlight! : false,
       child: Center(
         child: Container(
           width: double.infinity,

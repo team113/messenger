@@ -19,19 +19,19 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// Animation of highlighting the [child].
-class HighlightAnimation extends StatelessWidget {
-  const HighlightAnimation({
+/// [AnimatedContainer] highlighting its [child].
+class HighlightedContainer extends StatelessWidget {
+  const HighlightedContainer({
     super.key,
+    this.highlight = false,
     required this.child,
-    required this.isHighlighted,
   });
+
+  /// Indicator whether the [child] should be highlighted.
+  final bool highlight;
 
   /// [Widget] to animate to.
   final Widget child;
-
-  /// Indicator whether this [child] is highlighted.
-  final bool isHighlighted;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class HighlightAnimation extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 700),
       curve: Curves.ease,
-      color: isHighlighted
+      color: highlight
           ? style.colors.primaryOpacity20
           : style.colors.primaryOpacity20.withOpacity(0),
       padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),

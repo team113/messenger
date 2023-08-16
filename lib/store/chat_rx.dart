@@ -588,7 +588,9 @@ class HiveRxChat extends RxChat {
 
   /// Adds the provided [item] to [Pagination].
   Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) async {
-    await _pagination.put(item);
+    await _guard.protect(() async {
+      await _pagination.put(item);
+    });
   }
 
   @override

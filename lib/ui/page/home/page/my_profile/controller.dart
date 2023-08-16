@@ -317,7 +317,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Highlights the item with the provided [index].
+  /// Highlights the item with the provided [tab].
   Future<void> _highlight(ProfileTab? tab) async {
     highlightIndex.value = tab?.index;
 

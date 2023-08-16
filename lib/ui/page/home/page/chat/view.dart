@@ -38,10 +38,10 @@ import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/highlight_animation.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -637,8 +637,8 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.author.id),
           builder: (_, snapshot) => Obx(() {
-            return HighlightAnimation(
-              isHighlighted: c.highlightIndex.value == i,
+            return HighlightedContainer(
+              highlight: c.highlightIndex.value == i,
               child: ChatItemWidget(
                 chat: c.chat!.chat,
                 item: e,
@@ -700,8 +700,8 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {
-            return HighlightAnimation(
-              isHighlighted: c.highlightIndex.value == i,
+            return HighlightedContainer(
+              highlight: c.highlightIndex.value == i,
               child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
                 chat: c.chat!.chat,
