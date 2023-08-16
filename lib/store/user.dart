@@ -46,6 +46,12 @@ class UserRepository implements AbstractUserRepository {
     this._userLocal,
   );
 
+  @override
+  final RxMap<UserId, RxUser> users = RxMap<UserId, RxUser>();
+
+  @override
+  final RxBool isReady = RxBool(false);
+
   /// Callback, called when a [RxChat] with the provided [ChatId] is required
   /// by this [UserRepository].
   ///
@@ -58,12 +64,6 @@ class UserRepository implements AbstractUserRepository {
   /// [User]s local [Isar] storage.
   final UserIsarProvider _userLocal;
 
-  /// [isReady] value.
-  final RxBool _isReady = RxBool(false);
-
-  /// [users] value.
-  final RxMap<UserId, RxUser> _users = RxMap<UserId, RxUser>();
-
   /// [Mutex]es guarding access to the [get] method.
   final Map<UserId, Mutex> _locks = {};
 
@@ -71,16 +71,10 @@ class UserRepository implements AbstractUserRepository {
   StreamIterator<ListChangeNotification<IsarUser>>? _localSubscription;
 
   @override
-  RxBool get isReady => _isReady;
-
-  @override
-  RxMap<UserId, RxUser> get users => _users;
-
-  @override
   Future<void> init() async {
-    if (_userLocal.count > 0) {
+    if (!_userLocal.isEmpty) {
       for (IsarUser c in await _userLocal.users) {
-        _users[c.value.id] = IsarRxUser(this, _userLocal, c);
+        users[c.value.id] = IsarRxUser(this, _userLocal, c);
       }
       isReady.value = true;
     }
@@ -118,7 +112,7 @@ class UserRepository implements AbstractUserRepository {
     }
 
     return mutex.protect(() async {
-      RxUser? user = _users[id];
+      RxUser? user = users[id];
       if (user == null) {
         var query = (await _graphQlProvider.getUser(id)).user;
         if (query != null) {
@@ -136,7 +130,7 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<void> blockUser(UserId id, BlocklistReason? reason) async {
-    final RxUser? user = _users[id];
+    final RxUser? user = users[id];
     final BlocklistRecord? record = user?.user.value.isBlocked;
 
     if (user?.user.value.isBlocked == null) {
@@ -161,7 +155,7 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<void> unblockUser(UserId id) async {
-    final RxUser? user = _users[id];
+    final RxUser? user = users[id];
     final BlocklistRecord? record = user?.user.value.isBlocked;
 
     if (user?.user.value.isBlocked != null) {
@@ -241,10 +235,11 @@ class UserRepository implements AbstractUserRepository {
 
   /// Initializes subscription for the [_userLocal] changes.
   Future<void> _initLocalSubscription() async {
+    // Adds the [user] to the [users], or updates it.
     void add(IsarUser user) {
-      RxUser? rxUser = _users[user.value.id];
+      RxUser? rxUser = users[user.value.id];
       if (rxUser == null) {
-        _users[user.value.id] = IsarRxUser(this, _userLocal, user);
+        users[user.value.id] = IsarRxUser(this, _userLocal, user);
       } else {
         rxUser.user.value = user.value;
         rxUser.user.refresh();
@@ -262,7 +257,7 @@ class UserRepository implements AbstractUserRepository {
           break;
 
         case OperationKind.removed:
-          _users.remove(event.element.value.id);
+          users.remove(event.element.value.id);
           break;
 
         case OperationKind.updated:

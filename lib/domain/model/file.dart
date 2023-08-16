@@ -82,11 +82,11 @@ class PlainFile extends StorageFile {
     super.size,
   });
 
-  /// Constructs an [PlainFile] from JSON.
+  /// Constructs a [PlainFile] from the provided [Map].
   factory PlainFile.fromJson(Map<String, dynamic> data) =>
       _$PlainFileFromJson(data);
 
-  /// Converts this [PlainFile] to JSON.
+  /// Converts this [PlainFile] to a [Map].
   Map<String, dynamic> toJson() => _$PlainFileToJson(this);
 }
 
@@ -102,12 +102,9 @@ class ImageFile extends StorageFile {
     this.height,
   });
 
-  /// Constructs an [ImageFile] from JSON.
+  /// Constructs an [ImageFile] from the provided [Map].
   factory ImageFile.fromJson(Map<String, dynamic> data) =>
       _$ImageFileFromJson(data);
-
-  /// Converts this [ImageFile] to JSON.
-  Map<String, dynamic> toJson() => _$ImageFileToJson(this);
 
   /// Width of this [ImageFile] in pixels.
   @HiveField(3)
@@ -116,4 +113,7 @@ class ImageFile extends StorageFile {
   /// Height of this [ImageFile] in pixels.
   @HiveField(4)
   final int? height;
+
+  /// Converts this [ImageFile] to a [Map].
+  Map<String, dynamic> toJson() => _$ImageFileToJson(this);
 }

@@ -48,7 +48,7 @@ import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../utils/utils.dart';
+import '../mock/isar.dart';
 import 'chat_read_test.mocks.dart';
 
 @GenerateMocks([], customMocks: [

@@ -721,6 +721,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// Opens the [Isar] database.
   Future<Isar> _openIsar() async {
     String? path;
+
     if (!PlatformUtils.isWeb) {
       try {
         path = '${(await getApplicationDocumentsDirectory()).path}/isar';

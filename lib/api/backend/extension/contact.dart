@@ -36,7 +36,7 @@ extension ChatContactConversion on ChatContactMixin {
       );
 
   /// Constructs a new list of [IsarUser]s from this [ChatContactMixin].
-  List<IsarUser> getHiveUsers() => users.map((e) => e.toIsar()).toList();
+  List<IsarUser> getIsarUsers() => users.map((e) => e.toIsar()).toList();
 
   /// Constructs a new [HiveChatContact] from this [ChatContactMixin].
   HiveChatContact toHive() => HiveChatContact(toModel(), ver);

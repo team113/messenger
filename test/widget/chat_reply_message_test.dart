@@ -70,7 +70,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
-import '../utils/utils.dart';
+import '../mock/isar.dart';
 import 'chat_reply_message_test.mocks.dart';
 import 'extension/rich_text.dart';
 

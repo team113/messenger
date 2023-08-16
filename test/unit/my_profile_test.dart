@@ -34,7 +34,7 @@ import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
-import '../utils/utils.dart';
+import '../mock/isar.dart';
 
 void main() async {
   Hive.init('./test/.temp_hive/profile_unit');

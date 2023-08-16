@@ -55,7 +55,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/platform_utils.dart';
-import '../utils/utils.dart';
+import '../mock/isar.dart';
 import 'chat_split_message_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])

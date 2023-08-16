@@ -52,11 +52,8 @@ class User {
     this.lastSeenAt,
   }) : _dialog = dialog;
 
-  /// Constructs an [User] from JSON.
+  /// Constructs an [User] from the provided [Map].
   factory User.fromJson(Map<String, dynamic> data) => _$UserFromJson(data);
-
-  /// Converts this [User] to JSON.
-  Map<String, dynamic> toJson() => _$UserToJson(this);
 
   /// Unique ID of this [User].
   ///
@@ -142,6 +139,9 @@ class User {
 
   /// Sets the provided [ChatId] as a [dialog] of this [User].
   set dialog(ChatId dialog) => _dialog = dialog;
+
+  /// Converts this [User] to a [Map].
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 }
 
 /// Unique ID of an [User].
@@ -152,10 +152,10 @@ class User {
 class UserId extends NewType<String> {
   const UserId(String val) : super(val);
 
-  /// Constructs an [UserId] from JSON.
+  /// Constructs an [UserId] from the provided [Map].
   factory UserId.fromJson(Map<String, dynamic> data) => _$UserIdFromJson(data);
 
-  /// Converts this [UserId] to JSON.
+  /// Converts this [UserId] to a [Map].
   Map<String, dynamic> toJson() => _$UserIdToJson(this);
 }
 
@@ -182,11 +182,11 @@ class UserNum extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserNum.unchecked(String val) = UserNum._;
 
-  /// Constructs an [UserNum] from JSON.
+  /// Constructs an [UserNum] from the provided [Map].
   factory UserNum.fromJson(Map<String, dynamic> data) =>
       _$UserNumFromJson(data);
 
-  /// Converts this [UserNum] to JSON.
+  /// Converts this [UserNum] to a [Map].
   Map<String, dynamic> toJson() => _$UserNumToJson(this);
 }
 
@@ -210,15 +210,15 @@ class UserLogin extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserLogin.unchecked(String val) = UserLogin._;
 
-  /// Constructs an [UserLogin] from JSON.
+  /// Constructs an [UserLogin] from the provided [Map].
   factory UserLogin.fromJson(Map<String, dynamic> data) =>
       _$UserLoginFromJson(data);
 
-  /// Converts this [UserLogin] to JSON.
-  Map<String, dynamic> toJson() => _$UserLoginToJson(this);
-
   /// Regular expression for basic [UserLogin] validation.
   static final RegExp _regExp = RegExp(r'^[a-z0-9][a-z0-9_-]{1,18}[a-z0-9]$');
+
+  /// Converts this [UserLogin] to a [Map].
+  Map<String, dynamic> toJson() => _$UserLoginToJson(this);
 }
 
 /// Name of an [User].
@@ -238,15 +238,15 @@ class UserName extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserName.unchecked(String val) = UserName._;
 
-  /// Constructs an [UserName] from JSON.
+  /// Constructs an [UserName] from the provided [Map].
   factory UserName.fromJson(Map<String, dynamic> data) =>
       _$UserNameFromJson(data);
 
-  /// Converts this [UserName] to JSON.
-  Map<String, dynamic> toJson() => _$UserNameToJson(this);
-
   /// Regular expression for basic [UserName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+
+  /// Converts this [UserName] to a [Map].
+  Map<String, dynamic> toJson() => _$UserNameToJson(this);
 }
 
 /// Password of an [User].
@@ -270,15 +270,15 @@ class UserPassword extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPassword.unchecked(String val) = UserPassword._;
 
-  /// Constructs an [UserPassword] from JSON.
+  /// Constructs an [UserPassword] from the provided [Map].
   factory UserPassword.fromJson(Map<String, dynamic> data) =>
       _$UserPasswordFromJson(data);
 
-  /// Converts this [UserPassword] to JSON.
-  Map<String, dynamic> toJson() => _$UserPasswordToJson(this);
-
   /// Regular expression for basic [UserPassword] validation.
   static final RegExp _regExp = RegExp(r'^[^\s](.{0,248}[^\s])?$');
+
+  /// Converts this [UserPassword] to a [Map].
+  Map<String, dynamic> toJson() => _$UserPasswordToJson(this);
 }
 
 /// Email address of an [User].
@@ -296,11 +296,11 @@ class UserEmail extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserEmail.unchecked(String val) = UserEmail._;
 
-  /// Constructs an [UserEmail] from JSON.
+  /// Constructs an [UserEmail] from the provided [Map].
   factory UserEmail.fromJson(Map<String, dynamic> data) =>
       _$UserEmailFromJson(data);
 
-  /// Converts this [UserEmail] to JSON.
+  /// Converts this [UserEmail] to a [Map].
   Map<String, dynamic> toJson() => _$UserEmailToJson(this);
 }
 
@@ -327,17 +327,17 @@ class UserPhone extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPhone.unchecked(String val) = UserPhone._;
 
-  /// Constructs an [UserPhone] from JSON.
+  /// Constructs an [UserPhone] from the provided [Map].
   factory UserPhone.fromJson(Map<String, dynamic> data) =>
       _$UserPhoneFromJson(data);
-
-  /// Converts this [UserPhone] to JSON.
-  Map<String, dynamic> toJson() => _$UserPhoneToJson(this);
 
   /// Regular expression for basic [UserPhone] validation.
   static final RegExp _regExp = RegExp(
     r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$',
   );
+
+  /// Converts this [UserPhone] to a [Map].
+  Map<String, dynamic> toJson() => _$UserPhoneToJson(this);
 }
 
 /// Direct link to a `Chat`.
@@ -416,11 +416,11 @@ class UserTextStatus extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
 
-  /// Constructs an [UserTextStatus] from JSON.
+  /// Constructs an [UserTextStatus] from the provided [Map].
   factory UserTextStatus.fromJson(Map<String, dynamic> data) =>
       _$UserTextStatusFromJson(data);
 
-  /// Converts this [UserTextStatus] to JSON.
+  /// Converts this [UserTextStatus] to a [Map].
   Map<String, dynamic> toJson() => _$UserTextStatusToJson(this);
 }
 
@@ -434,12 +434,9 @@ class BlocklistRecord {
     required this.at,
   });
 
-  /// Constructs an [BlocklistRecord] from JSON.
+  /// Constructs an [BlocklistRecord] from the provided [Map].
   factory BlocklistRecord.fromJson(Map<String, dynamic> data) =>
       _$BlocklistRecordFromJson(data);
-
-  /// Converts this [BlocklistRecord] to JSON.
-  Map<String, dynamic> toJson() => _$BlocklistRecordToJson(this);
 
   /// Blocked [User].
   @HiveField(0)
@@ -459,6 +456,9 @@ class BlocklistRecord {
 
   @override
   int get hashCode => Object.hash(at, reason);
+
+  /// Converts this [BlocklistRecord] to a [Map].
+  Map<String, dynamic> toJson() => _$BlocklistRecordToJson(this);
 }
 
 /// Reason of blocking a [User] by the authenticated [MyUser].
@@ -467,10 +467,10 @@ class BlocklistRecord {
 class BlocklistReason extends NewType<String> {
   const BlocklistReason(super.val);
 
-  /// Constructs an [BlocklistReason] from JSON.
+  /// Constructs an [BlocklistReason] from the provided [Map].
   factory BlocklistReason.fromJson(Map<String, dynamic> data) =>
       _$BlocklistReasonFromJson(data);
 
-  /// Converts this [BlocklistReason] to JSON.
+  /// Converts this [BlocklistReason] to a [Map].
   Map<String, dynamic> toJson() => _$BlocklistReasonToJson(this);
 }

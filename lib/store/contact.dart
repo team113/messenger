@@ -446,7 +446,7 @@ class ContactRepository implements AbstractContactRepository {
 
     HashMap<ChatContactId, HiveChatContact> contacts = HashMap();
     for (var c in query.nodes) {
-      List<IsarUser> users = c.getHiveUsers();
+      final List<IsarUser> users = c.getIsarUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -480,7 +480,7 @@ class ContactRepository implements AbstractContactRepository {
           var list = events
               as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
           for (var u in list.chatContacts.nodes
-              .map((e) => e.getHiveUsers())
+              .map((e) => e.getIsarUsers())
               .expand((e) => e)) {
             _userRepo.put(u);
           }

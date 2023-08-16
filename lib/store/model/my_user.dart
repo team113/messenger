@@ -30,11 +30,11 @@ part 'my_user.g.dart';
 class MyUserVersion extends Version {
   MyUserVersion(String val) : super(val);
 
-  /// Constructs an [MyUserVersion] from JSON.
+  /// Constructs an [MyUserVersion] from the provided [Map].
   factory MyUserVersion.fromJson(Map<String, dynamic> data) =>
       _$MyUserVersionFromJson(data);
 
-  /// Converts this [MyUserVersion] to JSON.
+  /// Converts this [MyUserVersion] to a [Map].
   Map<String, dynamic> toJson() => _$MyUserVersionToJson(this);
 }
 

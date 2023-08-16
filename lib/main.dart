@@ -61,7 +61,7 @@ import 'util/web/web_utils.dart';
 Future<void> main() async {
   await Config.init();
   if (PlatformUtils.isWeb) {
-    Isar.initialize();
+    await Isar.initialize();
   }
 
   // TODO: iOS should use `video_player`:

@@ -45,12 +45,9 @@ class PreciseDateTime extends NewType<DateTime>
           isUtc: true,
         ));
 
-  /// Constructs an [PreciseDateTime] from JSON.
+  /// Constructs a [PreciseDateTime] from the provided [Map].
   factory PreciseDateTime.fromJson(Map<String, dynamic> data) =>
       _$PreciseDateTimeFromJson(data);
-
-  /// Converts this [PreciseDateTime] to JSON.
-  Map<String, dynamic> toJson() => _$PreciseDateTimeToJson(this);
 
   /// Returns the number of microseconds since the "Unix epoch"
   /// 1970-01-01T00:00:00Z (UTC).
@@ -64,6 +61,9 @@ class PreciseDateTime extends NewType<DateTime>
   /// Note that this value does not fit into 53 bits (the size of a IEEE
   /// double).
   int get microsecondsSinceEpoch => val.microsecondsSinceEpoch;
+
+  /// Converts this [PreciseDateTime] to a [Map].
+  Map<String, dynamic> toJson() => _$PreciseDateTimeToJson(this);
 
   @override
   int compareTo(PreciseDateTime other) => val.compareTo(other.val);

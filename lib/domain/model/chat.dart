@@ -280,11 +280,8 @@ class ChatId extends NewType<String> {
   /// local [Chat] is created.
   factory ChatId.local(UserId id) => ChatId('local_${id.val}');
 
-  /// Constructs an [ChatId] from JSON.
+  /// Constructs a [ChatId] from the provided [Map].
   factory ChatId.fromJson(Map<String, dynamic> data) => _$ChatIdFromJson(data);
-
-  /// Converts this [ChatId] to JSON.
-  Map<String, dynamic> toJson() => _$ChatIdToJson(this);
 
   /// Indicates whether this [ChatId] is a dummy ID.
   bool get isLocal => val.startsWith('local_');
@@ -293,6 +290,9 @@ class ChatId extends NewType<String> {
   UserId get userId => isLocal
       ? UserId(val.replaceFirst('local_', ''))
       : throw Exception('ChatId is not local');
+
+  /// Converts this [ChatId] to a [Map].
+  Map<String, dynamic> toJson() => _$ChatIdToJson(this);
 
   /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
   /// equals the provided [id].

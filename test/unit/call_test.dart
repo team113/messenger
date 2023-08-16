@@ -55,7 +55,7 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
-import '../utils/utils.dart';
+import '../mock/isar.dart';
 
 Map<String, dynamic> _caller([String? id]) => {
       'id': id ?? 'id',

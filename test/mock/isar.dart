@@ -24,24 +24,28 @@ import 'package:messenger/util/platform_utils.dart';
 
 /// Initializes [Isar] for the tests.
 Future<Isar> initializeIsar({String? path}) async {
-  final binaryUrl = PlatformUtils.isWindows
-      ? 'https://github.com/isar/isar/releases/download/4.0.0-dev.9/isar_windows_x64.dll'
+  final url = PlatformUtils.isWindows
+      ? 'isar_windows_x64.dll'
       : PlatformUtils.isMacOS
-          ? 'https://github.com/isar/isar/releases/download/4.0.0-dev.9/libisar_macos.dylib'
-          : 'https://github.com/isar/isar/releases/download/4.0.0-dev.9/libisar_linux_x64.so';
+          ? 'libisar_macos.dylib'
+          : 'libisar_linux_x64.so';
 
-  final binaryName = PlatformUtils.isWindows
+  final name = PlatformUtils.isWindows
       ? 'isar.dll'
       : PlatformUtils.isMacOS
           ? 'libisar.dylib'
           : 'libisar.so';
 
-  final binaryPath = '${Directory.current.path}/$binaryName';
+  final binary = '${Directory.current.path}/$name';
 
-  if (!File(binaryPath).existsSync()) {
-    await Dio().download(binaryUrl, binaryPath);
+  if (!File(binary).existsSync()) {
+    await Dio().download(
+      'https://github.com/isar/isar/releases/download/4.0.0-dev.9/$url',
+      binary,
+    );
   }
-  await Isar.initialize(binaryPath);
+
+  await Isar.initialize(binary);
 
   return Isar.open(
     schemas: [IsarUserSchema],

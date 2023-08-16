@@ -22,7 +22,6 @@ import 'package:collection/collection.dart';
 import 'package:isar/isar.dart';
 
 import '/domain/model/user.dart';
-import '/provider/isar/utils.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
 import '/util/obs/obs.dart';
@@ -37,9 +36,10 @@ class UserIsarProvider {
   /// [Isar] storing [IsarUser]s.
   final Isar _isar;
 
+  // TODO: Temporary fix, Isar should support watchers on Web.
   /// [StreamController] of changes of this [UserIsarProvider].
-  final _changes =
-      StreamController<ListChangeNotification<IsarUser>>.broadcast();
+  final StreamController<ListChangeNotification<IsarUser>> _changes =
+      StreamController.broadcast();
 
   /// Returns a list of [User]s from [Isar].
   Future<List<IsarUser>> get users async {
@@ -50,7 +50,10 @@ class UserIsarProvider {
     }
   }
 
-  /// Returns count of the stored [User]s.
+  /// Indicates whether the [User]s collection is empty.
+  bool get isEmpty => count == 0;
+
+  /// Returns the number of the stored [User]s.
   int get count => _isar.users.count();
 
   /// Returns stream of changes of this [UserIsarProvider].

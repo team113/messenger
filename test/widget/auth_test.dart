@@ -54,7 +54,7 @@ import 'package:messenger/ui/worker/background/background.dart';
 
 import '../mock/graphql_provider.dart';
 import '../mock/route_information_provider.dart';
-import '../utils/utils.dart';
+import '../mock/isar.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();

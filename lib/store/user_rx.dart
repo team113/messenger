@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:get/get.dart';
-import 'package:isar/isar.dart';
+import 'package:isar/isar.dart' hide id;
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -91,10 +91,7 @@ class IsarRxUser extends RxUser {
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
-      _userRepository.userEvents(
-        this.id,
-        () => _userLocal.get(this.id)?.ver,
-      ),
+      _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
     );
     await _remoteSubscription!.execute(_userEvent);
   }
@@ -108,14 +105,14 @@ class IsarRxUser extends RxUser {
 
       case UserEventsKind.user:
         events as UserEventsUser;
-        var saved = _userLocal.get(this.id);
+        var saved = _userLocal.get(id);
         if (saved == null || saved.ver < events.user.ver) {
           await _userLocal.put(events.user);
         }
         break;
 
       case UserEventsKind.event:
-        var userEntity = _userLocal.get(this.id);
+        var userEntity = _userLocal.get(id);
         var versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver <= userEntity.ver) {
           return;
@@ -185,7 +182,7 @@ class IsarRxUser extends RxUser {
         break;
 
       case UserEventsKind.blocklistEvent:
-        var userEntity = _userLocal.get(this.id);
+        var userEntity = _userLocal.get(id);
         var versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
@@ -200,7 +197,7 @@ class IsarRxUser extends RxUser {
 
       case UserEventsKind.isBlocked:
         var versioned = events as UserEventsIsBlocked;
-        var userEntity = _userLocal.get(this.id);
+        var userEntity = _userLocal.get(id);
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.
