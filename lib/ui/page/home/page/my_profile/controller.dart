@@ -77,7 +77,7 @@ class MyProfileController extends GetxController {
   /// List of [MediaDeviceDetails] of all the available devices.
   final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
-  /// Index of an item from the [elements] that should be highlighted.
+  /// Index of an item from [ProfileTab] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
   /// Service responsible for [MyUser] management.
