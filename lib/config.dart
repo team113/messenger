@@ -65,6 +65,9 @@ class Config {
   /// Version identifier of `User-Agent` header to put in network queries.
   static String userAgentVersion = '';
 
+  /// Unique identifier of Windows application.
+  static late String clsid;
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - default values;
@@ -118,6 +121,10 @@ class Config {
 
     userAgentVersion =
         version.isNotEmpty ? version : (Pubspec.ref ?? Pubspec.version);
+
+    clsid = const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
+        ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')
+        : (document['windows']?['clsid'] ?? '');
 
     origin = url;
 

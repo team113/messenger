@@ -18,6 +18,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   sentry_flutter
   share_plus
   url_launcher_windows
+  win_toast
   window_manager
   windows_taskbar
 )
