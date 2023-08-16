@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -53,6 +54,7 @@ import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../utils/utils.dart';
 import 'chat_attachment_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
@@ -61,13 +63,7 @@ void main() async {
 
   Hive.init('./test/.temp_hive/chat_attachment_unit');
 
-  final binaryName = Platform.isWindows
-      ? 'isar.dll'
-      : Platform.isMacOS
-      ? 'libisar.dylib'
-      : 'libisar.so';
-
-  await Isar.initialize('${Directory.current.path}\\$binaryName');
+  await initializeIsar();
   final Isar isar = Isar.open(
     schemas: [IsarUserSchema],
     directory: Isar.sqliteInMemory,
