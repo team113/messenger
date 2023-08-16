@@ -65,7 +65,7 @@ Widget desktopCall(CallController c, BuildContext context) {
     builder: (context, constraints) {
       // Call stackable content.
       List<Widget> content = [
-        SvgImage.asset(
+        const SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
           height: double.infinity,
@@ -1752,7 +1752,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         child: Stack(
                           children: [
                             Container(color: style.colors.backgroundAuxiliary),
-                            SvgImage.asset(
+                            const SvgImage.asset(
                               'assets/images/background_dark.svg',
                               width: double.infinity,
                               height: double.infinity,
@@ -2096,7 +2096,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     ),
                                     InkResponse(
                                       onTap: isAnyDrag ? null : c.focusAll,
-                                      child: SvgImage.asset(
+                                      child: const SvgImage.asset(
                                         'assets/icons/close.svg',
                                         height: 10.25,
                                       ),

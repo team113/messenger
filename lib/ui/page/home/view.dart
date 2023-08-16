@@ -47,7 +47,7 @@ import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {Key? key}) : super(key: key);
+  const HomeView(this._depsFactory, {super.key});
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -181,8 +181,8 @@ class _HomeViewState extends State<HomeView> {
                           translate: false,
                           child: CustomNavigationBar(
                             items: [
-                              CustomNavigationBarItem(
-                                key: const Key('ContactsButton'),
+                              const CustomNavigationBarItem(
+                                key: Key('ContactsButton'),
                                 child: SvgImage.asset(
                                   'assets/icons/contacts.svg',
                                   width: 32,
@@ -219,16 +219,16 @@ class _HomeViewState extends State<HomeView> {
                                     final Widget child;
 
                                     if (c.myUser.value?.muted != null) {
-                                      child = SvgImage.asset(
+                                      child = const SvgImage.asset(
                                         'assets/icons/chats_muted.svg',
-                                        key: const Key('Muted'),
+                                        key: Key('Muted'),
                                         width: 39.26,
                                         height: 33.5,
                                       );
                                     } else {
-                                      child = SvgImage.asset(
+                                      child = const SvgImage.asset(
                                         'assets/icons/chats.svg',
-                                        key: const Key('Unmuted'),
+                                        key: Key('Unmuted'),
                                         width: 39.26,
                                         height: 33.5,
                                       );
@@ -403,10 +403,10 @@ class _HomeViewState extends State<HomeView> {
 
           return Stack(
             children: [
-              Positioned.fill(
+              const Positioned.fill(
                 child: SvgImage.asset(
                   'assets/images/background_light.svg',
-                  key: const Key('DefaultBackground'),
+                  key: Key('DefaultBackground'),
                   width: double.infinity,
                   height: double.infinity,
                   fit: BoxFit.cover,

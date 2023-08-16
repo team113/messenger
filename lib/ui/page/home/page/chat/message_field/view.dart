@@ -451,7 +451,7 @@ class MessageFieldView extends StatelessWidget {
                         );
                       }
                 : null,
-            child: SizedBox(
+            child: const SizedBox(
               width: 56,
               height: 56,
               child: Center(
@@ -501,7 +501,7 @@ class MessageFieldView extends StatelessWidget {
                       child: AnimatedSwitcher(
                         duration: 300.milliseconds,
                         child: c.forwarding.value
-                            ? SvgImage.asset(
+                            ? const SvgImage.asset(
                                 'assets/icons/forward.svg',
                                 width: 26,
                                 height: 22,
@@ -743,7 +743,7 @@ class MessageFieldView extends StatelessWidget {
                                 color: style.cardColor,
                               ),
                               alignment: Alignment.center,
-                              child: SvgImage.asset(
+                              child: const SvgImage.asset(
                                 'assets/icons/close_primary.svg',
                                 width: 7,
                                 height: 7,
@@ -908,7 +908,7 @@ class MessageFieldView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(width: 12),
-          SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
+          const SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -1013,7 +1013,7 @@ class MessageFieldView extends StatelessWidget {
                       color: style.cardColor,
                     ),
                     alignment: Alignment.center,
-                    child: SvgImage.asset(
+                    child: const SvgImage.asset(
                       'assets/icons/close_primary.svg',
                       width: 7,
                       height: 7,
