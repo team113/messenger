@@ -100,8 +100,6 @@ void main() async {
     }
   };
 
-  final Isar isar = await initializeIsar();
-
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
@@ -149,7 +147,6 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = UserIsarProvider(isar);
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -269,6 +266,10 @@ void main() async {
       return Future.value(RenameChat$Mutation.fromJson({'renameChat': event})
           .renameChat as RenameChat$Mutation$RenameChat$ChatEventsVersioned);
     });
+
+    Isar? isar;
+    await tester.runAsync(() async => isar = await initializeIsar());
+    var userProvider = UserIsarProvider(isar!);
 
     AuthService authService = Get.put(
       AuthService(

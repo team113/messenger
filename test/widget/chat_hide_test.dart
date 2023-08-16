@@ -109,8 +109,6 @@ void main() async {
     }
   };
 
-  final Isar isar = await initializeIsar();
-
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
@@ -143,7 +141,6 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.clear();
   await contactProvider.init();
-  var userProvider = UserIsarProvider(isar);
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -188,6 +185,10 @@ void main() async {
 
   testWidgets('ChatsTabView successfully hides a chat',
       (WidgetTester tester) async {
+    Isar? isar;
+    await tester.runAsync(() async => isar = await initializeIsar());
+    var userProvider = UserIsarProvider(isar!);
+
     final StreamController<QueryResult> chatEvents = StreamController();
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),

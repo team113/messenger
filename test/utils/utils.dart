@@ -38,8 +38,10 @@ Future<Isar> initializeIsar({String? path}) async {
 
   final binaryPath = '${Directory.current.path}/$binaryName';
 
-  await Dio().download(binaryUrl, binaryPath);
-  await Isar.initialize('${Directory.current.path}/$binaryName');
+  if(!File(binaryPath).existsSync()) {
+    await Dio().download(binaryUrl, binaryPath);
+  }
+  await Isar.initialize(binaryPath);
 
   return Isar.open(
     schemas: [IsarUserSchema],

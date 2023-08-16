@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -131,8 +132,6 @@ void main() async {
       'hasPreviousPage': false,
     }
   };
-
-  final Isar isar = await initializeIsar();
 
   var graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
@@ -338,7 +337,6 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = UserIsarProvider(isar);
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -384,6 +382,13 @@ void main() async {
 
   testWidgets('ChatView successfully replies to a message',
       (WidgetTester tester) async {
+    const String path = './test/.temp_isar/chat_reply_message_widget';
+    await tester.runAsync(() => Directory(path).create(recursive: true));
+
+    Isar? isar;
+    await tester.runAsync(() async => isar = await initializeIsar(path: path));
+    var userProvider = UserIsarProvider(isar!);
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),

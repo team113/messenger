@@ -17,6 +17,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -107,7 +108,7 @@ void main() async {
   );
 
   TestWidgetsFlutterBinding.ensureInitialized();
-  Hive.init('./test/.temp_hive/chat_update_image_widget');
+  Hive.init('./test/.temp_hive/chat_update_attachments_widget');
   Config.files = '';
 
   var chatData = {
@@ -148,8 +149,6 @@ void main() async {
       'hasPreviousPage': false,
     }
   };
-
-  final Isar isar = await initializeIsar();
 
   var graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
@@ -303,7 +302,6 @@ void main() async {
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   await draftProvider.clear();
-  var userProvider = UserIsarProvider(isar);
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -347,6 +345,13 @@ void main() async {
 
   testWidgets('ChatView successfully refreshes image attachments',
       (WidgetTester tester) async {
+    const String path = './test/.temp_isar/chat_update_attachments_widget';
+    await tester.runAsync(() => Directory(path).create(recursive: true));
+
+    Isar? isar;
+    await tester.runAsync(() async => isar = await initializeIsar(path: path));
+    var userProvider = UserIsarProvider(isar!);
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),

@@ -121,8 +121,6 @@ void main() async {
     }
   };
 
-  final Isar isar = await initializeIsar();
-
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -151,7 +149,6 @@ void main() async {
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = UserIsarProvider(isar);
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
@@ -351,6 +348,10 @@ void main() async {
             .getUser(const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be')))
         .thenAnswer(
             (_) => Future.value(GetUser$Query.fromJson({'user': newUserData})));
+
+    Isar? isar;
+    await tester.runAsync(() async => isar = await initializeIsar());
+    var userProvider = UserIsarProvider(isar!);
 
     AuthService authService = Get.put(
       AuthService(
