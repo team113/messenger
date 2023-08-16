@@ -34,12 +34,12 @@ import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
+import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/paddings.dart';
-import '/ui/page/home/widget/block.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -66,6 +66,7 @@ import 'widget/status.dart';
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
   const MyProfileView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
@@ -90,9 +91,8 @@ class MyProfileView extends StatelessWidget {
                 itemScrollController: c.itemScrollController,
                 itemPositionsListener: c.positionsListener,
                 itemCount: ProfileTab.values.length,
+                physics: const ClampingScrollPhysics(),
                 itemBuilder: (context, i) {
-                  Widget child;
-
                   // Builds a [Block] wrapped with [Obx] to highlight it.
                   Widget block({
                     required String title,
@@ -109,7 +109,7 @@ class MyProfileView extends StatelessWidget {
 
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
-                      child = block(
+                      return block(
                         title: 'label_public_information'.l10n,
                         children: [
                           Obx(() {
@@ -144,7 +144,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.signing:
-                      child = block(
+                      return block(
                         title: 'label_login_options'.l10n,
                         children: [
                           Paddings.basic(
@@ -167,7 +167,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.link:
-                      child = block(
+                      return block(
                         title: 'label_your_direct_link'.l10n,
                         children: [
                           Obx(() {
@@ -180,7 +180,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.background:
-                      child = block(
+                      return block(
                         title: 'label_background'.l10n,
                         children: [
                           Paddings.dense(
@@ -196,7 +196,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.chats:
-                      child = block(
+                      return block(
                         title: 'label_chats'.l10n,
                         children: [_chats(context, c)],
                       );
@@ -205,7 +205,7 @@ class MyProfileView extends StatelessWidget {
                       if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
-                      child = block(
+                      return block(
                         title: 'label_calls'.l10n,
                         children: [_call(context, c)],
                       );
@@ -214,13 +214,13 @@ class MyProfileView extends StatelessWidget {
                       if (PlatformUtils.isMobile) {
                         return const SizedBox();
                       }
-                      child = block(
+                      return block(
                         title: 'label_media'.l10n,
                         children: [_media(context, c)],
                       );
 
                     case ProfileTab.notifications:
-                      child = block(
+                      return block(
                         title: 'label_audio_notifications'.l10n,
                         children: [
                           Obx(() {
@@ -238,7 +238,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.storage:
-                      child = block(
+                      return block(
                         title: 'label_storage'.l10n,
                         children: [
                           Paddings.dense(
@@ -256,13 +256,13 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.language:
-                      child = block(
+                      return block(
                         title: 'label_language'.l10n,
                         children: [_language(context, c)],
                       );
 
                     case ProfileTab.blocklist:
-                      child = block(
+                      return block(
                         title: 'label_blocked_users'.l10n,
                         children: [_blockedUsers(context, c)],
                       );
@@ -271,13 +271,13 @@ class MyProfileView extends StatelessWidget {
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
-                      child = block(
+                      return block(
                         title: 'label_download_application'.l10n,
                         children: [_downloads(context, c)],
                       );
 
                     case ProfileTab.danger:
-                      child = block(
+                      return block(
                         title: 'label_danger_zone'.l10n,
                         children: [_danger(context, c)],
                       );
@@ -285,7 +285,6 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.logout:
                       return const SizedBox();
                   }
-                  return child;
                 },
               ),
             ),

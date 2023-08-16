@@ -26,7 +26,7 @@ class Block extends StatelessWidget {
   const Block({
     super.key,
     this.title,
-    this.highlight,
+    this.highlight = false,
     this.children = const [],
   });
 
@@ -34,7 +34,7 @@ class Block extends StatelessWidget {
   final String? title;
 
   /// Indicator whether this [Block] should be highlighted.
-  final bool? highlight;
+  final bool highlight;
 
   /// [Widget]s to display.
   final List<Widget> children;
@@ -44,7 +44,7 @@ class Block extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return HighlightedContainer(
-      highlight: highlight != null ? highlight! : false,
+      highlight: highlight == true,
       child: Center(
         child: Container(
           width: double.infinity,

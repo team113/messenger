@@ -131,8 +131,6 @@ class MyProfileController extends GetxController {
     _profileWorker = ever(
       router.profileSection,
       (ProfileTab? tab) async {
-        _highlight(tab);
-
         if (ignoreWorker) {
           ignoreWorker = false;
         } else {
@@ -143,6 +141,7 @@ class MyProfileController extends GetxController {
             curve: Curves.ease,
           );
           Future.delayed(Duration.zero, () => ignorePositions = false);
+          _highlight(tab);
         }
       },
     );

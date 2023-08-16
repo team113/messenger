@@ -639,6 +639,7 @@ class _ChatViewState extends State<ChatView>
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
               highlight: c.highlightIndex.value == i,
+              padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatItemWidget(
                 chat: c.chat!.chat,
                 item: e,
@@ -702,6 +703,7 @@ class _ChatViewState extends State<ChatView>
           builder: (_, u) => Obx(() {
             return HighlightedContainer(
               highlight: c.highlightIndex.value == i,
+              padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
                 chat: c.chat!.chat,

@@ -25,6 +25,7 @@ class HighlightedContainer extends StatelessWidget {
     super.key,
     this.highlight = false,
     required this.child,
+    this.padding,
   });
 
   /// Indicator whether the [child] should be highlighted.
@@ -32,6 +33,9 @@ class HighlightedContainer extends StatelessWidget {
 
   /// [Widget] to animate to.
   final Widget child;
+
+  /// Padding of this [AnimatedContainer].
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,7 @@ class HighlightedContainer extends StatelessWidget {
       color: highlight
           ? style.colors.primaryOpacity20
           : style.colors.primaryOpacity20.withOpacity(0),
-      padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
+      padding: padding,
       child: child,
     );
   }
