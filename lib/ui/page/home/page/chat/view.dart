@@ -610,7 +610,8 @@ class _ChatViewState extends State<ChatView>
             (previous is ChatForwardElement &&
                 previous.authorId == author &&
                 element.id.at.val.difference(previous.id.at.val).abs() <=
-                    const Duration(minutes: 5));
+                    const Duration(minutes: 5)) ||
+            previous is UnreadMessagesElement;
       }
     }
 

@@ -50,6 +50,9 @@ class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
+  /// Path to the temporary directory.
+  String? _temporaryDirectory;
+
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
 
@@ -272,6 +275,16 @@ class PlatformUtilsImpl {
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
 
+  /// Returns a path to the temporary directory.
+  Future<String> get temporaryDirectory async {
+    if (_temporaryDirectory != null) {
+      return _temporaryDirectory!;
+    }
+
+    _temporaryDirectory = (await getTemporaryDirectory()).path;
+    return _temporaryDirectory!;
+  }
+
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
     if (isWeb) {
@@ -314,13 +327,15 @@ class PlatformUtilsImpl {
     String filename, {
     int? size,
     String? url,
+    bool temporary = false,
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
       size = size ??
           int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
-      String downloads = await PlatformUtils.downloadsDirectory;
+      String downloads =
+          temporary ? await temporaryDirectory : await downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
       File file = File('$downloads/$filename');
@@ -345,6 +360,7 @@ class PlatformUtilsImpl {
     int? size, {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
   }) async {
     dynamic completeWith;
 
@@ -378,7 +394,12 @@ class PlatformUtilsImpl {
           file = await Backoff.run(
             () async {
               try {
-                return await fileExists(filename, size: size, url: url);
+                return await fileExists(
+                  filename,
+                  size: size,
+                  url: url,
+                  temporary: temporary,
+                );
               } catch (e) {
                 onError(e);
               }
@@ -391,7 +412,8 @@ class PlatformUtilsImpl {
           if (file == null) {
             final String name = p.basenameWithoutExtension(filename);
             final String extension = p.extension(filename);
-            final String path = await downloadsDirectory;
+            final String path =
+                temporary ? await temporaryDirectory : await downloadsDirectory;
 
             file = File('$path/$filename');
             for (int i = 1; await file!.exists(); ++i) {

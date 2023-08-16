@@ -11,12 +11,19 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.10) | [Milestone](/../../milestone/8)
 
+### Added
+
+- Windows:
+    - Notifications. ([#492], [#439])
+
 ### Changed
 
 - UI:
     - Context menu with fading effect on desktop. ([#506])
     - Profile blocks with highlighting effect. ([#513])
 
+[#439]: /../../issues/439
+[#492]: /../../pull/492
 [#506]: /../../pull/506
 [#513]: /../../pull/513
 
