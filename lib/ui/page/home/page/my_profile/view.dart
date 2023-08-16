@@ -223,17 +223,21 @@ class MyProfileView extends StatelessWidget {
                       return block(
                         title: 'label_audio_notifications'.l10n,
                         children: [
-                          Obx(() {
-                            final bool isMuted = c.myUser.value?.muted == null;
+                          Paddings.dense(
+                            Obx(() {
+                              final bool isMuted =
+                                  c.myUser.value?.muted == null;
 
-                            return SwitchField(
-                              text: isMuted
-                                  ? 'label_enabled'.l10n
-                                  : 'label_disabled'.l10n,
-                              value: isMuted,
-                              onChanged: c.isMuting.value ? null : c.toggleMute,
-                            );
-                          }),
+                              return SwitchField(
+                                text: isMuted
+                                    ? 'label_enabled'.l10n
+                                    : 'label_disabled'.l10n,
+                                value: isMuted,
+                                onChanged:
+                                    c.isMuting.value ? null : c.toggleMute,
+                              );
+                            }),
+                          ),
                         ],
                       );
 
