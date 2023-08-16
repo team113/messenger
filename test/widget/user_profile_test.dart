@@ -22,6 +22,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -46,7 +47,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -61,6 +62,7 @@ import 'package:messenger/ui/page/home/page/user/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/isar.dart';
 import 'user_profile_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -147,9 +149,6 @@ void main() async {
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
-  await userProvider.clear();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
@@ -173,7 +172,6 @@ void main() async {
 
   Get.put(myUserProvider);
   Get.put(contactProvider);
-  Get.put(userProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
   Get.put(sessionProvider);
   Get.put(chatProvider);
@@ -350,6 +348,10 @@ void main() async {
             .getUser(const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be')))
         .thenAnswer(
             (_) => Future.value(GetUser$Query.fromJson({'user': newUserData})));
+
+    Isar? isar;
+    await tester.runAsync(() async => isar = await initializeIsar());
+    var userProvider = UserIsarProvider(isar!);
 
     AuthService authService = Get.put(
       AuthService(

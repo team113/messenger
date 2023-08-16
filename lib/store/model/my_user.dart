@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
@@ -25,8 +26,16 @@ part 'my_user.g.dart';
 
 /// Version of [MyUser]'s state.
 @HiveType(typeId: ModelTypeId.myUserVersion)
+@JsonSerializable()
 class MyUserVersion extends Version {
   MyUserVersion(String val) : super(val);
+
+  /// Constructs an [MyUserVersion] from the provided [Map].
+  factory MyUserVersion.fromJson(Map<String, dynamic> data) =>
+      _$MyUserVersionFromJson(data);
+
+  /// Converts this [MyUserVersion] to a [Map].
+  Map<String, dynamic> toJson() => _$MyUserVersionToJson(this);
 }
 
 /// Version of a [ChatDirectLink]'s state.

@@ -23,7 +23,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/provider/hive/user.dart';
+import '/provider/isar/user.dart';
 
 /// Possible kinds of [MyUserEvent].
 enum MyUserEventKind {
@@ -328,7 +328,7 @@ abstract class BlocklistEvent extends MyUserEvent {
   BlocklistEvent(this.user, this.at) : super(user.value.id);
 
   /// [User] this [BlocklistEvent] is about.
-  final HiveUser user;
+  final IsarUser user;
 
   /// [PreciseDateTime] when this [BlocklistEvent] happened.
   final PreciseDateTime at;

@@ -886,6 +886,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  isar:
+    dependency: "direct main"
+    description:
+      name: isar
+      sha256: "3d0b8ee997e9784b2508c1119ef54cfcd5aad369848b90031889159e53cbae69"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0-dev.9"
+  isar_flutter_libs:
+    dependency: "direct main"
+    description:
+      name: isar_flutter_libs
+      sha256: "3958acbfd1bcaad83efa2b0d90e79d665d380cd9383b41ff63abbc54b3d22434"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0-dev.9"
   js:
     dependency: "direct main"
     description:
@@ -895,7 +911,7 @@ packages:
     source: hosted
     version: "0.6.7"
   json_annotation:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: json_annotation
       sha256: b10a7b2ff83d83c777edba3c6a0f97045ddadd56c944e1a23a3fdf43a1bf4467
@@ -906,10 +922,10 @@ packages:
     dependency: "direct dev"
     description:
       name: json_serializable
-      sha256: "43793352f90efa5d8b251893a63d767b2f7c833120e3cc02adad55eefec04dc7"
+      sha256: aa1f5a8912615733e0fdc7a02af03308933c93235bdc8d50d0b0c8a8ccb0b969
       url: "https://pub.dev"
     source: hosted
-    version: "6.6.2"
+    version: "6.7.1"
   lints:
     dependency: transitive
     description:
@@ -1576,10 +1592,10 @@ packages:
     dependency: transitive
     description:
       name: source_gen
-      sha256: c2bea18c95cfa0276a366270afaa2850b09b4a76db95d546f3d003dcc7011298
+      sha256: fc0da689e5302edb6177fdd964efcb7f58912f43c28c2047a808f5bfff643d16
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.7"
+    version: "1.4.0"
   source_helper:
     dependency: transitive
     description:

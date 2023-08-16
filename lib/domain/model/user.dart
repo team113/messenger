@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:email_validator/email_validator.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model_type_id.dart';
@@ -32,8 +33,9 @@ import 'user_call_cover.dart';
 part 'user.g.dart';
 
 /// User of a system impersonating a real person.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.user)
-class User extends HiveObject {
+class User {
   User(
     this.id,
     this.num, {
@@ -49,6 +51,9 @@ class User extends HiveObject {
     this.isBlocked,
     this.lastSeenAt,
   }) : _dialog = dialog;
+
+  /// Constructs an [User] from the provided [Map].
+  factory User.fromJson(Map<String, dynamic> data) => _$UserFromJson(data);
 
   /// Unique ID of this [User].
   ///
@@ -105,8 +110,8 @@ class User extends HiveObject {
 
   Presence? get presence =>
       presenceIndex == null ? null : Presence.values[presenceIndex!];
-  set presence(Presence? pres) {
-    presenceIndex = pres?.index;
+  set presence(Presence? value) {
+    presenceIndex = value?.index;
   }
 
   /// Custom text status of this [User].
@@ -134,19 +139,30 @@ class User extends HiveObject {
 
   /// Sets the provided [ChatId] as a [dialog] of this [User].
   set dialog(ChatId dialog) => _dialog = dialog;
+
+  /// Converts this [User] to a [Map].
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 }
 
 /// Unique ID of an [User].
 ///
 /// See more details in [User.id].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.userId)
 class UserId extends NewType<String> {
   const UserId(String val) : super(val);
+
+  /// Constructs an [UserId] from the provided [Map].
+  factory UserId.fromJson(Map<String, dynamic> data) => _$UserIdFromJson(data);
+
+  /// Converts this [UserId] to a [Map].
+  Map<String, dynamic> toJson() => _$UserIdToJson(this);
 }
 
 /// Unique number of an [User].
 ///
 /// See more details in [User.num].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.userNum)
 class UserNum extends NewType<String> {
   const UserNum._(String val) : super(val);
@@ -165,12 +181,20 @@ class UserNum extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserNum.unchecked(String val) = UserNum._;
+
+  /// Constructs an [UserNum] from the provided [Map].
+  factory UserNum.fromJson(Map<String, dynamic> data) =>
+      _$UserNumFromJson(data);
+
+  /// Converts this [UserNum] to a [Map].
+  Map<String, dynamic> toJson() => _$UserNumToJson(this);
 }
 
 /// Unique login of an [User].
 ///
 /// [UserLogin] allows [User] to perform a sign-in, when combined with a
 /// password.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.userLogin)
 class UserLogin extends NewType<String> {
   const UserLogin._(String val) : super(val);
@@ -186,13 +210,21 @@ class UserLogin extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserLogin.unchecked(String val) = UserLogin._;
 
+  /// Constructs an [UserLogin] from the provided [Map].
+  factory UserLogin.fromJson(Map<String, dynamic> data) =>
+      _$UserLoginFromJson(data);
+
   /// Regular expression for basic [UserLogin] validation.
   static final RegExp _regExp = RegExp(r'^[a-z0-9][a-z0-9_-]{1,18}[a-z0-9]$');
+
+  /// Converts this [UserLogin] to a [Map].
+  Map<String, dynamic> toJson() => _$UserLoginToJson(this);
 }
 
 /// Name of an [User].
 ///
 /// See more details in [User.name].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.userName)
 class UserName extends NewType<String> {
   const UserName._(String val) : super(val);
@@ -206,14 +238,22 @@ class UserName extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserName.unchecked(String val) = UserName._;
 
+  /// Constructs an [UserName] from the provided [Map].
+  factory UserName.fromJson(Map<String, dynamic> data) =>
+      _$UserNameFromJson(data);
+
   /// Regular expression for basic [UserName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+
+  /// Converts this [UserName] to a [Map].
+  Map<String, dynamic> toJson() => _$UserNameToJson(this);
 }
 
 /// Password of an [User].
 ///
 /// Password allows [User] to perform a sign-in, when combined with a
 /// [UserLogin], [UserNum], [UserEmail] or [UserPhone].
+@JsonSerializable()
 class UserPassword extends NewType<String> {
   const UserPassword._(String val) : super(val);
 
@@ -230,11 +270,19 @@ class UserPassword extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPassword.unchecked(String val) = UserPassword._;
 
+  /// Constructs an [UserPassword] from the provided [Map].
+  factory UserPassword.fromJson(Map<String, dynamic> data) =>
+      _$UserPasswordFromJson(data);
+
   /// Regular expression for basic [UserPassword] validation.
   static final RegExp _regExp = RegExp(r'^[^\s](.{0,248}[^\s])?$');
+
+  /// Converts this [UserPassword] to a [Map].
+  Map<String, dynamic> toJson() => _$UserPasswordToJson(this);
 }
 
 /// Email address of an [User].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.userEmail)
 class UserEmail extends NewType<String> {
   const UserEmail._(String val) : super(val);
@@ -247,9 +295,17 @@ class UserEmail extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserEmail.unchecked(String val) = UserEmail._;
+
+  /// Constructs an [UserEmail] from the provided [Map].
+  factory UserEmail.fromJson(Map<String, dynamic> data) =>
+      _$UserEmailFromJson(data);
+
+  /// Converts this [UserEmail] to a [Map].
+  Map<String, dynamic> toJson() => _$UserEmailToJson(this);
 }
 
 /// Phone number of an [User].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.userPhone)
 class UserPhone extends NewType<String> {
   const UserPhone._(String val) : super(val);
@@ -271,10 +327,17 @@ class UserPhone extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPhone.unchecked(String val) = UserPhone._;
 
+  /// Constructs an [UserPhone] from the provided [Map].
+  factory UserPhone.fromJson(Map<String, dynamic> data) =>
+      _$UserPhoneFromJson(data);
+
   /// Regular expression for basic [UserPhone] validation.
   static final RegExp _regExp = RegExp(
     r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$',
   );
+
+  /// Converts this [UserPhone] to a [Map].
+  Map<String, dynamic> toJson() => _$UserPhoneToJson(this);
 }
 
 /// Direct link to a `Chat`.
@@ -337,6 +400,7 @@ class ChatDirectLinkSlug extends NewType<String> {
 }
 
 /// Status of an [User].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.userTextStatus)
 class UserTextStatus extends NewType<String> {
   const UserTextStatus._(String val) : super(val);
@@ -351,9 +415,17 @@ class UserTextStatus extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
+
+  /// Constructs an [UserTextStatus] from the provided [Map].
+  factory UserTextStatus.fromJson(Map<String, dynamic> data) =>
+      _$UserTextStatusFromJson(data);
+
+  /// Converts this [UserTextStatus] to a [Map].
+  Map<String, dynamic> toJson() => _$UserTextStatusToJson(this);
 }
 
 /// [User]'s record in a blocklist of the authenticated [MyUser].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.blocklistRecord)
 class BlocklistRecord {
   BlocklistRecord({
@@ -361,6 +433,10 @@ class BlocklistRecord {
     this.reason,
     required this.at,
   });
+
+  /// Constructs an [BlocklistRecord] from the provided [Map].
+  factory BlocklistRecord.fromJson(Map<String, dynamic> data) =>
+      _$BlocklistRecordFromJson(data);
 
   /// Blocked [User].
   @HiveField(0)
@@ -380,10 +456,21 @@ class BlocklistRecord {
 
   @override
   int get hashCode => Object.hash(at, reason);
+
+  /// Converts this [BlocklistRecord] to a [Map].
+  Map<String, dynamic> toJson() => _$BlocklistRecordToJson(this);
 }
 
 /// Reason of blocking a [User] by the authenticated [MyUser].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.blocklistReason)
 class BlocklistReason extends NewType<String> {
   const BlocklistReason(super.val);
+
+  /// Constructs an [BlocklistReason] from the provided [Map].
+  factory BlocklistReason.fromJson(Map<String, dynamic> data) =>
+      _$BlocklistReasonFromJson(data);
+
+  /// Converts this [BlocklistReason] to a [Map].
+  Map<String, dynamic> toJson() => _$BlocklistReasonToJson(this);
 }

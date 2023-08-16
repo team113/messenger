@@ -45,8 +45,12 @@ app.*.map.json
 
 # Tests related
 /test/.temp_hive/
+/test/.temp_isar/
 /test/**/*.mocks.dart
 /test/e2e/**/*.g.dart
 /test/e2e/reports/
 /test_driver/build/
 /test_driver/report.json
+isar.dll
+libisar.dylib
+libisar.so

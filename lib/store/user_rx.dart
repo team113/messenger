@@ -19,24 +19,25 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:get/get.dart';
+import 'package:isar/isar.dart' hide id;
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/provider/hive/user.dart';
+import '/provider/isar/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
 
-/// [RxUser] implementation backed by local [Hive] storage.
-class HiveRxUser extends RxUser {
-  HiveRxUser(
+/// [RxUser] implementation backed by local [Isar] storage.
+class IsarRxUser extends RxUser {
+  IsarRxUser(
     this._userRepository,
     this._userLocal,
-    HiveUser hiveUser,
-  ) : user = Rx<User>(hiveUser.value);
+    IsarUser isarUser,
+  ) : user = Rx<User>(isarUser.value);
 
   @override
   final Rx<User> user;
@@ -44,8 +45,8 @@ class HiveRxUser extends RxUser {
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
 
-  /// [User]s local [Hive] storage.
-  final UserHiveProvider _userLocal;
+  /// [User]s local [Isar] storage.
+  final UserIsarProvider _userLocal;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].
   final Rx<RxChat?> _dialog = Rx<RxChat?>(null);

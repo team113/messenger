@@ -22,6 +22,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -49,7 +50,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -63,6 +64,7 @@ import 'package:messenger/ui/page/home/tab/chats/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/isar.dart';
 import 'chat_hide_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -139,9 +141,6 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.clear();
   await contactProvider.init();
-  var userProvider = Get.put(UserHiveProvider());
-  await userProvider.init();
-  await userProvider.clear();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -186,6 +185,10 @@ void main() async {
 
   testWidgets('ChatsTabView successfully hides a chat',
       (WidgetTester tester) async {
+    Isar? isar;
+    await tester.runAsync(() async => isar = await initializeIsar());
+    var userProvider = UserIsarProvider(isar!);
+
     final StreamController<QueryResult> chatEvents = StreamController();
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),

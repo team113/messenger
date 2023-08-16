@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import '/api/backend/schema.dart' show ChatKind;
@@ -271,12 +272,16 @@ class LastChatRead {
 
 /// Unique ID of a [Chat].
 @HiveType(typeId: ModelTypeId.chatId)
+@JsonSerializable()
 class ChatId extends NewType<String> {
   const ChatId(super.val);
 
   /// Constructs a local [ChatId] from the [id] of the [User] with whom the
   /// local [Chat] is created.
   factory ChatId.local(UserId id) => ChatId('local_${id.val}');
+
+  /// Constructs a [ChatId] from the provided [Map].
+  factory ChatId.fromJson(Map<String, dynamic> data) => _$ChatIdFromJson(data);
 
   /// Indicates whether this [ChatId] is a dummy ID.
   bool get isLocal => val.startsWith('local_');
@@ -285,6 +290,9 @@ class ChatId extends NewType<String> {
   UserId get userId => isLocal
       ? UserId(val.replaceFirst('local_', ''))
       : throw Exception('ChatId is not local');
+
+  /// Converts this [ChatId] to a [Map].
+  Map<String, dynamic> toJson() => _$ChatIdToJson(this);
 
   /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
   /// equals the provided [id].

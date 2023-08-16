@@ -44,7 +44,6 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/model/chat.dart';
@@ -55,6 +54,7 @@ import 'package:messenger/ui/worker/background/background.dart';
 
 import '../mock/graphql_provider.dart';
 import '../mock/route_information_provider.dart';
+import '../mock/isar.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -74,8 +74,6 @@ void main() async {
   await myUserProvider.init(userId: const UserId('me'));
   var contactProvider = ContactHiveProvider();
   await contactProvider.init(userId: const UserId('me'));
-  var userProvider = UserHiveProvider();
-  await userProvider.init(userId: const UserId('me'));
   var chatProvider = ChatHiveProvider();
   await chatProvider.init(userId: const UserId('me'));
   var settingsProvider = MediaSettingsHiveProvider();
@@ -97,9 +95,10 @@ void main() async {
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
+    await tester.runAsync(() => initializeIsar());
+
     Get.put(myUserProvider);
     Get.put(contactProvider);
-    Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(sessionProvider);
     Get.put(chatProvider);

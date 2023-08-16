@@ -15,6 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
+
+import 'list.dart';
+
 export 'list.dart';
 export 'map.dart';
 export 'rxlist.dart';
@@ -23,3 +27,33 @@ export 'rxsplay.dart';
 
 /// Possible operation kinds changing an observable iterable.
 enum OperationKind { added, removed, updated }
+
+/// Extension adding an ability to get [ListChangeNotification]s from [Stream].
+extension ChangesExtension<T> on Stream<List<T>> {
+  /// Gets [ListChangeNotification]s from [Stream].
+  Stream<ListChangeNotification<T>> changes(dynamic Function(T) getId) {
+    List<T> last = [];
+
+    return asyncExpand((e) async* {
+      for (int i = 0; i < e.length; ++i) {
+        final item = last.firstWhereOrNull((m) => getId(m) == getId(e[i]));
+        if (item == null) {
+          yield ListChangeNotification.added(e[i], i);
+        } else {
+          if (e[i] != item) {
+            yield ListChangeNotification.updated(e[i], i);
+          }
+        }
+      }
+
+      for (int i = 0; i < last.length; ++i) {
+        final item = e.firstWhereOrNull((m) => getId(m) == getId(last[i]));
+        if (item == null) {
+          yield ListChangeNotification.removed(last[i], i);
+        }
+      }
+
+      last = e;
+    });
+  }
+}

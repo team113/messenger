@@ -16,11 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
+part 'web.g.dart';
+
 /// [DateTime] considering the microseconds on any platform, including Web.
+@JsonSerializable()
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
   PreciseDateTime(super.val, {this.microsecond = 0});
@@ -42,6 +46,10 @@ class PreciseDateTime extends NewType<DateTime>
           isUtc: true,
         ));
 
+  /// Constructs a [PreciseDateTime] from the provided [Map].
+  factory PreciseDateTime.fromJson(Map<String, dynamic> data) =>
+      _$PreciseDateTimeFromJson(data);
+
   /// Microsecond part of this [PreciseDateTime].
   final int microsecond;
 
@@ -57,6 +65,9 @@ class PreciseDateTime extends NewType<DateTime>
   /// Note that this value does not fit into 53 bits (the size of a IEEE
   /// double).
   int get microsecondsSinceEpoch => val.microsecondsSinceEpoch + microsecond;
+
+  /// Converts this [PreciseDateTime] to a [Map].
+  Map<String, dynamic> toJson() => _$PreciseDateTimeToJson(this);
 
   @override
   int compareTo(PreciseDateTime other) {

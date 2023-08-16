@@ -30,7 +30,6 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/themes.dart';
@@ -62,8 +61,6 @@ void main() async {
   await myUserProvider.init();
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
 
@@ -78,7 +75,6 @@ void main() async {
       (WidgetTester tester) async {
     Get.put(myUserProvider);
     Get.put(contactProvider);
-    Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(sessionProvider);
     Get.put(chatProvider);

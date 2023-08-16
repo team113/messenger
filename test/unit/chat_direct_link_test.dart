@@ -19,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -42,7 +43,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -52,6 +53,7 @@ import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/isar.dart';
 import 'chat_direct_link_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
@@ -59,6 +61,8 @@ void main() async {
   setUp(Get.reset);
 
   Hive.init('./test/.temp_hive/chat_direct_link_unit');
+
+  final Isar isar = await initializeIsar();
 
   final graphQlProvider = Get.put(MockGraphQlProvider());
 
@@ -71,8 +75,7 @@ void main() async {
   await myUserProvider.clear();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();

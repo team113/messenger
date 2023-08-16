@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import '/config.dart';
@@ -73,16 +74,25 @@ abstract class StorageFile extends HiveObject {
 
 /// Plain-[StorageFile] on a file storage.
 @HiveType(typeId: ModelTypeId.plainFile)
+@JsonSerializable()
 class PlainFile extends StorageFile {
   PlainFile({
     required super.relativeRef,
     super.checksum,
     super.size,
   });
+
+  /// Constructs a [PlainFile] from the provided [Map].
+  factory PlainFile.fromJson(Map<String, dynamic> data) =>
+      _$PlainFileFromJson(data);
+
+  /// Converts this [PlainFile] to a [Map].
+  Map<String, dynamic> toJson() => _$PlainFileToJson(this);
 }
 
 /// Image-[StorageFile] on a file storage.
 @HiveType(typeId: ModelTypeId.imageFile)
+@JsonSerializable()
 class ImageFile extends StorageFile {
   ImageFile({
     required super.relativeRef,
@@ -92,6 +102,10 @@ class ImageFile extends StorageFile {
     this.height,
   });
 
+  /// Constructs an [ImageFile] from the provided [Map].
+  factory ImageFile.fromJson(Map<String, dynamic> data) =>
+      _$ImageFileFromJson(data);
+
   /// Width of this [ImageFile] in pixels.
   @HiveField(3)
   final int? width;
@@ -99,4 +113,7 @@ class ImageFile extends StorageFile {
   /// Height of this [ImageFile] in pixels.
   @HiveField(4)
   final int? height;
+
+  /// Converts this [ImageFile] to a [Map].
+  Map<String, dynamic> toJson() => _$ImageFileToJson(this);
 }

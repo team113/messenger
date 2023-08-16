@@ -32,7 +32,7 @@ import '/domain/repository/contact.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/session.dart';
-import '/provider/hive/user.dart';
+import '/provider/isar/user.dart';
 import '/store/contact_rx.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -446,7 +446,7 @@ class ContactRepository implements AbstractContactRepository {
 
     HashMap<ChatContactId, HiveChatContact> contacts = HashMap();
     for (var c in query.nodes) {
-      List<HiveUser> users = c.getHiveUsers();
+      final List<IsarUser> users = c.getIsarUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -480,7 +480,7 @@ class ContactRepository implements AbstractContactRepository {
           var list = events
               as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
           for (var u in list.chatContacts.nodes
-              .map((e) => e.getHiveUsers())
+              .map((e) => e.getIsarUsers())
               .expand((e) => e)) {
             _userRepo.put(u);
           }
@@ -554,7 +554,7 @@ class ContactRepository implements AbstractContactRepository {
     } else if (e.$$typename == 'EventChatContactUserAdded') {
       var node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
-      _userRepo.put(e.user.toHive());
+      _userRepo.put(e.user.toIsar());
       return EventChatContactUserAdded(
           node.contactId, node.at, node.user.toModel());
     } else if (e.$$typename == 'EventChatContactUserRemoved') {

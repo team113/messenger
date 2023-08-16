@@ -19,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -26,20 +27,23 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
+import '../mock/isar.dart';
 
 void main() async {
   Hive.init('./test/.temp_hive/profile_unit');
+
+  final Isar isar = await initializeIsar();
+
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
 

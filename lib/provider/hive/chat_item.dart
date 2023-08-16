@@ -52,6 +52,7 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
     Hive.maybeRegisterAdapter(ChatCallQuoteAdapter());
+    Hive.maybeRegisterAdapter(ChatCallRoomJoinLinkAdapter());
     Hive.maybeRegisterAdapter(ChatForwardAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
     Hive.maybeRegisterAdapter(ChatInfoActionAvatarUpdatedAdapter());
@@ -81,6 +82,7 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
+    Hive.maybeRegisterAdapter(UserNumAdapter());
   }
 
   /// Returns a list of [ChatItemKey]s stored in the [Hive].

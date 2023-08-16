@@ -16,11 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
@@ -44,7 +46,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -53,6 +55,7 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
+import '../mock/isar.dart';
 
 Map<String, dynamic> _caller([String? id]) => {
       'id': id ?? 'id',
@@ -95,10 +98,13 @@ void main() async {
   setUp(() => Get.reset());
   Hive.init('./test/.temp_hive/unit_call');
 
+  await Directory('./test/.temp_isar/unit_call').create(recursive: true);
+  final Isar isar = await initializeIsar(path: './test/.temp_isar/unit_call');
+  isar.write((isar) => isar.clear());
+
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
+  var userProvider = UserIsarProvider(isar);
   var provider = SessionDataHiveProvider();
   await provider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -120,7 +126,6 @@ void main() async {
   await monologProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
-    await userProvider.clear();
     provider.setCredentials(
       Credentials(
         Session(

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
@@ -52,7 +54,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -68,6 +70,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
+import '../mock/isar.dart';
 import 'chat_reply_message_test.mocks.dart';
 import 'extension/rich_text.dart';
 
@@ -334,9 +337,6 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = Get.put(UserHiveProvider());
-  await userProvider.init();
-  await userProvider.clear();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -382,6 +382,13 @@ void main() async {
 
   testWidgets('ChatView successfully replies to a message',
       (WidgetTester tester) async {
+    const String path = './test/.temp_isar/chat_reply_message_widget';
+    await tester.runAsync(() => Directory(path).create(recursive: true));
+
+    Isar? isar;
+    await tester.runAsync(() async => isar = await initializeIsar(path: path));
+    var userProvider = UserIsarProvider(isar!);
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),

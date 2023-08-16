@@ -15,10 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -48,7 +53,7 @@ import 'provider/hive/draft.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
-import 'provider/hive/user.dart';
+import 'provider/isar/user.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
@@ -425,7 +430,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               await Future.wait([
                 deps.put(MyUserHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
-                deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
@@ -436,6 +440,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(CallRectHiveProvider()).init(userId: me),
                 deps.put(MonologHiveProvider()).init(userId: me),
               ]);
+
+              final Isar isar = await _openIsar();
+              deps.put(UserIsarProvider(isar));
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
@@ -533,7 +540,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             await Future.wait([
               deps.put(MyUserHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
-              deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
@@ -544,6 +550,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallRectHiveProvider()).init(userId: me),
               deps.put(MonologHiveProvider()).init(userId: me),
             ]);
+
+            final Isar isar = await _openIsar();
+            deps.put(UserIsarProvider(isar));
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
@@ -707,6 +716,29 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     } else {
       WebUtils.title('Gapopa');
     }
+  }
+
+  /// Opens the [Isar] database.
+  Future<Isar> _openIsar() async {
+    String? path;
+
+    if (!PlatformUtils.isWeb) {
+      try {
+        path = '${(await getApplicationDocumentsDirectory()).path}/isar';
+        await Directory(path).create();
+      } on MissingPluginException {
+        // No-op.
+      }
+    }
+
+    return Isar.open(
+      name: _state._auth.userId!.val,
+      schemas: [IsarUserSchema],
+      directory: path ?? Isar.sqliteInMemory,
+      engine: PlatformUtils.isWeb || path == null
+          ? IsarEngine.sqlite
+          : IsarEngine.isar,
+    );
   }
 }
 

@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/precise_date_time/src/non_web.dart';
@@ -48,7 +49,7 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/isar/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -64,6 +65,7 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
+import '../mock/isar.dart';
 import 'chat_direct_link_chat_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -144,9 +146,6 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = Get.put(UserHiveProvider());
-  await userProvider.init();
-  await userProvider.clear();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -282,6 +281,10 @@ void main() async {
       ]),
     );
 
+    Isar? isar;
+    await tester.runAsync(() async => isar = await initializeIsar());
+    var userProvider = UserIsarProvider(isar!);
+
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -358,6 +361,5 @@ void main() async {
   });
 
   await contactProvider.clear();
-  await userProvider.clear();
   await chatProvider.clear();
 }
