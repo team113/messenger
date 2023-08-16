@@ -29,7 +29,12 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   final Directory? _cacheDirectory;
 
   @override
-  Future<File?> fileExists(String filename, {int? size, String? url}) async {
+  Future<File?> fileExists(
+    String filename, {
+    int? size,
+    String? url,
+    bool temporary = false,
+  }) async {
     return null;
   }
 
@@ -41,6 +46,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
   }) async =>
       File('test/path');
 

@@ -44,29 +44,33 @@ class TimeLabelWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: SwipeableStatus(
-        animation: animation,
-        padding: const EdgeInsets.only(right: 8),
-        crossAxisAlignment: CrossAxisAlignment.center,
-        swipeable: Padding(
-          padding: const EdgeInsets.only(right: 4),
-          child: Text(time.yyMd),
-        ),
-        child: AnimatedOpacity(
-          key: Key('$time'),
-          opacity: opacity,
-          duration: const Duration(milliseconds: 250),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: style.systemMessageBorder,
-                color: style.systemMessageColor,
+    return IgnorePointer(
+      ignoring: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: SwipeableStatus(
+          animation: animation,
+          padding: const EdgeInsets.only(right: 8),
+          crossAxisAlignment: CrossAxisAlignment.center,
+          swipeable: Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Text(time.yyMd),
+          ),
+          child: AnimatedOpacity(
+            key: Key('$time'),
+            opacity: opacity,
+            duration: const Duration(milliseconds: 250),
+            child: Center(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.systemMessageBorder,
+                  color: style.systemMessageColor,
+                ),
+                child: Text(time.toRelative(), style: style.systemMessageStyle),
               ),
-              child: Text(time.toRelative(), style: style.systemMessageStyle),
             ),
           ),
         ),
