@@ -17,6 +17,7 @@
 
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:isar/isar.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -36,7 +37,7 @@ initializeIsar() async {
 
   final binaryPath = '${Directory.current.path}/$binaryName';
 
-  await (await PlatformUtils.dio).download(binaryUrl, binaryPath);
+  await Dio().download(binaryUrl, binaryPath);
 
   await Isar.initialize('${Directory.current.path}/$binaryName');
 }
