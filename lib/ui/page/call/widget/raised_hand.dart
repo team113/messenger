@@ -37,7 +37,7 @@ class RaisedHand extends StatelessWidget {
       child: CircleAvatar(
         radius: 45,
         backgroundColor: style.colors.secondaryOpacity87,
-        child: SvgImage.asset('assets/icons/hand_up.svg', width: 90),
+        child: const SvgImage.asset('assets/icons/hand_up.svg', width: 90),
       ),
     );
   }

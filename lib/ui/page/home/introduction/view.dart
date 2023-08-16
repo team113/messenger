@@ -35,7 +35,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class IntroductionView extends StatelessWidget {
-  const IntroductionView({Key? key}) : super(key: key);
+  const IntroductionView({super.key});
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
@@ -178,7 +178,7 @@ class IntroductionView extends StatelessWidget {
                             text: c.num.text,
                             label: 'label_num'.l10n,
                             share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                            trailing: SvgImage.asset(
+                            trailing: const SvgImage.asset(
                               'assets/icons/share.svg',
                               width: 18,
                             ),

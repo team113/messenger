@@ -221,7 +221,7 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
-                                child: SvgImage.asset(
+                                child: const SvgImage.asset(
                                   'assets/icons/chat_video_call.svg',
                                   height: 17,
                                 ),
@@ -230,7 +230,7 @@ class _ChatViewState extends State<ChatView>
                               AnimatedButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: SvgImage.asset(
+                                child: const SvgImage.asset(
                                   'assets/icons/chat_audio_call.svg',
                                   height: 19,
                                 ),
@@ -248,7 +248,7 @@ class _ChatViewState extends State<ChatView>
                                   color: style.colors.dangerColor,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: SvgImage.asset(
                                     'assets/icons/call_end.svg',
                                     width: 32,
@@ -265,7 +265,7 @@ class _ChatViewState extends State<ChatView>
                                   color: style.colors.primary,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: SvgImage.asset(
                                     'assets/icons/audio_call_start.svg',
                                     width: 15,
