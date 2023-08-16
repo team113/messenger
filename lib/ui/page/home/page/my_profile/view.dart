@@ -94,7 +94,6 @@ class MyProfileView extends StatelessWidget {
                   Widget child;
 
                   Widget tile({
-                    Key? key,
                     required String title,
                     required List<Widget> children,
                   }) {
