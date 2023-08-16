@@ -637,11 +637,9 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.author.id),
           builder: (_, snapshot) => Obx(() {
-            return Stack(children: [
-              Positioned.fill(
-                  child: HighlightAnimation(
-                      isHighlighted: c.highlightIndex.value == i)),
-              ChatItemWidget(
+            return HighlightAnimation(
+              isHighlighted: c.highlightIndex.value == i,
+              child: ChatItemWidget(
                 chat: c.chat!.chat,
                 item: e,
                 me: c.me!,
@@ -689,7 +687,7 @@ class _ChatViewState extends State<ChatView>
                 },
                 onSelecting: (s) => c.isSelecting.value = s,
               ),
-            ]);
+            );
           }),
         ),
       );
@@ -702,12 +700,9 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {
-            return Stack(children: [
-              Positioned.fill(
-                child: HighlightAnimation(
-                    isHighlighted: c.highlightIndex.value == i),
-              ),
-              ChatForwardWidget(
+            return HighlightAnimation(
+              isHighlighted: c.highlightIndex.value == i,
+              child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
                 chat: c.chat!.chat,
                 forwards: element.forwards,
@@ -811,7 +806,7 @@ class _ChatViewState extends State<ChatView>
                 },
                 onSelecting: (s) => c.isSelecting.value = s,
               ),
-            ]);
+            );
           }),
         ),
       );

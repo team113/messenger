@@ -43,12 +43,9 @@ class Block extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Stack(children: [
-      Positioned.fill(
-        child: HighlightAnimation(
-            isHighlighted: isHighlighted != null ? isHighlighted! : false),
-      ),
-      Center(
+    return HighlightAnimation(
+      isHighlighted: isHighlighted != null ? isHighlighted! : false,
+      child: Center(
         child: Container(
           width: double.infinity,
           margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
@@ -79,6 +76,6 @@ class Block extends StatelessWidget {
           ),
         ),
       ),
-    ]);
+    );
   }
 }

@@ -16,65 +16,35 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
 
-/// Animation of highlighting.
-class HighlightAnimation extends StatefulWidget {
+/// Animation of highlighting the [child].
+class HighlightAnimation extends StatelessWidget {
   const HighlightAnimation({
     super.key,
+    required this.child,
     required this.isHighlighted,
   });
 
-  /// Indicator whether this [FadeTransition] animation should play.
+  /// [Widget] to animate to.
+  final Widget child;
+
+  /// Indicator whether this [child] is highlighted.
   final bool isHighlighted;
-
-  @override
-  State<HighlightAnimation> createState() => _HighlightAnimationState();
-}
-
-/// State of [HighlightAnimation] maintaining its [AnimationController].
-class _HighlightAnimationState extends State<HighlightAnimation>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    _controller = AnimationController(
-      vsync: this,
-      duration: 400.milliseconds,
-    );
-    _animation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(_controller);
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    if (widget.isHighlighted) {
-      _controller.forward().then((value) =>
-          Future.delayed(const Duration(milliseconds: 500))
-              .then((value) => _controller.reverse()));
-    }
-    return FadeTransition(
-      opacity: _animation,
-      child: Container(
-        color: style.colors.primaryOpacity20,
-        padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
-      ),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.ease,
+      color: isHighlighted
+          ? style.colors.primaryOpacity20
+          : style.colors.primaryOpacity20.withOpacity(0),
+      padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
+      child: child,
     );
   }
 }

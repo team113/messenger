@@ -185,6 +185,15 @@ class ChatController extends GetxController {
   /// Indicator whether the [LoaderElement]s should be displayed.
   final RxBool showLoaders = RxBool(true);
 
+  /// Indicator whether the application is active.
+  final RxBool active = RxBool(true);
+
+  /// Height of a [LoaderElement] displayed in the message list.
+  static const double loaderHeight = 64;
+
+  /// Index of an item from the [elements] that should be highlighted.
+  final RxnInt highlightIndex = RxnInt(null);
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -224,22 +233,6 @@ class ChatController extends GetxController {
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
-
-  /// Indicator whether the application is active.
-  final RxBool active = RxBool(true);
-
-  /// Index of an item from the [elements] that should be highlighted.
-  final RxnInt highlightIndex = RxnInt(null);
-
-  /// [Duration] of the highlighting.
-  static const Duration _highlightTimeout = Duration(seconds: 1);
-
-  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
-  /// has passed.
-  Timer? _highlightTimer;
-
-  /// Height of a [LoaderElement] displayed in the message list.
-  static const double loaderHeight = 64;
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
@@ -292,6 +285,13 @@ class ChatController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// has passed.
+  Timer? _highlightTimer;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
 
   /// Returns the [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
@@ -430,16 +430,6 @@ class ChatController extends GetxController {
     }
 
     super.onClose();
-  }
-
-  /// Highlights the item with the provided [index].
-  Future<void> _highlight(int index) async {
-    highlightIndex.value = index;
-
-    _highlightTimer?.cancel();
-    _highlightTimer = Timer(_highlightTimeout, () {
-      highlightIndex.value = null;
-    });
   }
 
   // TODO: Handle [CallAlreadyExistsException].
@@ -1379,6 +1369,16 @@ class ChatController extends GetxController {
       } else {
         _scrollToLastRead();
       }
+    });
+  }
+
+  /// Highlights the item with the provided [index].
+  Future<void> _highlight(int index) async {
+    highlightIndex.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
     });
   }
 }

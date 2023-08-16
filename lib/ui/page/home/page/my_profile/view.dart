@@ -68,8 +68,6 @@ class MyProfileView extends StatelessWidget {
   const MyProfileView({super.key});
   @override
   Widget build(BuildContext context) {
-    final route = router.profileSection;
-
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find()),
@@ -93,216 +91,201 @@ class MyProfileView extends StatelessWidget {
                 itemPositionsListener: c.positionsListener,
                 itemCount: ProfileTab.values.length,
                 itemBuilder: (context, i) {
+                  Widget child;
+
+                  Widget tile({
+                    Key? key,
+                    required String title,
+                    required List<Widget> children,
+                  }) {
+                    return Obx(() {
+                      return Block(
+                        title: title,
+                        isHighlighted: c.highlightIndex.value == i,
+                        children: children,
+                      );
+                    });
+                  }
+
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
-                      return Obx(() {
-                        return Block(
-                          title: 'label_public_information'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [
-                            BigAvatarWidget.myUser(
+                      child = tile(
+                        title: 'label_public_information'.l10n,
+                        children: [
+                          Obx(() {
+                            return BigAvatarWidget.myUser(
                               c.myUser.value,
                               loading: c.avatarUpload.value.isLoading,
                               onUpload: c.uploadAvatar,
                               onDelete: c.myUser.value?.avatar != null
                                   ? c.deleteAvatar
                                   : null,
-                            ),
-                            const SizedBox(height: 12),
-                            Paddings.basic(
-                              UserNameField(
+                            );
+                          }),
+                          const SizedBox(height: 12),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserNameField(
                                 c.myUser.value?.name,
                                 onSubmit: c.updateUserName,
-                              ),
-                            ),
-                            _presence(context, c),
-                            Paddings.basic(
-                              UserTextStatusField(
+                              );
+                            }),
+                          ),
+                          _presence(context, c),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserTextStatusField(
                                 c.myUser.value?.status,
                                 onSubmit: c.updateUserStatus,
-                              ),
-                            )
-                          ],
-                        );
-                      });
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
                     case ProfileTab.signing:
-                      return Obx(
-                        () {
-                          return Block(
-                            title: 'label_login_options'.l10n,
-                            isHighlighted: route.value == ProfileTab.values[i],
-                            children: [
-                              Paddings.basic(
-                                UserNumCopyable(c.myUser.value?.num),
-                              ),
-                              Paddings.basic(
-                                UserLoginField(
-                                  c.myUser.value?.login,
-                                  onSubmit: c.updateUserLogin,
-                                ),
-                              ),
-                              _emails(context, c),
-                              _phones(context, c),
-                              _password(context, c),
-                            ],
-                          );
-                        },
+                      child = tile(
+                        title: 'label_login_options'.l10n,
+                        children: [
+                          Paddings.basic(
+                            Obx(() {
+                              return UserNumCopyable(c.myUser.value?.num);
+                            }),
+                          ),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserLoginField(
+                                c.myUser.value?.login,
+                                onSubmit: c.updateUserLogin,
+                              );
+                            }),
+                          ),
+                          _emails(context, c),
+                          _phones(context, c),
+                          _password(context, c),
+                        ],
                       );
 
                     case ProfileTab.link:
-                      return Obx(
-                        () {
-                          return Block(
-                            title: 'label_your_direct_link'.l10n,
-                            isHighlighted: route.value == ProfileTab.values[i],
-                            children: [
-                              DirectLinkField(
-                                c.myUser.value?.chatDirectLink,
-                                onSubmit: c.createChatDirectLink,
-                              ),
-                            ],
-                          );
-                        },
+                      child = tile(
+                        title: 'label_your_direct_link'.l10n,
+                        children: [
+                          Obx(() {
+                            return DirectLinkField(
+                              c.myUser.value?.chatDirectLink,
+                              onSubmit: c.createChatDirectLink,
+                            );
+                          }),
+                        ],
                       );
 
                     case ProfileTab.background:
-                      return Obx(
-                        () {
-                          return Block(
-                            title: 'label_background'.l10n,
-                            isHighlighted: route.value == ProfileTab.values[i],
-                            children: [
-                              Paddings.dense(
-                                BackgroundPreview(
-                                  c.background.value,
-                                  onPick: c.pickBackground,
-                                  onRemove: c.removeBackground,
-                                ),
-                              )
-                            ],
-                          );
-                        },
+                      child = tile(
+                        title: 'label_background'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              return BackgroundPreview(
+                                c.background.value,
+                                onPick: c.pickBackground,
+                                onRemove: c.removeBackground,
+                              );
+                            }),
+                          )
+                        ],
                       );
 
                     case ProfileTab.chats:
-                      return Obx(() {
-                        return Block(
-                          title: 'label_chats'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [_chats(context, c)],
-                        );
-                      });
+                      child = tile(
+                        title: 'label_chats'.l10n,
+                        children: [_chats(context, c)],
+                      );
 
                     case ProfileTab.calls:
                       if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
-
-                      return Obx(() {
-                        return Block(
-                          title: 'label_calls'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [_call(context, c)],
-                        );
-                      });
+                      child = tile(
+                        title: 'label_calls'.l10n,
+                        children: [_call(context, c)],
+                      );
 
                     case ProfileTab.media:
                       if (PlatformUtils.isMobile) {
                         return const SizedBox();
                       }
-
-                      return Obx(() {
-                        return Block(
-                          title: 'label_media'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [_media(context, c)],
-                        );
-                      });
+                      child = tile(
+                        title: 'label_media'.l10n,
+                        children: [_media(context, c)],
+                      );
 
                     case ProfileTab.notifications:
-                      return Obx(() {
-                        final bool isMuted = c.myUser.value?.muted == null;
-                        return Block(
-                          title: 'label_audio_notifications'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [
-                            Paddings.dense(
-                              SwitchField(
-                                text: isMuted
-                                    ? 'label_enabled'.l10n
-                                    : 'label_disabled'.l10n,
-                                value: isMuted,
-                                onChanged:
-                                    c.isMuting.value ? null : c.toggleMute,
-                              ),
-                            )
-                          ],
-                        );
-                      });
+                      child = tile(
+                        title: 'label_audio_notifications'.l10n,
+                        children: [
+                          Obx(() {
+                            final bool isMuted = c.myUser.value?.muted == null;
+
+                            return SwitchField(
+                              text: isMuted
+                                  ? 'label_enabled'.l10n
+                                  : 'label_disabled'.l10n,
+                              value: isMuted,
+                              onChanged: c.isMuting.value ? null : c.toggleMute,
+                            );
+                          }),
+                        ],
+                      );
 
                     case ProfileTab.storage:
-                      return Obx(() {
-                        return Block(
-                          title: 'label_storage'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [
-                            Paddings.dense(
-                              SwitchField(
+                      child = tile(
+                        title: 'label_storage'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              return SwitchField(
                                 text: 'label_load_images'.l10n,
                                 value: c.settings.value?.loadImages == true,
                                 onChanged: c.settings.value == null
                                     ? null
                                     : c.setLoadImages,
-                              ),
-                            ),
-                          ],
-                        );
-                      });
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
                     case ProfileTab.language:
-                      return Obx(() {
-                        return Block(
-                          title: 'label_language'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [_language(context, c)],
-                        );
-                      });
+                      child = tile(
+                        title: 'label_language'.l10n,
+                        children: [_language(context, c)],
+                      );
 
                     case ProfileTab.blocklist:
-                      return Obx(() {
-                        return Block(
-                          title: 'label_blocked_users'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [_blockedUsers(context, c)],
-                        );
-                      });
+                      child = tile(
+                        title: 'label_blocked_users'.l10n,
+                        children: [_blockedUsers(context, c)],
+                      );
 
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
-
-                      return Obx(() {
-                        return Block(
-                          title: 'label_download_application'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [_downloads(context, c)],
-                        );
-                      });
+                      child = tile(
+                        title: 'label_download_application'.l10n,
+                        children: [_downloads(context, c)],
+                      );
 
                     case ProfileTab.danger:
-                      return Obx(() {
-                        return Block(
-                          title: 'label_danger_zone'.l10n,
-                          isHighlighted: route.value == ProfileTab.values[i],
-                          children: [_danger(context, c)],
-                        );
-                      });
+                      child = tile(
+                        title: 'label_danger_zone'.l10n,
+                        children: [_danger(context, c)],
+                      );
 
                     case ProfileTab.logout:
                       return const SizedBox();
                   }
+                  return child;
                 },
               ),
             ),
