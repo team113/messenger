@@ -93,7 +93,7 @@ class IsarRxUser extends RxUser {
     _remoteSubscription = StreamQueue(
       _userRepository.userEvents(
         this.id,
-        () => _userLocal.get(this.id.val)?.ver,
+        () => _userLocal.get(this.id)?.ver,
       ),
     );
     await _remoteSubscription!.execute(_userEvent);
@@ -108,14 +108,14 @@ class IsarRxUser extends RxUser {
 
       case UserEventsKind.user:
         events as UserEventsUser;
-        var saved = _userLocal.get(this.id.val);
+        var saved = _userLocal.get(this.id);
         if (saved == null || saved.ver < events.user.ver) {
           await _userLocal.put(events.user);
         }
         break;
 
       case UserEventsKind.event:
-        var userEntity = _userLocal.get(this.id.val);
+        var userEntity = _userLocal.get(this.id);
         var versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver <= userEntity.ver) {
           return;
@@ -185,7 +185,7 @@ class IsarRxUser extends RxUser {
         break;
 
       case UserEventsKind.blocklistEvent:
-        var userEntity = _userLocal.get(this.id.val);
+        var userEntity = _userLocal.get(this.id);
         var versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
@@ -200,7 +200,7 @@ class IsarRxUser extends RxUser {
 
       case UserEventsKind.isBlocked:
         var versioned = events as UserEventsIsBlocked;
-        var userEntity = _userLocal.get(this.id.val);
+        var userEntity = _userLocal.get(this.id);
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.

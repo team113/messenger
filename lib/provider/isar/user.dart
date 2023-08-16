@@ -66,14 +66,13 @@ class UserIsarProvider {
   }
 
   /// Returns a [User] from [Isar] by its [id].
-  IsarUser? get(String id) => _isar.users.get(id);
+  IsarUser? get(UserId id) => _isar.users.get(id.val);
 
   /// Puts the provide [user] to [Isar].
   Future<void> put(IsarUser user) async {
-    _changes.add(ListChangeNotification.added(user, 0));
-
     if (PlatformUtils.isWeb) {
       _isar.write((isar) => isar.users.put(user));
+      _changes.add(ListChangeNotification.added(user, 0));
     } else {
       await _isar.writeAsync((isar) => isar.users.put(user));
     }
@@ -81,17 +80,17 @@ class UserIsarProvider {
 
   /// Clears this [UserIsarProvider].
   Future<void> clear() async {
-    final List<IsarUser> users = await _isar.users.where().findAllAsync();
-
     if (PlatformUtils.isWeb) {
+      final List<IsarUser> users = _isar.users.where().findAll();
+
       _isar.write((isar) => isar.users.clear());
+
+      users.forEachIndexed((int index, IsarUser user) {
+        _changes.add(ListChangeNotification.removed(user, index));
+      });
     } else {
       await _isar.writeAsync((isar) => isar.users.clear());
     }
-
-    users.forEachIndexed((int index, IsarUser user) {
-      _changes.add(ListChangeNotification.removed(user, index));
-    });
   }
 }
 

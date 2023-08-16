@@ -182,7 +182,7 @@ class UserRepository implements AbstractUserRepository {
 
   /// Updates the locally stored [IsarUser] with the provided [user] value.
   void update(User user) {
-    IsarUser? isarUser = _userLocal.get(user.id.val);
+    IsarUser? isarUser = _userLocal.get(user.id);
     if (isarUser != null) {
       isarUser.value = user;
       put(isarUser, ignoreVersion: true);
@@ -191,7 +191,7 @@ class UserRepository implements AbstractUserRepository {
 
   /// Puts the provided [user] into the local [Isar] storage.
   Future<void> put(IsarUser user, {bool ignoreVersion = false}) async {
-    var saved = _userLocal.get(user.value.id.val);
+    var saved = _userLocal.get(user.value.id);
 
     if (saved == null ||
         saved.ver < user.ver ||
