@@ -76,8 +76,15 @@ class AddEmailController extends GetxController {
     email = TextFieldState(
       text: initial?.val,
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            UserEmail(s.text.toLowerCase());
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_email'.l10n;
+        }
       },
       onSubmitted: (s) async {
         UserEmail? email;
@@ -118,8 +125,15 @@ class AddEmailController extends GetxController {
 
     emailCode = TextFieldState(
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            ConfirmationCode(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {

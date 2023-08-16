@@ -490,19 +490,15 @@ class TextFieldState extends ReactiveFieldState {
 
     controller.addListener(() => PlatformUtils.keepActive());
 
-    if (onChanged != null) {
-      controller.addListener(() {
-        changed.value = controller.text != (_previousSubmit ?? '');
+    String prevText = controller.text;
+    controller.addListener(() {
+      changed.value = controller.text != (_previousSubmit ?? '');
 
-        _debounceTimer?.cancel();
-        _debounceTimer = Timer(debounce, () {
-          if (_previousText != controller.text) {
-            _previousText = controller.text;
-            onChanged?.call(this);
-          }
-        });
-      });
-    }
+      if (controller.text != prevText) {
+        prevText = controller.text;
+        error.value = null;
+      }
+    });
 
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
@@ -567,9 +563,6 @@ class TextFieldState extends ReactiveFieldState {
   /// was modified since the last [submit] action.
   String? _previousSubmit;
 
-  /// [Timer] debouncing the [onChanged] callback.
-  Timer? _debounceTimer;
-
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;
 
@@ -626,6 +619,5 @@ class TextFieldState extends ReactiveFieldState {
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
-    _debounceTimer?.cancel();
   }
 }

@@ -108,7 +108,17 @@ class ChatInfoController extends GetxController {
     name = TextFieldState(
       approvable: true,
       text: chat?.chat.value.name?.val,
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        try {
+          if (s.text.isNotEmpty) {
+            ChatName(s.text.toLowerCase());
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
       onSubmitted: (s) async {
         s.error.value = null;
         s.focus.unfocus();
