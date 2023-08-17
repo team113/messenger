@@ -205,6 +205,7 @@ class MyProfileView extends StatelessWidget {
                       if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
+
                       return block(
                         title: 'label_calls'.l10n,
                         children: [_call(context, c)],
@@ -214,6 +215,7 @@ class MyProfileView extends StatelessWidget {
                       if (PlatformUtils.isMobile) {
                         return const SizedBox();
                       }
+
                       return block(
                         title: 'label_media'.l10n,
                         children: [_media(context, c)],
@@ -275,6 +277,7 @@ class MyProfileView extends StatelessWidget {
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
+
                       return block(
                         title: 'label_download_application'.l10n,
                         children: [_downloads(context, c)],

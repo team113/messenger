@@ -141,6 +141,7 @@ class MyProfileController extends GetxController {
             curve: Curves.ease,
           );
           Future.delayed(Duration.zero, () => ignorePositions = false);
+
           _highlight(tab);
         }
       },
@@ -316,7 +317,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Highlights the item with the provided [tab].
+  /// Highlights the provided [tab].
   Future<void> _highlight(ProfileTab? tab) async {
     highlightIndex.value = tab?.index;
 
