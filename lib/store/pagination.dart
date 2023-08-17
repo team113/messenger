@@ -70,8 +70,8 @@ class Pagination<T, K extends Comparable, C> {
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
   /// Resets this [Pagination] to its initial state.
-  void clear() {
-    Log.print('clear()', 'Pagination');
+  void reset() {
+    Log.print('reset()', 'Pagination');
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
@@ -79,12 +79,19 @@ class Pagination<T, K extends Comparable, C> {
     endCursor = null;
   }
 
+  /// Clears this [Pagination].
+  Future<void> clear() {
+    Log.print('clear()', 'Pagination');
+    items.clear();
+    return provider.clear();
+  }
+
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) async {
     Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
-    clear();
+    reset();
 
     final Page<T, C>? page = await provider.around(item, cursor, perPage);
     Log.print(
@@ -250,6 +257,12 @@ abstract class PageProvider<T, K> {
   /// Fetches the [Page] before the provided [item] or [cursor].
   FutureOr<Page<T, K>?> before(T? item, K? cursor, int count);
 
-  /// Adds the provided [item] to the [Page] it belongs to.
+  /// Adds the provided [item] to this [PageProvider].
   Future<void> put(T item);
+
+  /// Removes the provided [item] from this [PageProvider].
+  Future<void> remove(String key);
+
+  /// Clears this [PageProvider].
+  Future<void> clear();
 }

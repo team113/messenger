@@ -61,15 +61,13 @@ Feature: Chat messages have correct sending status
     Then I wait until status of "123" message is sending
     And I wait until status of "123" message is sent
 
-# TODO: Uncomment when `ChatItem`s persistence is implemented.
-#
-# Scenario: Non-sent messages are persisted
-#   Given I do not have Internet
-#   When I fill `MessageField` field with "123"
-#   And I tap `Send` button
-#   Then I wait until status of "123" message is error
+  Scenario: Non-sent messages are persisted
+    Given I do not have Internet
+    When I fill `MessageField` field with "123"
+    And I tap `Send` button
+    Then I wait until status of "123" message is error
 
-#   Given I have Internet with delay of 4 seconds
-#   When I restart app
-#   And I am in chat with Bob
-#   Then I wait until status of "123" message is error
+    Given I have Internet with delay of 4 seconds
+    When I restart app
+    And I am in chat with Bob
+    Then I wait until status of "123" message is error

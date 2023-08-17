@@ -344,4 +344,10 @@ class _ListPageProvider implements PageProvider<int, int> {
 
   @override
   Future<void> put(int item) async {}
+
+  @override
+  Future<void> remove(String key) async {}
+
+  @override
+  Future<void> clear() async {}
 }

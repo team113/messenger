@@ -20,25 +20,25 @@ import 'dart:async';
 import '/store/pagination.dart';
 
 /// [PageProvider] fetching items from the remote in a GraphQL style.
-class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
+class GraphQlPageProvider<T, K> implements PageProvider<T, K> {
   GraphQlPageProvider({required this.fetch, this.reversed = false});
 
   /// Indicator whether this [GraphQlPageProvider] is reversed.
   final bool reversed;
 
   /// Callback fetching items from the remote.
-  final Future<Page<U, T>> Function({
+  final Future<Page<T, K>> Function({
     int? first,
     int? last,
-    T? before,
-    T? after,
+    K? before,
+    K? after,
   }) fetch;
 
   @override
-  FutureOr<Page<U, T>> around(U? item, T? cursor, int count) async {
+  FutureOr<Page<T, K>> around(T? item, K? cursor, int count) async {
     final int half = count ~/ 2;
 
-    final Page<U, T> page = await fetch(
+    final Page<T, K> page = await fetch(
       after: cursor,
       last: cursor == null
           ? reversed
@@ -57,7 +57,7 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   }
 
   @override
-  FutureOr<Page<U, T>?> after(U? item, T? cursor, int count) async {
+  FutureOr<Page<T, K>?> after(T? item, K? cursor, int count) async {
     if (cursor == null) {
       return null;
     }
@@ -70,7 +70,7 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   }
 
   @override
-  FutureOr<Page<U, T>?> before(U? item, T? cursor, int count) async {
+  FutureOr<Page<T, K>?> before(T? item, K? cursor, int count) async {
     if (cursor == null) {
       return null;
     }
@@ -83,7 +83,17 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   }
 
   @override
-  Future<void> put(U item) async {
+  Future<void> put(T item) async {
+    // No-op.
+  }
+
+  @override
+  Future<void> remove(String key) async {
+    // No-op.
+  }
+
+  @override
+  Future<void> clear() async {
     // No-op.
   }
 }

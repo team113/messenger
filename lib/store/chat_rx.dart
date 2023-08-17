@@ -46,6 +46,8 @@ import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
+import '/store/pagination/hive.dart';
+import '/store/pagination/hive_graphql.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -115,6 +117,9 @@ class HiveRxChat extends RxChat {
 
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemKey, ChatItemsCursor> _pagination;
+
+  /// [PageProvider] loading [messages] with pagination.
+  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor> _provider;
 
   /// Guard used to guarantee synchronous access to the [_local] storage.
   final Mutex _guard = Mutex();
@@ -252,9 +257,8 @@ class HiveRxChat extends RxChat {
       }
     });
 
-    _pagination = Pagination<HiveChatItem, ChatItemKey, ChatItemsCursor>(
-      onKey: (e) => e.value.key,
-      provider: GraphQlPageProvider(
+    _provider = HiveGraphQlPageProvider(
+      graphQlProvider: GraphQlPageProvider(
         reversed: true,
         fetch: ({after, before, first, last}) => _chatRepository.messages(
           chat.value.id,
@@ -264,6 +268,17 @@ class HiveRxChat extends RxChat {
           last: last,
         ),
       ),
+      hiveProvider: HivePageProvider(
+        _local,
+        getCursor: (e) => e?.cursor,
+        getKey: (e) => e.value.key.toString(),
+        fromEnd: true,
+      ),
+    );
+
+    _pagination = Pagination<HiveChatItem, ChatItemKey, ChatItemsCursor>(
+      onKey: (e) => e.value.key,
+      provider: _provider,
     );
 
     if (id.isLocal) {
@@ -276,17 +291,14 @@ class HiveRxChat extends RxChat {
       switch (event.op) {
         case OperationKind.added:
           _add(event.value!.value);
-          _persist(event.value!);
           break;
 
         case OperationKind.removed:
           messages.removeWhere((e) => e.value.id == event.value?.value.id);
-          _guard.protect(() => _local.remove(event.value!.value.key));
           break;
 
         case OperationKind.updated:
           _add(event.value!.value);
-          _persist(event.value!);
           break;
       }
     });
@@ -587,12 +599,8 @@ class HiveRxChat extends RxChat {
   }
 
   /// Adds the provided [item] to [Pagination] and [Hive].
-  Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) {
-    // Use [_guard] to synchronize [put] with the [remove].
-    return _guard.protect(() async {
-      await _pagination.put(item);
-    });
-  }
+  Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) =>
+      _pagination.put(item);
 
   @override
   Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) {
@@ -604,7 +612,6 @@ class HiveRxChat extends RxChat {
       key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
       if (key != null) {
-        _local.remove(key!);
         _pagination.remove(key!);
 
         HiveChat? chatEntity = _chatLocal.get(id);
@@ -682,19 +689,24 @@ class HiveRxChat extends RxChat {
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
+      _provider.updateHiveProvider(_local);
+      await _pagination.clear();
+
       for (var e in saved.whereType<HiveChatMessage>()) {
         // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
         final HiveChatMessage copy = e.copyWith()..value.chatId = newChat.id;
-        _local.put(copy);
+
+        if(copy.value.status.value == SendingStatus.error) {
+          copy.value.status.value = SendingStatus.sending;
+        }
+
+        _pagination.put(copy);
       }
     }
   }
 
-  /// Removes all [ChatItem]s from the [messages].
-  Future<void> clear() {
-    _pagination.clear();
-    return _local.clear();
-  }
+  /// Clears the [_pagination].
+  Future<void> clear() => _pagination.clear();
 
   @override
   int compareTo(RxChat other) {
@@ -928,24 +940,6 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Puts the provided [item] to [Hive].
-  Future<void> _persist(HiveChatItem item, {bool ignoreVersion = false}) {
-    return _guard.protect(() async {
-      if (!_local.isReady) {
-        return;
-      }
-
-      if (ignoreVersion || !_local.keys.contains(item.value.key)) {
-        await _local.put(item);
-      } else {
-        final HiveChatItem? saved = await _local.get(item.value.key);
-        if (saved != null && saved.ver < item.ver) {
-          await _local.put(item);
-        }
-      }
-    });
-  }
-
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
     _remoteSubscriptionInitialized = true;
@@ -959,8 +953,7 @@ class HiveRxChat extends RxChat {
       _chatEvent,
       onError: (e) async {
         if (e is StaleVersionException) {
-          await _local.clear();
-          _pagination.clear();
+          await _pagination.clear();
 
           await _pagination.around(cursor: _lastReadItemCursor);
         }
@@ -1016,7 +1009,7 @@ class HiveRxChat extends RxChat {
               chatEntity.lastItemCursor = null;
               chatEntity.lastReadItemCursor = null;
               _lastReadItemCursor = null;
-              await _guard.protect(_local.clear);
+              await _pagination.clear();
               break;
 
             case ChatEventKind.itemHidden:
