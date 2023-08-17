@@ -185,6 +185,15 @@ class ChatController extends GetxController {
   /// Indicator whether the [LoaderElement]s should be displayed.
   final RxBool showLoaders = RxBool(true);
 
+  /// Indicator whether the application is active.
+  final RxBool active = RxBool(true);
+
+  /// Height of a [LoaderElement] displayed in the message list.
+  static const double loaderHeight = 64;
+
+  /// Index of an item from the [elements] that should be highlighted.
+  final RxnInt highlightIndex = RxnInt(null);
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -224,15 +233,6 @@ class ChatController extends GetxController {
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
-
-  /// Indicator whether the application is active.
-  final RxBool active = RxBool(true);
-
-  /// Index of an item from the [elements] that should be highlighted.
-  final RxnInt highlight = RxnInt(null);
-
-  /// Height of a [LoaderElement] displayed in the message list.
-  static const double loaderHeight = 64;
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
@@ -278,10 +278,10 @@ class ChatController extends GetxController {
   Worker? _statusWorker;
 
   /// [Duration] of the highlighting.
-  static const Duration _highlightTimeout = Duration(seconds: 2);
+  static const Duration _highlightTimeout = Duration(seconds: 1);
 
-  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
-  /// passed.
+  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// has passed.
   Timer? _highlightTimer;
 
   /// [Timer] adding the [_bottomLoader] to the [elements] list.
@@ -1133,10 +1133,12 @@ class ChatController extends GetxController {
 
   /// Highlights the item with the provided [index].
   Future<void> _highlight(int index) async {
-    highlight.value = index;
+    highlightIndex.value = index;
 
     _highlightTimer?.cancel();
-    _highlightTimer = Timer(_highlightTimeout, () => highlight.value = null);
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
   }
 
   /// Invokes [_updateSticky] and [_updateFabStates].

@@ -19,17 +19,22 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
+import 'highlighted_container.dart';
 
 /// Stylized grouped section of the provided [children].
 class Block extends StatelessWidget {
   const Block({
     super.key,
-    this.children = const [],
     this.title,
+    this.highlight = false,
+    this.children = const [],
   });
 
   /// Optional header of this [Block].
   final String? title;
+
+  /// Indicator whether this [Block] should be highlighted.
+  final bool highlight;
 
   /// [Widget]s to display.
   final List<Widget> children;
@@ -38,34 +43,37 @@ class Block extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Center(
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-        decoration: BoxDecoration(
-          border: style.primaryBorder,
-          color: style.messageColor,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        constraints:
-            context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (title != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-                child: Center(
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    child: Text(title!, style: style.fonts.headlineMedium),
+    return HighlightedContainer(
+      highlight: highlight == true,
+      child: Center(
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          decoration: BoxDecoration(
+            border: style.primaryBorder,
+            color: style.messageColor,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          constraints:
+              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (title != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      child: Text(title!, style: style.fonts.headlineMedium),
+                    ),
                   ),
                 ),
-              ),
-            ...children,
-          ],
+              ...children,
+            ],
+          ),
         ),
       ),
     );
