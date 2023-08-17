@@ -254,9 +254,9 @@ class UserEmail extends NewType<String> {
 class UserPhone extends NewType<String> {
   const UserPhone._(String val) : super(val);
 
-  factory UserPhone(String val) {
+  UserPhone(String val) : super(val) {
     if (!val.startsWith('+')) {
-      val = '+$val';
+      throw const FormatException('Must start with plus');
     }
 
     if (val.length < 8) {
@@ -266,8 +266,6 @@ class UserPhone extends NewType<String> {
     if (!_regExp.hasMatch(val)) {
       throw const FormatException('Does not match validation RegExp');
     }
-
-    return UserPhone._(val);
   }
 
   /// Creates an object without any validation.
