@@ -78,7 +78,7 @@ class AddPhoneController extends GetxController {
       onChanged: (s) {
         try {
           if (s.text.isNotEmpty) {
-            UserPhone(s.text.toLowerCase());
+            UserPhone(s.text);
           }
 
           s.error.value = null;

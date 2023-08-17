@@ -78,7 +78,7 @@ class AddEmailController extends GetxController {
       onChanged: (s) {
         try {
           if (s.text.isNotEmpty) {
-            UserEmail(s.text.toLowerCase());
+            UserEmail(s.text);
           }
 
           s.error.value = null;
@@ -132,7 +132,7 @@ class AddEmailController extends GetxController {
 
           s.error.value = null;
         } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
+          s.error.value = 'err_wrong_recovery_code'.l10n;
         }
       },
       onSubmitted: (s) async {

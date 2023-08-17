@@ -486,14 +486,15 @@ class TextFieldState extends ReactiveFieldState {
 
     changed.value = _previousSubmit != text;
 
-    controller.addListener(() => PlatformUtils.keepActive());
+    String prev = controller.text;
 
-    String prevText = controller.text;
     controller.addListener(() {
+      PlatformUtils.keepActive();
+
       changed.value = controller.text != (_previousSubmit ?? '');
 
-      if (controller.text != prevText) {
-        prevText = controller.text;
+      if (controller.text != prev) {
+        prev = controller.text;
         error.value = null;
       }
     });

@@ -111,7 +111,7 @@ class ChatInfoController extends GetxController {
       onChanged: (s) {
         try {
           if (s.text.isNotEmpty) {
-            ChatName(s.text.toLowerCase());
+            ChatName(s.text);
           }
 
           s.error.value = null;
