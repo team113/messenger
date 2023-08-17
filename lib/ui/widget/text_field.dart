@@ -514,9 +514,6 @@ class TextFieldState extends ReactiveFieldState {
     });
   }
 
-  /// [Duration] to debounce the [onChanged] calls with.
-  static const Duration debounce = Duration(milliseconds: 500);
-
   /// Callback, called when the [text] has finished changing.
   ///
   /// This callback is fired only when the [text] is changed on:
