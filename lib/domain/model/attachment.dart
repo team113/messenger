@@ -213,6 +213,8 @@ class FileAttachment extends Attachment {
       },
       _token,
     );
+
+    return _bytes;
   }
 
   /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`.
