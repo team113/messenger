@@ -58,7 +58,7 @@ class VacancyView extends StatelessWidget {
             title: Text(e.title),
             leading: const [StyledBackButton()],
           ),
-          body: VacancyBodyView(e),
+          body: VacancyBodyView(e, detailed: false),
           // Center(
           //   child: ListView(
           //     shrinkWrap: !context.isNarrow,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/vacancy.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/animated_logo.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
@@ -87,10 +88,10 @@ class VacancyView extends StatelessWidget {
 
   Widget _list(VacancyController c, BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(
-        leading: [StyledBackButton()],
-        title: Text('Vacancies'),
-        actions: [SizedBox(width: 46)],
+      appBar: CustomAppBar(
+        leading: const [StyledBackButton()],
+        title: Text('label_work_with_us'.l10n),
+        actions: const [SizedBox(width: 46)],
       ),
       body: ListView(
         padding: const EdgeInsets.all(8),
@@ -176,8 +177,8 @@ class VacancyView extends StatelessWidget {
         if (context.isNarrow) {
           child = const SizedBox();
         } else {
-          child = const Scaffold(
-            body: Center(child: Text('Vacancies...')),
+          child = Scaffold(
+            body: Center(child: Text('label_work_with_us'.l10n)),
           );
         }
       }

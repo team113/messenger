@@ -103,9 +103,9 @@ class _DownloadableFileState extends State<DownloadableButton> {
             e.cancelDownload();
           } else {
             if (await e.open() == false) {
-              await e.download(
-                '${Config.url}/assets/assets/${e.original.relativeRef}',
-              );
+              // await e.download(
+              //   '${Config.url}/assets/assets/${e.original.relativeRef}',
+              // );
             }
           }
         },

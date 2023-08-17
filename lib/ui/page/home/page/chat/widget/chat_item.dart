@@ -802,7 +802,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final bool timestamp =
         (widget.timestamp || msg.donate != null || widget.paid) &&
-            (_text != null); // || msg.donate != null);
+            (_text != null || files.isNotEmpty); // || msg.donate != null);
 
     return _rounded(
       context,

@@ -17,10 +17,12 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/util/backoff.dart';
 import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
 
@@ -107,6 +109,8 @@ class FileAttachment extends Attachment {
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
+  Uint8List? _bytes;
+
   /// Indicates whether this [FileAttachment] is downloading.
   bool get isDownloading => downloadStatus.value == DownloadStatus.inProgress;
 
@@ -119,6 +123,11 @@ class FileAttachment extends Attachment {
         file.endsWith('.mkv') ||
         file.endsWith('.flv') ||
         file.endsWith('.3gp');
+  }
+
+  bool get isPdf {
+    String file = filename.toLowerCase();
+    return file.endsWith('.pdf');
   }
 
   // TODO: Compare hashes.
@@ -154,7 +163,7 @@ class FileAttachment extends Attachment {
   }
 
   /// Downloads this [FileAttachment].
-  Future<void> download([String? url]) async {
+  Future<void> download() async {
     try {
       downloadStatus.value = DownloadStatus.inProgress;
       progress.value = 0;
@@ -162,7 +171,7 @@ class FileAttachment extends Attachment {
       _token = CancelToken();
 
       File? file = await PlatformUtils.download(
-        url ?? original.url,
+        original.url,
         filename,
         original.size,
         onReceiveProgress: (count, total) => progress.value = count / total,
@@ -182,6 +191,28 @@ class FileAttachment extends Attachment {
 
       rethrow;
     }
+  }
+
+  Future<Uint8List?> bytes() async {
+    if (_bytes != null) {
+      return _bytes;
+    }
+
+    await Backoff.run(
+      () async {
+        // TODO: Cache the response.
+        final response = await (await PlatformUtils.dio).get(
+          original.url,
+          cancelToken: _token,
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        if (response.statusCode == 200) {
+          _bytes = response.data;
+        }
+      },
+      _token,
+    );
   }
 
   /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`.

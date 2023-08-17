@@ -17,7 +17,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:path/path.dart' as p;
+import 'package:pdfx/pdfx.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
@@ -25,6 +27,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import 'pdf_preview.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -45,13 +48,89 @@ class _DataAttachmentState extends State<DataAttachment> {
   /// Indicator whether this [DataAttachment] is hovered.
   bool _hovered = false;
 
+  final GlobalKey _pdfKey = GlobalKey();
+
+  final Future<PdfDocument> _document =
+      PdfDocument.openAsset('assets/resume.pdf');
+  PdfDocument? _loaded;
+  PdfPage? _page;
+
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     final Attachment e = widget.attachment;
 
-    return Obx(() {
-      final style = Theme.of(context).style;
+    if (e is FileAttachment && e.isPdf) {
+      return MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: Padding(
+          key: Key('File_${e.id}'),
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+          child: WidgetButton(
+            onPressed: widget.onPressed,
+            child: Row(
+              children: [
+                FutureBuilder(
+                  future: e.bytes(),
+                  builder: (context, data) {
+                    return PdfPreview(data.data);
+                  },
+                ),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              p.basenameWithoutExtension(e.filename),
+                              style: style.fonts.bodyLarge,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Text(
+                            p.extension(e.filename),
+                            style: style.fonts.bodyLarge,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'label_kb'.l10nfmt({
+                              'amount': e.original.size == null
+                                  ? 'dot'.l10n * 3
+                                  : e.original.size! ~/ 1024
+                            }),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: style.fonts.headlineSmall.copyWith(
+                              color: style.colors.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
+    return Obx(() {
       Widget leading = Container();
 
       if (e is FileAttachment) {

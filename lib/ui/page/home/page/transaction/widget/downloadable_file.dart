@@ -156,9 +156,9 @@ class _DownloadableFileState extends State<DownloadableFile> {
                     if (await e.open() == false) {
                       print(
                           '${Config.url}/assets/assets/${e.original.relativeRef}');
-                      await e.download(
-                        '${Config.url}/assets/assets/${e.original.relativeRef}',
-                      );
+                      // await e.download(
+                      //   '${Config.url}/assets/assets/${e.original.relativeRef}',
+                      // );
                     }
                   }
                 },

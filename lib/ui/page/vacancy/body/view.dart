@@ -12,9 +12,14 @@ import 'package:messenger/util/platform_utils.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class VacancyBodyView extends StatelessWidget {
-  const VacancyBodyView(this.vacancy, {super.key});
+  const VacancyBodyView(
+    this.vacancy, {
+    super.key,
+    this.detailed = true,
+  });
 
   final Vacancy vacancy;
+  final bool detailed;
 
   @override
   Widget build(BuildContext context) {
@@ -67,40 +72,41 @@ class VacancyBodyView extends StatelessWidget {
     switch (vacancy.id) {
       case 'dart':
         return [
-          Block(
-            children: [
-              Text(
-                'Messenger',
-                style: style.fonts.titleLargeSecondary
-                    .copyWith(fontSize: 27 * multiplier),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 2 * multiplier),
-              Text(
-                'by Gapopa',
-                style: style.fonts.titleLargeSecondary
-                    .copyWith(fontSize: 21 * multiplier),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 25 * multiplier),
-              const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
-              const SizedBox(height: 16 * multiplier),
-              WidgetButton(
-                onPressed: () async {
-                  await launchUrlString('https://gapopa.net');
-                },
-                child: Text(
-                  'gapopa.net',
-                  style: style.fonts.labelLargePrimary,
+          if (detailed)
+            Block(
+              children: [
+                Text(
+                  'Messenger',
+                  style: style.fonts.titleLargeSecondary
+                      .copyWith(fontSize: 27 * multiplier),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
-              ),
-              const SizedBox(height: 4),
-            ],
-          ),
+                const SizedBox(height: 2 * multiplier),
+                Text(
+                  'by Gapopa',
+                  style: style.fonts.titleLargeSecondary
+                      .copyWith(fontSize: 21 * multiplier),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                const SizedBox(height: 25 * multiplier),
+                const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
+                const SizedBox(height: 16 * multiplier),
+                // WidgetButton(
+                //   onPressed: () async {
+                //     await launchUrlString('https://gapopa.net');
+                //   },
+                //   child: Text(
+                //     'gapopa.net',
+                //     style: style.fonts.labelLargePrimary,
+                //   ),
+                // ),
+                // const SizedBox(height: 4),
+              ],
+            ),
           const Block(
             title: 'Фронтэнд',
             children: [
@@ -109,9 +115,9 @@ class VacancyBodyView extends StatelessWidget {
 
 Фреймворк - Flutter
 
-Открытый исходный код-  https://github.com/team113/messenger
+Открытый исходный код -  https://github.com/team113/messenger
 
-Курс для изучения Dart/Flutter - https://github.com/team113/flutter-incubator''',
+Курс для САМОСТОЯТЕЛЬНОГО изучения Dart/Flutter - https://github.com/team113/flutter-incubator''',
               ),
               // const SizedBox(height: 4),
               // Text(
@@ -142,34 +148,20 @@ Gherkin - E2E тестирование.''',
             title: 'Frontend Developer',
             children: [
               VacancyDescription(
-                '''Обязанности:
-
-- разработка, тестирование и поддержка проекта на Dart/Flutter.
-
-
-Требования:
-
+                '''Требования:
 - понимание принципов UX дизайна;
 - знание GraphQL и WebSocket;
 - умение документировать код;
-- умение использововать автоматическое тестирование;
+- умение покрывать код юнит и/или интеграционными тестами;
 - умение читать и понимать техническую литературу на английском языке;
 - возможность обеспечить качественную аудио и видеосвязь.
 
-
 Условия:
-
-- полная занятость;
-- начальная ставка заработной платы от 2000 EUR в месяц;
-- ежедневное зачисление заработной платы;
-- удалённое сотрудничество;
-- предусмотрен учёт рабочего времени;
-- рабочее время: с 11:30 по 13:00 UTC находиться онлайн обязательно, остальное время выбирается самостоятельно по согласованию с тимлидом.
-
-
-Дополнительно:
-
-- оказывается помощь при переезде в одну из штаб-квартир компании.''',
+- ежедневная оплата;
+- от 2000 EUR;
+- 4-х, 6-ти или 8-ми часовой рабочий день;
+- учёт рабочего времени и оплата переработок;
+- удалённое сотрудничество.''',
               ),
             ],
           ),
