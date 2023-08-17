@@ -1,6 +1,4 @@
 PODS:
-  - audioplayers_darwin (0.0.1):
-    - Flutter
   - auto_orientation (0.0.1):
     - Flutter
   - callkeep (0.0.1):
@@ -113,13 +111,10 @@ PODS:
     - Flutter
   - volume_controller (0.0.1):
     - Flutter
-  - wakelock (0.0.1):
-    - Flutter
   - wakelock_plus (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
   - auto_orientation (from `.symlinks/plugins/auto_orientation/ios`)
   - callkeep (from `.symlinks/plugins/callkeep/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
@@ -152,7 +147,6 @@ DEPENDENCIES:
   - vibration (from `.symlinks/plugins/vibration/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/ios`)
   - volume_controller (from `.symlinks/plugins/volume_controller/ios`)
-  - wakelock (from `.symlinks/plugins/wakelock/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
 
 SPEC REPOS:
@@ -168,8 +162,6 @@ SPEC REPOS:
     - SwiftyGif
 
 EXTERNAL SOURCES:
-  audioplayers_darwin:
-    :path: ".symlinks/plugins/audioplayers_darwin/ios"
   auto_orientation:
     :path: ".symlinks/plugins/auto_orientation/ios"
   callkeep:
@@ -234,13 +226,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/video_player_avfoundation/ios"
   volume_controller:
     :path: ".symlinks/plugins/volume_controller/ios"
-  wakelock:
-    :path: ".symlinks/plugins/wakelock/ios"
   wakelock_plus:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
-  audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
   auto_orientation: 102ed811a5938d52c86520ddd7ecd3a126b5d39d
   callkeep: 6b21abbd46786a36e482190816db99b391ada1e3
   connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
@@ -282,9 +271,8 @@ SPEC CHECKSUMS:
   vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
   video_player_avfoundation: e489aac24ef5cf7af82702979ed16f2a5ef84cff
   volume_controller: 531ddf792994285c9b17f9d8a7e4dcdd29b3eae9
-  wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
 
-PODFILE CHECKSUM: 13075f12a629e738fabd4965041425a1171e064f
+PODFILE CHECKSUM: d424dae6c0df7d511e191fd18bb5f1218b4fb54f
 
 COCOAPODS: 1.12.1
