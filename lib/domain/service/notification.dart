@@ -16,10 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:win_toast/win_toast.dart';
+import 'package:window_manager/window_manager.dart';
 
+import '/config.dart';
 import '/routes.dart';
 import '/util/audio_utils.dart';
 import '/util/platform_utils.dart';
@@ -66,7 +71,30 @@ class NotificationService extends DisposableService {
       // user's interaction.
       WebUtils.onSelectNotification = onNotificationResponse;
     } else {
-      if (_plugin == null) {
+      if (PlatformUtils.isWindows) {
+        await WinToast.instance().initialize(
+          aumId: 'team113.messenger',
+          displayName: 'Gapopa',
+          iconPath: kDebugMode
+              ? File(r'assets\icons\app_icon.ico').absolute.path
+              : File(r'data\flutter_assets\assets\icons\app_icon.ico')
+                  .absolute
+                  .path,
+          clsid: Config.clsid,
+        );
+
+        WinToast.instance().setActivatedCallback((event) async {
+          await WindowManager.instance.focus();
+
+          onNotificationResponse?.call(
+            NotificationResponse(
+              notificationResponseType:
+                  NotificationResponseType.selectedNotification,
+              payload: event.argument.isEmpty ? null : event.argument,
+            ),
+          );
+        });
+      } else if (_plugin == null) {
         _plugin = FlutterLocalNotificationsPlugin();
         await _plugin!.initialize(
           InitializationSettings(
@@ -118,9 +146,32 @@ class NotificationService extends DisposableService {
         icon: icon,
         tag: tag,
       ).onError((_, __) => false);
-    } else if (!PlatformUtils.isWindows) {
-      // TODO: `flutter_local_notifications` should support Windows:
-      //       https://github.com/MaikuB/flutter_local_notifications/issues/746
+    } else if (PlatformUtils.isWindows) {
+      // TODO: Images should be downloaded to cache.
+      File? file;
+      if (icon != null) {
+        file = await PlatformUtils.download(
+          icon,
+          'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg',
+          null,
+          temporary: true,
+        );
+      }
+
+      await WinToast.instance().showCustomToast(
+        xml: '<?xml version="1.0" encoding="UTF-8"?>'
+            '<toast activationType="Foreground" launch="${payload ?? ''}">'
+            '  <visual addImageQuery="true">'
+            '      <binding template="ToastGeneric">'
+            '          <text>$title</text>'
+            '          <text>${body ?? ''}</text>'
+            '          <image placement="appLogoOverride" hint-crop="circle" id="1" src="${file?.path ?? ''}"/>'
+            '      </binding>'
+            '  </visual>'
+            '</toast>',
+        tag: 'Gapopa',
+      );
+    } else {
       await _plugin!.show(
         Random().nextInt(1 << 31),
         title,

@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -488,21 +486,18 @@ class TextFieldState extends ReactiveFieldState {
 
     changed.value = _previousSubmit != text;
 
-    controller.addListener(() => PlatformUtils.keepActive());
+    String prev = controller.text;
 
-    if (onChanged != null) {
-      controller.addListener(() {
-        changed.value = controller.text != (_previousSubmit ?? '');
+    controller.addListener(() {
+      PlatformUtils.keepActive();
 
-        _debounceTimer?.cancel();
-        _debounceTimer = Timer(debounce, () {
-          if (_previousText != controller.text) {
-            _previousText = controller.text;
-            onChanged?.call(this);
-          }
-        });
-      });
-    }
+      changed.value = controller.text != (_previousSubmit ?? '');
+
+      if (controller.text != prev) {
+        prev = controller.text;
+        error.value = null;
+      }
+    });
 
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
@@ -519,9 +514,6 @@ class TextFieldState extends ReactiveFieldState {
       }
     });
   }
-
-  /// [Duration] to debounce the [onChanged] calls with.
-  static const Duration debounce = Duration(milliseconds: 500);
 
   /// Callback, called when the [text] has finished changing.
   ///
@@ -541,15 +533,12 @@ class TextFieldState extends ReactiveFieldState {
   @override
   final RxBool changed = RxBool(false);
 
-  /// [TextEditingController] of this [TextFieldState].
   @override
   late final TextEditingController controller;
 
-  /// Reactive [RxStatus] of this [TextFieldState].
   @override
   late final Rx<RxStatus> status;
 
-  /// Indicator whether this [TextFieldState] should be editable or not.
   @override
   late final RxBool editable;
 
@@ -566,9 +555,6 @@ class TextFieldState extends ReactiveFieldState {
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified since the last [submit] action.
   String? _previousSubmit;
-
-  /// [Timer] debouncing the [onChanged] callback.
-  Timer? _debounceTimer;
 
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;
@@ -596,7 +582,6 @@ class TextFieldState extends ReactiveFieldState {
   /// more text editing was done since then.
   bool get isValidated => controller.text == _previousText;
 
-  /// Submits this [TextFieldState].
   @override
   void submit() {
     if (editable.value) {
@@ -626,6 +611,5 @@ class TextFieldState extends ReactiveFieldState {
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
-    _debounceTimer?.cancel();
   }
 }
