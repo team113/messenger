@@ -398,7 +398,13 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _pagination.around(cursor: _lastReadItemCursor);
+    HiveChatItem? item;
+    print('chat.value.lastReadItem: ${chat.value.lastReadItem}');
+    if (chat.value.lastReadItem != null) {
+      item = await get(chat.value.lastReadItem!);
+    }
+
+    await _pagination.around(cursor: _lastReadItemCursor, item: item);
 
     status.value = RxStatus.success();
 
@@ -655,7 +661,7 @@ class HiveRxChat extends RxChat {
         return null;
       }
 
-      key ??= _local.keys.firstWhereOrNull((e) => e.id == id);
+      key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
       if (key != null) {
         return await _local.get(key!);

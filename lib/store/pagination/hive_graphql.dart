@@ -37,49 +37,27 @@ class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
   /// [GraphQlPageProvider] fetching elements from the remote.
   final GraphQlPageProvider<T, C> graphQlProvider;
 
-  /// Indicator whether [around] is executing.
-  bool _aroundFetching = false;
-
-  /// Indicator whether [after] is executing.
-  bool _afterFetching = false;
-
-  /// Indicator whether [before] is executing.
-  bool _beforeFetching = false;
-
   @override
   FutureOr<Page<T, C>?> around(T? item, C? cursor, int count) async {
-    if (_aroundFetching) {
-      return null;
-    }
-
-    _aroundFetching = true;
     final cached = await hiveProvider.around(item, cursor, count);
 
-    if (cached != null && cached.edges.length >= count) {
-      _aroundFetching = false;
+    if (cached != null && cached.edges.isNotEmpty) {
       return cached;
     }
 
     final remote = await graphQlProvider.around(item, cursor, count);
     for (T e in remote.edges) {
-      await hiveProvider.put(e);
+      hiveProvider.put(e);
     }
 
-    _aroundFetching = false;
     return remote;
   }
 
   @override
   FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
-    if (_afterFetching) {
-      return null;
-    }
-
-    _afterFetching = true;
     final cached = await hiveProvider.after(item, cursor, count);
 
     if (cached != null && cached.edges.isNotEmpty) {
-      _afterFetching = false;
       return cached;
     }
 
@@ -90,21 +68,14 @@ class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
       }
     }
 
-    _afterFetching = false;
     return remote;
   }
 
   @override
   FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
-    if (_beforeFetching) {
-      return null;
-    }
-
-    _beforeFetching = true;
     final cached = await hiveProvider.before(item, cursor, count);
 
     if (cached != null && cached.edges.isNotEmpty) {
-      _beforeFetching = false;
       return cached;
     }
 
@@ -115,7 +86,6 @@ class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
       }
     }
 
-    _beforeFetching = false;
     return remote;
   }
 
@@ -126,9 +96,8 @@ class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
   Future<void> remove(String key) => hiveProvider.remove(key);
 
   /// Updates the provider in the [hiveProvider] with the provided [provider].
-  void updateHiveProvider(HiveLazyProvider provider) {
-    hiveProvider.updateProvider(provider);
-  }
+  void updateHiveProvider(HiveLazyProvider provider) =>
+      hiveProvider.updateProvider(provider);
 
   @override
   Future<void> clear() => hiveProvider.clear();
