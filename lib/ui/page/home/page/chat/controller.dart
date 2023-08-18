@@ -398,6 +398,11 @@ class ChatController extends GetxController {
           paidBorder.value = false;
         }
 
+        if (emailNotValidated.value) {
+          paidBorder.value = true;
+          return;
+        }
+
         if (paid && !paidDisclaimerDismissed.value) {
           if (paidDisclaimer.value) {
             paidBorder.value = true;
@@ -726,10 +731,13 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
-      emailNotValidated.value = chat!.chat.value.isDialog &&
-          chat!.chat.value.members.firstWhereOrNull(
-                  (e) => e.user.id != me && e.user.name?.val == 'Roman') !=
-              null;
+      // emailNotValidated.value = chat!.chat.value.isDialog &&
+      //     chat!.chat.value.members.firstWhereOrNull(
+      //           (e) =>
+      //               e.user.id != me &&
+      //               (e.user.name?.val == 'Roman' || e.user.name?.val == 'HR'),
+      //         ) !=
+      //         null;
 
       unreadMessages = chat!.chat.value.unreadCount;
 

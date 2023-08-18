@@ -61,7 +61,7 @@ class _DataAttachmentState extends State<DataAttachment> {
 
     final Attachment e = widget.attachment;
 
-    if (e is FileAttachment && e.isPdf) {
+    if (e is FileAttachment && e.isPdf && false) {
       return MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),

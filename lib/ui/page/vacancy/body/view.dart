@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:messenger/domain/model/vacancy.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/animated_logo.dart';
@@ -7,9 +8,9 @@ import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/page/vacancy/contact/view.dart';
 import 'package:messenger/ui/page/vacancy/widget/vacancy_description.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+
+import 'controller.dart';
 
 class VacancyBodyView extends StatelessWidget {
   const VacancyBodyView(
@@ -25,42 +26,41 @@ class VacancyBodyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Center(
-      child: ListView(
-        shrinkWrap: !context.isNarrow,
-        children: [
-          const SizedBox(height: 4),
-          ..._content(context, vacancy),
-          // ...vacancy.blocks.map((e) {
-          //   return Block(
-          //     title: e.title,
-          //     children: [
-          //       VacancyDescription(e.description),
-          //       const SizedBox(height: 4),
-          //     ],
-          //   );
-          // }),
-          Block(
-            title: 'Schedule an interview',
+    return GetBuilder(
+      init: VacancyBodyController(Get.find()),
+      builder: (VacancyBodyController c) {
+        return Center(
+          child: ListView(
+            shrinkWrap: !context.isNarrow,
             children: [
-              Paddings.basic(
-                OutlinedRoundedButton(
-                  onPressed: () async {
-                    await VacancyContactView.show(context);
-                  },
-                  maxWidth: double.infinity,
-                  color: style.colors.primary,
-                  title: Text(
-                    'Связаться',
-                    style: TextStyle(color: style.colors.onPrimary),
+              const SizedBox(height: 4),
+              ..._content(context, vacancy),
+              Block(
+                children: [
+                  Paddings.basic(
+                    OutlinedRoundedButton(
+                      onPressed: () async {
+                        if (c.authorized) {
+                          await c.useLink();
+                        } else {
+                          await VacancyContactView.show(context);
+                        }
+                      },
+                      maxWidth: double.infinity,
+                      color: style.colors.primary,
+                      title: Text(
+                        'Записаться на интервью',
+                        style: TextStyle(color: style.colors.onPrimary),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
+              const SizedBox(height: 4),
             ],
           ),
-          const SizedBox(height: 4),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -72,96 +72,79 @@ class VacancyBodyView extends StatelessWidget {
     switch (vacancy.id) {
       case 'dart':
         return [
-          if (detailed)
-            Block(
-              children: [
-                Text(
-                  'Messenger',
-                  style: style.fonts.titleLargeSecondary
-                      .copyWith(fontSize: 27 * multiplier),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                const SizedBox(height: 2 * multiplier),
-                Text(
-                  'by Gapopa',
-                  style: style.fonts.titleLargeSecondary
-                      .copyWith(fontSize: 21 * multiplier),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                const SizedBox(height: 25 * multiplier),
-                const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
-                const SizedBox(height: 16 * multiplier),
-                // WidgetButton(
-                //   onPressed: () async {
-                //     await launchUrlString('https://gapopa.net');
-                //   },
-                //   child: Text(
-                //     'gapopa.net',
-                //     style: style.fonts.labelLargePrimary,
-                //   ),
-                // ),
-                // const SizedBox(height: 4),
-              ],
-            ),
+          // if (detailed)
+          Block(
+            children: [
+              Text(
+                'Messenger',
+                style: style.fonts.titleLargeSecondary
+                    .copyWith(fontSize: 27 * multiplier),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              const SizedBox(height: 2 * multiplier),
+              Text(
+                'by Gapopa',
+                style: style.fonts.titleLargeSecondary
+                    .copyWith(fontSize: 21 * multiplier),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              const SizedBox(height: 25 * multiplier),
+              const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
+              const SizedBox(height: 16 * multiplier),
+              const VacancyDescription('https://github.com/team113/messenger'),
+            ],
+          ),
           const Block(
-            title: 'Фронтэнд',
+            title: 'Условия',
             children: [
               VacancyDescription(
-                '''Язык - Dart
-
-Фреймворк - Flutter
-
-Открытый исходный код -  https://github.com/team113/messenger
-
-Курс для САМОСТОЯТЕЛЬНОГО изучения Dart/Flutter - https://github.com/team113/flutter-incubator''',
+                '''- ежедневная оплата;
+- от 2000 EUR;
+- 4-х, 6-ти или 8-ми часовой рабочий день;
+- учёт рабочего времени и оплата переработок;
+- удалённое сотрудничество.''',
               ),
-              // const SizedBox(height: 4),
-              // Text(
-              //   '(курс уроков для самостоятельного изучения языка Dart и фреймворка Flutter)',
-              //   style: style.fonts.labelSmallSecondary,
-              // ),
+            ],
+          ),
+          const Block(
+            title: 'Требования',
+            children: [
+              VacancyDescription(
+                '''- понимание принципов UX дизайна;
+- знание GraphQL и WebSocket;
+- умение документировать код;
+- умение покрывать код юнит и/или интеграционными тестами;
+- умение читать и понимать техническую литературу на английском языке;
+- возможность обеспечить качественную аудио и видеосвязь.''',
+              ),
             ],
           ),
           const Block(
             title: 'Стек технологий',
             children: [
               VacancyDescription(
-                '''GetX - Dependency Injection и State Management;
-
-Navigator 2.0 (Router) - навигация;
-
-Hive - локальная база данных;
-
-Firebase - push уведомления;
-
-GraphQL и Artemis - связь с бэкэндом;
-
-Gherkin - E2E тестирование.''',
+                '''- язык - Dart
+- фреймворк - Flutter
+- GetX - Dependency Injection и State Management;
+- Navigator 2.0 (Router) - навигация;
+- Hive - локальная база данных;
+- Firebase - push уведомления;
+- GraphQL и Artemis - связь с бэкэндом;
+- Gherkin - E2E тестирование.''',
               ),
             ],
           ),
           const Block(
-            title: 'Frontend Developer',
+            // title: 'Курс для самостоятельного обучения',
             children: [
               VacancyDescription(
-                '''Требования:
-- понимание принципов UX дизайна;
-- знание GraphQL и WebSocket;
-- умение документировать код;
-- умение покрывать код юнит и/или интеграционными тестами;
-- умение читать и понимать техническую литературу на английском языке;
-- возможность обеспечить качественную аудио и видеосвязь.
+                '''В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Dart/Flutter, Вы можете воспользоваться нашей корпоративной песочницей.
 
-Условия:
-- ежедневная оплата;
-- от 2000 EUR;
-- 4-х, 6-ти или 8-ми часовой рабочий день;
-- учёт рабочего времени и оплата переработок;
-- удалённое сотрудничество.''',
+https://github.com/team113/flutter-incubator''',
               ),
             ],
           ),

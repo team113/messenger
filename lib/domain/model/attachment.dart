@@ -24,6 +24,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:messenger/util/backoff.dart';
 import 'package:open_file/open_file.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
@@ -164,6 +165,10 @@ class FileAttachment extends Attachment {
 
   /// Downloads this [FileAttachment].
   Future<void> download() async {
+    if (isPdf && PlatformUtils.isWeb) {
+      await launchUrlString(original.url);
+    }
+
     try {
       downloadStatus.value = DownloadStatus.inProgress;
       progress.value = 0;

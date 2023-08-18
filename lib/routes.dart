@@ -18,7 +18,8 @@
 import 'package:collection/collection.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:flutter/material.dart';
+// import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
@@ -697,7 +698,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
-            UserService userService = deps.put(UserService(userRepository));
+            deps.put(UserService(userRepository));
             deps.put(ContactService(contactRepository));
             ChatService chatService =
                 deps.put(ChatService(chatRepository, Get.find()));
@@ -768,18 +769,16 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         onPointerHover: (_) => PlatformUtils.keepActive(),
         onPointerSignal: (_) => PlatformUtils.keepActive(),
         child: Scaffold(
-          body: NeumorphicTheme(
-            child: Navigator(
-              key: navigatorKey,
-              pages: _pages,
-              onPopPage: (Route<dynamic> route, dynamic result) {
-                final bool success = route.didPop(result);
-                if (success) {
-                  _state.pop();
-                }
-                return success;
-              },
-            ),
+          body: Navigator(
+            key: navigatorKey,
+            pages: _pages,
+            onPopPage: (Route<dynamic> route, dynamic result) {
+              final bool success = route.didPop(result);
+              if (success) {
+                _state.pop();
+              }
+              return success;
+            },
           ),
         ),
       ),
@@ -930,6 +929,7 @@ extension AppLifecycleStateExtension on AppLifecycleState {
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
         return false;
     }
   }

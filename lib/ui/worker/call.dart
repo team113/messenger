@@ -123,7 +123,9 @@ class CallWorker extends DisposableService {
 
     _lifecycleWorker = ever(router.lifecycle, (e) async {
       if (e.inForeground) {
-        _callKeep.endAllCalls();
+        if (PlatformUtils.isAndroid) {
+          _callKeep.endAllCalls();
+        }
 
         _callService.calls.forEach((id, call) {
           if (_answeredCalls.contains(id) && !call.value.isActive) {
