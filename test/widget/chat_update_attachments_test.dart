@@ -26,7 +26,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
-import 'package:messenger/domain/model/cache_info.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
@@ -45,6 +44,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/cache.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
@@ -76,14 +76,11 @@ import 'chat_update_attachments_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
-  PlatformUtils = PlatformUtilsMock();
+  PlatformUtils = PlatformUtilsMock(cache: null);
 
   final dio = Dio(BaseOptions());
   final dioAdapter = DioAdapter(dio: dio);
   PlatformUtils.client = dio;
-
-  CacheWorker.instance = CacheWorker(null);
-  CacheWorker.instance.info = CacheInfo().obs;
 
   dioAdapter.onGet(
     'oldRef.png',
@@ -165,16 +162,16 @@ void main() async {
     any,
   )).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider
-          .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-      .thenAnswer(
+  when(graphQlProvider.getChat(
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+  )).thenAnswer(
     (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
   );
 
   when(graphQlProvider.readChat(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0')))
-      .thenAnswer((_) => Future.value(null));
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0'),
+  )).thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.chatItems(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -350,6 +347,8 @@ void main() async {
   await blacklistedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
+  var cacheInfoProvider = CacheInfoHiveProvider();
+  await cacheInfoProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -434,6 +433,8 @@ void main() async {
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
+
+    Get.put(CacheWorker(cacheInfoProvider));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),

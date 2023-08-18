@@ -175,6 +175,7 @@ class _RetryImageState extends State<RetryImage> {
       _canceled = true;
     }
 
+    // We're expecting a checksum to properly fetch the image from the cache.
     if (widget.checksum == null || widget.fallbackChecksum == null) {
       widget.onForbidden?.call();
     }
