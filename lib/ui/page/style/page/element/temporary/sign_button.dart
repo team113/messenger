@@ -175,12 +175,18 @@ class NewFieldButton extends StatefulWidget {
   /// [TextStyle] of the [text].
   final TextStyle? style;
 
+  /// [Color] of the [text].
   final Color? color;
 
+  /// [Color] of the border.
   final Color? border;
 
+  /// Text of the [prefix].
   final String? prefixText;
+
+  /// [TextStyle] of the [prefix].
   final TextStyle? prefixStyle;
+
   final String? label;
   final FloatingLabelBehavior floatingLabelBehavior;
 
@@ -276,10 +282,13 @@ class NewOutlinedRoundedButton extends StatelessWidget {
   /// [BoxShadow]s to apply to this button.
   final List<BoxShadow>? shadows;
 
+  /// Width of the [leading].
   final double? leadingWidth;
 
+  /// [TextStyle] of the [title].
   final TextStyle? style;
 
+  /// [Border] of the [title].
   final Border? border;
 
   @override
