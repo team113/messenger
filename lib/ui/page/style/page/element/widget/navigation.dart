@@ -17,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../../widget/svg/svg.dart';
-import '../../../../home/widget/app_bar.dart';
-import '../../../../home/widget/avatar.dart';
-import '../../../../home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/widget/svg/svg.dart';
 import '/themes.dart';
 
 class NavigationWidget extends StatelessWidget {
@@ -31,14 +31,14 @@ class NavigationWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Container(
-      height: 160,
+      height: 350,
       width: double.infinity,
       decoration: BoxDecoration(
         color: style.colors.onPrimary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -116,9 +116,7 @@ class NavigationWidget extends StatelessWidget {
                                 ),
                                 Text(
                                   '6 участников',
-                                  style: style.fonts.bodySmall.copyWith(
-                                    color: style.colors.secondary,
-                                  ),
+                                  style: style.fonts.bodySmallSecondary
                                 ),
                                 const SizedBox(width: 10),
                               ],
@@ -146,29 +144,64 @@ class NavigationWidget extends StatelessWidget {
                       ),
                     ),
                   ],
-                  actions: const [
-                    Row(
-                      children: [
-                        // AnimatedButton(
-                        //   child: SvgImage.asset(
-                        //     'assets/icons/chat_video_call.svg',
-                        //     height: 17,
-                        //   ),
-                        // ),
-                        // const SizedBox(width: 28),
-                        // AnimatedButton(
-                        //   child: SvgImage.asset(
-                        //     'assets/icons/chat_audio_call.svg',
-                        //     height: 19,
-                        //   ),
-                        // ),
-                      ],
-                    )
-                  ],
+                  actions: const [],
                 ),
               ),
             ),
           ),
+          Padding(
+              padding: const EdgeInsets.all(8),
+              child: SizedBox(
+                height: 65,
+                child: SizedBox(
+                  width: 335,
+                  child: Scaffold(
+                      appBar: CustomAppBar(
+                    border: Border.all(color: style.colors.primary, width: 2),
+                    title: const Text('Поиск'),
+                    leading: [
+                      const SizedBox(
+                        width: 16,
+                      ),
+                      Icon(
+                        key: const Key('ArrowBack'),
+                        Icons.arrow_back_ios_new,
+                        size: 20,
+                        color: style.colors.primary,
+                      )
+                    ],
+                    actions: const [
+                      SizedBox(width: 30),
+                    ],
+                  )),
+                ),
+              )),
+          Padding(
+              padding: const EdgeInsets.all(8),
+              child: SizedBox(
+                height: 65,
+                child: SizedBox(
+                  width: 335,
+                  child: Scaffold(
+                      appBar: CustomAppBar(
+                    title: const Text('Чаты'),
+                    leading: const [
+                      SizedBox(width: 16),
+                      SvgImage.asset(
+                        'assets/icons/search.svg',
+                        width: 17.77,
+                      ),
+                    ],
+                    actions: [
+                      Icon(
+                        Icons.more_vert,
+                        color: style.colors.primary,
+                      ),
+                      const SizedBox(width: 16),
+                    ],
+                  )),
+                ),
+              )),
         ],
       ),
     );

@@ -16,19 +16,24 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/rectangular_call_button.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
-import '../../../../home/tab/menu/widget/menu_button.dart';
-import '../../../../home/widget/field_button.dart';
-import '../../../../home/widget/rectangle_button.dart';
-import '../../../../home/widget/shadowed_rounded_button.dart';
 import '../temporary/sign_button.dart';
+import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/auth/widget/cupertino_button.dart';
+import '/ui/page/call/widget/round_button.dart';
+import '/ui/page/call/widget/tooltip_button.dart';
+import '/ui/page/home/page/my_profile/widget/download_button.dart';
+import '/ui/page/home/tab/chats/widget/rectangular_call_button.dart';
+import '/ui/page/home/tab/menu/widget/menu_button.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 
 class ButtonsWidget extends StatelessWidget {
   const ButtonsWidget({super.key, required this.isDarkMode});
@@ -44,9 +49,7 @@ class ButtonsWidget extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Wrap(
-            spacing: 16,
-            runSpacing: 16,
+          child: Column(
             children: [
               _ButtonCard(
                 isDarkMode: isDarkMode,
@@ -60,9 +63,7 @@ class ButtonsWidget extends StatelessWidget {
                       color: style.colors.primary,
                       title: Text(
                         'Proceed',
-                        style: style.fonts.bodyMedium.copyWith(
-                          color: style.colors.onPrimary,
-                        ),
+                        style: style.fonts.bodyMediumOnPrimary,
                       ),
                       onPressed: () {},
                     ),
@@ -72,12 +73,8 @@ class ButtonsWidget extends StatelessWidget {
                     height: 43,
                     child: OutlinedRoundedButton(
                       color: style.colors.primary,
-                      title: Text(
-                        'Proceed',
-                        style: style.fonts.bodyMedium.copyWith(
-                          color: style.colors.onPrimary,
-                        ),
-                      ),
+                      title: Text('Proceed',
+                          style: style.fonts.bodyMediumOnPrimary),
                       onPressed: () {},
                     ),
                   ),
@@ -110,6 +107,7 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               _ButtonCard(
                 isDarkMode: isDarkMode,
                 title: 'FieldButton',
@@ -121,9 +119,7 @@ class ButtonsWidget extends StatelessWidget {
                     child: FieldButton(
                       onPressed: () {},
                       text: 'Change password',
-                      style: style.fonts.titleMedium.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.titleMediumPrimary,
                     ),
                   ),
                   SizedBox(
@@ -131,9 +127,7 @@ class ButtonsWidget extends StatelessWidget {
                     height: 51,
                     child: FieldButton(
                       text: 'Change password',
-                      style: style.fonts.titleMedium.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.titleMediumPrimary,
                       onPressed: () {},
                     ),
                   ),
@@ -142,9 +136,7 @@ class ButtonsWidget extends StatelessWidget {
                     height: 51,
                     child: FieldButton(
                       text: 'Change password',
-                      style: style.fonts.titleMedium.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.titleMediumPrimary,
                       onPressed: () {},
                     ),
                   ),
@@ -153,13 +145,12 @@ class ButtonsWidget extends StatelessWidget {
                     height: 51,
                     child: FieldButton(
                       text: 'Change password',
-                      style: style.fonts.titleMedium.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.titleMediumPrimary,
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               _ButtonCard(
                 labels: const ['Default', 'Hovered', 'Pressed', 'Unavailable'],
                 isDarkMode: isDarkMode,
@@ -200,6 +191,7 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               _ButtonCard(
                 labels: const ['Default', 'Hovered', 'Pressed', 'Unavailable'],
                 isDarkMode: isDarkMode,
@@ -243,6 +235,7 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               _ButtonCard(
                 height: 410,
                 isDarkMode: isDarkMode,
@@ -289,6 +282,7 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               Column(
                 children: [
                   _ButtonCard(
@@ -346,29 +340,21 @@ class ButtonsWidget extends StatelessWidget {
                     labels: const ['Default', 'Hovered', 'Pressed'],
                     children: [
                       WidgetButton(
+                        child:
+                            Text('Upload', style: style.fonts.bodySmallPrimary),
+                        onPressed: () {},
+                      ),
+                      WidgetButton(
                         child: Text(
                           'Upload',
-                          style: style.fonts.bodySmall.copyWith(
-                            color: style.colors.primary,
-                          ),
+                          style: style.fonts.bodySmallPrimary,
                         ),
                         onPressed: () {},
                       ),
                       WidgetButton(
                         child: Text(
                           'Upload',
-                          style: style.fonts.bodySmall.copyWith(
-                            color: style.colors.primary,
-                          ),
-                        ),
-                        onPressed: () {},
-                      ),
-                      WidgetButton(
-                        child: Text(
-                          'Upload',
-                          style: style.fonts.bodySmall.copyWith(
-                            color: style.colors.primary,
-                          ),
+                          style: style.fonts.bodySmallPrimary,
                         ),
                         onPressed: () {},
                       ),
@@ -376,6 +362,7 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               _ButtonCard(
                 height: 360,
                 labels: const ['Default', 'Hovered', 'Selected', 'Unavailable'],
@@ -419,6 +406,7 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               Column(
                 children: [
                   _ButtonCard(
@@ -479,6 +467,7 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               _ButtonCard(
                 isDarkMode: isDarkMode,
                 labels: const ['Default', 'Hovered', 'Pressed'],
@@ -517,6 +506,94 @@ class ButtonsWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
+              Column(children: [
+                _ButtonCard(
+                    isDarkMode: isDarkMode,
+                    title: 'StyledCupertinoButton',
+                    height: 150,
+                    children: [
+                      StyledCupertinoButton(
+                          label: 'English, en', onPressed: () {}),
+                    ]),
+                const SizedBox(height: 16),
+                _ButtonCard(
+                    isDarkMode: isDarkMode,
+                    title: 'RoundFloatingButton',
+                    height: 150,
+                    children: [
+                      Row(
+                        children: [
+                          RoundFloatingButton(
+                            color: style.colors.onSecondaryOpacity50,
+                            onPressed: () {},
+                            withBlur: true,
+                            child: Icon(
+                              Icons.close_rounded,
+                              color: style.colors.onPrimary,
+                              size: 28,
+                            ),
+                          ),
+                          RoundFloatingButton(
+                            color: style.colors.onSecondaryOpacity50,
+                            onPressed: () {},
+                            withBlur: true,
+                            assetWidth: 22,
+                            asset: 'fullscreen_exit_white',
+                          ),
+                          RoundFloatingButton(
+                            color: style.colors.onSecondaryOpacity50,
+                            onPressed: () {},
+                            withBlur: true,
+                            assetWidth: 22,
+                            asset: 'fullscreen_enter_white',
+                          ),
+                        ],
+                      ),
+                    ]),
+                const SizedBox(height: 16),
+                _ButtonCard(
+                    isDarkMode: isDarkMode,
+                    title: 'TooltipButton',
+                    height: 150,
+                    children: [
+                      Row(
+                        children: [
+                          TooltipButton(
+                            onTap: () {},
+                            hint: 'btn_fullscreen_exit'.l10n,
+                            child: const SvgImage.asset(
+                              'assets/icons/fullscreen_exit.svg',
+                              width: 12,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 16,
+                          ),
+                          TooltipButton(
+                            onTap: () {},
+                            hint: 'btn_fullscreen_enter'.l10n,
+                            child: const SvgImage.asset(
+                              'assets/icons/fullscreen_enter.svg',
+                              width: 12,
+                            ),
+                          ),
+                        ],
+                      )
+                    ]),
+                const SizedBox(height: 16),
+                _ButtonCard(
+                    isDarkMode: isDarkMode,
+                    title: 'PrimaryButton',
+                    height: 150,
+                    children: [
+                      PrimaryButton(
+                        key: const Key('Proceed'),
+                        title: 'btn_proceed'.l10n,
+                        onPressed: () {},
+                      ),
+                    ])
+              ]),
             ],
           ),
         ),
