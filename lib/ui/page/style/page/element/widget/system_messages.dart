@@ -24,9 +24,11 @@ import '/ui/page/home/page/chat/widget/time_label.dart';
 import '/ui/page/home/page/chat/widget/unread_label.dart';
 import '/themes.dart';
 
+/// View of all system messages in app.
 class SystemMessagesWidget extends StatelessWidget {
   const SystemMessagesWidget(this.isDarkMode, {super.key});
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
   @override

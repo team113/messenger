@@ -28,9 +28,11 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
+/// View of all [TextField] elements in app.
 class TextFieldWidget extends StatelessWidget {
   const TextFieldWidget({super.key, required this.isDarkMode});
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
   @override
@@ -129,7 +131,6 @@ class TextFieldWidget extends StatelessWidget {
               Column(
                 children: [
                   _CopyableTextFieldCard(
-                    isHaveError: false,
                     isDarkMode: isDarkMode,
                     title: 'CopyableTextField',
                     children: [
@@ -147,7 +148,7 @@ class TextFieldWidget extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _SharableFieldCard(
+                  _SharableTextFieldCard(
                     isDarkMode: isDarkMode,
                     title: 'SharableField',
                     children: [
@@ -175,6 +176,7 @@ class TextFieldWidget extends StatelessWidget {
   }
 }
 
+/// Error view of the [ReactiveTextField].
 class _ErrorTextField extends StatelessWidget {
   const _ErrorTextField();
 
@@ -222,6 +224,7 @@ class _ErrorTextField extends StatelessWidget {
   }
 }
 
+/// [ReactiveTextField]'s background
 class _ReactiveTextFieldCard extends StatelessWidget {
   const _ReactiveTextFieldCard({
     required this.isDarkMode,
@@ -229,10 +232,13 @@ class _ReactiveTextFieldCard extends StatelessWidget {
     required this.children,
   });
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
+  /// Header of this [_ReactiveTextFieldCard].
   final String title;
 
+  /// [Widget]s to display.
   final List<Widget> children;
 
   @override
@@ -341,20 +347,21 @@ class _ReactiveTextFieldCard extends StatelessWidget {
   }
 }
 
+/// [CopyableTextField]'s background.
 class _CopyableTextFieldCard extends StatelessWidget {
   const _CopyableTextFieldCard({
     required this.isDarkMode,
     required this.title,
     required this.children,
-    this.isHaveError = true,
   });
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
-  final bool isHaveError;
-
+  /// Header of this [_CopyableTextFieldCard].
   final String title;
 
+  /// [Widget]s to display.
   final List<Widget> children;
 
   @override
@@ -411,15 +418,6 @@ class _CopyableTextFieldCard extends StatelessWidget {
                                       : const Color(0xFF1F3C5D),
                                 ),
                               ),
-                              if (isHaveError)
-                                Text(
-                                  'Disabled',
-                                  style: style.fonts.titleMedium.copyWith(
-                                    color: isDarkMode
-                                        ? style.colors.onPrimary
-                                        : const Color(0xFF1F3C5D),
-                                  ),
-                                ),
                             ],
                           ),
                           Column(
@@ -440,17 +438,21 @@ class _CopyableTextFieldCard extends StatelessWidget {
   }
 }
 
-class _SharableFieldCard extends StatelessWidget {
-  const _SharableFieldCard({
+/// [SharableTextField]'s background.
+class _SharableTextFieldCard extends StatelessWidget {
+  const _SharableTextFieldCard({
     required this.isDarkMode,
     required this.title,
     required this.children,
   });
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
+  /// Header of this [_SharableTextFieldCard].
   final String title;
 
+  /// [Widget]s to display.
   final List<Widget> children;
 
   @override

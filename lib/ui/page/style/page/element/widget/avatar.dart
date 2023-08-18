@@ -26,9 +26,11 @@ import '/ui/widget/widget_button.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 
+/// View of the avatar widgets.
 class AvatarView extends StatelessWidget {
   const AvatarView({super.key, required this.isDarkMode});
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
   @override
@@ -43,9 +45,11 @@ class AvatarView extends StatelessWidget {
   }
 }
 
+/// Avatar widget which used in [ChatInfoView], [MyProfileView].
 class _AnimatedCircleWidget extends StatelessWidget {
   const _AnimatedCircleWidget({super.key, required this.isDarkMode});
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
   @override
@@ -88,9 +92,11 @@ class _AnimatedCircleWidget extends StatelessWidget {
   }
 }
 
+/// View of all colors of [AvatarWidget].
 class _AvatarColorsWidget extends StatelessWidget {
   const _AvatarColorsWidget({super.key, required this.isDarkMode});
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
   @override
@@ -147,9 +153,11 @@ class _AvatarColorsWidget extends StatelessWidget {
   }
 }
 
+/// View of all sizes of [AvatarWidget].
 class _AvatarSizesWidget extends StatelessWidget {
   const _AvatarSizesWidget({super.key, required this.isDarkMode});
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
   @override
@@ -210,11 +218,14 @@ class _AvatarSizesWidget extends StatelessWidget {
   }
 }
 
+/// [AvatarWidget] with [Tooltip] and given [radius].
 class _StyledAvatar extends StatelessWidget {
   const _StyledAvatar({super.key, required this.message, required this.radius});
 
+  /// [Tooltip] message of this [_StyledAvatar].
   final String message;
 
+  /// [AvatarWidget]'s radius.
   final double radius;
 
   @override

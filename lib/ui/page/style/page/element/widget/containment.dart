@@ -24,6 +24,7 @@ import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/my_profile/link_details/view.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
+/// View of all popups in the app.
 class ContainmentWidget extends StatelessWidget {
   const ContainmentWidget({super.key});
 
@@ -84,6 +85,7 @@ class ContainmentWidget extends StatelessWidget {
   }
 }
 
+/// [Widget] used to display the popup message.
 class _PopUpCard extends StatelessWidget {
   const _PopUpCard({
     required this.title,
@@ -91,10 +93,13 @@ class _PopUpCard extends StatelessWidget {
     this.onPressed,
   });
 
+  /// Header of  this [_PopUpCard].
   final String title;
 
+  /// Message of this [Tooltip].
   final String message;
 
+  /// Callback, called when this button is pressed.
   final void Function()? onPressed;
 
   @override

@@ -23,6 +23,7 @@ import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/widget/svg/svg.dart';
 import '/themes.dart';
 
+/// View of all navigation elements in the app.
 class NavigationWidget extends StatelessWidget {
   const NavigationWidget({super.key});
 
@@ -114,10 +115,8 @@ class NavigationWidget extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                 ),
-                                Text(
-                                  '6 участников',
-                                  style: style.fonts.bodySmallSecondary
-                                ),
+                                Text('6 участников',
+                                    style: style.fonts.bodySmallSecondary),
                                 const SizedBox(width: 10),
                               ],
                             ),

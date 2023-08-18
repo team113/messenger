@@ -166,8 +166,6 @@ class StyleView extends StatelessWidget {
               StyleTab.elements => Obx(() {
                   return ElementsView(c.inverted.value, c.dense.value);
                 }),
-
-
             },
           );
         }).toList(),

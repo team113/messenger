@@ -21,6 +21,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/text_field.dart';
 
+/// View of all switchers in  the app.
 class SwitcherWidget extends StatelessWidget {
   const SwitcherWidget({super.key, required this.isDarkMode});
 
@@ -62,6 +63,7 @@ class SwitcherWidget extends StatelessWidget {
   }
 }
 
+/// Background for switcher widget.
 class _SwitcherCard extends StatelessWidget {
   const _SwitcherCard({
     required this.isDarkMode,
@@ -69,10 +71,13 @@ class _SwitcherCard extends StatelessWidget {
     required this.children,
   });
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
+  /// Header of  this [_SwitcherCard].
   final String title;
 
+  /// [Widget]s to put in [Column].
   final List<Widget> children;
 
   @override

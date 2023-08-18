@@ -35,6 +35,7 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
+/// View of all buttons in the app.
 class ButtonsWidget extends StatelessWidget {
   const ButtonsWidget({super.key, required this.isDarkMode});
 
@@ -602,6 +603,7 @@ class ButtonsWidget extends StatelessWidget {
   }
 }
 
+/// Button's background.
 class _ButtonCard extends StatelessWidget {
   const _ButtonCard({
     required this.isDarkMode,
@@ -611,14 +613,19 @@ class _ButtonCard extends StatelessWidget {
     this.height = 335,
   });
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
+  /// Header of this [_ButtonCard].
   final String title;
 
+  /// [Widget]s to display.
   final List<Widget> children;
 
+  /// Labels of these children [Widget]s.
   final List<String>? labels;
 
+  /// Height of this [_ButtonCard].
   final double height;
 
   @override
