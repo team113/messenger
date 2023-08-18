@@ -205,8 +205,9 @@ class Pagination<T, K extends Comparable, C> {
   }
 
   /// Removes the item with the provided [key] from the [items].
-  void remove(K key) {
+  Future<void> remove(K key) {
     items.remove(key);
+    return provider.remove(key.toString());
   }
 }
 
@@ -245,17 +246,17 @@ class Page<T, C> {
 }
 
 /// Utility providing the [Page]s.
-abstract class PageProvider<T, K> {
+abstract class PageProvider<T, C> {
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  FutureOr<Page<T, K>?> around(T? item, K? cursor, int count);
+  FutureOr<Page<T, C>?> around(T? item, C? cursor, int count);
 
   /// Fetches the [Page] after the provided [item] or [cursor].
-  FutureOr<Page<T, K>?> after(T? item, K? cursor, int count);
+  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count);
 
   /// Fetches the [Page] before the provided [item] or [cursor].
-  FutureOr<Page<T, K>?> before(T? item, K? cursor, int count);
+  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count);
 
   /// Adds the provided [item] to this [PageProvider].
   Future<void> put(T item);

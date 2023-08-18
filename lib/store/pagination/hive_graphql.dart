@@ -25,17 +25,17 @@ import 'graphql.dart';
 import 'hive.dart';
 
 /// [HivePageProvider] and [GraphQlPageProvider] providers combined.
-class HiveGraphQlPageProvider<T, K> implements PageProvider<T, K> {
+class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
   HiveGraphQlPageProvider({
     required this.hiveProvider,
     required this.graphQlProvider,
   });
 
   /// [HivePageProvider] fetching elements from the [Hive].
-  final HivePageProvider<T, K> hiveProvider;
+  final HivePageProvider<T, C> hiveProvider;
 
   /// [GraphQlPageProvider] fetching elements from the remote.
-  final GraphQlPageProvider<T, K> graphQlProvider;
+  final GraphQlPageProvider<T, C> graphQlProvider;
 
   /// Indicator whether [around] is executing.
   bool _aroundFetching = false;
@@ -47,7 +47,7 @@ class HiveGraphQlPageProvider<T, K> implements PageProvider<T, K> {
   bool _beforeFetching = false;
 
   @override
-  FutureOr<Page<T, K>?> around(T? item, K? cursor, int count) async {
+  FutureOr<Page<T, C>?> around(T? item, C? cursor, int count) async {
     if (_aroundFetching) {
       return null;
     }
@@ -70,7 +70,7 @@ class HiveGraphQlPageProvider<T, K> implements PageProvider<T, K> {
   }
 
   @override
-  FutureOr<Page<T, K>?> after(T? item, K? cursor, int count) async {
+  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
     if (_afterFetching) {
       return null;
     }
@@ -95,7 +95,7 @@ class HiveGraphQlPageProvider<T, K> implements PageProvider<T, K> {
   }
 
   @override
-  FutureOr<Page<T, K>?> before(T? item, K? cursor, int count) async {
+  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
     if (_beforeFetching) {
       return null;
     }

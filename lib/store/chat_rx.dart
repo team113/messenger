@@ -701,8 +701,8 @@ class HiveRxChat extends RxChat {
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
-      _provider.updateHiveProvider(_local);
       await _pagination.clear();
+      _provider.updateHiveProvider(_local);
 
       for (var e in saved.whereType<HiveChatMessage>()) {
         // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].

@@ -27,7 +27,7 @@ import '/store/model/page_info.dart';
 import '/store/pagination.dart';
 
 /// [PageProvider] fetching items from the [Hive].
-class HivePageProvider<T, K> implements PageProvider<T, K> {
+class HivePageProvider<T, C> implements PageProvider<T, C> {
   HivePageProvider(
     this._hiveProvider, {
     required this.getCursor,
@@ -42,7 +42,7 @@ class HivePageProvider<T, K> implements PageProvider<T, K> {
   final String Function(T item) getKey;
 
   /// Callback, called when a cursor of the provided [item] is required.
-  final K? Function(T? item) getCursor;
+  final C? Function(T? item) getCursor;
 
   /// Indicator whether fetching should start from the end.
   bool fromEnd;
@@ -51,7 +51,7 @@ class HivePageProvider<T, K> implements PageProvider<T, K> {
   final Mutex _guard = Mutex();
 
   @override
-  FutureOr<Page<T, K>?> around(T? item, K? cursor, int count) async {
+  FutureOr<Page<T, C>?> around(T? item, C? cursor, int count) async {
     return _guard.protect(() async {
       if (_hiveProvider.keysSafe.isEmpty || (item == null && cursor != null)) {
         return null;
@@ -105,7 +105,7 @@ class HivePageProvider<T, K> implements PageProvider<T, K> {
   }
 
   @override
-  FutureOr<Page<T, K>?> after(T? item, K? cursor, int count) async {
+  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
     return _guard.protect(() async {
       if (item == null) {
         return null;
@@ -142,7 +142,7 @@ class HivePageProvider<T, K> implements PageProvider<T, K> {
   }
 
   @override
-  FutureOr<Page<T, K>?> before(T? item, K? cursor, int count) async {
+  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
     return _guard.protect(() async {
       if (item == null) {
         return null;
