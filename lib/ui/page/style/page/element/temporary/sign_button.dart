@@ -21,6 +21,7 @@ import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/page/home/widget/field_button.dart';
 
+/// Rounded rectangular button with a [SvgImage] as a leading.
 class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
@@ -34,13 +35,28 @@ class SignButton extends StatelessWidget {
     this.color,
   });
 
+  /// Text of [PrefixButton].
   final String text;
+
+  /// Widget to display as a leading.
   final Widget? leading;
+
+  /// Asset of the [SvgImage] to display as a leading.
   final String asset;
+
+  /// Width of the [SvgImage].
   final double assetWidth;
+
+  /// Height of the [SvgImage].
   final double assetHeight;
+
+  /// Padding of the [SvgImage].
   final EdgeInsets padding;
+
+  /// Callback, called when this [SignButton] is pressed.
   final void Function()? onPressed;
+
+  /// [Color] of [PrefixButton].
   final Color? color;
 
   @override
@@ -77,11 +93,19 @@ class PrefixButton extends StatelessWidget {
     this.color,
   });
 
+  /// Text of [NewFieldButton].
   final String text;
+
+  /// [TextStyle] of [NewFieldButton].
   final TextStyle? style;
+
+  /// Callback called when this [PrefixButton] pressed.
   final void Function()? onPressed;
+
+  /// [Widget] to display as prefix.
   final Widget? prefix;
 
+  /// Color of [NewFieldButton].
   final Color? color;
 
   @override

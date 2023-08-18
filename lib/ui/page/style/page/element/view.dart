@@ -34,8 +34,10 @@ class ElementsView extends StatelessWidget {
     super.key,
   });
 
+  /// Indicator whether this page is in dark mode.
   final bool isDarkMode;
 
+  /// Indicator whether this page is in compact mode.
   final bool compact;
 
   @override
