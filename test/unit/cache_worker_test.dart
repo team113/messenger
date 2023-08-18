@@ -19,19 +19,26 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive/hive.dart';
+import 'package:messenger/provider/hive/cache.dart';
 import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 
-import '../mock/cache_hive_provider.dart';
 import '../mock/platform_utils.dart';
 
 void main() async {
-  PlatformUtils = PlatformUtilsMock(Directory('.temp_cache'));
-  final Directory cache = (await PlatformUtils.cacheDirectory)!;
-  cache.create();
+  PlatformUtils = PlatformUtilsMock();
 
-  test('CacheWorker adds files', () async {
-    final CacheWorker worker = CacheWorker(CacheInfoHiveProviderMock());
+  final Directory cache = (await PlatformUtils.cacheDirectory)!..create();
+
+  Hive.init('./test/.temp_hive/cache_worker_unit');
+  var cacheInfoHiveProvider = CacheInfoHiveProvider();
+  await cacheInfoHiveProvider.init();
+
+  tearDownAll(() => cache.listSync().forEach((e) => e.deleteSync()));
+
+  test('CacheWorker adds files to cache', () async {
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'));
@@ -40,11 +47,12 @@ void main() async {
     await worker.add(base64Decode('someData1111'));
     expect(cache.listSync().length, 2);
 
-    cache.listSync().forEach((e) => e.deleteSync());
+    await worker.clear();
+    await cacheInfoHiveProvider.clear();
   });
 
-  test('CacheWorker clears files', () async {
-    final CacheWorker worker = CacheWorker(CacheInfoHiveProviderMock());
+  test('CacheWorker clears its files', () async {
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'));
@@ -52,16 +60,15 @@ void main() async {
     await worker.add(base64Decode('someData2222'));
     await worker.add(base64Decode('someData3333'));
 
-    await Future.delayed(Duration.zero);
+    await worker.ensureOptimized();
 
     await worker.clear();
+    await cacheInfoHiveProvider.clear();
     expect(cache.listSync().length, 0);
-
-    cache.listSync().forEach((e) => e.deleteSync());
   });
 
   test('CacheWorker finds stored files', () async {
-    final CacheWorker worker = CacheWorker(CacheInfoHiveProviderMock());
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'), 'checksum');
@@ -83,29 +90,34 @@ void main() async {
       base64Decode('someData1111'),
     );
 
-    cache.listSync().forEach((e) => e.deleteSync());
+    await worker.clear();
+    await cacheInfoHiveProvider.clear();
   });
 
-  test('CacheWorker optimizes cache', () async {
-    final CacheWorker worker = CacheWorker(CacheInfoHiveProviderMock());
+  test('CacheWorker optimizes its resources correctly', () async {
+    await cacheInfoHiveProvider.set(maxSize: 1024 * 1024);
+
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
     await worker.onInit();
 
     for (int i = 0; i < 100; i++) {
       await worker.add(base64Decode('$i' * 4 * 3000));
     }
 
-    await Future.delayed(const Duration(seconds: 1));
+    expect(worker.info.value.size >= worker.info.value.maxSize, true);
 
-    List<FileSystemEntity> files = cache.listSync();
+    await worker.ensureOptimized();
 
-    int cacheSize = 0;
-    for (var e in files) {
-      cacheSize += e.statSync().size;
-    }
+    expect(worker.info.value.size >= worker.info.value.maxSize, false);
 
-    expect(cacheSize < worker.info.value.maxSize, true);
+    final List<FileSystemEntity> files = cache.listSync();
     expect(files.length < 100, true);
+    expect(
+      worker.info.value.size,
+      files.fold(0, (p, e) => p + e.statSync().size),
+    );
 
-    cache.listSync().forEach((e) => e.deleteSync());
+    await worker.clear();
+    await cacheInfoHiveProvider.clear();
   });
 }

@@ -22,7 +22,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -64,7 +64,7 @@ class CacheWorker extends DisposableService {
 
   @override
   Future<void> onInit() async {
-    info = Rx(_cacheLocal?.cacheInfo ?? CacheInfo());
+    info = Rx(_cacheLocal?.info ?? CacheInfo());
     _initCacheSubscription();
 
     if (!PlatformUtils.isWeb) {
@@ -173,7 +173,7 @@ class CacheWorker extends DisposableService {
           if (!(await file.exists())) {
             await file.writeAsBytes(data);
 
-            await _cacheLocal?.update(
+            await _cacheLocal?.set(
               checksums: info.value.checksums..add(checksum!),
               size: info.value.size + data.length,
               modified: (await cache.stat()).modified,
@@ -224,6 +224,10 @@ class CacheWorker extends DisposableService {
     });
   }
 
+  /// Waits for locking operations to release the lock.
+  @visibleForTesting
+  Future<void> ensureOptimized() => _mutex.protect(() async {});
+
   /// Initializes [CacheInfoHiveProvider.boxEvents] subscription.
   Future<void> _initCacheSubscription() async {
     if (_cacheLocal == null) {
@@ -255,32 +259,31 @@ class CacheWorker extends DisposableService {
 
       final Directory? cache = await PlatformUtils.cacheDirectory;
 
-      final int maxSize = info.value.maxSize;
-
-      int overflow = info.value.size - maxSize;
+      int overflow = info.value.size - info.value.maxSize;
       if (overflow > 0 && cache != null) {
-        overflow += (maxSize * 0.05).floor();
+        overflow += (info.value.maxSize * 0.05).floor();
 
         final List<File> files =
             info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
         final List<String> removed = [];
 
-        final Map<File, FileStat> filesInfo = {};
+        final Map<File, FileStat> stats = {};
         for (File file in files) {
           final FileStat stat = await file.stat();
           if (stat.type == FileSystemEntityType.notFound) {
             removed.add(p.basename(file.path));
           }
 
-          filesInfo[file] = await file.stat();
+          stats[file] = await file.stat();
         }
 
-        files.sortBy((f) => filesInfo[f]!.accessed);
+        files.sortBy((f) => stats[f]!.accessed);
 
         int deleted = 0;
-        for (var file in files) {
+        for (File file in files) {
           try {
-            final FileStat? stat = filesInfo[file];
+            final FileStat? stat = stats[file];
+
             if (stat != null && stat.type != FileSystemEntityType.notFound) {
               final int fileSize = stat.size;
               await file.delete();
@@ -296,7 +299,7 @@ class CacheWorker extends DisposableService {
           }
         }
 
-        await _cacheLocal?.update(
+        await _cacheLocal?.set(
           checksums: info.value.checksums
             ..removeWhere((e) => removed.contains(e)),
           size: info.value.size - deleted,
@@ -324,7 +327,7 @@ class CacheWorker extends DisposableService {
           }
         },
         onDone: () async {
-          await _cacheLocal?.update(
+          await _cacheLocal?.set(
             checksums: checksums,
             size: size,
             modified: (await cache.stat()).modified,

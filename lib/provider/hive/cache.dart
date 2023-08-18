@@ -36,18 +36,22 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
   }
 
   /// Returns the stored [CacheInfo] from [Hive].
-  CacheInfo get cacheInfo => getSafe(0) ?? CacheInfo();
+  CacheInfo get info => getSafe(0) ?? CacheInfo();
 
   /// Updates the stored [CacheInfo] with the provided data.
-  Future<void> update({
+  Future<void> set({
     HashSet<String>? checksums,
     int? size,
+    int? maxSize,
     DateTime? modified,
   }) {
-    CacheInfo cacheInfo = this.cacheInfo;
-    cacheInfo.checksums = checksums ?? cacheInfo.checksums;
-    cacheInfo.size = size ?? cacheInfo.size;
-    cacheInfo.modified = modified ?? cacheInfo.modified;
-    return putSafe(0, cacheInfo);
+    final CacheInfo info = this.info;
+
+    info.checksums = checksums ?? info.checksums;
+    info.size = size ?? info.size;
+    info.maxSize = maxSize ?? info.maxSize;
+    info.modified = modified ?? info.modified;
+
+    return putSafe(0, info);
   }
 }
