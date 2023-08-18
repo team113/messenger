@@ -278,6 +278,9 @@ class _ListPageProvider implements PageProvider<int, int> {
   final List<int> _items = List.generate(50, (i) => i);
 
   @override
+  Future<Page<int, int>?> init(int? item, int count) async => null;
+
+  @override
   FutureOr<Page<int, int>> around(int? item, int? cursor, int count) {
     final int half = count ~/ 2;
 

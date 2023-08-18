@@ -235,7 +235,7 @@ class HiveRxChat extends RxChat {
   }
 
   /// Initializes this [HiveRxChat].
-  Future<void> init() {
+  Future<void> init() async {
     if (status.value.isSuccess) {
       return Future.value();
     }
@@ -284,6 +284,7 @@ class HiveRxChat extends RxChat {
         _local,
         getCursor: (e) => e?.cursor,
         getKey: (e) => e.value.key.toString(),
+        isLast: (e) => chat.value.lastItem?.id == e.value.id,
         fromEnd: true,
       ),
     );
@@ -315,9 +316,15 @@ class HiveRxChat extends RxChat {
       }
     });
 
-    return _guard.protect(() async {
+    await _guard.protect(() async {
       await _local.init(userId: me);
     });
+
+    HiveChatItem? item;
+    if (chat.value.lastReadItem != null) {
+      item = await get(chat.value.lastReadItem!);
+    }
+    await _pagination.init(item);
   }
 
   /// Disposes this [HiveRxChat].

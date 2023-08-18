@@ -38,6 +38,10 @@ class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
   final GraphQlPageProvider<T, C> graphQlProvider;
 
   @override
+  Future<Page<T, C>?> init(T? item, int count) =>
+      hiveProvider.init(item, count);
+
+  @override
   FutureOr<Page<T, C>?> around(T? item, C? cursor, int count) async {
     final cached = await hiveProvider.around(item, cursor, count);
 

@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
+import 'package:mutex/mutex.dart';
 
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -54,6 +55,9 @@ class Pagination<T, K extends Comparable, C> {
   /// Indicator whether the [previous] page of [items] is being fetched.
   final RxBool previousLoading = RxBool(false);
 
+  /// [Mutex] for synchronized access to the [init] and [around].
+  final Mutex initMutex = Mutex();
+
   /// Callback, called when a key of type [K] identifying the provided [T] item
   /// is required.
   final K Function(T) onKey;
@@ -86,33 +90,61 @@ class Pagination<T, K extends Comparable, C> {
     return provider.clear();
   }
 
+  /// Fetches the initial [Page] of [items].
+  Future<void> init(T? item) {
+    return initMutex.protect(() async {
+      final Page<T, C>? page = await provider.init(item, perPage);
+      Log.print(
+        'init(item: $item)... \n'
+            '\tFetched ${page?.edges.length} items\n'
+            '\tstartCursor: ${page?.info.startCursor}\n'
+            '\tendCursor: ${page?.info.endCursor}\n'
+            '\thasPrevious: ${page?.info.hasPrevious}\n'
+            '\thasNext: ${page?.info.hasNext}',
+        'Pagination',
+      );
+
+      for (var e in page?.edges ?? []) {
+        items[onKey(e)] = e;
+      }
+
+      startCursor = page?.info.startCursor;
+      endCursor = page?.info.endCursor;
+      hasNext.value = page?.info.hasNext ?? true;
+      hasPrevious.value = page?.info.hasPrevious ?? true;
+      Log.print('init(item: $item)... done', 'Pagination');
+    });
+  }
+
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  Future<void> around({T? item, C? cursor}) async {
-    Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
-    reset();
+  Future<void> around({T? item, C? cursor}) {
+    return initMutex.protect(() async {
+      Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
+      reset();
 
-    final Page<T, C>? page = await provider.around(item, cursor, perPage);
-    Log.print(
-      'around(item: $item, cursor: $cursor)... \n'
-          '\tFetched ${page?.edges.length} items\n'
-          '\tstartCursor: ${page?.info.startCursor}\n'
-          '\tendCursor: ${page?.info.endCursor}\n'
-          '\thasPrevious: ${page?.info.hasPrevious}\n'
-          '\thasNext: ${page?.info.hasNext}',
-      'Pagination',
-    );
+      final Page<T, C>? page = await provider.around(item, cursor, perPage);
+      Log.print(
+        'around(item: $item, cursor: $cursor)... \n'
+            '\tFetched ${page?.edges.length} items\n'
+            '\tstartCursor: ${page?.info.startCursor}\n'
+            '\tendCursor: ${page?.info.endCursor}\n'
+            '\thasPrevious: ${page?.info.hasPrevious}\n'
+            '\thasNext: ${page?.info.hasNext}',
+        'Pagination',
+      );
 
-    for (var e in page?.edges ?? []) {
-      items[onKey(e)] = e;
-    }
+      for (var e in page?.edges ?? []) {
+        items[onKey(e)] = e;
+      }
 
-    startCursor = page?.info.startCursor;
-    endCursor = page?.info.endCursor;
-    hasNext.value = page?.info.hasNext ?? true;
-    hasPrevious.value = page?.info.hasPrevious ?? true;
-    Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
+      startCursor = page?.info.startCursor;
+      endCursor = page?.info.endCursor;
+      hasNext.value = page?.info.hasNext ?? true;
+      hasPrevious.value = page?.info.hasPrevious ?? true;
+      Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
+    });
   }
 
   /// Fetches a next page of the [items].
@@ -247,6 +279,9 @@ class Page<T, C> {
 
 /// Utility providing the [Page]s.
 abstract class PageProvider<T, C> {
+  /// Loads the initial [Page] of items.
+  Future<Page<T, C>?> init(T? item, int count);
+
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].

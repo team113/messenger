@@ -32,6 +32,7 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
     this._hiveProvider, {
     required this.getCursor,
     required this.getKey,
+    this.isLast,
     this.fromEnd = false,
   });
 
@@ -44,6 +45,9 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
   /// Callback, called when a cursor of the provided [item] is required.
   final C? Function(T? item) getCursor;
 
+  /// Callback, called to check the provided [item] is last.
+  final bool Function(T item)? isLast;
+
   /// Indicator whether fetching should start from the end.
   bool fromEnd;
 
@@ -51,26 +55,26 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
   final Mutex _guard = Mutex();
 
   @override
-  FutureOr<Page<T, C>?> around(T? item, C? cursor, int count) async {
+  Future<Page<T, C>?> init(T? item, int count) => around(item, null, count);
+
+  @override
+  Future<Page<T, C>?> around(T? item, C? cursor, int count) {
     return _guard.protect(() async {
-      if (_hiveProvider.keysSafe.isEmpty || (item == null && cursor != null)) {
+      if (_hiveProvider.keysSafe.isEmpty || item == null) {
         return null;
       }
 
       Iterable<dynamic>? keys;
-
-      if (item != null) {
-        final key = getKey(item);
-        final int initialIndex = _hiveProvider.keysSafe.toList().indexOf(key);
-        if (initialIndex != -1) {
-          if (initialIndex < (count ~/ 2)) {
-            keys = _hiveProvider.keysSafe
-                .take(count - ((count ~/ 2) - initialIndex));
-          } else {
-            keys = _hiveProvider.keysSafe
-                .skip(initialIndex - (count ~/ 2))
-                .take(count);
-          }
+      final key = getKey(item);
+      final int initialIndex = _hiveProvider.keysSafe.toList().indexOf(key);
+      if (initialIndex != -1) {
+        if (initialIndex < (count ~/ 2)) {
+          keys = _hiveProvider.keysSafe
+              .take(count - ((count ~/ 2) - initialIndex));
+        } else {
+          keys = _hiveProvider.keysSafe
+              .skip(initialIndex - (count ~/ 2))
+              .take(count);
         }
       }
 
@@ -88,19 +92,7 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
         }
       }
 
-      // [Hive] can't guarantee next/previous page existence based on the
-      // stored values, thus `hasPrevious` and `hasNext` is always `true`.
-      return Page(
-        RxList(items.toList()),
-        PageInfo(
-          startCursor:
-              getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
-          endCursor:
-              getCursor(items.lastWhereOrNull((e) => getCursor(e) != null)),
-          hasPrevious: true,
-          hasNext: true,
-        ),
-      );
+      return _page(items);
     });
   }
 
@@ -122,19 +114,7 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
           }
         }
 
-        // [Hive] can't guarantee next/previous page existence based on the
-        // stored values, thus `hasPrevious` and `hasNext` is always `true`.
-        return Page(
-          RxList(items.toList()),
-          PageInfo(
-            startCursor:
-                getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
-            endCursor:
-                getCursor(items.lastWhereOrNull((e) => getCursor(e) != null)),
-            hasPrevious: true,
-            hasNext: true,
-          ),
-        );
+        return _page(items);
       }
 
       return null;
@@ -163,19 +143,7 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
           }
         }
 
-        // [Hive] can't guarantee next/previous page existence based on the
-        // stored values, thus `hasPrevious` and `hasNext` is always `true`.
-        return Page(
-          RxList(items.toList()),
-          PageInfo(
-            startCursor:
-                getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
-            endCursor:
-                getCursor(items.lastWhereOrNull((e) => getCursor(e) != null)),
-            hasPrevious: true,
-            hasNext: true,
-          ),
-        );
+        return _page(items);
       }
 
       return null;
@@ -196,5 +164,27 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
   /// Updates the [_hiveProvider] with the provided [provider].
   void updateProvider(HiveLazyProvider provider) {
     _hiveProvider = provider;
+  }
+
+  /// Creates a [Page] from the provided [items].
+  Page<T, C> _page(List<T> items) {
+    final T? lastItem = items.lastWhereOrNull((e) => getCursor(e) != null);
+    bool hasNext = true;
+    if (lastItem != null && isLast != null) {
+      hasNext = !isLast!.call(lastItem);
+    }
+
+    // [Hive] can't guarantee next/previous page existence based on the
+    // stored values, thus `hasPrevious` and `hasNext` is always `true`.
+    return Page(
+      RxList(items.toList()),
+      PageInfo(
+        startCursor:
+            getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
+        endCursor: getCursor(lastItem),
+        hasPrevious: true,
+        hasNext: hasNext,
+      ),
+    );
   }
 }

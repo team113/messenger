@@ -35,6 +35,11 @@ class GraphQlPageProvider<T, C> implements PageProvider<T, C> {
   }) fetch;
 
   @override
+  Future<Page<T, C>?> init(T? item, int count) async {
+    return null;
+  }
+
+  @override
   FutureOr<Page<T, C>> around(T? item, C? cursor, int count) async {
     final int half = count ~/ 2;
 
