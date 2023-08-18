@@ -276,7 +276,7 @@ class PlatformUtilsImpl {
   /// Returns a path to the cache directory.
   FutureOr<Directory?> get cacheDirectory async {
     try {
-      _cacheDirectory ??= await getApplicationSupportDirectory();
+      _cacheDirectory ??= await getApplicationCacheDirectory();
       return _cacheDirectory!;
     } on MissingPluginException {
       return null;
