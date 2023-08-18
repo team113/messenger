@@ -23,7 +23,7 @@ import 'package:messenger/util/platform_utils.dart';
 
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
-  PlatformUtilsMock({this.cache = '.temp_hive/downloads'});
+  PlatformUtilsMock({this.cache = 'test/.temp_cache'});
 
   /// Path to the [cacheDirectory].
   final String? cache;

@@ -21,17 +21,13 @@ import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
 
-/// One gigabyte in bytes.
-// ignore: constant_identifier_names
-const int GB = 1024 * 1024 * 1024;
-
 /// Info about some cache.
 class CacheInfo extends HiveObject {
   CacheInfo({
     HashSet<String>? checksums,
     this.size = 0,
     this.modified,
-    this.maxSize = GB,
+    this.maxSize = 1024 * 1024 * 1024, // GB.
   }) : checksums = checksums ?? HashSet();
 
   /// Checksums of the stored in cache files.

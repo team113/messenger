@@ -53,13 +53,13 @@ class CacheWorker extends DisposableService {
   /// [CacheInfo] local [Hive] storage.
   final CacheInfoHiveProvider? _cacheLocal;
 
-  /// [StreamSubscription] getting all files from the [directory].
+  /// [Directory.list] subscription used in [_updateInfo].
   StreamSubscription? _cacheSubscription;
 
   /// [CacheInfoHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
 
-  /// [Mutex] guarding saving and deleting files in the cache [directory].
+  /// [Mutex] guarding access to [PlatformUtilsImpl.cacheDirectory].
   final Mutex _mutex = Mutex();
 
   @override
@@ -69,6 +69,7 @@ class CacheWorker extends DisposableService {
 
     if (!PlatformUtils.isWeb) {
       final Directory? cache = await PlatformUtils.cacheDirectory;
+
       // Recalculate the [info], if [FileStat.modified] mismatch is detected.
       if (cache != null &&
           info.value.modified != (await cache.stat()).modified) {
