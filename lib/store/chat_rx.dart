@@ -399,7 +399,6 @@ class HiveRxChat extends RxChat {
     }
 
     HiveChatItem? item;
-    print('chat.value.lastReadItem: ${chat.value.lastReadItem}');
     if (chat.value.lastReadItem != null) {
       item = await get(chat.value.lastReadItem!);
     }
