@@ -17,16 +17,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
-import 'package:messenger/ui/widget/allow_overflow.dart';
 
-import '../../../../../../util/message_popup.dart';
-import '../../../../../widget/svg/svg.dart';
-import '../../../../../widget/text_field.dart';
-import '../../../../../widget/widget_button.dart';
-import '../../../../home/widget/sharable.dart';
 import '../controller.dart';
 import '/themes.dart';
+import '/ui/page/home/page/my_profile/widget/copyable.dart';
+import '/ui/page/home/widget/sharable.dart';
+import '/ui/widget/allow_overflow.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 
 class TextFieldWidget extends StatelessWidget {
   const TextFieldWidget({super.key, required this.isDarkMode});
@@ -40,9 +40,7 @@ class TextFieldWidget extends StatelessWidget {
     return GetBuilder(
         init: ElementsController(),
         builder: (ElementsController c) {
-          return Wrap(
-            spacing: 16,
-            runSpacing: 16,
+          return Column(
             children: [
               _ReactiveTextFieldCard(
                 isDarkMode: isDarkMode,
@@ -83,9 +81,7 @@ class TextFieldWidget extends StatelessWidget {
                           child: AllowOverflow(
                             child: Text(
                               'Save',
-                              style: style.fonts.labelSmall.copyWith(
-                                color: style.colors.primary,
-                              ),
+                              style: style.fonts.labelSmallPrimary,
                             ),
                           ),
                         ),
@@ -129,6 +125,7 @@ class TextFieldWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
               Column(
                 children: [
                   _CopyableTextFieldCard(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '../../../../../widget/svg/svg.dart';
-import '../../../../home/widget/field_button.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/page/home/widget/field_button.dart';
 
 class SignButton extends StatelessWidget {
   const SignButton({

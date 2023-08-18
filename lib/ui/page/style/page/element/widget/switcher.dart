@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../../widget/text_field.dart';
-import '../../../../home/widget/paddings.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/text_field.dart';
 
 class SwitcherWidget extends StatelessWidget {
   const SwitcherWidget({super.key, required this.isDarkMode});
@@ -30,9 +30,7 @@ class SwitcherWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Wrap(
-        spacing: 16,
-        runSpacing: 16,
+      child: Column(
         children: [
           _SwitcherCard(
             isDarkMode: isDarkMode,
@@ -185,9 +183,8 @@ class SwitchField extends StatelessWidget {
         children: [
           IgnorePointer(
             child: ReactiveTextField(
-              state: TextFieldState(text: text, editable: false),
-              style: style.fonts.bodyMedium.copyWith(color: style.colors.secondary),
-            ),
+                state: TextFieldState(text: text, editable: false),
+                style: style.fonts.bodyMediumSecondary),
           ),
           Align(
             alignment: Alignment.centerRight,

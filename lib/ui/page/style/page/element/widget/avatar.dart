@@ -33,12 +33,10 @@ class AvatarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
+    return Column(
       children: [
-        _AvatarColorsWidget(isDarkMode: isDarkMode),
         _AnimatedCircleWidget(isDarkMode: isDarkMode),
+        const SizedBox(height: 16),
         _AvatarSizesWidget(isDarkMode: isDarkMode),
       ],
     );
@@ -297,8 +295,7 @@ class _AnimatedCircleAvatar extends StatelessWidget {
               onPressed: onPressed,
               child: Text(
                 'btn_upload'.l10n,
-                style: style.fonts.labelSmall
-                    .copyWith(color: style.colors.primary),
+                style: style.fonts.labelSmallPrimary,
               ),
             ),
             if (isVisible) ...[

@@ -16,13 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
-import '../../../../../../util/message_popup.dart';
-import '../../../../home/page/chat/widget/attachment_selector.dart';
-import '../../../../home/page/my_profile/link_details/view.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/util/message_popup.dart';
+import '/ui/page/home/page/chat/widget/attachment_selector.dart';
+import '/ui/page/home/page/my_profile/link_details/view.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 
 class ContainmentWidget extends StatelessWidget {
   const ContainmentWidget({super.key});
@@ -33,25 +33,26 @@ class ContainmentWidget extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Wrap(
-        spacing: 16,
-        runSpacing: 16,
+      child: Column(
         children: [
           _PopUpCard(
             title: 'ModalPopup',
             message: 'Intended to be displayed with the [show] method.',
             onPressed: () => LinkDetailsView.show(context),
           ),
+          const SizedBox(height: 16),
           _PopUpCard(
             title: 'MessagePopup.success',
             message: 'Shows a [FloatingSnackBar] with the [title] message.',
             onPressed: () => MessagePopup.success('label_copied'.l10n),
           ),
+          const SizedBox(height: 16),
           _PopUpCard(
             title: 'MessagePopup.error',
             message: 'Shows an error popup with the provided argument.',
             onPressed: () => MessagePopup.error('err_uneditable_message'.l10n),
           ),
+          const SizedBox(height: 16),
           _PopUpCard(
             title: 'MessagePopup.alert',
             message:
@@ -65,6 +66,7 @@ class ContainmentWidget extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 16),
           _PopUpCard(
             title: 'AttachmentSourceSelector',
             message: 'Choosing a source to pick an [Attachment] from.',
@@ -126,7 +128,7 @@ class _PopUpCard extends StatelessWidget {
               color: style.colors.primary,
               title: Text(
                 'show $title',
-                style: style.fonts.titleMedium.copyWith(color: style.colors.onPrimary),
+                style: style.fonts.titleMediumOnPrimary,
               ),
               onPressed: onPressed,
             ),
