@@ -65,7 +65,7 @@ class CacheWorker extends DisposableService {
   @override
   Future<void> onInit() async {
     info = Rx(_cacheLocal?.info ?? CacheInfo());
-    _initCacheSubscription();
+    _initLocalSubscription();
 
     if (!PlatformUtils.isWeb) {
       final Directory? cache = await PlatformUtils.cacheDirectory;
@@ -230,7 +230,7 @@ class CacheWorker extends DisposableService {
   Future<void> ensureOptimized() => _mutex.protect(() async {});
 
   /// Initializes [CacheInfoHiveProvider.boxEvents] subscription.
-  Future<void> _initCacheSubscription() async {
+  Future<void> _initLocalSubscription() async {
     if (_cacheLocal == null) {
       return;
     }
