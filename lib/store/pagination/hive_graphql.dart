@@ -80,7 +80,6 @@ class HiveGraphQlPageProvider<T, K> implements PageProvider<T, K> {
 
     if (cached != null && cached.edges.isNotEmpty) {
       _afterFetching = false;
-      print('Next page fetched from cache.');
       return cached;
     }
 
@@ -92,7 +91,6 @@ class HiveGraphQlPageProvider<T, K> implements PageProvider<T, K> {
     }
 
     _afterFetching = false;
-    print('Next page fetched from remote.');
     return remote;
   }
 
@@ -107,7 +105,6 @@ class HiveGraphQlPageProvider<T, K> implements PageProvider<T, K> {
 
     if (cached != null && cached.edges.isNotEmpty) {
       _beforeFetching = false;
-      print('Previous page fetched from cache.');
       return cached;
     }
 
@@ -119,7 +116,6 @@ class HiveGraphQlPageProvider<T, K> implements PageProvider<T, K> {
     }
 
     _beforeFetching = false;
-    print('Previous page fetched from remote.');
     return remote;
   }
 

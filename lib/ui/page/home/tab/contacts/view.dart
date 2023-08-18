@@ -322,7 +322,7 @@ class ContactsTabView extends StatelessWidget {
                       itemCount: c.elements.length,
                       itemBuilder: (_, i) {
                         ListElement? element;
-                        if(c.elements.length > i) {
+                        if (c.elements.length > i) {
                           element = c.elements[i];
                         }
                         final Widget child;
@@ -331,14 +331,18 @@ class ContactsTabView extends StatelessWidget {
                           child = SearchUserTile(
                             key: Key('SearchContact_${element.contact.id}'),
                             contact: element.contact,
-                            onTap: () =>
-                                router.user((element as ContactElement).contact.user.value!.id),
+                            onTap: () => router.user((element as ContactElement)
+                                .contact
+                                .user
+                                .value!
+                                .id),
                           );
                         } else if (element is UserElement) {
                           child = SearchUserTile(
                             key: Key('SearchUser_${element.user.id}'),
                             user: element.user,
-                            onTap: () => router.user((element as UserElement).user.id),
+                            onTap: () =>
+                                router.user((element as UserElement).user.id),
                           );
                         } else if (element is DividerElement) {
                           child = Center(

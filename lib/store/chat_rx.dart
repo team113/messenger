@@ -222,6 +222,18 @@ class HiveRxChat extends RxChat {
     return null;
   }
 
+  @override
+  ChatItem? get lastItem {
+    ChatItem? item = chat.value.lastItem;
+    if (messages.isNotEmpty) {
+      final ChatItem last = messages.last.value;
+      if (item?.at.isBefore(last.at) == true) {
+        item = last;
+      }
+    }
+    return item;
+  }
+
   /// Initializes this [HiveRxChat].
   Future<void> init() {
     if (status.value.isSuccess) {
@@ -696,7 +708,7 @@ class HiveRxChat extends RxChat {
         // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
         final HiveChatMessage copy = e.copyWith()..value.chatId = newChat.id;
 
-        if(copy.value.status.value == SendingStatus.error) {
+        if (copy.value.status.value == SendingStatus.error) {
           copy.value.status.value = SendingStatus.sending;
         }
 

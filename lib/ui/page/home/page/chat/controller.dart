@@ -1254,8 +1254,6 @@ class ChatController extends GetxController {
     if (hasPrevious.isTrue && chat!.previousLoading.isFalse && _atTop) {
       Log.print('Fetch previous page', 'ChatController');
 
-      keepPositionOffset.value = 0;
-
       if (_topLoader == null) {
         _topLoader = LoaderElement.top();
         elements[_topLoader!.id] = _topLoader!;
