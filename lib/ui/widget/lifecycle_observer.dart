@@ -37,6 +37,7 @@ class LifecycleObserver extends StatefulWidget {
 
 /// State of a [LifecycleObserver] used to observe the [AppLifecycleState].
 class _LifecycleObserverState extends State<LifecycleObserver> {
+  /// [AppLifecycleListener] listening for [AppLifecycleState] changes.
   late final AppLifecycleListener _listener;
 
   @override
