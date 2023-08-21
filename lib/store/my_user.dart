@@ -42,6 +42,7 @@ import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
 import '/util/new_type.dart';
+import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
@@ -88,6 +89,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
 
+  /// Subscription to the [PlatformUtils.onActivityChanged] initializing and
+  /// canceling the [_keepOnlineSubscription].
+  StreamSubscription? _onActivityChanged;
+
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
 
@@ -106,8 +111,18 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _initLocalSubscription();
     _initRemoteSubscription();
-    _initKeepOnlineSubscription();
     _initBlacklistSubscription();
+
+    if (await PlatformUtils.isActive) _initKeepOnlineSubscription();
+
+    _onActivityChanged = PlatformUtils.onActivityChanged.listen((active) {
+      if (active && _keepOnlineSubscription == null) {
+        _initKeepOnlineSubscription();
+      } else {
+        _keepOnlineSubscription?.cancel();
+        _keepOnlineSubscription = null;
+      }
+    });
 
     if (!_blocklistLocal.isEmpty) {
       final List<RxUser?> users =
@@ -134,6 +149,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _blocklistSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
+    _onActivityChanged?.cancel();
   }
 
   @override
