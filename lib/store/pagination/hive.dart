@@ -171,11 +171,12 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
     final T? lastItem = items.lastWhereOrNull((e) => getCursor(e) != null);
     bool hasNext = true;
     if (lastItem != null && isLast != null) {
-      hasNext = !isLast!.call(lastItem);
+      hasNext = !isLast!.call(lastItem) &&
+          getKey(items.last) == _hiveProvider.keysSafe.last;
     }
 
-    // [Hive] can't guarantee next/previous page existence based on the
-    // stored values, thus `hasPrevious` and `hasNext` is always `true`.
+    // [Hive] can't guarantee previous page existence based on the stored
+    // values, thus `hasPrevious` is always `true`.
     return Page(
       RxList(items.toList()),
       PageInfo(

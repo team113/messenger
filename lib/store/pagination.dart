@@ -55,9 +55,6 @@ class Pagination<T, K extends Comparable, C> {
   /// Indicator whether the [previous] page of [items] is being fetched.
   final RxBool previousLoading = RxBool(false);
 
-  /// [Mutex] for synchronized access to the [init] and [around].
-  final Mutex initMutex = Mutex();
-
   /// Callback, called when a key of type [K] identifying the provided [T] item
   /// is required.
   final K Function(T) onKey;
@@ -70,17 +67,21 @@ class Pagination<T, K extends Comparable, C> {
   @visibleForTesting
   C? endCursor;
 
+  /// [Mutex] for synchronized access to the [init] and [around].
+  final Mutex _initMutex = Mutex();
+
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
   /// Resets this [Pagination] to its initial state.
-  void reset() {
+  Future<void> reset() {
     Log.print('reset()', 'Pagination');
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
     startCursor = null;
     endCursor = null;
+    return provider.clear();
   }
 
   /// Clears this [Pagination].
@@ -92,7 +93,7 @@ class Pagination<T, K extends Comparable, C> {
 
   /// Fetches the initial [Page] of [items].
   Future<void> init(T? item) {
-    return initMutex.protect(() async {
+    return _initMutex.protect(() async {
       final Page<T, C>? page = await provider.init(item, perPage);
       Log.print(
         'init(item: $item)... \n'
@@ -120,9 +121,8 @@ class Pagination<T, K extends Comparable, C> {
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) {
-    return initMutex.protect(() async {
+    return _initMutex.protect(() async {
       Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
-      reset();
 
       final Page<T, C>? page = await provider.around(item, cursor, perPage);
       Log.print(

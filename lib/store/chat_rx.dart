@@ -118,7 +118,7 @@ class HiveRxChat extends RxChat {
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemKey, ChatItemsCursor> _pagination;
 
-  /// [PageProvider] loading [messages] with pagination.
+  /// [PageProvider] fetching pages of [HiveChatItem]s.
   late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor> _provider;
 
   /// Guard used to guarantee synchronous access to the [_local] storage.
@@ -561,7 +561,7 @@ class HiveRxChat extends RxChat {
 
                     // Frequent [Hive] writes of byte data freezes the Web page.
                     if (!PlatformUtils.isWeb) {
-                      put(message, ignoreVersion: true);
+                      put(message);
                     }
                   },
                   onError: (_) {
@@ -581,7 +581,7 @@ class HiveRxChat extends RxChat {
               .toList();
           if (reads.isNotEmpty) {
             await Future.wait(reads);
-            put(message, ignoreVersion: true);
+            put(message);
           }
         }
 
@@ -616,14 +616,14 @@ class HiveRxChat extends RxChat {
       _pending.remove(message.value);
       rethrow;
     } finally {
-      put(message, ignoreVersion: true);
+      put(message);
     }
 
     return message.value;
   }
 
   /// Adds the provided [item] to [Pagination] and [Hive].
-  Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) =>
+  Future<void> put(HiveChatItem item) =>
       _pagination.put(item);
 
   @override
@@ -977,7 +977,7 @@ class HiveRxChat extends RxChat {
       _chatEvent,
       onError: (e) async {
         if (e is StaleVersionException) {
-          await _pagination.clear();
+          await _pagination.reset();
 
           await _pagination.around(cursor: _lastReadItemCursor);
         }

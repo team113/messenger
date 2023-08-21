@@ -45,7 +45,8 @@ class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
   FutureOr<Page<T, C>?> around(T? item, C? cursor, int count) async {
     final cached = await hiveProvider.around(item, cursor, count);
 
-    if (cached != null && cached.edges.isNotEmpty) {
+    if (cached != null &&
+        (cached.edges.length >= count || !cached.info.hasNext)) {
       return cached;
     }
 
