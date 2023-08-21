@@ -128,7 +128,7 @@ class CacheWorker extends DisposableService {
                   cancelToken: cancelToken,
                   onReceiveProgress: onReceiveProgress,
                 );
-              } on DioError catch (e) {
+              } on DioException catch (e) {
                 if (e.response?.statusCode == 403) {
                   await onForbidden?.call();
                   return null;
