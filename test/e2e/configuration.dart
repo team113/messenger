@@ -48,6 +48,7 @@ import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
+import 'steps/change_app_version.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
@@ -122,6 +123,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..stepDefinitions = [
         attachFile,
         cancelFileDownload,
+        changeAppVersion,
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,

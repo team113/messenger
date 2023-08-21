@@ -65,6 +65,11 @@ class Config {
   /// Version identifier of `User-Agent` header to put in network queries.
   static String userAgentVersion = '';
 
+  /// Version identifier of the application.
+  /// 
+  /// Intended to be used in E2E testing.
+  static String version = '';
+
   /// Unique identifier of Windows application.
   static late String clsid;
 
