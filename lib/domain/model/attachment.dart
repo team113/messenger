@@ -193,8 +193,8 @@ class FileAttachment extends Attachment {
   void cancelDownload() {
     try {
       _token?.cancel();
-    } on DioError catch (e) {
-      if (e.type != DioErrorType.cancel) {
+    } on DioException catch (e) {
+      if (e.type != DioExceptionType.cancel) {
         rethrow;
       }
     }

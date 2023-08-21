@@ -238,7 +238,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
               );
             }
           } catch (e) {
-            if (e is DioError && e.response?.statusCode == 403) {
+            if (e is DioException && e.response?.statusCode == 403) {
               widget.onError?.call();
               _cancelToken?.cancel();
             } else {
