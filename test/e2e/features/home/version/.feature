@@ -17,7 +17,7 @@
 
 Feature: Hive cache clearance on version change
 
-  Scenario: User sees AuthView after version change
+  Scenario: User is logged out after version change
     Given I am Alice
     And user Bob
     And Bob has dialog with me

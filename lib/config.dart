@@ -68,7 +68,7 @@ class Config {
   /// Version identifier of the application.
   ///
   /// Intended to be used in E2E testing.
-  static String version = '';
+  static String? version;
 
   /// Unique identifier of Windows application.
   static late String clsid;
