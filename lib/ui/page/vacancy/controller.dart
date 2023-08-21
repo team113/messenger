@@ -40,6 +40,18 @@ class VacancyController extends GetxController {
 
   Rx<RxStatus> get status => _authService.status;
 
+  @override
+  void onInit() {
+    router.addListener(_onRouterChanged);
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    router.removeListener(_onRouterChanged);
+    super.onClose();
+  }
+
   Future<void> pick() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -114,6 +126,16 @@ E-mail: ${email.text}
 Message: ${text.text.isEmpty ? '-' : text.text}
 '''),
       );
+    }
+  }
+
+  /// Refreshes the controller on [router] change.
+  ///
+  /// Required in order for the [BottomNavigatorBar] to rebuild.
+  void _onRouterChanged() {
+    if (router.route.startsWith(Routes.vacancy)) {
+      final String last = router.route.split('/').last;
+      vacancy.value = Vacancies.all.firstWhereOrNull((e) => e.id == last);
     }
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/vacancy.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/animated_logo.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
@@ -10,11 +12,14 @@ import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/page/home/widget/vacancy.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import 'body/view.dart';
@@ -107,7 +112,10 @@ class VacancyView extends StatelessWidget {
                   ],
                 ],
                 selected: c.vacancy.value == e,
-                onPressed: () => c.vacancy.value = e,
+                onPressed: () {
+                  router.vacancy(e.id);
+                  // c.vacancy.value = e;
+                },
               );
             });
           }),
@@ -132,46 +140,34 @@ class VacancyView extends StatelessWidget {
               StyledBackButton(onPressed: () => c.vacancy.value = null),
             ],
             title: Text(e.title),
-            actions: const [SizedBox(width: 46)],
+            actions: [
+              AnimatedButton(
+                decorator: (child) => Container(
+                  padding: const EdgeInsets.only(left: 12, right: 18),
+                  height: double.infinity,
+                  child: child,
+                ),
+                onPressed: () async {
+                  if (PlatformUtils.isMobile) {
+                    await Share.share('${Config.origin}${router.route}');
+                  } else {
+                    PlatformUtils.copy(
+                      text: '${Config.origin}${router.route}',
+                    );
+                    MessagePopup.success('label_copied'.l10n);
+                  }
+                },
+                child: PlatformUtils.isMobile
+                    ? Icon(
+                        Icons.ios_share_rounded,
+                        color: style.colors.primary,
+                        size: 24,
+                      )
+                    : SvgImage.asset('assets/icons/copy.svg', height: 18),
+              ),
+            ],
           ),
           body: VacancyBodyView(e),
-          // Center(
-          //   child: ListView(
-          //     shrinkWrap: !context.isNarrow,
-          //     children: [
-          //       const SizedBox(height: 4),
-          //       // ..._content(context, e),
-          //       ...e.blocks.map((e) {
-          //         return Block(
-          //           title: e.title,
-          //           children: [
-          //             VacancyDescription(e.description),
-          //             const SizedBox(height: 4),
-          //           ],
-          //         );
-          //       }),
-          //       Block(
-          //         title: 'Schedule an interview',
-          //         children: [
-          //           Paddings.basic(
-          //             OutlinedRoundedButton(
-          //               onPressed: () async {
-          //                 await VacancyContactView.show(context);
-          //               },
-          //               maxWidth: double.infinity,
-          //               color: style.colors.primary,
-          //               title: Text(
-          //                 'Связаться',
-          //                 style: TextStyle(color: style.colors.onPrimary),
-          //               ),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //       const SizedBox(height: 4),
-          //     ],
-          //   ),
-          // ),
         );
       } else {
         if (context.isNarrow) {
@@ -190,16 +186,8 @@ class VacancyView extends StatelessWidget {
             position: CurvedAnimation(
               curve: Curves.ease,
               parent: animation,
-            ).drive(
-              Tween(
-                begin: const Offset(1, 0),
-                end: const Offset(0, 0),
-              ),
-            ),
-            child: FadeTransition(
-              opacity: animation,
-              child: child,
-            ),
+            ).drive(Tween(begin: const Offset(1, 0), end: const Offset(0, 0))),
+            child: FadeTransition(opacity: animation, child: child),
           );
         },
         child: child,

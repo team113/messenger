@@ -20,13 +20,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:messenger/util/platform_utils.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -43,16 +42,25 @@ import 'widget/sign_button.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
-  const LoginView({super.key, this.stage = LoginViewStage.signUp});
+  const LoginView({
+    super.key,
+    this.stage = LoginViewStage.signUp,
+    this.onAuth,
+  });
 
   final LoginViewStage stage;
+  final void Function()? onAuth;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     LoginViewStage stage = LoginViewStage.signUp,
+    void Function()? onAuth,
   }) {
-    return ModalPopup.show(context: context, child: LoginView(stage: stage));
+    return ModalPopup.show(
+      context: context,
+      child: LoginView(stage: stage, onAuth: onAuth),
+    );
   }
 
   @override
@@ -61,7 +69,7 @@ class LoginView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('LoginView'),
-      init: LoginController(Get.find(), stage: stage),
+      init: LoginController(Get.find(), stage: stage, onAuth: onAuth),
       builder: (LoginController c) {
         return Obx(() {
           Widget Function(Widget, List<Widget>) builder = (header, children) {
@@ -86,6 +94,48 @@ class LoginView extends StatelessWidget {
           final List<Widget> children;
 
           switch (c.stage.value) {
+            case LoginViewStage.choice:
+              // header = ModalPopupHeader(text: 'Записаться на интервью'.l10n);
+              header = ModalPopupHeader(text: 'label_sign_in'.l10n);
+
+              children = [
+                SignButton(
+                  text: 'btn_sign_up'.l10n,
+                  asset: 'register3',
+                  assetWidth: 23,
+                  assetHeight: 23,
+                  onPressed: () {
+                    c.stage.value = LoginViewStage.signUp;
+                    c.backStage = LoginViewStage.choice;
+                  },
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  text: 'btn_sign_in'.l10n,
+                  asset: 'enter1',
+                  assetWidth: 19.42,
+                  assetHeight: 24,
+                  onPressed: () {
+                    c.stage.value = LoginViewStage.signIn;
+                    c.backStage = LoginViewStage.choice;
+                  },
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  text: 'btn_one_time_account'.l10n,
+                  dense: true,
+                  asset: 'one_time19',
+                  assetWidth: 19.88,
+                  assetHeight: 26,
+                  onPressed: () {
+                    router.noIntroduction = false;
+                    c.oneTime();
+                  },
+                ),
+                const SizedBox(height: 25 / 2),
+              ];
+              break;
+
             case LoginViewStage.oauthNoUser:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signUp,
@@ -687,7 +737,12 @@ class LoginView extends StatelessWidget {
               break;
 
             case LoginViewStage.signUp:
-              header = ModalPopupHeader(text: 'label_sign_up'.l10n);
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: c.backStage == null
+                    ? null
+                    : () => c.stage.value = c.backStage!,
+              );
 
               children = [
                 SignButton(
@@ -1070,7 +1125,12 @@ class LoginView extends StatelessWidget {
               break;
 
             case LoginViewStage.signIn:
-              header = ModalPopupHeader(text: 'label_sign_in'.l10n);
+              header = ModalPopupHeader(
+                text: 'label_sign_in'.l10n,
+                onBack: c.backStage == null
+                    ? null
+                    : () => c.stage.value = c.backStage!,
+              );
 
               children = [
                 SignButton(

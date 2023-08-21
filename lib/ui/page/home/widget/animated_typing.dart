@@ -83,6 +83,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
             sin(pi * const Interval(0.6, 1).transform(_controller.value)));
 
         return Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: size,

@@ -115,6 +115,7 @@ class _PlayableAssetState extends State<PlayableAsset> {
   /// Stops the audio.
   void _stopAudio() {
     _audio?.cancel();
+    _audio = null;
     setState(() {});
   }
 }

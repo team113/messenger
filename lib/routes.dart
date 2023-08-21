@@ -293,11 +293,13 @@ class RouterState extends ChangeNotifier {
   /// - [Routes.home] is allowed always.
   /// - Any other page is allowed to visit only on success auth status.
   String _guarded(String to) {
+    if (to.startsWith(Routes.vacancy)) {
+      return to;
+    }
+
     switch (to) {
       case Routes.home:
       case Routes.style:
-      case Routes.vacancy:
-        return to;
       default:
         if (_auth.status.value.isSuccess) {
           return to;
@@ -733,7 +735,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       ));
     }
 
-    if (_state.route == Routes.vacancy) {
+    if (_state.route.startsWith(Routes.vacancy) &&
+        !_state._auth.status.value.isSuccess) {
       pages.add(
         const MaterialPage(
           key: ValueKey('VacancyPage'),

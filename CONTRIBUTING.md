@@ -196,7 +196,7 @@ Any rules described here are in priority if they have conflicts with [Effective 
 ### Documentation
 
 __DO__ document your code. Documentation must follow [Effective Dart] official recommendations with the following exception:
-- prefer omitting leading `A`, `An` or `The` article, as it is mostly meaningless.
+- prefer omitting leading `A`, `An` or `The` article.
 
 
 ### Prefer code blocks over arrow functions

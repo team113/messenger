@@ -27,6 +27,7 @@ import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/page/home/widget/transaction.dart';
 import 'package:messenger/ui/page/home/widget/vacancy.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -48,6 +49,34 @@ class PartnerTabView extends StatelessWidget {
           appBar: CustomAppBar(
             title: Text('label_work_with_us'.l10n),
             // title: Text('Balance: \$${c.balance.value / 100}'),
+            leading: [
+              AnimatedButton(
+                decorator: (child) => Container(
+                  padding: const EdgeInsets.only(left: 18),
+                  height: double.infinity,
+                  child: Center(child: child),
+                ),
+                onPressed: () {},
+                child: Text(
+                  '\$${c.balance.value / 100}',
+                  style: style.fonts.labelLargePrimary,
+                ),
+              ),
+            ],
+            actions: [
+              AnimatedButton(
+                decorator: (child) => Container(
+                  padding: const EdgeInsets.only(right: 18),
+                  height: double.infinity,
+                  child: Center(child: child),
+                ),
+                onPressed: () {},
+                child: Icon(
+                  Icons.more_vert,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
           ),
           body: Obx(() {
             if (c.withdrawing.value) {

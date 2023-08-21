@@ -23,6 +23,7 @@ import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
 import 'page/colors/view.dart';
+import 'page/elements/view.dart';
 import 'page/multimedia/view.dart';
 import 'page/typography/view.dart';
 
@@ -95,9 +96,7 @@ class StyleView extends StatelessWidget {
                                 ? Icons.widgets
                                 : Icons.widgets_outlined,
                             inverted: selected,
-
-                            // TODO: Implement.
-                            onPressed: null,
+                            onPressed: () => c.pages.jumpToPage(i),
                           ),
                       };
                     });
@@ -164,9 +163,12 @@ class StyleView extends StatelessWidget {
                     dense: c.dense.value,
                   );
                 }),
-
-              // TODO: Implement.
-              StyleTab.elements => Container(),
+              StyleTab.elements => Obx(() {
+                  return ElementsView(
+                    inverted: c.inverted.value,
+                    dense: c.dense.value,
+                  );
+                })
             },
           );
         }).toList(),

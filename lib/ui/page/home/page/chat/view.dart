@@ -434,11 +434,6 @@ class _ChatViewState extends State<ChatView>
                             child: Column(
                               children: [
                                 Obx(() {
-                                  void onPressed() {
-                                    c.paidDisclaimerDismissed.value = false;
-                                    c.paidDisclaimer.value = true;
-                                  }
-
                                   return AnimatedSizeAndFade.showHide(
                                     fadeDuration: 250.milliseconds,
                                     sizeDuration: 250.milliseconds,
@@ -794,7 +789,8 @@ class _ChatViewState extends State<ChatView>
             (previous is ChatForwardElement &&
                 previous.authorId == author &&
                 element.id.at.val.difference(previous.id.at.val).abs() <=
-                    const Duration(minutes: 5));
+                    const Duration(minutes: 5)) ||
+            previous is UnreadMessagesElement;
       }
     }
 

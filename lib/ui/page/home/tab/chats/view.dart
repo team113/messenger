@@ -414,7 +414,9 @@ class ChatsTabView extends StatelessWidget {
                                 child: Container(
                                   key: c.moreKey,
                                   padding: const EdgeInsets.only(
-                                      left: 12, right: 18),
+                                    left: 12,
+                                    right: 18,
+                                  ),
                                   height: double.infinity,
                                   child: Icon(
                                     Icons.more_vert,

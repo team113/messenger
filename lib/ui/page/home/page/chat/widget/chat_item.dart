@@ -29,6 +29,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -511,8 +512,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       style: style.systemMessageStyle,
                     ),
                   ],
-                  style: style.systemMessageStyle
-                      .copyWith(color: style.colors.primary),
+                  style: style.systemMessagePrimary,
                 ),
               );
             }
@@ -573,8 +573,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.systemMessageStyle
-                    .copyWith(color: style.colors.primary),
+                style: style.systemMessagePrimary,
               ),
             );
           });
@@ -599,8 +598,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   style: style.systemMessageStyle,
                 ),
               ],
-              style: style.systemMessageStyle
-                  .copyWith(color: style.colors.primary),
+              style: style.systemMessagePrimary,
             ),
           );
         }
@@ -637,8 +635,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ..onTap = () => router.user(user!.id, push: true),
                   ),
                 ],
-                style: style.systemMessageStyle
-                    .copyWith(color: style.colors.primary),
+                style: style.systemMessagePrimary,
               ),
             );
           });
@@ -660,8 +657,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   style: style.systemMessageStyle,
                 ),
               ],
-              style: style.systemMessageStyle
-                  .copyWith(color: style.colors.primary),
+              style: style.systemMessagePrimary,
             ),
           );
         }
@@ -697,8 +693,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.systemMessageStyle,
               ),
             ],
-            style:
-                style.systemMessageStyle.copyWith(color: style.colors.primary),
+            style: style.systemMessagePrimary,
           ),
         );
         break;
@@ -734,8 +729,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style: style.systemMessageStyle,
               ),
             ],
-            style:
-                style.systemMessageStyle.copyWith(color: style.colors.primary),
+            style: style.systemMessagePrimary,
           ),
         );
         break;
@@ -1030,74 +1024,55 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ],
         ];
 
-        final message = Stack(
-          children: [
-            ConditionalIntrinsicWidth(
-              // condition: false,
-              condition: msg.donate == null &&
-                  !msg.repliesTo.any(
-                    (e) => (e is ChatMessageQuote &&
-                        e.text?.val.contains('?donate=') == true),
-                  ),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: _fromMe
-                      ? _isRead
-                          ? style.readMessageColor
-                          : style.unreadMessageColor
-                      : style.messageColor,
-                  borderRadius: BorderRadius.circular(15),
-                  border: _fromMe
-                      ? _isRead
-                          ? style.secondaryBorder
-                          : Border.all(
-                              color: style.readMessageColor,
-                              width: 0.5,
-                            )
-                      : style.primaryBorder,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: children,
-                ),
-              ),
-            ),
-            if (timestamp)
-              Positioned(
-                right: timeInBubble ? 6 : 8,
-                bottom: 4,
-                child: timeInBubble
-                    ? Container(
-                        padding: const EdgeInsets.only(left: 4, right: 4),
-                        decoration: BoxDecoration(
-                          color: style.colors.onBackgroundOpacity50,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: _timestamp(msg, true),
-                      )
-                    : _timestamp(msg),
-              )
-          ],
-        );
-
         return Container(
           padding: const EdgeInsets.fromLTRB(5, 0, 2, 0),
           child: Stack(
             children: [
-              Column(
-                crossAxisAlignment:
-                    _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                children: [
-                  // if (donate != null) donate,
-                  // const SizedBox(height: 1),
-                  // if (donate != null) Opacity(opacity: 0, child: donate),
-                  message,
-                ],
+              ConditionalIntrinsicWidth(
+                condition: msg.donate == null &&
+                    !msg.repliesTo.any(
+                      (e) => (e is ChatMessageQuote &&
+                          e.text?.val.contains('?donate=') == true),
+                    ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: _fromMe
+                        ? _isRead
+                            ? style.readMessageColor
+                            : style.unreadMessageColor
+                        : style.messageColor,
+                    borderRadius: BorderRadius.circular(15),
+                    border: _fromMe
+                        ? _isRead
+                            ? style.secondaryBorder
+                            : Border.all(
+                                color: style.readMessageColor,
+                                width: 0.5,
+                              )
+                        : style.primaryBorder,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children,
+                  ),
+                ),
               ),
-
-              // if (donate != null)
-              //   Transform.translate(offset: const Offset(0, 3), child: donate),
+              if (timestamp)
+                Positioned(
+                  right: timeInBubble ? 6 : 8,
+                  bottom: 4,
+                  child: timeInBubble
+                      ? Container(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          decoration: BoxDecoration(
+                            color: style.colors.onBackgroundOpacity50,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: _timestamp(msg, true),
+                        )
+                      : _timestamp(msg),
+                )
             ],
           ),
         );
@@ -1113,7 +1088,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
 
-    if (isOngoing) {
+    if (isOngoing && !Config.disableInfiniteAnimations) {
       _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
         if (mounted) {
           setState(() {});
@@ -1349,6 +1324,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     final FutureOr<RxUser?>? user = widget.getUser?.call(item.author);
+
     return FutureBuilder<RxUser?>(
       future: user is Future<RxUser?> ? user : null,
       builder: (_, snapshot) {
@@ -1486,9 +1462,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         time,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: style.fonts.labelLarge.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                        style: style.fonts.labelLargeSecondary,
                       ).fixedDigits(),
                     ],
                   ),

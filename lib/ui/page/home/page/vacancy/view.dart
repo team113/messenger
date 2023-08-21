@@ -17,7 +17,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/vacancy.dart';
+import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
@@ -26,8 +29,12 @@ import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/page/vacancy/body/view.dart';
 import 'package:messenger/ui/page/vacancy/widget/vacancy_description.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'controller.dart';
 
@@ -57,39 +64,34 @@ class VacancyView extends StatelessWidget {
           appBar: CustomAppBar(
             title: Text(e.title),
             leading: const [StyledBackButton()],
+            actions: [
+              AnimatedButton(
+                decorator: (child) => Container(
+                  padding: const EdgeInsets.only(left: 12, right: 18),
+                  height: double.infinity,
+                  child: child,
+                ),
+                onPressed: () async {
+                  if (PlatformUtils.isMobile) {
+                    await Share.share('${Config.origin}${router.route}');
+                  } else {
+                    PlatformUtils.copy(
+                      text: '${Config.origin}${router.route}',
+                    );
+                    MessagePopup.success('label_copied'.l10n);
+                  }
+                },
+                child: PlatformUtils.isMobile
+                    ? Icon(
+                        Icons.ios_share_rounded,
+                        color: style.colors.primary,
+                        size: 24,
+                      )
+                    : SvgImage.asset('assets/icons/copy.svg', height: 18),
+              ),
+            ],
           ),
           body: VacancyBodyView(e, detailed: false),
-          // Center(
-          //   child: ListView(
-          //     shrinkWrap: !context.isNarrow,
-          //     children: [
-          //       const SizedBox(height: 4),
-          //       ...e.blocks.map((e) {
-          //         return Block(
-          //           title: e.title,
-          //           children: [
-          //             VacancyDescription(e.description),
-          //             // Paddings.dense(VacancyDescription(e.description)),
-          //             const SizedBox(height: 4),
-          //           ],
-          //         );
-          //       }),
-          //       Block(
-          //         title: 'Actions',
-          //         children: [
-          //           Paddings.basic(
-          //             FieldButton(
-          //               text: 'Связаться',
-          //               style: TextStyle(color: style.colors.primary),
-          //               onPressed: c.contact,
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //       const SizedBox(height: 4),
-          //     ],
-          //   ),
-          // ),
         );
       },
     );

@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: _fe_analyzer_shared
-      sha256: ae92f5d747aee634b87f89d9946000c2de774be1d6ac3e58268224348cd0101a
+      sha256: eb376e9acf6938204f90eb3b1f00b578640d3188b4c8a8ec054f9f479af8d051
       url: "https://pub.dev"
     source: hosted
-    version: "61.0.0"
+    version: "64.0.0"
   _flutterfire_internals:
     dependency: transitive
     description:
@@ -21,10 +21,10 @@ packages:
     dependency: "direct overridden"
     description:
       name: analyzer
-      sha256: ea3d8652bda62982addfd92fdc2d0214e5f82e43325104990d4f4c4a2a313562
+      sha256: "69f54f967773f6c26c7dcb13e93d7ccee8b17a641689da39e878d5cf13b06893"
       url: "https://pub.dev"
     source: hosted
-    version: "5.13.0"
+    version: "6.2.0"
   animated_size_and_fade:
     dependency: "direct main"
     description:
@@ -85,10 +85,10 @@ packages:
     dependency: "direct main"
     description:
       name: back_button_interceptor
-      sha256: e47660f2178a4392eb72001f9594d3fdcb5efde93e59d2819d61fda499e781c8
+      sha256: ba7d4f4d801e2f1367db35ecf8870cf954cd2c434a9e6208b10fe527b34eb873
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.2"
+    version: "7.0.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -612,10 +612,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: aea96b3b78556c97607d9bee59fcec515bc3ec1b6e905f14d72906ae055033fa
+      sha256: "3cc40fe8c50ab8383f3e053a499f00f975636622ecdc8e20a77418ece3b1e975"
       url: "https://pub.dev"
     source: hosted
-    version: "14.1.2"
+    version: "15.1.0+1"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -649,10 +649,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_meedu_videoplayer
-      sha256: "8f4880ac0dbe1662ea8d0d03e35c86ea5696651600b59e9005f5607fbb9a8b6f"
+      sha256: "5d687cca1681041b1ca078de3abd677b4e97d9a5b141009963927c43438b7ad9"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.24"
+    version: "4.2.22"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -903,10 +903,11 @@ packages:
   hive:
     dependency: "direct main"
     description:
-      name: hive
-      sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "63c3b810f66fce0eb845503106ffa920e043852e"
+      url: "https://github.com/krida2000/git-hive.git"
+    source: git
     version: "2.2.3"
   hive_flutter:
     dependency: "direct main"
@@ -968,10 +969,10 @@ packages:
     dependency: "direct main"
     description:
       name: image_gallery_saver
-      sha256: be812580c7a320d3bf583af89cac6b376f170d48000aca75215a73285a3223a0
+      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
       url: "https://pub.dev"
     source: hosted
-    version: "1.7.1"
+    version: "2.0.3"
   image_picker:
     dependency: "direct main"
     description:
@@ -1151,10 +1152,10 @@ packages:
     dependency: "direct main"
     description:
       name: media_kit
-      sha256: "0a89e7037002a62701ec319c375586849f9ef8e681820e1dd4a4ff7b843f7542"
+      sha256: "1e6ea59b5f81d1db038ac5394c38cd3ad2f5e50bdf36f12154dee6fa04221bcb"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4+1"
+    version: "1.1.0"
   media_kit_libs_ios_video:
     dependency: "direct main"
     description:
@@ -1167,18 +1168,18 @@ packages:
     dependency: transitive
     description:
       name: media_kit_libs_linux
-      sha256: "570bf18ebbd1221caec082657468be05d180510385d3515ec38e0be44fdcc859"
+      sha256: "21acc71cbae3518b3aeef9023a6a3a3decb579a40153764333814987ccd61040"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.0.2"
   media_kit_libs_macos_video:
     dependency: transitive
     description:
       name: media_kit_libs_macos_video
-      sha256: c06e831f3c22a45296d375788d9bc07871b448f8e9ec98d77b11e5e118a83fb2
+      sha256: "28ad624666cd20ed78f96a26917dddf6f286ea4bab21620676cc59ba62f3d3e5"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.3"
+    version: "1.0.6"
   media_kit_libs_windows_video:
     dependency: transitive
     description:
@@ -1191,18 +1192,18 @@ packages:
     dependency: transitive
     description:
       name: media_kit_native_event_loop
-      sha256: e37ce6fb5fa71b8cf513c6a6cd591367743a342a385e7da621a047dd8ef6f4a4
+      sha256: "5351f0c28124b5358756515d8619abad182cdefe967468d7fb5b274737cc2f59"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.7"
+    version: "1.0.6"
   media_kit_video:
     dependency: transitive
     description:
       name: media_kit_video
-      sha256: e7fcbe426d42a78ad6696f8f557adb9cbdc012177829026d04992cc106a1c815
+      sha256: "55edf96bcf08f8bd158018d77afd10d5411f9f3b657fb34a4cd5690caec91596"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.5"
+    version: "1.1.0"
   meedu:
     dependency: transitive
     description:
@@ -1278,12 +1279,11 @@ packages:
   open_file:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "9c7273ee8a1a5e124f69e770cba846ae66de68e1"
-      url: "https://github.com/adaptolearning/open_file"
-    source: git
-    version: "3.2.2"
+      name: open_file
+      sha256: a5a32d44acb7c899987d0999e1e3cbb0a0f1adebbf41ac813ec6d2d8faa0af20
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.2"
   package_config:
     dependency: transitive
     description:
@@ -2151,10 +2151,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_media_kit
-      sha256: "233fa105dfffc251765a6ca52fba18a69dbc7c70381341a39363e98fef46d6ea"
+      sha256: "7472fca414cfe372560d9328a3da9e57d9ba1de4af7ed8d887ce6a9868dc2430"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.24"
+    version: "0.0.22"
   video_player_platform_interface:
     dependency: transitive
     description:
@@ -2279,10 +2279,10 @@ packages:
     dependency: "direct main"
     description:
       name: win32
-      sha256: "5a751eddf9db89b3e5f9d50c20ab8612296e4e8db69009788d6c8b060a84191c"
+      sha256: f2add6fa510d3ae152903412227bda57d0d5a8da61d2c39c1fb022c9429a41c0
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.4"
+    version: "5.0.6"
   win32_registry:
     dependency: transitive
     description:
@@ -2291,6 +2291,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  win_toast:
+    dependency: "direct main"
+    description:
+      name: win_toast
+      sha256: "371d62b17b30489cad41e831e6340c2777202d2b4b2fd55a14ffc566b3df7518"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   window_manager:
     dependency: "direct main"
     description:

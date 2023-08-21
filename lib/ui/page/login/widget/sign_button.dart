@@ -5,6 +5,7 @@ import 'package:messenger/ui/widget/svg/svg.dart';
 
 class SignButton extends StatelessWidget {
   const SignButton({
+    super.key,
     required this.text,
     this.leading,
     this.asset = '',
@@ -12,10 +13,11 @@ class SignButton extends StatelessWidget {
     this.assetHeight = 20,
     this.padding = EdgeInsets.zero,
     this.onPressed,
-    super.key,
+    this.dense = false,
   });
 
   final String text;
+  final bool dense;
   final Widget? leading;
   final String asset;
   final double assetWidth;
@@ -30,7 +32,7 @@ class SignButton extends StatelessWidget {
     return Center(
       child: PrefixButton(
         text: text,
-        style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
+        style: dense ? style.fonts.labelMediumPrimary : style.fonts.titleLarge,
         onPressed: onPressed ?? () {},
         prefix: Padding(
           padding: const EdgeInsets.only(left: 16, bottom: 0).add(padding),

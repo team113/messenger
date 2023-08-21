@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/vacancy.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/animated_logo.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
+import 'package:messenger/ui/page/login/controller.dart';
+import 'package:messenger/ui/page/login/view.dart';
 import 'package:messenger/ui/page/vacancy/contact/view.dart';
 import 'package:messenger/ui/page/vacancy/widget/vacancy_description.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
@@ -43,7 +46,13 @@ class VacancyBodyView extends StatelessWidget {
                         if (c.authorized) {
                           await c.useLink();
                         } else {
-                          await VacancyContactView.show(context);
+                          await LoginView.show(
+                            context,
+                            stage: LoginViewStage.choice,
+                            onAuth: () async {
+                              await c.useLink();
+                            },
+                          );
                         }
                       },
                       maxWidth: double.infinity,
@@ -72,7 +81,6 @@ class VacancyBodyView extends StatelessWidget {
     switch (vacancy.id) {
       case 'dart':
         return [
-          // if (detailed)
           Block(
             children: [
               Text(
@@ -127,8 +135,8 @@ class VacancyBodyView extends StatelessWidget {
             title: 'Стек технологий',
             children: [
               VacancyDescription(
-                '''- язык - Dart
-- фреймворк - Flutter
+                '''- Язык - Dart;
+- Flutter - фреймворк;
 - GetX - Dependency Injection и State Management;
 - Navigator 2.0 (Router) - навигация;
 - Hive - локальная база данных;
@@ -145,6 +153,95 @@ class VacancyBodyView extends StatelessWidget {
                 '''В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Dart/Flutter, Вы можете воспользоваться нашей корпоративной песочницей.
 
 https://github.com/team113/flutter-incubator''',
+              ),
+            ],
+          ),
+        ];
+
+      case 'backend':
+        return [
+          Block(
+            children: [
+              Text(
+                'Messenger',
+                style: style.fonts.titleLargeSecondary
+                    .copyWith(fontSize: 27 * multiplier),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              const SizedBox(height: 2 * multiplier),
+              Text(
+                'by Gapopa',
+                style: style.fonts.titleLargeSecondary
+                    .copyWith(fontSize: 21 * multiplier),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              const SizedBox(height: 25 * multiplier),
+              const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
+              const SizedBox(height: 16 * multiplier),
+              const VacancyDescription('https://github.com/team113/messenger'),
+            ],
+          ),
+          const Block(
+            title: 'Условия',
+            children: [
+              VacancyDescription(
+                '''- ежедневная оплата;
+- от 2000 EUR;
+- 4-х, 6-ти или 8-ми часовой рабочий день;
+- учёт рабочего времени и оплата переработок;
+- удалённое сотрудничество.''',
+              ),
+            ],
+          ),
+          const Block(
+            title: 'Требования',
+            children: [
+              VacancyDescription(
+                '''- опыт использования и понимание языка Rust;
+- приветствуется опыт работы с языками C, C++;
+- понимание FFI и UB;
+- опыт оптимизации программ и умение использовать профилировщик;
+- понимание принципов работы клиент-серверных web-приложений;
+- опыт и понимание принципов проектирования структур баз данных;
+- понимание принципов DDD и слоенной архитектуры;
+- опыт написания модульных и функциональных тестов;
+- опыт работы с Git;
+- умение использовать операционные системы типа *nix;
+- приветствуется опыт работы по CQRS+ES парадигме;
+- приветствуется опыт работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
+- приветствуется опыт работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.''',
+              ),
+            ],
+          ),
+          const Block(
+            title: 'Стек технологий',
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: VacancyDescription(
+                  '''- Язык - Rust;
+- actix-web - веб-фреймворк;
+- CockroachDB - база данных;
+- baza - файловое хранилище;
+- Medea - медиа сервер;
+- Firebase - push уведомления;
+- GraphQL - API;
+- Cucumber - E2E тестирование.''',
+                ),
+              ),
+            ],
+          ),
+          const Block(
+            // title: 'Курс для самостоятельного обучения',
+            children: [
+              VacancyDescription(
+                '''В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей корпоративной песочницей.
+
+https://github.com/instrumentisto/rust-incubator''',
               ),
             ],
           ),

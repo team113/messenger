@@ -21,8 +21,10 @@ import 'dart:math';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:win_toast/win_toast.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -287,6 +289,30 @@ class NotificationService extends DisposableService {
       // a browser's policy to ask for notifications permission only after
       // user's interaction.
       WebUtils.onSelectNotification = onResponse;
+    }
+    if (PlatformUtils.isWindows) {
+      await WinToast.instance().initialize(
+        aumId: 'team113.messenger',
+        displayName: 'Gapopa',
+        iconPath: kDebugMode
+            ? File(r'assets\icons\app_icon.ico').absolute.path
+            : File(r'data\flutter_assets\assets\icons\app_icon.ico')
+                .absolute
+                .path,
+        clsid: Config.clsid,
+      );
+
+      WinToast.instance().setActivatedCallback((event) async {
+        await WindowManager.instance.focus();
+
+        onResponse?.call(
+          NotificationResponse(
+            notificationResponseType:
+                NotificationResponseType.selectedNotification,
+            payload: event.argument.isEmpty ? null : event.argument,
+          ),
+        );
+      });
     } else {
       if (_plugin == null) {
         _plugin = FlutterLocalNotificationsPlugin();

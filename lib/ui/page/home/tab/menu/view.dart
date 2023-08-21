@@ -423,11 +423,7 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.style,
                       title: 'Styles'.l10n,
                       subtitle: 'Colors, typography, elements'.l10n,
-                      onPressed: () async {
-                        await launchUrlString(
-                          'https://352-refactor-style-page.mob.soc.rev.t11913.org/style',
-                        );
-                      },
+                      onPressed: () => router.go(Routes.style),
                     );
                     break;
 

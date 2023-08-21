@@ -30,6 +30,7 @@ import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/mime.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -86,6 +87,7 @@ enum LoginViewStage {
   signUpWithPhoneOccupied,
   noPassword,
   noPasswordCode,
+  choice,
 }
 
 extension on LoginViewStage {
@@ -110,6 +112,7 @@ class LoginController extends GetxController {
   LoginController(
     this._authService, {
     LoginViewStage stage = LoginViewStage.signUp,
+    this.onAuth,
   }) : stage = Rx(stage);
 
   /// [TextFieldState] of a login text input.
@@ -132,6 +135,9 @@ class LoginController extends GetxController {
 
   final RxList<Barcode> barcodes = RxList();
   final GlobalKey scannerKey = GlobalKey();
+
+  LoginViewStage? backStage;
+  final void Function()? onAuth;
 
   late final TextFieldState email = TextFieldState(
     revalidateOnUnfocus: true,
@@ -221,7 +227,7 @@ class LoginController extends GetxController {
 
         router.noIntroduction = false;
         router.signUp = true;
-        router.home();
+        _redirect();
       } on ConfirmUserEmailException catch (e) {
         switch (e.code) {
           case ConfirmUserEmailErrorCode.occupied:
@@ -344,7 +350,7 @@ class LoginController extends GetxController {
             await _authService.authorizeWith(creds!);
             router.noIntroduction = false;
             router.signUp = true;
-            router.home();
+            _redirect();
           }
         } else if (ConfirmationCode(s.text).val == '2222') {
           throw const ConfirmUserPhoneException(
@@ -563,7 +569,7 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      router.home();
+      _redirect();
     } on FormatException {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
@@ -771,10 +777,21 @@ class LoginController extends GetxController {
     }
   }
 
+  /// Registers and redirects to the [Routes.home] page.
+  Future<void> oneTime() async {
+    try {
+      await _authService.register();
+      _redirect();
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   Future<void> register() async {
     await _authService.register();
     router.validateEmail = true;
-    router.home();
+    _redirect();
 
     while (!Get.isRegistered<MyUserService>()) {
       await Future.delayed(const Duration(milliseconds: 20));
@@ -933,7 +950,7 @@ class LoginController extends GetxController {
     router.validateEmail = false;
     router.noIntroduction = false;
     router.signUp = true;
-    router.home();
+    _redirect();
 
     while (!Get.isRegistered<MyUserService>()) {
       await Future.delayed(const Duration(milliseconds: 20));
@@ -1156,7 +1173,11 @@ class LoginController extends GetxController {
 
     router.noIntroduction = false;
     router.signUp = true;
-    router.home();
+    _redirect();
+  }
+
+  void _redirect() {
+    (onAuth ?? router.home).call();
   }
 }
 
