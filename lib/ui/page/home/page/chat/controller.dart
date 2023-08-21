@@ -1122,7 +1122,7 @@ class ChatController extends GetxController {
       try {
         await attachment.download();
       } catch (e) {
-        if (e is DioError && e.type == DioErrorType.cancel) {
+        if (e is DioException && e.type == DioExceptionType.cancel) {
           return;
         }
 

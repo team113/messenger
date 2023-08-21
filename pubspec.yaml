@@ -3,15 +3,15 @@ version: 0.1.0-alpha.9.2
 publish_to: none
 
 environment:
-  flutter: ">=3.10.0"
-  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.13.0"
+  sdk: ">=3.1.0 <4.0.0"
 
 dependencies:
   animated_size_and_fade: ^3.0.0
   async: ^2.10.0
-  back_button_interceptor: ^6.0.2
+  back_button_interceptor: ^7.0.0
   callkeep: ^0.3.3
-  collection: ^1.17.0
+  collection: ^1.17.2
   crypto: ^3.0.3
   desktop_drop: ^0.4.1
   device_info_plus: ^9.0.2
@@ -33,7 +33,7 @@ dependencies:
   flutter_background_service_ios: ^2.4.0
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
-  flutter_local_notifications: ^14.0.0+2
+  flutter_local_notifications: ^15.1.0+1
   flutter_meedu_videoplayer: ^4.2.20
   flutter_spinkit: ^5.2.0
   flutter_staggered_animations: ^1.1.1
@@ -46,7 +46,7 @@ dependencies:
   hive: ^2.2.3
   http: ^0.13.6
   http_parser: ^4.0.2
-  image_gallery_saver: ^1.7.1
+  image_gallery_saver: ^2.0.3
   image_picker:
     git:
       url: https://github.com/krida2000/image_picker.git
@@ -61,37 +61,37 @@ dependencies:
   mutex: ^3.0.1
   open_file: ^3.3.2
   path: ^1.8.2
-  path_provider: ^2.0.15
-  path_provider_android: ^2.0.22
+  path_provider: ^2.1.0
+  path_provider_android: ^2.1.0
   permission_handler: ^10.2.0
   photo_view: ^0.14.0
   platform_detect: ^2.0.7
-  rive: ^0.10.4
+  rive: ^0.11.14
   scrollable_positioned_list:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
-  sentry_flutter: ^7.5.2
+  sentry_flutter: ^7.9.0
   share_plus: ^7.0.0
   sliding_up_panel: ^2.0.0+1
   stdlibc: ^0.1.4
   toml: ^0.14.0
-  universal_io: ^2.2.0
-  url_launcher: ^6.1.11
+  universal_io: ^2.2.2
+  url_launcher: ^6.1.12
   uuid: ^3.0.7
-  vibration: ^1.7.7
+  vibration: ^1.8.1
   wakelock_plus: ^1.1.1
   web_socket_channel: ^2.4.0
-  win32: ^5.0.5
+  win32: ^5.0.6
   win_toast: ^0.3.0
   window_manager: ^0.3.5
   windows_taskbar: ^1.1.1
 
 dev_dependencies:
-  artemis: ^7.13.0-beta.1
-  build: ^2.4.0
-  build_runner: ^2.4.2
-  dartdoc: ^6.2.2
+  artemis: ^7.13.0-beta.2
+  build: ^2.4.1
+  build_runner: ^2.4.6
+  dartdoc: ^6.3.0
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
@@ -113,18 +113,17 @@ dev_dependencies:
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
-  analyzer: ^5.12.0
+  analyzer: ^6.2.0
   # TODO: Remove when hivedb/hive#1034 is fixed:
   #       https://github.com/hivedb/hive/issues/1034
   hive:
     git:
       url: https://github.com/krida2000/git-hive.git
+  # TODO: Remove when comigor/artemis#417 is fixed:
+  #       https://github.com/comigor/artemis/issues/417
+  http: ^1.1.0
   # TODO: Remove when `sentry_flutter` updates.
   package_info_plus: ^4.0.0
-  # TODO: Remove when creativecreatorormaybenot/wakelock#195 is released to
-  #       `pub.dev`:
-  #       https://github.com/creativecreatorormaybenot/wakelock/pull/195
-  win32: ^4.1.3
 
 flutter:
   uses-material-design: true

@@ -23,14 +23,13 @@ import 'package:flutter/widgets.dart';
 class MockedPlatformRouteInformationProvider
     extends PlatformRouteInformationProvider {
   MockedPlatformRouteInformationProvider()
-      : super(initialRouteInformation: const RouteInformation());
+      : super(initialRouteInformation: RouteInformation(uri: Uri.parse('/')));
 
-  /// Returns null `location` on test start.
   @override
-  RouteInformation get value => const RouteInformation(location: '/');
-
-  /// Throws `_CastError` on test end.
-  @override
-  void routerReportsNewRouteInformation(RouteInformation routeInformation,
-      {RouteInformationReportingType? type}) {}
+  void routerReportsNewRouteInformation(
+    RouteInformation routeInformation, {
+    RouteInformationReportingType? type,
+  }) {
+    // No-op.
+  }
 }
