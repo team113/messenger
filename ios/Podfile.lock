@@ -249,9 +249,9 @@ SPEC CHECKSUMS:
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
   medea_flutter_webrtc: 3b18686832c51cd46bf794e4e3ec94551a6dd664
   medea_jason: 05d8174fd71ee885e68e40a50816d609d971f7b5
-  media_kit_libs_ios_video: 96259eccffaa309b63a7ee610c2c7786a3b335e5
-  media_kit_native_event_loop: 1eac6db2378101404392c80606103b42f7c2c491
-  media_kit_video: 6c61501e3ab980488d80df6d705905d14b150b63
+  media_kit_libs_ios_video: a5fe24bc7875ccd6378a0978c13185e1344651c1
+  media_kit_native_event_loop: e6b2ab20cf0746eb1c33be961fcf79667304fa2a
+  media_kit_video: 5da63f157170e5bf303bf85453b7ef6971218a2e
   open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
   package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943

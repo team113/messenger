@@ -143,9 +143,9 @@ SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   medea_flutter_webrtc: 3df07fdf7f364256674e060fba563c8ba1379b73
   medea_jason: b3355be56a78da19da91aee19a3ac56356d18997
-  media_kit_libs_macos_video: 0a4a5bf21533cba968c0833f1b59e9af8b5847f1
-  media_kit_native_event_loop: 2d8c329aa5815d77a6f40623adeede4584307723
-  media_kit_video: 1e311a3dfe41f276935f95518b51a0c3ff72114f
+  media_kit_libs_macos_video: b3e2bbec2eef97c285f2b1baa7963c67c753fb82
+  media_kit_native_event_loop: 81fd5b45192b72f8b5b69eaf5b540f45777eb8d5
+  media_kit_video: c75b07f14d59706c775778e4dd47dd027de8d1e5
   package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
