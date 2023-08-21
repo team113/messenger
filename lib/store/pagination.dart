@@ -111,8 +111,8 @@ class Pagination<T, K extends Comparable, C> {
 
       startCursor = page?.info.startCursor;
       endCursor = page?.info.endCursor;
-      hasNext.value = page?.info.hasNext ?? true;
-      hasPrevious.value = page?.info.hasPrevious ?? true;
+      hasNext.value = page?.info.hasNext ?? hasNext.value;
+      hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       Log.print('init(item: $item)... done', 'Pagination');
     });
   }
@@ -141,8 +141,8 @@ class Pagination<T, K extends Comparable, C> {
 
       startCursor = page?.info.startCursor;
       endCursor = page?.info.endCursor;
-      hasNext.value = page?.info.hasNext ?? true;
-      hasPrevious.value = page?.info.hasPrevious ?? true;
+      hasNext.value = page?.info.hasNext ?? hasNext.value;
+      hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
     });
   }

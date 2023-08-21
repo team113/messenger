@@ -325,6 +325,10 @@ class HiveRxChat extends RxChat {
       item = await get(chat.value.lastReadItem!);
     }
     await _pagination.init(item);
+    if (id.isLocal) {
+      _pagination.hasNext.value = false;
+      _pagination.hasPrevious.value = false;
+    }
   }
 
   /// Disposes this [HiveRxChat].
