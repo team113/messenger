@@ -672,10 +672,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   Widget build(BuildContext context) {
     return LifecycleObserver(
-      onStateChange: (v) {
-        _state.lifecycle.value = v;
-        print(v);
-      },
+      onStateChange: (v) => _state.lifecycle.value = v,
       child: Listener(
         onPointerDown: (_) => PlatformUtils.keepActive(),
         onPointerHover: (_) => PlatformUtils.keepActive(),
