@@ -278,6 +278,10 @@ class PlatformUtilsImpl {
 
   /// Returns a path to the cache directory.
   FutureOr<Directory?> get cacheDirectory async {
+    if (PlatformUtils.isWeb) {
+      return null;
+    }
+
     try {
       _cacheDirectory ??= await getApplicationCacheDirectory();
       return _cacheDirectory!;

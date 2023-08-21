@@ -67,14 +67,11 @@ class CacheWorker extends DisposableService {
     info = Rx(_cacheLocal?.info ?? CacheInfo());
     _initLocalSubscription();
 
-    if (!PlatformUtils.isWeb) {
-      final Directory? cache = await PlatformUtils.cacheDirectory;
+    final Directory? cache = await PlatformUtils.cacheDirectory;
 
-      // Recalculate the [info], if [FileStat.modified] mismatch is detected.
-      if (cache != null &&
-          info.value.modified != (await cache.stat()).modified) {
-        _updateInfo();
-      }
+    // Recalculate the [info], if [FileStat.modified] mismatch is detected.
+    if (cache != null && info.value.modified != (await cache.stat()).modified) {
+      _updateInfo();
     }
 
     super.onInit();
@@ -104,8 +101,9 @@ class CacheWorker extends DisposableService {
     }
 
     return Future(() async {
-      if (checksum != null && !PlatformUtils.isWeb) {
+      if (checksum != null) {
         final Directory? cache = await PlatformUtils.cacheDirectory;
+
         if (cache != null) {
           final File file = File('${cache.path}/$checksum');
 
@@ -165,26 +163,24 @@ class CacheWorker extends DisposableService {
     checksum ??= sha256.convert(data).toString();
     FIFOCache.set(checksum, data);
 
-    if (!PlatformUtils.isWeb) {
-      return _mutex.protect(() async {
-        final Directory? cache = await PlatformUtils.cacheDirectory;
+    return _mutex.protect(() async {
+      final Directory? cache = await PlatformUtils.cacheDirectory;
 
-        if (cache != null) {
-          final File file = File('${cache.path}/$checksum');
-          if (!(await file.exists())) {
-            await file.writeAsBytes(data);
+      if (cache != null) {
+        final File file = File('${cache.path}/$checksum');
+        if (!(await file.exists())) {
+          await file.writeAsBytes(data);
 
-            await _cacheLocal?.set(
-              checksums: info.value.checksums..add(checksum!),
-              size: info.value.size + data.length,
-              modified: (await cache.stat()).modified,
-            );
+          await _cacheLocal?.set(
+            checksums: info.value.checksums..add(checksum!),
+            size: info.value.size + data.length,
+            modified: (await cache.stat()).modified,
+          );
 
-            _optimizeCache();
-          }
+          _optimizeCache();
         }
-      });
-    }
+      }
+    });
   }
 
   /// Indicates whether [checksum] is in the cache.
@@ -194,11 +190,8 @@ class CacheWorker extends DisposableService {
   /// Clears the cache in the cache directory.
   Future<void> clear() {
     return _mutex.protect(() async {
-      if (PlatformUtils.isWeb) {
-        return;
-      }
-
       final Directory? cache = await PlatformUtils.cacheDirectory;
+
       if (cache != null) {
         final List<File> files =
             info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
@@ -254,10 +247,6 @@ class CacheWorker extends DisposableService {
   /// [FileStat.accessed] times.
   Future<void> _optimizeCache() {
     return _mutex.protect(() async {
-      if (PlatformUtils.isWeb) {
-        return;
-      }
-
       final Directory? cache = await PlatformUtils.cacheDirectory;
 
       int overflow = info.value.size - info.value.maxSize;
