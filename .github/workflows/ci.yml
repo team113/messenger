@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.10"
+  FLUTTER_VER: "3.13"
 
 jobs:
 
@@ -369,7 +369,7 @@ jobs:
         env:
           OMIT: |
             [
-              ":INFO:CONSOLE\\(52564\\)] ",
+              ":INFO:CONSOLE\\(50652\\)] ",
               "\"Got object store box in database",
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]

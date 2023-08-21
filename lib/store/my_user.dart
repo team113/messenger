@@ -376,8 +376,8 @@ class MyUserRepository implements AbstractMyUserRepository {
       await file.ensureCorrectMediaType();
 
       if (file.stream != null) {
-        upload = dio.MultipartFile(
-          file.stream!,
+        upload = dio.MultipartFile.fromStream(
+          () => file.stream!,
           file.size,
           filename: file.name,
           contentType: file.mime,
@@ -449,8 +449,8 @@ class MyUserRepository implements AbstractMyUserRepository {
       await file.ensureCorrectMediaType();
 
       if (file.stream != null) {
-        upload = dio.MultipartFile(
-          file.stream!,
+        upload = dio.MultipartFile.fromStream(
+          () => file.stream!,
           file.size,
           filename: file.name,
           contentType: file.mime,

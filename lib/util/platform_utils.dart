@@ -369,7 +369,8 @@ class PlatformUtilsImpl {
       Future(() async {
         // Rethrows the [exception], if any other than `404` is thrown.
         void onError(dynamic exception) {
-          if (exception is! DioError || exception.response?.statusCode != 404) {
+          if (exception is! DioException ||
+              exception.response?.statusCode != 404) {
             completeWith = exception;
             operation?.cancel();
           }
