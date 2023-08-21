@@ -1196,24 +1196,26 @@ class ChatController extends GetxController {
 
   /// Ensures the [ChatView] is scrollable.
   Future<void> _ensureScrollable() async {
-    await Future.delayed(1.milliseconds, () async {
-      if (isClosed) {
-        return;
-      }
+    if (hasNext.isTrue || hasPrevious.isTrue) {
+      await Future.delayed(1.milliseconds, () async {
+        if (isClosed) {
+          return;
+        }
 
-      if (!listController.hasClients) {
-        return await _ensureScrollable();
-      }
+        if (!listController.hasClients) {
+          return await _ensureScrollable();
+        }
 
-      // If the fetched initial page contains less elements than required to
-      // fill the view and there's more pages available, then fetch those pages.
-      if (listController.position.maxScrollExtent == 0 &&
-          (hasNext.isTrue || hasPrevious.isTrue)) {
-        await _loadNextPage();
-        await _loadPreviousPage();
-        _ensureScrollable();
-      }
-    });
+        // If the fetched initial page contains less elements than required to
+        // fill the view and there's more pages available, then fetch those pages.
+        if (listController.position.maxScrollExtent == 0 &&
+            (hasNext.isTrue || hasPrevious.isTrue)) {
+          await _loadNextPage();
+          await _loadPreviousPage();
+          _ensureScrollable();
+        }
+      });
+    }
   }
 
   /// Loads next and previous pages of the [RxChat.messages].
