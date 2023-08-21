@@ -66,7 +66,7 @@ class Config {
   static String userAgentVersion = '';
 
   /// Version identifier of the application.
-  /// 
+  ///
   /// Intended to be used in E2E testing.
   static String version = '';
 
