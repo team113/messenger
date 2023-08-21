@@ -245,7 +245,7 @@ class _VideoViewState extends State<VideoView> {
             );
           }
         } catch (e) {
-          if (e is DioError && e.response?.statusCode == 403) {
+          if (e is DioException && e.response?.statusCode == 403) {
             widget.onError?.call();
           } else {
             shouldReload = true;

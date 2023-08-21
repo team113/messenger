@@ -115,9 +115,10 @@ class Themes {
 
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        systemNavigationBarColor: colors.primaryHighlight,
+        systemNavigationBarColor: colors.transparent,
         statusBarColor: colors.transparent,
-        statusBarBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.dark,
       ),
     );
 

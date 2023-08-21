@@ -18,7 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:dio/dio.dart' as dio show DioError, Options, Response;
+import 'package:dio/dio.dart' as dio show DioException, Options, Response;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
 import 'package:universal_io/io.dart';
@@ -207,7 +207,7 @@ class GraphQlClient {
             options: authorized,
             onSendProgress: onSendProgress,
           );
-        } on dio.DioError catch (e) {
+        } on dio.DioException catch (e) {
           if (e.response != null) {
             if (onException != null &&
                 e.response?.data is Map<String, dynamic> &&

@@ -390,7 +390,7 @@ class _RetryImageState extends State<RetryImage> {
                 options: Options(responseType: ResponseType.bytes),
                 cancelToken: _fallbackToken,
               );
-            } on DioError catch (e) {
+            } on DioException catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
                 return;
@@ -458,7 +458,7 @@ class _RetryImageState extends State<RetryImage> {
                 options: Options(responseType: ResponseType.bytes),
                 cancelToken: _cancelToken,
               );
-            } on DioError catch (e) {
+            } on DioException catch (e) {
               if (e.response?.statusCode == 403) {
                 await widget.onForbidden?.call();
                 return;
