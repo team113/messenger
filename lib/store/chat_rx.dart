@@ -623,8 +623,7 @@ class HiveRxChat extends RxChat {
   }
 
   /// Adds the provided [item] to [Pagination] and [Hive].
-  Future<void> put(HiveChatItem item) =>
-      _pagination.put(item);
+  Future<void> put(HiveChatItem item) => _pagination.put(item);
 
   @override
   Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) {
