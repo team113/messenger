@@ -36,17 +36,14 @@ class StyledCupertinoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       opaque: false,
       child: CupertinoButton(
         onPressed: onPressed,
-        child: Text(
-          label,
-          style: fonts.labelMedium!.copyWith(color: style.colors.secondary),
-        ),
+        child: Text(label, style: style.fonts.labelMediumSecondary),
       ),
     );
   }

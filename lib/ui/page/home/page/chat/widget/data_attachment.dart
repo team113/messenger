@@ -50,7 +50,7 @@ class _DataAttachmentState extends State<DataAttachment> {
     final Attachment e = widget.attachment;
 
     return Obx(() {
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       Widget leading = Container();
 
@@ -85,7 +85,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                     ],
                   ),
                 ),
-                child: Center(
+                child: const Center(
                   child: SvgImage.asset(
                     'assets/icons/cancel.svg',
                     width: 9,
@@ -108,7 +108,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               child: Center(
                 child: Transform.translate(
                   offset: const Offset(0.3, -0.5),
-                  child: SvgImage.asset(
+                  child: const SvgImage.asset(
                     'assets/icons/file.svg',
                     height: 12.5,
                   ),
@@ -132,8 +132,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                   color: style.colors.primary,
                 ),
               ),
-              child: KeyedSubtree(
-                key: const Key('Sent'),
+              child: const KeyedSubtree(
+                key: Key('Sent'),
                 child: Center(
                   child: SvgImage.asset(
                     'assets/icons/arrow_down.svg',
@@ -209,14 +209,14 @@ class _DataAttachmentState extends State<DataAttachment> {
                           Flexible(
                             child: Text(
                               p.basenameWithoutExtension(e.filename),
-                              style: fonts.bodyLarge,
+                              style: style.fonts.bodyLarge,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Text(
                             p.extension(e.filename),
-                            style: fonts.bodyLarge,
+                            style: style.fonts.bodyLarge,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -234,9 +234,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                             }),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: fonts.headlineSmall!.copyWith(
-                              color: style.colors.secondary,
-                            ),
+                            style: style.fonts.headlineSmallSecondary,
                           ),
                         ],
                       ),

@@ -38,6 +38,7 @@ import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
@@ -95,7 +96,7 @@ class _ChatViewState extends State<ChatView>
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
@@ -220,7 +221,7 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
-                                child: SvgImage.asset(
+                                child: const SvgImage.asset(
                                   'assets/icons/chat_video_call.svg',
                                   height: 17,
                                 ),
@@ -229,7 +230,7 @@ class _ChatViewState extends State<ChatView>
                               AnimatedButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: SvgImage.asset(
+                                child: const SvgImage.asset(
                                   'assets/icons/chat_audio_call.svg',
                                   height: 19,
                                 ),
@@ -247,7 +248,7 @@ class _ChatViewState extends State<ChatView>
                                   color: style.colors.dangerColor,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: SvgImage.asset(
                                     'assets/icons/call_end.svg',
                                     width: 32,
@@ -264,7 +265,7 @@ class _ChatViewState extends State<ChatView>
                                   color: style.colors.primary,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: SvgImage.asset(
                                     'assets/icons/audio_call_start.svg',
                                     width: 15,
@@ -408,7 +409,9 @@ class _ChatViewState extends State<ChatView>
                                   childCount: c.elements.value.length,
                                   stickyAtTailer: true,
                                   keepPosition: true,
-                                  keepPositionOffset: c.active.isTrue ? 20 : 1,
+                                  keepPositionOffset: c.active.isTrue
+                                      ? c.keepPositionOffset.value
+                                      : 1,
                                   onItemKey: (i) => c.elements.values
                                       .elementAt(i)
                                       .id
@@ -466,7 +469,7 @@ class _ChatViewState extends State<ChatView>
                                               .l10n
                                           : 'label_no_messages'.l10n,
                                       textAlign: TextAlign.center,
-                                      style: fonts.labelMedium,
+                                      style: style.fonts.labelMedium,
                                     ),
                                   ),
                                 );
@@ -572,6 +575,9 @@ class _ChatViewState extends State<ChatView>
       ListElement? previous;
       if (i < c.elements.length - 1) {
         previous = c.elements.values.elementAt(i + 1);
+        if (previous is LoaderElement && i < c.elements.length - 2) {
+          previous = c.elements.values.elementAt(i + 2);
+        }
       }
 
       if (previous != null) {
@@ -604,7 +610,8 @@ class _ChatViewState extends State<ChatView>
             (previous is ChatForwardElement &&
                 previous.authorId == author &&
                 element.id.at.val.difference(previous.id.at.val).abs() <=
-                    const Duration(minutes: 5));
+                    const Duration(minutes: 5)) ||
+            previous is UnreadMessagesElement;
       }
     }
 
@@ -631,12 +638,8 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.author.id),
           builder: (_, snapshot) => Obx(() {
-            return AnimatedContainer(
-              duration: 400.milliseconds,
-              curve: Curves.ease,
-              color: c.highlight.value == i
-                  ? style.colors.primaryOpacity20
-                  : style.colors.primaryOpacity20.withOpacity(0),
+            return HighlightedContainer(
+              highlight: c.highlightIndex.value == i,
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatItemWidget(
                 chat: c.chat!.chat,
@@ -699,12 +702,8 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {
-            return AnimatedContainer(
-              duration: 400.milliseconds,
-              curve: Curves.ease,
-              color: c.highlight.value == i
-                  ? style.colors.primaryOpacity20
-                  : style.colors.primaryOpacity20.withOpacity(0),
+            return HighlightedContainer(
+              highlight: c.highlightIndex.value == i,
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
@@ -830,13 +829,13 @@ class _ChatViewState extends State<ChatView>
       return Obx(() {
         final Widget child;
 
-        if (c.bottomLoader.value) {
-          child = Center(
-            key: const ValueKey(1),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 12),
-              child: ConstrainedBox(
-                constraints: BoxConstraints.tight(const Size.square(40)),
+        if (c.showLoaders.value) {
+          child = SizedBox.square(
+            dimension: ChatController.loaderHeight,
+            child: Center(
+              key: const ValueKey(1),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 12),
                 child: Center(
                   child: ColoredBox(
                     color: style.colors.transparent,
@@ -853,7 +852,7 @@ class _ChatViewState extends State<ChatView>
                 ? isLast
                     ? ChatController.lastItemBottomOffset
                     : null
-                : 64,
+                : ChatController.loaderHeight,
           );
         }
 

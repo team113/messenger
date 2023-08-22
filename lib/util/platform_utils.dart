@@ -31,6 +31,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import '/routes.dart';
+import '/ui/worker/cache.dart';
 import 'backoff.dart';
 import 'web/web_utils.dart';
 
@@ -47,8 +48,14 @@ class PlatformUtilsImpl {
   /// May be overridden to be mocked in tests.
   Dio? client;
 
-  /// Path to the downloads directory.
-  String? _downloadDirectory;
+  /// Downloads directory.
+  Directory? _downloadDirectory;
+
+  /// Cache directory.
+  Directory? _cacheDirectory;
+
+  /// Path to the temporary directory.
+  Directory? _temporaryDirectory;
 
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
@@ -253,7 +260,7 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a path to the downloads directory.
-  Future<String> get downloadsDirectory async {
+  Future<Directory> get downloadsDirectory async {
     if (_downloadDirectory != null) {
       return _downloadDirectory!;
     }
@@ -265,12 +272,36 @@ class PlatformUtilsImpl {
       path = (await getDownloadsDirectory())!.path;
     }
 
-    _downloadDirectory = '$path${Config.downloads}';
+    _downloadDirectory = Directory('$path${Config.downloads}');
     return _downloadDirectory!;
+  }
+
+  /// Returns a path to the cache directory.
+  FutureOr<Directory?> get cacheDirectory async {
+    if (PlatformUtils.isWeb) {
+      return null;
+    }
+
+    try {
+      _cacheDirectory ??= await getApplicationCacheDirectory();
+      return _cacheDirectory!;
+    } on MissingPluginException {
+      return null;
+    }
   }
 
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
+
+  /// Returns a path to the temporary directory.
+  Future<Directory> get temporaryDirectory async {
+    if (_temporaryDirectory != null) {
+      return _temporaryDirectory!;
+    }
+
+    _temporaryDirectory = await getTemporaryDirectory();
+    return _temporaryDirectory!;
+  }
 
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
@@ -314,20 +345,22 @@ class PlatformUtilsImpl {
     String filename, {
     int? size,
     String? url,
+    bool temporary = false,
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
       size = size ??
           int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
-      String downloads = await PlatformUtils.downloadsDirectory;
+      final Directory directory =
+          temporary ? await temporaryDirectory : await downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
-      File file = File('$downloads/$filename');
+      File file = File('${directory.path}/$filename');
 
       // TODO: Compare hashes instead of sizes.
       for (int i = 1; await file.exists() && await file.length() != size; ++i) {
-        file = File('$downloads/$name ($i)$ext');
+        file = File('${directory.path}/$name ($i)$ext');
       }
 
       if (await file.exists()) {
@@ -343,8 +376,10 @@ class PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
   }) async {
     dynamic completeWith;
 
@@ -353,7 +388,8 @@ class PlatformUtilsImpl {
       Future(() async {
         // Rethrows the [exception], if any other than `404` is thrown.
         void onError(dynamic exception) {
-          if (exception is! DioError || exception.response?.statusCode != 404) {
+          if (exception is! DioException ||
+              exception.response?.statusCode != 404) {
             completeWith = exception;
             operation?.cancel();
           }
@@ -378,7 +414,12 @@ class PlatformUtilsImpl {
           file = await Backoff.run(
             () async {
               try {
-                return await fileExists(filename, size: size, url: url);
+                return await fileExists(
+                  filename,
+                  size: size,
+                  url: url,
+                  temporary: temporary,
+                );
               } catch (e) {
                 onError(e);
               }
@@ -389,32 +430,43 @@ class PlatformUtilsImpl {
           );
 
           if (file == null) {
-            final String name = p.basenameWithoutExtension(filename);
-            final String extension = p.extension(filename);
-            final String path = await downloadsDirectory;
-
-            file = File('$path/$filename');
-            for (int i = 1; await file!.exists(); ++i) {
-              file = File('$path/$name ($i)$extension');
+            Uint8List? data;
+            if (checksum != null && CacheWorker.instance.exists(checksum)) {
+              data = await CacheWorker.instance.get(checksum: checksum);
             }
 
-            // Retry the downloading unless any other that `404` error is
-            // thrown.
-            await Backoff.run(
-              () async {
-                try {
-                  await (await dio).download(
-                    url,
-                    file!.path,
-                    onReceiveProgress: onReceiveProgress,
-                    cancelToken: cancelToken,
-                  );
-                } catch (e) {
-                  onError(e);
-                }
-              },
-              cancelToken,
-            );
+            final String name = p.basenameWithoutExtension(filename);
+            final String extension = p.extension(filename);
+            final Directory directory =
+                temporary ? await temporaryDirectory : await downloadsDirectory;
+
+            file = File('${directory.path}/$filename');
+            for (int i = 1; await file!.exists(); ++i) {
+              file = File('${directory.path}/$name ($i)$extension');
+            }
+
+            if (data == null) {
+              // Retry the downloading unless any other that `404` error is
+              // thrown.
+              await Backoff.run(
+                () async {
+                  try {
+                    // TODO: Cache the response.
+                    await (await dio).download(
+                      url,
+                      file!.path,
+                      onReceiveProgress: onReceiveProgress,
+                      cancelToken: cancelToken,
+                    );
+                  } catch (e) {
+                    onError(e);
+                  }
+                },
+                cancelToken,
+              );
+            } else {
+              await file.writeAsBytes(data);
+            }
           }
 
           return file;
@@ -435,23 +487,37 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
-  Future<void> saveToGallery(String url, String name) async {
+  Future<void> saveToGallery(
+    String url,
+    String name, {
+    String? checksum,
+  }) async {
     if (isMobile && !isWeb) {
-      final Directory temp = await getTemporaryDirectory();
-      final String path = '${temp.path}/$name';
-      await (await dio).download(url, path);
-      await ImageGallerySaver.saveFile(path, name: name);
-      File(path).delete();
+      Uint8List? data =
+          await CacheWorker.instance.get(checksum: checksum, url: url);
+      if (data != null) {
+        ImageGallerySaver.saveImage(data, name: name);
+      }
     }
   }
 
   /// Downloads a file from the provided [url] and opens [Share] dialog with it.
-  Future<void> share(String url, String name) async {
-    final Directory temp = await getTemporaryDirectory();
-    final String path = '${temp.path}/$name';
-    await (await dio).download(url, path);
-    await Share.shareXFiles([XFile(path)]);
-    File(path).delete();
+  Future<void> share(String url, String name, {String? checksum}) async {
+    // Provided file might already be cached.
+    Uint8List? data;
+    if (checksum != null && CacheWorker.instance.exists(checksum)) {
+      data = await CacheWorker.instance.get(checksum: checksum);
+    }
+
+    if (data == null) {
+      final Directory temp = await getTemporaryDirectory();
+      final String path = '${temp.path}/$name';
+      await (await dio).download(url, path);
+      await Share.shareXFiles([XFile(path)]);
+      File(path).delete();
+    } else {
+      await Share.shareXFiles([XFile.fromData(data, name: name)]);
+    }
   }
 
   /// Stores the provided [text] on the [Clipboard].

@@ -28,13 +28,17 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return Align(
       alignment: Alignment.centerLeft,
-      child: Text(
-        label,
-        style: fonts.displayLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Text(
+          label,
+          style:
+              style.fonts.displayLarge.copyWith(color: const Color(0xFF1F3C5D)),
+        ),
       ),
     );
   }
@@ -49,15 +53,17 @@ class SubHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.only(top: 24, bottom: 12),
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
         child: Text(
           label,
-          style: fonts.headlineLarge!.copyWith(color: const Color(0xFF1F3C5D)),
+          style: style.fonts.headlineLarge.copyWith(
+            color: const Color(0xFF1F3C5D),
+          ),
           textAlign: TextAlign.start,
         ),
       ),

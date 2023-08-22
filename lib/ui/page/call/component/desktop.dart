@@ -62,13 +62,13 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
       List<Widget> content = [
-        SvgImage.asset(
+        const SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
           height: double.infinity,
@@ -259,9 +259,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     const SizedBox(height: 16),
                     Text(
                       'label_reconnecting_ellipsis'.l10n,
-                      style: fonts.bodyMedium?.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
+                      style: style.fonts.bodyMediumOnPrimary,
                     ),
                   ],
                 ),
@@ -620,9 +618,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: fonts.labelMedium!.copyWith(
-                          color: style.colors.onPrimary,
-                        ),
+                        style: style.fonts.labelMediumOnPrimary,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),

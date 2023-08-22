@@ -34,7 +34,7 @@ import 'widget/menu_button.dart';
 
 /// View of the `HomeTab.menu` tab.
 class MenuTabView extends StatelessWidget {
-  const MenuTabView({Key? key}) : super(key: key);
+  const MenuTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        final (style, fonts) = Theme.of(context).styles;
+        final style = Theme.of(context).style;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -111,15 +111,13 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: fonts.headlineMedium,
+                              style: style.fonts.headlineMedium,
                             ),
                             Obx(() {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: fonts.labelMedium!.copyWith(
-                                  color: style.colors.secondary,
-                                ),
+                                style: style.fonts.labelMediumSecondary,
                               );
                             }),
                           ],

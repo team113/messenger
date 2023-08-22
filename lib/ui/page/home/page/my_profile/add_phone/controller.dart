@@ -76,8 +76,15 @@ class AddPhoneController extends GetxController {
     phone = TextFieldState(
       text: initial?.val,
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            UserPhone(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_phone'.l10n;
+        }
       },
       onSubmitted: (s) async {
         UserPhone? phone;
@@ -120,8 +127,15 @@ class AddPhoneController extends GetxController {
 
     phoneCode = TextFieldState(
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            ConfirmationCode(s.text.toLowerCase());
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {

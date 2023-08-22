@@ -22,7 +22,7 @@ import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/color.dart';
-import 'widget/schema.dart';
+import 'widget/color_schema.dart';
 
 /// View of the [StyleTab.colors] page.
 class ColorsView extends StatelessWidget {
@@ -195,25 +195,13 @@ class ColorsView extends StatelessWidget {
     return ScrollableColumn(
       children: [
         const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Header('Colors'),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Palette'),
-        ),
+        const Header('Colors'),
+        const SubHeader('Palette'),
         ColorSchemaWidget(colors, inverted: inverted, dense: dense),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Avatar palette'),
-        ),
+        const SubHeader('Avatar palette'),
         ColorSchemaWidget(avatars, inverted: inverted, dense: dense),
         const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Colors'),
-        ),
+        const SubHeader('Colors'),
         BuilderWrap(
           colors,
           inverted: inverted,
@@ -226,10 +214,7 @@ class ColorsView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SubHeader('Avatars'),
-        ),
+        const SubHeader('Avatars'),
         BuilderWrap(
           avatars,
           inverted: inverted,

@@ -25,14 +25,14 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 /// Custom stylized and decorated [AppBar].
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
-    Key? key,
+    super.key,
     this.title,
     this.leading = const [],
     this.actions = const [],
     this.padding,
     this.border,
     this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
-  }) : super(key: key);
+  });
 
   /// Primary centered [Widget] of this [CustomAppBar].
   final Widget? title;
@@ -60,7 +60,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final double top = MediaQuery.of(context).padding.top;
 
@@ -108,9 +108,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ...leading,
                       Expanded(
                         child: DefaultTextStyle.merge(
-                          style: fonts.headlineMedium,
-                          child:
-                              Center(child: title ?? const SizedBox.shrink()),
+                          style: style.fonts.headlineMedium,
+                          child: Center(
+                            child: title ?? const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                       ...actions,

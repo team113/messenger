@@ -40,7 +40,7 @@ class FontWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final styles = Theme.of(context).style;
 
     return Row(
       children: [
@@ -49,10 +49,16 @@ class FontWidget extends StatelessWidget {
           curve: Curves.ease,
           child: SizedBox(width: dense ? 0 : 16),
         ),
-        Text(
-          '${style.$1.fontSize} pt, w${style.$1.fontWeight?.value}',
-          style: fonts.titleMedium?.copyWith(
-            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+
+        // Wrap with [SizedBox] in order for text to be consistent width.
+        SizedBox(
+          width: 180,
+          child: Text(
+            '${style.$1.fontSize}pt  w${style.$1.fontWeight?.value}  ${style.$1.color?.toHex()}',
+            style: styles.fonts.titleMedium.copyWith(
+              color:
+                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+            ),
           ),
         ),
         const SizedBox(width: 10),
@@ -63,11 +69,7 @@ class FontWidget extends StatelessWidget {
             alignment: dense ? Alignment.centerRight : Alignment.centerLeft,
             child: Text(
               style.$2,
-              style: style.$1.copyWith(
-                color: inverted
-                    ? const Color(0xFFFFFFFF)
-                    : const Color(0xFF000000),
-              ),
+              style: style.$1,
               textAlign: TextAlign.start,
             ),
           ),

@@ -23,7 +23,7 @@ import '/themes.dart';
 /// primary and subtitle text, and a leading icon as well.
 class OutlinedRoundedButton extends StatelessWidget {
   const OutlinedRoundedButton({
-    Key? key,
+    super.key,
     this.title,
     this.subtitle,
     this.leading,
@@ -35,7 +35,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.maxWidth = 250 * 0.7,
     this.height = 60 * 0.7,
     this.shadows,
-  }) : super(key: key);
+  });
 
   /// Primary content of this button.
   ///
@@ -83,7 +83,7 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Container(
       constraints: BoxConstraints(
@@ -127,7 +127,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: fonts.titleLarge,
+                  style: style.fonts.titleLarge,
                   child: Center(
                     child: Padding(
                       padding: leading == null
@@ -141,7 +141,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                           if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: fonts.labelSmall,
+                              style: style.fonts.labelSmall,
                               child: subtitle!,
                             ),
                         ],

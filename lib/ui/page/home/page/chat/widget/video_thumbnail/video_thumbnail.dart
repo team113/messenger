@@ -25,8 +25,8 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 import 'src/interface.dart'
@@ -35,49 +35,25 @@ import 'src/interface.dart'
 
 /// Thumbnail displaying the first frame of the provided video.
 class VideoThumbnail extends StatefulWidget {
-  const VideoThumbnail._({
+  /// Constructs a [VideoThumbnail] from the provided [url].
+  const VideoThumbnail.url(
+    this.url, {
     super.key,
-    this.url,
-    this.bytes,
     this.checksum,
     this.height,
     this.width,
     this.onError,
-  }) : assert(bytes != null || url != null);
-
-  /// Constructs a [VideoThumbnail] from the provided [url].
-  factory VideoThumbnail.url({
-    Key? key,
-    required String url,
-    String? checksum,
-    double? height,
-    double? width,
-    Future<void> Function()? onError,
-  }) =>
-      VideoThumbnail._(
-        key: key,
-        url: url,
-        checksum: checksum,
-        height: height,
-        width: width,
-        onError: onError,
-      );
+  }) : bytes = null;
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
-  factory VideoThumbnail.bytes({
-    Key? key,
-    required Uint8List bytes,
-    double? height,
-    double? width,
-    Future<void> Function()? onError,
-  }) =>
-      VideoThumbnail._(
-        key: key,
-        bytes: bytes,
-        height: height,
-        width: width,
-        onError: onError,
-      );
+  const VideoThumbnail.bytes(
+    this.bytes, {
+    super.key,
+    this.height,
+    this.width,
+    this.onError,
+  })  : url = null,
+        checksum = null;
 
   /// URL of the video to display.
   final String? url;
@@ -212,8 +188,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
-    if (widget.checksum != null) {
-      bytes ??= FIFOCache.get(widget.checksum!);
+    if (bytes == null &&
+        widget.checksum != null &&
+        CacheWorker.instance.exists(widget.checksum!)) {
+      bytes = await CacheWorker.instance.get(checksum: widget.checksum!);
     }
 
     final DataSource source;
@@ -260,7 +238,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
               );
             }
           } catch (e) {
-            if (e is DioError && e.response?.statusCode == 403) {
+            if (e is DioException && e.response?.statusCode == 403) {
               widget.onError?.call();
               _cancelToken?.cancel();
             } else {

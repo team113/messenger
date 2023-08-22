@@ -29,21 +29,21 @@ import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
-import 'desktop_controls.dart';
-import 'mobile_controls.dart';
+import 'widget/desktop_controls.dart';
+import 'widget/mobile_controls.dart';
 
 /// Video player with controls.
-class Video extends StatefulWidget {
-  const Video(
+class VideoView extends StatefulWidget {
+  const VideoView(
     this.url, {
-    Key? key,
+    super.key,
     this.onClose,
     this.toggleFullscreen,
     this.onController,
     this.isFullscreen,
     this.onError,
     this.showInterfaceFor,
-  }) : super(key: key);
+  });
 
   /// URL of the video to display.
   final String url;
@@ -57,7 +57,7 @@ class Video extends StatefulWidget {
   /// Callback, called when a [MeeduPlayerController] is assigned or disposed.
   final void Function(MeeduPlayerController?)? onController;
 
-  /// Reactive indicator of whether this video is in fullscreen mode.
+  /// Reactive indicator whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
   /// Callback, called on the [MeeduPlayerController] initialization errors.
@@ -67,15 +67,18 @@ class Video extends StatefulWidget {
   final Duration? showInterfaceFor;
 
   @override
-  State<Video> createState() => _VideoState();
+  State<VideoView> createState() => _VideoViewState();
 }
 
-/// State of a [Video] used to initialize and dispose video controller.
-class _VideoState extends State<Video> {
+/// State of a [VideoView] used to initialize and dispose video controller.
+class _VideoViewState extends State<VideoView> {
+  /// Height of the bottom controls bar.
+  final _barHeight = 48.0 * 1.5;
+
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
-  /// [CancelToken] for cancelling the [Video.url] header fetching.
+  /// [CancelToken] for cancelling the [VideoView.url] header fetching.
   CancelToken? _cancelToken;
 
   /// [MeeduPlayerController] controlling the video playback.
@@ -97,6 +100,7 @@ class _VideoState extends State<Video> {
     });
 
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
+
     super.initState();
   }
 
@@ -110,7 +114,7 @@ class _VideoState extends State<Video> {
   }
 
   @override
-  void didUpdateWidget(Video oldWidget) {
+  void didUpdateWidget(VideoView oldWidget) {
     if (oldWidget.url != widget.url) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _initVideo();
@@ -122,7 +126,7 @@ class _VideoState extends State<Video> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -154,13 +158,15 @@ class _VideoState extends State<Video> {
                         child: MeeduVideoPlayer(
                           controller: _controller,
                           customControls: (_, __, ___) => const SizedBox(),
+                          backgroundColor: style.colors.transparent,
                         ),
                       ),
                     ),
                     PlatformUtils.isMobile
-                        ? MobileControls(controller: _controller)
+                        ? MobileControls(_controller, barHeight: _barHeight)
                         : DesktopControls(
-                            controller: _controller,
+                            _controller,
+                            barHeight: _barHeight,
                             onClose: widget.onClose,
                             toggleFullscreen: widget.toggleFullscreen,
                             isFullscreen: widget.isFullscreen,
@@ -186,9 +192,7 @@ class _VideoState extends State<Video> {
                           _controller.errorText == null
                               ? 'err_unknown'.l10n
                               : _controller.errorText!,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.onPrimary,
-                          ),
+                          style: style.fonts.bodyMediumOnPrimary,
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -241,7 +245,7 @@ class _VideoState extends State<Video> {
             );
           }
         } catch (e) {
-          if (e is DioError && e.response?.statusCode == 403) {
+          if (e is DioException && e.response?.statusCode == 403) {
             widget.onError?.call();
           } else {
             shouldReload = true;

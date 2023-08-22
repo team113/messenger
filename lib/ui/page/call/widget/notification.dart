@@ -39,7 +39,7 @@ class CallNotificationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     CallNotification notification = this.notification;
     final String title;
@@ -107,19 +107,14 @@ class CallNotificationWidget extends StatelessWidget {
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
-                  child: Text(
-                    title,
-                    style: fonts.bodyMedium?.copyWith(
-                      color: style.colors.onPrimary,
-                    ),
-                  ),
+                  child: Text(title, style: style.fonts.bodyMediumOnPrimary),
                 ),
               ),
               WidgetButton(
                 onPressed: onClose,
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
-                  child: SvgImage.asset(
+                  child: const SvgImage.asset(
                     'assets/icons/close.svg',
                     width: 10,
                     height: 10,

@@ -49,25 +49,7 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
-    // [AnimatedOpacity] boilerplate.
-    Widget tab({
-      required Widget child,
-      required void Function() onPressed,
-      bool selected = false,
-    }) {
-      return AnimatedScale(
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.bounceInOut,
-        scale: selected ? 1.1 : 1,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 150),
-          opacity: selected ? 1 : 0.7,
-          child: AnimatedButton(onPressed: onPressed, child: child),
-        ),
-      );
-    }
+    final style = Theme.of(context).style;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
@@ -109,7 +91,7 @@ class CustomNavigationBar extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (b.child != null)
-                            tab(
+                            _CustomNavigationBarButton(
                               selected: currentIndex == i,
                               onPressed: () => onTap?.call(i),
                               child: Container(
@@ -141,9 +123,7 @@ class CustomNavigationBar extends StatelessWidget {
                                               textAlign: TextAlign.center,
                                             ),
                                           ),
-                                    textStyle: fonts.bodySmall!.copyWith(
-                                      color: style.colors.onPrimary,
-                                    ),
+                                    textStyle: style.fonts.bodySmallOnPrimary,
                                     backgroundColor: b.badgeColor ??
                                         style.colors.dangerColor,
                                     isLabelVisible: b.badge != null,
@@ -186,4 +166,37 @@ class CustomNavigationBarItem {
 
   /// [Widget] to display.
   final Widget? child;
+}
+
+/// [AnimatedButton] with [AnimatedScale] representing a single button of
+/// [CustomNavigationBar].
+class _CustomNavigationBarButton extends StatelessWidget {
+  const _CustomNavigationBarButton({
+    this.selected = false,
+    this.onPressed,
+    required this.child,
+  });
+
+  /// Widget of this [_CustomNavigationBarButton].
+  final Widget child;
+
+  /// Indicator whether this [_CustomNavigationBarButton] is selected.
+  final bool selected;
+
+  /// Callback, called when this [_CustomNavigationBarButton] is pressed.
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.bounceInOut,
+      scale: selected ? 1.1 : 1,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: selected ? 1 : 0.7,
+        child: AnimatedButton(onPressed: onPressed, child: child),
+      ),
+    );
+  }
 }

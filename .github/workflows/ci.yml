@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.10"
+  FLUTTER_VER: "3.13"
 
 jobs:
 
@@ -357,6 +357,10 @@ jobs:
       #
       # Use `grep` to remove the meaningless logs from the output.
       - uses: nanasess/setup-chromedriver@v2
+        with:
+          # TODO: Unpin when nanasess/setup-chromedriver#200 is fixed
+          #       https://github.com/nanasess/setup-chromedriver/issues/200
+          chromedriver-version: '115.0.5790.102'
       - run: |
           chromedriver --port=4444 --enable-chrome-logs \
                        --disable-dev-shm-usage \
@@ -365,7 +369,7 @@ jobs:
         env:
           OMIT: |
             [
-              ":INFO:CONSOLE\\(52564\\)] ",
+              ":INFO:CONSOLE\\(50652\\)] ",
               "\"Got object store box in database",
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]

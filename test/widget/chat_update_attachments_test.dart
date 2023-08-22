@@ -44,6 +44,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/cache.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
@@ -64,6 +65,7 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -74,7 +76,7 @@ import 'chat_update_attachments_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
-  PlatformUtils = PlatformUtilsMock();
+  PlatformUtils = PlatformUtilsMock(cache: null);
 
   final dio = Dio(BaseOptions());
   final dioAdapter = DioAdapter(dio: dio);
@@ -160,20 +162,20 @@ void main() async {
     any,
   )).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider
-          .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-      .thenAnswer(
+  when(graphQlProvider.getChat(
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+  )).thenAnswer(
     (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
   );
 
   when(graphQlProvider.readChat(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0')))
-      .thenAnswer((_) => Future.value(null));
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0'),
+  )).thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.chatItems(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          first: 120))
+          last: 50))
       .thenAnswer(
     (_) => Future.value(GetMessages$Query.fromJson({
       'chat': {
@@ -203,16 +205,34 @@ void main() async {
                     '__typename': 'ImageAttachment',
                     'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
                     'filename': 'filename.png',
-                    'original': {'relativeRef': 'oldRef.png'},
-                    'big': {'relativeRef': 'oldRef.png'},
-                    'medium': {'relativeRef': 'oldRef.png'},
-                    'small': {'relativeRef': 'oldRef.png'},
+                    'original': {
+                      'relativeRef': 'oldRef.png',
+                      'checksum': 'oldChecksum1',
+                    },
+                    'big': {
+                      'relativeRef': 'oldRef.png',
+                      'checksum': 'oldChecksum2',
+                    },
+                    'medium': {
+                      'relativeRef': 'oldRef.png',
+                      'checksum': 'oldChecksum3',
+                    },
+                    'small': {
+                      'relativeRef': 'oldRef.png',
+                      'checksum': 'oldChecksum4',
+                    },
                   }
                 ]
               },
               'cursor': '123'
             }
-          ]
+          ],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
+          }
         }
       }
     })),
@@ -228,11 +248,23 @@ void main() async {
             {
               '__typename': 'ImageAttachment',
               'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
-              'original': {'relativeRef': 'updatedRef.png'},
               'filename': 'filename.png',
-              'big': {'relativeRef': 'updatedRef.png'},
-              'medium': {'relativeRef': 'updatedRef.png'},
-              'small': {'relativeRef': 'updatedRef.png'}
+              'original': {
+                'relativeRef': 'updatedRef.png',
+                'checksum': 'updatedChecksum1',
+              },
+              'big': {
+                'relativeRef': 'updatedRef.png',
+                'checksum': 'updatedChecksum2',
+              },
+              'medium': {
+                'relativeRef': 'updatedRef.png',
+                'checksum': 'updatedChecksum3',
+              },
+              'small': {
+                'relativeRef': 'updatedRef.png',
+                'checksum': 'updatedChecksum4',
+              }
             }
           ]
         }
@@ -315,6 +347,8 @@ void main() async {
   await blacklistedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
+  var cacheInfoProvider = CacheInfoHiveProvider();
+  await cacheInfoProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -399,6 +433,8 @@ void main() async {
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
+
+    Get.put(CacheWorker(cacheInfoProvider));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),

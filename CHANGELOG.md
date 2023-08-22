@@ -6,6 +6,32 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.10]
+[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+
+[Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.10) | [Milestone](/../../milestone/8)
+
+### Added
+
+- Windows:
+    - Notifications. ([#492], [#439])
+
+### Changed
+
+- UI:
+    - Context menu with fading effect on desktop. ([#506])
+    - Profile page:
+        - Sections highlighting. ([#513], [#385])
+
+[#385]: /../../issues/385
+[#439]: /../../issues/439
+[#492]: /../../pull/492
+[#506]: /../../pull/506
+[#513]: /../../pull/513
+
+
+
+
 ## [0.1.0-alpha.9.2] · 2023-07-28
 [0.1.0-alpha.9.2]: /../../tree/v0.1.0-alpha.9.2
 

@@ -35,10 +35,10 @@ import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
-import '/ui/widget/text_field.dart';
+import '/themes.dart';
+import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -70,18 +70,6 @@ class MyProfileController extends GetxController {
   /// [ScrollablePositionedList].
   int listInitIndex = 0;
 
-  /// [MyUser.name]'s field state.
-  late final TextFieldState name;
-
-  /// [MyUser.chatDirectLink]'s copyable state.
-  late final TextFieldState link;
-
-  /// [MyUser.login]'s field state.
-  late final TextFieldState login;
-
-  /// [MyUser.status]'s field state.
-  late final TextFieldState status;
-
   /// Indicator whether there's an ongoing [toggleMute] happening.
   ///
   /// Used to discard repeated toggling.
@@ -90,8 +78,8 @@ class MyProfileController extends GetxController {
   /// List of [MediaDeviceDetails] of all the available devices.
   final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
-  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
-  final GlobalKey avatarKey = GlobalKey();
+  /// Index of an item from [ProfileTab] that should be highlighted.
+  final RxnInt highlightIndex = RxnInt(null);
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
@@ -99,27 +87,19 @@ class MyProfileController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// [Timer] to set the `RxStatus.empty` status of the [name] field.
-  Timer? _nameTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [link] field.
-  Timer? _linkTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [login] field.
-  Timer? _loginTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [status] field.
-  Timer? _statusTimer;
-
-  /// Worker to react on [myUser] changes.
-  Worker? _myUserWorker;
-
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
   StreamSubscription? _devicesSubscription;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
+
+  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// has passed.
+  Timer? _highlightTimer;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -162,6 +142,8 @@ class MyProfileController extends GetxController {
             curve: Curves.ease,
           );
           Future.delayed(Duration.zero, () => ignorePositions = false);
+
+          _highlight(tab);
         }
       },
     );
@@ -178,218 +160,11 @@ class MyProfileController extends GetxController {
       }
     });
 
-    _myUserWorker = ever(
-      _myUserService.myUser,
-      (MyUser? v) {
-        if (!name.focus.hasFocus &&
-            !name.changed.value &&
-            name.editable.value) {
-          name.unchecked = v?.name?.val;
-        }
-        if (!login.focus.hasFocus &&
-            !login.changed.value &&
-            login.editable.value) {
-          login.unchecked = v?.login?.val;
-        }
-        if (!link.focus.hasFocus &&
-            !link.changed.value &&
-            link.editable.value) {
-          link.unchecked = v?.chatDirectLink?.slug.val;
-        }
-      },
-    );
-
-    name = TextFieldState(
-      text: myUser.value?.name?.val,
-      approvable: true,
-      onChanged: (s) async {
-        s.error.value = null;
-        try {
-          if (s.text.isNotEmpty) {
-            UserName(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        s.error.value = null;
-        try {
-          if (s.text.isNotEmpty) {
-            UserName(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          _nameTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService
-                .updateUserName(s.text.isNotEmpty ? UserName(s.text) : null);
-            s.status.value = RxStatus.empty();
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
-    link = TextFieldState(
-      text: myUser.value?.chatDirectLink?.slug.val ??
-          ChatDirectLinkSlug.generate(10).val,
-      approvable: true,
-      submitted: myUser.value?.chatDirectLink != null,
-      onChanged: (s) {
-        s.error.value = null;
-
-        try {
-          ChatDirectLinkSlug(s.text);
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        ChatDirectLinkSlug? slug;
-        try {
-          slug = ChatDirectLinkSlug(s.text);
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (slug == null || slug == myUser.value?.chatDirectLink?.slug) {
-          return;
-        }
-
-        if (s.error.value == null) {
-          _linkTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await _myUserService.createChatDirectLink(slug);
-            s.status.value = RxStatus.success();
-            await Future.delayed(const Duration(seconds: 1));
-            s.status.value = RxStatus.empty();
-          } on CreateChatDirectLinkException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
-    login = TextFieldState(
-      text: myUser.value?.login?.val,
-      approvable: true,
-      onChanged: (s) async {
-        s.error.value = null;
-
-        if (s.text.isEmpty) {
-          s.unchecked = myUser.value?.login?.val ?? '';
-          s.status.value = RxStatus.empty();
-          return;
-        }
-
-        try {
-          UserLogin(s.text.toLowerCase());
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_login_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        if (s.error.value == null) {
-          _loginTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService
-                .updateUserLogin(UserLogin(s.text.toLowerCase()));
-            s.status.value = RxStatus.success();
-            _loginTimer = Timer(
-              const Duration(milliseconds: 1500),
-              () => s.status.value = RxStatus.empty(),
-            );
-          } on UpdateUserLoginException catch (e) {
-            s.error.value = e.toMessage();
-            s.status.value = RxStatus.empty();
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
-    status = TextFieldState(
-      text: myUser.value?.status?.val ?? '',
-      approvable: true,
-      onChanged: (s) {
-        s.error.value = null;
-
-        try {
-          if (s.text.isNotEmpty) {
-            UserTextStatus(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        try {
-          if (s.text.isNotEmpty) {
-            UserTextStatus(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          _statusTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService.updateUserStatus(
-              s.text.isNotEmpty ? UserTextStatus(s.text) : null,
-            );
-            s.status.value = RxStatus.success();
-            _statusTimer = Timer(
-              const Duration(milliseconds: 1500),
-              () => s.status.value = RxStatus.empty(),
-            );
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
     super.onInit();
   }
 
   @override
   void onClose() {
-    _myUserWorker?.dispose();
     _profileWorker?.dispose();
     _devicesSubscription?.cancel();
     super.onClose();
@@ -496,6 +271,36 @@ class MyProfileController extends GetxController {
   Future<void> setLoadImages(bool enabled) =>
       _settingsRepo.setLoadImages(enabled);
 
+  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
+  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
+  /// (if any).
+  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
+    await _myUserService.createChatDirectLink(slug);
+  }
+
+  /// Updates [MyUser.name] field for the authenticated [MyUser].
+  ///
+  /// If [name] is null, then resets [MyUser.name] field.
+  Future<void> updateUserName(UserName? name) async {
+    await _myUserService.updateUserName(name);
+  }
+
+  /// Updates or resets the [MyUser.status] field of the authenticated
+  /// [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    await _myUserService.updateUserStatus(status);
+  }
+
+  /// Updates [MyUser.login] field for the authenticated [MyUser].
+  ///
+  /// Throws [UpdateUserLoginException].
+  Future<void> updateUserLogin(UserLogin login) async {
+    await _myUserService.updateUserLogin(login);
+  }
+
+  /// Deletes the cache used by the application.
+  Future<void> clearCache() => CacheWorker.instance.clear();
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
   /// If [file] is `null`, then deletes the [MyUser.avatar] and
@@ -514,6 +319,16 @@ class MyProfileController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Highlights the provided [tab].
+  Future<void> _highlight(ProfileTab? tab) async {
+    highlightIndex.value = tab?.index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
   }
 }
 

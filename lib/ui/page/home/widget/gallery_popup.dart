@@ -31,7 +31,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
-import '/ui/page/home/page/chat/widget/video.dart';
+import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -113,13 +113,13 @@ class GalleryItem {
 /// Animated gallery of [GalleryItem]s.
 class GalleryPopup extends StatefulWidget {
   const GalleryPopup({
-    Key? key,
+    super.key,
     this.children = const [],
     this.initial = 0,
     this.initialKey,
     this.onPageChanged,
     this.onTrashPressed,
-  }) : super(key: key);
+  });
 
   /// [List] of [GalleryItem]s to display in a gallery.
   final List<GalleryItem> children;
@@ -463,7 +463,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               disableGestures: e.isVideo,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: Video(
+                child: VideoView(
                   e.link,
                   showInterfaceFor: _isInitialPage ? 3.seconds : null,
                   onClose: _dismiss,
@@ -539,7 +539,7 @@ class _GalleryPopupState extends State<GalleryPopup>
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: e.isVideo
-                ? Video(
+                ? VideoView(
                     e.link,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
@@ -1031,11 +1031,21 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _download(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.download(item.link, item.name, item.size);
+        await PlatformUtils.download(
+          item.link,
+          item.name,
+          item.size,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.download(item.link, item.name, item.size);
+          await PlatformUtils.download(
+            item.link,
+            item.name,
+            item.size,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }
@@ -1055,11 +1065,19 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.saveToGallery(item.link, item.name);
+        await PlatformUtils.saveToGallery(
+          item.link,
+          item.name,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.saveToGallery(item.link, item.name);
+          await PlatformUtils.saveToGallery(
+            item.link,
+            item.name,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }
@@ -1079,11 +1097,19 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _share(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.share(item.link, item.name);
+        await PlatformUtils.share(
+          item.link,
+          item.name,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.share(item.link, item.name);
+          await PlatformUtils.share(
+            item.link,
+            item.name,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }

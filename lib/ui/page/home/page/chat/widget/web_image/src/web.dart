@@ -123,7 +123,7 @@ class _WebImageState extends State<WebImage> {
 
           try {
             data = await (await PlatformUtils.dio).head(widget.src);
-          } on DioError catch (e) {
+          } on DioException catch (e) {
             if (e.response?.statusCode == 403) {
               await widget.onForbidden?.call();
               return;
