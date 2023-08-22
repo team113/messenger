@@ -30,6 +30,8 @@ class MenuButton extends StatefulWidget {
     this.icon,
     this.onPressed,
     this.inverted = false,
+    this.children = const [],
+    this.trailing = const [],
   });
 
   /// Optional title of this [MenuButton].
@@ -37,6 +39,7 @@ class MenuButton extends StatefulWidget {
 
   /// Optional subtitle of this [MenuButton].
   final String? subtitle;
+  final List<Widget> children;
 
   /// Optional icon of this [MenuButton].
   final Widget? icon;
@@ -46,6 +49,8 @@ class MenuButton extends StatefulWidget {
 
   /// Indicator whether this [MenuButton] should have its contents inverted.
   final bool inverted;
+
+  final List<Widget> trailing;
 
   @override
   State<MenuButton> createState() => _MenuButtonState();
@@ -123,7 +128,9 @@ class _MenuButtonState extends State<MenuButton> {
                                 ),
                                 child: Text(widget.title!),
                               ),
-                            if (widget.title != null && widget.subtitle != null)
+                            if (widget.title != null &&
+                                (widget.subtitle != null ||
+                                    widget.children.isNotEmpty))
                               const SizedBox(height: 6),
                             if (widget.subtitle != null)
                               DefaultTextStyle.merge(
@@ -136,9 +143,21 @@ class _MenuButtonState extends State<MenuButton> {
                                 ),
                                 child: Text(widget.subtitle!),
                               ),
+                            if (widget.children.isNotEmpty)
+                              DefaultTextStyle.merge(
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: style.fonts.labelMedium.copyWith(
+                                  color: widget.inverted
+                                      ? style.colors.onPrimary
+                                      : style.colors.onBackground,
+                                ),
+                                child: Column(children: widget.children),
+                              ),
                           ],
                         ),
                       ),
+                      ...widget.trailing,
                     ],
                   ),
                 ),

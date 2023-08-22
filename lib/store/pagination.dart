@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
+import 'package:mutex/mutex.dart';
 
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -66,46 +67,84 @@ class Pagination<T, K extends Comparable, C> {
   @visibleForTesting
   C? endCursor;
 
+  /// [Mutex] guarding synchronized access to the [init] and [around].
+  final Mutex _guard = Mutex();
+
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
   /// Resets this [Pagination] to its initial state.
-  void clear() {
-    Log.print('clear()', 'Pagination');
+  Future<void> reset() {
+    Log.print('reset()', 'Pagination');
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
     startCursor = null;
     endCursor = null;
+    return provider.clear();
+  }
+
+  /// Clears this [Pagination].
+  Future<void> clear() {
+    Log.print('clear()', 'Pagination');
+    items.clear();
+    return provider.clear();
+  }
+
+  /// Fetches the initial [Page] of [items].
+  Future<void> init(T? item) {
+    return _guard.protect(() async {
+      final Page<T, C>? page = await provider.init(item, perPage);
+      Log.print(
+        'init(item: $item)... \n'
+            '\tFetched ${page?.edges.length} items\n'
+            '\tstartCursor: ${page?.info.startCursor}\n'
+            '\tendCursor: ${page?.info.endCursor}\n'
+            '\thasPrevious: ${page?.info.hasPrevious}\n'
+            '\thasNext: ${page?.info.hasNext}',
+        'Pagination',
+      );
+
+      for (var e in page?.edges ?? []) {
+        items[onKey(e)] = e;
+      }
+
+      startCursor = page?.info.startCursor;
+      endCursor = page?.info.endCursor;
+      hasNext.value = page?.info.hasNext ?? hasNext.value;
+      hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+      Log.print('init(item: $item)... done', 'Pagination');
+    });
   }
 
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  Future<void> around({T? item, C? cursor}) async {
-    Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
-    clear();
+  Future<void> around({T? item, C? cursor}) {
+    return _guard.protect(() async {
+      Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
 
-    final Page<T, C>? page = await provider.around(item, cursor, perPage);
-    Log.print(
-      'around(item: $item, cursor: $cursor)... \n'
-          '\tFetched ${page?.edges.length} items\n'
-          '\tstartCursor: ${page?.info.startCursor}\n'
-          '\tendCursor: ${page?.info.endCursor}\n'
-          '\thasPrevious: ${page?.info.hasPrevious}\n'
-          '\thasNext: ${page?.info.hasNext}',
-      'Pagination',
-    );
+      final Page<T, C>? page = await provider.around(item, cursor, perPage);
+      Log.print(
+        'around(item: $item, cursor: $cursor)... \n'
+            '\tFetched ${page?.edges.length} items\n'
+            '\tstartCursor: ${page?.info.startCursor}\n'
+            '\tendCursor: ${page?.info.endCursor}\n'
+            '\thasPrevious: ${page?.info.hasPrevious}\n'
+            '\thasNext: ${page?.info.hasNext}',
+        'Pagination',
+      );
 
-    for (var e in page?.edges ?? []) {
-      items[onKey(e)] = e;
-    }
+      for (var e in page?.edges ?? []) {
+        items[onKey(e)] = e;
+      }
 
-    startCursor = page?.info.startCursor;
-    endCursor = page?.info.endCursor;
-    hasNext.value = page?.info.hasNext ?? true;
-    hasPrevious.value = page?.info.hasPrevious ?? true;
-    Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
+      startCursor = page?.info.startCursor;
+      endCursor = page?.info.endCursor;
+      hasNext.value = page?.info.hasNext ?? hasNext.value;
+      hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+      Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
+    });
   }
 
   /// Fetches a next page of the [items].
@@ -198,8 +237,9 @@ class Pagination<T, K extends Comparable, C> {
   }
 
   /// Removes the item with the provided [key] from the [items].
-  void remove(K key) {
+  Future<void> remove(K key) {
     items.remove(key);
+    return provider.remove(key.toString());
   }
 }
 
@@ -238,18 +278,27 @@ class Page<T, C> {
 }
 
 /// Utility providing the [Page]s.
-abstract class PageProvider<T, K> {
+abstract class PageProvider<T, C> {
+  /// Initializes this [PageProvider], loading initial [Page], if any.
+  Future<Page<T, C>?> init(T? item, int count);
+
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  FutureOr<Page<T, K>?> around(T? item, K? cursor, int count);
+  FutureOr<Page<T, C>?> around(T? item, C? cursor, int count);
 
   /// Fetches the [Page] after the provided [item] or [cursor].
-  FutureOr<Page<T, K>?> after(T? item, K? cursor, int count);
+  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count);
 
   /// Fetches the [Page] before the provided [item] or [cursor].
-  FutureOr<Page<T, K>?> before(T? item, K? cursor, int count);
+  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count);
 
-  /// Adds the provided [item] to the [Page] it belongs to.
+  /// Adds the provided [item] to this [PageProvider].
   Future<void> put(T item);
+
+  /// Removes the item specified by its [key] from this [PageProvider].
+  Future<void> remove(String key);
+
+  /// Clears this [PageProvider].
+  Future<void> clear();
 }

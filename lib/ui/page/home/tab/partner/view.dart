@@ -50,6 +50,7 @@ class PartnerTabView extends StatelessWidget {
             title: Text('label_work_with_us'.l10n),
             // title: Text('Balance: \$${c.balance.value / 100}'),
             leading: [
+              // SizedBox(width: 40),
               AnimatedButton(
                 decorator: (child) => Container(
                   padding: const EdgeInsets.only(left: 18),
@@ -57,9 +58,9 @@ class PartnerTabView extends StatelessWidget {
                   child: Center(child: child),
                 ),
                 onPressed: () {},
-                child: Text(
-                  '\$${c.balance.value / 100}',
-                  style: style.fonts.labelLargePrimary,
+                child: Icon(
+                  Icons.handshake_outlined,
+                  color: style.colors.primary,
                 ),
               ),
             ],
@@ -113,11 +114,9 @@ class PartnerTabView extends StatelessWidget {
             return PaddedScrollView(
               child: SafeScrollbar(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   children: [
-                    const SizedBox(height: CustomAppBar.height),
                     VacancyWidget(
-                      'Вывести деньги',
+                      'Баланс: \$9999.99',
                       trailing: [
                         Column(
                           children: [
@@ -129,6 +128,14 @@ class PartnerTabView extends StatelessWidget {
                             const SizedBox(height: 21),
                           ],
                         ),
+                      ],
+                      subtitle: [
+                        // const SizedBox(height: 4),
+                        Text(
+                          // '\$${c.balance.value / 100}',
+                          'Вывести деньги',
+                          style: style.fonts.bodySmallSecondary,
+                        )
                       ],
                       onPressed: () async {
                         await launchUrl(
@@ -192,7 +199,6 @@ class PartnerTabView extends StatelessWidget {
                           e.title,
                           subtitle: [
                             if (e.subtitle != null) ...[
-                              const SizedBox(height: 4),
                               Text(e.subtitle!),
                             ],
                           ],
@@ -201,7 +207,6 @@ class PartnerTabView extends StatelessWidget {
                         );
                       });
                     }),
-                    const SizedBox(height: CustomNavigationBar.height),
                   ],
                 ),
               ),

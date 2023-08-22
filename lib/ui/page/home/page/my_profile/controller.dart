@@ -109,8 +109,13 @@ class MyProfileController extends GetxController {
   /// List of [MediaDeviceDetails] of all the available devices.
   final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
+  /// Index of an item from [ProfileTab] that should be highlighted.
+  final RxnInt highlightIndex = RxnInt(null);
+
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
+
+  final GlobalKey welcomeFieldKey = GlobalKey();
 
   final RxBool verified = RxBool(false);
   final RxBool hintVerified = RxBool(false);
@@ -148,6 +153,13 @@ class MyProfileController extends GetxController {
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
   StreamSubscription? _devicesSubscription;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
+
+  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// has passed.
+  Timer? _highlightTimer;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -190,18 +202,24 @@ class MyProfileController extends GetxController {
             curve: Curves.ease,
           );
           Future.delayed(Duration.zero, () => ignorePositions = false);
+
+          _highlight(tab);
         }
       },
     );
 
     positionsListener.itemPositions.addListener(() {
       if (!ignorePositions) {
-        final ProfileTab tab = ProfileTab
-            .values[positionsListener.itemPositions.value.first.index];
-        if (router.profileSection.value != tab) {
-          ignoreWorker = true;
-          router.profileSection.value = tab;
-          Future.delayed(Duration.zero, () => ignoreWorker = false);
+        final ItemPosition? position =
+            positionsListener.itemPositions.value.firstOrNull;
+
+        if (position != null) {
+          final ProfileTab tab = ProfileTab.values[position.index];
+          if (router.profileSection.value != tab) {
+            ignoreWorker = true;
+            router.profileSection.value = tab;
+            Future.delayed(Duration.zero, () => ignoreWorker = false);
+          }
         }
       }
     });
@@ -552,7 +570,6 @@ class MyProfileController extends GetxController {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
         allowMultiple: false,
-        // withReadStream: true,
         withData: true,
       );
 
@@ -659,6 +676,16 @@ class MyProfileController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Highlights the provided [tab].
+  Future<void> _highlight(ProfileTab? tab) async {
+    highlightIndex.value = tab?.index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
   }
 }
 

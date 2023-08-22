@@ -198,22 +198,29 @@ https://github.com/team113/flutter-incubator''',
             ],
           ),
           const Block(
-            title: 'Требования',
+            title: 'Требуется',
             children: [
               VacancyDescription(
-                '''- опыт использования и понимание языка Rust;
-- приветствуется опыт работы с языками C, C++;
+                '''- знание языка Rust;
 - понимание FFI и UB;
-- опыт оптимизации программ и умение использовать профилировщик;
+- навык оптимизации программ и умение использовать профилировщик;
 - понимание принципов работы клиент-серверных web-приложений;
-- опыт и понимание принципов проектирования структур баз данных;
+- понимание принципов проектирования структур баз данных;
 - понимание принципов DDD и слоенной архитектуры;
-- опыт написания модульных и функциональных тестов;
-- опыт работы с Git;
-- умение использовать операционные системы типа *nix;
-- приветствуется опыт работы по CQRS+ES парадигме;
-- приветствуется опыт работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
-- приветствуется опыт работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.''',
+- навык написания модульных и функциональных тестов;
+- навык работы с Git;
+- умение использовать операционные системы типа *nix.''',
+              ),
+            ],
+          ),
+          const Block(
+            title: 'Приветствуется',
+            children: [
+              VacancyDescription(
+                '''- навык работы с языками C, C++;
+- навык работы по CQRS+ES парадигме;
+- навык работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
+- навык работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.''',
               ),
             ],
           ),
@@ -242,6 +249,56 @@ https://github.com/team113/flutter-incubator''',
                 '''В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей корпоративной песочницей.
 
 https://github.com/instrumentisto/rust-incubator''',
+              ),
+            ],
+          ),
+        ];
+
+      case 'freelance':
+        return [
+          Block(
+            children: [
+              Text(
+                'Messenger',
+                style: style.fonts.titleLargeSecondary
+                    .copyWith(fontSize: 27 * multiplier),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              const SizedBox(height: 2 * multiplier),
+              Text(
+                'by Gapopa',
+                style: style.fonts.titleLargeSecondary
+                    .copyWith(fontSize: 21 * multiplier),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              const SizedBox(height: 25 * multiplier),
+              const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
+              const SizedBox(height: 16 * multiplier),
+              const VacancyDescription('https://github.com/team113/messenger'),
+            ],
+          ),
+          const Block(
+            title: 'Условия',
+            children: [
+              VacancyDescription(
+                '''- ежедневная оплата;
+- от 2000 EUR;
+- 4-х, 6-ти или 8-ми часовой рабочий день;
+- учёт рабочего времени и оплата переработок;
+- удалённое сотрудничество.''',
+              ),
+            ],
+          ),
+          const Block(
+            children: [
+              VacancyDescription(
+                '''В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Dart/Flutter, Вы можете воспользоваться нашей корпоративной песочницей.
+
+https://github.com/team113/flutter-incubator''',
               ),
             ],
           ),

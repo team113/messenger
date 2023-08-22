@@ -92,11 +92,42 @@ class VacancyView extends StatelessWidget {
   }
 
   Widget _list(VacancyController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Scaffold(
       appBar: CustomAppBar(
-        leading: const [StyledBackButton()],
+        // leading: const [StyledBackButton()],
+        leading: [
+          AnimatedButton(
+            decorator: (child) => Container(
+              margin: const EdgeInsets.only(left: 18),
+              height: double.infinity,
+              child: Center(child: child),
+            ),
+            onPressed: () => Navigator.maybePop(context),
+            child: Icon(
+              Icons.home_outlined,
+              size: 27,
+              color: style.colors.primary,
+            ),
+          ),
+        ],
         title: Text('label_work_with_us'.l10n),
-        actions: const [SizedBox(width: 46)],
+        actions: [
+          AnimatedButton(
+            decorator: (child) => Container(
+              padding: const EdgeInsets.only(right: 18),
+              height: double.infinity,
+              child: Center(child: child),
+            ),
+            onPressed: () {},
+            child: Icon(
+              Icons.more_vert,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
+        // actions: const [SizedBox(width: 46)],
       ),
       body: ListView(
         padding: const EdgeInsets.all(8),
@@ -107,7 +138,6 @@ class VacancyView extends StatelessWidget {
                 e.title,
                 subtitle: [
                   if (e.subtitle != null) ...[
-                    const SizedBox(height: 4),
                     Text(e.subtitle!),
                   ],
                 ],

@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
+import 'package:messenger/ui/page/home/tab/menu/widget/menu_button.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 
 class VacancyWidget extends StatelessWidget {
@@ -39,6 +40,21 @@ class VacancyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: MenuButton(
+        title: text,
+        icon: Icon(
+          Icons.work,
+          color: selected ? style.colors.onPrimary : style.colors.primary,
+        ),
+        onPressed: onPressed,
+        trailing: trailing,
+        inverted: selected,
+        children: subtitle,
+      ),
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),

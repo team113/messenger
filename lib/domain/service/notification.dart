@@ -290,8 +290,7 @@ class NotificationService extends DisposableService {
       // a browser's policy to ask for notifications permission only after
       // user's interaction.
       WebUtils.onSelectNotification = onResponse;
-    }
-    if (PlatformUtils.isWindows) {
+    } else if (PlatformUtils.isWindows) {
       await WinToast.instance().initialize(
         aumId: 'team113.messenger',
         displayName: 'Gapopa',

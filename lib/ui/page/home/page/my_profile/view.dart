@@ -121,10 +121,28 @@ class MyProfileView extends StatelessWidget {
                 itemScrollController: c.itemScrollController,
                 itemPositionsListener: c.positionsListener,
                 itemCount: ProfileTab.values.length,
+                physics: const ClampingScrollPhysics(),
                 itemBuilder: (context, i) {
+                  // Builds a [Block] wrapped with [Obx] to highlight it.
+                  Widget block({
+                    required String title,
+                    required List<Widget> children,
+                    EdgeInsets? padding,
+                  }) {
+                    return Obx(() {
+                      return Block(
+                        title: title,
+                        padding: padding ??
+                            const EdgeInsets.fromLTRB(32, 16, 32, 16),
+                        highlight: c.highlightIndex.value == i,
+                        children: children,
+                      );
+                    });
+                  }
+
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
-                      return Block(
+                      return block(
                         title: 'label_profile'.l10n,
                         children: [
                           Obx(() {
@@ -154,12 +172,12 @@ class MyProfileView extends StatelessWidget {
                                 onSubmit: c.updateUserStatus,
                               );
                             }),
-                          )
+                          ),
                         ],
                       );
 
                     case ProfileTab.signing:
-                      return Block(
+                      return block(
                         title: 'label_login_options'.l10n,
                         children: [
                           Paddings.basic(
@@ -180,7 +198,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.link:
-                      return Block(
+                      return block(
                         title: 'label_your_direct_link'.l10n,
                         children: [
                           Obx(() {
@@ -193,7 +211,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.background:
-                      return Block(
+                      return block(
                         title: 'label_background'.l10n,
                         children: [
                           Paddings.dense(
@@ -209,13 +227,13 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.chats:
-                      return Block(
+                      return block(
                         title: 'label_chats'.l10n,
                         children: [_chats(context, c)],
                       );
 
                     case ProfileTab.calls:
-                      return Block(
+                      return block(
                         title: 'label_calls'.l10n,
                         children: [_call(context, c)],
                       );
@@ -225,13 +243,13 @@ class MyProfileView extends StatelessWidget {
                         return const SizedBox();
                       }
 
-                      return Block(
+                      return block(
                         title: 'label_media'.l10n,
                         children: [_media(context, c)],
                       );
 
                     case ProfileTab.welcome:
-                      return Block(
+                      return block(
                         title: 'label_welcome_message'.l10n,
                         padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                         children: [_welcome(context, c)],
@@ -240,7 +258,7 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.getPaid:
                       return Stack(
                         children: [
-                          Block(
+                          block(
                             title: 'label_get_paid_for_incoming'.l10n,
                             children: [_getPaid(context, c)],
                           ),
@@ -306,7 +324,7 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.donates:
                       return Stack(
                         children: [
-                          Block(
+                          block(
                             title: 'label_donates'.l10n,
                             children: [_donates(context, c)],
                           ),
@@ -375,7 +393,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.notifications:
-                      return Block(
+                      return block(
                         title: 'label_audio_notifications'.l10n,
                         children: [
                           Paddings.dense(
@@ -392,30 +410,30 @@ class MyProfileView extends StatelessWidget {
                                     c.isMuting.value ? null : c.toggleMute,
                               );
                             }),
-                          )
+                          ),
                         ],
                       );
 
                     case ProfileTab.storage:
-                      return Block(
+                      return block(
                         title: 'label_storage'.l10n,
                         children: [_storage(context, c)],
                       );
 
                     case ProfileTab.language:
-                      return Block(
+                      return block(
                         title: 'label_language'.l10n,
                         children: [_language(context, c)],
                       );
 
                     case ProfileTab.blacklist:
-                      return Block(
+                      return block(
                         title: 'label_blocked_users'.l10n,
                         children: [_blockedUsers(context, c)],
                       );
 
                     case ProfileTab.devices:
-                      return Block(
+                      return block(
                         title: 'label_linked_devices'.l10n,
                         children: [_devices(context, c)],
                       );
@@ -425,19 +443,19 @@ class MyProfileView extends StatelessWidget {
                         return const SizedBox();
                       }
 
-                      return Block(
+                      return block(
                         title: 'label_download_application'.l10n,
                         children: [_downloads(context, c)],
                       );
 
                     case ProfileTab.danger:
-                      return Block(
+                      return block(
                         title: 'label_danger_zone'.l10n,
                         children: [_danger(context, c)],
                       );
 
                     case ProfileTab.vacancies:
-                      return Block(
+                      return block(
                         title: 'label_work_with_us'.l10n,
                         children: [_workWithUs(context, c)],
                       );
@@ -1447,37 +1465,16 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                     .map((e) => MapEntry(GlobalKey(), e))
                     .toList() ??
                 [];
-
-            // final ChatMessage? m = await WelcomeMessageView.show(
-            //   context,
-            //   initial: c.welcome.value,
-            // );
-
-            // if (m != null) {
-            //   c.welcome.value = m;
-            // }
           },
-          child: Text(
-            'btn_edit'.l10n,
-            style: style.systemMessageStyle.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              // fontSize: 11,
-            ),
-          ),
+          child: Text('btn_edit'.l10n, style: style.systemMessagePrimary),
         ),
-        Text(
-          'space_or_space'.l10n,
-          style: style.systemMessageStyle,
-        ),
+        Text('space_or_space'.l10n, style: style.systemMessageStyle),
         WidgetButton(
           key: const Key('DeleteAvatar'),
           onPressed: () => c.welcome.value = null,
           child: Text(
             'btn_delete'.l10n.toLowerCase(),
-            style: style.systemMessageStyle.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              // fontSize: 11,
-            ),
+            style: style.systemMessagePrimary,
           ),
         ),
       ],
@@ -1507,56 +1504,6 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                   ),
                 ),
               ),
-              // child: ClipRRect(
-              //   borderRadius: BorderRadius.only(
-              //     bottomRight: style.cardRadius.bottomRight,
-              //     bottomLeft: style.cardRadius.bottomLeft,
-              //   ),
-              //   // borderRadius: style.cardRadius,
-              //   child: DecoratedBox(
-              //     position: DecorationPosition.foreground,
-              //     decoration: BoxDecoration(
-              //         // color: style.sidebarColor,
-              //         ),
-              //     child: Obx(() {
-              //       return c.background.value == null
-              //           ? Container(
-              //               child: SvgImage.asset(
-              //                 'assets/images/background_light.svg',
-              //                 width: double.infinity,
-              //                 height: double.infinity,
-              //                 fit: BoxFit.cover,
-              //               ),
-              //             )
-              //           : Image.memory(
-              //               c.background.value!,
-              //               fit: BoxFit.cover,
-              //             );
-
-              //       // return c.background.value == null
-              //       //     ? ImageFiltered(
-              //       //         imageFilter:
-              //       //             ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-              //       //         child: Container(
-              //       //           child: SvgImage.asset(
-              //       //             'assets/images/background_light.svg',
-              //       //             width: double.infinity,
-              //       //             height: double.infinity,
-              //       //             fit: BoxFit.cover,
-              //       //           ),
-              //       //         ),
-              //       //       )
-              //       //     : ImageFiltered(
-              //       //         imageFilter:
-              //       //             ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-              //       //         child: Image.memory(
-              //       //           c.background.value!,
-              //       //           fit: BoxFit.cover,
-              //       //         ),
-              //       //       );
-              //     }),
-              //   ),
-              // ),
             ),
             Obx(() {
               return Column(
@@ -1584,20 +1531,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                     )
                   else ...[
                     info(
-                      child: Text(
-                        c.welcome.value?.at.val.toRelative() ?? '',
-                        // 'label_date_ymd'.l10nfmt({
-                        //   'year': c.welcome.value?.at.val.year
-                        //       .toString()
-                        //       .padLeft(4, '0'),
-                        //   'month': c.welcome.value?.at.val.month
-                        //       .toString()
-                        //       .padLeft(2, '0'),
-                        //   'day': c.welcome.value?.at.val.day
-                        //       .toString()
-                        //       .padLeft(2, '0'),
-                        // }),
-                      ),
+                      child: Text(c.welcome.value?.at.val.toRelative() ?? ''),
                     ),
                     Align(
                       alignment: Alignment.centerRight,
@@ -1614,10 +1548,10 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                     ),
                     editOrDelete,
                   ],
-                  // const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
                     child: MessageFieldView(
+                      key: c.welcomeFieldKey,
                       fieldKey: const Key('ForwardField'),
                       sendKey: const Key('SendForward'),
                       constraints: const BoxConstraints(),

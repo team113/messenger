@@ -30,6 +30,11 @@ class Vacancies {
     //   description: '...',
     // ),
     Vacancy(
+      id: 'freelance',
+      title: 'Freelance',
+      subtitle: '4 tasks available',
+    ),
+    Vacancy(
       id: 'dart',
       title: 'Frontend Developer',
       subtitle: 'Flutter',

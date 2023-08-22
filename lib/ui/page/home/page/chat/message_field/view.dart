@@ -1142,7 +1142,8 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: style.fonts.bodyLarge.copyWith(color: style.colors.primary),
+                    style: style.fonts.bodyLarge
+                        .copyWith(color: style.colors.primary),
                   ),
                   if (content != null) ...[
                     const SizedBox(height: 2),
