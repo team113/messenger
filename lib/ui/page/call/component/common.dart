@@ -482,7 +482,7 @@ class _CallButtonWidget extends StatelessWidget {
   /// Background color of this [_CallButtonWidget].
   final Color? color;
 
-  /// /// Width of the [asset].
+  /// Width of the [asset].
   final double assetWidth;
 
   /// Border style of this [_CallButtonWidget].
@@ -490,7 +490,7 @@ class _CallButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return RoundFloatingButton(
       asset: asset,

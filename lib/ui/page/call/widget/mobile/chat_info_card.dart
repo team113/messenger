@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -27,7 +26,7 @@ import '/ui/page/home/widget/avatar.dart';
 class ChatInfoCard extends StatelessWidget {
   const ChatInfoCard({
     super.key,
-    required this.callDuration,
+    this.callDuration,
     this.chat,
     this.subtitle,
     this.trailing,
@@ -43,8 +42,8 @@ class ChatInfoCard extends StatelessWidget {
   /// Trailing of this [ChatInfoCard].
   final String? trailing;
 
-  /// Duration of the call.
-  final Rx<Duration> callDuration;
+  /// [Duration] of the call.
+  final Duration? callDuration;
 
   /// Callback, called when this [ChatInfoCard] is pressed.
   final void Function()? onTap;
@@ -85,10 +84,10 @@ class ChatInfoCard extends StatelessWidget {
                                   maxLines: 1,
                                   style: style.fonts.headlineLargeOnPrimary),
                             ),
-                            Obx(() {
-                              return Text(callDuration.value.hhMmSs(),
-                                  style: style.fonts.labelLargeOnPrimary);
-                            }),
+                            callDuration == null
+                                ? const SizedBox()
+                                : Text(callDuration!.hhMmSs(),
+                                    style: style.fonts.labelLargeOnPrimary),
                           ],
                         ),
                         Padding(

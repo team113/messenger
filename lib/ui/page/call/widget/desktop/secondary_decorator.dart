@@ -220,7 +220,7 @@ class SecondaryDecorator extends StatelessWidget {
                             Container(
                               color: style.colors.backgroundAuxiliary,
                             ),
-                            SvgImage.asset(
+                            const SvgImage.asset(
                               'assets/images/background_dark.svg',
                               width: double.infinity,
                               height: double.infinity,
@@ -238,51 +238,51 @@ class SecondaryDecorator extends StatelessWidget {
           ),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == null
-              ? buildDragHandle(Alignment.centerLeft, context)
+              ? _buildDragHandle(Alignment.centerLeft, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == null
-              ? buildDragHandle(Alignment.centerRight, context)
+              ? _buildDragHandle(Alignment.centerRight, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == null
-              ? buildDragHandle(Alignment.bottomCenter, context)
+              ? _buildDragHandle(Alignment.bottomCenter, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == null
-              ? buildDragHandle(Alignment.topCenter, context)
+              ? _buildDragHandle(Alignment.topCenter, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == null
-              ? buildDragHandle(Alignment.topLeft, context)
+              ? _buildDragHandle(Alignment.topLeft, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == null
-              ? buildDragHandle(Alignment.topRight, context)
+              ? _buildDragHandle(Alignment.topRight, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == null
-              ? buildDragHandle(Alignment.bottomLeft, context)
+              ? _buildDragHandle(Alignment.bottomLeft, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == null
-              ? buildDragHandle(Alignment.bottomRight, context)
+              ? _buildDragHandle(Alignment.bottomRight, context)
               : const SizedBox(),
         ),
 
@@ -372,27 +372,27 @@ class SecondaryDecorator extends StatelessWidget {
             ),
           ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == Alignment.centerRight
-              ? buildDragHandle(Alignment.centerLeft, context)
+              ? _buildDragHandle(Alignment.centerLeft, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == Alignment.centerLeft
-              ? buildDragHandle(Alignment.centerRight, context)
+              ? _buildDragHandle(Alignment.centerRight, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == Alignment.topCenter
-              ? buildDragHandle(Alignment.bottomCenter, context)
+              ? _buildDragHandle(Alignment.bottomCenter, context)
               : const SizedBox(),
         ),
 
-        positionedBoilerplate(
+        _positionedBoilerplate(
           alignment == Alignment.bottomCenter
-              ? buildDragHandle(Alignment.topCenter, context)
+              ? _buildDragHandle(Alignment.topCenter, context)
               : const SizedBox(),
         ),
 
@@ -492,7 +492,7 @@ class SecondaryDecorator extends StatelessWidget {
   }
 
   /// Returns a [Scaler] scaling this [SecondaryDecorator].
-  Widget buildDragHandle(Alignment alignment, BuildContext context) {
+  Widget _buildDragHandle(Alignment alignment, BuildContext context) {
     Widget scaler({
       Key? key,
       MouseCursor cursor = MouseCursor.defer,
@@ -583,7 +583,7 @@ class SecondaryDecorator extends StatelessWidget {
 
   /// Returns the positioned [child] according to the [left], [right], [top] and
   /// [bottom] values;
-  Widget positionedBoilerplate(Widget child) {
+  Widget _positionedBoilerplate(Widget child) {
     return Positioned(
       left: left == null ? null : (left! - Scaler.size / 2),
       right: right == null ? null : (right! - Scaler.size / 2),

@@ -474,7 +474,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           ),
         ),
 
-        // Display the more hint, if not dismissed.
+        // Display more hint, if not dismissed.
         Obx(() {
           return AnimatedSwitcher(
             duration: 150.milliseconds,

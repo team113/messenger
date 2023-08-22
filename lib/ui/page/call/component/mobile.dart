@@ -526,7 +526,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               constraints: const BoxConstraints(maxWidth: 366),
               child: ChatInfoCard(
                 chat: c.chat.value,
-                callDuration: c.duration,
+                callDuration: c.duration.value,
                 trailing: 'label_a_of_b'.l10nfmt({
                   'a': '${c.members.keys.map((k) => k.userId).toSet().length}',
                   'b': '${c.chat.value?.members.length}',

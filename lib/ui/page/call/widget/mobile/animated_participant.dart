@@ -38,10 +38,10 @@ class AnimatedParticipant extends StatelessWidget {
   /// [Participant] this [AnimatedParticipant] represents.
   final Participant participant;
 
-  /// Indicator whether the [participant]'s sound is muted or not.
+  /// Indicator whether the [Participant]'s sound is muted or not.
   final bool? muted;
 
-  /// Indicator whether animation is turned on or off.
+  /// Indicator whether [Participant] view should be a square or screen-wide.
   final bool animated;
 
   /// Indicator whether the overlay should have a blur under it.
@@ -49,7 +49,7 @@ class AnimatedParticipant extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return AnimatedClipRRect(
       key: Key(participant.member.id.toString()),
