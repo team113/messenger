@@ -17,7 +17,6 @@
 
 import 'dart:async';
 import 'dart:ui';
-import 'dart:collection';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -29,8 +28,7 @@ import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/backoff.dart';
-import '/util/platform_utils.dart';
+import '/ui/worker/cache.dart';
 
 /// [Image.memory] displaying an image fetched from the provided [url].
 ///
@@ -74,7 +72,8 @@ class RetryImage extends StatefulWidget {
     final StorageFile image;
 
     final StorageFile original = attachment.original;
-    if (original.checksum != null && FIFOCache.exists(original.checksum!)) {
+    if (original.checksum != null &&
+        CacheWorker.instance.exists(original.checksum!)) {
       image = original;
     } else {
       image = attachment.big;
@@ -174,6 +173,11 @@ class _RetryImageState extends State<RetryImage> {
       _loadImage();
     } else {
       _canceled = true;
+    }
+
+    // We're expecting a checksum to properly fetch the image from the cache.
+    if (widget.checksum == null || widget.fallbackChecksum == null) {
+      widget.onForbidden?.call();
     }
 
     super.initState();
@@ -361,182 +365,67 @@ class _RetryImageState extends State<RetryImage> {
   }
 
   /// Loads the [_fallback] from the provided URL.
-  ///
-  /// Retries itself using exponential backoff algorithm on a failure.
   FutureOr<void> _loadFallback() async {
     if (widget.fallbackUrl == null) {
       return;
     }
 
-    Uint8List? cached;
-    if (widget.fallbackChecksum != null) {
-      cached = FIFOCache.get(widget.fallbackChecksum!);
+    final FutureOr<Uint8List?> result = CacheWorker.instance.get(
+      url: widget.fallbackUrl!,
+      checksum: widget.fallbackChecksum,
+      cancelToken: _fallbackToken,
+      onForbidden: () async {
+        await widget.onForbidden?.call();
+      },
+    );
+
+    if (result is Uint8List?) {
+      _fallback = result ?? _fallback;
+    } else {
+      _fallback = await result ?? _fallback;
     }
 
-    if (cached != null) {
-      _fallback = cached;
-      if (mounted) {
-        setState(() {});
-      }
-    } else {
-      try {
-        await Backoff.run(
-          () async {
-            Response? data;
-
-            try {
-              data = await (await PlatformUtils.dio).get(
-                widget.fallbackUrl!,
-                options: Options(responseType: ResponseType.bytes),
-                cancelToken: _fallbackToken,
-              );
-            } on DioException catch (e) {
-              if (e.response?.statusCode == 403) {
-                await widget.onForbidden?.call();
-                return;
-              }
-            }
-
-            if (data?.data != null && data!.statusCode == 200) {
-              if (widget.fallbackChecksum != null) {
-                FIFOCache.set(widget.fallbackChecksum!, data.data);
-              }
-
-              _fallback = data.data;
-              if (mounted) {
-                setState(() {});
-              }
-            } else {
-              throw Exception('Fallback image is not loaded');
-            }
-          },
-          _fallbackToken,
-        );
-      } on OperationCanceledException {
-        // No-op.
-      }
+    if (mounted) {
+      setState(() {});
     }
   }
 
   /// Loads the [_image] from the provided URL.
-  ///
-  /// Retries itself using exponential backoff algorithm on a failure.
   FutureOr<void> _loadImage() async {
-    Uint8List? cached;
-    if (widget.checksum != null) {
-      cached = FIFOCache.get(widget.checksum!);
+    final FutureOr<Uint8List?> result = CacheWorker.instance.get(
+      url: widget.url,
+      checksum: widget.checksum,
+      onReceiveProgress: (received, total) {
+        if (total > 0) {
+          _progress = received / total;
+          if (mounted) {
+            setState(() {});
+          }
+        }
+      },
+      cancelToken: _cancelToken,
+      onForbidden: () async {
+        await widget.onForbidden?.call();
+      },
+    );
+
+    if (result is Uint8List?) {
+      _image = result ?? _image;
+    } else {
+      _image = await result ?? _image;
     }
 
-    if (cached != null) {
-      _image = cached;
+    _isSvg = false;
+    if (_image != null) {
       _isSvg = _image!.length >= 4 &&
           _image![0] == 60 &&
           _image![1] == 115 &&
           _image![2] == 118 &&
           _image![3] == 103;
+    }
 
-      if (mounted) {
-        setState(() {});
-      }
-    } else {
-      try {
-        await Backoff.run(
-          () async {
-            Response? data;
-
-            try {
-              data = await (await PlatformUtils.dio).get(
-                widget.url,
-                onReceiveProgress: (received, total) {
-                  if (total > 0) {
-                    _progress = received / total;
-                    if (mounted) {
-                      setState(() {});
-                    }
-                  }
-                },
-                options: Options(responseType: ResponseType.bytes),
-                cancelToken: _cancelToken,
-              );
-            } on DioException catch (e) {
-              if (e.response?.statusCode == 403) {
-                await widget.onForbidden?.call();
-                return;
-              }
-            }
-
-            if (data?.data != null && data!.statusCode == 200) {
-              if (widget.checksum != null) {
-                FIFOCache.set(widget.checksum!, data.data);
-              }
-
-              _image = data.data;
-              _isSvg = false;
-
-              if (_image != null) {
-                _isSvg = _image!.length >= 4 &&
-                    _image![0] == 60 &&
-                    _image![1] == 115 &&
-                    _image![2] == 118 &&
-                    _image![3] == 103;
-              }
-
-              if (mounted) {
-                setState(() {});
-              }
-            } else {
-              throw Exception('Image is not loaded');
-            }
-          },
-          _cancelToken,
-        );
-      } on OperationCanceledException {
-        // No-op.
-      }
+    if (mounted) {
+      setState(() {});
     }
   }
-}
-
-/// Naive [LinkedHashMap]-based cache of [Uint8List]s.
-///
-/// FIFO policy is used, meaning if [_cache] exceeds its [_maxSize] or
-/// [_maxLength], then the first inserted element is removed.
-class FIFOCache {
-  /// Maximum allowed length of [_cache].
-  static const int _maxLength = 1000;
-
-  /// Maximum allowed size in bytes of [_cache].
-  static const int _maxSize = 100 << 20; // 100 MiB
-
-  /// [LinkedHashMap] maintaining [Uint8List]s itself.
-  static final LinkedHashMap<String, Uint8List> _cache =
-      LinkedHashMap<String, Uint8List>();
-
-  /// Returns the total size [_cache] occupies.
-  static int get size =>
-      _cache.values.map((e) => e.lengthInBytes).fold<int>(0, (p, e) => p + e);
-
-  /// Puts the provided [bytes] to the cache.
-  static void set(String key, Uint8List bytes) {
-    if (!_cache.containsKey(key)) {
-      while (size >= _maxSize) {
-        _cache.remove(_cache.keys.first);
-      }
-
-      if (_cache.length >= _maxLength) {
-        _cache.remove(_cache.keys.first);
-      }
-
-      _cache[key] = bytes;
-    }
-  }
-
-  /// Returns the [Uint8List] of the provided [key], if any is cached.
-  static Uint8List? get(String key) => _cache[key];
-
-  /// Indicates whether an item with the provided [key] exists.
-  static bool exists(String key) => _cache.containsKey(key);
-
-  /// Removes all entries from the [_cache].
-  static void clear() => _cache.clear();
 }

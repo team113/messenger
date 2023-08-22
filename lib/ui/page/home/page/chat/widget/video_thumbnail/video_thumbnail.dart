@@ -25,8 +25,8 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 import 'src/interface.dart'
@@ -188,8 +188,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
-    if (widget.checksum != null) {
-      bytes ??= FIFOCache.get(widget.checksum!);
+    if (bytes == null &&
+        widget.checksum != null &&
+        CacheWorker.instance.exists(widget.checksum!)) {
+      bytes = await CacheWorker.instance.get(checksum: widget.checksum!);
     }
 
     final DataSource source;
