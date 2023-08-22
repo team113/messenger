@@ -48,9 +48,9 @@ class CustomPlayPause extends StatelessWidget {
           child: StreamBuilder(
             stream: controller.player.stream.playing,
             initialData: controller.player.state.playing,
-            builder: (_, snapshot) {
+            builder: (_, playing) {
               return AnimatedPlayPause(
-                snapshot.data!,
+                playing.data!,
                 size: 21,
                 color: style.colors.onPrimary,
               );

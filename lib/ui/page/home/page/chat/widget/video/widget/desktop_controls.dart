@@ -183,8 +183,8 @@ class _DesktopControlsState extends State<DesktopControls>
             StreamBuilder(
               stream: widget.controller.player.stream.buffering,
               initialData: widget.controller.player.state.buffering,
-              builder: (_, snapshot) {
-                return snapshot.data!
+              builder: (_, buffering) {
+                return buffering.data!
                     ? const Center(child: CustomProgressIndicator())
                     : CenteredPlayPause(
                         widget.controller,
@@ -282,7 +282,8 @@ class _DesktopControlsState extends State<DesktopControls>
                     onTap: () {
                       _cancelAndRestartTimer();
                       if (widget.controller.player.state.volume == 0) {
-                        widget.controller.player.setVolume(_latestVolume ?? 0.5);
+                        widget.controller.player
+                            .setVolume(_latestVolume ?? 0.5);
                       } else {
                         _latestVolume = widget.controller.player.state.volume;
                         widget.controller.player.setVolume(0.0);
@@ -360,8 +361,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Toggles play and pause of a [_controller]. Starts video from the start if
   /// the playback is done.
   void _playPause() {
-    final isFinished =
-        widget.controller.player.state.completed;
+    final isFinished = widget.controller.player.state.completed;
 
     if (widget.controller.player.state.playing) {
       _cancelAndRestartTimer();

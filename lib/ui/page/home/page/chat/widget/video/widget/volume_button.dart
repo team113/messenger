@@ -69,9 +69,7 @@ class VolumeButton extends StatelessWidget {
             initialData: controller.player.state.volume,
             builder: (_, volume) {
               return Icon(
-                volume.data! > 0
-                    ? Icons.volume_up
-                    : Icons.volume_off,
+                volume.data! > 0 ? Icons.volume_up : Icons.volume_off,
                 color: style.colors.onPrimary,
                 size: 18,
               );

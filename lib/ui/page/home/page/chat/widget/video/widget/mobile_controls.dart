@@ -117,8 +117,8 @@ class _MobileControlsState extends State<MobileControls>
           StreamBuilder(
             stream: widget.controller.player.stream.buffering,
             initialData: widget.controller.player.state.buffering,
-            builder: (_, snapshot) {
-              return snapshot.data!
+            builder: (_, buffering) {
+              return buffering.data!
                   ? const Center(child: CustomProgressIndicator())
                   : CenteredPlayPause(
                       widget.controller,
