@@ -154,6 +154,7 @@ btn_call_video_on_desc =
 btn_change = Change
 btn_change_avatar = Change avatar
 btn_change_password = Change password
+btn_clear_cache = Clear cache
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
@@ -403,6 +404,7 @@ label_away = away
 label_background = Background
 label_block = Block
 label_blocked_users = Blocked users
+label_cache = Cache
 label_cache_and_downloads = Cache and downloads
 label_call_active = Active call
 label_call_calling = Calling
@@ -521,6 +523,7 @@ label_forwarded_messages = {$count ->
    *[other] Пересланные сообщения
 }
 label_gallery = Gallery
+label_gb_slash_gb = {$a} GB / {$b} GB
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}

@@ -43,6 +43,7 @@ import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
+import 'provider/hive/cache.dart';
 import 'provider/hive/session.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
@@ -51,6 +52,7 @@ import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
+import 'ui/worker/cache.dart';
 import 'ui/worker/window.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
@@ -113,6 +115,7 @@ Future<void> main() async {
     await authService.init();
     await L10n.init();
 
+    Get.put(CacheWorker(Get.findOrNull()));
     Get.put(BackgroundWorker(Get.find()));
 
     WebUtils.deleteLoader();
@@ -217,6 +220,10 @@ Future<void> _initHive() async {
 
   await Get.put(SessionDataHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
+
+  if (!PlatformUtils.isWeb) {
+    await Get.put(CacheInfoHiveProvider()).init();
+  }
 }
 
 /// Extension adding an ability to clean [Hive].
@@ -234,5 +241,18 @@ extension HiveClean on HiveInterface {
         // No-op.
       }
     }
+  }
+}
+
+/// Extension adding ability to find non-strict dependencies from a
+/// [GetInterface].
+extension on GetInterface {
+  /// Returns the [S] dependency, if it [isRegistered].
+  S? findOrNull<S>({String? tag}) {
+    if (isRegistered<S>(tag: tag)) {
+      return find<S>(tag: tag);
+    }
+
+    return null;
   }
 }

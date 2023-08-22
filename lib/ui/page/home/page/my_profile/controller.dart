@@ -35,9 +35,10 @@ import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/themes.dart';
+import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -296,6 +297,9 @@ class MyProfileController extends GetxController {
   Future<void> updateUserLogin(UserLogin login) async {
     await _myUserService.updateUserLogin(login);
   }
+
+  /// Deletes the cache used by the application.
+  Future<void> clearCache() => CacheWorker.instance.clear();
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///

@@ -1031,11 +1031,21 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _download(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.download(item.link, item.name, item.size);
+        await PlatformUtils.download(
+          item.link,
+          item.name,
+          item.size,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.download(item.link, item.name, item.size);
+          await PlatformUtils.download(
+            item.link,
+            item.name,
+            item.size,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }
@@ -1055,11 +1065,19 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.saveToGallery(item.link, item.name);
+        await PlatformUtils.saveToGallery(
+          item.link,
+          item.name,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.saveToGallery(item.link, item.name);
+          await PlatformUtils.saveToGallery(
+            item.link,
+            item.name,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }
@@ -1079,11 +1097,19 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _share(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.share(item.link, item.name);
+        await PlatformUtils.share(
+          item.link,
+          item.name,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.share(item.link, item.name);
+          await PlatformUtils.share(
+            item.link,
+            item.name,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }
