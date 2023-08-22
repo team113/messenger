@@ -513,69 +513,69 @@ class SecondaryDecorator extends StatelessWidget {
     }
 
     Widget widget = const SizedBox();
-
-    if (alignment == Alignment.centerLeft) {
-      widget = scaler(
-        cursor: SystemMouseCursors.resizeLeftRight,
-        height: height - Scaler.size,
-        onDrag: onScaleCenterLeft,
-      );
-    } else if (alignment == Alignment.centerRight) {
-      widget = scaler(
-        cursor: SystemMouseCursors.resizeLeftRight,
-        height: height - Scaler.size,
-        onDrag: onScaleCenterRight,
-      );
-    } else if (alignment == Alignment.bottomCenter) {
-      widget = scaler(
-        cursor: SystemMouseCursors.resizeUpDown,
-        width: width - Scaler.size,
-        onDrag: onScaleBottomCenter,
-      );
-    } else if (alignment == Alignment.topCenter) {
-      widget = scaler(
-        cursor: SystemMouseCursors.resizeUpDown,
-        width: width - Scaler.size,
-        onDrag: onScaleTopCenter,
-      );
-    } else if (alignment == Alignment.topLeft) {
-      widget = scaler(
-        // TODO: https://github.com/flutter/flutter/issues/89351
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpLeftDownRight,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: onScaleTopLeft,
-      );
-    } else if (alignment == Alignment.topRight) {
-      widget = scaler(
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpRightDownLeft,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: onScaleTopRight,
-      );
-    } else if (alignment == Alignment.bottomLeft) {
-      widget = scaler(
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpRightDownLeft,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: onScaleBottomLeft,
-      );
-    } else if (alignment == Alignment.bottomRight) {
-      widget = scaler(
-        // TODO: https://github.com/flutter/flutter/issues/89351
-        cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-            ? SystemMouseCursors.resizeRow
-            : SystemMouseCursors.resizeUpLeftDownRight,
-        width: Scaler.size * 2,
-        height: Scaler.size * 2,
-        onDrag: onScaleBottomRight,
-      );
+    switch (alignment) {
+      case Alignment.bottomLeft:
+        widget = scaler(
+          cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+              ? SystemMouseCursors.resizeRow
+              : SystemMouseCursors.resizeUpRightDownLeft,
+          width: Scaler.size * 2,
+          height: Scaler.size * 2,
+          onDrag: onScaleBottomLeft,
+        );
+      case Alignment.bottomCenter:
+        widget = scaler(
+          cursor: SystemMouseCursors.resizeUpDown,
+          width: width - Scaler.size,
+          onDrag: onScaleBottomCenter,
+        );
+      case Alignment.bottomRight:
+        widget = scaler(
+          // TODO: https://github.com/flutter/flutter/issues/89351
+          cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+              ? SystemMouseCursors.resizeRow
+              : SystemMouseCursors.resizeUpLeftDownRight,
+          width: Scaler.size * 2,
+          height: Scaler.size * 2,
+          onDrag: onScaleBottomRight,
+        );
+      case Alignment.centerLeft:
+        widget = scaler(
+          cursor: SystemMouseCursors.resizeLeftRight,
+          height: height - Scaler.size,
+          onDrag: onScaleCenterLeft,
+        );
+      case Alignment.centerRight:
+        widget = scaler(
+          cursor: SystemMouseCursors.resizeLeftRight,
+          height: height - Scaler.size,
+          onDrag: onScaleCenterRight,
+        );
+      case Alignment.topLeft:
+        widget = scaler(
+          // TODO: https://github.com/flutter/flutter/issues/89351
+          cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+              ? SystemMouseCursors.resizeRow
+              : SystemMouseCursors.resizeUpLeftDownRight,
+          width: Scaler.size * 2,
+          height: Scaler.size * 2,
+          onDrag: onScaleTopLeft,
+        );
+      case Alignment.topCenter:
+        widget = scaler(
+          cursor: SystemMouseCursors.resizeUpDown,
+          width: width - Scaler.size,
+          onDrag: onScaleTopCenter,
+        );
+      case Alignment.topRight:
+        widget = scaler(
+          cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+              ? SystemMouseCursors.resizeRow
+              : SystemMouseCursors.resizeUpRightDownLeft,
+          width: Scaler.size * 2,
+          height: Scaler.size * 2,
+          onDrag: onScaleTopRight,
+        );
     }
 
     return Align(alignment: alignment, child: widget);
