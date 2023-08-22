@@ -67,8 +67,8 @@ class Pagination<T, K extends Comparable, C> {
   @visibleForTesting
   C? endCursor;
 
-  /// [Mutex] for synchronized access to the [init] and [around].
-  final Mutex _initMutex = Mutex();
+  /// [Mutex] guarding synchronized access to the [init] and [around].
+  final Mutex _guard = Mutex();
 
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
@@ -93,7 +93,7 @@ class Pagination<T, K extends Comparable, C> {
 
   /// Fetches the initial [Page] of [items].
   Future<void> init(T? item) {
-    return _initMutex.protect(() async {
+    return _guard.protect(() async {
       final Page<T, C>? page = await provider.init(item, perPage);
       Log.print(
         'init(item: $item)... \n'
@@ -121,7 +121,7 @@ class Pagination<T, K extends Comparable, C> {
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) {
-    return _initMutex.protect(() async {
+    return _guard.protect(() async {
       Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
 
       final Page<T, C>? page = await provider.around(item, cursor, perPage);
@@ -279,7 +279,7 @@ class Page<T, C> {
 
 /// Utility providing the [Page]s.
 abstract class PageProvider<T, C> {
-  /// Loads the initial [Page] of items.
+  /// Initializes this [PageProvider], loading initial [Page], if any.
   Future<Page<T, C>?> init(T? item, int count);
 
   /// Fetches the [Page] around the provided [item] or [cursor].
@@ -296,7 +296,7 @@ abstract class PageProvider<T, C> {
   /// Adds the provided [item] to this [PageProvider].
   Future<void> put(T item);
 
-  /// Removes the provided [item] from this [PageProvider].
+  /// Removes the item specified by its [key] from this [PageProvider].
   Future<void> remove(String key);
 
   /// Clears this [PageProvider].

@@ -27,32 +27,37 @@ import '/store/model/page_info.dart';
 import '/store/pagination.dart';
 
 /// [PageProvider] fetching items from the [Hive].
+///
+/// [HiveLazyProvider] must be initialized and disposed properly manually.
 class HivePageProvider<T, C> implements PageProvider<T, C> {
   HivePageProvider(
-    this._hiveProvider, {
+    this._provider, {
     required this.getCursor,
     required this.getKey,
     this.isLast,
-    this.fromEnd = false,
+    this.reversed = false,
   });
 
-  /// [HiveLazyProvider] to fetch the items from.
-  HiveLazyProvider _hiveProvider;
-
-  /// Callback, called when a key of the provided [item] is required.
+  /// Callback, called when a key of the provided [T] is required.
   final String Function(T item) getKey;
 
-  /// Callback, called when a cursor of the provided [item] is required.
+  /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T? item) getCursor;
 
-  /// Callback, called to check the provided [item] is last.
+  /// Callback, called to check the provided [T] is last.
   final bool Function(T item)? isLast;
 
   /// Indicator whether fetching should start from the end.
-  bool fromEnd;
+  bool reversed;
 
-  /// Guard used to guarantee synchronous access to the [_hiveProvider].
+  /// [HiveLazyProvider] to fetch the items from.
+  HiveLazyProvider _provider;
+
+  /// Guard used to guarantee synchronous access to the [_provider].
   final Mutex _guard = Mutex();
+
+  /// Sets the provided [HiveLazyProvider] as the used one.
+  set provider(HiveLazyProvider value) => _provider = value;
 
   @override
   Future<Page<T, C>?> init(T? item, int count) => around(item, null, count);
@@ -60,33 +65,31 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
   @override
   Future<Page<T, C>?> around(T? item, C? cursor, int count) {
     return _guard.protect(() async {
-      if (_hiveProvider.keysSafe.isEmpty || item == null) {
+      if (_provider.keysSafe.isEmpty || item == null) {
         return null;
       }
 
       Iterable<dynamic>? keys;
       final key = getKey(item);
-      final int initialIndex = _hiveProvider.keysSafe.toList().indexOf(key);
+      final int initialIndex = _provider.keysSafe.toList().indexOf(key);
       if (initialIndex != -1) {
         if (initialIndex < (count ~/ 2)) {
-          keys = _hiveProvider.keysSafe
-              .take(count - ((count ~/ 2) - initialIndex));
+          keys = _provider.keysSafe.take(count - ((count ~/ 2) - initialIndex));
         } else {
-          keys = _hiveProvider.keysSafe
-              .skip(initialIndex - (count ~/ 2))
-              .take(count);
+          keys =
+              _provider.keysSafe.skip(initialIndex - (count ~/ 2)).take(count);
         }
       }
 
-      if (fromEnd) {
-        keys ??= _hiveProvider.keysSafe.toList().reversed.take(count);
+      if (reversed) {
+        keys ??= _provider.keysSafe.toList().reversed.take(count);
       } else {
-        keys ??= _hiveProvider.keysSafe.take(count);
+        keys ??= _provider.keysSafe.take(count);
       }
 
       List<T> items = [];
       for (var i in keys) {
-        final T? item = await _hiveProvider.getSafe(i) as T?;
+        final T? item = await _provider.getSafe(i) as T?;
         if (item != null) {
           items.add(item);
         }
@@ -104,11 +107,11 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
       }
 
       final key = getKey(item);
-      final index = _hiveProvider.keysSafe.toList().indexOf(key);
-      if (index != -1 && index < _hiveProvider.keysSafe.length - 1) {
+      final index = _provider.keysSafe.toList().indexOf(key);
+      if (index != -1 && index < _provider.keysSafe.length - 1) {
         List<T> items = [];
-        for (var i in _hiveProvider.keysSafe.skip(index + 1).take(count)) {
-          final T? item = await _hiveProvider.getSafe(i) as T?;
+        for (var i in _provider.keysSafe.skip(index + 1).take(count)) {
+          final T? item = await _provider.getSafe(i) as T?;
           if (item != null) {
             items.add(item);
           }
@@ -129,15 +132,15 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
       }
 
       final key = getKey(item);
-      final index = _hiveProvider.keysSafe.toList().indexOf(key);
+      final index = _provider.keysSafe.toList().indexOf(key);
       if (index > 0) {
         if (index < count) {
           count = index;
         }
 
         List<T> items = [];
-        for (var i in _hiveProvider.keysSafe.skip(index - count).take(count)) {
-          final T? item = await _hiveProvider.getSafe(i) as T?;
+        for (var i in _provider.keysSafe.skip(index - count).take(count)) {
+          final T? item = await _provider.getSafe(i) as T?;
           if (item != null) {
             items.add(item);
           }
@@ -152,19 +155,14 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
 
   @override
   Future<void> put(T item) =>
-      _guard.protect(() => _hiveProvider.putSafe(getKey(item), item!));
+      _guard.protect(() => _provider.putSafe(getKey(item), item!));
 
   @override
   Future<void> remove(String key) =>
-      _guard.protect(() => _hiveProvider.deleteSafe(key));
+      _guard.protect(() => _provider.deleteSafe(key));
 
   @override
-  Future<void> clear() => _guard.protect(() => _hiveProvider.clear());
-
-  /// Updates the [_hiveProvider] with the provided [provider].
-  void updateProvider(HiveLazyProvider provider) {
-    _hiveProvider = provider;
-  }
+  Future<void> clear() => _guard.protect(() => _provider.clear());
 
   /// Creates a [Page] from the provided [items].
   Page<T, C> _page(List<T> items) {
@@ -172,7 +170,7 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
     bool hasNext = true;
     if (lastItem != null && isLast != null) {
       hasNext = !isLast!.call(lastItem) &&
-          getKey(items.last) == _hiveProvider.keysSafe.last;
+          getKey(items.last) == _provider.keysSafe.last;
     }
 
     // [Hive] can't guarantee previous page existence based on the stored

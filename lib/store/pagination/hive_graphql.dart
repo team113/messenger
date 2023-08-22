@@ -26,7 +26,7 @@ import 'hive.dart';
 
 /// [HivePageProvider] and [GraphQlPageProvider] providers combined.
 class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
-  HiveGraphQlPageProvider({
+  const HiveGraphQlPageProvider({
     required this.hiveProvider,
     required this.graphQlProvider,
   });
@@ -36,6 +36,9 @@ class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
 
   /// [GraphQlPageProvider] fetching elements from the remote.
   final GraphQlPageProvider<T, C> graphQlProvider;
+
+  /// Makes the [hiveProvider] to use the provided [HiveLazyProvider].
+  set hive(HiveLazyProvider provider) => hiveProvider.provider = provider;
 
   @override
   Future<Page<T, C>?> init(T? item, int count) =>
@@ -99,10 +102,6 @@ class HiveGraphQlPageProvider<T, C> implements PageProvider<T, C> {
 
   @override
   Future<void> remove(String key) => hiveProvider.remove(key);
-
-  /// Updates the provider in the [hiveProvider] with the provided [provider].
-  void updateHiveProvider(HiveLazyProvider provider) =>
-      hiveProvider.updateProvider(provider);
 
   @override
   Future<void> clear() => hiveProvider.clear();
