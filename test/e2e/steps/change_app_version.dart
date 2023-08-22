@@ -20,12 +20,12 @@ import 'package:messenger/config.dart';
 
 import '../world/custom_world.dart';
 
-/// Changes version of the application.
+/// Changes [Config.version] to a `test.0.0.1` string.
 ///
 /// Examples:
 /// - When I change version of app
 final StepDefinitionGeneric changeAppVersion = then<CustomWorld>(
-  'I change version of app',
+  'Version of app has changed',
   (context) async {
     Config.version = 'test.0.0.1';
   },

@@ -21,7 +21,8 @@ Feature: Hive cache clearance on version change
     Given I am Alice
     And user Bob
     And Bob has dialog with me
+    Then I wait until `HomeView` is present
     
-    When I change version of app
+    When Version of app has changed
     And I restart app
     Then I wait until `AuthView` is present
