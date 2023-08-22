@@ -8,10 +8,13 @@ import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/page/login/view.dart';
+import 'package:messenger/ui/page/login/widget/sign_button.dart';
 import 'package:messenger/ui/page/vacancy/contact/view.dart';
 import 'package:messenger/ui/page/vacancy/widget/vacancy_description.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import 'controller.dart';
 
@@ -37,7 +40,7 @@ class VacancyBodyView extends StatelessWidget {
             shrinkWrap: !context.isNarrow,
             children: [
               const SizedBox(height: 4),
-              ..._content(context, vacancy),
+              ..._content(context, vacancy, c),
               Block(
                 children: [
                   Paddings.basic(
@@ -73,7 +76,11 @@ class VacancyBodyView extends StatelessWidget {
     );
   }
 
-  List<Widget> _content(BuildContext context, Vacancy vacancy) {
+  List<Widget> _content(
+    BuildContext context,
+    Vacancy vacancy,
+    VacancyBodyController c,
+  ) {
     final style = Theme.of(context).style;
 
     const double multiplier = 0.8;
@@ -293,6 +300,57 @@ https://github.com/instrumentisto/rust-incubator''',
               ),
             ],
           ),
+          Obx(() {
+            final Widget child;
+
+            if (c.status.value.isEmpty) {
+              return Block(
+                title: 'Задачи',
+                children: [
+                  ElevatedButton(
+                    onPressed: c.fetchIssues,
+                    child: const Text('Fetch'),
+                  ),
+                ],
+              );
+            } else if (c.status.value.isLoading) {
+              return const Block(
+                title: 'Задачи',
+                children: [Center(child: CustomProgressIndicator())],
+              );
+            } else if (c.status.value.isError) {
+              return Block(
+                title: 'Задачи',
+                children: [
+                  Text(c.status.value.errorMessage ?? 'Error'),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: c.fetchIssues,
+                    child: const Text('Try again'),
+                  ),
+                ],
+              );
+            }
+
+            return Block(
+              title: 'Задачи',
+              children: c.issues.map((e) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: ElevatedButton(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(e.title),
+                    ),
+                    onPressed: () {
+                      launchUrlString(e.url);
+                    },
+                    // subtitle: e.description == null ? null : Text(e.description!),
+                  ),
+                );
+              }).toList(),
+            );
+          }),
           const Block(
             children: [
               VacancyDescription(

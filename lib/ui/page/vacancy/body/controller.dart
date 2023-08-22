@@ -8,6 +8,7 @@ class VacancyBodyController extends GetxController {
   VacancyBodyController(this._authService);
 
   final RxList<GitHubIssue> issues = RxList();
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   final AuthService _authService;
 
@@ -30,6 +31,8 @@ class VacancyBodyController extends GetxController {
 
   void fetchIssues() async {
     await _issuesGuard.protect(() async {
+      status.value = RxStatus.loading();
+
       if (issues.isNotEmpty) {
         return;
       }
@@ -37,6 +40,20 @@ class VacancyBodyController extends GetxController {
       final response = await (await PlatformUtils.dio).get(
         'https://api.github.com/repos/team113/messenger/issues',
       );
+
+      if (response.statusCode == 200) {
+        issues.value = (response.data as List<dynamic>).map((e) {
+          return GitHubIssue(
+            title: e['title'],
+            description: e['body'],
+            url: e['html_url'],
+          );
+        }).toList();
+
+        status.value = RxStatus.success();
+      } else {
+        status.value = RxStatus.error(response.statusMessage);
+      }
     });
   }
 }
@@ -46,11 +63,13 @@ class GitHubIssue {
     required this.title,
     this.description,
     this.status = GitHubStatus.todo,
+    this.url = '',
   });
 
   final String title;
   final String? description;
   final GitHubStatus status;
+  final String url;
 }
 
 enum GitHubStatus { todo, wip, done }
