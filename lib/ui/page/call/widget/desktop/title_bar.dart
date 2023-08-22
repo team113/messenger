@@ -57,7 +57,7 @@ class TitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Container(
       key: const ValueKey('TitleBar'),
@@ -90,9 +90,7 @@ class TitleBar extends StatelessWidget {
                         child: Obx(() {
                           return Text(
                             'label_call_title'.l10nfmt(titleArguments()),
-                            style: fonts.labelMedium!.copyWith(
-                              color: style.colors.onPrimary,
-                            ),
+                            style: style.fonts.labelMediumOnPrimary,
                             overflow: TextOverflow.ellipsis,
                           );
                         }),

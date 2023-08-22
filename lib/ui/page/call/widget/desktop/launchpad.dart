@@ -74,7 +74,7 @@ class Launchpad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
@@ -156,9 +156,7 @@ class Launchpad extends StatelessWidget {
                                   const SizedBox(height: 6),
                                   Text(
                                     e.hint,
-                                    style: fonts.labelSmall!.copyWith(
-                                      color: style.colors.onPrimary,
-                                    ),
+                                    style: style.fonts.labelSmallOnPrimary,
                                     textAlign: TextAlign.center,
                                   )
                                 ],

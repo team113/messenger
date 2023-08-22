@@ -167,7 +167,7 @@ class SecondaryDecorator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     // [BorderRadius] to decorate the secondary panel with.
     final BorderRadius borderRadius = BorderRadius.circular(10);
@@ -346,16 +346,14 @@ class SecondaryDecorator extends StatelessWidget {
                                   Expanded(
                                     child: Text(
                                       'Draggable',
-                                      style: fonts.labelMedium!.copyWith(
-                                        color: style.colors.onPrimary,
-                                      ),
+                                      style: style.fonts.labelMediumOnPrimary,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   InkResponse(
                                     onTap: onTap,
-                                    child: SvgImage.asset(
+                                    child: const SvgImage.asset(
                                       'assets/icons/close.svg',
                                       height: 10.25,
                                     ),

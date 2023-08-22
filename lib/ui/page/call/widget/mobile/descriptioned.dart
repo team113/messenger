@@ -43,7 +43,7 @@ class Descriptioned extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -52,7 +52,7 @@ class Descriptioned extends StatelessWidget {
         const SizedBox(height: 6),
         if (description != null)
           DefaultTextStyle(
-            style: fonts.bodySmall!.copyWith(color: style.colors.onPrimary),
+            style: style.fonts.bodySmallOnPrimary,
             textAlign: TextAlign.center,
             maxLines: 2,
             child: AnimatedOpacity(

@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Tile representing a chat.
@@ -52,7 +51,7 @@ class ChatInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -81,22 +80,14 @@ class ChatInfoCard extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                chat?.title.value ?? 'dot'.l10n * 3,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: fonts.headlineLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
-                              ),
+                              child: Text(chat?.title.value ?? 'dot'.l10n * 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: style.fonts.headlineLargeOnPrimary),
                             ),
                             Obx(() {
-                              return Text(
-                                callDuration.value.hhMmSs(),
-                                style: fonts.labelLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
-                              );
+                              return Text(callDuration.value.hhMmSs(),
+                                  style: style.fonts.labelLargeOnPrimary);
                             }),
                           ],
                         ),
@@ -105,19 +96,13 @@ class ChatInfoCard extends StatelessWidget {
                           child: Row(
                             children: [
                               if (subtitle != null)
-                                Text(
-                                  subtitle!,
-                                  style: fonts.labelLarge!.copyWith(
-                                    color: style.colors.onPrimary,
-                                  ),
-                                ),
+                                Text(subtitle!,
+                                    style: style.fonts.labelLargeOnPrimary),
                               const Spacer(),
                               if (trailing != null)
                                 Text(
                                   trailing!,
-                                  style: fonts.labelLarge!.copyWith(
-                                    color: style.colors.onPrimary,
-                                  ),
+                                  style: style.fonts.labelLargeOnPrimary,
                                 ),
                             ],
                           ),
