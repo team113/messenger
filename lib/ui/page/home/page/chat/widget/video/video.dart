@@ -19,12 +19,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
-import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
@@ -54,13 +53,13 @@ class VideoView extends StatefulWidget {
   /// Callback, called when a toggle fullscreen action is fired.
   final VoidCallback? toggleFullscreen;
 
-  /// Callback, called when a [MeeduPlayerController] is assigned or disposed.
-  final void Function(MeeduPlayerController?)? onController;
+  /// Callback, called when a [VideoController] is assigned or disposed.
+  final void Function(VideoController?)? onController;
 
   /// Reactive indicator whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
-  /// Callback, called on the [MeeduPlayerController] initialization errors.
+  /// Callback, called on the [VideoController] initialization errors.
   final FutureOr<void> Function()? onError;
 
   /// [Duration] to initially show an user interface for.
@@ -81,15 +80,8 @@ class _VideoViewState extends State<VideoView> {
   /// [CancelToken] for cancelling the [VideoView.url] header fetching.
   CancelToken? _cancelToken;
 
-  /// [MeeduPlayerController] controlling the video playback.
-  final MeeduPlayerController _controller = MeeduPlayerController(
-    controlsStyle: ControlsStyle.custom,
-    fits: [BoxFit.contain],
-    initialFit: BoxFit.contain,
-    enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
-    loadingWidget: const SizedBox(),
-    showLogs: kDebugMode,
-  );
+  /// [VideoController] to display the first frame of the video.
+  final VideoController _controller = VideoController(Player());
 
   @override
   void initState() {
@@ -108,7 +100,7 @@ class _VideoViewState extends State<VideoView> {
   void dispose() {
     widget.onController?.call(null);
     _loading?.cancel();
-    _controller.dispose();
+    _controller.player.dispose();
     _cancelToken?.cancel();
     super.dispose();
   }
@@ -130,24 +122,21 @@ class _VideoViewState extends State<VideoView> {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      child: RxBuilder((_) {
-        return _controller.dataStatus.loaded
+      child: Builder(builder: (_) {
+        return _controller.player.state.width != null
             ? LayoutBuilder(builder: (_, constraints) {
-                Size? size;
+                Size? size = _controller.rect.value?.size;
 
-                if (_controller.videoPlayerController != null) {
-                  final double maxHeight = constraints.maxHeight;
-                  final double maxWidth = constraints.maxWidth;
+                final double maxHeight = constraints.maxHeight;
+                final double maxWidth = constraints.maxWidth;
 
-                  size = _controller.videoPlayerController!.value.size;
-
-                  if (maxHeight < size.height ||
-                      maxWidth < size.width ||
-                      widget.isFullscreen?.value == true) {
-                    final double ratio =
-                        min(maxHeight / size.height, maxWidth / size.width);
-                    size *= ratio;
-                  }
+                if (size != null &&
+                    (maxHeight < size.height ||
+                        maxWidth < size.width ||
+                        widget.isFullscreen?.value == true)) {
+                  final double ratio =
+                      min(maxHeight / size.height, maxWidth / size.width);
+                  size *= ratio;
                 }
 
                 return Stack(
@@ -155,10 +144,10 @@ class _VideoViewState extends State<VideoView> {
                     Center(
                       child: SizedBox.fromSize(
                         size: size,
-                        child: MeeduVideoPlayer(
+                        child: Video(
                           controller: _controller,
-                          customControls: (_, __, ___) => const SizedBox(),
-                          backgroundColor: style.colors.transparent,
+                          controls: (_) => const SizedBox(),
+                          fill: style.colors.transparent,
                         ),
                       ),
                     ),
@@ -176,59 +165,33 @@ class _VideoViewState extends State<VideoView> {
                   ],
                 );
               })
-            : _controller.dataStatus.error
-                ? Center(
-                    key: const Key('Error'),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error,
-                          size: 48,
-                          color: style.colors.dangerColor,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          _controller.errorText == null
-                              ? 'err_unknown'.l10n
-                              : _controller.errorText!,
-                          style: style.fonts.bodyMediumOnPrimary,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+            : GestureDetector(
+                key: Key(_loading != null ? 'Box' : 'Loading'),
+                onTap: () {
+                  // Intercept `onTap` event to prevent [GalleryPopup]
+                  // closing.
+                },
+                child: Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.99,
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    decoration: BoxDecoration(
+                      color: style.colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  )
-                : GestureDetector(
-                    key: Key(_loading != null ? 'Box' : 'Loading'),
-                    onTap: () {
-                      // Intercept `onTap` event to prevent [GalleryPopup]
-                      // closing.
-                    },
-                    child: Center(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.99,
-                        height: MediaQuery.of(context).size.height * 0.6,
-                        decoration: BoxDecoration(
-                          color: style.colors.transparent,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: _loading != null
-                            ? const SizedBox()
-                            : const Center(child: CustomProgressIndicator()),
-                      ),
-                    ),
-                  );
+                    child: _loading != null
+                        ? const SizedBox()
+                        : const Center(child: CustomProgressIndicator()),
+                  ),
+                ),
+              );
       }),
     );
   }
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    // TODO: [MeeduPlayerController.setDataSource] should be awaited.
-    //       https://github.com/zezo357/flutter_meedu_videoplayer/issues/102
-    _controller.setDataSource(
-      DataSource(type: DataSourceType.network, source: widget.url),
-    );
+    await _controller.player.open(Media(widget.url));
 
     _cancelToken?.cancel();
     _cancelToken = CancelToken();
@@ -240,9 +203,7 @@ class _VideoViewState extends State<VideoView> {
           await (await PlatformUtils.dio).head(widget.url);
           if (shouldReload) {
             // Reinitialize the [_controller] if an unexpected error was thrown.
-            await _controller.setDataSource(
-              DataSource(type: DataSourceType.network, source: widget.url),
-            );
+            await _controller.player.open(Media(widget.url));
           }
         } catch (e) {
           if (e is DioException && e.response?.statusCode == 403) {

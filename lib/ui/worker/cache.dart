@@ -158,6 +158,23 @@ class CacheWorker extends DisposableService {
     });
   }
 
+  /// Returns the [File] identified by its [checksum].
+  Future<File?> getFile(String? checksum) async {
+    if (checksum != null) {
+      final Directory? cache = await PlatformUtils.cacheDirectory;
+
+      if (cache != null) {
+        final File file = File('${cache.path}/$checksum');
+
+        if (await file.exists()) {
+          return file;
+        }
+      }
+    }
+
+    return null;
+  }
+
   /// Adds the provided [data] to the cache.
   FutureOr<void> add(Uint8List data, [String? checksum]) {
     checksum ??= sha256.convert(data).toString();

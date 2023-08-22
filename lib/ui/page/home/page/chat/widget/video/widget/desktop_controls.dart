@@ -20,8 +20,9 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
@@ -47,8 +48,8 @@ class DesktopControls extends StatefulWidget {
     this.barHeight,
   });
 
-  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
-  final MeeduPlayerController controller;
+  /// [VideoController] controlling the [Video] player functionality.
+  final VideoController controller;
 
   /// Height of the bottom controls bar.
   final double? barHeight;
@@ -105,17 +106,17 @@ class _DesktopControlsState extends State<DesktopControls>
   /// [Timer] for showing user interface for a while after fullscreen toggle.
   Timer? _showAfterExpandCollapseTimer;
 
-  /// [StreamSubscription] to the [MeeduPlayerController.playerStatus] changes.
-  StreamSubscription? _statusSubscription;
+  /// [StreamSubscription] to the [Player.stream.playing] changes.
+  StreamSubscription? _playingSubscription;
 
   /// Indicator whether the video or volume progress bar is being dragged.
   bool _dragging = false;
 
   @override
   void initState() {
-    _statusSubscription =
-        widget.controller.playerStatus.status.stream.listen((event) {
-      if (event == PlayerStatus.paused) {
+    _playingSubscription =
+        widget.controller.player.stream.playing.listen((playing) {
+      if (!playing) {
         _startInterfaceTimer(3.seconds);
       }
     });
@@ -129,7 +130,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   void dispose() {
-    _statusSubscription?.cancel();
+    _playingSubscription?.cancel();
     _hideTimer?.cancel();
     _interfaceTimer?.cancel();
     _bottomBarTimer?.cancel();
@@ -179,16 +180,20 @@ class _DesktopControlsState extends State<DesktopControls>
               ),
             ),
             // Play/pause button.
-            RxBuilder((_) {
-              return widget.controller.isBuffering.value
-                  ? const Center(child: CustomProgressIndicator())
-                  : CenteredPlayPause(
-                      widget.controller,
-                      show: (!_dragging && !_hideStuff || _showInterface) &&
-                          !widget.controller.playerStatus.playing,
-                      onPressed: _playPause,
-                    );
-            }),
+            StreamBuilder(
+              stream: widget.controller.player.stream.buffering,
+              initialData: widget.controller.player.state.buffering,
+              builder: (_, snapshot) {
+                return snapshot.data!
+                    ? const Center(child: CustomProgressIndicator())
+                    : CenteredPlayPause(
+                        widget.controller,
+                        show: (!_dragging && !_hideStuff || _showInterface) &&
+                            !widget.controller.player.state.playing,
+                        onPressed: _playPause,
+                      );
+              },
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [_buildBottomBar(context)],
@@ -276,11 +281,11 @@ class _DesktopControlsState extends State<DesktopControls>
                     height: widget.barHeight,
                     onTap: () {
                       _cancelAndRestartTimer();
-                      if (widget.controller.volume.value == 0) {
-                        widget.controller.setVolume(_latestVolume ?? 0.5);
+                      if (widget.controller.player.state.volume == 0) {
+                        widget.controller.player.setVolume(_latestVolume ?? 0.5);
                       } else {
-                        _latestVolume = widget.controller.volume.value;
-                        widget.controller.setVolume(0.0);
+                        _latestVolume = widget.controller.player.state.volume;
+                        widget.controller.player.setVolume(0.0);
                       }
                     },
                     onEnter: (_) {
@@ -356,18 +361,18 @@ class _DesktopControlsState extends State<DesktopControls>
   /// the playback is done.
   void _playPause() {
     final isFinished =
-        widget.controller.position.value >= widget.controller.duration.value;
+        widget.controller.player.state.completed;
 
-    if (widget.controller.playerStatus.playing) {
+    if (widget.controller.player.state.playing) {
       _cancelAndRestartTimer();
-      widget.controller.pause();
+      widget.controller.player.pause();
     } else {
       _cancelAndRestartTimer();
 
       if (isFinished) {
-        widget.controller.seekTo(const Duration());
+        widget.controller.player.seek(const Duration());
       }
-      widget.controller.play();
+      widget.controller.player.play();
     }
 
     setState(() {});

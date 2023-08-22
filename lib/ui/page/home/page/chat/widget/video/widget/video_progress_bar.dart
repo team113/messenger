@@ -16,7 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 import 'video_volume_bar.dart';
@@ -34,8 +35,8 @@ class ProgressBar extends StatefulWidget {
     this.drawShadow = true,
   });
 
-  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
-  final MeeduPlayerController controller;
+  /// [VideoController] controlling the [Video] player functionality.
+  final VideoController controller;
 
   /// Callback, called when progress drag started.
   final Function()? onDragStart;
@@ -76,70 +77,81 @@ class _ProgressBarState extends State<ProgressBar> {
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         color: style.colors.transparent,
-        child: RxBuilder((_) {
-          return MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: CustomPaint(
-              painter: _ProgressBarPainter(
-                duration: widget.controller.duration.value,
-                position: _latestDraggableOffset != null
-                    ? _relativePosition(_latestDraggableOffset!)
-                    : widget.controller.position.value,
-                buffered: widget.controller.buffered.value,
-                colors: ProgressBarColors(
-                  played: style.colors.primary,
-                  handle: style.colors.primary,
-                  buffered: style.colors.background.withOpacity(0.5),
-                  background: style.colors.secondary.withOpacity(0.5),
-                ),
-                barHeight: widget.barHeight,
-                handleHeight: widget.handleHeight,
-                drawShadow: widget.drawShadow,
-              ),
-            ),
-          );
-        }),
+        child: StreamBuilder(
+          stream: widget.controller.player.stream.buffer,
+          initialData: widget.controller.player.state.buffer,
+          builder: (_, buffer) {
+            return StreamBuilder(
+              stream: widget.controller.player.stream.position,
+              initialData: widget.controller.player.state.position,
+              builder: (_, position) {
+                return MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: CustomPaint(
+                    painter: _ProgressBarPainter(
+                      duration: widget.controller.player.state.duration,
+                      position: _latestDraggableOffset != null
+                          ? _relativePosition(_latestDraggableOffset!)
+                          : position.data!,
+                      buffered: buffer.data!,
+                      colors: ProgressBarColors(
+                        played: style.colors.primary,
+                        handle: style.colors.primary,
+                        buffered: style.colors.background.withOpacity(0.5),
+                        background: style.colors.secondary.withOpacity(0.5),
+                      ),
+                      barHeight: widget.barHeight,
+                      handleHeight: widget.handleHeight,
+                      drawShadow: widget.drawShadow,
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
 
     return GestureDetector(
       onHorizontalDragStart: (DragStartDetails details) {
-        if (!widget.controller.dataStatus.loaded) {
-          return;
-        }
-        _controllerWasPlaying = widget.controller.playerStatus.playing;
+        _controllerWasPlaying = widget.controller.player.state.playing;
         if (_controllerWasPlaying) {
-          widget.controller.pause();
+          widget.controller.player.pause();
         }
 
         widget.onDragStart?.call();
       },
       onHorizontalDragUpdate: (DragUpdateDetails details) {
-        if (!widget.controller.dataStatus.loaded) {
-          return;
-        }
         _latestDraggableOffset = details.globalPosition;
         setState(() {});
 
         widget.onDragUpdate?.call();
       },
-      onHorizontalDragEnd: (DragEndDetails details) {
+      onHorizontalDragEnd: (DragEndDetails details) async {
         if (_controllerWasPlaying) {
-          widget.controller.play();
+          widget.controller.player.play();
         }
 
         if (_latestDraggableOffset != null) {
-          widget.controller.seekTo(_relativePosition(_latestDraggableOffset!));
-          _latestDraggableOffset = null;
+          await widget.controller.player
+              .seek(_relativePosition(_latestDraggableOffset!));
+
+          // TODO: Remove [SchedulerBinding]s when media-kit/media-kit#396 is
+          //       fixed:
+          //       https://github.com/media-kit/media-kit/issues/396
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => SchedulerBinding.instance.addPostFrameCallback(
+              (_) => _latestDraggableOffset = null,
+            ),
+          );
         }
 
         widget.onDragEnd?.call();
       },
       onTapDown: (TapDownDetails details) {
-        if (!widget.controller.dataStatus.loaded) {
-          return;
-        }
-        widget.controller.seekTo(_relativePosition(details.globalPosition));
+        widget.controller.player
+            .seek(_relativePosition(details.globalPosition));
       },
       child: child,
     );
@@ -151,7 +163,7 @@ class _ProgressBarState extends State<ProgressBar> {
     final Offset position = box.globalToLocal(globalPosition);
     if (position.dx > 0) {
       final double relative = position.dx / box.size.width;
-      return widget.controller.duration.value * relative;
+      return widget.controller.player.state.duration * relative;
     } else {
       return Duration.zero;
     }
@@ -177,7 +189,7 @@ class _ProgressBarPainter extends CustomPainter {
   Duration position;
 
   /// [List] of buffered [DurationRange]s.
-  List<DurationRange> buffered;
+  Duration buffered;
 
   /// [ProgressBarColors] theme of this [_ProgressBarPainter].
   ProgressBarColors colors;
@@ -213,20 +225,20 @@ class _ProgressBarPainter extends CustomPainter {
         position.inMilliseconds / duration.inMilliseconds;
     final double playedPart =
         playedPartPercent > 1 ? size.width : playedPartPercent * size.width;
-    for (final DurationRange range in buffered) {
-      final double start = range.startFraction(duration) * size.width;
-      final double end = range.endFraction(duration) * size.width;
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromPoints(
-            Offset(start, baseOffset),
-            Offset(end, baseOffset + barHeight),
-          ),
-          const Radius.circular(4.0),
+
+    final double end =
+        (buffered.inMilliseconds / duration.inMilliseconds) * size.width;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromPoints(
+          Offset(0, baseOffset),
+          Offset(end, baseOffset + barHeight),
         ),
-        colors.buffered,
-      );
-    }
+        const Radius.circular(4.0),
+      ),
+      colors.buffered,
+    );
+
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromPoints(

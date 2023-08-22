@@ -17,21 +17,17 @@
 
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
-import 'src/interface.dart'
-    if (dart.library.io) 'src/io.dart'
-    if (dart.library.html) 'src/web.dart';
 
 /// Thumbnail displaying the first frame of the provided video.
 class VideoThumbnail extends StatefulWidget {
@@ -78,20 +74,10 @@ class VideoThumbnail extends StatefulWidget {
 }
 
 /// State of a [VideoThumbnail], used to initialize and dispose a
-/// [MeeduPlayerController].
+/// [VideoController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
-  /// [MeeduPlayerController] to display the first frame of the video.
-  final MeeduPlayerController _controller = MeeduPlayerController(
-    controlsStyle: ControlsStyle.custom,
-    enabledOverlays: const EnabledOverlays(volume: false, brightness: false),
-    loadingWidget: const SizedBox(),
-    showLogs: kDebugMode,
-    initialFit: BoxFit.cover,
-  );
-
-  // TODO: Should be kept in a cache file service.
-  /// Temporary file containing the [VideoThumbnail.bytes].
-  File? _file;
+  /// [VideoController] to display the first frame of the video.
+  final VideoController _controller = VideoController(Player());
 
   /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
   CancelToken? _cancelToken;
@@ -104,7 +90,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller.player.dispose();
     _cancelToken?.cancel();
     super.dispose();
   }
@@ -113,7 +99,6 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   void didUpdateWidget(VideoThumbnail oldWidget) {
     if (oldWidget.bytes != widget.bytes || oldWidget.url != widget.url) {
       _initVideo();
-      _file?.delete();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -125,100 +110,90 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 200),
-      child: RxBuilder((_) {
-        double width = 0;
-        double height = 0;
+      child: StreamBuilder(
+          stream: _controller.player.stream.width,
+          builder: (_, __) {
+            double width = 0;
+            double height = 0;
 
-        if (widget.width != null && widget.height != null) {
-          width = widget.width!;
-          height = widget.height!;
-        } else if (_controller.videoPlayerController?.value.isInitialized ==
-            true) {
-          width = _controller.videoPlayerController!.value.size.width;
-          height = _controller.videoPlayerController!.value.size.height;
+            if (widget.width != null && widget.height != null) {
+              width = widget.width!;
+              height = widget.height!;
+            } else if (_controller.player.state.width != null) {
+              width = _controller.player.state.width!.toDouble();
+              height = _controller.player.state.height!.toDouble();
 
-          if (widget.height != null) {
-            width = width * widget.height! / height;
-            height = widget.height!;
-          }
-        }
-        return _controller.dataStatus.loaded
-            ? SizedBox(
-                width: width,
-                height: height,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    ClipRect(
-                      child: FittedBox(
-                        fit: BoxFit.cover,
-                        child: SizedBox(
-                          width: _controller
-                                  .videoPlayerController?.value.size.width ??
-                              1920,
-                          height: _controller
-                                  .videoPlayerController?.value.size.height ??
-                              1080,
-                          child: IgnorePointer(
-                            child: MeeduVideoPlayer(
-                              controller: _controller,
-                              customControls: (_, __, ___) => const SizedBox(),
+              if (widget.height != null) {
+                width = width * widget.height! / height;
+                height = widget.height!;
+              }
+            }
+
+            return _controller.player.state.width != null
+                ? SizedBox(
+                    width: width,
+                    height: height,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ClipRect(
+                          child: FittedBox(
+                            fit: BoxFit.cover,
+                            child: SizedBox(
+                              width:
+                                  _controller.player.state.width?.toDouble() ??
+                                      1920,
+                              height:
+                                  _controller.player.state.height?.toDouble() ??
+                                      1080,
+                              child: IgnorePointer(
+                                child: Video(
+                                  controller: _controller,
+                                  fit: BoxFit.cover,
+                                  controls: (_) => const SizedBox(),
+                                  //customControls: (_, __, ___) => const SizedBox(),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    ContextMenuInterceptor(child: const SizedBox()),
+                        ContextMenuInterceptor(child: const SizedBox()),
 
-                    // [Container] for receiving pointer events over this
-                    // [VideoThumbnail], since the [ContextMenuInterceptor] above
-                    // intercepts them.
-                    Container(color: style.colors.transparent),
-                  ],
-                ),
-              )
-            : SizedBox(
-                width: widget.width ?? 250,
-                height: widget.height ?? 250,
-              );
-      }),
+                        // [Container] for receiving pointer events over this
+                        // [VideoThumbnail], since the [ContextMenuInterceptor] above
+                        // intercepts them.
+                        Container(color: style.colors.transparent),
+                      ],
+                    ),
+                  )
+                : SizedBox(
+                    width: widget.width ?? 250,
+                    height: widget.height ?? 250,
+                  );
+          }),
     );
   }
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
+    File? file;
     if (bytes == null &&
         widget.checksum != null &&
         CacheWorker.instance.exists(widget.checksum!)) {
-      bytes = await CacheWorker.instance.get(checksum: widget.checksum!);
+      file = await CacheWorker.instance.getFile(widget.checksum!);
     }
-
-    final DataSource source;
 
     if (bytes != null) {
-      if (PlatformUtils.isWeb) {
-        source = DataSourceExt.bytes(bytes);
-      } else {
-        final String checksum =
-            widget.checksum ?? sha256.convert(bytes).toString();
-
-        _file = File('${(await getTemporaryDirectory()).path}/$checksum');
-        if (!_file!.existsSync() || _file!.lengthSync() != bytes.length) {
-          _file!.writeAsBytesSync(bytes);
-        }
-
-        source = DataSource(type: DataSourceType.file, file: _file);
-      }
+      await _controller.player.open(await Media.memory(bytes), play: false);
     } else {
-      source = DataSource(type: DataSourceType.network, source: widget.url);
+      await _controller.player.open(
+        Media(file?.path ?? widget.url!),
+        play: false,
+      );
     }
 
-    // TODO: [MeeduPlayerController.setDataSource] should be awaited.
-    //       https://github.com/zezo357/flutter_meedu_videoplayer/issues/102
-    _controller.setDataSource(source, autoplay: false);
-
-    if (widget.url != null && bytes == null) {
+    if (widget.url != null && bytes == null && file == null) {
       _cancelToken?.cancel();
       _cancelToken = CancelToken();
 
@@ -232,10 +207,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
             // Reinitialize the [_controller] if an unexpected error was
             // thrown.
             if (shouldReload) {
-              _controller.setDataSource(
-                DataSource(type: DataSourceType.network, source: widget.url),
-                autoplay: false,
-              );
+              await _controller.player.open(Media(widget.url!), play: false);
             }
           } catch (e) {
             if (e is DioException && e.response?.statusCode == 403) {
