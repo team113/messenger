@@ -151,7 +151,6 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                                   controller: _controller,
                                   fit: BoxFit.cover,
                                   controls: (_) => const SizedBox(),
-                                  //customControls: (_, __, ___) => const SizedBox(),
                                 ),
                               ),
                             ),
