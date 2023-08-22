@@ -116,8 +116,10 @@ class MyUserRepository implements AbstractMyUserRepository {
     if (await PlatformUtils.isActive) _initKeepOnlineSubscription();
 
     _onActivityChanged = PlatformUtils.onActivityChanged.listen((active) {
-      if (active && _keepOnlineSubscription == null) {
-        _initKeepOnlineSubscription();
+      if (active) {
+        if (_keepOnlineSubscription == null) {
+          _initKeepOnlineSubscription();
+        }
       } else {
         _keepOnlineSubscription?.cancel();
         _keepOnlineSubscription = null;
