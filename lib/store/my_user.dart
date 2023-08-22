@@ -113,7 +113,9 @@ class MyUserRepository implements AbstractMyUserRepository {
     _initRemoteSubscription();
     _initBlacklistSubscription();
 
-    if (await PlatformUtils.isActive) _initKeepOnlineSubscription();
+    if (await PlatformUtils.isActive) {
+      _initKeepOnlineSubscription();
+    }
 
     _onActivityChanged = PlatformUtils.onActivityChanged.listen((active) {
       if (active) {
