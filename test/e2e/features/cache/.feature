@@ -15,14 +15,12 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Hive cache clearance on version change
+Feature: Cache clearing
 
-  Scenario: User is logged out after version change
+  Scenario: Cache is cleaned when application version updates
     Given I am Alice
-    And user Bob
-    And Bob has dialog with me
     Then I wait until `HomeView` is present
-    
-    When Version of app has changed
+
+    When application version is updated
     And I restart app
     Then I wait until `AuthView` is present

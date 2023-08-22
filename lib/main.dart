@@ -139,7 +139,7 @@ Future<void> main() async {
     (options) => {
       options.dsn = Config.sentryDsn,
       options.tracesSampleRate = 1.0,
-      options.release = '${Pubspec.name}@${Pubspec.version}',
+      options.release = '${Pubspec.name}@${Config.version ?? Pubspec.version}',
       options.debug = true,
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
@@ -204,8 +204,8 @@ Future<void> _initHive() async {
 
   // Load and compare application version.
   Box box = await Hive.openBox('version');
-  String version = Config.version ?? Pubspec.version;
-  String? stored = box.get(0);
+  final String version = Config.version ?? Pubspec.version;
+  final String? stored = box.get(0);
 
   // If mismatch is detected, then clean the existing [Hive] cache.
   if (stored != version) {

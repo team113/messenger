@@ -23,10 +23,8 @@ import '../world/custom_world.dart';
 /// Changes [Config.version] to a `test.0.0.1` string.
 ///
 /// Examples:
-/// - When I change version of app
-final StepDefinitionGeneric changeAppVersion = then<CustomWorld>(
-  'Version of app has changed',
-  (context) async {
-    Config.version = 'test.0.0.1';
-  },
+/// - When application version is updated
+final StepDefinitionGeneric updateAppVersion = then<CustomWorld>(
+  'application version is updated',
+  (context) async => Future.sync(() => Config.version = 'test.0.0.1'),
 );
