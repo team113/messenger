@@ -918,7 +918,6 @@ class ChatController extends GetxController {
     }
 
     _ensureScrollable();
-
     _ignorePositionChanges = false;
   }
 

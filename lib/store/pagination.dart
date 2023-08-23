@@ -236,7 +236,7 @@ class Pagination<T, K extends Comparable, C> {
     }
   }
 
-  /// Removes the item with the provided [key] from the [items].
+  /// Removes the item with the provided [key] from the [items] and [provider].
   Future<void> remove(K key) {
     items.remove(key);
     return provider.remove(key);
