@@ -30,7 +30,7 @@ class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,
     required this.chat,
-    required this.titleArguments,
+    required this.title,
     this.height,
     this.onTap,
     this.toggleFullscreen,
@@ -46,8 +46,8 @@ class TitleBar extends StatelessWidget {
   /// [RxChat] to display in this [TitleBar].
   final RxChat? chat;
 
-  /// Callback returned reactive arguments to construct the title.
-  final Map<String, String> Function() titleArguments;
+  /// Title of this [TitleBar].
+  final String title;
 
   /// Callback, called when this [TitleBar] is tapped.
   final void Function()? onTap;
@@ -89,7 +89,7 @@ class TitleBar extends StatelessWidget {
                       Flexible(
                         child: Obx(() {
                           return Text(
-                            'label_call_title'.l10nfmt(titleArguments()),
+                            title,
                             style: style.fonts.labelMediumOnPrimary,
                             overflow: TextOverflow.ellipsis,
                           );

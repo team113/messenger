@@ -445,26 +445,27 @@ Widget desktopCall(CallController c, BuildContext context) {
                       return AnimatedOpacity(
                         duration: const Duration(milliseconds: 150),
                         opacity: c.displayMore.value ? 1 : 0,
-                        child: c.displayMore.value
-                            ? Launchpad(
-                                items: c.panel,
-                                feedbackSize: CallController.buttonSize,
-                                onEnter: enabled ? (d) => c.keepUi(true) : null,
-                                onHover: enabled ? (d) => c.keepUi(true) : null,
-                                onExit: enabled ? (d) => c.keepUi() : null,
-                                onAccept: (CallButton data) {
-                                  c.buttons.remove(data);
-                                  c.draggedButton.value = null;
-                                },
-                                onWillAccept: (CallButton? a) =>
-                                    a?.c == c && a?.isRemovable == true,
-                                onDragStarted: (e) {
-                                  c.showDragAndDropButtonsHint = false;
-                                  c.draggedButton.value = e;
-                                },
-                                onDragEnd: () => c.draggedButton.value = null,
-                              )
-                            : const SizedBox(),
+                        child: IgnorePointer(
+                          ignoring: !c.displayMore.value,
+                          child: Launchpad(
+                            items: c.panel,
+                            feedbackSize: CallController.buttonSize,
+                            onEnter: enabled ? (d) => c.keepUi(true) : null,
+                            onHover: enabled ? (d) => c.keepUi(true) : null,
+                            onExit: enabled ? (d) => c.keepUi() : null,
+                            onAccept: (CallButton data) {
+                              c.buttons.remove(data);
+                              c.draggedButton.value = null;
+                            },
+                            onWillAccept: (CallButton? a) =>
+                                a?.c == c && a?.isRemovable == true,
+                            onDragStarted: (e) {
+                              c.showDragAndDropButtonsHint = false;
+                              c.draggedButton.value = e;
+                            },
+                            onDragEnd: () => c.draggedButton.value = null,
+                          ),
+                        ),
                       );
                     }),
                   ],
@@ -792,8 +793,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                   ),
                   child: Obx(
                     () => TitleBar(
+                      title: 'label_call_title'.l10nfmt(c.titleArguments),
                       chat: c.chat.value,
-                      titleArguments: () => c.titleArguments,
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
                       toggleFullscreen: c.toggleFullscreen,
@@ -1399,54 +1400,66 @@ Widget _secondaryView(CallController c, BuildContext context) {
         onEnter: (p) => c.secondaryHovered.value = true,
         onHover: (p) => c.secondaryHovered.value = true,
         onExit: (p) => c.secondaryHovered.value = false,
-        onScaleCenterLeft: (dx, dy) => c.resizeSecondary(
-          context,
-          x: ScaleModeX.left,
-          dx: dx,
-        ),
-        onScaleCenterRight: (dx, dy) => c.resizeSecondary(
-          context,
-          x: ScaleModeX.right,
-          dx: -dx,
-        ),
-        onScaleBottomCenter: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.bottom,
-          dy: -dy,
-        ),
-        onScaleTopCenter: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.top,
-          dy: dy,
-        ),
-        onScaleTopLeft: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.top,
-          x: ScaleModeX.left,
-          dx: dx,
-          dy: dy,
-        ),
-        onScaleTopRight: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.top,
-          x: ScaleModeX.right,
-          dx: -dx,
-          dy: dy,
-        ),
-        onScaleBottomLeft: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.bottom,
-          x: ScaleModeX.left,
-          dx: dx,
-          dy: -dy,
-        ),
-        onScaleBottomRight: (dx, dy) => c.resizeSecondary(
-          context,
-          y: ScaleModeY.bottom,
-          x: ScaleModeX.right,
-          dx: -dx,
-          dy: -dy,
-        ),
+        onScale: (dx, dy) {
+          switch (c.secondaryAlignment.value) {
+            case Alignment.bottomLeft:
+              c.resizeSecondary(
+                context,
+                y: ScaleModeY.bottom,
+                x: ScaleModeX.left,
+                dx: dx,
+                dy: -dy,
+              );
+            case Alignment.bottomCenter:
+              c.resizeSecondary(
+                context,
+                y: ScaleModeY.bottom,
+                dy: -dy,
+              );
+            case Alignment.bottomRight:
+              c.resizeSecondary(
+                context,
+                y: ScaleModeY.bottom,
+                x: ScaleModeX.right,
+                dx: -dx,
+                dy: -dy,
+              );
+            case Alignment.centerLeft:
+              c.resizeSecondary(
+                context,
+                x: ScaleModeX.left,
+                dx: dx,
+              );
+            case Alignment.centerRight:
+              c.resizeSecondary(
+                context,
+                x: ScaleModeX.right,
+                dx: -dx,
+              );
+            case Alignment.topLeft:
+              c.resizeSecondary(
+                context,
+                y: ScaleModeY.top,
+                x: ScaleModeX.left,
+                dx: dx,
+                dy: dy,
+              );
+            case Alignment.topCenter:
+              c.resizeSecondary(
+                context,
+                y: ScaleModeY.top,
+                dy: dy,
+              );
+            case Alignment.topRight:
+              c.resizeSecondary(
+                context,
+                y: ScaleModeY.top,
+                x: ScaleModeX.right,
+                dx: -dx,
+                dy: dy,
+              );
+          }
+        },
         child: ReorderableFit<DragData>(
           key: const Key('SecondaryFitView'),
           onAdded: (d, i) => c.unfocus(d.participant),

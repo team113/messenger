@@ -46,14 +46,7 @@ class SecondaryDecorator extends StatelessWidget {
     this.onEnter,
     this.onHover,
     this.onExit,
-    this.onScaleCenterLeft,
-    this.onScaleCenterRight,
-    this.onScaleBottomCenter,
-    this.onScaleTopCenter,
-    this.onScaleTopLeft,
-    this.onScaleTopRight,
-    this.onScaleBottomLeft,
-    this.onScaleBottomRight,
+    this.onScale,
     this.withBlur = true,
     this.changeCursor = true,
     this.showDragTarget = true,
@@ -107,36 +100,8 @@ class SecondaryDecorator extends StatelessWidget {
   final Widget? child;
 
   /// Callback, called when the delta drag of the left side of the `x` and
-  /// the center side of the `y` is triggered.
-  final void Function(double, double)? onScaleCenterLeft;
-
-  /// Callback, called when the delta drag of the right side of the `x` and
-  /// the center side of the `y` is triggered.
-  final void Function(double, double)? onScaleCenterRight;
-
-  /// Callback, called when the delta drag of the center side of the `x` and
   /// the bottom side of the `y` is triggered.
-  final void Function(double, double)? onScaleBottomCenter;
-
-  /// Callback, called when the delta drag of the center side of the `x` and
-  /// the top side of the `y` is triggered.
-  final void Function(double, double)? onScaleTopCenter;
-
-  /// Callback, called when the delta drag of the left side of the `x` and
-  /// the top side of the `y` is triggered.
-  final void Function(double, double)? onScaleTopLeft;
-
-  /// Callback, called when the delta drag of the right side of the `x` and
-  /// the top side of the `y` is triggered.
-  final void Function(double, double)? onScaleTopRight;
-
-  /// Callback, called when the delta drag of the left side of the `x` and
-  /// the bottom side of the `y` is triggered.
-  final void Function(double, double)? onScaleBottomLeft;
-
-  /// Callback, called when the delta drag of the right side of the `x` and
-  /// the bottom side of the `y` is triggered.
-  final void Function(double, double)? onScaleBottomRight;
+  final void Function(double, double)? onScale;
 
   /// Callback, called when scaling is ended.
   final void Function(DragEndDetails)? onScaleEnd;
@@ -521,13 +486,13 @@ class SecondaryDecorator extends StatelessWidget {
               : SystemMouseCursors.resizeUpRightDownLeft,
           width: Scaler.size * 2,
           height: Scaler.size * 2,
-          onDrag: onScaleBottomLeft,
+          onDrag: onScale,
         );
       case Alignment.bottomCenter:
         widget = scaler(
           cursor: SystemMouseCursors.resizeUpDown,
           width: width - Scaler.size,
-          onDrag: onScaleBottomCenter,
+          onDrag: onScale,
         );
       case Alignment.bottomRight:
         widget = scaler(
@@ -537,19 +502,19 @@ class SecondaryDecorator extends StatelessWidget {
               : SystemMouseCursors.resizeUpLeftDownRight,
           width: Scaler.size * 2,
           height: Scaler.size * 2,
-          onDrag: onScaleBottomRight,
+          onDrag: onScale,
         );
       case Alignment.centerLeft:
         widget = scaler(
           cursor: SystemMouseCursors.resizeLeftRight,
           height: height - Scaler.size,
-          onDrag: onScaleCenterLeft,
+          onDrag: onScale,
         );
       case Alignment.centerRight:
         widget = scaler(
           cursor: SystemMouseCursors.resizeLeftRight,
           height: height - Scaler.size,
-          onDrag: onScaleCenterRight,
+          onDrag: onScale,
         );
       case Alignment.topLeft:
         widget = scaler(
@@ -559,13 +524,13 @@ class SecondaryDecorator extends StatelessWidget {
               : SystemMouseCursors.resizeUpLeftDownRight,
           width: Scaler.size * 2,
           height: Scaler.size * 2,
-          onDrag: onScaleTopLeft,
+          onDrag: onScale,
         );
       case Alignment.topCenter:
         widget = scaler(
           cursor: SystemMouseCursors.resizeUpDown,
           width: width - Scaler.size,
-          onDrag: onScaleTopCenter,
+          onDrag: onScale,
         );
       case Alignment.topRight:
         widget = scaler(
@@ -574,7 +539,7 @@ class SecondaryDecorator extends StatelessWidget {
               : SystemMouseCursors.resizeUpRightDownLeft,
           width: Scaler.size * 2,
           height: Scaler.size * 2,
-          onDrag: onScaleTopRight,
+          onDrag: onScale,
         );
     }
 
