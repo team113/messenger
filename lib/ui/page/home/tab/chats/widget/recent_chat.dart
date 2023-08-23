@@ -688,7 +688,7 @@ class RecentChatTile extends StatelessWidget {
           content = FittedBox(
             fit: BoxFit.cover,
             child: VideoThumbnail.bytes(
-              bytes: e.file.bytes.value!,
+              e.file.bytes.value!,
               key: key,
               height: 300,
             ),
@@ -733,7 +733,7 @@ class RecentChatTile extends StatelessWidget {
         content = FittedBox(
           fit: BoxFit.cover,
           child: VideoThumbnail.url(
-            url: e.original.url,
+            e.original.url,
             checksum: e.original.checksum,
             key: key,
             height: 300,

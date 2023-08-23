@@ -73,14 +73,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  auto_orientation:
-    dependency: transitive
-    description:
-      name: auto_orientation
-      sha256: cd56bb59b36fa54cc28ee254bc600524f022a4862f31d5ab20abd7bb1c54e678
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.1"
   back_button_interceptor:
     dependency: "direct main"
     description:
@@ -637,22 +629,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_meedu:
-    dependency: transitive
-    description:
-      name: flutter_meedu
-      sha256: "7be568c2df5036cd050358b589f2b3de3318562710f9a64ea364da5fd7eeafe7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "8.3.1"
-  flutter_meedu_videoplayer:
-    dependency: "direct main"
-    description:
-      name: flutter_meedu_videoplayer
-      sha256: "5d687cca1681041b1ca078de3abd677b4e97d9a5b141009963927c43438b7ad9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.2.22"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -724,14 +700,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  fullscreen_window:
-    dependency: transitive
-    description:
-      name: fullscreen_window
-      sha256: fe3014f91bff16a82d142ba9d834980b8a84b4bb03347a92588d389ad92bd1d3
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.4"
   get:
     dependency: "direct main"
     description:
@@ -1152,10 +1120,18 @@ packages:
     dependency: "direct main"
     description:
       name: media_kit
-      sha256: "1e6ea59b5f81d1db038ac5394c38cd3ad2f5e50bdf36f12154dee6fa04221bcb"
+      sha256: d7a827080fb28f0ba4e8a7ab3f3e3f868fa817f0a94499640466ade84a1c31c9
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.5"
+  media_kit_libs_android_video:
+    dependency: "direct main"
+    description:
+      name: media_kit_libs_android_video
+      sha256: "142d389bf3efcf8469594a9c7a06a92fc25843fc6c0c3247f76cdcf70b3b29de"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.2"
   media_kit_libs_ios_video:
     dependency: "direct main"
     description:
@@ -1165,23 +1141,23 @@ packages:
     source: hosted
     version: "1.1.3"
   media_kit_libs_linux:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: media_kit_libs_linux
-      sha256: "21acc71cbae3518b3aeef9023a6a3a3decb579a40153764333814987ccd61040"
+      sha256: "570bf18ebbd1221caec082657468be05d180510385d3515ec38e0be44fdcc859"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.1.1"
   media_kit_libs_macos_video:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: media_kit_libs_macos_video
-      sha256: "28ad624666cd20ed78f96a26917dddf6f286ea4bab21620676cc59ba62f3d3e5"
+      sha256: c06e831f3c22a45296d375788d9bc07871b448f8e9ec98d77b11e5e118a83fb2
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.6"
+    version: "1.1.3"
   media_kit_libs_windows_video:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: media_kit_libs_windows_video
       sha256: f33aabd8414470d99e2c91dd98d605e6a5f1c4b8082dd933c10951bc961b9124
@@ -1189,29 +1165,21 @@ packages:
     source: hosted
     version: "1.0.7"
   media_kit_native_event_loop:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: media_kit_native_event_loop
-      sha256: "5351f0c28124b5358756515d8619abad182cdefe967468d7fb5b274737cc2f59"
+      sha256: e37ce6fb5fa71b8cf513c6a6cd591367743a342a385e7da621a047dd8ef6f4a4
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.6"
+    version: "1.0.7"
   media_kit_video:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: media_kit_video
-      sha256: "55edf96bcf08f8bd158018d77afd10d5411f9f3b657fb34a4cd5690caec91596"
+      sha256: d4143a96d97965d025bbb8b88db0ebf301e3c4cfa10c7e2ad7fd47c86a7febae
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
-  meedu:
-    dependency: transitive
-    description:
-      name: meedu
-      sha256: "2cac0971ea211b1a18e3c4f038369f8ac57401760342da16d9e4e9d043f7de38"
-      url: "https://pub.dev"
-    source: hosted
-    version: "8.0.2"
+    version: "1.1.6"
   meta:
     dependency: transitive
     description:
@@ -2123,54 +2091,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.1"
-  video_player:
-    dependency: transitive
-    description:
-      name: video_player
-      sha256: "3fd106c74da32f336dc7feb65021da9b0207cb3124392935f1552834f7cce822"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.7.0"
-  video_player_android:
-    dependency: transitive
-    description:
-      name: video_player_android
-      sha256: f338a5a396c845f4632959511cad3542cdf3167e1b2a1a948ef07f7123c03608
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.9"
-  video_player_avfoundation:
-    dependency: transitive
-    description:
-      name: video_player_avfoundation
-      sha256: f5f5b7fe8c865be8a57fe80c2dca130772e1db775b7af4e5c5aa1905069cfc6c
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.9"
-  video_player_media_kit:
-    dependency: transitive
-    description:
-      name: video_player_media_kit
-      sha256: "7472fca414cfe372560d9328a3da9e57d9ba1de4af7ed8d887ce6a9868dc2430"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.22"
-  video_player_platform_interface:
-    dependency: transitive
-    description:
-      name: video_player_platform_interface
-      sha256: "1ca9acd7a0fb15fb1a990cb554e6f004465c6f37c99d2285766f08a4b2802988"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.2.0"
-  video_player_web:
-    dependency: transitive
-    description:
-      name: video_player_web
-      sha256: "44ce41424d104dfb7cf6982cc6b84af2b007a24d126406025bf40de5d481c74c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.16"
   vm_service:
     dependency: transitive
     description:

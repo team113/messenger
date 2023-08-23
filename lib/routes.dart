@@ -334,25 +334,31 @@ class AppRouteInformationParser
   @override
   SynchronousFuture<RouteConfiguration> parseRouteInformation(
       RouteInformation routeInformation) {
-    RouteConfiguration configuration;
-    switch (routeInformation.location) {
+    final RouteConfiguration configuration;
+
+    switch (routeInformation.uri.path) {
       case Routes.funds:
         configuration = RouteConfiguration(Routes.home, HomeTab.funds);
         break;
+
       case Routes.contacts:
         configuration = RouteConfiguration(Routes.home, HomeTab.contacts);
         break;
+
       case Routes.chats:
         configuration = RouteConfiguration(Routes.home, HomeTab.chats);
         break;
+
       case Routes.menu:
         configuration = RouteConfiguration(Routes.home, HomeTab.menu);
         break;
+
       case Routes.public:
         configuration = RouteConfiguration(Routes.home, HomeTab.public);
         break;
+
       default:
-        configuration = RouteConfiguration(routeInformation.location!, null);
+        configuration = RouteConfiguration(routeInformation.uri.path, null);
         break;
     }
 

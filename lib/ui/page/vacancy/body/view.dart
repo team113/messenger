@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/vacancy.dart';
@@ -287,6 +288,92 @@ https://github.com/instrumentisto/rust-incubator''',
               const SizedBox(height: 16 * multiplier),
               const VacancyDescription('https://github.com/team113/messenger'),
             ],
+          ),
+          const Block(
+            title: 'Деньги',
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                // - деньги обсуждаются только приватно;
+                child: VacancyDescription(
+                  '''- стоимость, способы оплаты и сроки выполнения каждой задачи обсуждаются приватно в индивидуальном порядке;
+- оплата по факту выполнения задачи. Выполненной считается задача, прошедшая ревью;
+- заключается договор.''',
+                ),
+              ),
+            ],
+          ),
+          Block(
+            title: 'Требования к коду',
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
+                TextSpan(
+                  children: [
+                    const TextSpan(text: '- код должен отвечать правилам '),
+                    TextSpan(
+                      text: 'Contribution Guide',
+                      style: TextStyle(color: style.colors.primary),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => launchUrlString(
+                              'https://github.com/team113/messenger/blob/main/CONTRIBUTING.md',
+                            ),
+                    ),
+                    const TextSpan(text: ';'),
+                  ],
+                ),
+              ),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    const TextSpan(
+                      text:
+                          '- код должен быть покрыт документацией по правилам ',
+                    ),
+                    TextSpan(
+                      text: 'Effective Dart: Documentation',
+                      style: TextStyle(color: style.colors.primary),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => launchUrlString(
+                              'https://dart.dev/effective-dart/documentation',
+                            ),
+                    ),
+                    const TextSpan(text: ';'),
+                  ],
+                ),
+              ),
+              const Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          '- при необходимости код должен быть покрыт модульными, виджет и/или интеграционными тестами.',
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Block(
+            title: 'Ревью',
+            children: [
+              VacancyDescription(
+                '''- выполненная задача должна пройти ревью кода;
+- ревью кода, пояснения, комментарии ведутся публично на GitHub.''',
+              )
+            ],
+          ),
+          const Block(
+            title: 'Оплата',
+            children: [VacancyDescription('''...''')],
+          ),
+          const Block(
+            title: 'Оплата',
+            children: [VacancyDescription('''...''')],
+          ),
+          const Block(
+            title: 'Оплата',
+            children: [VacancyDescription('''...''')],
           ),
           const Block(
             title: 'Условия',

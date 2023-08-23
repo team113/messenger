@@ -16,6 +16,11 @@ class VacancyBodyController extends GetxController {
 
   final Mutex _issuesGuard = Mutex();
 
+ @override void onInit() {
+    fetchIssues();
+    super.onInit();
+  }
+
   Future<void> useLink() async {
     router.useLink(
       'HR-Gapopa',
