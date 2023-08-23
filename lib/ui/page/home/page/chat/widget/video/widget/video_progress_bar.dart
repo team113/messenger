@@ -15,8 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
@@ -65,8 +66,27 @@ class _ProgressBarState extends State<ProgressBar> {
   /// Indicator whether video was playing when `dragStart` event triggered.
   bool _controllerWasPlaying = false;
 
-  /// [Offset] to seek to on `dragEnd` event.
-  Offset? _latestDraggableOffset;
+  /// Current position of this [ProgressBar].
+  late Duration _position;
+
+  /// [StreamSubscription] for the [VideoController] position changes updating
+  /// the [_position].
+  StreamSubscription? _positionSubscription;
+
+  @override
+  void initState() {
+    _position = widget.controller.player.state.position;
+    _positionSubscription =
+        widget.controller.player.stream.position.listen((e) => _position = e);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _positionSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,32 +101,24 @@ class _ProgressBarState extends State<ProgressBar> {
           stream: widget.controller.player.stream.buffer,
           initialData: widget.controller.player.state.buffer,
           builder: (_, buffer) {
-            return StreamBuilder(
-              stream: widget.controller.player.stream.position,
-              initialData: widget.controller.player.state.position,
-              builder: (_, position) {
-                return MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: CustomPaint(
-                    painter: _ProgressBarPainter(
-                      duration: widget.controller.player.state.duration,
-                      position: _latestDraggableOffset != null
-                          ? _relativePosition(_latestDraggableOffset!)
-                          : position.data!,
-                      buffered: buffer.data!,
-                      colors: ProgressBarColors(
-                        played: style.colors.primary,
-                        handle: style.colors.primary,
-                        buffered: style.colors.background.withOpacity(0.5),
-                        background: style.colors.secondary.withOpacity(0.5),
-                      ),
-                      barHeight: widget.barHeight,
-                      handleHeight: widget.handleHeight,
-                      drawShadow: widget.drawShadow,
-                    ),
+            return MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: CustomPaint(
+                painter: _ProgressBarPainter(
+                  duration: widget.controller.player.state.duration,
+                  position: _position,
+                  buffered: buffer.data!,
+                  colors: ProgressBarColors(
+                    played: style.colors.primary,
+                    handle: style.colors.primary,
+                    buffered: style.colors.background.withOpacity(0.5),
+                    background: style.colors.secondary.withOpacity(0.5),
                   ),
-                );
-              },
+                  barHeight: widget.barHeight,
+                  handleHeight: widget.handleHeight,
+                  drawShadow: widget.drawShadow,
+                ),
+              ),
             );
           },
         ),
@@ -123,28 +135,16 @@ class _ProgressBarState extends State<ProgressBar> {
         widget.onDragStart?.call();
       },
       onHorizontalDragUpdate: (DragUpdateDetails details) {
-        _latestDraggableOffset = details.globalPosition;
+        _position = _relativePosition(details.globalPosition);
         setState(() {});
 
         widget.onDragUpdate?.call();
       },
       onHorizontalDragEnd: (DragEndDetails details) async {
+        await widget.controller.player.seek(_position);
+
         if (_controllerWasPlaying) {
           widget.controller.player.play();
-        }
-
-        if (_latestDraggableOffset != null) {
-          await widget.controller.player
-              .seek(_relativePosition(_latestDraggableOffset!));
-
-          // TODO: Remove [SchedulerBinding]s when media-kit/media-kit#396 is
-          //       fixed:
-          //       https://github.com/media-kit/media-kit/issues/396
-          SchedulerBinding.instance.addPostFrameCallback(
-            (_) => SchedulerBinding.instance.addPostFrameCallback(
-              (_) => _latestDraggableOffset = null,
-            ),
-          );
         }
 
         widget.onDragEnd?.call();
