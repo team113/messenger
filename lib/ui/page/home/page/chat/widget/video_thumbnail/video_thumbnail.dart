@@ -175,7 +175,6 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
-
     if (bytes == null &&
         widget.checksum != null &&
         CacheWorker.instance.exists(widget.checksum!)) {
