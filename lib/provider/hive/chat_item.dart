@@ -34,7 +34,7 @@ import 'base.dart';
 part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
-class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
+class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem, ChatItemKey> {
   ChatItemHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
@@ -83,21 +83,21 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
   }
 
-  /// Returns a list of [ChatItemKey]s stored in the [Hive].
+  @override
   Iterable<ChatItemKey> get keys =>
       keysSafe.map((e) => ChatItemKey.fromString(e));
 
   /// Returns a list of [ChatItem]s from [Hive].
   Future<Iterable<HiveChatItem>> get messages => valuesSafe;
 
-  /// Puts the provided [ChatItem] to [Hive].
+  @override
   Future<void> put(HiveChatItem item) =>
       putSafe(item.value.key.toString(), item);
 
-  /// Returns a [ChatItem] from [Hive] by its [key].
+  @override
   Future<HiveChatItem?> get(ChatItemKey key) => getSafe(key.toString());
 
-  /// Removes a [ChatItem] from [Hive] by the provided [key].
+  @override
   Future<void> remove(ChatItemKey key) => deleteSafe(key.toString());
 }
 

@@ -152,7 +152,8 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 }
 
 /// Base class for data providers backed by [Hive] using [LazyBox].
-abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
+abstract class HiveLazyProvider<T extends Object, K>
+    extends DisposableInterface {
   /// [LazyBox] that contains all of the data.
   late LazyBox<T> _box;
 
@@ -196,6 +197,9 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
     return [];
   }
+
+  /// Returns a list of [K] keys stored in the [Hive].
+  Iterable<K> get keys;
 
   @protected
   void registerAdapters();
@@ -254,7 +258,9 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
   Future<void> putSafe(dynamic key, T value) async {
     if (_isReady && _box.isOpen) {
-      await _box.put(key, value);
+      return _mutex.protect(() async {
+        await _box.put(key, value);
+      });
     }
   }
 
@@ -262,7 +268,9 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// the given [key], if any.
   Future<T?> getSafe(dynamic key, {T? defaultValue}) async {
     if (_isReady && _box.isOpen) {
-      return _box.get(key, defaultValue: defaultValue);
+      return _mutex.protect(() async {
+        return _box.get(key, defaultValue: defaultValue);
+      });
     }
     return null;
   }
@@ -271,10 +279,21 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// the [box].
   Future<void> deleteSafe(dynamic key, {T? defaultValue}) {
     if (_isReady && _box.isOpen) {
-      return _box.delete(key);
+      return _mutex.protect(() async {
+        await _box.delete(key);
+      });
     }
     return Future.value();
   }
+
+  /// Puts the provided [item] to [Hive].
+  Future<void> put(T item);
+
+  /// Returns a [T] item from [Hive] by its [key].
+  Future<T?> get(K key);
+
+  /// Removes a [T] item from [Hive] by the provided [key].
+  Future<void> remove(K key);
 }
 
 extension HiveRegisterAdapter on HiveInterface {

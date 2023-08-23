@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:mutex/mutex.dart';
 
 import '/provider/hive/base.dart';
 import '/store/model/page_info.dart';
@@ -29,17 +28,18 @@ import '/store/pagination.dart';
 /// [PageProvider] fetching items from the [Hive].
 ///
 /// [HiveLazyProvider] must be initialized and disposed properly manually.
-class HivePageProvider<T, C> implements PageProvider<T, C> {
+class HivePageProvider<T extends Object, C, K>
+    implements PageProvider<T, C, K> {
   HivePageProvider(
     this._provider, {
     required this.getCursor,
     required this.getKey,
     this.isLast,
-    this.reversed = false,
+    this.strategy = PaginationStrategy.fromStart,
   });
 
   /// Callback, called when a key of the provided [T] is required.
-  final String Function(T item) getKey;
+  final K Function(T item) getKey;
 
   /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T? item) getCursor;
@@ -47,130 +47,124 @@ class HivePageProvider<T, C> implements PageProvider<T, C> {
   /// Callback, called to check the provided [T] is last.
   final bool Function(T item)? isLast;
 
-  /// Indicator whether fetching should start from the end.
-  bool reversed;
+  /// [PaginationStrategy] of this [HivePageProvider].
+  PaginationStrategy strategy;
 
   /// [HiveLazyProvider] to fetch the items from.
-  HiveLazyProvider _provider;
-
-  /// Guard used to guarantee synchronous access to the [_provider].
-  final Mutex _guard = Mutex();
+  HiveLazyProvider<T, K> _provider;
 
   /// Sets the provided [HiveLazyProvider] as the used one.
-  set provider(HiveLazyProvider value) => _provider = value;
+  set provider(HiveLazyProvider<T, K> value) => _provider = value;
 
   @override
   Future<Page<T, C>?> init(T? item, int count) => around(item, null, count);
 
   @override
-  Future<Page<T, C>?> around(T? item, C? cursor, int count) {
-    return _guard.protect(() async {
-      if (_provider.keysSafe.isEmpty || item == null) {
-        return null;
-      }
+  Future<Page<T, C>?> around(T? item, C? cursor, int count) async {
+    if (_provider.keys.isEmpty || item == null) {
+      return null;
+    }
 
-      Iterable<dynamic>? keys;
-      final key = getKey(item);
-      final int initialIndex = _provider.keysSafe.toList().indexOf(key);
-      if (initialIndex != -1) {
-        if (initialIndex < (count ~/ 2)) {
-          keys = _provider.keysSafe.take(count - ((count ~/ 2) - initialIndex));
-        } else {
-          keys =
-              _provider.keysSafe.skip(initialIndex - (count ~/ 2)).take(count);
-        }
-      }
-
-      if (reversed) {
-        keys ??= _provider.keysSafe.toList().reversed.take(count);
+    Iterable<dynamic>? keys;
+    final key = getKey(item);
+    final Iterable<K> providerKeys = _provider.keys;
+    final int initialIndex = providerKeys.toList().indexOf(key);
+    if (initialIndex != -1) {
+      if (initialIndex < (count ~/ 2)) {
+        keys = providerKeys.take(count - ((count ~/ 2) - initialIndex));
       } else {
-        keys ??= _provider.keysSafe.take(count);
+        keys = providerKeys.skip(initialIndex - (count ~/ 2)).take(count);
       }
+    }
 
+    switch (strategy) {
+      case PaginationStrategy.fromStart:
+        keys ??= providerKeys.take(count);
+        break;
+      case PaginationStrategy.fromEnd:
+        keys ??= providerKeys.skip(
+          (providerKeys.length - count).clamp(0, double.maxFinite.toInt()),
+        );
+        break;
+    }
+
+    List<T> items = [];
+    for (var i in keys) {
+      final T? item = await _provider.get(i);
+      if (item != null) {
+        items.add(item);
+      }
+    }
+
+    return _page(items);
+  }
+
+  @override
+  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
+    if (item == null) {
+      return null;
+    }
+
+    final key = getKey(item);
+    final index = _provider.keys.toList().indexOf(key);
+    if (index != -1 && index < _provider.keys.length - 1) {
       List<T> items = [];
-      for (var i in keys) {
-        final T? item = await _provider.getSafe(i) as T?;
+      for (var k in _provider.keys.skip(index + 1).take(count)) {
+        final T? item = await _provider.get(k);
         if (item != null) {
           items.add(item);
         }
       }
 
       return _page(items);
-    });
-  }
+    }
 
-  @override
-  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
-    return _guard.protect(() async {
-      if (item == null) {
-        return null;
-      }
-
-      final key = getKey(item);
-      final index = _provider.keysSafe.toList().indexOf(key);
-      if (index != -1 && index < _provider.keysSafe.length - 1) {
-        List<T> items = [];
-        for (var i in _provider.keysSafe.skip(index + 1).take(count)) {
-          final T? item = await _provider.getSafe(i) as T?;
-          if (item != null) {
-            items.add(item);
-          }
-        }
-
-        return _page(items);
-      }
-
-      return null;
-    });
+    return null;
   }
 
   @override
   FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
-    return _guard.protect(() async {
-      if (item == null) {
-        return null;
-      }
-
-      final key = getKey(item);
-      final index = _provider.keysSafe.toList().indexOf(key);
-      if (index > 0) {
-        if (index < count) {
-          count = index;
-        }
-
-        List<T> items = [];
-        for (var i in _provider.keysSafe.skip(index - count).take(count)) {
-          final T? item = await _provider.getSafe(i) as T?;
-          if (item != null) {
-            items.add(item);
-          }
-        }
-
-        return _page(items);
-      }
-
+    if (item == null) {
       return null;
-    });
+    }
+
+    final K key = getKey(item);
+    final int index = _provider.keys.toList().indexOf(key);
+    if (index > 0) {
+      if (index < count) {
+        count = index;
+      }
+
+      List<T> items = [];
+      for (var i in _provider.keys.skip(index - count).take(count)) {
+        final T? item = await _provider.get(i);
+        if (item != null) {
+          items.add(item);
+        }
+      }
+
+      return _page(items);
+    }
+
+    return null;
   }
 
   @override
-  Future<void> put(T item) =>
-      _guard.protect(() => _provider.putSafe(getKey(item), item!));
+  Future<void> put(T item) => _provider.put(item);
 
   @override
-  Future<void> remove(String key) =>
-      _guard.protect(() => _provider.deleteSafe(key));
+  Future<void> remove(K key) => _provider.remove(key);
 
   @override
-  Future<void> clear() => _guard.protect(() => _provider.clear());
+  Future<void> clear() => _provider.clear();
 
   /// Creates a [Page] from the provided [items].
   Page<T, C> _page(List<T> items) {
     final T? lastItem = items.lastWhereOrNull((e) => getCursor(e) != null);
     bool hasNext = true;
     if (lastItem != null && isLast != null) {
-      hasNext = !isLast!.call(lastItem) &&
-          getKey(items.last) == _provider.keysSafe.last;
+      hasNext =
+          !isLast!.call(lastItem) && getKey(items.last) == _provider.keys.last;
     }
 
     // [Hive] can't guarantee previous page existence based on the stored

@@ -41,7 +41,7 @@ class Pagination<T, K extends Comparable, C> {
   final RxObsSplayTreeMap<K, T> items = RxObsSplayTreeMap();
 
   /// [PageProvider] providing the [items].
-  final PageProvider<T, C> provider;
+  final PageProvider<T, C, K> provider;
 
   /// Indicator whether the [items] have next page.
   final RxBool hasNext = RxBool(true);
@@ -239,7 +239,7 @@ class Pagination<T, K extends Comparable, C> {
   /// Removes the item with the provided [key] from the [items].
   Future<void> remove(K key) {
     items.remove(key);
-    return provider.remove(key.toString());
+    return provider.remove(key);
   }
 }
 
@@ -278,7 +278,7 @@ class Page<T, C> {
 }
 
 /// Utility providing the [Page]s.
-abstract class PageProvider<T, C> {
+abstract class PageProvider<T, C, K> {
   /// Initializes this [PageProvider], loading initial [Page], if any.
   Future<Page<T, C>?> init(T? item, int count);
 
@@ -297,8 +297,17 @@ abstract class PageProvider<T, C> {
   Future<void> put(T item);
 
   /// Removes the item specified by its [key] from this [PageProvider].
-  Future<void> remove(String key);
+  Future<void> remove(K key);
 
   /// Clears this [PageProvider].
   Future<void> clear();
+}
+
+/// Possible strategies for pagination.
+enum PaginationStrategy {
+  /// Pagination starts from first page.
+  fromStart,
+
+  /// Pagination starts from last page.
+  fromEnd,
 }
