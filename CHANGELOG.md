@@ -22,12 +22,14 @@ All user visible changes to this project will be documented in this file. This p
     - Context menu with fading effect on desktop. ([#506])
     - Profile page:
         - Sections highlighting. ([#513], [#385])
+    - Display online status only when application is active. ([#522])
 
 [#385]: /../../issues/385
 [#439]: /../../issues/439
 [#492]: /../../pull/492
 [#506]: /../../pull/506
 [#513]: /../../pull/513
+[#522]: /../../pull/522
 
 
 
