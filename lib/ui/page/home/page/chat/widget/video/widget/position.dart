@@ -18,8 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
-import '/themes.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 
 /// Current position and duration of the provided [controller].
 class CurrentPosition extends StatelessWidget {
@@ -42,7 +43,7 @@ class CurrentPosition extends StatelessWidget {
         return Text(
           'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
           style: style.fonts.labelMediumOnPrimary,
-        );
+        ).fixedDigits();
       },
     );
   }

@@ -150,8 +150,10 @@ class _ProgressBarState extends State<ProgressBar> {
         widget.onDragEnd?.call();
       },
       onTapDown: (TapDownDetails details) {
-        widget.controller.player
-            .seek(_relativePosition(details.globalPosition));
+        _position = _relativePosition(details.globalPosition);
+        setState(() {});
+
+        widget.controller.player.seek(_position);
       },
       child: child,
     );
