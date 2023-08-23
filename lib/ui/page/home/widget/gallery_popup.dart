@@ -277,6 +277,9 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [PhotoViewController] for zooming [PhotoViewGallery] in and out.
   final PhotoViewController _photoController = PhotoViewController();
 
+  // TODO: This is a hack for a feature that should be implemented in
+  //       `photo_view` directly:
+  //       https://github.com/bluefireteam/photo_view/issues/425
   /// [AnimationController] animating the [_photoController] scaling in.
   late final AnimationController _photo = AnimationController(
     vsync: this,
