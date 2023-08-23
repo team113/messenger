@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -322,6 +323,10 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     Future.delayed(Duration.zero, _displayControls);
 
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack);
+    }
+
     super.initState();
   }
 
@@ -333,6 +338,11 @@ class _GalleryPopupState extends State<GalleryPopup>
     if (_isFullscreen.isTrue) {
       _exitFullscreen();
     }
+
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.dispose();
   }
 
@@ -1168,6 +1178,16 @@ class _GalleryPopupState extends State<GalleryPopup>
     _photo
       ..reset()
       ..forward();
+  }
+
+  /// Invokes [_dismiss].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    _dismiss();
+    return true;
   }
 }
 
