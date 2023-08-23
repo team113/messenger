@@ -29,6 +29,7 @@ import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/store/chat.dart';
 import '/store/model/chat_item.dart';
+import '/store/model/page_info.dart';
 import 'call.dart';
 import 'file.dart';
 import 'user.dart';
@@ -63,7 +64,7 @@ extension ChatConversion on ChatMixin {
             lastReads.map((e) => LastChatRead(e.memberId, e.at)).toList(),
         lastDelivery: lastDelivery,
         lastItem: lastItem?.toHive().value,
-        lastReadItem: lastReadItem?.toHive().value,
+        lastReadItem: lastReadItem?.toHive().value.id,
         unreadCount: unreadCount,
         totalCount: totalCount,
         ongoingCall: ongoingCall?.toModel(),
@@ -97,9 +98,8 @@ extension ChatInfoConversion on ChatInfoMixin {
   ChatInfo toModel() => ChatInfo(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
-        author: author.toModel(),
         action: action.toModel(),
       );
 
@@ -153,7 +153,7 @@ extension ChatMessageConversion on ChatMessageMixin {
       ChatMessage(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         repliesTo: items.map((e) => e.value).toList(),
         text: text,
@@ -173,7 +173,7 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
   ChatMessage toModel() => ChatMessage(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         repliesTo: [],
         text: text,
@@ -199,7 +199,7 @@ extension ChatForwardConversion on ChatForwardMixin {
       ChatForward(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         quote: item.value,
       ),
@@ -220,7 +220,7 @@ extension NestedChatForwardConversion on NestedChatForwardMixin {
       ChatForward(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         quote: item.value,
       ),
@@ -549,10 +549,10 @@ extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
       }
     } else if (node.$$typename == 'ChatForward') {
       var message = node as GetAttachments$Query$ChatItem$Node$ChatForward;
-      if (message.quote.original?.node.$$typename == 'ChatMessage') {
-        var node = message.quote.original?.node
-            as GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage;
-        attachments.addAll(node.attachments.map((e) => e.toModel()));
+      if (message.quote.$$typename == 'ChatMessageQuote') {
+        var quote = message.quote
+            as GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote;
+        attachments.addAll(quote.attachments.map((e) => e.toModel()));
       }
     }
 
@@ -570,11 +570,11 @@ extension GetAttachmentsChatMessageAttachmentConversion
 }
 
 /// Extension adding models construction from
-/// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments].
+/// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments].
 extension GetAttachmentsChatForwardAttachmentConversion
-    on GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments {
+    on GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments {
   /// Constructs a new [Attachment] from this
-  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments].
+  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments].
   Attachment toModel() => _attachment(this);
 }
 
@@ -623,6 +623,17 @@ extension EventChatMuted$DurationConversion
             as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
         .until);
   }
+}
+
+/// Extension adding models construction from [PageInfoMixin].
+extension PageInfoConversion on PageInfoMixin {
+  /// Constructs a new [PageInfo] from this [PageInfoMixin].
+  PageInfo<T> toModel<T>(T Function(String cursor) cursor) => PageInfo<T>(
+        hasPrevious: hasPreviousPage,
+        hasNext: hasNextPage,
+        startCursor: startCursor == null ? null : cursor(startCursor!),
+        endCursor: endCursor == null ? null : cursor(endCursor!),
+      );
 }
 
 /// Constructs a new [Attachment] based on the [node].

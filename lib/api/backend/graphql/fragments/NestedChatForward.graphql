@@ -18,7 +18,10 @@
 fragment NestedChatForward on ChatForward {
     id
     chatId
-    authorId
+    author {
+        __typename
+        ...User
+    }
     at
     ver
     quote {

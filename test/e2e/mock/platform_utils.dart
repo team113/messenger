@@ -34,8 +34,10 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     int? size, {
     String? path,
     bool downloadIfExist = false,
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
   }) async {
     int total = 100;
     for (int count = 0; count <= total; count++) {
@@ -51,4 +53,9 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
 
   @override
   void copy({String? text}) => clipboard = text;
+
+  @override
+  void keepActive([bool active = true]) {
+    // No-op.
+  }
 }

@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -30,7 +31,10 @@ import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
 import '../widget/hint.dart';
-import '../widget/participant.dart';
+import '../widget/notification.dart';
+import '../widget/participant/decorator.dart';
+import '../widget/participant/overlay.dart';
+import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
@@ -55,11 +59,13 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
+  final style = Theme.of(context).style;
+
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
       List<Widget> content = [
-        SvgImage.asset(
+        const SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
           height: double.infinity,
@@ -91,7 +97,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 height: height,
                 width: width,
-                color: const Color(0x4D165084),
+                color: style.colors.onSecondaryOpacity20,
               ),
             ),
           );
@@ -222,12 +228,47 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: const Color(0x70000000),
+                color: style.colors.onBackgroundOpacity40,
               ),
             );
           }
 
           return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+        }),
+
+        // Reconnection indicator.
+        Obx(() {
+          final Widget child = IgnorePointer(
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: style.colors.onBackgroundOpacity70,
+              padding: const EdgeInsets.all(21.0),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SpinKitDoubleBounce(
+                      color: style.colors.secondaryHighlightDark,
+                      size: 100 / 1.5,
+                      duration: const Duration(milliseconds: 4500),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'label_reconnecting_ellipsis'.l10n,
+                      style: style.fonts.bodyMediumOnPrimary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+
+          return AnimatedOpacity(
+            opacity: c.connectionLost.isTrue ? 1 : 0,
+            duration: 200.milliseconds,
+            child: child,
+          );
         }),
 
         possibleContainer(),
@@ -301,11 +342,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                       : (d) => c.keepUi(),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.transparent,
+                      color: style.colors.transparent,
                       borderRadius: BorderRadius.circular(30),
-                      boxShadow: const [
+                      boxShadow: [
                         CustomBoxShadow(
-                          color: Color(0x33000000),
+                          color: style.colors.onBackgroundOpacity20,
                           blurRadius: 8,
                           blurStyle: BlurStyle.outer,
                         )
@@ -318,7 +359,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0x301D6AAE),
+                          color: style.colors.onSecondaryOpacity20,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         padding: const EdgeInsets.symmetric(
@@ -409,11 +450,11 @@ Widget desktopCall(CallController c, BuildContext context) {
               onExit: enabled ? (d) => c.keepUi() : null,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.transparent,
+                  color: style.colors.transparent,
                   borderRadius: BorderRadius.circular(30),
-                  boxShadow: const [
+                  boxShadow: [
                     CustomBoxShadow(
-                      color: Color(0x33000000),
+                      color: style.colors.onBackgroundOpacity20,
                       blurRadius: 8,
                       blurStyle: BlurStyle.outer,
                     )
@@ -428,8 +469,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                       duration: const Duration(milliseconds: 150),
                       decoration: BoxDecoration(
                         color: candidate.any((e) => e?.c == c)
-                            ? const Color(0xE0165084)
-                            : const Color(0x9D165084),
+                            ? style.colors.onSecondaryOpacity88
+                            : style.colors.onSecondaryOpacity60,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -482,10 +523,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       const SizedBox(height: 6),
                                       Text(
                                         e.hint,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.white,
-                                        ),
+                                        style: style.fonts.labelSmallOnPrimary,
                                         textAlign: TextAlign.center,
                                       )
                                     ],
@@ -599,7 +637,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       c.primary
                           .where((e) => e.video.value?.renderer.value != null)
                           .isNotEmpty
-                  ? Container(color: const Color(0x55000000))
+                  ? Container(color: style.colors.onBackgroundOpacity27)
                   : null,
             );
           }),
@@ -668,9 +706,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    boxShadow: const [
+                    boxShadow: [
                       CustomBoxShadow(
-                        color: Color(0x33000000),
+                        color: style.colors.onBackgroundOpacity20,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -685,7 +723,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0x301D6AAE),
+                        color: style.colors.onSecondaryOpacity20,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(
@@ -694,10 +732,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: context.textTheme.bodyLarge?.copyWith(
-                          fontSize: 13,
-                          color: const Color(0xFFFFFFFF),
-                        ),
+                        style: style.fonts.labelMediumOnPrimary,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -811,41 +846,28 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // If there's any error to show, display it.
-        Obx(() {
-          return AnimatedSwitcher(
-            duration: 150.milliseconds,
-            child: c.errorTimeout.value != 0
-                ? Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.topCenter
-                            ? 10 + c.secondaryHeight.value
-                            : 10,
-                        right: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.centerRight
-                            ? 10 + c.secondaryWidth.value
-                            : 10,
-                      ),
-                      child: SizedBox(
-                        width: 320,
-                        child: HintWidget(
-                          text: '${c.error}.',
-                          onTap: () {
-                            c.errorTimeout.value = 0;
-                          },
-                          isError: true,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(),
-          );
-        }),
+        // If there's any notifications to show, display them.
+        Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Obx(() {
+              if (c.notifications.isEmpty) {
+                return const SizedBox();
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: c.notifications.reversed.take(3).map((e) {
+                  return CallNotificationWidget(
+                    e,
+                    onClose: () => c.notifications.remove(e),
+                  );
+                }).toList(),
+              );
+            }),
+          ),
+        ),
 
         Obx(() {
           if (c.minimized.value && !c.fullscreen.value) {
@@ -858,7 +880,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
       // Combines all the stackable content into [Scaffold].
       Widget scaffold = Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: style.colors.onBackground,
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -872,11 +894,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.transparent,
+                    color: style.colors.transparent,
                     borderRadius: BorderRadius.circular(30),
-                    boxShadow: const [
+                    boxShadow: [
                       CustomBoxShadow(
-                        color: Color(0x33000000),
+                        color: style.colors.onBackgroundOpacity20,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       )
@@ -1117,9 +1139,11 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
+      final style = Theme.of(context).style;
+
       return Container(
         key: const ValueKey('TitleBar'),
-        color: const Color(0xFF162636),
+        color: style.colors.backgroundAuxiliaryLight,
         height: CallController.titleHeight,
         child: Stack(
           alignment: Alignment.center,
@@ -1154,10 +1178,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: context.textTheme.bodyLarge?.copyWith(
-                            fontSize: 13,
-                            color: const Color(0xFFFFFFFF),
-                          ),
+                          style: style.fonts.labelMediumOnPrimary,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -1197,6 +1218,8 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
+  final style = Theme.of(router.context!).style;
+
   return Obx(() {
     void onDragEnded(_DragData d) {
       c.primaryDrags.value = 0;
@@ -1217,7 +1240,7 @@ Widget _primaryView(CallController c) {
             if (d?.chatId == c.chatId.value) {
               if (d?.participant.member.id.userId != c.me.id.userId ||
                   d?.participant.video.value?.source !=
-                      MediaSourceKind.Display) {
+                      MediaSourceKind.display) {
                 c.primaryTargets.value = 1;
               }
 
@@ -1253,7 +1276,7 @@ Widget _primaryView(CallController c) {
               return Obx(() {
                 bool? muted = participant.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
-                    : participant.audio.value?.isMuted.value ?? false;
+                    : null;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -1306,7 +1329,7 @@ Widget _primaryView(CallController c) {
                       actions: [
                         if (participant.video.value?.renderer.value !=
                             null) ...[
-                          if (participant.source == MediaSourceKind.Device)
+                          if (participant.source == MediaSourceKind.device)
                             ContextMenuButton(
                               label: fit == null || fit == BoxFit.cover
                                   ? 'btn_call_do_not_cut_video'.l10n
@@ -1361,7 +1384,7 @@ Widget _primaryView(CallController c) {
                               onPressed: () =>
                                   c.toggleAudioEnabled(participant),
                             ),
-                          if (participant.member.isRedialing.isFalse)
+                          if (participant.member.isDialing.isFalse)
                             ContextMenuButton(
                               label: 'btn_call_remove_participant'.l10n,
                               onPressed: () => c.removeChatCallMember(
@@ -1416,7 +1439,6 @@ Widget _primaryView(CallController c) {
                 onSizeDetermined: participant.video.value?.renderer.refresh,
                 fit: c.rendererBoxFit[
                     participant.video.value?.renderer.value?.track.id() ?? ''],
-                expanded: c.doughDraggedRenderer.value == participant,
               );
             });
           },
@@ -1428,7 +1450,7 @@ Widget _primaryView(CallController c) {
               duration: 200.milliseconds,
               child: c.secondaryDrags.value != 0 && c.primaryTargets.value != 0
                   ? Container(
-                      color: const Color(0x40000000),
+                      color: style.colors.onBackgroundOpacity27,
                       child: Center(
                         child: AnimatedDelayedScale(
                           duration: const Duration(milliseconds: 300),
@@ -1441,15 +1463,15 @@ Widget _primaryView(CallController c) {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 color: !c.minimized.value || c.fullscreen.value
-                                    ? const Color(0x40000000)
-                                    : const Color(0x90000000),
+                                    ? style.colors.onBackgroundOpacity27
+                                    : style.colors.onBackgroundOpacity50,
                               ),
-                              child: const Padding(
-                                padding: EdgeInsets.all(16),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
                                 child: Icon(
                                   Icons.add_rounded,
                                   size: 50,
-                                  color: Colors.white,
+                                  color: style.colors.onPrimary,
                                 ),
                               ),
                             ),
@@ -1468,6 +1490,8 @@ Widget _primaryView(CallController c) {
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
+  final style = Theme.of(context).style;
+
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
     child: Obx(() {
@@ -1693,9 +1717,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     width: width,
                     height: height,
                     decoration: BoxDecoration(
-                      boxShadow: const [
+                      boxShadow: [
                         CustomBoxShadow(
-                          color: Color(0x44000000),
+                          color: style.colors.onBackgroundOpacity27,
                           blurRadius: 9,
                           blurStyle: BlurStyle.outer,
                         )
@@ -1727,14 +1751,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         borderRadius: borderRadius,
                         child: Stack(
                           children: [
-                            Container(color: const Color(0xFF0A1724)),
-                            SvgImage.asset(
+                            Container(color: style.colors.backgroundAuxiliary),
+                            const SvgImage.asset(
                               'assets/images/background_dark.svg',
                               width: double.infinity,
                               height: double.infinity,
                               fit: BoxFit.cover,
                             ),
-                            Container(color: const Color(0x11FFFFFF)),
+                            Container(color: style.colors.onPrimaryOpacity7),
                           ],
                         ),
                       ),
@@ -1839,9 +1863,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
               var participant = data.participant;
 
               return Obx(() {
-                bool muted = participant.member.owner == MediaOwnerKind.local
+                bool? muted = participant.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
-                    : participant.audio.value?.isMuted.value ?? false;
+                    : null;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -1908,7 +1932,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     onPressed: () =>
                                         c.toggleAudioEnabled(participant),
                                   ),
-                                if (participant.member.isRedialing.isFalse)
+                                if (participant.member.isDialing.isFalse)
                                   ContextMenuButton(
                                     label: 'btn_call_remove_participant'.l10n,
                                     onPressed: () => c.removeChatCallMember(
@@ -1951,16 +1975,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
               return BoxConstraints(maxWidth: size, maxHeight: size);
             },
             itemBuilder: (_DragData data) {
-              var participant = data.participant;
-              return Obx(
-                () => ParticipantWidget(
-                  participant,
-                  key: ObjectKey(participant),
-                  offstageUntilDetermined: true,
-                  respectAspectRatio: true,
-                  borderRadius: BorderRadius.zero,
-                  expanded: c.doughDraggedRenderer.value == participant,
-                ),
+              return ParticipantWidget(
+                data.participant,
+                key: ObjectKey(data.participant),
+                offstageUntilDetermined: true,
+                respectAspectRatio: true,
+                borderRadius: BorderRadius.zero,
               );
             },
             children:
@@ -2061,22 +2081,22 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                   (c.minimized.isFalse || c.fullscreen.isTrue),
                               child: Container(
                                 color: PlatformUtils.isWeb
-                                    ? const Color(0x9D165084)
-                                    : const Color(0xE9165084),
+                                    ? style.colors.onSecondaryOpacity60
+                                    : style.colors.onSecondaryOpacity88,
                                 child: Row(
                                   children: [
                                     const SizedBox(width: 7),
-                                    const Expanded(
+                                    Expanded(
                                       child: Text(
                                         'Draggable',
-                                        style: TextStyle(color: Colors.white),
+                                        style: style.fonts.labelMediumOnPrimary,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                     InkResponse(
                                       onTap: isAnyDrag ? null : c.focusAll,
-                                      child: SvgImage.asset(
+                                      child: const SvgImage.asset(
                                         'assets/icons/close.svg',
                                         height: 10.25,
                                       ),
@@ -2136,7 +2156,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     child: c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
                         ? Container(
-                            color: const Color(0x40000000),
+                            color: style.colors.onBackgroundOpacity27,
                             child: Center(
                               child: AnimatedDelayedScale(
                                 duration: const Duration(
@@ -2153,15 +2173,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       borderRadius: BorderRadius.circular(16),
                                       color: !c.minimized.value ||
                                               c.fullscreen.value
-                                          ? const Color(0x40000000)
-                                          : const Color(0x90000000),
+                                          ? style.colors.onBackgroundOpacity27
+                                          : style.colors.onBackgroundOpacity50,
                                     ),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(16),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
                                       child: Icon(
                                         Icons.add_rounded,
                                         size: 50,
-                                        color: Colors.white,
+                                        color: style.colors.onPrimary,
                                       ),
                                     ),
                                   ),
@@ -2203,9 +2223,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 ? c.secondaryAlignment.value == null
                                     ? RoundedRectangleBorder(
                                         side: BorderSide(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color: style.colors.secondary,
                                           width: 1,
                                         ),
                                         borderRadius: borderRadius,
@@ -2214,36 +2232,28 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                         top: c.secondaryAlignment.value ==
                                                 Alignment.bottomCenter
                                             ? BorderSide(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
+                                                color: style.colors.secondary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         left: c.secondaryAlignment.value ==
                                                 Alignment.centerRight
                                             ? BorderSide(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
+                                                color: style.colors.secondary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         right: c.secondaryAlignment.value ==
                                                 Alignment.centerLeft
                                             ? BorderSide(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
+                                                color: style.colors.secondary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         bottom: c.secondaryAlignment.value ==
                                                 Alignment.topCenter
                                             ? BorderSide(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
+                                                color: style.colors.secondary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
@@ -2251,18 +2261,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 : c.secondaryAlignment.value == null
                                     ? RoundedRectangleBorder(
                                         side: BorderSide(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary
+                                          color: style.colors.secondary
                                               .withOpacity(0),
                                           width: 1,
                                         ),
                                         borderRadius: borderRadius,
                                       )
                                     : Border.all(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary
+                                        color: style.colors.secondary
                                             .withOpacity(0),
                                         width: 1,
                                       ),
@@ -2283,6 +2289,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
 /// [DragTarget] of an empty [_secondaryView].
 Widget _secondaryTarget(CallController c) {
+  final style = Theme.of(router.context!).style;
+
   return Obx(() {
     Axis secondaryAxis =
         c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
@@ -2341,21 +2349,22 @@ Widget _secondaryTarget(CallController c) {
                                   decoration: BoxDecoration(
                                     border: Border(
                                       left: secondaryAxis == Axis.horizontal
-                                          ? const BorderSide(
-                                              color: Color(0xFF888888),
+                                          ? BorderSide(
+                                              color: style.colors.secondary,
                                               width: 1,
                                             )
                                           : BorderSide.none,
                                       bottom: secondaryAxis == Axis.vertical
-                                          ? const BorderSide(
-                                              color: Color(0xFF888888),
+                                          ? BorderSide(
+                                              color: style.colors.secondary,
                                               width: 1,
                                             )
                                           : BorderSide.none,
                                     ),
-                                    boxShadow: const [
+                                    boxShadow: [
                                       CustomBoxShadow(
-                                        color: Color(0x33000000),
+                                        color:
+                                            style.colors.onBackgroundOpacity20,
                                         blurRadius: 8,
                                         blurStyle: BlurStyle.outer,
                                       )
@@ -2365,8 +2374,8 @@ Widget _secondaryTarget(CallController c) {
                                     child: AnimatedContainer(
                                       duration: 300.milliseconds,
                                       color: candidate.isNotEmpty
-                                          ? const Color(0x10FFFFFF)
-                                          : const Color(0x00FFFFFF),
+                                          ? style.colors.onPrimaryOpacity7
+                                          : style.colors.transparent,
                                       child: Center(
                                         child: SizedBox(
                                           width:
@@ -2393,18 +2402,22 @@ Widget _secondaryTarget(CallController c) {
                                                     : 1,
                                                 child: Container(
                                                   decoration: BoxDecoration(
-                                                    color:
-                                                        const Color(0x40000000),
+                                                    color: style.colors
+                                                        .onBackgroundOpacity27,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             16),
                                                   ),
-                                                  child: const Padding(
-                                                    padding: EdgeInsets.all(10),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                      10,
+                                                    ),
                                                     child: Icon(
                                                       Icons.add_rounded,
                                                       size: 35,
-                                                      color: Colors.white,
+                                                      color: style
+                                                          .colors.onPrimary,
                                                     ),
                                                   ),
                                                 ),

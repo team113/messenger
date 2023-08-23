@@ -26,6 +26,7 @@ import '/ui/page/home/page/my_profile/call_window_switch/view.dart';
 import '/ui/page/home/page/my_profile/camera_switch/view.dart';
 import '/ui/page/home/page/my_profile/microphone_switch/view.dart';
 import '/ui/page/home/page/my_profile/output_switch/view.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -48,26 +49,11 @@ class CallSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
-    Widget header(
-      String text, {
-      EdgeInsets padding = const EdgeInsets.fromLTRB(0, 0, 0, 12),
-    }) {
-      return Padding(
-        padding: padding,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Text(
-              text,
-              style: style.systemMessageStyle
-                  .copyWith(color: Colors.black, fontSize: 18),
-            ),
-          ),
-        ),
-      );
-    }
+    final EdgeInsetsGeometry padding = Insets.dense.add(
+      const EdgeInsets.symmetric(horizontal: 30),
+    );
 
     return GetBuilder(
       init: CallSettingsController(
@@ -84,11 +70,10 @@ class CallSettingsView extends StatelessWidget {
                 controller: c.scrollController,
                 shrinkWrap: true,
                 children: [
-                  const SizedBox(height: 12),
-                  header('label_media'.l10n),
-                  _dense(
-                    context,
-                    WidgetButton(
+                  ModalPopupHeader(text: 'label_media'.l10n),
+                  Padding(
+                    padding: padding,
+                    child: WidgetButton(
                       onPressed: () async {
                         await CameraSwitchView.show(
                           context,
@@ -112,18 +97,16 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
+                            style: style.fonts.titleMediumPrimary,
                           );
                         }),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _dense(
-                    context,
-                    WidgetButton(
+                  Padding(
+                    padding: padding,
+                    child: WidgetButton(
                       onPressed: () async {
                         await MicrophoneSwitchView.show(
                           context,
@@ -147,18 +130,16 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
+                            style: style.fonts.titleMediumPrimary,
                           );
                         }),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _dense(
-                    context,
-                    WidgetButton(
+                  Padding(
+                    padding: padding,
+                    child: WidgetButton(
                       onPressed: () async {
                         await OutputSwitchView.show(
                           context,
@@ -182,19 +163,17 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
+                            style: style.fonts.titleMediumPrimary,
                           );
                         }),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  header('label_calls'.l10n),
-                  _dense(
-                    context,
-                    WidgetButton(
+                  ModalPopupHeader(text: 'label_calls'.l10n, close: false),
+                  Padding(
+                    padding: padding,
+                    child: WidgetButton(
                       onPressed: () => CallWindowSwitchView.show(context),
                       child: IgnorePointer(
                         child: ReactiveTextField(
@@ -204,9 +183,7 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
+                          style: style.fonts.titleMediumPrimary,
                         ),
                       ),
                     ),
@@ -215,17 +192,9 @@ class CallSettingsView extends StatelessWidget {
                 ],
               ),
             ),
-            const ModalPopupHeader(),
           ],
         );
       },
     );
   }
-
-  /// Dense [Padding] wrapper.
-  Widget _dense(BuildContext context, Widget child) => Padding(
-        padding: ModalPopup.padding(context)
-            .add(const EdgeInsets.fromLTRB(8, 4, 8, 4)),
-        child: child,
-      );
 }

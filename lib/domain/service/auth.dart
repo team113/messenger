@@ -172,17 +172,6 @@ class AuthService extends GetxService {
     }
   }
 
-  /// Indicates whether some [User] can be identified by the given [num],
-  /// [login], [email] or [phone].
-  ///
-  /// Exactly one of [num]/[login]/[email]/[phone] arguments must be specified.
-  Future<bool> checkUserIdentifiable(
-          {UserLogin? login,
-          UserNum? num,
-          UserEmail? email,
-          UserPhone? phone}) async =>
-      await _authRepository.checkUserIdentifiable(login, num, email, phone);
-
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
   ///
@@ -325,7 +314,7 @@ class AuthService extends GetxService {
   Future<void> renewSession() async {
     if (WebUtils.credentialsUpdating) {
       // Wait until the [Credentials] are done updating in another tab.
-      await Future.delayed(5.seconds);
+      await Future.delayed((_accessTokenMinTtl - _refreshTaskInterval) ~/ 2);
 
       if (!_shouldRefresh) {
         // [Credentials] are successfully updated.

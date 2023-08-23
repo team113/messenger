@@ -32,12 +32,16 @@ import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
@@ -49,12 +53,11 @@ import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
 class ContactsTabView extends StatelessWidget {
-  const ContactsTabView({Key? key}) : super(key: key);
+  const ContactsTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -69,7 +72,7 @@ class ContactsTabView extends StatelessWidget {
         return Scaffold(
           appBar: CustomAppBar(
             border: c.search.value != null || c.selecting.value
-                ? Border.all(color: colors.secondary, width: 2)
+                ? Border.all(color: style.colors.primary, width: 2)
                 : null,
             title: Obx(() {
               final Widget child;
@@ -89,7 +92,7 @@ class ContactsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: style.boldBody.copyWith(fontSize: 17),
+                        style: style.fonts.bodyLarge,
                         onChanged: () => c.search.value?.query.value =
                             c.search.value?.search.text ?? '',
                       ),
@@ -107,7 +110,7 @@ class ContactsTabView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'label_synchronization'.l10n,
-                        style: TextStyle(fontSize: 13, color: colors.primary),
+                        style: style.fonts.labelMediumSecondary,
                       ),
                     ),
                   );
@@ -132,62 +135,158 @@ class ContactsTabView extends StatelessWidget {
             }),
             actions: [
               Obx(() {
-                final Widget child;
+                Widget? child;
 
-                if (c.search.value != null || c.selecting.value) {
-                  child = SvgImage.asset(
-                    'assets/icons/close_primary.svg',
-                    key: const Key('CloseSearch'),
-                    height: 15,
-                    width: 15,
-                  );
+                if (c.search.value != null) {
+                  if (c.search.value?.search.isEmpty.value == false) {
+                    child = const SvgImage.asset(
+                      'assets/icons/search_exit.svg',
+                      key: Key('CloseSearch'),
+                      height: 11,
+                    );
+                  }
                 } else {
-                  child = SvgImage.asset(
-                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                    key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-                    width: 29.69,
-                    height: 21,
-                  );
+                  if (c.selecting.value) {
+                    child = SvgImage.asset(
+                      c.search.value != null
+                          ? 'assets/icons/search_exit.svg'
+                          : 'assets/icons/close_primary.svg',
+                      key: const Key('CloseGroupSearching'),
+                      height: c.search.value != null ? 11 : 15,
+                    );
+                  }
                 }
 
-                return WidgetButton(
-                  onPressed: () {
-                    if (c.selecting.value) {
-                      c.toggleSelecting();
-                    } else if (c.search.value != null) {
-                      c.toggleSearch(false);
-                    } else {
-                      c.toggleSorting();
-                    }
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    width: 29.69 + 12 + 18,
-                    height: double.infinity,
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: 250.milliseconds,
-                        child: child,
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (child != null)
+                      AnimatedButton(
+                        onPressed: () {
+                          if (c.search.value != null) {
+                            if (c.search.value?.search.isEmpty.value == false) {
+                              c.search.value?.search.clear();
+                              c.search.value?.query.value = '';
+                              c.search.value?.search.focus.requestFocus();
+                            }
+                          } else if (c.selecting.value) {
+                            c.toggleSelecting();
+                          }
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: 29.69 + 12 + 18,
+                          height: double.infinity,
+                          child: Center(
+                            child: AnimatedSwitcher(
+                              duration: 250.milliseconds,
+                              child: child,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    if (c.search.value == null && !c.selecting.value)
+                      ContextMenuRegion(
+                        key: const Key('ContactsMenu'),
+                        alignment: Alignment.topRight,
+                        enablePrimaryTap: true,
+                        enableSecondaryTap: false,
+                        selector: c.moreKey,
+                        margin: const EdgeInsets.only(bottom: 4, right: 0),
+                        actions: [
+                          ContextMenuButton(
+                            label: c.sortByName
+                                ? 'label_sort_by_visit'.l10n
+                                : 'label_sort_by_name'.l10n,
+                            onPressed: c.toggleSorting,
+                          ),
+                          ContextMenuButton(
+                            key: const Key('SelectContactsButton'),
+                            label: 'btn_select_and_delete'.l10n,
+                            onPressed: c.toggleSelecting,
+                          ),
+                        ],
+                        child: AnimatedButton(
+                          decorator: (child) => Container(
+                            key: c.moreKey,
+                            padding: const EdgeInsets.only(left: 12, right: 18),
+                            height: double.infinity,
+                            child: child,
+                          ),
+                          child: Icon(
+                            Icons.more_vert,
+                            color: style.colors.primary,
+                          ),
+                        ),
+                      ),
+                  ],
                 );
               }),
             ],
             leading: [
               Obx(() {
                 if (c.selecting.value) {
-                  return const SizedBox(width: 49.77);
+                  final bool selected = c.contacts.isNotEmpty &&
+                      c.contacts.every(
+                        (e) => c.selectedContacts.any((m) => m == e.id),
+                      );
+
+                  return WidgetButton(
+                    onPressed: () {
+                      bool selected = c.contacts.every(
+                        (e) => c.selectedContacts.any((m) => m == e.id),
+                      );
+
+                      if (selected) {
+                        c.selectedContacts.clear();
+                      } else {
+                        for (var e in c.contacts) {
+                          if (!c.selectedContacts.contains(e.id)) {
+                            c.selectContact(e);
+                          }
+                        }
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 20, right: 6),
+                      height: double.infinity,
+                      child: SelectedDot(
+                        selected: selected,
+                        inverted: false,
+                        outlined: !selected,
+                        size: 21,
+                      ),
+                    ),
+                  );
                 }
 
-                return WidgetButton(
-                  key: const Key('SearchButton'),
-                  onPressed: c.search.value != null ? null : c.toggleSearch,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 20, right: 12),
-                    height: double.infinity,
-                    child:
-                        SvgImage.asset('assets/icons/search.svg', width: 17.77),
+                return AnimatedButton(
+                  key: c.search.value == null
+                      ? const Key('SearchButton')
+                      : const Key('CloseSearchButton'),
+                  onPressed: c.search.value == null
+                      ? () => c.toggleSearch(true)
+                      : () => c.toggleSearch(false),
+                  decorator: (child) {
+                    return Container(
+                      padding: const EdgeInsets.only(left: 20, right: 6),
+                      height: double.infinity,
+                      child: child,
+                    );
+                  },
+                  child: AnimatedSwitcher(
+                    duration: 250.milliseconds,
+                    child: c.search.value != null
+                        ? Icon(
+                            key: const Key('ArrowBack'),
+                            Icons.arrow_back_ios_new,
+                            size: 20,
+                            color: style.colors.primary,
+                          )
+                        : const SvgImage.asset(
+                            'assets/icons/search.svg',
+                            width: 17.77,
+                          ),
                   ),
                 );
               }),
@@ -206,10 +305,10 @@ class ContactsTabView extends StatelessWidget {
                   c.elements.isEmpty) {
                 child = Center(
                   key: UniqueKey(),
-                  child: const ColoredBox(
-                    key: Key('Loading'),
-                    color: Colors.transparent,
-                    child: CustomProgressIndicator(),
+                  child: ColoredBox(
+                    key: const Key('Loading'),
+                    color: style.colors.transparent,
+                    child: const CustomProgressIndicator(),
                   ),
                 );
               } else if (c.elements.isNotEmpty) {
@@ -247,10 +346,7 @@ class ContactsTabView extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
-                                  style: style.systemMessageStyle.copyWith(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                  ),
+                                  style: style.fonts.labelLarge,
                                 ),
                               ),
                             ),
@@ -272,11 +368,15 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = KeyedSubtree(
+                child = AnimatedDelayedSwitcher(
                   key: UniqueKey(),
+                  delay: const Duration(milliseconds: 300),
                   child: Center(
                     key: const Key('NothingFound'),
-                    child: Text('label_nothing_found'.l10n),
+                    child: Text(
+                      'label_nothing_found'.l10n,
+                      style: style.fonts.labelMedium,
+                    ),
                   ),
                 );
               }
@@ -312,8 +412,8 @@ class ContactsTabView extends StatelessWidget {
                                       .transform(animation.value);
                                   final double elevation = lerpDouble(0, 6, t)!;
                                   final Color color = Color.lerp(
-                                    const Color(0x00000000),
-                                    const Color(0x33000000),
+                                    style.colors.transparent,
+                                    style.colors.onBackgroundOpacity20,
                                     t,
                                   )!;
 
@@ -455,24 +555,55 @@ class ContactsTabView extends StatelessWidget {
                   return AnimatedContainer(
                     duration: 200.milliseconds,
                     color: c.search.value != null
-                        ? const Color(0xFFEBEBEB)
-                        : const Color(0x00EBEBEB),
+                        ? style.colors.secondaryHighlight
+                        : style.colors.secondaryHighlight.withOpacity(0),
                   );
                 }),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: ContextMenuInterceptor(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: child,
-                    ),
+                ContextMenuInterceptor(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: child,
                   ),
                 ),
               ],
             );
           }),
-          bottomNavigationBar:
-              c.selecting.value ? _selectButtons(context, c) : null,
+          bottomNavigationBar: Obx(() {
+            if (c.selecting.value) {
+              return BottomPaddedRow(
+                children: [
+                  ShadowedRoundedButton(
+                    onPressed: c.toggleSelecting,
+                    child: Text(
+                      'btn_cancel'.l10n,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: style.fonts.titleLarge,
+                    ),
+                  ),
+                  ShadowedRoundedButton(
+                    key: const Key('DeleteContacts'),
+                    onPressed: c.selectedContacts.isEmpty
+                        ? null
+                        : () => _removeContacts(context, c),
+                    color: style.colors.primary,
+                    child: Text(
+                      'btn_delete_count'.l10nfmt({
+                        'count': c.selectedContacts.length,
+                      }),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: c.selectedContacts.isEmpty
+                          ? style.fonts.titleLarge
+                          : style.fonts.titleLargeOnPrimary,
+                    ),
+                  )
+                ],
+              );
+            }
+
+            return const SizedBox();
+          }),
         );
       }),
     );
@@ -485,9 +616,9 @@ class ContactsTabView extends StatelessWidget {
     ContactsTabController c, {
     Widget Function(Widget)? avatarBuilder,
   }) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
-
     return Obx(() {
+      final style = Theme.of(context).style;
+
       bool favorite = c.favorites.contains(contact);
 
       final bool selected = router.routes
@@ -536,13 +667,6 @@ class ContactsTabView extends StatelessWidget {
             onPressed: () => _removeFromContacts(c, context, contact),
             trailing: const Icon(Icons.delete),
           ),
-          const ContextMenuDivider(),
-          ContextMenuButton(
-            key: const Key('SelectContactButton'),
-            label: 'btn_select'.l10n,
-            onPressed: c.toggleSelecting,
-            trailing: const Icon(Icons.select_all),
-          ),
         ],
         subtitle: [
           Padding(
@@ -552,9 +676,9 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style: TextStyle(
-                    color: inverted ? colors.onSecondary : colors.primary,
-                  ),
+                  style: inverted
+                      ? style.fonts.labelMediumOnPrimary
+                      : style.fonts.labelMediumSecondary,
                 );
               }
 
@@ -567,7 +691,7 @@ class ContactsTabView extends StatelessWidget {
             final dialog = contact.user.value?.dialog.value;
 
             if (dialog?.chat.value.muted == null ||
-                contact.user.value?.user.value.isBlacklisted != null) {
+                contact.user.value?.user.value.isBlocked != null) {
               return const SizedBox();
             }
 
@@ -584,7 +708,7 @@ class ContactsTabView extends StatelessWidget {
             );
           }),
           Obx(() {
-            if (contact.user.value?.user.value.isBlacklisted == null) {
+            if (contact.user.value?.user.value.isBlocked == null) {
               return const SizedBox();
             }
 
@@ -592,7 +716,9 @@ class ContactsTabView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Icon(
                 Icons.block,
-                color: inverted ? colors.onSecondary : const Color(0xFFC0C0C0),
+                color: inverted
+                    ? style.colors.onPrimary
+                    : style.colors.secondaryHighlightDarkest,
                 size: 20,
               ),
             );
@@ -615,70 +741,6 @@ class ContactsTabView extends StatelessWidget {
     });
   }
 
-  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
-  /// [ChatContacts]s manipulation.
-  Widget _selectButtons(BuildContext context, ContactsTabController c) {
-    const List<CustomBoxShadow> shadows = [
-      CustomBoxShadow(
-        blurRadius: 8,
-        color: Color(0x22000000),
-        blurStyle: BlurStyle.outer,
-      ),
-    ];
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedRoundedButton(
-              title: Text(
-                'btn_close'.l10n,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: const TextStyle(color: Colors.black),
-              ),
-              onPressed: c.toggleSelecting,
-              color: Colors.white,
-              shadows: shadows,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Obx(() {
-            return Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('DeleteContacts'),
-                title: Text(
-                  'btn_delete_count'
-                      .l10nfmt({'count': c.selectedContacts.length}),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: c.selectedContacts.isEmpty
-                        ? Colors.black
-                        : Colors.white,
-                  ),
-                ),
-                onPressed: c.selectedContacts.isEmpty
-                    ? null
-                    : () => _removeContacts(context, c),
-                color: Theme.of(context).colorScheme.secondary,
-                shadows: shadows,
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
   /// Opens a confirmation popup deleting the provided [contact] from address
   /// book.
   Future<void> _removeFromContacts(
@@ -686,13 +748,15 @@ class ContactsTabView extends StatelessWidget {
     BuildContext context,
     RxChatContact contact,
   ) async {
+    final style = Theme.of(context).style;
+
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: const TextStyle(color: Colors.black),
+          style: style.fonts.bodySmall,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],

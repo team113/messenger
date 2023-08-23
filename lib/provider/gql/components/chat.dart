@@ -18,7 +18,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio
-    show MultipartFile, Options, FormData, DioError;
+    show MultipartFile, Options, FormData, DioException;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -33,7 +33,7 @@ import '/store/model/chat.dart';
 import '/util/log.dart';
 
 /// [Chat] related functionality.
-abstract class ChatGraphQlMixin {
+mixin ChatGraphQlMixin {
   GraphQlClient get client;
 
   /// Returns a [Chat] by its ID.
@@ -431,7 +431,9 @@ abstract class ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
   /// already read by the authenticated [MyUser] until the specified [ChatItem].
   Future<ChatEventsVersionedMixin?> readChat(
-      ChatId chatId, ChatItemId untilId) async {
+    ChatId chatId,
+    ChatItemId untilId,
+  ) async {
     final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -710,7 +712,7 @@ abstract class ChatGraphQlMixin {
     dio.MultipartFile? attachment, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    final variables = UploadAttachmentArguments(upload: null);
+    final variables = UploadAttachmentArguments(file: null);
     final query = MutationOptions(
       operationName: 'UploadAttachment',
       document: UploadAttachmentMutation(variables: variables).document,
@@ -737,10 +739,16 @@ abstract class ChatGraphQlMixin {
             .code),
       );
 
+      if (response.data['data'] == null) {
+        throw GraphQlException(
+          [GraphQLError(message: response.data.toString())],
+        );
+      }
+
       return (UploadAttachment$Mutation.fromJson(response.data['data']))
               .uploadAttachment
           as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk;
-    } on dio.DioError catch (e) {
+    } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UploadAttachmentException(
           UploadAttachmentErrorCode.tooBigSize,
@@ -1137,7 +1145,7 @@ abstract class ChatGraphQlMixin {
 
       return UpdateChatAvatar$Mutation.fromJson(response.data['data'])
           .updateChatAvatar as ChatEventsVersionedMixin?;
-    } on dio.DioError catch (e) {
+    } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateChatAvatarException(
           UpdateChatAvatarErrorCode.tooBigSize,

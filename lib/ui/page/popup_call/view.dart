@@ -28,10 +28,10 @@ import 'controller.dart';
 /// View of the [Routes.call] page.
 class PopupCallView extends StatefulWidget {
   const PopupCallView({
-    Key? key,
+    super.key,
     required this.chatId,
     required this.depsFactory,
-  }) : super(key: key);
+  });
 
   /// ID of a [Chat] this call is taking place in.
   final ChatId chatId;

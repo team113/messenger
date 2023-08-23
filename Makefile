@@ -202,7 +202,8 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.gen overwrite=$(overwrite) dockerized=no
 else
-	flutter pub run build_runner build \
+	rm -f lib/pubspec.g.dart
+	dart run build_runner build \
 		$(if $(call eq,$(overwrite),no),,--delete-conflicting-outputs)
 endif
 
@@ -328,7 +329,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make docs.dart open=no dockerized=no clean=no
 else
-	flutter pub run dartdoc
+	dart run dartdoc
 ifeq ($(open),yes)
 	flutter pub global run dhttpd --path doc/api
 endif

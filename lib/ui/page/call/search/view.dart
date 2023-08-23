@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
@@ -24,6 +24,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -85,8 +86,7 @@ class SearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('SearchView'),
@@ -105,12 +105,7 @@ class SearchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              ModalPopupHeader(
-                onBack: onBack,
-                header: Center(
-                  child: Text(title, style: thin?.copyWith(fontSize: 18)),
-                ),
-              ),
+              ModalPopupHeader(onBack: onBack, text: title),
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -119,7 +114,7 @@ class SearchView extends StatelessWidget {
                     key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
-                    style: thin,
+                    style: style.fonts.titleMedium,
                     onChanged: () => c.query.value = c.search.text,
                   ),
                 ),
@@ -240,13 +235,13 @@ class SearchView extends StatelessWidget {
                         submit ?? 'btn_submit'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: TextStyle(
-                          color: enabled ? Colors.white : Colors.black,
-                        ),
+                        style: enabled
+                            ? style.fonts.titleLargeOnPrimary
+                            : style.fonts.titleLarge,
                       ),
                       onPressed:
                           enabled ? () => onSubmit?.call(c.selected()) : null,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: style.colors.primary,
                     );
                   }),
                 ),

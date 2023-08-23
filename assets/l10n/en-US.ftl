@@ -32,7 +32,7 @@ alert_chat_will_be_hidden1 = Chat{" "}
 alert_chat_will_be_hidden2 = {" "}will be hidden.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
 alert_contact_will_be_removed1 = Contact{" "}
-alert_contact_will_be_removed2 = {" "}will be removed.
+alert_contact_will_be_removed2 = {" "}will be deleted.
 alert_contacts_will_be_deleted = Contacts ({$count}) will be deleted. Continue?
 alert_dialog_will_be_cleared1 = Dialog with user{" "}
 alert_dialog_will_be_cleared2 = {" "}will be cleared.
@@ -154,6 +154,7 @@ btn_call_video_on_desc =
 btn_change = Change
 btn_change_avatar = Change avatar
 btn_change_password = Change password
+btn_clear_cache = Clear cache
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
@@ -190,12 +191,14 @@ btn_media_settings = Media settings
 btn_message_info = Message info
 btn_mute = Mute
 btn_mute_chat = Mute chat
+btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
 btn_participants = Participants
 btn_participants_desc =
     Call
     participants
+btn_paste = Paste
 btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove
@@ -210,6 +213,7 @@ btn_save = Save
 btn_save_as = Save as
 btn_save_to_gallery = Save to gallery
 btn_select = Select
+btn_select_and_delete = Select and delete
 btn_set_password = Set password
 btn_settings = Settings
 btn_share = Share
@@ -219,6 +223,7 @@ btn_unblock = Unblock
 btn_unblock_short = Unblock
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
+btn_unmute_chats = Unmute chats
 btn_upload = Upload
 btn_video_call = Video call
 btn_write_message = Write a message
@@ -251,7 +256,7 @@ err_data_transfer =
     Data transfer error. Please, check your network connection.
 err_dialog = Can't perfom this action in a dialog
 err_dimensions_too_big = Dimensions too big
-err_email_occupied = Email address is already occupied
+err_email_occupied = Specified E-mail is linked to another account. Please, annulate the previous verification.
 err_incorrect_chat_name = Incorrect name
 err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.
@@ -315,6 +320,7 @@ err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
 label_a_of_b = {$a} of {$b}
+label_a_slash_b = {$a} / {$b}
 label_account_created = Account is created
 label_actions = Actions
 label_add_additional_email = Add additional E-mail
@@ -384,7 +390,10 @@ label_attachments = [{$count} { $count ->
     [1] attachment
     *[other] attachments
     }]
-label_audio_call = Audio call
+label_audio_call = Audio call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_audio_notifications = Audio notifications
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
@@ -394,11 +403,9 @@ label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}updated avatar
 label_away = away
 label_background = Background
-label_biography = Biography
-label_biography_hint = Write about yourself
 label_block = Block
-label_blocked_count = Blocked: {$count}
 label_blocked_users = Blocked users
+label_cache = Cache
 label_cache_and_downloads = Cache and downloads
 label_call_active = Active call
 label_call_calling = Calling
@@ -430,16 +437,24 @@ label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
-label_chat_monolog = To myself
+label_chat_monolog = Notes
+label_chat_monolog_description = Write down notes, ideas or forward other messages to save them here. Only you can see this chat.
+label_chat_name_hint = Chat name
 label_chats = Messages
 label_clear_history = Clear history
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
+label_connection_lost = Connection lost
+label_connection_restored = Connection restored
 label_contact = Contact
 label_contact_information = Contact information
 label_contacts = Contacts
 label_copied = Copied
 label_copy = Copy
+label_count_seconds = {$count} { $count ->
+       [1] second
+       *[other] seconds
+   }
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
@@ -459,6 +474,7 @@ label_delete_phone_number = Delete phone number
 label_delivered = Delivered
 label_details = Details.
 label_dialog_created = Dialog created
+label_dialog_created_by_link = Dialog created via direct link
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
     Users who came via a direct link to
@@ -478,7 +494,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_disabled = Disabled
-label_display_timestamps = Display time stamps
+label_display_timestamps = Display timestamps
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -503,7 +519,12 @@ label_favorite_contacts = Favorite
 label_file = File
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
+label_forwarded_messages = {$count ->
+    [1] Пересланное сообщение
+   *[other] Пересланные сообщения
+}
 label_gallery = Gallery
+label_gb_slash_gb = {$a} GB / {$b} GB
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
@@ -558,6 +579,7 @@ label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_microphone_changed = Microphone has been changed to {$microphone}
 label_monolog_created = Chat created
 label_mute_for = { $days ->
     [0] { $hours ->
@@ -623,10 +645,11 @@ label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information
 label_public_section_hint = Avatar and name
-label_read_at = Read at: {$day}.{$month}.{$year} {$hour}:{$minute}
+label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
 label_recent = Recent
+label_reconnecting_ellipsis = Reconnecting...
 label_recover_account = Access recovery
 label_recover_account_description = Specify your Gapopa ID, login, E-mail or phone number.
 label_recovery_code = Recovery code
@@ -657,19 +680,12 @@ label_service_reconnecting = Service is reconnecting...
 label_set_new_password = Set a new password to log into your account
 label_set_password = Set password
 label_settings = Settings
-label_short_weekday =
-    {$weekday ->
-        [1] Mon
-        [2] Tue
-        [3] Wed
-        [4] Thu
-        [5] Fri
-        [6] Sat
-        *[other] Sun
-    }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sort_by_name = Sort by name
+label_sort_by_visit = Sort by visit
 label_sound_and_vibrations = Sound and vibration
+label_speaker_changed = Speaker has been changed to {$speaker}
 label_status = Status
 label_storage = Storage
 label_subtitle_participants = participants
@@ -698,10 +714,14 @@ label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = removed
 label_user_removed_user3 = {" "}{$user}
 label_users = Users
+label_users_count = Users: {$count}
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number
 label_video = Video
-label_video_call = Video call
+label_video_call = Video call{$by ->
+        [x]{""}
+        *[other] {" "}by {$by}
+    }
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:

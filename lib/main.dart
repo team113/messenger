@@ -27,6 +27,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
+// ignore: implementation_imports
+import 'package:flutter_meedu_videoplayer/src/video_player_used.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -40,6 +43,7 @@ import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
+import 'provider/hive/cache.dart';
 import 'provider/hive/session.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
@@ -48,6 +52,7 @@ import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
+import 'ui/worker/cache.dart';
 import 'ui/worker/window.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
@@ -57,6 +62,20 @@ import 'util/web/web_utils.dart';
 Future<void> main() async {
   await Config.init();
 
+  // TODO: iOS should use `video_player`:
+  //       https://github.com/flutter/flutter/issues/56665
+  if (PlatformUtils.isDesktop || PlatformUtils.isIOS) {
+    VideoPlayerUsed.mediaKit = true;
+  } else {
+    VideoPlayerUsed.videoPlayer = true;
+  }
+
+  // TODO: Invoke `initMeeduPlayer` when `windowManager` is not invoked.
+  initVideoPlayerMediaKitIfNeeded(
+    iosUseMediaKit: true,
+    logLevel: MPVLogLevel.error,
+  );
+
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
@@ -65,7 +84,7 @@ Future<void> main() async {
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
-      await windowManager.setMinimumSize(const Size(100, 100));
+      await windowManager.setMinimumSize(const Size(400, 400));
 
       final WindowPreferencesHiveProvider preferences = Get.find();
       final WindowPreferences? prefs = preferences.get();
@@ -96,7 +115,10 @@ Future<void> main() async {
     await authService.init();
     await L10n.init();
 
+    Get.put(CacheWorker(Get.findOrNull()));
     Get.put(BackgroundWorker(Get.find()));
+
+    WebUtils.deleteLoader();
 
     runApp(
       DefaultAssetBundle(
@@ -158,7 +180,7 @@ void onNotificationResponse(NotificationResponse response) {
 
 /// Implementation of this application.
 class App extends StatelessWidget {
-  const App({Key? key}) : super(key: key);
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +220,10 @@ Future<void> _initHive() async {
 
   await Get.put(SessionDataHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
+
+  if (!PlatformUtils.isWeb) {
+    await Get.put(CacheInfoHiveProvider()).init();
+  }
 }
 
 /// Extension adding an ability to clean [Hive].
@@ -215,5 +241,18 @@ extension HiveClean on HiveInterface {
         // No-op.
       }
     }
+  }
+}
+
+/// Extension adding ability to find non-strict dependencies from a
+/// [GetInterface].
+extension on GetInterface {
+  /// Returns the [S] dependency, if it [isRegistered].
+  S? findOrNull<S>({String? tag}) {
+    if (isRegistered<S>(tag: tag)) {
+      return find<S>(tag: tag);
+    }
+
+    return null;
   }
 }

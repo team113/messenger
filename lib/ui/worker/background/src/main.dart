@@ -264,7 +264,7 @@ class _BackgroundService {
 
     _service.on('l10n').listen((event) {
       _resetConnectionTimer();
-      L10n.set(Language.from(event!['locale']));
+      L10n.set(Language.fromTag(event!['locale']));
     });
 
     _service.on('ka').listen((_) {
@@ -409,12 +409,10 @@ class _BackgroundService {
               for (var call in calls) {
                 _incomingCalls.add(call.chatId.val);
 
-                // TODO: Display `Chat` name instead of the `ChatCall.caller`.
+                // TODO: Display `Chat` name instead of the `ChatCall.author`.
                 _displayIncomingCall(
                   call.chatId,
-                  call.caller?.name?.val ??
-                      call.caller?.num.val ??
-                      ('dot'.l10n * 3),
+                  call.author.name?.val ?? call.author.num.val,
                 );
               }
 
@@ -437,12 +435,10 @@ class _BackgroundService {
                 content: '${DateTime.now()}',
               );
 
-              // TODO: Display `Chat` name instead of the `ChatCall.caller`.
+              // TODO: Display `Chat` name instead of the `ChatCall.author`.
               _displayIncomingCall(
                 call.chatId,
-                call.caller?.name?.val ??
-                    call.caller?.num.val ??
-                    ('dot'.l10n * 3),
+                call.author.name?.val ?? call.author.num.val,
               );
             }
             break;

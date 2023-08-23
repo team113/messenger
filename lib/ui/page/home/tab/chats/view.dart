@@ -25,18 +25,22 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
-import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/bottom_padded_row.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
@@ -51,12 +55,11 @@ import 'widget/search_user_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
-  const ChatsTabView({Key? key}) : super(key: key);
+  const ChatsTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -75,8 +78,8 @@ class ChatsTabView extends StatelessWidget {
               return AnimatedContainer(
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
-                    ? const Color(0xFFEBEBEB)
-                    : const Color(0x00EBEBEB),
+                    ? style.colors.secondaryHighlight
+                    : style.colors.secondaryHighlight.withOpacity(0),
               );
             }),
             Obx(() {
@@ -85,7 +88,7 @@ class ChatsTabView extends StatelessWidget {
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
                   border: c.search.value != null || c.selecting.value
-                      ? Border.all(color: colors.secondary, width: 2)
+                      ? Border.all(color: style.colors.primary, width: 2)
                       : null,
                   title: Obx(() {
                     final Widget child;
@@ -105,7 +108,7 @@ class ChatsTabView extends StatelessWidget {
                               filled: false,
                               dense: true,
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(fontSize: 17),
+                              style: style.fonts.bodyLarge,
                               onChanged: () => c.search.value!.query.value =
                                   c.search.value!.search.text,
                             ),
@@ -139,10 +142,7 @@ class ChatsTabView extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'label_synchronization'.l10n,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: colors.primary,
-                              ),
+                              style: style.fonts.labelMediumSecondary,
                             ),
                           ),
                         );
@@ -172,79 +172,182 @@ class ChatsTabView extends StatelessWidget {
                   leading: [
                     Obx(() {
                       if (c.selecting.value) {
-                        return const SizedBox(width: 49.77);
-                      }
+                        final bool selected = c.chats.isNotEmpty &&
+                            c.chats.where((e) {
+                              return (!e.id.isLocal ||
+                                      e.messages.isNotEmpty ||
+                                      e.chat.value.isMonolog) &&
+                                  !e.chat.value.isHidden;
+                            }).every(
+                              (e) => c.selectedChats.any((m) => m == e.id),
+                            );
 
-                      return AnimatedSwitcher(
-                        duration: 250.milliseconds,
-                        child: WidgetButton(
-                          key: const Key('SearchButton'),
-                          onPressed: c.searching.value ? null : c.startSearch,
+                        return WidgetButton(
+                          onPressed: () {
+                            if (selected) {
+                              c.selectedChats.clear();
+                            } else {
+                              final List<RxChat> chats = [];
+
+                              for (RxChat e in c.chats) {
+                                if ((!e.id.isLocal ||
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden) {
+                                  chats.add(e);
+                                }
+                              }
+
+                              for (var e in chats) {
+                                if (!c.selectedChats.contains(e.id)) {
+                                  c.selectChat(e);
+                                }
+                              }
+                            }
+                          },
                           child: Container(
-                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            padding: const EdgeInsets.only(left: 20, right: 6),
                             height: double.infinity,
-                            child: SvgImage.asset(
-                              'assets/icons/search.svg',
-                              width: 17.77,
+                            child: SelectedDot(
+                              selected: selected,
+                              inverted: false,
+                              outlined: !selected,
+                              size: 21,
                             ),
                           ),
+                        );
+                      }
+
+                      return AnimatedButton(
+                        key: c.searching.value
+                            ? const Key('CloseSearchButton')
+                            : const Key('SearchButton'),
+                        onPressed: c.searching.value
+                            ? () => c.closeSearch(c.groupCreating.isFalse)
+                            : () => c.startSearch(),
+                        decorator: (child) {
+                          return Container(
+                            padding: const EdgeInsets.only(left: 20, right: 6),
+                            height: double.infinity,
+                            child: child,
+                          );
+                        },
+                        child: AnimatedSwitcher(
+                          duration: 250.milliseconds,
+                          child: c.searching.value
+                              ? Icon(
+                                  key: const Key('ArrowBack'),
+                                  Icons.arrow_back_ios_new,
+                                  size: 20,
+                                  color: style.colors.primary,
+                                )
+                              : const SvgImage.asset(
+                                  'assets/icons/search.svg',
+                                  width: 17.77,
+                                ),
                         ),
                       );
                     }),
                   ],
                   actions: [
                     Obx(() {
-                      final Widget child;
+                      Widget? child;
 
                       if (c.searching.value) {
-                        child = SvgImage.asset(
-                          'assets/icons/close_primary.svg',
-                          key: const Key('CloseSearch'),
-                          height: 15,
-                        );
+                        if (c.search.value?.search.isEmpty.value == false) {
+                          child = const SvgImage.asset(
+                            'assets/icons/search_exit.svg',
+                            key: Key('CloseSearch'),
+                            height: 11,
+                          );
+                        }
                       } else {
-                        child = c.groupCreating.value || c.selecting.value
-                            ? SvgImage.asset(
-                                'assets/icons/close_primary.svg',
-                                key: const Key('CloseGroupSearching'),
-                                height: 15,
-                              )
-                            : SvgImage.asset(
-                                'assets/icons/group.svg',
-                                key: const Key('CreateGroup'),
-                                width: 21.77,
-                                height: 18.44,
-                              );
+                        if (c.groupCreating.value || c.selecting.value) {
+                          child = const SvgImage.asset(
+                            'assets/icons/close_primary.svg',
+                            key: Key('CloseGroupSearching'),
+                            height: 15,
+                          );
+                        }
                       }
 
-                      return WidgetButton(
-                        key: c.searching.value
-                            ? const Key('CloseSearchButton')
-                            : null,
-                        onPressed: () {
-                          if (c.searching.value) {
-                            c.closeSearch(!c.groupCreating.value);
-                          } else if (c.selecting.value) {
-                            c.toggleSelecting();
-                          } else {
-                            if (c.groupCreating.value) {
-                              c.closeGroupCreating();
-                            } else {
-                              c.startGroupCreating();
-                            }
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 12, right: 18),
-                          height: double.infinity,
-                          child: SizedBox(
-                            width: 21.77,
-                            child: AnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
+                      return Row(
+                        children: [
+                          if (child != null)
+                            AnimatedButton(
+                              key: c.searching.value
+                                  ? const Key('CloseSearchButton')
+                                  : null,
+                              onPressed: () {
+                                if (c.searching.value) {
+                                  if (c.search.value?.search.isEmpty.value ==
+                                      false) {
+                                    c.search.value?.search.clear();
+                                    c.search.value?.query.value = '';
+                                    c.search.value?.search.focus.requestFocus();
+                                  }
+                                } else if (c.selecting.value) {
+                                  c.toggleSelecting();
+                                } else {
+                                  if (c.groupCreating.value) {
+                                    c.closeGroupCreating();
+                                  }
+                                }
+                              },
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.only(left: 12, right: 18),
+                                height: double.infinity,
+                                child: SizedBox(
+                                  width: 21.77,
+                                  child: AnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          if (!c.searching.value &&
+                              !c.groupCreating.value &&
+                              !c.selecting.value)
+                            ContextMenuRegion(
+                              key: const Key('ChatsMenu'),
+                              selector: c.moreKey,
+                              alignment: Alignment.topRight,
+                              enablePrimaryTap: true,
+                              enableSecondaryTap: false,
+                              margin:
+                                  const EdgeInsets.only(bottom: 4, right: 0),
+                              actions: [
+                                ContextMenuButton(
+                                  label: 'btn_create_group'.l10n,
+                                  onPressed: c.startGroupCreating,
+                                ),
+                                ContextMenuButton(
+                                  key: const Key('SelectChatsButton'),
+                                  label: 'btn_select_and_delete'.l10n,
+                                  onPressed: c.toggleSelecting,
+                                ),
+                              ],
+                              child: AnimatedButton(
+                                decorator: (child) {
+                                  return Container(
+                                    key: c.moreKey,
+                                    padding: const EdgeInsets.only(
+                                      left: 12,
+                                      right: 18,
+                                    ),
+                                    height: double.infinity,
+                                    child: child,
+                                  );
+                                },
+                                child: Icon(
+                                  Icons.more_vert,
+                                  color: style.colors.primary,
+                                ),
+                              ),
+                            ),
+                        ],
                       );
                     }),
                   ],
@@ -256,7 +359,7 @@ class ChatsTabView extends StatelessWidget {
 
                   final Widget? child;
 
-                  if (c.groupCreating.value) {
+                  if (c.groupCreating.isTrue) {
                     Widget? center;
 
                     if (c.search.value?.query.isNotEmpty == true &&
@@ -267,14 +370,17 @@ class ChatsTabView extends StatelessWidget {
                           true) {
                         center = Center(
                           key: UniqueKey(),
-                          child: Text('label_nothing_found'.l10n),
+                          child: Text(
+                            'label_nothing_found'.l10n,
+                            style: style.fonts.labelMedium,
+                          ),
                         );
                       } else {
                         center = Center(
                           key: UniqueKey(),
-                          child: const ColoredBox(
-                            color: Colors.transparent,
-                            child: CustomProgressIndicator(),
+                          child: ColoredBox(
+                            color: style.colors.transparent,
+                            child: const CustomProgressIndicator(),
                           ),
                         );
                       }
@@ -343,8 +449,7 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style:
-                                          TextStyle(color: colors.onSecondary),
+                                      style: style.fonts.bodySmallOnPrimary,
                                     ),
                                   ],
                                 );
@@ -388,10 +493,7 @@ class ChatsTabView extends StatelessWidget {
                                   child: Center(
                                     child: Text(
                                       text,
-                                      style: style.systemMessageStyle.copyWith(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                      ),
+                                      style: style.fonts.labelLarge,
                                     ),
                                   ),
                                 ),
@@ -411,10 +513,10 @@ class ChatsTabView extends StatelessWidget {
                         c.elements.isEmpty) {
                       child = Center(
                         key: UniqueKey(),
-                        child: const ColoredBox(
-                          key: Key('Loading'),
-                          color: Colors.transparent,
-                          child: CustomProgressIndicator(),
+                        child: ColoredBox(
+                          key: const Key('Loading'),
+                          color: style.colors.transparent,
+                          child: const CustomProgressIndicator(),
                         ),
                       );
                     } else if (c.elements.isNotEmpty) {
@@ -446,7 +548,7 @@ class ChatsTabView extends StatelessWidget {
                                       getUser: c.getUser,
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
-                                      inCall: () => c.inCall(chat.id),
+                                      inCall: () => c.containsCall(chat.id),
                                     );
                                   }),
                                 );
@@ -475,11 +577,7 @@ class ChatsTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         element.category.name.capitalizeFirst!,
-                                        style:
-                                            style.systemMessageStyle.copyWith(
-                                          color: Colors.black,
-                                          fontSize: 15,
-                                        ),
+                                        style: style.fonts.labelLarge,
                                       ),
                                     ),
                                   ),
@@ -510,31 +608,32 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else {
-                      child = KeyedSubtree(
+                      child = AnimatedDelayedSwitcher(
                         key: UniqueKey(),
+                        delay: const Duration(milliseconds: 300),
                         child: Center(
                           key: const Key('NothingFound'),
-                          child: Text('label_nothing_found'.l10n),
+                          child: Text(
+                            'label_nothing_found'.l10n,
+                            style: style.fonts.labelMedium,
+                          ),
                         ),
                       );
                     }
                   } else {
                     if (c.chats.none(
                       (e) {
-                        final bool isHidden = e.chat.value.isHidden &&
-                            !e.chat.value.isRoute(router.route, c.me);
-
                         return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                            !isHidden;
+                            !e.chat.value.isHidden;
                       },
                     )) {
                       if (c.status.value.isLoadingMore) {
                         child = Center(
                           key: UniqueKey(),
-                          child: const ColoredBox(
-                            key: Key('Loading'),
-                            color: Colors.transparent,
-                            child: CustomProgressIndicator(),
+                          child: ColoredBox(
+                            key: const Key('Loading'),
+                            color: style.colors.transparent,
+                            child: const CustomProgressIndicator(),
                           ),
                         );
                       } else {
@@ -552,18 +651,19 @@ class ChatsTabView extends StatelessWidget {
                         child: AnimationLimiter(
                           key: const Key('Chats'),
                           child: Obx(() {
+                            final List<RxChat> calls = [];
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
                             for (RxChat e in c.chats) {
-                              final bool isHidden = e.chat.value.isHidden &&
-                                  !e.chat.value.isRoute(router.route, c.me);
-
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
-                                  !isHidden) {
-                                if (e.chat.value.favoritePosition != null) {
+                                  !e.chat.value.isHidden) {
+                                if (e.chat.value.ongoingCall != null) {
+                                  calls.add(e);
+                                } else if (e.chat.value.favoritePosition !=
+                                    null) {
                                   favorites.add(e);
                                 } else {
                                   chats.add(e);
@@ -601,15 +701,23 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: () => c.hideChat(e.id),
-                                inCall: () => c.inCall(e.id),
-                                onMute: e.chat.value.isMonolog
+                                inCall: () => c.containsCall(e.id),
+                                onMute: e.chat.value.isMonolog ||
+                                        e.chat.value.id.isLocal
                                     ? null
                                     : () => c.muteChat(e.id),
-                                onUnmute: e.chat.value.isMonolog
+                                onUnmute: e.chat.value.isMonolog ||
+                                        e.chat.value.id.isLocal
                                     ? null
                                     : () => c.unmuteChat(e.id),
-                                onFavorite: () => c.favoriteChat(e.id),
-                                onUnfavorite: () => c.unfavoriteChat(e.id),
+                                onFavorite: e.chat.value.id.isLocal &&
+                                        !e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.favoriteChat(e.id),
+                                onUnfavorite: e.chat.value.id.isLocal &&
+                                        !e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.unfavoriteChat(e.id),
                                 onSelect: c.toggleSelecting,
                                 onTap: c.selecting.value
                                     ? () => c.selectChat(e)
@@ -635,6 +743,31 @@ class ChatsTabView extends StatelessWidget {
                                     left: 10,
                                     right: 10,
                                   ),
+                                  sliver: SliverList(
+                                    delegate: SliverChildListDelegate.fixed(
+                                      calls.mapIndexed((i, e) {
+                                        return AnimationConfiguration
+                                            .staggeredList(
+                                          position: i,
+                                          duration: const Duration(
+                                            milliseconds: 375,
+                                          ),
+                                          child: SlideAnimation(
+                                            horizontalOffset: 50,
+                                            child: FadeInAnimation(
+                                              child: tile(e),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ),
+                                SliverPadding(
+                                  padding: const EdgeInsets.only(
+                                    left: 10,
+                                    right: 10,
+                                  ),
                                   sliver: SliverReorderableList(
                                     onReorderStart: (_) =>
                                         c.reordering.value = true,
@@ -647,8 +780,8 @@ class ChatsTabView extends StatelessWidget {
                                           final double elevation =
                                               lerpDouble(0, 6, t)!;
                                           final Color color = Color.lerp(
-                                            const Color(0x00000000),
-                                            const Color(0x33000000),
+                                            style.colors.transparent,
+                                            style.colors.onBackgroundOpacity20,
                                             t,
                                           )!;
 
@@ -788,11 +921,67 @@ class ChatsTabView extends StatelessWidget {
                     ),
                   );
                 }),
-                bottomNavigationBar: c.groupCreating.value
-                    ? _createGroup(context, c)
-                    : c.selecting.value
-                        ? _selectButtons(context, c)
-                        : null,
+                bottomNavigationBar: Obx(() {
+                  if (c.groupCreating.value) {
+                    return BottomPaddedRow(
+                      children: [
+                        ShadowedRoundedButton(
+                          onPressed: c.closeGroupCreating,
+                          color: style.colors.onPrimary,
+                          child: Text(
+                            'btn_cancel'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: style.fonts.titleLarge,
+                          ),
+                        ),
+                        ShadowedRoundedButton(
+                          onPressed: c.createGroup,
+                          color: style.colors.primary,
+                          child: Text(
+                            'btn_create_group'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: style.fonts.titleLargeOnPrimary,
+                          ),
+                        ),
+                      ],
+                    );
+                  } else if (c.selecting.value) {
+                    return BottomPaddedRow(
+                      children: [
+                        ShadowedRoundedButton(
+                          onPressed: c.toggleSelecting,
+                          child: Text(
+                            'btn_cancel'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: style.fonts.titleLarge,
+                          ),
+                        ),
+                        ShadowedRoundedButton(
+                          key: const Key('DeleteChats'),
+                          onPressed: c.selectedChats.isEmpty
+                              ? null
+                              : () => _hideChats(context, c),
+                          color: style.colors.primary,
+                          child: Text(
+                            'btn_delete_count'.l10nfmt({
+                              'count': c.selectedChats.length,
+                            }),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: c.selectedChats.isEmpty
+                                ? style.fonts.titleLarge
+                                : style.fonts.titleLargeOnPrimary,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return const SizedBox();
+                }),
               );
             }),
             Obx(() {
@@ -802,7 +991,7 @@ class ChatsTabView extends StatelessWidget {
                 child = Container(
                   width: double.infinity,
                   height: double.infinity,
-                  color: const Color(0x33000000),
+                  color: style.colors.onBackgroundOpacity20,
                   child: const Center(child: CustomProgressIndicator()),
                 );
               } else {
@@ -814,142 +1003,6 @@ class ChatsTabView extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  /// Returns an animated [OutlinedRoundedButton]s for creating a group.
-  Widget _createGroup(BuildContext context, ChatsTabController c) {
-    return Obx(() {
-      final Widget child;
-
-      if (c.groupCreating.value) {
-        Widget button({
-          Key? key,
-          Widget? leading,
-          required Widget child,
-          void Function()? onPressed,
-          Color? color,
-        }) {
-          return Expanded(
-            child: OutlinedRoundedButton(
-              key: key,
-              leading: leading,
-              title: child,
-              onPressed: onPressed,
-              color: color,
-              shadows: const [
-                CustomBoxShadow(
-                  blurRadius: 8,
-                  color: Color(0x22000000),
-                  blurStyle: BlurStyle.outer,
-                ),
-              ],
-            ),
-          );
-        }
-
-        child = Padding(
-          padding: EdgeInsets.fromLTRB(
-            8,
-            7,
-            8,
-            PlatformUtils.isMobile && !PlatformUtils.isWeb
-                ? router.context!.mediaQuery.padding.bottom + 7
-                : 12,
-          ),
-          child: Row(
-            children: [
-              button(
-                child: Text(
-                  'btn_close'.l10n,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: const TextStyle(color: Colors.black),
-                ),
-                onPressed: c.closeGroupCreating,
-                color: Colors.white,
-              ),
-              const SizedBox(width: 10),
-              button(
-                child: Text(
-                  'btn_create_group'.l10n,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                onPressed: c.createGroup,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ],
-          ),
-        );
-      } else {
-        child = const SizedBox();
-      }
-
-      return AnimatedSwitcher(duration: 250.milliseconds, child: child);
-    });
-  }
-
-  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
-  /// [Chat]s manipulation.
-  Widget _selectButtons(BuildContext context, ChatsTabController c) {
-    const List<CustomBoxShadow> shadows = [
-      CustomBoxShadow(
-        blurRadius: 8,
-        color: Color(0x22000000),
-        blurStyle: BlurStyle.outer,
-      ),
-    ];
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedRoundedButton(
-              title: Text(
-                'btn_close'.l10n,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: const TextStyle(color: Colors.black),
-              ),
-              onPressed: c.toggleSelecting,
-              color: Colors.white,
-              shadows: shadows,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Obx(() {
-            return Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('DeleteChats'),
-                title: Text(
-                  'btn_delete_count'.l10nfmt({'count': c.selectedChats.length}),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color:
-                        c.selectedChats.isEmpty ? Colors.black : Colors.white,
-                  ),
-                ),
-                onPressed: c.selectedChats.isEmpty
-                    ? null
-                    : () => _hideChats(context, c),
-                color: Theme.of(context).colorScheme.secondary,
-                shadows: shadows,
-              ),
-            );
-          }),
-        ],
-      ),
     );
   }
 

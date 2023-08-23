@@ -190,7 +190,7 @@ abstract class AbstractChatRepository {
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
-abstract class RxChat {
+abstract class RxChat implements Comparable<RxChat> {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 
@@ -235,6 +235,18 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
+  /// Indicates whether the [messages] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [messages] is loading.
+  RxBool get nextLoading;
+
+  /// Indicates whether the [messages] have previous page.
+  RxBool get hasPrevious;
+
+  /// Indicator whether a previous page of the [messages] is loading.
+  RxBool get previousLoading;
+
   /// [LastChatRead]s of this [chat].
   RxList<LastChatRead> get reads;
 
@@ -249,11 +261,21 @@ abstract class RxChat {
               .firstWhereOrNull((e) => e.id != me)
               ?.user
               .value
-              .isBlacklisted !=
+              .isBlocked !=
           null;
 
-  /// Fetches the [messages] from the service.
-  Future<void> fetchMessages();
+  /// Returns the first [ChatItem] unread by the currently authenticated
+  /// [MyUser] in this [chat].
+  Rx<ChatItem>? get firstUnread;
+
+  /// Fetches the initial [messages] page around the [firstUnread].
+  Future<void> around();
+
+  /// Fetches the next [messages] page.
+  Future<void> next();
+
+  /// Fetches the previous [messages] page.
+  Future<void> previous();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

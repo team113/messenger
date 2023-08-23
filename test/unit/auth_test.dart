@@ -70,10 +70,8 @@ void main() async {
             'num': '1234567890123456',
             'login': 'val',
             'name': 'name',
-            'bio': 'bio',
             'emails': {'confirmed': []},
             'phones': {'confirmed': []},
-            'gallery': {'nodes': []},
             'hasPassword': true,
             'unreadChatsCount': 0,
             'ver': '30066501444801094020394372057490153134',
@@ -110,7 +108,7 @@ void main() async {
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
         RememberedSession(
-          const RememberToken('token'),
+          const RefreshToken('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
         const UserId('me'),
@@ -193,85 +191,6 @@ void main() async {
           UserLogin('login'), null, null, null, ConfirmationCode('1234')),
       graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
           ConfirmationCode('1234'), UserPassword('123456')),
-    ]);
-  });
-
-  test('AuthService fails to reset a password', () async {
-    final graphQlProvider = MockGraphQlProvider();
-    when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService = Get.put(AuthService(authRepository, provider));
-
-    when(
-      graphQlProvider.recoverUserPassword(
-        UserLogin('unknown'),
-        null,
-        null,
-        null,
-      ),
-    ).thenThrow(
-      const RecoverUserPasswordException(
-        RecoverUserPasswordErrorCode.codeLimitExceeded,
-      ),
-    );
-
-    when(
-      graphQlProvider.recoverUserPassword(
-        UserLogin('empty'),
-        null,
-        null,
-        null,
-      ),
-    ).thenThrow(
-      const RecoverUserPasswordException(
-        RecoverUserPasswordErrorCode.codeLimitExceeded,
-      ),
-    );
-
-    when(graphQlProvider.validateUserPasswordRecoveryCode(
-            UserLogin('unknown'), null, null, null, ConfirmationCode('1111')))
-        .thenThrow(const ValidateUserPasswordRecoveryCodeException(
-            ValidateUserPasswordRecoveryErrorCode.wrongCode));
-
-    when(graphQlProvider.resetUserPassword(UserLogin('unknown'), null, null,
-            null, ConfirmationCode('1111'), UserPassword('123456')))
-        .thenThrow(const ResetUserPasswordException(
-            ResetUserPasswordErrorCode.wrongCode));
-
-    expect(
-        () async =>
-            await authService.recoverUserPassword(login: UserLogin('unknown')),
-        throwsA(isA<RecoverUserPasswordException>()));
-
-    expect(
-        () async =>
-            await authService.recoverUserPassword(login: UserLogin('empty')),
-        throwsA(isA<RecoverUserPasswordException>()));
-
-    expect(
-        () async => await authService.validateUserPasswordRecoveryCode(
-              login: UserLogin('unknown'),
-              code: ConfirmationCode('1111'),
-            ),
-        throwsA(isA<ValidateUserPasswordRecoveryCodeException>()));
-
-    expect(
-        () async => await authService.resetUserPassword(
-              login: UserLogin('unknown'),
-              code: ConfirmationCode('1111'),
-              newPassword: UserPassword('123456'),
-            ),
-        throwsA(isA<ResetUserPasswordException>()));
-
-    verifyInOrder([
-      graphQlProvider.recoverUserPassword(
-          UserLogin('unknown'), null, null, null),
-      graphQlProvider.recoverUserPassword(UserLogin('empty'), null, null, null),
-      graphQlProvider.validateUserPasswordRecoveryCode(
-          UserLogin('unknown'), null, null, null, ConfirmationCode('1111')),
-      graphQlProvider.resetUserPassword(UserLogin('unknown'), null, null, null,
-          ConfirmationCode('1111'), UserPassword('123456'))
     ]);
   });
 

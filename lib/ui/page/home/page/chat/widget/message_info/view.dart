@@ -60,9 +60,7 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
@@ -71,14 +69,7 @@ class MessageInfo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 4),
-            ModalPopupHeader(
-              header: Center(
-                child: Text(
-                  'label_message'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
-                ),
-              ),
-            ),
+            ModalPopupHeader(text: 'label_message'.l10n),
             if (id != null)
               Container(
                 margin: const EdgeInsets.only(top: 8, bottom: 16),
@@ -94,10 +85,10 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: thin?.copyWith(fontSize: 13),
+                        style: style.fonts.bodySmall,
                       ),
                       const SizedBox(width: 8),
-                      SvgImage.asset('assets/icons/copy.svg', height: 12),
+                      const SvgImage.asset('assets/icons/copy.svg', height: 12),
                     ],
                   ),
                 ),
@@ -114,10 +105,7 @@ class MessageInfo extends StatelessWidget {
                   height: 50,
                   child: CustomAppBar(
                     border: !c.search.isEmpty.value || c.search.isFocused.value
-                        ? Border.all(
-                            color: Theme.of(context).colorScheme.secondary,
-                            width: 2,
-                          )
+                        ? Border.all(color: style.colors.primary, width: 2)
                         : null,
                     margin: const EdgeInsets.only(top: 4),
                     title: Theme(
@@ -132,14 +120,14 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.boldBody.copyWith(fontSize: 17),
+                          style: style.fonts.bodyLarge,
                           onChanged: () => c.query.value = c.search.text,
                         ),
                       ),
                     ),
-                    leading: [
+                    leading: const [
                       Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 12),
+                        padding: EdgeInsets.only(left: 20, right: 12),
                         child: SvgImage.asset(
                           'assets/icons/search.svg',
                           width: 17.77,
@@ -154,8 +142,8 @@ class MessageInfo extends StatelessWidget {
                             c.search.unsubmit();
                             c.query.value = '';
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 12, right: 18),
+                          child: const Padding(
+                            padding: EdgeInsets.only(left: 12, right: 18),
                             child: SvgImage.asset(
                               'assets/icons/close_primary.svg',
                               height: 15,
@@ -199,7 +187,10 @@ class MessageInfo extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               child: Center(
-                                child: Text('label_nothing_found'.l10n),
+                                child: Text(
+                                  'label_nothing_found'.l10n,
+                                  style: style.fonts.labelMedium,
+                                ),
                               ),
                             )
                           else
@@ -217,17 +208,9 @@ class MessageInfo extends StatelessWidget {
                                   const SizedBox(height: 3),
                                   Text(
                                     'label_read_at'.l10nfmt({
-                                      'day': '${time.day}'.padLeft(2, '0'),
-                                      'month': '${time.month}'.padLeft(2, '0'),
-                                      'year': '${time.year}'.padLeft(2, '0'),
-                                      'hour': '${time.hour}'.padLeft(2, '0'),
-                                      'minute':
-                                          '${time.minute}'.padLeft(2, '0'),
+                                      'date': time.yMdHm,
                                     }),
-                                    style: TextStyle(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
+                                    style: style.fonts.bodySmallSecondary,
                                   ),
                                 ],
                               );

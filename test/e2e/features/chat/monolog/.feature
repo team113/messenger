@@ -30,6 +30,7 @@ Feature: Monolog
     And monolog is indeed remote
 
   Scenario: Call can be made in local monolog
+    Given popup windows are disabled
     When I tap `AudioCall` button
     Then monolog is indeed remote
 
@@ -39,11 +40,18 @@ Feature: Monolog
     And I tap `Approve` button
     Then monolog is indeed remote
 
+  Scenario: User adds local chat monolog to favorites
+    When I open chat's info
+    And I tap `FavoriteChatButton` button
+    Then monolog is indeed remote
+    And I see monolog as favorite
+
   Scenario: User hides local monolog
     When I open chat's info
     And I scroll `ChatInfoScrollable` until `HideChatButton` is present
     And I tap `HideChatButton` button
     And I tap `Proceed` button
+    And I pause for 1 second
     Then I wait until `ChatMonolog` is absent
     And monolog is indeed remote
 

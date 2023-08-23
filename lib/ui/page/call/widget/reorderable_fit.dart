@@ -17,7 +17,6 @@
 
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +24,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/audio_utils.dart';
 import 'animated_transition.dart';
 
 /// Placing [children] evenly on a screen with an ability to reorder them.
@@ -37,7 +38,7 @@ import 'animated_transition.dart';
 /// Otherwise, the whole available space will be occupied.
 class ReorderableFit<T extends Object> extends StatelessWidget {
   const ReorderableFit({
-    Key? key,
+    super.key,
     required this.children,
     required this.itemBuilder,
     this.decoratorBuilder,
@@ -51,7 +52,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor = const Color(0x00000000),
+    this.hoverColor,
     this.axis,
     this.left,
     this.right,
@@ -67,7 +68,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.allowDraggingLast = true,
     this.itemConstraints,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
@@ -159,7 +160,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   final Axis? axis;
 
   /// Hover color of the [DragTarget].
-  final Color hoverColor;
+  final Color? hoverColor;
 
   /// Optional [BorderRadius] to decorate this [ReorderableFit] with.
   final BorderRadius? borderRadius;
@@ -356,6 +357,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
         }
 
         return _ReorderableFit<T>(
+          key: key,
           children: children,
           itemBuilder: itemBuilder,
           decoratorBuilder: decoratorBuilder,
@@ -396,7 +398,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 /// Stateful component of a [ReorderableFit].
 class _ReorderableFit<T extends Object> extends StatefulWidget {
   const _ReorderableFit({
-    Key? key,
+    super.key,
     required this.children,
     required this.itemBuilder,
     this.decoratorBuilder,
@@ -411,7 +413,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.hoverColor = const Color(0x00000000),
+    this.hoverColor,
     this.wrapSize,
     this.axis,
     this.width,
@@ -428,7 +430,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.allowDraggingLast = true,
     this.itemConstraints,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
@@ -492,7 +494,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   final bool allowDraggingLast;
 
   /// Hover color of the [DragTarget].
-  final Color hoverColor;
+  final Color? hoverColor;
 
   /// Left position of this view.
   final double? left;
@@ -542,25 +544,14 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   /// [GlobalKey] of this [_ReorderableFit].
   final GlobalKey _fitKey = GlobalKey();
 
-  /// [AudioPlayer] playing a pop sound.
-  AudioPlayer? _audioPlayer;
-
   /// [_ReorderableItem] being dragged that has already broke its dough.
   _ReorderableItem<T>? _doughDragged;
 
   @override
   void initState() {
     _items = widget.children.map((e) => _ReorderableItem(e)).toList();
-    _initAudio();
+    AudioUtils.ensureInitialized();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer?.dispose();
-    AudioCache.instance.clear('audio/pop.mp3');
-
-    super.dispose();
   }
 
   @override
@@ -592,6 +583,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
     Widget cell(int index, [bool withOverlay = true]) {
+      final style = Theme.of(context).style;
+
       var item = _items[index];
       return Stack(
         children: [
@@ -640,11 +633,9 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     onDoughBreak: () {
                       _doughDragged = item;
                       widget.onDoughBreak?.call(item.item);
-                      _audioPlayer?.play(
-                        AssetSource('audio/pop.mp3'),
+                      AudioUtils.once(
+                        AudioSource.asset('audio/pop.mp3'),
                         volume: 0.3,
-                        position: Duration.zero,
-                        mode: PlayerMode.lowLatency,
                       );
                     },
                   ),
@@ -657,8 +648,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? const Color(0x00000000)
-                            : widget.hoverColor,
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -702,8 +693,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     return IgnorePointer(
                       child: Container(
                         color: candidates.isEmpty
-                            ? const Color(0x00000000)
-                            : widget.hoverColor,
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -992,22 +983,12 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       setState(() {});
     }
   }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'reorderableFitWrap');
-      await AudioCache.instance.loadAll(['audio/pop.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
-  }
 }
 
 /// [_ReorderableItem] wrapped in a [DraggableDough].
 class _ReorderableDraggable<T extends Object> extends StatefulWidget {
   const _ReorderableDraggable({
-    Key? key,
+    super.key,
     required this.item,
     required this.sharedKey,
     required this.cellKey,
@@ -1020,7 +1001,7 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
     this.useLongPress = false,
     this.enabled = true,
     this.itemConstraints,
-  }) : super(key: key);
+  });
 
   /// Item stored in this [_ReorderableDraggable].
   final T item;
@@ -1081,6 +1062,8 @@ class _ReorderableDraggableState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return DoughRecipe(
       data: DoughRecipeData(
         adhesion: 4,
@@ -1167,7 +1150,7 @@ class _ReorderableDraggableState<T extends Object>
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                color: Colors.transparent,
+                color: style.colors.transparent,
               ),
             ),
             child: KeyedSubtree(
@@ -1185,13 +1168,13 @@ class _ReorderableDraggableState<T extends Object>
 /// specified reactive [constraints].
 class _Resizable extends StatelessWidget {
   const _Resizable({
-    Key? key,
+    super.key,
     required this.cellKey,
     required this.layout,
     required this.position,
     required this.constraints,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// [GlobalKey] of a cell this [_Resizable] occupies.
   final GlobalKey cellKey;

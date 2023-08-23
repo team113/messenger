@@ -24,20 +24,6 @@ void main() {
     // Dummy callback to ensure it's being called.
     final _Mock mock = _Mock();
 
-    test('TextFieldState.onChanged has correct debounce', () async {
-      final TextFieldState state = TextFieldState(onChanged: mock.dummy)
-        ..controller.text = 'zhorenty';
-
-      verifyNever(mock.dummy.call(state));
-
-      await Future.delayed(TextFieldState.debounce);
-
-      expect(state.changed.value, true);
-      expect(state.controller.text, 'zhorenty');
-
-      verify(mock.dummy.call(state)).called(1);
-    });
-
     test('TextFieldState.onSubmitted is called', () {
       final TextFieldState state = TextFieldState(onSubmitted: mock.dummy)
         ..controller.text = 'zhorenty'

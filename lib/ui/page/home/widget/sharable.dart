@@ -16,10 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/text_field.dart';
@@ -29,7 +29,7 @@ import '/util/platform_utils.dart';
 /// Sharable field opening a [Share] modal with the provided [share] content.
 class SharableTextField extends StatelessWidget {
   SharableTextField({
-    Key? key,
+    super.key,
     required String? text,
     this.share,
     this.icon,
@@ -37,7 +37,7 @@ class SharableTextField extends StatelessWidget {
     this.style,
     this.trailing,
     this.leading,
-  }) : super(key: key) {
+  }) {
     state = TextFieldState(text: text, editable: false);
   }
 
@@ -64,16 +64,15 @@ class SharableTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (icon != null)
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 25),
-            child: Icon(
-              icon,
-              color: context.theme.colorScheme.primary,
-            ),
+            child: Icon(icon, color: style.colors.secondary),
           ),
         Expanded(
           child: ContextMenuRegion(
@@ -95,7 +94,7 @@ class SharableTextField extends StatelessWidget {
                   suffix: trailing == null ? Icons.ios_share : null,
                   trailing: trailing,
                   label: label,
-                  style: style,
+                  style: this.style,
                 ),
               ),
             ),

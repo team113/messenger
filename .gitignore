@@ -1,4 +1,5 @@
 /.idea/
+/android/.idea
 /.vscode/
 /*.iml
 .DS_Store
@@ -44,6 +45,7 @@ app.*.map.json
 
 # Tests related
 /test/.temp_hive/
+/test/.temp_cache/
 /test/**/*.mocks.dart
 /test/e2e/**/*.g.dart
 /test/e2e/reports/

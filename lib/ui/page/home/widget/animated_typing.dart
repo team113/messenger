@@ -19,6 +19,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// Animated over the provided [period] circles representing an ongoing typing.
 class AnimatedTyping extends StatefulWidget {
   const AnimatedTyping({
@@ -61,14 +63,14 @@ class _AnimatedTypingState extends State<AnimatedTyping>
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final style = Theme.of(context).style;
 
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, _) {
         final Color begin =
-            widget.inverted ? colors.onSecondary : colors.secondary;
-        const Color end = Color(0xFFB6DCFF);
+            widget.inverted ? style.colors.onPrimary : style.colors.primary;
+        final Color end = style.colors.primaryHighlightLightest;
 
         const double size = 4;
         const double spacing = 1.6;
@@ -81,6 +83,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
             sin(pi * const Interval(0.6, 1).transform(_controller.value)));
 
         return Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: size,

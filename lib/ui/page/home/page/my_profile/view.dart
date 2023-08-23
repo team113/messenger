@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
-import '/config.dart';
+import '/domain/model/cache_info.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -31,17 +31,21 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/direct_link.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/num.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
@@ -51,13 +55,15 @@ import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'language/view.dart';
-import 'link_details/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
 import 'timeline_switch/view.dart';
-import 'widget/copyable.dart';
+import 'widget/background_preview.dart';
 import 'widget/download_button.dart';
+import 'widget/login.dart';
+import 'widget/name.dart';
+import 'widget/status.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -68,6 +74,7 @@ class MyProfileView extends StatelessWidget {
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find()),
+      global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
@@ -77,224 +84,213 @@ class MyProfileView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
             ),
-            body: Obx(() {
-              if (c.myUser.value == null) {
-                return const Center(child: CustomProgressIndicator());
-              }
+            body: Scrollbar(
+              controller: c.scrollController,
+              child: ScrollablePositionedList.builder(
+                key: const Key('MyProfileScrollable'),
+                initialScrollIndex: c.listInitIndex,
+                scrollController: c.scrollController,
+                itemScrollController: c.itemScrollController,
+                itemPositionsListener: c.positionsListener,
+                itemCount: ProfileTab.values.length,
+                physics: const ClampingScrollPhysics(),
+                itemBuilder: (context, i) {
+                  // Builds a [Block] wrapped with [Obx] to highlight it.
+                  Widget block({
+                    required String title,
+                    required List<Widget> children,
+                  }) {
+                    return Obx(() {
+                      return Block(
+                        title: title,
+                        highlight: c.highlightIndex.value == i,
+                        children: children,
+                      );
+                    });
+                  }
 
-              return Scrollbar(
-                controller: c.scrollController,
-                child: ScrollablePositionedList.builder(
-                  key: const Key('MyProfileScrollable'),
-                  initialScrollIndex: c.listInitIndex,
-                  scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  itemCount: ProfileTab.values.length,
-                  itemBuilder: (context, i) {
-                    switch (ProfileTab.values[i]) {
-                      case ProfileTab.public:
-                        return Block(
-                          title: 'label_public_information'.l10n,
-                          children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                WidgetButton(
-                                  onPressed: c.myUser.value?.avatar == null
-                                      ? c.uploadAvatar
-                                      : () async {
-                                          await GalleryPopup.show(
-                                            context: context,
-                                            gallery: GalleryPopup(
-                                              initialKey: c.avatarKey,
-                                              children: [
-                                                GalleryItem.image(
-                                                  c.myUser.value!.avatar!
-                                                      .original.url,
-                                                  c.myUser.value!.num.val,
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                  child: AvatarWidget.fromMyUser(
-                                    c.myUser.value,
-                                    key: c.avatarKey,
-                                    radius: 100,
-                                    badge: false,
-                                  ),
-                                ),
-                                Positioned.fill(
-                                  child: Obx(() {
-                                    return AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: c.avatarUpload.value.isLoading
-                                          ? Container(
-                                              width: 200,
-                                              height: 200,
-                                              decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Color(0x22000000),
-                                              ),
-                                              child: const Center(
-                                                child:
-                                                    CustomProgressIndicator(),
-                                              ),
-                                            )
-                                          : const SizedBox.shrink(),
-                                    );
-                                  }),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
+                  switch (ProfileTab.values[i]) {
+                    case ProfileTab.public:
+                      return block(
+                        title: 'label_public_information'.l10n,
+                        children: [
+                          Obx(() {
+                            return BigAvatarWidget.myUser(
+                              c.myUser.value,
+                              loading: c.avatarUpload.value.isLoading,
+                              onUpload: c.uploadAvatar,
+                              onDelete: c.myUser.value?.avatar != null
+                                  ? c.deleteAvatar
+                                  : null,
+                            );
+                          }),
+                          const SizedBox(height: 12),
+                          Paddings.basic(
                             Obx(() {
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  WidgetButton(
-                                    key: const Key('UploadAvatar'),
-                                    onPressed: c.uploadAvatar,
-                                    child: Text(
-                                      'btn_upload'.l10n,
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ),
-                                  if (c.myUser.value?.avatar != null) ...[
-                                    Text(
-                                      'space_or_space'.l10n,
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                    WidgetButton(
-                                      key: const Key('DeleteAvatar'),
-                                      onPressed: c.deleteAvatar,
-                                      child: Text(
-                                        'btn_delete'.l10n.toLowerCase(),
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
+                              return UserNameField(
+                                c.myUser.value?.name,
+                                onSubmit: c.updateUserName,
                               );
                             }),
-                            const SizedBox(height: 10),
-                            _name(c),
-                            _presence(c, context),
-                            _status(c),
-                          ],
-                        );
+                          ),
+                          _presence(context, c),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserTextStatusField(
+                                c.myUser.value?.status,
+                                onSubmit: c.updateUserStatus,
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
-                      case ProfileTab.signing:
-                        return Block(
-                          title: 'label_login_options'.l10n,
-                          children: [
-                            _num(c),
-                            _login(c, context),
-                            const SizedBox(height: 10),
-                            _emails(c, context),
-                            _phones(c, context),
-                            _password(context, c),
-                          ],
-                        );
+                    case ProfileTab.signing:
+                      return block(
+                        title: 'label_login_options'.l10n,
+                        children: [
+                          Paddings.basic(
+                            Obx(() {
+                              return UserNumCopyable(c.myUser.value?.num);
+                            }),
+                          ),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserLoginField(
+                                c.myUser.value?.login,
+                                onSubmit: c.updateUserLogin,
+                              );
+                            }),
+                          ),
+                          _emails(context, c),
+                          _phones(context, c),
+                          _password(context, c),
+                        ],
+                      );
 
-                      case ProfileTab.link:
-                        return Block(
-                          title: 'label_your_direct_link'.l10n,
-                          children: [_link(context, c)],
-                        );
+                    case ProfileTab.link:
+                      return block(
+                        title: 'label_your_direct_link'.l10n,
+                        children: [
+                          Obx(() {
+                            return DirectLinkField(
+                              c.myUser.value?.chatDirectLink,
+                              onSubmit: c.createChatDirectLink,
+                            );
+                          }),
+                        ],
+                      );
 
-                      case ProfileTab.background:
-                        return Block(
-                          title: 'label_background'.l10n,
-                          children: [_background(context, c)],
-                        );
+                    case ProfileTab.background:
+                      return block(
+                        title: 'label_background'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              return BackgroundPreview(
+                                c.background.value,
+                                onPick: c.pickBackground,
+                                onRemove: c.removeBackground,
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
-                      case ProfileTab.chats:
-                        return Block(
-                          title: 'label_chats'.l10n,
-                          children: [_chats(context, c)],
-                        );
+                    case ProfileTab.chats:
+                      return block(
+                        title: 'label_chats'.l10n,
+                        children: [_chats(context, c)],
+                      );
 
-                      case ProfileTab.calls:
-                        if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
-                          return Block(
-                            title: 'label_calls'.l10n,
-                            children: [_call(context, c)],
-                          );
-                        }
-
+                    case ProfileTab.calls:
+                      if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
+                      }
 
-                      case ProfileTab.media:
-                        if (!PlatformUtils.isMobile) {
-                          return Block(
-                            title: 'label_media'.l10n,
-                            children: [_media(context, c)],
-                          );
-                        }
+                      return block(
+                        title: 'label_calls'.l10n,
+                        children: [_call(context, c)],
+                      );
 
+                    case ProfileTab.media:
+                      if (PlatformUtils.isMobile) {
                         return const SizedBox();
+                      }
 
-                      case ProfileTab.notifications:
-                        return Block(
-                          title: 'label_audio_notifications'.l10n,
-                          children: [_notifications(context, c)],
-                        );
+                      return block(
+                        title: 'label_media'.l10n,
+                        children: [_media(context, c)],
+                      );
 
-                      case ProfileTab.storage:
-                        return Block(
-                          title: 'label_storage'.l10n,
-                          children: [_storage(context, c)],
-                        );
+                    case ProfileTab.notifications:
+                      return block(
+                        title: 'label_audio_notifications'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              final bool isMuted =
+                                  c.myUser.value?.muted == null;
 
-                      case ProfileTab.language:
-                        return Block(
-                          title: 'label_language'.l10n,
-                          children: [_language(context, c)],
-                        );
+                              return SwitchField(
+                                text: isMuted
+                                    ? 'label_enabled'.l10n
+                                    : 'label_disabled'.l10n,
+                                value: isMuted,
+                                onChanged:
+                                    c.isMuting.value ? null : c.toggleMute,
+                              );
+                            }),
+                          ),
+                        ],
+                      );
 
-                      case ProfileTab.blacklist:
-                        return Block(
-                          title: 'label_blocked_users'.l10n,
-                          children: [_blockedUsers(context, c)],
-                        );
+                    case ProfileTab.storage:
+                      return block(
+                        title: 'label_storage'.l10n,
+                        children: [_storage(context, c)],
+                      );
 
-                      case ProfileTab.download:
-                        if (PlatformUtils.isWeb) {
-                          return Block(
-                            title: 'label_download_application'.l10n,
-                            children: [_downloads(context, c)],
-                          );
-                        }
+                    case ProfileTab.language:
+                      return block(
+                        title: 'label_language'.l10n,
+                        children: [_language(context, c)],
+                      );
 
+                    case ProfileTab.blocklist:
+                      return block(
+                        title: 'label_blocked_users'.l10n,
+                        children: [_blockedUsers(context, c)],
+                      );
+
+                    case ProfileTab.download:
+                      if (!PlatformUtils.isWeb) {
                         return const SizedBox();
+                      }
 
-                      case ProfileTab.danger:
-                        return Block(
-                          title: 'label_danger_zone'.l10n,
-                          children: [_danger(context, c)],
-                        );
+                      return block(
+                        title: 'label_download_application'.l10n,
+                        children: [_downloads(context, c)],
+                      );
 
-                      case ProfileTab.logout:
-                        return const SizedBox();
-                    }
-                  },
-                ),
-              );
+                    case ProfileTab.danger:
+                      return block(
+                        title: 'label_danger_zone'.l10n,
+                        children: [_danger(context, c)],
+                      );
+
+                    case ProfileTab.logout:
+                      return const SizedBox();
+                  }
+                },
+              ),
+            ),
+            floatingActionButton: Obx(() {
+              if (c.myUser.value != null) {
+                return const SizedBox();
+              }
+
+              return const CustomProgressIndicator();
             }),
           ),
         );
@@ -303,281 +299,10 @@ class MyProfileView extends StatelessWidget {
   }
 }
 
-/// Basic [Padding] wrapper.
-Widget _padding(Widget child) =>
-    Padding(padding: const EdgeInsets.all(8), child: child);
-
-/// Dense [Padding] wrapper.
-Widget _dense(Widget child) =>
-    Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
-
-/// Returns [MyUser.name] editable field.
-Widget _name(MyProfileController c) {
-  return _padding(
-    ReactiveTextField(
-      key: const Key('NameField'),
-      state: c.name,
-      label: 'label_name'.l10n,
-      hint: 'label_name_hint'.l10n,
-      filled: true,
-      onSuffixPressed: c.login.text.isEmpty
-          ? null
-          : () {
-              PlatformUtils.copy(text: c.name.text);
-              MessagePopup.success('label_copied'.l10n);
-            },
-      trailing: c.login.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-              ),
-            ),
-    ),
-  );
-}
-
-/// Returns [MyUser.status] editable field.
-Widget _status(MyProfileController c) {
-  return _padding(
-    ReactiveTextField(
-      key: const Key('StatusField'),
-      state: c.status,
-      label: 'label_status'.l10n,
-      filled: true,
-      maxLength: 25,
-      onSuffixPressed: c.status.text.isEmpty
-          ? null
-          : () {
-              PlatformUtils.copy(text: c.status.text);
-              MessagePopup.success('label_copied'.l10n);
-            },
-      trailing: c.status.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-              ),
-            ),
-    ),
-  );
-}
-
-/// Returns [WidgetButton] displaying the [MyUser.presence].
-Widget _presence(MyProfileController c, BuildContext context) {
-  return Obx(() {
-    final Presence? presence = c.myUser.value?.presence;
-
-    return _padding(
-      FieldButton(
-        onPressed: () => StatusView.show(context, expanded: false),
-        hint: 'label_presence'.l10n,
-        text: presence?.localizedString(),
-        trailing:
-            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-      ),
-    );
-  });
-}
-
-/// Returns [MyUser.num] copyable field.
-Widget _num(MyProfileController c) => _padding(
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CopyableTextField(
-            key: const Key('NumCopyable'),
-            state: c.num,
-            label: 'label_num'.l10n,
-            copy: c.myUser.value?.num.val,
-          ),
-          const SizedBox(height: 10),
-        ],
-      ),
-    );
-
-/// Returns [MyUser.chatDirectLink] editable field.
-Widget _link(BuildContext context, MyProfileController c) {
-  return Obx(() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReactiveTextField(
-          key: const Key('LinkField'),
-          state: c.link,
-          onSuffixPressed: c.link.isEmpty.value
-              ? null
-              : () {
-                  PlatformUtils.copy(
-                    text:
-                        '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
-                  );
-
-                  MessagePopup.success('label_copied'.l10n);
-                },
-          trailing: c.link.isEmpty.value
-              ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-                  ),
-                ),
-          label: '${Config.origin}/',
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-          child: Row(
-            children: [
-              RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: 'label_transition_count'.l10nfmt({
-                            'count':
-                                c.myUser.value?.chatDirectLink?.usageCount ?? 0
-                          }) +
-                          'dot_space'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'label_details'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          await LinkDetailsView.show(context);
-                        },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  });
-}
-
-/// Returns [MyUser.login] editable field.
-Widget _login(MyProfileController c, BuildContext context) {
-  return _padding(
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReactiveTextField(
-          key: const Key('LoginField'),
-          state: c.login,
-          onSuffixPressed: c.login.text.isEmpty
-              ? null
-              : () {
-                  PlatformUtils.copy(text: c.login.text);
-                  MessagePopup.success('label_copied'.l10n);
-                },
-          trailing: c.login.text.isEmpty
-              ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-                  ),
-                ),
-          label: 'label_login'.l10n,
-          hint: c.myUser.value?.login == null
-              ? 'label_login_hint'.l10n
-              : c.myUser.value!.login!.val,
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-          child: RichText(
-            text: TextSpan(
-              style:
-                  const TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
-              children: [
-                TextSpan(
-                  text: 'label_login_visible'.l10n,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
-                ),
-                TextSpan(
-                  text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () async {
-                      await ConfirmDialog.show(
-                        context,
-                        title: 'label_login'.l10n,
-                        additional: [
-                          Center(
-                            child: Text(
-                              'label_login_visibility_hint'.l10n,
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'label_visible_to'.l10n,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                        label: 'label_confirm'.l10n,
-                        initial: 2,
-                        variants: [
-                          ConfirmDialogVariant(
-                            onProceed: () {},
-                            child: Text('label_all'.l10n),
-                          ),
-                          ConfirmDialogVariant(
-                            onProceed: () {},
-                            child: Text('label_my_contacts'.l10n),
-                          ),
-                          ConfirmDialogVariant(
-                            onProceed: () {},
-                            child: Text('label_nobody'.l10n),
-                          ),
-                        ],
-                      );
-                    },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 /// Returns addable list of [MyUser.emails].
-Widget _emails(MyProfileController c, BuildContext context) {
+Widget _emails(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Obx(() {
     final List<Widget> widgets = [];
 
@@ -598,33 +323,25 @@ Widget _emails(MyProfileController c, BuildContext context) {
               onTrailingPressed: () => _deleteEmail(c, context, e),
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
-                offset: const Offset(0, -1),
+                offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                  child: const SvgImage.asset(
+                    'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-              child: RichText(
+              subtitle: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      style: style.fonts.labelMediumSecondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      style: style.fonts.labelMediumPrimary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -635,10 +352,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.black,
-                                  ),
+                                  style: style.fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -668,45 +382,36 @@ Widget _emails(MyProfileController c, BuildContext context) {
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.emails.unconfirmed != null) {
       widgets.addAll([
-        Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme: Theme.of(context)
-                .inputDecorationTheme
-                .copyWith(
-                  floatingLabelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
+        FieldButton(
+          key: const Key('UnconfirmedEmail'),
+          text: c.myUser.value!.emails.unconfirmed!.val,
+          hint: 'label_verify_email'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -5),
+            child: Transform.scale(
+              scale: 1.15,
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
           ),
-          child: FieldButton(
-            key: const Key('UnconfirmedEmail'),
-            text: c.myUser.value!.emails.unconfirmed!.val,
-            hint: 'label_verify_email'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-            onPressed: () => AddEmailView.show(
-              context,
-              email: c.myUser.value!.emails.unconfirmed!,
-            ),
-            onTrailingPressed: () => _deleteEmail(
-              c,
-              context,
-              c.myUser.value!.emails.unconfirmed!,
-            ),
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          onPressed: () => AddEmailView.show(
+            context,
+            email: c.myUser.value!.emails.unconfirmed!,
           ),
+          onTrailingPressed: () => _deleteEmail(
+            c,
+            context,
+            c.myUser.value!.emails.unconfirmed!,
+          ),
+          style: style.fonts.titleMediumSecondary,
         ),
       ]);
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.emails.unconfirmed == null) {
@@ -719,22 +424,24 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style: style.fonts.titleMediumPrimary,
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets.map((e) => _dense(e)).toList(),
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
     );
   });
 }
 
-/// Returns addable list of [MyUser.emails].
-Widget _phones(MyProfileController c, BuildContext context) {
+/// Returns addable list of [MyUser.phones].
+Widget _phones(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Obx(() {
     final List<Widget> widgets = [];
 
@@ -750,10 +457,13 @@ Widget _phones(MyProfileController c, BuildContext context) {
               hint: 'label_phone_number'.l10n,
               trailing: Transform.translate(
                 key: const Key('DeletePhone'),
-                offset: const Offset(0, -1),
+                offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                  child: const SvgImage.asset(
+                    'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
               onPressed: () {
@@ -761,27 +471,16 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 MessagePopup.success('label_copied'.l10n);
               },
               onTrailingPressed: () => _deletePhone(c, context, e),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-              child: RichText(
+              subtitle: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      style: style.fonts.labelMediumSecondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      style: style.fonts.labelMediumPrimary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -792,10 +491,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.black,
-                                  ),
+                                  style: style.fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -825,45 +521,36 @@ Widget _phones(MyProfileController c, BuildContext context) {
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.phones.unconfirmed != null) {
       widgets.addAll([
-        Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme: Theme.of(context)
-                .inputDecorationTheme
-                .copyWith(
-                  floatingLabelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
+        FieldButton(
+          key: const Key('UnconfirmedPhone'),
+          text: c.myUser.value!.phones.unconfirmed!.val,
+          hint: 'label_verify_number'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -5),
+            child: Transform.scale(
+              scale: 1.15,
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
           ),
-          child: FieldButton(
-            key: const Key('UnconfirmedPhone'),
-            text: c.myUser.value!.phones.unconfirmed!.val,
-            hint: 'label_verify_number'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-            onPressed: () => AddPhoneView.show(
-              context,
-              phone: c.myUser.value!.phones.unconfirmed!,
-            ),
-            onTrailingPressed: () => _deletePhone(
-              c,
-              context,
-              c.myUser.value!.phones.unconfirmed!,
-            ),
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          onPressed: () => AddPhoneView.show(
+            context,
+            phone: c.myUser.value!.phones.unconfirmed!,
           ),
+          onTrailingPressed: () => _deletePhone(
+            c,
+            context,
+            c.myUser.value!.phones.unconfirmed!,
+          ),
+          style: style.fonts.titleMediumSecondary,
         ),
       ]);
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.phones.unconfirmed == null) {
@@ -876,16 +563,36 @@ Widget _phones(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style: style.fonts.titleMediumPrimary,
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets.map((e) => _dense(e)).toList(),
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
+    );
+  });
+}
+
+/// Returns [WidgetButton] displaying the [MyUser.presence].
+Widget _presence(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Obx(() {
+    final Presence? presence = c.myUser.value?.presence;
+
+    return Paddings.basic(
+      FieldButton(
+        onPressed: () => StatusView.show(context, expanded: false),
+        hint: 'label_presence'.l10n,
+        text: presence?.localizedString(),
+        trailing:
+            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
+        style: style.fonts.titleMediumPrimary,
+      ),
     );
   });
 }
@@ -893,231 +600,53 @@ Widget _phones(MyProfileController c, BuildContext context) {
 /// Returns the buttons changing or setting the password of the currently
 /// authenticated [MyUser].
 Widget _password(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      _dense(
-        FieldButton(
-          key: c.myUser.value?.hasPassword == true
-              ? const Key('ChangePassword')
-              : const Key('SetPassword'),
-          text: c.myUser.value?.hasPassword == true
-              ? 'btn_change_password'.l10n
-              : 'btn_set_password'.l10n,
-          onPressed: () => ChangePasswordView.show(context),
-          style: TextStyle(
-            color: c.myUser.value?.hasPassword != true
-                ? Colors.red
-                : Theme.of(context).colorScheme.secondary,
-          ),
-        ),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            key: c.myUser.value?.hasPassword == true
+                ? const Key('ChangePassword')
+                : const Key('SetPassword'),
+            text: c.myUser.value?.hasPassword == true
+                ? 'btn_change_password'.l10n
+                : 'btn_set_password'.l10n,
+            onPressed: () => ChangePasswordView.show(context),
+            style: c.myUser.value?.hasPassword != true
+                ? style.fonts.titleMediumDanger
+                : style.fonts.titleMediumPrimary,
+          );
+        }),
       ),
       const SizedBox(height: 10),
     ],
   );
 }
 
-/// Returns the contents of a [ProfileTab.danger] section.
-Widget _danger(BuildContext context, MyProfileController c) {
-  return Column(
-    children: [
-      _dense(
-        FieldButton(
-          key: const Key('DeleteAccount'),
-          text: 'btn_delete_account'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
-          ),
-          onPressed: () => _deleteAccount(c, context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
-      ),
-    ],
-  );
-}
-
-/// Returns the contents of a [ProfileTab.background] section.
-Widget _background(BuildContext context, MyProfileController c) {
-  final Style style = Theme.of(context).extension<Style>()!;
-
-  Widget message({
-    bool fromMe = true,
-    bool isRead = true,
-    String text = '123',
-  }) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
-      child: IntrinsicWidth(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          decoration: BoxDecoration(
-            color: fromMe
-                ? isRead
-                    ? style.readMessageColor
-                    : style.unreadMessageColor
-                : style.messageColor,
-            borderRadius: BorderRadius.circular(15),
-            border: fromMe
-                ? isRead
-                    ? style.secondaryBorder
-                    : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
-                : style.primaryBorder,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                child: Text(text, style: style.boldBody),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  return _dense(
-    Column(
-      children: [
-        WidgetButton(
-          onPressed: c.pickBackground,
-          child: Container(
-            decoration: BoxDecoration(
-              border: style.primaryBorder,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Obx(() {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 120,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Positioned.fill(
-                        child: c.background.value == null
-                            ? SvgImage.asset(
-                                'assets/images/background_light.svg',
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.memory(
-                                c.background.value!,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: message(
-                                fromMe: false,
-                                text: 'label_hello'.l10n,
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: message(
-                                fromMe: true,
-                                text: 'label_hello_reply'.l10n,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-        Obx(() {
-          return Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WidgetButton(
-                    onPressed: c.background.value == null
-                        ? c.pickBackground
-                        : c.removeBackground,
-                    child: Text(
-                      c.background.value == null
-                          ? 'btn_upload'.l10n
-                          : 'btn_delete'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ],
-    ),
-  );
-}
-
-/// Returns the contents of a [ProfileTab.calls] section.
-Widget _call(BuildContext context, MyProfileController c) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      _dense(
-        Obx(() {
-          return FieldButton(
-            text: (c.settings.value?.enablePopups ?? true)
-                ? 'label_open_calls_in_window'.l10n
-                : 'label_open_calls_in_app'.l10n,
-            maxLines: null,
-            onPressed: () => CallWindowSwitchView.show(context),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          );
-        }),
-      ),
-    ],
-  );
-}
-
 /// Returns the contents of a [ProfileTab.chats] section.
 Widget _chats(BuildContext context, MyProfileController c) {
-  final Style style = Theme.of(context).extension<Style>()!;
+  final style = Theme.of(context).style;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      _dense(
+      Paddings.dense(
         Align(
           alignment: Alignment.centerLeft,
           child: Padding(
             padding: const EdgeInsets.only(left: 21.0),
             child: Text(
               'label_display_timestamps'.l10n,
-              style: style.systemMessageStyle.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-              ),
+              style: style.fonts.titleMediumSecondary,
             ),
           ),
         ),
       ),
       const SizedBox(height: 4),
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
             text: (c.settings.value?.timelineEnabled ?? true)
@@ -1125,7 +654,30 @@ Widget _chats(BuildContext context, MyProfileController c) {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: style.fonts.titleMediumPrimary,
+          );
+        }),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.calls] section.
+Widget _call(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.settings.value?.enablePopups ?? true)
+                ? 'label_open_calls_in_window'.l10n
+                : 'label_open_calls_in_app'.l10n,
+            maxLines: null,
+            onPressed: () => CallWindowSwitchView.show(context),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1135,10 +687,12 @@ Widget _chats(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.media] section.
 Widget _media(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
             text: (c.devices.video().firstWhereOrNull((e) =>
@@ -1154,15 +708,15 @@ Widget _media(BuildContext context, MyProfileController c) {
               );
 
               if (c.devices.video().isEmpty) {
-                c.enumerateDevices();
+                c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
       const SizedBox(height: 16),
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
             text: (c.devices.audio().firstWhereOrNull((e) =>
@@ -1178,15 +732,15 @@ Widget _media(BuildContext context, MyProfileController c) {
               );
 
               if (c.devices.audio().isEmpty) {
-                c.enumerateDevices();
+                c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
       const SizedBox(height: 16),
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
             text: (c.devices.output().firstWhereOrNull((e) =>
@@ -1202,10 +756,10 @@ Widget _media(BuildContext context, MyProfileController c) {
               );
 
               if (c.devices.output().isEmpty) {
-                c.enumerateDevices();
+                c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1213,56 +767,51 @@ Widget _media(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.notifications] section.
-Widget _notifications(BuildContext context, MyProfileController c) {
-  return Obx(() {
-    return _dense(
-      Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: (c.myUser.value?.muted == null
-                        ? 'label_enabled'
-                        : 'label_disabled')
-                    .l10n,
-                editable: false,
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Transform.scale(
-                scale: 0.7,
-                transformHitTests: false,
-                child: Theme(
-                  data: ThemeData(
-                    platform: TargetPlatform.macOS,
-                  ),
-                  child: Switch.adaptive(
-                    activeColor: Theme.of(context).colorScheme.secondary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: c.myUser.value?.muted == null,
-                    onChanged: c.isMuting.value ? null : c.toggleMute,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+/// Returns the contents of a [ProfileTab.language] section.
+Widget _language(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Paddings.dense(
+    FieldButton(
+      key: const Key('ChangeLanguage'),
+      onPressed: () => LanguageSelectionView.show(
+        context,
+        Get.find<AbstractSettingsRepository>(),
       ),
-    );
-  });
+      text: 'label_language_entry'.l10nfmt({
+        'code': L10n.chosen.value!.locale.countryCode,
+        'name': L10n.chosen.value!.name,
+      }),
+      style: style.fonts.titleMediumPrimary,
+    ),
+  );
+}
+
+/// Returns the contents of a [ProfileTab.blacklist] section.
+Widget _blockedUsers(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Column(
+    children: [
+      Paddings.dense(
+        FieldButton(
+          text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
+          onPressed:
+              c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
+          style: c.blacklist.isEmpty
+              ? style.fonts.titleMedium
+              : style.fonts.titleMediumPrimary,
+        ),
+      ),
+    ],
+  );
 }
 
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
-  return _dense(
-    Column(
-      children: const [
+  return Paddings.dense(
+    const Column(
+      children: [
         DownloadButton(
           asset: 'windows',
           width: 21.93,
@@ -1307,37 +856,26 @@ Widget _downloads(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.language] section.
-Widget _language(BuildContext context, MyProfileController c) {
-  return _dense(
-    FieldButton(
-      key: const Key('ChangeLanguage'),
-      onPressed: () => LanguageSelectionView.show(
-        context,
-        Get.find<AbstractSettingsRepository>(),
-      ),
-      text: 'label_language_entry'.l10nfmt({
-        'code': L10n.chosen.value!.locale.countryCode,
-        'name': L10n.chosen.value!.name,
-      }),
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-    ),
-  );
-}
+/// Returns the contents of a [ProfileTab.danger] section.
+Widget _danger(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
 
-/// Returns the contents of a [ProfileTab.blacklist] section.
-Widget _blockedUsers(BuildContext context, MyProfileController c) {
   return Column(
     children: [
-      _dense(
+      Paddings.dense(
         FieldButton(
-          text: 'label_blocked_count'.l10nfmt({'count': c.blacklist.length}),
-          onPressed:
-              c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
-          style: TextStyle(
-              color: c.blacklist.isEmpty
-                  ? Colors.black
-                  : Theme.of(context).colorScheme.secondary),
+          key: const Key('DeleteAccount'),
+          text: 'btn_delete_account'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+          onPressed: () => _deleteAccount(c, context),
+          style: style.fonts.titleMediumPrimary,
         ),
       ),
     ],
@@ -1346,43 +884,68 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.storage] section.
 Widget _storage(BuildContext context, MyProfileController c) {
-  return Obx(() {
-    return _dense(
-      Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: 'label_load_images'.l10n,
-                editable: false,
-              ),
-            ),
-          ),
+  final style = Theme.of(context).style;
+
+  return Paddings.dense(
+    Column(
+      children: [
+        Obx(() {
+          return SwitchField(
+            text: 'label_load_images'.l10n,
+            value: c.settings.value?.loadImages == true,
+            onChanged: c.settings.value == null ? null : c.setLoadImages,
+          );
+        }),
+        if (!PlatformUtils.isWeb) ...[
+          const SizedBox(height: 16),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Transform.scale(
-                scale: 0.7,
-                transformHitTests: false,
-                child: Theme(
-                  data: ThemeData(platform: TargetPlatform.macOS),
-                  child: Switch.adaptive(
-                    activeColor: Theme.of(context).colorScheme.secondary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: c.settings.value?.loadImages == true,
-                    onChanged:
-                        c.settings.value == null ? null : c.setLoadImages,
-                  ),
-                ),
+              padding: const EdgeInsets.only(left: 21.0),
+              child: Text(
+                'label_cache'.l10n,
+                style: style.fonts.titleMediumSecondary,
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          Obx(() {
+            final int size = CacheWorker.instance.info.value.size;
+            final int max = CacheWorker.instance.info.value.maxSize;
+
+            return Column(
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    LinearProgressIndicator(
+                      value: size / max,
+                      minHeight: 32,
+                      color: style.colors.primary,
+                      backgroundColor: style.colors.background,
+                    ),
+                    Text(
+                      'label_gb_slash_gb'.l10nfmt({
+                        'a': (size / GB).toPrecision(2),
+                        'b': max ~/ GB,
+                      }),
+                      style: style.fonts.labelSmall,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                FieldButton(
+                  onPressed: c.clearCache,
+                  text: 'btn_clear_cache'.l10n,
+                  style: style.fonts.titleMediumPrimary,
+                ),
+              ],
+            );
+          }),
         ],
-      ),
-    );
-  });
+      ],
+    ),
+  );
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the
@@ -1392,14 +955,13 @@ Future<void> _deleteEmail(
   BuildContext context,
   UserEmail email,
 ) async {
+  final style = Theme.of(context).style;
+
   final bool? result = await MessagePopup.alert(
     'label_delete_email'.l10n,
     description: [
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
-      TextSpan(
-        text: email.val,
-        style: const TextStyle(color: Colors.black),
-      ),
+      TextSpan(text: email.val, style: style.fonts.labelLarge),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
   );
@@ -1416,14 +978,13 @@ Future<void> _deletePhone(
   BuildContext context,
   UserPhone phone,
 ) async {
+  final style = Theme.of(context).style;
+
   final bool? result = await MessagePopup.alert(
     'label_delete_phone_number'.l10n,
     description: [
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
-      TextSpan(
-        text: phone.val,
-        style: const TextStyle(color: Colors.black),
-      ),
+      TextSpan(text: phone.val, style: style.fonts.labelLarge),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
   );
@@ -1435,6 +996,8 @@ Future<void> _deletePhone(
 
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
+  final style = Theme.of(context).style;
+
   final bool? result = await MessagePopup.alert(
     'label_delete_account'.l10n,
     description: [
@@ -1444,7 +1007,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
             c.myUser.value?.login?.val ??
             c.myUser.value?.num.val ??
             'dot'.l10n * 3,
-        style: const TextStyle(color: Colors.black),
+        style: style.fonts.labelLarge,
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

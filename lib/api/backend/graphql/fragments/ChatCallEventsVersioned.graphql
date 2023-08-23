@@ -132,6 +132,12 @@ fragment ChatCallEventsVersioned on ChatCallEventsVersioned {
                 ...User
             }
         }
+        ... on EventChatCallConversationStarted {
+            call {
+                __typename
+                ...ChatCall
+            }
+        }
     }
     ver
 }

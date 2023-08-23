@@ -36,7 +36,6 @@ import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -59,8 +58,6 @@ void main() async {
 
   final graphQlProvider = MockGraphQlProvider();
 
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   var userProvider = Get.put(UserHiveProvider());
@@ -99,7 +96,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -164,7 +160,7 @@ void main() async {
     await authService.init();
 
     UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
+        UserRepository(graphQlProvider, userProvider);
 
     CallRepository callRepository = Get.put(
       CallRepository(
@@ -198,7 +194,10 @@ void main() async {
       ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        User(
+          const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          UserNum('1234123412341234'),
+        ),
         PreciseDateTime.now(),
       ),
       const ChatMessageText('new text'),
@@ -231,7 +230,7 @@ void main() async {
     await authService.init();
 
     UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
+        UserRepository(graphQlProvider, userProvider);
 
     CallRepository callRepository = Get.put(
       CallRepository(
@@ -269,7 +268,10 @@ void main() async {
         ChatMessage(
           const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          User(
+            const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+            UserNum('1234123412341234'),
+          ),
           PreciseDateTime.now(),
         ),
         const ChatMessageText('new text'),

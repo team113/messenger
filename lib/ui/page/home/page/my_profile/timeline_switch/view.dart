@@ -38,9 +38,6 @@ class TimelineSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-
     return GetBuilder(
       init: TimelineSwitchController(Get.find()),
       builder: (TimelineSwitchController c) {
@@ -51,14 +48,7 @@ class TimelineSwitchView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_display_timestamps'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_display_timestamps'.l10n),
               const SizedBox(height: 13),
               Flexible(
                 child: ListView.separated(

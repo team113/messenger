@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Animated [CircleAvatar] representing a selection circle.
@@ -27,6 +28,7 @@ class SelectedDot extends StatelessWidget {
     this.size = 24,
     this.darken = 0,
     this.inverted = true,
+    this.outlined = false,
   });
 
   /// Indicator whether this [SelectedDot] is selected.
@@ -42,9 +44,12 @@ class SelectedDot extends StatelessWidget {
   /// to its base one when [selected] is `true`.
   final bool inverted;
 
+  /// Indicator whether this [SelectedDot] should be outlined.
+  final bool outlined;
+
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final style = Theme.of(context).style;
 
     return SizedBox(
       width: 30,
@@ -54,11 +59,12 @@ class SelectedDot extends StatelessWidget {
             ? CircleAvatar(
                 key: const Key('Selected'),
                 backgroundColor:
-                    inverted ? colors.onSecondary : colors.secondary,
+                    inverted ? style.colors.onPrimary : style.colors.primary,
                 radius: size / 2,
                 child: Icon(
                   Icons.check,
-                  color: inverted ? colors.secondary : colors.onSecondary,
+                  color:
+                      inverted ? style.colors.primary : style.colors.onPrimary,
                   size: 14,
                 ),
               )
@@ -67,12 +73,23 @@ class SelectedDot extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFD7D7D7).darken(darken),
-                    width: 1,
+                    color: outlined
+                        ? style.colors.primary
+                        : style.colors.secondaryHighlightDark.darken(darken),
+                    width: 1.5,
                   ),
                 ),
                 width: size,
                 height: size,
+                child: outlined
+                    ? Center(
+                        child: Icon(
+                          Icons.check,
+                          color: style.colors.primary,
+                          size: 14,
+                        ),
+                      )
+                    : null,
               ),
       ),
     );

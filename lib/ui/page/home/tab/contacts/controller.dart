@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -91,6 +91,9 @@ class ContactsTabController extends GetxController {
   late final Rx<Timer?> fetching = Rx(
     Timer(2.seconds, () => fetching.value = null),
   );
+
+  /// [GlobalKey] of the more button.
+  final GlobalKey moreKey = GlobalKey();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;

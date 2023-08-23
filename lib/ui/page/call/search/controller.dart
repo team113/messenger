@@ -312,33 +312,11 @@ class SearchController extends GetxController {
     if (categories.contains(SearchCategory.chat)) {
       final List<RxChat> sorted = _chatService.chats.values.toList();
 
-      sorted.sort((a, b) {
-        if (a.chat.value.favoritePosition != null &&
-            b.chat.value.favoritePosition == null) {
-          return -1;
-        } else if (a.chat.value.favoritePosition == null &&
-            b.chat.value.favoritePosition != null) {
-          return 1;
-        } else if (a.chat.value.favoritePosition != null &&
-            b.chat.value.favoritePosition != null) {
-          return a.chat.value.favoritePosition!
-              .compareTo(b.chat.value.favoritePosition!);
-        }
-
-        if (a.chat.value.ongoingCall != null &&
-            b.chat.value.ongoingCall == null) {
-          return -1;
-        } else if (a.chat.value.ongoingCall == null &&
-            b.chat.value.ongoingCall != null) {
-          return 1;
-        }
-
-        return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-      });
+      sorted.sort();
 
       chats.value = {
         for (var c in sorted.where((p) {
-          if (p.id.isLocal) {
+          if (p.id.isLocal && !p.id.isLocalWith(me) || p.chat.value.isHidden) {
             return false;
           }
 

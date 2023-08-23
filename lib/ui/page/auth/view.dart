@@ -24,6 +24,7 @@ import 'package:rive/rive.dart' hide LinearGradient;
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/language/controller.dart';
 import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
@@ -41,6 +42,8 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
@@ -49,26 +52,19 @@ class AuthView extends StatelessWidget {
         bool isIosWeb = isWeb && PlatformUtils.isIOS;
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
-        final TextStyle? thin =
-            context.textTheme.bodySmall?.copyWith(color: Colors.black);
-        final Color primary = Theme.of(context).colorScheme.primary;
-
         // Header part of the page.
         //
         // All frames of the animation are drawn in offstage in order to
         // load all the images ahead of animation to reduce the possible
         // flickering.
         List<Widget> header = [
-          ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
-              .map((e) => Offstage(child: SvgImage.asset(e)))
-              .toList(),
           ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
               .map((e) => Offstage(child: SvgImage.asset(e)))
               .toList(),
           const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: thin?.copyWith(fontSize: 24, color: primary),
+            style: style.fonts.displayMediumSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -76,7 +72,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin?.copyWith(fontSize: 15.4, color: primary),
+            style: style.fonts.labelLargeSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -91,26 +87,29 @@ class AuthView extends StatelessWidget {
             key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
-              style: const TextStyle(color: Colors.white),
+              style: style.fonts.titleLargeOnPrimary,
             ),
-            leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
+            leading:
+                const SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
             onPressed: c.register,
-            color: Theme.of(context).colorScheme.secondary,
+            color: style.colors.primary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n),
-            leading:
-                SvgImage.asset('assets/icons/sign_in.svg', width: 20 * 0.7),
+            title: Text('btn_login'.l10n, style: style.fonts.titleLarge),
+            leading: const SvgImage.asset(
+              'assets/icons/sign_in.svg',
+              width: 20 * 0.7,
+            ),
             onPressed: () => LoginView.show(context),
           ),
           const SizedBox(height: 15),
           if (isIosWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
-              leading: Padding(
-                padding: const EdgeInsets.only(bottom: 3 * 0.7),
+              title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
+              leading: const Padding(
+                padding: EdgeInsets.only(bottom: 3 * 0.7),
                 child:
                     SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7),
               ),
@@ -118,9 +117,9 @@ class AuthView extends StatelessWidget {
             ),
           if (isAndroidWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 2 * 0.7),
+              title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
+              leading: const Padding(
+                padding: EdgeInsets.only(left: 2 * 0.7),
                 child:
                     SvgImage.asset('assets/icons/google.svg', width: 22 * 0.7),
               ),
@@ -128,16 +127,19 @@ class AuthView extends StatelessWidget {
             ),
           if (isDesktopWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
+              title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
               leading: PlatformUtils.isMacOS
-                  ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
+                  ? const SvgImage.asset(
+                      'assets/icons/apple.svg',
+                      width: 22 * 0.7,
+                    )
                   : (PlatformUtils.isWindows)
-                      ? SvgImage.asset(
+                      ? const SvgImage.asset(
                           'assets/icons/windows.svg',
                           width: 22 * 0.7,
                         )
                       : (PlatformUtils.isLinux)
-                          ? SvgImage.asset(
+                          ? const SvgImage.asset(
                               'assets/icons/linux.svg',
                               width: 22 * 0.7,
                             )
@@ -162,10 +164,10 @@ class AuthView extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: const Color(0xFFF6F8F9),
+                color: style.colors.background,
               ),
             ),
-            IgnorePointer(
+            const IgnorePointer(
               child: SvgImage.asset(
                 'assets/images/background_light.svg',
                 width: double.infinity,
@@ -176,7 +178,7 @@ class AuthView extends StatelessWidget {
             GestureDetector(
               onTap: c.animate,
               child: Scaffold(
-                backgroundColor: Colors.transparent,
+                backgroundColor: style.colors.transparent,
                 body: Center(
                   child: SingleChildScrollView(
                     child: Center(
@@ -238,17 +240,7 @@ class AuthView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ModalPopupHeader(
-            header: Center(
-              child: Text(
-                'btn_download'.l10n,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: Colors.black, fontSize: 18),
-              ),
-            ),
-          ),
+          ModalPopupHeader(text: 'btn_download'.l10n),
           const SizedBox(height: 12),
           Flexible(
             child: ListView(

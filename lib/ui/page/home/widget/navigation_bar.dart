@@ -17,21 +17,22 @@
 
 import 'dart:ui';
 
-import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/widget/animated_button.dart';
+import '/util/platform_utils.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatelessWidget {
   const CustomNavigationBar({
-    Key? key,
+    super.key,
     this.currentIndex = 0,
     this.items = const [],
     this.onTap,
-  }) : super(key: key);
+  });
 
   /// Currently selected index of an item in the [items] list.
   final int currentIndex;
@@ -48,15 +49,15 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       decoration: BoxDecoration(
-        boxShadow: const [
+        boxShadow: [
           CustomBoxShadow(
             blurRadius: 8,
-            color: Color(0x22000000),
+            color: style.colors.onBackgroundOpacity13,
             blurStyle: BlurStyle.outer,
           ),
         ],
@@ -90,30 +91,42 @@ class CustomNavigationBar extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (b.child != null)
-                            InkResponse(
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              splashColor: Colors.transparent,
-                              onTap: () => onTap?.call(i),
+                            _CustomNavigationBarButton(
+                              selected: currentIndex == i,
+                              onPressed: () => onTap?.call(i),
                               child: Container(
                                 width: 80,
-                                color: Colors.transparent,
+                                color: style.colors.transparent,
                                 child: Center(
-                                  child: badges.Badge(
-                                    badgeStyle: badges.BadgeStyle(
-                                      badgeColor: b.badgeColor,
+                                  child: Badge(
+                                    largeSize: 15,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 0,
+                                      horizontal: 4.4,
                                     ),
-                                    badgeContent: b.badge == null
+                                    offset: const Offset(2, -2),
+                                    label: b.badge == null
                                         ? null
-                                        : Text(
-                                            b.badge!,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 11,
+                                        : Transform.translate(
+                                            offset: PlatformUtils.isWeb
+                                                ? Offset(
+                                                    0,
+                                                    PlatformUtils.isIOS
+                                                        ? 0
+                                                        : 0.25,
+                                                  )
+                                                : PlatformUtils.isDesktop
+                                                    ? const Offset(0, -0.7)
+                                                    : Offset.zero,
+                                            child: Text(
+                                              b.badge!,
+                                              textAlign: TextAlign.center,
                                             ),
                                           ),
-                                    showBadge: b.badge != null,
+                                    textStyle: style.fonts.bodySmallOnPrimary,
+                                    backgroundColor: b.badgeColor ??
+                                        style.colors.dangerColor,
+                                    isLabelVisible: b.badge != null,
                                     child: b.child!,
                                   ),
                                 ),
@@ -138,7 +151,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
-    this.badgeColor = Colors.red,
+    this.badgeColor,
     this.child,
   });
 
@@ -149,8 +162,41 @@ class CustomNavigationBarItem {
   final String? badge;
 
   /// [Color] of the provided [badge], if any.
-  final Color badgeColor;
+  final Color? badgeColor;
 
   /// [Widget] to display.
   final Widget? child;
+}
+
+/// [AnimatedButton] with [AnimatedScale] representing a single button of
+/// [CustomNavigationBar].
+class _CustomNavigationBarButton extends StatelessWidget {
+  const _CustomNavigationBarButton({
+    this.selected = false,
+    this.onPressed,
+    required this.child,
+  });
+
+  /// Widget of this [_CustomNavigationBarButton].
+  final Widget child;
+
+  /// Indicator whether this [_CustomNavigationBarButton] is selected.
+  final bool selected;
+
+  /// Callback, called when this [_CustomNavigationBarButton] is pressed.
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.bounceInOut,
+      scale: selected ? 1.1 : 1,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: selected ? 1 : 0.7,
+        child: AnimatedButton(onPressed: onPressed, child: child),
+      ),
+    );
+  }
 }

@@ -23,16 +23,17 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:video_player/video_player.dart';
 
 import '/domain/service/file.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
-import '/ui/page/home/page/chat/widget/video.dart';
+import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -64,7 +65,7 @@ class GalleryItem {
     String name, {
     int? size,
     String? checksum,
-    Future<void> Function()? onError,
+    FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
@@ -81,7 +82,7 @@ class GalleryItem {
     String name, {
     int? size,
     String? checksum,
-    Future<void> Function()? onError,
+    FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
@@ -108,19 +109,19 @@ class GalleryItem {
   final int? size;
 
   /// Callback, called on the fetch errors of this [GalleryItem].
-  final Future<void> Function()? onError;
+  final FutureOr<void> Function()? onError;
 }
 
 /// Animated gallery of [GalleryItem]s.
 class GalleryPopup extends StatefulWidget {
   const GalleryPopup({
-    Key? key,
+    super.key,
     this.children = const [],
     this.initial = 0,
     this.initialKey,
     this.onPageChanged,
     this.onTrashPressed,
-  }) : super(key: key);
+  });
 
   /// [List] of [GalleryItem]s to display in a gallery.
   final List<GalleryItem> children;
@@ -141,8 +142,10 @@ class GalleryPopup extends StatefulWidget {
   /// Displays a dialog with the provided [gallery] above the current contents.
   static Future<T?> show<T extends Object?>({
     required BuildContext context,
-    required GalleryPopup gallery,
+    required Widget gallery,
   }) {
+    final style = Theme.of(context).style;
+
     return showGeneralDialog(
       context: context,
       pageBuilder: (
@@ -157,9 +160,9 @@ class GalleryPopup extends StatefulWidget {
         return themes.wrap(gallery);
       },
       barrierDismissible: false,
-      barrierColor: Colors.transparent,
+      barrierColor: style.colors.transparent,
       transitionDuration: Duration.zero,
-      useRootNavigator: PlatformUtils.isMobile ? false : true,
+      useRootNavigator: context.isMobile ? false : true,
     );
   }
 
@@ -184,9 +187,9 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [PageController] controlling the [PageView].
   late final PageController _pageController;
 
-  /// [Map] of [VideoPlayerController] controlling the video playback used to
+  /// [Map] of [MeeduPlayerController] controlling the video playback used to
   /// play/pause the active videos on keyboard presses.
-  final Map<int, VideoPlayerController> _videoControllers = {};
+  final Map<int, MeeduPlayerController> _videoControllers = {};
 
   /// [CurvedAnimation] of the [_sliding] animation.
   late CurvedAnimation _curve;
@@ -319,6 +322,8 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         if (!_firstLayout) {
@@ -350,7 +355,8 @@ class _GalleryPopupState extends State<GalleryPopup>
             AnimatedBuilder(
               animation: _fading,
               builder: (context, child) => Container(
-                color: Colors.black.withOpacity(0.9 * _fading.value),
+                color:
+                    style.colors.onBackground.withOpacity(0.9 * _fading.value),
               ),
             ),
             AnimatedBuilder(
@@ -408,6 +414,8 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the gallery view of its items itself.
   Widget _pageView() {
+    final style = Theme.of(context).style;
+
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       return ContextMenuRegion(
@@ -443,12 +451,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 maxScale: PhotoViewComputedScale.contained * 3,
                 errorBuilder: (_, __, ___) {
                   return InitCallback(
-                    callback: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
+                    callback: e.onError,
                     child: const SizedBox(
                       height: 300,
                       child: Center(child: CustomProgressIndicator()),
@@ -462,40 +465,24 @@ class _GalleryPopupState extends State<GalleryPopup>
               disableGestures: e.isVideo,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: e.isVideo
-                    ? Video(
-                        e.link,
-                        showInterfaceFor: _isInitialPage ? 3.seconds : null,
-                        onClose: _dismiss,
-                        isFullscreen: _isFullscreen,
-                        toggleFullscreen: () {
-                          node.requestFocus();
-                          _toggleFullscreen();
-                        },
-                        onController: (c) {
-                          if (c == null) {
-                            _videoControllers.remove(index);
-                          } else {
-                            _videoControllers[index] = c;
-                          }
-                        },
-                        onError: () async {
-                          await e.onError?.call();
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        },
-                      )
-                    : RetryImage(
-                        e.link,
-                        checksum: e.checksum,
-                        onForbidden: () async {
-                          await e.onError?.call();
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        },
-                      ),
+                child: VideoView(
+                  e.link,
+                  showInterfaceFor: _isInitialPage ? 3.seconds : null,
+                  onClose: _dismiss,
+                  isFullscreen: _isFullscreen,
+                  toggleFullscreen: () {
+                    node.requestFocus();
+                    _toggleFullscreen();
+                  },
+                  onController: (c) {
+                    if (c == null) {
+                      _videoControllers.remove(index);
+                    } else {
+                      _videoControllers[index] = c;
+                    }
+                  },
+                  onError: e.onError,
+                ),
               ),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
@@ -513,7 +500,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               ),
             ),
           ),
-          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+          backgroundDecoration: BoxDecoration(color: style.colors.transparent),
           pageController: _pageController,
           onPageChanged: (i) {
             _isInitialPage = false;
@@ -558,7 +545,7 @@ class _GalleryPopupState extends State<GalleryPopup>
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: e.isVideo
-                ? Video(
+                ? VideoView(
                     e.link,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
@@ -574,12 +561,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         _videoControllers[index] = c;
                       }
                     },
-                    onError: () async {
-                      await e.onError?.call();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
+                    onError: e.onError,
                   )
                 : GestureDetector(
                     onTap: () {
@@ -591,18 +573,25 @@ class _GalleryPopupState extends State<GalleryPopup>
                       node.requestFocus();
                       _toggleFullscreen();
                     },
-                    child: PlatformUtils.isWeb
-                        ? IgnorePointer(child: WebImage(e.link))
-                        : RetryImage(
-                            e.link,
-                            checksum: e.checksum,
-                            onForbidden: () async {
-                              await e.onError?.call();
-                              if (mounted) {
-                                setState(() {});
-                              }
-                            },
-                          ),
+                    child: FittedBox(
+                      fit: _isFullscreen.isTrue
+                          ? BoxFit.contain
+                          : BoxFit.scaleDown,
+                      child: ConstrainedBox(
+                        constraints:
+                            const BoxConstraints(minWidth: 1, minHeight: 1),
+                        child: PlatformUtils.isWeb
+                            ? WebImage(
+                                e.link,
+                                onForbidden: e.onError,
+                              )
+                            : RetryImage(
+                                e.link,
+                                checksum: e.checksum,
+                                onForbidden: e.onError,
+                              ),
+                      ),
+                    ),
                   ),
           ),
         );
@@ -612,6 +601,8 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the [List] of [GalleryPopup] interface [Widget]s.
   List<Widget> _buildInterface() {
+    final style = Theme.of(context).style;
+
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
@@ -658,14 +649,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: const Color(0x794E5A78),
+                              color: style.colors.onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.only(right: 1),
                               child: Icon(
                                 Icons.keyboard_arrow_left_rounded,
-                                color: left ? Colors.white : Colors.grey,
+                                color: left
+                                    ? style.colors.onPrimary
+                                    : style.colors.secondary,
                                 size: 36,
                               ),
                             ),
@@ -709,14 +702,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: const Color(0x794E5A78),
+                              color: style.colors.onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.only(left: 1),
                               child: Icon(
                                 Icons.keyboard_arrow_right_rounded,
-                                color: right ? Colors.white : Colors.grey,
+                                color: right
+                                    ? style.colors.onPrimary
+                                    : style.colors.secondary,
                                 size: 36,
                               ),
                             ),
@@ -743,12 +738,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
-                    color: const Color(0x794E5A78),
+                    color: style.colors.onSecondaryOpacity50,
                     onPressed: _dismiss,
                     withBlur: true,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close_rounded,
-                      color: Colors.white,
+                      color: style.colors.onPrimary,
                       size: 28,
                     ),
                   ),
@@ -771,7 +766,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                     width: 60,
                     height: 60,
                     child: RoundFloatingButton(
-                      color: const Color(0x794E5A78),
+                      color: style.colors.onSecondaryOpacity50,
                       onPressed: _toggleFullscreen,
                       withBlur: true,
                       assetWidth: 22,
@@ -842,7 +837,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
-                    color: const Color(0x794E5A78),
+                    color: style.colors.onSecondaryOpacity50,
                     onPressed: () {
                       widget.onTrashPressed?.call(_page);
                       _dismiss();
@@ -935,7 +930,7 @@ class _GalleryPopupState extends State<GalleryPopup>
         _dismiss();
       } else if (k.physicalKey == PhysicalKeyboardKey.space) {
         _videoControllers.forEach((_, v) {
-          if (v.value.isPlaying == true) {
+          if (v.playerStatus.playing) {
             v.pause();
           } else {
             v.play();
@@ -1097,11 +1092,19 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.saveToGallery(item.link, item.name);
+        await PlatformUtils.saveToGallery(
+          item.link,
+          item.name,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.saveToGallery(item.link, item.name);
+          await PlatformUtils.saveToGallery(
+            item.link,
+            item.name,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }
@@ -1121,11 +1124,19 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _share(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.share(item.link, item.name);
+        await PlatformUtils.share(
+          item.link,
+          item.name,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.share(item.link, item.name);
+          await PlatformUtils.share(
+            item.link,
+            item.name,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }

@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/widget_button.dart';
@@ -39,8 +40,7 @@ class BlacklistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: BlacklistController(
@@ -55,14 +55,8 @@ class BlacklistView extends StatelessWidget {
             children: [
               const SizedBox(height: 4),
               ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_blocked_count'
-                        .l10nfmt({'count': c.blacklist.length}),
-                    style: thin?.copyWith(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                text:
+                    'label_users_count'.l10nfmt({'count': c.blacklist.length}),
               ),
               const SizedBox(height: 4),
               if (c.blacklist.isEmpty)
@@ -92,10 +86,7 @@ class BlacklistView extends StatelessWidget {
                             const SizedBox(height: 5),
                             Text(
                               '28.12.2022',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontSize: 13,
-                              ),
+                              style: style.fonts.bodySmallSecondary,
                             ),
                           ],
                           trailing: [
@@ -103,11 +94,7 @@ class BlacklistView extends StatelessWidget {
                               onPressed: () => c.unblacklist(user),
                               child: Text(
                                 'btn_unblock_short'.l10n,
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  fontSize: 13,
-                                ),
+                                style: style.fonts.bodySmallPrimary,
                               ),
                             ),
                             const SizedBox(width: 4),

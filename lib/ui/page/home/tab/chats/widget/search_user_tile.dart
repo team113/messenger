@@ -25,6 +25,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 
 /// [ContactTile] intended to be used as a search result representing the
@@ -48,6 +49,8 @@ class SearchUserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
       final ChatId? chatId =
           user?.user.value.dialog ?? contact?.user.value?.user.value.dialog;
@@ -74,21 +77,21 @@ class SearchUserTile extends StatelessWidget {
                 RegExp(r'.{4}'),
                 (match) => '${match.group(0)} ',
               )}',
-              style: TextStyle(
-                color: selected
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.primary,
-              ),
+              style: selected
+                  ? style.fonts.labelMediumOnPrimary
+                  : style.fonts.labelMediumSecondary,
             ),
           ],
           trailing: [
-            if (user?.user.value.isBlacklisted != null ||
-                contact?.user.value?.user.value.isBlacklisted != null)
+            if (user?.user.value.isBlocked != null ||
+                contact?.user.value?.user.value.isBlocked != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color: selected ? Colors.white : const Color(0xFFC0C0C0),
+                  color: selected
+                      ? style.colors.onPrimary
+                      : style.colors.secondaryHighlightDarkest,
                   size: 20,
                 ),
               )
