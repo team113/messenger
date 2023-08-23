@@ -111,65 +111,66 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     return AnimatedSize(
       duration: const Duration(milliseconds: 200),
       child: StreamBuilder(
-          stream: _controller.player.stream.width,
-          builder: (_, __) {
-            double width = 0;
-            double height = 0;
+        stream: _controller.player.stream.width,
+        builder: (_, __) {
+          double width = 0;
+          double height = 0;
 
-            if (widget.width != null && widget.height != null) {
-              width = widget.width!;
+          if (widget.width != null && widget.height != null) {
+            width = widget.width!;
+            height = widget.height!;
+          } else if (_controller.player.state.width != null) {
+            width = _controller.player.state.width!.toDouble();
+            height = _controller.player.state.height!.toDouble();
+
+            if (widget.height != null) {
+              width = width * widget.height! / height;
               height = widget.height!;
-            } else if (_controller.player.state.width != null) {
-              width = _controller.player.state.width!.toDouble();
-              height = _controller.player.state.height!.toDouble();
-
-              if (widget.height != null) {
-                width = width * widget.height! / height;
-                height = widget.height!;
-              }
             }
+          }
 
-            return _controller.player.state.width != null
-                ? SizedBox(
-                    width: width,
-                    height: height,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        ClipRect(
-                          child: FittedBox(
+          if (_controller.player.state.width != null) {
+            return SizedBox(
+              width: width,
+              height: height,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRect(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width:
+                            _controller.player.state.width?.toDouble() ?? 1920,
+                        height:
+                            _controller.player.state.height?.toDouble() ?? 1080,
+                        child: IgnorePointer(
+                          child: Video(
+                            controller: _controller,
                             fit: BoxFit.cover,
-                            child: SizedBox(
-                              width:
-                                  _controller.player.state.width?.toDouble() ??
-                                      1920,
-                              height:
-                                  _controller.player.state.height?.toDouble() ??
-                                      1080,
-                              child: IgnorePointer(
-                                child: Video(
-                                  controller: _controller,
-                                  fit: BoxFit.cover,
-                                  controls: (_) => const SizedBox(),
-                                ),
-                              ),
-                            ),
+                            controls: (_) => const SizedBox(),
                           ),
                         ),
-                        ContextMenuInterceptor(child: const SizedBox()),
-
-                        // [Container] for receiving pointer events over this
-                        // [VideoThumbnail], since the [ContextMenuInterceptor] above
-                        // intercepts them.
-                        Container(color: style.colors.transparent),
-                      ],
+                      ),
                     ),
-                  )
-                : SizedBox(
-                    width: widget.width ?? 250,
-                    height: widget.height ?? 250,
-                  );
-          }),
+                  ),
+                  ContextMenuInterceptor(child: const SizedBox()),
+
+                  // [Container] for receiving pointer events over this
+                  // [VideoThumbnail], since the [ContextMenuInterceptor] above
+                  // intercepts them.
+                  Container(color: style.colors.transparent),
+                ],
+              ),
+            );
+          } else {
+            return SizedBox(
+              width: widget.width ?? 250,
+              height: widget.height ?? 250,
+            );
+          }
+        },
+      ),
     );
   }
 
@@ -177,6 +178,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
     File? file;
+
     if (bytes == null &&
         widget.checksum != null &&
         CacheWorker.instance.exists(widget.checksum!)) {

@@ -47,8 +47,6 @@ class CenteredPlayPause extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    controller.player.stream.completed;
-
     return StreamBuilder(
       stream: controller.player.stream.completed,
       initialData: controller.player.state.completed,

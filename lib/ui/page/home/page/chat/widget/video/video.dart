@@ -123,68 +123,70 @@ class _VideoViewState extends State<VideoView> {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: Builder(builder: (_) {
-        return _controller.player.state.width != null
-            ? LayoutBuilder(builder: (_, constraints) {
-                Size? size = _controller.rect.value?.size;
+        if (_controller.player.state.width != null) {
+          return LayoutBuilder(builder: (_, constraints) {
+            Size? size = _controller.rect.value?.size;
 
-                final double maxHeight = constraints.maxHeight;
-                final double maxWidth = constraints.maxWidth;
+            final double maxHeight = constraints.maxHeight;
+            final double maxWidth = constraints.maxWidth;
 
-                if (size != null &&
-                    (maxHeight < size.height ||
-                        maxWidth < size.width ||
-                        widget.isFullscreen?.value == true)) {
-                  final double ratio =
-                      min(maxHeight / size.height, maxWidth / size.width);
-                  size *= ratio;
-                }
+            if (size != null &&
+                (maxHeight < size.height ||
+                    maxWidth < size.width ||
+                    widget.isFullscreen?.value == true)) {
+              final double ratio =
+                  min(maxHeight / size.height, maxWidth / size.width);
+              size *= ratio;
+            }
 
-                return Stack(
-                  children: [
-                    Center(
-                      child: SizedBox.fromSize(
-                        size: size,
-                        child: Video(
-                          controller: _controller,
-                          controls: (_) => const SizedBox(),
-                          fill: style.colors.transparent,
-                        ),
-                      ),
+            return Stack(
+              children: [
+                Center(
+                  child: SizedBox.fromSize(
+                    size: size,
+                    child: Video(
+                      controller: _controller,
+                      controls: (_) => const SizedBox(),
+                      fill: style.colors.transparent,
                     ),
-                    PlatformUtils.isMobile
-                        ? MobileControls(_controller, barHeight: _barHeight)
-                        : DesktopControls(
-                            _controller,
-                            barHeight: _barHeight,
-                            onClose: widget.onClose,
-                            toggleFullscreen: widget.toggleFullscreen,
-                            isFullscreen: widget.isFullscreen,
-                            showInterfaceFor: widget.showInterfaceFor,
-                            size: size,
-                          ),
-                  ],
-                );
-              })
-            : GestureDetector(
-                key: Key(_loading != null ? 'Box' : 'Loading'),
-                onTap: () {
-                  // Intercept `onTap` event to prevent [GalleryPopup]
-                  // closing.
-                },
-                child: Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.99,
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    decoration: BoxDecoration(
-                      color: style.colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: _loading != null
-                        ? const SizedBox()
-                        : const Center(child: CustomProgressIndicator()),
                   ),
                 ),
-              );
+                PlatformUtils.isMobile
+                    ? MobileControls(_controller, barHeight: _barHeight)
+                    : DesktopControls(
+                        _controller,
+                        barHeight: _barHeight,
+                        onClose: widget.onClose,
+                        toggleFullscreen: widget.toggleFullscreen,
+                        isFullscreen: widget.isFullscreen,
+                        showInterfaceFor: widget.showInterfaceFor,
+                        size: size,
+                      ),
+              ],
+            );
+          });
+        } else {
+          return GestureDetector(
+            key: Key(_loading != null ? 'Box' : 'Loading'),
+            onTap: () {
+              // Intercept `onTap` event to prevent [GalleryPopup]
+              // closing.
+            },
+            child: Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.99,
+                height: MediaQuery.of(context).size.height * 0.6,
+                decoration: BoxDecoration(
+                  color: style.colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: _loading != null
+                    ? const SizedBox()
+                    : const Center(child: CustomProgressIndicator()),
+              ),
+            ),
+          );
+        }
       }),
     );
   }
