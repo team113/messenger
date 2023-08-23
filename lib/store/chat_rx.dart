@@ -280,7 +280,11 @@ class HiveRxChat extends RxChat {
           break;
 
         case OperationKind.removed:
-          messages.removeWhere((e) => e.value.id == event.value?.value.id); // TODO: dispose attachments
+          final int i = messages.indexWhere((e) => e.value.id == event.value?.value.id);
+          if(i != -1) {
+            final Rx<ChatItem> item = messages.removeAt(i);
+            _disposeAttachments(item.value);
+          }
           _guard.protect(() => _local.remove(event.value!.value.key));
           break;
 

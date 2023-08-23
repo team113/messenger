@@ -426,11 +426,10 @@ class PlatformUtilsImpl {
                 onError(e);
               }
 
-                return null;
-              },
-              cancelToken,
-            );
-          }
+              return null;
+            },
+            cancelToken,
+          );
 
           if (file == null) {
             Uint8List? data;
