@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -177,24 +175,27 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
-    File? file;
 
     if (bytes == null &&
         widget.checksum != null &&
         CacheWorker.instance.exists(widget.checksum!)) {
-      file = await CacheWorker.instance.getFile(widget.checksum!);
+      bytes = await CacheWorker.instance.get(checksum: widget.checksum!);
     }
 
-    if (bytes != null) {
-      await _controller.player.open(await Media.memory(bytes), play: false);
-    } else {
-      await _controller.player.open(
-        Media(file?.path ?? widget.url!),
-        play: false,
-      );
+    try {
+      if (bytes != null) {
+        await _controller.player.open(await Media.memory(bytes), play: false);
+      } else {
+        await _controller.player.open(
+          Media(widget.url!),
+          play: false,
+        );
+      }
+    } catch (_) {
+      // No-op.
     }
 
-    if (widget.url != null && bytes == null && file == null) {
+    if (widget.url != null && bytes == null) {
       _cancelToken?.cancel();
       _cancelToken = CancelToken();
 

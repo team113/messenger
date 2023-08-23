@@ -193,7 +193,11 @@ class _VideoViewState extends State<VideoView> {
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    await _controller.player.open(Media(widget.url));
+    try {
+      await _controller.player.open(Media(widget.url));
+    } catch (_) {
+      // No-op.
+    }
 
     _cancelToken?.cancel();
     _cancelToken = CancelToken();
