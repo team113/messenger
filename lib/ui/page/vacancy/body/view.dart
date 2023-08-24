@@ -31,8 +31,6 @@ class VacancyBodyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return GetBuilder(
       init: VacancyBodyController(Get.find()),
       builder: (VacancyBodyController c) {
@@ -42,38 +40,47 @@ class VacancyBodyView extends StatelessWidget {
             children: [
               const SizedBox(height: 4),
               ..._content(context, vacancy, c),
-              Block(
-                children: [
-                  Paddings.basic(
-                    OutlinedRoundedButton(
-                      onPressed: () async {
-                        if (c.authorized) {
-                          await c.useLink();
-                        } else {
-                          await LoginView.show(
-                            context,
-                            stage: LoginViewStage.choice,
-                            onAuth: () async {
-                              await c.useLink();
-                            },
-                          );
-                        }
-                      },
-                      maxWidth: double.infinity,
-                      color: style.colors.primary,
-                      title: Text(
-                        'Записаться на интервью',
-                        style: TextStyle(color: style.colors.onPrimary),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 4),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _button(
+    BuildContext context,
+    VacancyBodyController c, {
+    String title = 'Записаться на интервью',
+  }) {
+    final style = Theme.of(context).style;
+
+    return Block(
+      children: [
+        Paddings.basic(
+          OutlinedRoundedButton(
+            onPressed: () async {
+              if (c.authorized) {
+                await c.useLink();
+              } else {
+                await LoginView.show(
+                  context,
+                  stage: LoginViewStage.choice,
+                  onAuth: () async {
+                    await c.useLink();
+                  },
+                );
+              }
+            },
+            maxWidth: double.infinity,
+            color: style.colors.primary,
+            title: Text(
+              title,
+              style: TextStyle(color: style.colors.onPrimary),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -164,6 +171,7 @@ https://github.com/team113/flutter-incubator''',
               ),
             ],
           ),
+          _button(context, c),
         ];
 
       case 'backend':
@@ -260,6 +268,7 @@ https://github.com/instrumentisto/rust-incubator''',
               ),
             ],
           ),
+          _button(context, c),
         ];
 
       case 'freelance':
@@ -294,11 +303,10 @@ https://github.com/instrumentisto/rust-incubator''',
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                // - деньги обсуждаются только приватно;
                 child: VacancyDescription(
-                  '''- стоимость, способы оплаты и сроки выполнения каждой задачи обсуждаются приватно в индивидуальном порядке;
-- оплата по факту выполнения задачи. Выполненной считается задача, прошедшая ревью;
-- заключается договор.''',
+                  '''- оплата по факту выполнения задачи. Выполненной считается задача, прошедшая ревью;
+- оплата отправляется на основании договора о предоставлении услуг и/или инвойса;
+- оплата осуществляется криптовалютой USDT (TRC-20).''',
                 ),
               ),
             ],
@@ -347,7 +355,7 @@ https://github.com/instrumentisto/rust-incubator''',
                   children: [
                     TextSpan(
                       text:
-                          '- при необходимости код должен быть покрыт модульными, виджет и/или интеграционными тестами.',
+                          '- код должен быть покрыт модульными, виджет и/или интеграционными тестами (при необходимости).',
                     ),
                   ],
                 ),
@@ -359,37 +367,28 @@ https://github.com/instrumentisto/rust-incubator''',
             children: [
               VacancyDescription(
                 '''- выполненная задача должна пройти ревью кода;
-- ревью кода, пояснения, комментарии ведутся публично на GitHub.''',
+- запрос на ревью выполненной задачи, комментарии, пояснения, аргументы должны размещаться публично на GitHub в соответствующей ветке или пул-реквесте.''',
               )
             ],
           ),
           const Block(
-            title: 'Оплата',
-            children: [VacancyDescription('''...''')],
-          ),
-          const Block(
-            title: 'Оплата',
-            children: [VacancyDescription('''...''')],
-          ),
-          const Block(
-            title: 'Оплата',
-            children: [VacancyDescription('''...''')],
-          ),
-          const Block(
-            title: 'Условия',
+            title: 'Регламент',
             children: [
               VacancyDescription(
-                '''- ежедневная оплата;
-- от 2000 EUR;
-- 4-х, 6-ти или 8-ми часовой рабочий день;
-- учёт рабочего времени и оплата переработок;
-- удалённое сотрудничество.''',
+                '''1. Выбрать задачу из списка доступных
+2. Сделать форк проекта и по нему оформить PR (Pull Request)
+3. Связаться с командой фронтэнда (кнопка ниже) и оставить заявку, указав:
+    - логин на GitHub'е
+    - номер PR (Pull Request)
+    - предполагаемый срок выполнения задачи (дедлайн)
+    - предполагаемый способ решения задачи
+4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)
+5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
+6. В случае отсутствии активности в течение 72 часов Ваша заявка аннулируется, Ваш PR закрывается, задача переводится в статус `Todo`''',
               ),
             ],
           ),
           Obx(() {
-            final Widget child;
-
             if (c.status.value.isEmpty) {
               return Block(
                 title: 'Задачи',
@@ -429,10 +428,7 @@ https://github.com/instrumentisto/rust-incubator''',
                       alignment: Alignment.centerLeft,
                       child: Text(e.title),
                     ),
-                    onPressed: () {
-                      launchUrlString(e.url);
-                    },
-                    // subtitle: e.description == null ? null : Text(e.description!),
+                    onPressed: () => launchUrlString(e.url),
                   ),
                 );
               }).toList(),
@@ -447,6 +443,7 @@ https://github.com/team113/flutter-incubator''',
               ),
             ],
           ),
+          _button(context, c, title: 'Оставить заявку'),
         ];
     }
 

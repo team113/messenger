@@ -105,10 +105,12 @@ class VacancyView extends StatelessWidget {
               child: Center(child: child),
             ),
             onPressed: () => Navigator.maybePop(context),
-            child: Icon(
-              Icons.home_outlined,
-              size: 27,
-              color: style.colors.primary,
+            child: Center(
+              child: SvgImage.asset(
+                'assets/icons/home1.svg',
+                width: 21.57,
+                height: 21.28,
+              ),
             ),
           ),
         ],
