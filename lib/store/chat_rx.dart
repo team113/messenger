@@ -712,6 +712,9 @@ class HiveRxChat extends RxChat {
       await _pagination.clear();
       _provider.hive = _local;
 
+      _pagination.hasNext.value = false;
+      _pagination.hasPrevious.value = false;
+
       for (var e in saved.whereType<HiveChatMessage>()) {
         // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
         final HiveChatMessage copy = e.copyWith()..value.chatId = newChat.id;
@@ -973,7 +976,7 @@ class HiveRxChat extends RxChat {
       _chatEvent,
       onError: (e) async {
         if (e is StaleVersionException) {
-          await _pagination.reset();
+          await _pagination.clear();
 
           await _pagination.around(cursor: _lastReadItemCursor);
         }

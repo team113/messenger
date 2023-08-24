@@ -74,20 +74,13 @@ class Pagination<T, K extends Comparable, C> {
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
   /// Resets this [Pagination] to its initial state.
-  Future<void> reset() {
+  Future<void> clear() {
     Log.print('reset()', 'Pagination');
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
     startCursor = null;
     endCursor = null;
-    return provider.clear();
-  }
-
-  /// Clears this [Pagination].
-  Future<void> clear() {
-    Log.print('clear()', 'Pagination');
-    items.clear();
     return provider.clear();
   }
 
