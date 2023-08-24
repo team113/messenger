@@ -643,7 +643,7 @@ class RecentChatTile extends StatelessWidget {
   }) {
     Widget? content;
 
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     if (e is LocalAttachment) {
       if (e.file.isImage && e.file.bytes.value != null) {
