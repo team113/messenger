@@ -28,7 +28,6 @@ import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import '/domain/service/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -41,6 +40,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -1037,24 +1037,22 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _download(GalleryItem item, {String? path}) async {
     try {
       try {
-        await FileService.download(
+        await CacheWorker.instance.download(
           item.link,
           item.checksum,
           item.name,
           item.size,
           path: path,
-          downloadIfExist: true,
         ).future;
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await FileService.download(
+          await CacheWorker.instance.download(
             item.link,
             item.checksum,
             item.name,
             item.size,
             path: path,
-            downloadIfExist: true,
           ).future;
         } else {
           rethrow;

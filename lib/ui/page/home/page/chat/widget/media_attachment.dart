@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
@@ -81,6 +82,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
     final Attachment attachment = widget.attachment;
 
     final bool isImage = (attachment is ImageAttachment ||
@@ -162,10 +164,24 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         child,
         Obx(() {
           if (attachment.isDownloading) {
-            return const Positioned(
+            return Positioned(
               top: 10,
               right: 10,
-              child: Icon(Icons.download),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: style.colors.onBackgroundOpacity27,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Center(
+                    child: Icon(
+                      Icons.download,
+                      color: style.colors.onPrimary,
+                    ),
+                  ),
+                ),
+              ),
             );
           } else {
             return const SizedBox();

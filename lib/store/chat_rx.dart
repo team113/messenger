@@ -280,8 +280,9 @@ class HiveRxChat extends RxChat {
           break;
 
         case OperationKind.removed:
-          final int i = messages.indexWhere((e) => e.value.id == event.value?.value.id);
-          if(i != -1) {
+          final int i =
+              messages.indexWhere((e) => e.value.id == event.value?.value.id);
+          if (i != -1) {
             final Rx<ChatItem> item = messages.removeAt(i);
             _disposeAttachments(item.value);
           }
@@ -741,17 +742,15 @@ class HiveRxChat extends RxChat {
   /// [Attachment]s, if any.
   void _add(ChatItem item) {
     if (!PlatformUtils.isWeb) {
-      for (ChatItem item in messages.map((e) => e.value)) {
-        if (item is ChatMessage) {
-          for (var a in item.attachments.whereType<FileAttachment>()) {
+      if (item is ChatMessage) {
+        for (var a in item.attachments) {
+          a.init();
+        }
+      } else if (item is ChatForward) {
+        ChatItemQuote nested = item.quote;
+        if (nested is ChatMessageQuote) {
+          for (var a in nested.attachments) {
             a.init();
-          }
-        } else if (item is ChatForward) {
-          ChatItemQuote nested = item.quote;
-          if (nested is ChatMessageQuote) {
-            for (var a in nested.attachments.whereType<FileAttachment>()) {
-              a.init();
-            }
           }
         }
       }
@@ -764,6 +763,7 @@ class HiveRxChat extends RxChat {
         (e) => item.key.compareTo(e.value.key) == 1,
       );
     } else {
+      _disposeAttachments(messages[i].value);
       messages[i].value = item;
     }
   }

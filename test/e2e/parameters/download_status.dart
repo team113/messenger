@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/service/file.dart';
+import 'package:messenger/ui/worker/cache.dart';
 
 /// [CustomParameter] representing a [DownloadStatus].
 class DownloadStatusParameter extends CustomParameter<DownloadStatus> {

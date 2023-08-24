@@ -21,11 +21,11 @@ import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
-import '/domain/service/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {

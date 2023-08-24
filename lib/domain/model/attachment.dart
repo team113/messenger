@@ -25,7 +25,7 @@ import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
-import '/domain/service/file.dart';
+import '/ui/worker/cache.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -105,18 +105,16 @@ class ImageAttachment extends Attachment {
   @override
   Future<void> init({void Function()? onSave}) async {
     if (original.checksum != null) {
-      downloading.value = FileService.downloads.firstWhereOrNull((e) {
-        return e.checksum == original.checksum;
-      });
+      downloading.value = CacheWorker.instance.downloads[original.checksum];
     }
 
     if (downloading.value == null) {
-      _downloadsSubscription = FileService.downloads.changes.listen((e) {
+      _downloadsSubscription = CacheWorker.instance.downloads.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
             if (original.checksum != null &&
-                e.element.checksum == original.checksum) {
-              downloading.value = e.element;
+                e.key == original.checksum) {
+              downloading.value = e.value;
             }
             break;
 
@@ -151,7 +149,7 @@ class FileAttachment extends Attachment {
   @HiveField(3)
   String? path;
 
-  /// Callback, called when the [path] is changed.
+  /// Callback, called to save this [FileAttachment] to local storage.
   void Function()? onSave;
 
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
@@ -188,19 +186,17 @@ class FileAttachment extends Attachment {
     _initialized = true;
 
     if (original.checksum != null) {
-      downloading.value = FileService.downloads.firstWhereOrNull((e) {
-        return e.checksum == original.checksum;
-      });
+      downloading.value = CacheWorker.instance.downloads[original.checksum];
       _listenStatus();
     }
 
     if (downloading.value == null) {
-      _downloadsSubscription = FileService.downloads.changes.listen((e) {
+      _downloadsSubscription = CacheWorker.instance.downloads.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
             if (original.checksum != null &&
-                e.element.checksum == original.checksum) {
-              downloading.value = e.element;
+                e.key == original.checksum) {
+              downloading.value = e.value;
               _listenStatus();
             }
             break;
@@ -217,7 +213,6 @@ class FileAttachment extends Attachment {
     } else if (downloading.value!.status.value == DownloadStatus.isFinished) {
       path = downloading.value!.file?.path;
       onSave?.call();
-      _downloaded.value = true;
     }
 
     if (path != null) {
@@ -228,20 +223,22 @@ class FileAttachment extends Attachment {
       }
     }
 
-    File? file = await PlatformUtils.fileExists(
-      filename,
-      size: original.size,
-      url: original.url,
-    );
+    if (_downloaded.isFalse) {
+      File? file = await PlatformUtils.fileExists(
+        filename,
+        size: original.size,
+        url: original.url,
+      );
 
-    if (file != null) {
-      path = file.path;
-      onSave?.call();
-      _downloaded.value = true;
-    } else {
-      if (path != null) {
-        path = null;
+      if (file != null) {
+        path = file.path;
         onSave?.call();
+        _downloaded.value = true;
+      } else {
+        if (path != null) {
+          path = null;
+          onSave?.call();
+        }
       }
     }
   }
@@ -256,7 +253,7 @@ class FileAttachment extends Attachment {
   Future<void> download() async {
     try {
       if (downloading.value == null) {
-        downloading.value = FileService.download(
+        downloading.value = CacheWorker.instance.download(
           original.url,
           original.checksum,
           filename,
@@ -300,7 +297,7 @@ class FileAttachment extends Attachment {
     return false;
   }
 
-  /// Cancels the downloading of this [FileAttachment].
+  /// Cancels the [downloading] of this [FileAttachment].
   void cancelDownload() {
     try {
       downloading.value?.cancel();

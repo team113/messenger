@@ -377,7 +377,6 @@ class PlatformUtilsImpl {
     String filename,
     int? size, {
     String? path,
-    bool downloadIfExist = false,
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
@@ -411,25 +410,27 @@ class PlatformUtilsImpl {
         } else {
           File? file;
 
-          // Retry fetching the size unless any other that `404` error is
-          // thrown.
-          file = await Backoff.run(
-            () async {
-              try {
-                return await fileExists(
-                  filename,
-                  size: size,
-                  url: url,
-                  temporary: temporary,
-                );
-              } catch (e) {
-                onError(e);
-              }
+          if (path == null) {
+            // Retry fetching the size unless any other that `404` error is
+            // thrown.
+            file = await Backoff.run(
+              () async {
+                try {
+                  return await fileExists(
+                    filename,
+                    size: size,
+                    url: url,
+                    temporary: temporary,
+                  );
+                } catch (e) {
+                  onError(e);
+                }
 
-              return null;
-            },
-            cancelToken,
-          );
+                return null;
+              },
+              cancelToken,
+            );
+          }
 
           if (file == null) {
             Uint8List? data;
@@ -437,14 +438,19 @@ class PlatformUtilsImpl {
               data = await CacheWorker.instance.get(checksum: checksum);
             }
 
-            final String name = p.basenameWithoutExtension(filename);
-            final String extension = p.extension(filename);
-            final Directory directory =
-                temporary ? await temporaryDirectory : await downloadsDirectory;
+            if (path == null) {
+              final String name = p.basenameWithoutExtension(filename);
+              final String extension = p.extension(filename);
+              final Directory directory = temporary
+                  ? await temporaryDirectory
+                  : await downloadsDirectory;
 
-            file = File('${directory.path}/$filename');
-            for (int i = 1; await file!.exists(); ++i) {
-              file = File('${directory.path}/$name ($i)$extension');
+              file = File('${directory.path}/$filename');
+              for (int i = 1; await file!.exists(); ++i) {
+                file = File('${directory.path}/$name ($i)$extension');
+              }
+            } else {
+              file = File(path);
             }
 
             if (data == null) {

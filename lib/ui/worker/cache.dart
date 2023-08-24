@@ -32,9 +32,10 @@ import '/domain/model/cache_info.dart';
 import '/domain/service/disposable_service.dart';
 import '/provider/hive/cache.dart';
 import '/util/backoff.dart';
+import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
 
-/// Worker maintaining [File]s cache.
+/// Worker maintaining [File]s cache and downloads.
 ///
 /// Uses distributed caching strategy:
 /// 1) In-memory cache, represented in [FIFOCache].
@@ -46,6 +47,10 @@ class CacheWorker extends DisposableService {
 
   /// [CacheWorker] singleton instance.
   static late CacheWorker instance;
+
+  /// Observable list of created [Downloading]s.
+  final RxObsMap<String, Downloading> downloads =
+      RxObsMap<String, Downloading>();
 
   /// [CacheInfo] describing the cache properties.
   late final Rx<CacheInfo> info;
@@ -181,6 +186,30 @@ class CacheWorker extends DisposableService {
         }
       }
     });
+  }
+
+  /// Starts downloading of the file by provided [url].
+  Downloading download(
+    String url,
+    String? checksum,
+    String filename,
+    int? size, {
+    String? path,
+  }) {
+    Downloading? downloading;
+    if (checksum != null) {
+      downloading = downloads[checksum]?..start(url, path: path);
+    }
+
+    if (downloading == null) {
+      downloading = Downloading(checksum, filename, size)
+        ..start(url, path: path);
+      if (checksum != null) {
+        downloads[checksum] = downloading;
+      }
+    }
+
+    return downloading;
   }
 
   /// Indicates whether [checksum] is in the cache.
@@ -375,4 +404,88 @@ class FIFOCache {
 
   /// Removes all entries from the [_cache].
   static void clear() => _cache.clear();
+}
+
+/// A downloading process.
+class Downloading {
+  Downloading(this.checksum, this.filename, this.size);
+
+  /// SHA-256 checksum of the file this [Downloading] is bound to.
+  final String? checksum;
+
+  /// Filename of the file this [Downloading] is bound to.
+  final String filename;
+
+  /// Size in bytes of the file this [Downloading] is bound to.
+  int? size;
+
+  /// Downloaded file.
+  File? file;
+
+  /// Progress of this [Downloading].
+  RxDouble progress = RxDouble(0);
+
+  /// [DownloadStatus] of this [Downloading].
+  Rx<DownloadStatus> status = Rx(DownloadStatus.notStarted);
+
+  /// [Completer] resolving once the [file] is downloaded.
+  Completer<File?>? _completer;
+
+  /// CancelToken canceling the [file] downloading.
+  CancelToken _token = CancelToken();
+
+  /// Returns [Future] completing when this [Downloading] is finished or
+  /// canceled.
+  Future<File?>? get future => _completer?.future;
+
+  /// Starts the [file] downloading.
+  Future<void> start(String url, {String? path}) async {
+    progress.value = 0;
+    status.value = DownloadStatus.inProgress;
+    _completer = Completer<File?>();
+
+    await Future.delayed(2.seconds);
+
+    try {
+      file = await PlatformUtils.download(
+        url,
+        filename,
+        size,
+        path: path,
+        onReceiveProgress: (count, total) => progress.value = count / total,
+        cancelToken: _token,
+      );
+      _completer?.complete(file);
+
+      if (file != null) {
+        status.value = DownloadStatus.isFinished;
+      } else {
+        status.value = DownloadStatus.notStarted;
+      }
+    } catch (e) {
+      _completer?.completeError(e);
+      status.value = DownloadStatus.notStarted;
+    }
+  }
+
+  /// Cancels the [file] downloading.
+  void cancel() {
+    status.value = DownloadStatus.notStarted;
+    _completer?.complete(null);
+    _completer = null;
+    _token.cancel();
+    _token = CancelToken();
+  }
+}
+
+/// Status of a [Downloading].
+enum DownloadStatus {
+  /// Downloading has not yet started or canceled.
+  notStarted,
+
+  /// Downloading is in progress.
+  inProgress,
+
+  /// Downloaded successfully.
+  isFinished,
 }
