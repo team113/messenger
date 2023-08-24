@@ -20,37 +20,21 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../dock.dart';
 import '/themes.dart';
 import '/ui/page/call/component/common.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
-/// Decorated [Wrap] with the provided [items].
+/// Decorated [Wrap] with the provided [children].
 class Launchpad extends StatelessWidget {
   const Launchpad({
     super.key,
-    this.items = const [],
-    this.feedbackSize = 48,
     this.onEnter,
     this.onHover,
     this.onExit,
     this.onAccept,
     this.onWillAccept,
-    this.onDragStarted,
-    this.onDragEnd,
+    this.children = const [],
   });
-
-  /// [CallButton]s to put inside a [Wrap].
-  final List<CallButton> items;
-
-  /// Size of a dragged item feedback.
-  final double feedbackSize;
-
-  /// Callback, called when an item dragging is started.
-  final void Function(CallButton)? onDragStarted;
-
-  /// Callback, called when an item dragging is ended.
-  final void Function()? onDragEnd;
 
   /// Callback, called when the mouse cursor enters the area of this
   /// [Launchpad].
@@ -71,6 +55,9 @@ class Launchpad extends StatelessWidget {
   /// Callback, called to determine whether this [Launchpad] is interested in
   /// receiving a given piece of data being dragged over this [Launchpad].
   final bool Function(CallButton?)? onWillAccept;
+
+  /// Widgets to put inside this [Launchpad].
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
@@ -124,45 +111,7 @@ class Launchpad extends StatelessWidget {
                           alignment: WrapAlignment.center,
                           spacing: 4,
                           runSpacing: 21,
-                          children: items.map((e) {
-                            return SizedBox(
-                              width: 100,
-                              height: 100,
-                              child: Column(
-                                children: [
-                                  DelayedDraggable(
-                                    feedback: Transform.translate(
-                                      offset: Offset(
-                                        feedbackSize / 2 * -1,
-                                        feedbackSize / 2 * -1,
-                                      ),
-                                      child: SizedBox.square(
-                                        dimension: feedbackSize,
-                                        child: e.build(),
-                                      ),
-                                    ),
-                                    data: e,
-                                    onDragStarted: () => onDragStarted?.call(e),
-                                    onDragCompleted: onDragEnd,
-                                    onDragEnd: (_) => onDragEnd?.call(),
-                                    onDraggableCanceled: (_, __) =>
-                                        onDragEnd?.call(),
-                                    maxSimultaneousDrags:
-                                        e.isRemovable ? null : 0,
-                                    dragAnchorStrategy:
-                                        pointerDragAnchorStrategy,
-                                    child: e.build(hinted: false),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    e.hint,
-                                    style: style.fonts.labelSmallOnPrimary,
-                                    textAlign: TextAlign.center,
-                                  )
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                          children: children,
                         ),
                         const SizedBox(height: 20),
                       ],
