@@ -8,8 +8,6 @@
 
 #include <connectivity_plus/connectivity_plus_windows_plugin.h>
 #include <desktop_drop/desktop_drop_plugin.h>
-#include <flutter_meedu_videoplayer/flutter_meedu_videoplayer_plugin_c_api.h>
-#include <fullscreen_window/fullscreen_window_plugin_c_api.h>
 #include <medea_flutter_webrtc/medea_flutter_webrtc_plugin_c_api.h>
 #include <medea_jason/medea_jason_plugin.h>
 #include <media_kit_libs_windows_video/media_kit_libs_windows_video_plugin_c_api.h>
@@ -30,10 +28,6 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("ConnectivityPlusWindowsPlugin"));
   DesktopDropPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("DesktopDropPlugin"));
-  FlutterMeeduVideoplayerPluginCApiRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("FlutterMeeduVideoplayerPluginCApi"));
-  FullscreenWindowPluginCApiRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("FullscreenWindowPluginCApi"));
   MedeaFlutterWebrtcPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MedeaFlutterWebrtcPluginCApi"));
   MedeaJasonPluginRegisterWithRegistrar(

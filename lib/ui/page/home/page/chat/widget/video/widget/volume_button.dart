@@ -17,7 +17,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 
@@ -33,8 +33,8 @@ class VolumeButton extends StatelessWidget {
     this.onEnter,
   });
 
-  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
-  final MeeduPlayerController controller;
+  /// [VideoController] controlling the [Video] player functionality.
+  final VideoController controller;
 
   /// Height of this [VolumeButton].
   final double? height;
@@ -64,13 +64,17 @@ class VolumeButton extends StatelessWidget {
           height: height,
           margin: margin,
           padding: padding,
-          child: RxBuilder((_) {
-            return Icon(
-              controller.volume.value > 0 ? Icons.volume_up : Icons.volume_off,
-              color: style.colors.onPrimary,
-              size: 18,
-            );
-          }),
+          child: StreamBuilder(
+            stream: controller.player.stream.volume,
+            initialData: controller.player.state.volume,
+            builder: (_, volume) {
+              return Icon(
+                volume.data! > 0 ? Icons.volume_up : Icons.volume_off,
+                color: style.colors.onPrimary,
+                size: 18,
+              );
+            },
+          ),
         ),
       ),
     );
