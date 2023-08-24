@@ -25,7 +25,7 @@ import '../participant/widget.dart';
 import '/themes.dart';
 import '/ui/page/call/controller.dart';
 
-/// [Widget] which builds the [Participant] with a [AnimatedClipRRect].
+/// [Widget] which builds the [Stack] of [Participant]'s segments.
 class AnimatedParticipant extends StatelessWidget {
   const AnimatedParticipant(
     this.participant,
@@ -41,7 +41,7 @@ class AnimatedParticipant extends StatelessWidget {
   /// Indicator whether the [Participant]'s sound is muted or not.
   final bool? muted;
 
-  /// Indicator whether [Participant] view should be a square or screen-wide.
+  /// Indicator whether [Participant]'s view borders should be rounded.
   final bool animated;
 
   /// Indicator whether the overlay should have a blur under it.
