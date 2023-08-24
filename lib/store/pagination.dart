@@ -27,7 +27,7 @@ import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
 /// key identifying those items and their [C] cursor.
-class Pagination<T, K extends Comparable, C> {
+class Pagination<T, C, K extends Comparable> {
   Pagination({
     this.perPage = 50,
     required this.provider,
@@ -296,11 +296,11 @@ abstract class PageProvider<T, C, K> {
   Future<void> clear();
 }
 
-/// Possible strategies for pagination.
+/// [PageProvider] page fetching strategy.
 enum PaginationStrategy {
-  /// Pagination starts from first page.
+  /// [Page]s fetching starts from the beginning of the available window.
   fromStart,
 
-  /// Pagination starts from last page.
+  /// [Page]s fetching starts from the end of the available window.
   fromEnd,
 }

@@ -39,7 +39,8 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
   final GraphQlPageProvider<T, C, K> graphQlProvider;
 
   /// Makes the [hiveProvider] to use the provided [HiveLazyProvider].
-  set hive(HiveLazyProvider<T, K> provider) => hiveProvider.provider = provider;
+  set hive(IterableHiveProviderMixin<T, K> provider) =>
+      hiveProvider.provider = provider;
 
   @override
   Future<Page<T, C>?> init(T? item, int count) =>

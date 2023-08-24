@@ -47,33 +47,35 @@ class HivePageProvider<T extends Object, C, K>
   /// Callback, called to check the provided [T] is last.
   final bool Function(T item)? isLast;
 
-  /// [PaginationStrategy] of this [HivePageProvider].
+  /// [PaginationStrategy] of [around] invoke.
   PaginationStrategy strategy;
 
   /// [HiveLazyProvider] to fetch the items from.
-  HiveLazyProvider<T, K> _provider;
+  IterableHiveProviderMixin<T, K> _provider;
 
   /// Sets the provided [HiveLazyProvider] as the used one.
-  set provider(HiveLazyProvider<T, K> value) => _provider = value;
+  set provider(IterableHiveProviderMixin<T, K> value) => _provider = value;
 
   @override
   Future<Page<T, C>?> init(T? item, int count) => around(item, null, count);
 
   @override
   Future<Page<T, C>?> around(T? item, C? cursor, int count) async {
-    if (_provider.keys.isEmpty || item == null) {
+    if (_provider.keysSafe.isEmpty || item == null) {
       return null;
     }
 
     Iterable<dynamic>? keys;
-    final key = getKey(item);
-    final Iterable<K> providerKeys = _provider.keys;
-    final int initialIndex = providerKeys.toList().indexOf(key);
-    if (initialIndex != -1) {
-      if (initialIndex < (count ~/ 2)) {
-        keys = providerKeys.take(count - ((count ~/ 2) - initialIndex));
+
+    final K key = getKey(item);
+    final Iterable<dynamic> providerKeys = _provider.keys;
+    final int initial = providerKeys.toList().indexOf(key);
+
+    if (initial != -1) {
+      if (initial < (count ~/ 2)) {
+        keys = providerKeys.take(count - ((count ~/ 2) - initial));
       } else {
-        keys = providerKeys.skip(initialIndex - (count ~/ 2)).take(count);
+        keys = providerKeys.skip(initial - (count ~/ 2)).take(count);
       }
     }
 
@@ -81,6 +83,7 @@ class HivePageProvider<T extends Object, C, K>
       case PaginationStrategy.fromStart:
         keys ??= providerKeys.take(count);
         break;
+
       case PaginationStrategy.fromEnd:
         keys ??= providerKeys.skip(
           (providerKeys.length - count).clamp(0, double.maxFinite.toInt()),
@@ -162,6 +165,7 @@ class HivePageProvider<T extends Object, C, K>
   Page<T, C> _page(List<T> items) {
     final T? lastItem = items.lastWhereOrNull((e) => getCursor(e) != null);
     bool hasNext = true;
+
     if (lastItem != null && isLast != null) {
       hasNext =
           !isLast!.call(lastItem) && getKey(items.last) == _provider.keys.last;

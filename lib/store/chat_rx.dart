@@ -116,7 +116,7 @@ class HiveRxChat extends RxChat {
   ChatItemHiveProvider _local;
 
   /// [Pagination] loading [messages] with pagination.
-  late final Pagination<HiveChatItem, ChatItemKey, ChatItemsCursor> _pagination;
+  late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
   late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
@@ -288,7 +288,7 @@ class HiveRxChat extends RxChat {
       ),
     );
 
-    _pagination = Pagination<HiveChatItem, ChatItemKey, ChatItemsCursor>(
+    _pagination = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
       onKey: (e) => e.value.key,
       provider: _provider,
     );
@@ -700,7 +700,7 @@ class HiveRxChat extends RxChat {
       subscribe();
 
       // Retrieve all the [HiveChatItem]s to put them in the [newChat].
-      final Iterable<HiveChatItem> saved = await _local.messages;
+      final Iterable<HiveChatItem> saved = await _local.values;
 
       // Clear and close the current [ChatItemHiveProvider].
       await _local.clear();

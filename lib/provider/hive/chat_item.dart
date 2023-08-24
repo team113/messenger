@@ -34,7 +34,8 @@ import 'base.dart';
 part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
-class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem, ChatItemKey> {
+class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
+    with IterableHiveProviderMixin<HiveChatItem, ChatItemKey> {
   ChatItemHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
@@ -87,8 +88,8 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem, ChatItemKey> {
   Iterable<ChatItemKey> get keys =>
       keysSafe.map((e) => ChatItemKey.fromString(e));
 
-  /// Returns a list of [ChatItem]s from [Hive].
-  Future<Iterable<HiveChatItem>> get messages => valuesSafe;
+  @override
+  Future<Iterable<HiveChatItem>> get values => valuesSafe;
 
   @override
   Future<void> put(HiveChatItem item) =>

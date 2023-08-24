@@ -201,7 +201,7 @@ void main() async {
       after: const ChatItemsCursor('90'),
     )).thenAnswer((_) => chatItems(first: 10, after: 90));
 
-    final Pagination<HiveChatItem, ChatItemKey, ChatItemsCursor> pagination =
+    final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination =
         Pagination(
       perPage: 10,
       onKey: (i) => i.value.key,

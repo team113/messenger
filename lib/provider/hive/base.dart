@@ -152,8 +152,7 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 }
 
 /// Base class for data providers backed by [Hive] using [LazyBox].
-abstract class HiveLazyProvider<T extends Object, K>
-    extends DisposableInterface {
+abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// [LazyBox] that contains all of the data.
   late LazyBox<T> _box;
 
@@ -197,9 +196,6 @@ abstract class HiveLazyProvider<T extends Object, K>
 
     return [];
   }
-
-  /// Returns a list of [K] keys stored in the [Hive].
-  Iterable<K> get keys;
 
   @protected
   void registerAdapters();
@@ -285,12 +281,23 @@ abstract class HiveLazyProvider<T extends Object, K>
     }
     return Future.value();
   }
+}
+
+/// [HiveLazyProvider] with [Iterable] functionality support.
+///
+/// Intended to be used as a source for [Pagination] items persisted.
+mixin IterableHiveProviderMixin<T extends Object, K> on HiveLazyProvider<T> {
+  /// Returns a list of [K] keys stored in the [Hive].
+  Iterable<K> get keys;
+
+  /// Returns a list of [T] items from [Hive].
+  Future<Iterable<T>> get values => valuesSafe;
 
   /// Puts the provided [item] to [Hive].
   Future<void> put(T item);
 
   /// Returns a [T] item from [Hive] by its [key].
-  Future<T?> get(K key);
+  FutureOr<T?> get(K key);
 
   /// Removes a [T] item from [Hive] by the provided [key].
   Future<void> remove(K key);
