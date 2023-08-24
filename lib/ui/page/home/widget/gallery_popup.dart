@@ -18,13 +18,14 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -34,7 +35,6 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
-import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -175,7 +175,32 @@ class _GalleryPopupState extends State<GalleryPopup>
     with TickerProviderStateMixin {
   /// [AnimationController] controlling the opening and closing gallery
   /// animation.
-  late final AnimationController _fading;
+  late final AnimationController _fading = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+    debugLabel: '$runtimeType',
+  )..addStatusListener(
+      (status) {
+        switch (status) {
+          case AnimationStatus.dismissed:
+            _curveOut = Curves.easeOutQuint;
+            _pageController.dispose();
+            _ignoreSnappingTimer?.cancel();
+            _sliding?.dispose();
+            _pop?.call();
+            break;
+
+          case AnimationStatus.reverse:
+          case AnimationStatus.forward:
+            // No-op.
+            break;
+
+          case AnimationStatus.completed:
+            _curveOut = Curves.easeInQuint;
+            break;
+        }
+      },
+    );
 
   /// [AnimationController] controlling the sliding upward or downward
   /// animation.
@@ -187,9 +212,9 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [PageController] controlling the [PageView].
   late final PageController _pageController;
 
-  /// [Map] of [MeeduPlayerController] controlling the video playback used to
+  /// [Map] of [VideoController] controlling the video playback used to
   /// play/pause the active videos on keyboard presses.
-  final Map<int, MeeduPlayerController> _videoControllers = {};
+  final Map<int, VideoController> _videoControllers = {};
 
   /// [CurvedAnimation] of the [_sliding] animation.
   late CurvedAnimation _curve;
@@ -252,35 +277,27 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Indicator whether the currently visible [GalleryItem] is zoomed.
   bool _isZoomed = false;
 
+  /// [PhotoViewController] for zooming [PhotoViewGallery] in and out.
+  final PhotoViewController _photoController = PhotoViewController();
+
+  // TODO: This is a hack for a feature that should be implemented in
+  //       `photo_view` directly:
+  //       https://github.com/bluefireteam/photo_view/issues/425
+  /// [AnimationController] animating the [_photoController] scaling in.
+  late final AnimationController _photo = AnimationController(
+    vsync: this,
+    debugLabel: '$runtimeType',
+    duration: const Duration(milliseconds: 200),
+  )..addListener(() {
+      _photoController.scale = 1 +
+          CurveTween(curve: Curves.ease).evaluate(_photo) * (_photoScale - 1);
+    });
+
+  /// Scale to apply the [_photoController] to during its [_photo] animation.
+  double _photoScale = 1;
+
   @override
   void initState() {
-    _fading = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-      debugLabel: '$runtimeType',
-    )..addStatusListener(
-        (status) {
-          switch (status) {
-            case AnimationStatus.dismissed:
-              _curveOut = Curves.easeOutQuint;
-              _pageController.dispose();
-              _ignoreSnappingTimer?.cancel();
-              _sliding?.dispose();
-              _pop?.call();
-              break;
-
-            case AnimationStatus.reverse:
-            case AnimationStatus.forward:
-              // No-op.
-              break;
-
-            case AnimationStatus.completed:
-              _curveOut = Curves.easeInQuint;
-              break;
-          }
-        },
-      );
-
     _bounds = _calculatePosition() ?? Rect.largest;
 
     _page = widget.initial;
@@ -308,15 +325,26 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     Future.delayed(Duration.zero, _displayControls);
 
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack);
+    }
+
     super.initState();
   }
 
   @override
   void dispose() {
+    _photo.dispose();
+    _fading.dispose();
     _onFullscreen?.cancel();
     if (_isFullscreen.isTrue) {
       _exitFullscreen();
     }
+
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.dispose();
   }
 
@@ -441,51 +469,63 @@ class _GalleryPopupState extends State<GalleryPopup>
           },
           wantKeepAlive: false,
           builder: (BuildContext context, int index) {
-            GalleryItem e = widget.children[index];
-
-            if (!e.isVideo) {
-              return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(e.link),
-                initialScale: PhotoViewComputedScale.contained * 0.99,
-                minScale: PhotoViewComputedScale.contained * 0.99,
-                maxScale: PhotoViewComputedScale.contained * 3,
-                errorBuilder: (_, __, ___) {
-                  return InitCallback(
-                    callback: e.onError,
-                    child: const SizedBox(
-                      height: 300,
-                      child: Center(child: CustomProgressIndicator()),
-                    ),
-                  );
-                },
-              );
-            }
+            final GalleryItem e = widget.children[index];
 
             return PhotoViewGalleryPageOptions.customChild(
+              controller: _photoController,
               disableGestures: e.isVideo,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: VideoView(
-                  e.link,
-                  showInterfaceFor: _isInitialPage ? 3.seconds : null,
-                  onClose: _dismiss,
-                  isFullscreen: _isFullscreen,
-                  toggleFullscreen: () {
-                    node.requestFocus();
-                    _toggleFullscreen();
-                  },
-                  onController: (c) {
-                    if (c == null) {
-                      _videoControllers.remove(index);
-                    } else {
-                      _videoControllers[index] = c;
-                    }
-                  },
-                  onError: e.onError,
-                ),
-              ),
+              initialScale: PhotoViewComputedScale.contained,
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
+              scaleStateCycle: (s) {
+                switch (s) {
+                  case PhotoViewScaleState.initial:
+                    _animatePhotoScaleTo(
+                      (PhotoViewComputedScale.contained * 2).multiplier,
+                    );
+                    return PhotoViewScaleState.zoomedIn;
+
+                  case PhotoViewScaleState.covering:
+                    return PhotoViewScaleState.covering;
+
+                  case PhotoViewScaleState.originalSize:
+                    return PhotoViewScaleState.initial;
+
+                  case PhotoViewScaleState.zoomedIn:
+                  case PhotoViewScaleState.zoomedOut:
+                    return PhotoViewScaleState.initial;
+
+                  default:
+                    return PhotoViewScaleState.initial;
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: e.isVideo
+                    ? VideoView(
+                        e.link,
+                        showInterfaceFor: _isInitialPage ? 3.seconds : null,
+                        onClose: _dismiss,
+                        isFullscreen: _isFullscreen,
+                        toggleFullscreen: () {
+                          node.requestFocus();
+                          _toggleFullscreen();
+                        },
+                        onController: (c) {
+                          if (c == null) {
+                            _videoControllers.remove(index);
+                          } else {
+                            _videoControllers[index] = c;
+                          }
+                        },
+                        onError: e.onError,
+                      )
+                    : RetryImage(
+                        e.link,
+                        checksum: e.checksum,
+                        onForbidden: e.onError,
+                      ),
+              ),
             );
           },
           itemCount: widget.children.length,
@@ -929,13 +969,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       } else if (k.physicalKey == PhysicalKeyboardKey.escape) {
         _dismiss();
       } else if (k.physicalKey == PhysicalKeyboardKey.space) {
-        _videoControllers.forEach((_, v) {
-          if (v.playerStatus.playing) {
-            v.pause();
-          } else {
-            v.play();
-          }
-        });
+        _videoControllers.forEach((_, v) => v.player.playOrPause());
       }
     }
   }
@@ -1154,6 +1188,25 @@ class _GalleryPopupState extends State<GalleryPopup>
         setState(() => _showControls = false);
       }
     });
+  }
+
+  /// Animates the [_photoController] to the provided [scale] by starting the
+  /// [_photo] animation.
+  void _animatePhotoScaleTo(double scale) {
+    _photoScale = scale;
+    _photo
+      ..reset()
+      ..forward();
+  }
+
+  /// Invokes [_dismiss].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    _dismiss();
+    return true;
   }
 }
 
