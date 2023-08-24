@@ -37,6 +37,7 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -222,15 +223,48 @@ class ChatItemWidget extends StatefulWidget {
         ],
       );
     } else {
-      attachment = MediaAttachment(
-        key: key,
-        attachment: e,
-        height: 300,
-        width: filled ? double.infinity : null,
-        fit: BoxFit.cover,
-        autoLoad: autoLoad,
-        onError: onError,
-      );
+      if (!filled && e is ImageAttachment) {
+        final ImageFile file = e.original as ImageFile;
+
+        double width = double.infinity;
+        double height = 300;
+
+        if (file.width != null && file.height != null) {
+          width = file.width!.toDouble();
+          height = file.height!.toDouble();
+
+          final double aspect = width / height;
+
+          final double ratio = height / min(height, 300);
+          height = min(height, 300);
+          width = (file.width! * aspect) / ratio;
+        }
+
+        attachment = Stack(
+          children: [
+            MediaAttachment(
+              key: key,
+              attachment: e,
+              height: height,
+              width: width,
+              fit: BoxFit.cover,
+              autoLoad: autoLoad,
+              onError: onError,
+            ),
+            Text('$width $height'),
+          ],
+        );
+      } else {
+        attachment = MediaAttachment(
+          key: key,
+          attachment: e,
+          height: 300,
+          width: filled ? double.infinity : null,
+          fit: BoxFit.cover,
+          autoLoad: autoLoad,
+          onError: onError,
+        );
+      }
 
       if (!isLocal) {
         attachment = KeyedSubtree(
@@ -284,9 +318,9 @@ class ChatItemWidget extends StatefulWidget {
                     : Container(
                         constraints: filled
                             ? const BoxConstraints(
-                                minWidth: 300,
-                                minHeight: 300,
-                              )
+                                // minWidth: 300,
+                                // minHeight: 300,
+                                )
                             : null,
                         child: e.status.value == SendingStatus.sending
                             ? SizedBox(
