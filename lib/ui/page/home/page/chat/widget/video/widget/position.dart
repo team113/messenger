@@ -16,30 +16,35 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
-import '/themes.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 
 /// Current position and duration of the provided [controller].
 class CurrentPosition extends StatelessWidget {
   const CurrentPosition(this.controller, {super.key});
 
-  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
-  final MeeduPlayerController controller;
+  /// [VideoController] controlling the [Video] player functionality.
+  final VideoController controller;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return RxBuilder((_) {
-      final String position = controller.position.value.hhMmSs();
-      final String duration = controller.duration.value.hhMmSs();
+    return StreamBuilder(
+      stream: controller.player.stream.position,
+      initialData: controller.player.state.position,
+      builder: (_, snapshot) {
+        final String position = snapshot.data!.hhMmSs();
+        final String duration = controller.player.state.duration.hhMmSs();
 
-      return Text(
-        'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
-        style: style.fonts.labelMediumOnPrimary,
-      );
-    });
+        return Text(
+          'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
+          style: style.fonts.labelMediumOnPrimary,
+        ).fixedDigits();
+      },
+    );
   }
 }

@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 import 'animated_play_pause.dart';
@@ -31,8 +31,8 @@ class CenteredPlayPause extends StatelessWidget {
     this.show = true,
   });
 
-  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
-  final MeeduPlayerController controller;
+  /// [VideoController] controlling the [Video] player functionality.
+  final VideoController controller;
 
   /// Size of this [CenteredPlayPause].
   final double size;
@@ -47,34 +47,37 @@ class CenteredPlayPause extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return RxBuilder((_) {
-      final bool isFinished =
-          controller.position.value >= controller.duration.value;
+    return StreamBuilder(
+      stream: controller.player.stream.completed,
+      initialData: controller.player.state.completed,
+      builder: (_, snapshot) {
+        final bool isFinished = snapshot.data!;
 
-      return Center(
-        child: AnimatedOpacity(
-          opacity: show ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 300),
-          child: Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: style.colors.onBackgroundOpacity13,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              iconSize: 32,
-              icon: isFinished
-                  ? Icon(Icons.replay, color: style.colors.onPrimary)
-                  : AnimatedPlayPause(
-                      controller.playerStatus.playing,
-                      color: style.colors.onPrimary,
-                    ),
-              onPressed: onPressed,
+        return Center(
+          child: AnimatedOpacity(
+            opacity: show ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 300),
+            child: Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                color: style.colors.onBackgroundOpacity13,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                iconSize: 32,
+                icon: isFinished
+                    ? Icon(Icons.replay, color: style.colors.onPrimary)
+                    : AnimatedPlayPause(
+                        controller.player.state.playing,
+                        color: style.colors.onPrimary,
+                      ),
+                onPressed: onPressed,
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
