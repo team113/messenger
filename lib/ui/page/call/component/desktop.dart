@@ -344,6 +344,160 @@ Widget desktopCall(CallController c, BuildContext context) {
         })
       ]);
 
+      // Builds the [Dock] containing the [CallController.buttons].
+      Widget dock() {
+        return Obx(() {
+          final bool isOutgoing =
+              (c.outgoing || c.state.value == OngoingCallState.local) &&
+                  !c.started;
+
+          final bool showBottomUi = (c.showUi.isTrue ||
+              c.draggedButton.value != null ||
+              c.state.value != OngoingCallState.active ||
+              (c.state.value == OngoingCallState.active &&
+                  c.locals.isEmpty &&
+                  c.remotes.isEmpty &&
+                  c.focused.isEmpty &&
+                  c.paneled.isEmpty));
+
+          final bool answer = (c.state.value != OngoingCallState.joining &&
+              c.state.value != OngoingCallState.active &&
+              !isOutgoing);
+
+          final Widget child;
+
+          if (answer) {
+            child = Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 11),
+                SizedBox.square(
+                  dimension: CallController.buttonSize,
+                  child: AcceptAudioButton(
+                    c,
+                    highlight: !c.withVideo,
+                  ).build(),
+                ),
+                const SizedBox(width: 24),
+                SizedBox.square(
+                  dimension: CallController.buttonSize,
+                  child: AcceptVideoButton(
+                    c,
+                    highlight: c.withVideo,
+                  ).build(),
+                ),
+                const SizedBox(width: 24),
+                SizedBox.square(
+                  dimension: CallController.buttonSize,
+                  child: DeclineButton(c).build(),
+                ),
+                const SizedBox(width: 11),
+              ],
+            );
+          } else {
+            child = Dock<CallButton>(
+              items: c.buttons,
+              itemWidth: CallController.buttonSize,
+              itemBuilder: (e) => e.build(
+                hinted: c.draggedButton.value == null,
+              ),
+              onReorder: (buttons) {
+                c.buttons.clear();
+                c.buttons.addAll(buttons);
+                c.relocateSecondary();
+              },
+              onDragStarted: (b) {
+                c.showDragAndDropButtonsHint = false;
+                c.draggedButton.value = b;
+              },
+              onDragEnded: (_) => c.draggedButton.value = null,
+              onLeave: (_) => c.displayMore.value = true,
+              onWillAccept: (d) => d?.c == c,
+            );
+          }
+
+          return DockDecorator(
+            globalKey: c.dockKey,
+            showChild: showBottomUi,
+            listener: () => Future.delayed(Duration.zero, c.relocateSecondary),
+            onEnter: (d) => c.keepUi(true),
+            onHover: (d) => c.keepUi(true),
+            onExit: c.showUi.value && !c.displayMore.value
+                ? (d) => c.keepUi(false)
+                : (d) => c.keepUi(),
+            child: child,
+          );
+        });
+      }
+
+      // Builds the [Launchpad] panel containing the [CallController.panel].
+      Widget launchpad() {
+        return Obx(() {
+          bool enabled = c.displayMore.isTrue &&
+              c.primaryDrags.value == 0 &&
+              c.secondaryDrags.value == 0;
+
+          return AnimatedOpacity(
+            duration: const Duration(milliseconds: 150),
+            opacity: c.displayMore.value ? 1 : 0,
+            child: IgnorePointer(
+              ignoring: !c.displayMore.value,
+              child: Launchpad(
+                onEnter: enabled ? (d) => c.keepUi(true) : null,
+                onHover: enabled ? (d) => c.keepUi(true) : null,
+                onExit: enabled ? (d) => c.keepUi() : null,
+                onAccept: (CallButton data) {
+                  c.buttons.remove(data);
+                  c.draggedButton.value = null;
+                },
+                onWillAccept: (CallButton? a) =>
+                    a?.c == c && a?.isRemovable == true,
+                children: c.panel.map((e) {
+                  return SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: Column(
+                      children: [
+                        DelayedDraggable(
+                          feedback: Transform.translate(
+                            offset: const Offset(
+                              CallController.buttonSize / 2 * -1,
+                              CallController.buttonSize / 2 * -1,
+                            ),
+                            child: SizedBox.square(
+                              dimension: CallController.buttonSize,
+                              child: e.build(),
+                            ),
+                          ),
+                          data: e,
+                          onDragStarted: () {
+                            c.showDragAndDropButtonsHint = false;
+                            c.draggedButton.value = e;
+                          },
+                          onDragCompleted: () => c.draggedButton.value = null,
+                          onDragEnd: (_) => c.draggedButton.value = null,
+                          onDraggableCanceled: (_, __) =>
+                              c.draggedButton.value = null,
+                          maxSimultaneousDrags: e.isRemovable ? null : 0,
+                          dragAnchorStrategy: pointerDragAnchorStrategy,
+                          child: e.build(hinted: false),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          e.hint,
+                          style: style.fonts.labelSmallOnPrimary,
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          );
+        });
+      }
+
       // Footer part of the call with buttons.
       List<Widget> footer = [
         // Animated bottom buttons.
@@ -359,153 +513,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                   mainAxisSize: MainAxisSize.min,
                   verticalDirection: VerticalDirection.up,
                   children: [
-                    Obx(() {
-                      final bool isOutgoing = (c.outgoing ||
-                              c.state.value == OngoingCallState.local) &&
-                          !c.started;
-
-                      bool showBottomUi = (c.showUi.isTrue ||
-                          c.draggedButton.value != null ||
-                          c.state.value != OngoingCallState.active ||
-                          (c.state.value == OngoingCallState.active &&
-                              c.locals.isEmpty &&
-                              c.remotes.isEmpty &&
-                              c.focused.isEmpty &&
-                              c.paneled.isEmpty));
-
-                      final bool answer =
-                          (c.state.value != OngoingCallState.joining &&
-                              c.state.value != OngoingCallState.active &&
-                              !isOutgoing);
-
-                      return DockDecorator(
-                        globalKey: c.dockKey,
-                        showChild: showBottomUi,
-                        listener: () =>
-                            Future.delayed(Duration.zero, c.relocateSecondary),
-                        onEnter: (d) => c.keepUi(true),
-                        onHover: (d) => c.keepUi(true),
-                        onExit: c.showUi.value && !c.displayMore.value
-                            ? (d) => c.keepUi(false)
-                            : (d) => c.keepUi(),
-                        child: answer
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const SizedBox(width: 11),
-                                  SizedBox.square(
-                                    dimension: CallController.buttonSize,
-                                    child: AcceptAudioButton(
-                                      c,
-                                      highlight: !c.withVideo,
-                                    ).build(),
-                                  ),
-                                  const SizedBox(width: 24),
-                                  SizedBox.square(
-                                    dimension: CallController.buttonSize,
-                                    child: AcceptVideoButton(
-                                      c,
-                                      highlight: c.withVideo,
-                                    ).build(),
-                                  ),
-                                  const SizedBox(width: 24),
-                                  SizedBox.square(
-                                    dimension: CallController.buttonSize,
-                                    child: DeclineButton(c).build(),
-                                  ),
-                                  const SizedBox(width: 11),
-                                ],
-                              )
-                            : Dock<CallButton>(
-                                items: c.buttons,
-                                itemWidth: CallController.buttonSize,
-                                itemBuilder: (e) => e.build(
-                                  hinted: c.draggedButton.value == null,
-                                ),
-                                onReorder: (buttons) {
-                                  c.buttons.clear();
-                                  c.buttons.addAll(buttons);
-                                  c.relocateSecondary();
-                                },
-                                onDragStarted: (b) {
-                                  c.showDragAndDropButtonsHint = false;
-                                  c.draggedButton.value = b;
-                                },
-                                onDragEnded: (_) =>
-                                    c.draggedButton.value = null,
-                                onLeave: (_) => c.displayMore.value = true,
-                                onWillAccept: (d) => d?.c == c,
-                              ),
-                      );
-                    }),
-                    Obx(() {
-                      bool enabled = c.displayMore.isTrue &&
-                          c.primaryDrags.value == 0 &&
-                          c.secondaryDrags.value == 0;
-
-                      return AnimatedOpacity(
-                        duration: const Duration(milliseconds: 150),
-                        opacity: c.displayMore.value ? 1 : 0,
-                        child: IgnorePointer(
-                          ignoring: !c.displayMore.value,
-                          child: Launchpad(
-                            onEnter: enabled ? (d) => c.keepUi(true) : null,
-                            onHover: enabled ? (d) => c.keepUi(true) : null,
-                            onExit: enabled ? (d) => c.keepUi() : null,
-                            onAccept: (CallButton data) {
-                              c.buttons.remove(data);
-                              c.draggedButton.value = null;
-                            },
-                            onWillAccept: (CallButton? a) =>
-                                a?.c == c && a?.isRemovable == true,
-                            children: c.panel.map((e) {
-                              return SizedBox(
-                                width: 100,
-                                height: 100,
-                                child: Column(
-                                  children: [
-                                    DelayedDraggable(
-                                      feedback: Transform.translate(
-                                        offset: const Offset(
-                                          CallController.buttonSize / 2 * -1,
-                                          CallController.buttonSize / 2 * -1,
-                                        ),
-                                        child: SizedBox.square(
-                                          dimension: CallController.buttonSize,
-                                          child: e.build(),
-                                        ),
-                                      ),
-                                      data: e,
-                                      onDragStarted: () {
-                                        c.showDragAndDropButtonsHint = false;
-                                        c.draggedButton.value = e;
-                                      },
-                                      onDragCompleted: () =>
-                                          c.draggedButton.value = null,
-                                      onDragEnd: (_) =>
-                                          c.draggedButton.value = null,
-                                      onDraggableCanceled: (_, __) =>
-                                          c.draggedButton.value = null,
-                                      maxSimultaneousDrags:
-                                          e.isRemovable ? null : 0,
-                                      dragAnchorStrategy:
-                                          pointerDragAnchorStrategy,
-                                      child: e.build(hinted: false),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      e.hint,
-                                      style: style.fonts.labelSmallOnPrimary,
-                                      textAlign: TextAlign.center,
-                                    )
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      );
-                    }),
+                    dock(),
+                    launchpad(),
                   ],
                 ),
               ),
