@@ -87,13 +87,11 @@ class TitleBar extends StatelessWidget {
                       AvatarWidget.fromRxChat(chat, radius: 8),
                       const SizedBox(width: 8),
                       Flexible(
-                        child: Obx(() {
-                          return Text(
-                            title,
-                            style: style.fonts.labelMediumOnPrimary,
-                            overflow: TextOverflow.ellipsis,
-                          );
-                        }),
+                        child: Text(
+                          title,
+                          style: style.fonts.labelMediumOnPrimary,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
