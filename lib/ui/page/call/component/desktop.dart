@@ -29,19 +29,19 @@ import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/desktop/dock_decorator.dart';
-import '../widget/desktop/launchpad.dart';
-import '../widget/desktop/drop_box.dart';
-import '../widget/desktop/secondary_target.dart';
-import '../widget/desktop/title_bar.dart';
 import '../widget/dock.dart';
+import '../widget/dock_decorator.dart';
+import '../widget/drop_box.dart';
+import '../widget/drop_box_area.dart';
 import '../widget/hint.dart';
+import '../widget/launchpad.dart';
 import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
+import '../widget/title_bar.dart';
 import '../widget/video_view.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -324,10 +324,10 @@ Widget desktopCall(CallController c, BuildContext context) {
             key: const Key('SecondaryTargetAnimatedSwitcher'),
             duration: 200.milliseconds,
             child: c.secondary.isEmpty && c.doughDraggedRenderer.value != null
-                ? SecondaryTarget(
+                ? DropBoxArea<DragData>(
                     size: panelSize,
                     axis: secondaryAxis,
-                    opacity: c.primaryDrags.value >= 1 ? 1 : 0,
+                    visible: c.primaryDrags.value >= 1,
                     onWillAccept: (d) => d?.chatId == c.chatId.value,
                     onAccept: (DragData d) {
                       if (secondaryAxis == Axis.horizontal) {
@@ -335,6 +335,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       } else {
                         c.secondaryAlignment.value = Alignment.topCenter;
                       }
+
                       c.unfocus(d.participant);
                     },
                   )
@@ -1372,8 +1373,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
         width = c.secondaryWidth.value;
         height = c.secondaryHeight.value;
       }
-      // Indicator whether draggable title bar should be displayed on hover.
-      bool showTitleBar = c.primaryDrags.value == 0;
 
       Widget buildDragHandle(Alignment alignment) {
         // Returns a [Scaler] scaling the secondary view.
@@ -1391,9 +1390,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
               child: Scaler(
                 key: key,
                 onDragUpdate: onDrag,
-                onDragEnd: (_) {
-                  c.updateSecondaryAttach();
-                },
+                onDragEnd: (_) => c.updateSecondaryAttach(),
                 width: width ?? Scaler.size,
                 height: height ?? Scaler.size,
               ),
@@ -1518,7 +1515,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
         return Align(alignment: alignment, child: widget);
       }
 
-      Widget positionedBoilerplate(Widget child) {
+      // Returns the [Positioned] aligned with the provided [align].
+      Widget positionedBoilerplate(Alignment? alignment, Alignment align) {
         return Positioned(
           left: left == null ? null : (left - Scaler.size / 2),
           right: right == null ? null : (right - Scaler.size / 2),
@@ -1527,7 +1525,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
           child: SizedBox(
             width: width + Scaler.size,
             height: height + Scaler.size,
-            child: child,
+            child: Obx(
+              () => c.secondaryAlignment.value == alignment
+                  ? buildDragHandle(align)
+                  : Container(),
+            ),
           ),
         );
       }
@@ -1611,53 +1613,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           ),
 
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.centerLeft)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.centerRight)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.bottomCenter)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.topCenter)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.topLeft)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.topRight)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.bottomLeft)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.bottomRight)
-                : Container(),
-          )),
+          positionedBoilerplate(null, Alignment.centerLeft),
+          positionedBoilerplate(null, Alignment.centerRight),
+          positionedBoilerplate(null, Alignment.bottomCenter),
+          positionedBoilerplate(null, Alignment.topCenter),
+          positionedBoilerplate(null, Alignment.topLeft),
+          positionedBoilerplate(null, Alignment.topRight),
+          positionedBoilerplate(null, Alignment.bottomLeft),
+          positionedBoilerplate(null, Alignment.bottomRight),
 
           // Secondary panel itself.
           ReorderableFit<DragData>(
@@ -1844,7 +1807,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
           ),
 
           // Sliding from top draggable title bar.
-          if (showTitleBar)
+          if (c.primaryDrags.value == 0)
             Positioned(
               key: c.secondaryKey,
               left: left,
@@ -1959,29 +1922,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
               }),
             ),
 
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == Alignment.centerRight
-                ? buildDragHandle(Alignment.centerLeft)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == Alignment.centerLeft
-                ? buildDragHandle(Alignment.centerRight)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == Alignment.topCenter
-                ? buildDragHandle(Alignment.bottomCenter)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == Alignment.bottomCenter
-                ? buildDragHandle(Alignment.topCenter)
-                : Container(),
-          )),
+          positionedBoilerplate(Alignment.centerRight, Alignment.centerLeft),
+          positionedBoilerplate(Alignment.centerLeft, Alignment.centerRight),
+          positionedBoilerplate(Alignment.topCenter, Alignment.bottomCenter),
+          positionedBoilerplate(Alignment.bottomCenter, Alignment.topCenter),
 
           // Secondary panel drag target indicator.
           Positioned(

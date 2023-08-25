@@ -17,27 +17,23 @@
 
 import 'package:flutter/material.dart';
 
-import '../animated_delayed_scale.dart';
-import '../conditional_backdrop.dart';
 import '/themes.dart';
+import 'animated_delayed_scale.dart';
+import 'conditional_backdrop.dart';
 
 /// Drag target indicator.
 class DropBox extends StatelessWidget {
   const DropBox({
     super.key,
     this.withBlur = true,
-    this.size = 50,
-    this.padding = const EdgeInsets.all(16),
+    this.dense = false,
   });
 
   /// Indicator whether background should be blurred.
   final bool withBlur;
 
-  /// Size of the icon.
-  final double size;
-
-  /// Padding around of the icon.
-  final EdgeInsetsGeometry padding;
+  /// Indicator whether indicators within this [DropBox] should be dense.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +57,10 @@ class DropBox extends StatelessWidget {
                     : style.colors.onBackgroundOpacity50,
               ),
               child: Padding(
-                padding: padding,
+                padding: EdgeInsets.all(dense ? 10 : 16),
                 child: Icon(
                   Icons.add_rounded,
-                  size: size,
+                  size: dense ? 35 : 50,
                   color: style.colors.onPrimary,
                 ),
               ),

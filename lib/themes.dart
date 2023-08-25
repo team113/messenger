@@ -1091,7 +1091,7 @@ class Palette {
 
   /// 25% opacity of the [primaryAuxiliary] color.
   ///
-  /// Used as `possibleContainer` and [DockDecorator] color.
+  /// Used as [DockDecorator] color.
   final Color primaryAuxiliaryOpacity25;
 
   /// [Color] for elements to put above the [primary] color.

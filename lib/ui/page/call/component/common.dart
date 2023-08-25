@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controller.dart';
+import '../widget/call_button.dart';
 import '../widget/call_title.dart';
 import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
@@ -64,7 +65,7 @@ class MoreButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    return _CallButtonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'more',
       hinted: hinted,
@@ -89,7 +90,7 @@ class VideoButton extends CallButton {
     return Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
-      return _CallButtonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'video_${isVideo ? 'on' : 'off'}',
         hinted: hinted,
@@ -116,7 +117,7 @@ class AudioButton extends CallButton {
     return Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
-      return _CallButtonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'microphone_${isAudio ? 'on' : 'off'}',
         hinted: hinted,
@@ -143,7 +144,7 @@ class ScreenButton extends CallButton {
     return Obx(() {
       bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
           c.screenShareState.value == LocalTrackState.enabling;
-      return _CallButtonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'screen_share_${isScreen ? 'off' : 'on'}',
         hinted: hinted,
@@ -165,7 +166,7 @@ class HandButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return Obx(() {
-      return _CallButtonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
         hinted: hinted,
@@ -184,7 +185,7 @@ class SettingsButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    return _CallButtonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'settings_small',
       hinted: hinted,
@@ -202,7 +203,7 @@ class ParticipantsButton extends CallButton {
 
   @override
   Widget build({bool hinted = true}) {
-    return _CallButtonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'add_user_small',
       hinted: hinted,
@@ -223,7 +224,7 @@ class RemoteVideoButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return Obx(() {
-      return _CallButtonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}',
         hinted: hinted,
@@ -245,7 +246,7 @@ class RemoteAudioButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return Obx(() {
-      return _CallButtonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}',
         hinted: hinted,
@@ -269,7 +270,7 @@ class AcceptAudioButton extends CallButton {
   Widget build({bool hinted = true, bool expanded = false}) {
     final style = Theme.of(router.context!).style;
 
-    return _CallButtonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: expanded ? 'audio_call_start' : 'audio_call',
       assetWidth: expanded ? 29 : 24,
@@ -299,7 +300,7 @@ class AcceptVideoButton extends CallButton {
   Widget build({bool hinted = true, bool expanded = false}) {
     final style = Theme.of(router.context!).style;
 
-    return _CallButtonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'video_on',
       color: style.colors.acceptColor,
@@ -325,7 +326,7 @@ class DeclineButton extends CallButton {
   Widget build({bool hinted = true, bool expanded = false}) {
     final style = Theme.of(router.context!).style;
 
-    return _CallButtonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'call_end',
       color: style.colors.declineColor,
@@ -348,7 +349,7 @@ class DropButton extends CallButton {
   Widget build({bool hinted = true}) {
     final style = Theme.of(router.context!).style;
 
-    return _CallButtonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'call_end',
       color: style.colors.declineColor,
@@ -369,7 +370,7 @@ class CancelButton extends CallButton {
   Widget build({bool hinted = true, bool blur = false}) {
     final style = Theme.of(router.context!).style;
 
-    return _CallButtonWidget(
+    return CallButtonWidget(
       hint: hint,
       asset: 'call_end',
       color: style.colors.declineColor,
@@ -394,7 +395,7 @@ class EndCallButton extends CallButton {
   Widget build({bool hinted = true}) {
     final style = Theme.of(router.context!).style;
 
-    return _CallButtonWidget(
+    return CallButtonWidget(
       asset: 'call_end',
       hint: hint,
       color: style.colors.declineColor,
@@ -414,7 +415,7 @@ class SpeakerButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool blur = false}) {
     return Obx(() {
-      return _CallButtonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
         hinted: hinted,
@@ -435,7 +436,7 @@ class SwitchButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool blur = false}) {
     return Obx(() {
-      return _CallButtonWidget(
+      return CallButtonWidget(
         hint: hint,
         asset: 'camera_${c.cameraSwitched.value ? 'front' : 'back'}',
         assetWidth: 28,
@@ -444,64 +445,6 @@ class SwitchButton extends CallButton {
         onPressed: c.switchCamera,
       );
     });
-  }
-}
-
-/// Styled [RoundFloatingButton] with the provided parameters.
-class _CallButtonWidget extends StatelessWidget {
-  const _CallButtonWidget({
-    required this.asset,
-    required this.onPressed,
-    this.hint,
-    this.hinted = true,
-    this.expanded = false,
-    this.withBlur = false,
-    this.color,
-    this.assetWidth = 60,
-    this.border,
-  });
-
-  /// Name of the asset to place into this [_CallButtonWidget].
-  final String? asset;
-
-  /// Callback, called when this [_CallButtonWidget] is pressed.
-  final VoidCallback? onPressed;
-
-  /// Hint text of this [_CallButtonWidget].
-  final String? hint;
-
-  /// Indicator whether [hint] should be displayed in the overlay.
-  final bool hinted;
-
-  /// Indicator whether the [hint] should be always displayed under the button.
-  final bool expanded;
-
-  /// Indicator whether background should be blurred.
-  final bool withBlur;
-
-  /// Background color of this [_CallButtonWidget].
-  final Color? color;
-
-  /// Width of the [asset].
-  final double assetWidth;
-
-  /// Border style of this [_CallButtonWidget].
-  final BoxBorder? border;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return RoundFloatingButton(
-      asset: asset,
-      assetWidth: assetWidth,
-      color: color ?? style.colors.onSecondaryOpacity50,
-      hint: !expanded && hinted ? hint : null,
-      text: expanded ? hint : null,
-      withBlur: withBlur,
-      border: border,
-      onPressed: onPressed,
-    );
   }
 }
 

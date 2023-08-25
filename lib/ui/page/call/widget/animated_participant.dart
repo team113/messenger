@@ -18,34 +18,37 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../animated_cliprrect.dart';
-import '../participant/decorator.dart';
-import '../participant/overlay.dart';
-import '../participant/widget.dart';
 import '/themes.dart';
 import '/ui/page/call/controller.dart';
+import 'animated_cliprrect.dart';
+import 'participant/decorator.dart';
+import 'participant/overlay.dart';
+import 'participant/widget.dart';
 
-/// [Widget] which builds the [Stack] of [Participant]'s segments with a
-/// [AnimatedClipRRect].
+/// [ParticipantWidget] in [Stack] with its [ParticipantDecoratorWidget] and
+/// [ParticipantOverlayWidget], animating its [rounded] changes.
 class AnimatedParticipant extends StatelessWidget {
   const AnimatedParticipant(
-    this.participant,
-    this.muted,
-    this.animated,
-    this.withBlur, {
+    this.participant, {
     super.key,
+    this.muted = false,
+    this.rounded = false,
+    this.withBlur = false,
   });
 
-  /// [Participant] this [AnimatedParticipant] represents.
+  /// [Participant] to display.
   final Participant participant;
 
   /// Indicator whether the [Participant]'s sound is muted or not.
   final bool? muted;
 
-  /// Indicator whether [Participant]'s view borders should be rounded.
-  final bool animated;
+  /// Indicator whether this [AnimatedParticipant] should be rounded.
+  ///
+  /// If `true`, occupies the [MediaQuery] sizes, thus intended to be displayed
+  /// in center.
+  final bool rounded;
 
-  /// Indicator whether the overlay should have a blur under it.
+  /// Indicator whether [ParticipantOverlayWidget] should backdrop its labels.
   final bool withBlur;
 
   @override
@@ -54,16 +57,16 @@ class AnimatedParticipant extends StatelessWidget {
 
     return AnimatedClipRRect(
       key: Key(participant.member.id.toString()),
-      borderRadius: animated ? BorderRadius.circular(10) : BorderRadius.zero,
+      borderRadius: rounded ? BorderRadius.circular(10) : BorderRadius.zero,
       child: AnimatedContainer(
         duration: 200.milliseconds,
         decoration: BoxDecoration(
-          color: animated
+          color: rounded
               ? style.colors.backgroundAuxiliaryLight
               : style.colors.transparent,
         ),
-        width: animated ? MediaQuery.of(context).size.width - 20 : null,
-        height: animated ? MediaQuery.of(context).size.height / 2 : null,
+        width: rounded ? MediaQuery.of(context).size.width - 20 : null,
+        height: rounded ? MediaQuery.of(context).size.height / 2 : null,
         child: Stack(
           children: [
             const ParticipantDecoratorWidget(),
@@ -76,7 +79,7 @@ class AnimatedParticipant extends StatelessWidget {
             ParticipantOverlayWidget(
               participant,
               muted: muted,
-              hovered: animated,
+              hovered: rounded,
               preferBackdrop: withBlur,
             ),
           ],

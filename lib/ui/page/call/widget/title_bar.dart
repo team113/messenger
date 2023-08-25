@@ -24,7 +24,7 @@ import '/ui/page/call/widget/tooltip_button.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Title bar of a call.
+/// Title bar to put to the [desktopCall].
 class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,
@@ -36,7 +36,7 @@ class TitleBar extends StatelessWidget {
     this.fullscreen = false,
   });
 
-  /// Indicator whether the view is fullscreen or not.
+  /// Indicator whether fullscreen icon should be turned on.
   final bool fullscreen;
 
   /// Height of this [TitleBar].
@@ -51,7 +51,7 @@ class TitleBar extends StatelessWidget {
   /// Callback, called when this [TitleBar] is tapped.
   final void Function()? onTap;
 
-  /// Callback, toggles fullscreen on and off.
+  /// Callback, called to toggle fullscreen on and off.
   final void Function()? toggleFullscreen;
 
   @override

@@ -25,8 +25,11 @@ import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
+import '../widget/animated_participant.dart';
 import '../widget/call_cover.dart';
+import '../widget/chat_info_card.dart';
 import '../widget/conditional_backdrop.dart';
+import '../widget/description_child.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/notification.dart';
@@ -41,9 +44,6 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/mobile/animated_participant.dart';
-import '/ui/page/call/widget/mobile/chat_info_card.dart';
-import '/ui/page/call/widget/mobile/descriptioned.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -199,9 +199,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                   builder: (animated) {
                     return AnimatedParticipant(
                       e,
-                      muted,
-                      animated,
-                      !c.minimized.value,
+                      muted: muted,
+                      rounded: animated,
+                      withBlur: !c.minimized.value,
                     );
                   },
                 );
@@ -430,21 +430,21 @@ Widget mobileCall(CallController c, BuildContext context) {
                 if (PlatformUtils.isMobile)
                   padding(
                     c.videoState.value.isEnabled
-                        ? Descriptioned(
-                            showDescription: c.isPanelOpen.value,
+                        ? DescriptionChild(
+                            show: c.isPanelOpen.value,
                             description: 'btn_call_switch_camera_desc'.l10n,
                             child: SwitchButton(c).build(),
                           )
-                        : Descriptioned(
-                            showDescription: c.isPanelOpen.value,
+                        : DescriptionChild(
+                            show: c.isPanelOpen.value,
                             description: 'btn_call_toggle_speaker_desc'.l10n,
                             child: SpeakerButton(c).build(),
                           ),
                   ),
                 if (PlatformUtils.isDesktop)
                   padding(
-                    Descriptioned(
-                      showDescription: c.isPanelOpen.value,
+                    DescriptionChild(
+                      show: c.isPanelOpen.value,
                       description:
                           c.screenShareState.value == LocalTrackState.enabled ||
                                   c.screenShareState.value ==
@@ -455,8 +455,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   ),
                 padding(
-                  Descriptioned(
-                    showDescription: c.isPanelOpen.value,
+                  DescriptionChild(
+                    show: c.isPanelOpen.value,
                     description:
                         c.audioState.value == LocalTrackState.enabled ||
                                 c.audioState.value == LocalTrackState.enabling
@@ -466,8 +466,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 ),
                 padding(
-                  Descriptioned(
-                    showDescription: c.isPanelOpen.value,
+                  DescriptionChild(
+                    show: c.isPanelOpen.value,
                     description:
                         c.videoState.value == LocalTrackState.enabled ||
                                 c.videoState.value == LocalTrackState.enabling
@@ -477,8 +477,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 ),
                 padding(
-                  Descriptioned(
-                    showDescription: c.isPanelOpen.value,
+                  DescriptionChild(
+                    show: c.isPanelOpen.value,
                     description: 'btn_call_end_desc'.l10n,
                     child: DropButton(c).build(),
                   ),
@@ -489,14 +489,14 @@ Widget mobileCall(CallController c, BuildContext context) {
             buttons(
               [
                 padding(
-                  Descriptioned(
+                  DescriptionChild(
                     description: 'btn_participants_desc'.l10n,
                     child: ParticipantsButton(c).build(),
                   ),
                 ),
                 padding(
-                  Descriptioned(
-                    showDescription: c.isPanelOpen.value,
+                  DescriptionChild(
+                    show: c.isPanelOpen.value,
                     description: c.me.isHandRaised.value
                         ? 'btn_call_hand_down_desc'.l10n
                         : 'btn_call_hand_up_desc'.l10n,
@@ -504,7 +504,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 ),
                 padding(
-                  Descriptioned(
+                  DescriptionChild(
                     description: c.isRemoteAudioEnabled.value
                         ? 'btn_call_remote_audio_off_desc'.l10n
                         : 'btn_call_remote_audio_on_desc'.l10n,
@@ -512,7 +512,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 ),
                 padding(
-                  Descriptioned(
+                  DescriptionChild(
                     description: c.isRemoteVideoEnabled.value
                         ? 'btn_call_remote_video_off_desc'.l10n
                         : 'btn_call_remote_video_on_desc'.l10n,
@@ -526,7 +526,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               constraints: const BoxConstraints(maxWidth: 366),
               child: ChatInfoCard(
                 chat: c.chat.value,
-                callDuration: c.duration.value,
+                duration: c.duration.value,
                 trailing: 'label_a_of_b'.l10nfmt({
                   'a': '${c.members.keys.map((k) => k.userId).toSet().length}',
                   'b': '${c.chat.value?.members.length}',

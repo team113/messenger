@@ -20,13 +20,12 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 
 /// [Widget] displaying its [child] with the provided [description].
-class Descriptioned extends StatelessWidget {
-  const Descriptioned({
+class DescriptionChild extends StatelessWidget {
+  const DescriptionChild({
     super.key,
-    required this.child,
-    this.showDescription = true,
-    this.duration = const Duration(milliseconds: 200),
+    this.show = true,
     this.description,
+    required this.child,
   });
 
   /// [Widget] displayed along with the description.
@@ -36,10 +35,7 @@ class Descriptioned extends StatelessWidget {
   final String? description;
 
   /// Indicator whether the [description] should be showed.
-  final bool showDescription;
-
-  /// [Duration] of the show/hide [description] animation.
-  final Duration duration;
+  final bool show;
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +52,8 @@ class Descriptioned extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 2,
             child: AnimatedOpacity(
-              opacity: showDescription ? 1 : 0,
-              duration: duration,
+              opacity: show ? 1 : 0,
+              duration: const Duration(milliseconds: 200),
               child: Text(description!),
             ),
           ),

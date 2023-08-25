@@ -22,28 +22,28 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
-/// Tile representing a chat.
+/// Tile representing a the provided [chat] along with the [duration].
 class ChatInfoCard extends StatelessWidget {
   const ChatInfoCard({
     super.key,
-    this.callDuration,
+    this.duration,
     this.chat,
     this.subtitle,
     this.trailing,
     this.onTap,
   });
 
-  /// [RxChat] call is happening in.
+  /// [RxChat] to display.
   final RxChat? chat;
 
-  /// Subtitle of this [ChatInfoCard].
+  /// Subtitle to display under the [chat].
   final String? subtitle;
 
-  /// Trailing of this [ChatInfoCard].
+  /// Trailing to add to this [ChatInfoCard].
   final String? trailing;
 
-  /// [Duration] of the call.
-  final Duration? callDuration;
+  /// [Duration] to display within this [ChatInfoCard].
+  final Duration? duration;
 
   /// Callback, called when this [ChatInfoCard] is pressed.
   final void Function()? onTap;
@@ -79,15 +79,19 @@ class ChatInfoCard extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(chat?.title.value ?? 'dot'.l10n * 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: style.fonts.headlineLargeOnPrimary),
+                              child: Text(
+                                chat?.title.value ?? 'dot'.l10n * 3,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.headlineLargeOnPrimary,
+                              ),
                             ),
-                            callDuration == null
+                            duration == null
                                 ? const SizedBox()
-                                : Text(callDuration!.hhMmSs(),
-                                    style: style.fonts.labelLargeOnPrimary),
+                                : Text(
+                                    duration!.hhMmSs(),
+                                    style: style.fonts.labelLargeOnPrimary,
+                                  ),
                           ],
                         ),
                         Padding(
@@ -95,8 +99,10 @@ class ChatInfoCard extends StatelessWidget {
                           child: Row(
                             children: [
                               if (subtitle != null)
-                                Text(subtitle!,
-                                    style: style.fonts.labelLargeOnPrimary),
+                                Text(
+                                  subtitle!,
+                                  style: style.fonts.labelLargeOnPrimary,
+                                ),
                               const Spacer(),
                               if (trailing != null)
                                 Text(

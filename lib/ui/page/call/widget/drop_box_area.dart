@@ -22,37 +22,36 @@ import 'package:get/get.dart';
 
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/component/desktop.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import 'drop_box.dart';
 
-/// Secondary view empty [DragTarget].
-class SecondaryTarget extends StatelessWidget {
-  const SecondaryTarget({
+/// [DragTarget] with a [DropBox] within it.
+class DropBoxArea<T extends Object> extends StatelessWidget {
+  const DropBoxArea({
     super.key,
     this.axis,
     this.onWillAccept,
     this.onAccept,
     this.size = 50,
-    this.opacity = 1,
+    this.visible = true,
   });
 
-  /// Opacity of this [SecondaryTarget].
-  final double opacity;
+  /// Indicator whether this [DropBoxArea] should be visible.
+  final bool visible;
 
-  /// [Axis] along which the [SecondaryTarget] is aligned.
+  /// [Axis] to align this [DropBoxArea].
   final Axis? axis;
 
-  /// Size of this [SecondaryTarget] widget.
+  /// Size of this [DropBoxArea] widget.
   final double size;
 
   /// Called to determine whether this widget is interested in receiving a
   /// given piece of data being dragged over this drag target.
-  final bool Function(DragData?)? onWillAccept;
+  final bool Function(T?)? onWillAccept;
 
   /// Called when an acceptable piece of data was dropped over this
   /// drag target.
-  final void Function(DragData)? onAccept;
+  final void Function(T)? onAccept;
 
   @override
   Widget build(BuildContext context) {
@@ -64,14 +63,14 @@ class SecondaryTarget extends StatelessWidget {
       child: SizedBox(
         width: axis == Axis.horizontal ? size / 1.6 : double.infinity,
         height: axis == Axis.horizontal ? double.infinity : size / 1.6,
-        child: DragTarget<DragData>(
+        child: DragTarget<T>(
           onWillAccept: onWillAccept,
           onAccept: onAccept,
           builder: (context, candidate, rejected) {
             return IgnorePointer(
               child: AnimatedOpacity(
                 duration: 200.milliseconds,
-                opacity: opacity,
+                opacity: visible ? 1 : 0,
                 child: Container(
                   padding: EdgeInsets.only(
                     bottom: axis == Axis.vertical ? 1 : 0,
@@ -79,16 +78,10 @@ class SecondaryTarget extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border(
                       left: axis == Axis.horizontal
-                          ? BorderSide(
-                              color: style.colors.secondary,
-                              width: 1,
-                            )
+                          ? BorderSide(color: style.colors.secondary, width: 1)
                           : BorderSide.none,
                       bottom: axis == Axis.vertical
-                          ? BorderSide(
-                              color: style.colors.secondary,
-                              width: 1,
-                            )
+                          ? BorderSide(color: style.colors.secondary, width: 1)
                           : BorderSide.none,
                     ),
                     boxShadow: [
@@ -113,11 +106,7 @@ class SecondaryTarget extends StatelessWidget {
                           height: axis == Axis.horizontal
                               ? null
                               : min(size, 150 + 44),
-                          child: const DropBox(
-                            withBlur: false,
-                            size: 35,
-                            padding: EdgeInsets.all(10),
-                          ),
+                          child: const DropBox(withBlur: false, dense: true),
                         ),
                       ),
                     ),
