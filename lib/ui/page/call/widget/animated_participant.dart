@@ -39,7 +39,7 @@ class AnimatedParticipant extends StatelessWidget {
   /// [Participant] to display.
   final Participant participant;
 
-  /// Indicator whether the [Participant]'s sound is muted or not.
+  /// Indicator whether to display a muted label in [ParticipantOverlayWidget].
   final bool? muted;
 
   /// Indicator whether this [AnimatedParticipant] should be rounded.
