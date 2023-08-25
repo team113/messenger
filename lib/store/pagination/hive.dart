@@ -68,7 +68,7 @@ class HivePageProvider<T extends Object, C, K>
     Iterable<dynamic>? keys;
 
     final K key = getKey(item);
-    final Iterable<dynamic> providerKeys = _provider.keys;
+    final Iterable<K> providerKeys = _provider.keys;
     final int initial = providerKeys.toList().indexOf(key);
 
     if (initial != -1) {
@@ -92,8 +92,8 @@ class HivePageProvider<T extends Object, C, K>
     }
 
     List<T> items = [];
-    for (var i in keys) {
-      final T? item = await _provider.get(i);
+    for (var k in keys) {
+      final T? item = await _provider.get(k);
       if (item != null) {
         items.add(item);
       }
