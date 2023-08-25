@@ -22,6 +22,8 @@ All user visible changes to this project will be documented in this file. This p
     - Context menu with fading effect on desktop. ([#506])
     - Profile page:
         - Sections highlighting. ([#513], [#385])
+    - Home page:
+        - Redesigned navigation buttons' badges. ([#529], [#500])
     - Display online status only when application is active. ([#522])
 
 [#385]: /../../issues/385
@@ -30,6 +32,8 @@ All user visible changes to this project will be documented in this file. This p
 [#506]: /../../pull/506
 [#513]: /../../pull/513
 [#522]: /../../pull/522
+[#500]: /../../issues/500
+[#529]: /../../pull/529
 
 
 
