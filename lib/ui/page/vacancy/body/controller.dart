@@ -16,20 +16,17 @@ class VacancyBodyController extends GetxController {
 
   final Mutex _issuesGuard = Mutex();
 
- @override void onInit() {
+  @override
+  void onInit() {
     fetchIssues();
     super.onInit();
   }
 
-  Future<void> useLink() async {
+  Future<void> useLink(String? welcome) async {
     router.useLink(
       'HR-Gapopa',
-//       welcome: '''
-
-// Собеседования проводятся с 00:00 по 00:00.
-
-// ''',
-      welcome: '''Добрый день.
+      welcome: welcome ??
+          '''Добрый день.
 Пожалуйста, отправьте Ваше резюме в формате PDF. В течение 24 часов Вам будет отправлена дата и время интервью.''',
     );
   }
@@ -43,7 +40,7 @@ class VacancyBodyController extends GetxController {
       }
 
       final response = await (await PlatformUtils.dio).get(
-        'https://api.github.com/repos/team113/messenger/issues',
+        'https://api.github.com/repos/team113/messenger/issues?labels=help wanted',
       );
 
       if (response.statusCode == 200) {

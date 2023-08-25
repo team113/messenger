@@ -107,9 +107,9 @@ class VacancyView extends StatelessWidget {
             onPressed: () => Navigator.maybePop(context),
             child: Center(
               child: SvgImage.asset(
-                'assets/icons/home1.svg',
-                width: 21.57,
-                height: 21.28,
+                'assets/icons/home3.svg',
+                width: 21.8,
+                height: 21.04,
               ),
             ),
           ),
@@ -195,7 +195,11 @@ class VacancyView extends StatelessWidget {
                         color: style.colors.primary,
                         size: 24,
                       )
-                    : SvgImage.asset('assets/icons/copy.svg', height: 18),
+                    : SvgImage.asset(
+                        'assets/icons/copy_thick.svg',
+                        width: 16.18,
+                        height: 18.8,
+                      ),
               ),
             ],
           ),

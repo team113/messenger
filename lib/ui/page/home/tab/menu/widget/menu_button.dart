@@ -32,6 +32,7 @@ class MenuButton extends StatefulWidget {
     this.inverted = false,
     this.children = const [],
     this.trailing = const [],
+    this.maxLines = 1,
   });
 
   /// Optional title of this [MenuButton].
@@ -51,6 +52,7 @@ class MenuButton extends StatefulWidget {
   final bool inverted;
 
   final List<Widget> trailing;
+  final int? maxLines;
 
   @override
   State<MenuButton> createState() => _MenuButtonState();
@@ -67,8 +69,8 @@ class _MenuButtonState extends State<MenuButton> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: SizedBox(
-        height: 73,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 73),
         child: MouseRegion(
           opaque: false,
           onEnter: (_) => setState(() => _hovered = true),
@@ -93,17 +95,18 @@ class _MenuButtonState extends State<MenuButton> {
                   padding: const EdgeInsets.all(12),
                   child: Row(
                     children: [
-                      Container(
-                        constraints: const BoxConstraints(minWidth: 56),
-                        child: Center(
-                          child: AnimatedScale(
-                            key: _key,
-                            duration: const Duration(milliseconds: 100),
-                            scale: _hovered ? 1.05 : 1,
-                            child: widget.icon,
+                      if (widget.icon != null)
+                        Container(
+                          constraints: const BoxConstraints(minWidth: 56),
+                          child: Center(
+                            child: AnimatedScale(
+                              key: _key,
+                              duration: const Duration(milliseconds: 100),
+                              scale: _hovered ? 1.05 : 1,
+                              child: widget.icon,
+                            ),
                           ),
                         ),
-                      ),
                       // const SizedBox(width: 12),
                       // AnimatedScale(
                       //   key: _key,
@@ -120,7 +123,7 @@ class _MenuButtonState extends State<MenuButton> {
                             if (widget.title != null)
                               DefaultTextStyle(
                                 overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
+                                maxLines: widget.maxLines,
                                 style: style.fonts.headlineLarge.copyWith(
                                   color: widget.inverted
                                       ? style.colors.onPrimary

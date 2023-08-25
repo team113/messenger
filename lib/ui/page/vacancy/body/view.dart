@@ -5,6 +5,7 @@ import 'package:messenger/domain/model/vacancy.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/animated_logo.dart';
+import 'package:messenger/ui/page/home/tab/menu/widget/menu_button.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/page/login/controller.dart';
@@ -52,6 +53,7 @@ class VacancyBodyView extends StatelessWidget {
     BuildContext context,
     VacancyBodyController c, {
     String title = 'Записаться на интервью',
+    String? welcome,
   }) {
     final style = Theme.of(context).style;
 
@@ -61,13 +63,13 @@ class VacancyBodyView extends StatelessWidget {
           OutlinedRoundedButton(
             onPressed: () async {
               if (c.authorized) {
-                await c.useLink();
+                await c.useLink(welcome);
               } else {
                 await LoginView.show(
                   context,
                   stage: LoginViewStage.choice,
                   onAuth: () async {
-                    await c.useLink();
+                    await c.useLink(welcome);
                   },
                 );
               }
@@ -375,7 +377,7 @@ https://github.com/instrumentisto/rust-incubator''',
             title: 'Регламент',
             children: [
               VacancyDescription(
-                '''1. Выбрать задачу из списка доступных
+                '''1. Выбрать задачу из списка ниже
 2. Сделать форк проекта и по нему оформить PR (Pull Request)
 3. Связаться с командой фронтэнда (кнопка ниже) и оставить заявку, указав:
     - логин на GitHub'е
@@ -383,8 +385,7 @@ https://github.com/instrumentisto/rust-incubator''',
     - предполагаемый срок выполнения задачи (дедлайн)
     - предполагаемый способ решения задачи
 4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)
-5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
-6. В случае отсутствии активности в течение 72 часов Ваша заявка аннулируется, Ваш PR закрывается, задача переводится в статус `Todo`''',
+5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа''',
               ),
             ],
           ),
@@ -423,11 +424,10 @@ https://github.com/instrumentisto/rust-incubator''',
               children: c.issues.map((e) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: ElevatedButton(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(e.title),
-                    ),
+                  child: MenuButton(
+                    title: e.title,
+                    subtitle: ' Available',
+                    maxLines: 10,
                     onPressed: () => launchUrlString(e.url),
                   ),
                 );
@@ -443,7 +443,16 @@ https://github.com/team113/flutter-incubator''',
               ),
             ],
           ),
-          _button(context, c, title: 'Оставить заявку'),
+          _button(
+            context,
+            c,
+            title: 'Оставить заявку',
+            welcome: '''Добрый день. Пожалуйста, укажите:
+- логин на GitHub'е;
+- номер PR (Pull Request);
+- предполагаемый срок выполнения задачи (дедлайн);
+- предполагаемый способ решения задачи.''',
+          ),
         ];
     }
 

@@ -87,7 +87,11 @@ class VacancyView extends StatelessWidget {
                         color: style.colors.primary,
                         size: 24,
                       )
-                    : SvgImage.asset('assets/icons/copy.svg', height: 18),
+                    : SvgImage.asset(
+                        'assets/icons/copy_thick.svg',
+                        width: 16.18,
+                        height: 18.8,
+                      ),
               ),
             ],
           ),
