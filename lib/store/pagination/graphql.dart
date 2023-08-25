@@ -20,25 +20,30 @@ import 'dart:async';
 import '/store/pagination.dart';
 
 /// [PageProvider] fetching items from the remote in a GraphQL style.
-class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
+class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
   GraphQlPageProvider({required this.fetch, this.reversed = false});
 
   /// Indicator whether this [GraphQlPageProvider] is reversed.
   final bool reversed;
 
   /// Callback fetching items from the remote.
-  final Future<Page<U, T>> Function({
+  final Future<Page<T, C>> Function({
     int? first,
     int? last,
-    T? before,
-    T? after,
+    C? before,
+    C? after,
   }) fetch;
 
   @override
-  FutureOr<Page<U, T>> around(U? item, T? cursor, int count) async {
+  Future<Page<T, C>?> init(T? item, int count) async {
+    return null;
+  }
+
+  @override
+  FutureOr<Page<T, C>> around(T? item, C? cursor, int count) async {
     final int half = count ~/ 2;
 
-    final Page<U, T> page = await fetch(
+    final Page<T, C> page = await fetch(
       after: cursor,
       last: cursor == null
           ? reversed
@@ -57,7 +62,7 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   }
 
   @override
-  FutureOr<Page<U, T>?> after(U? item, T? cursor, int count) async {
+  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
     if (cursor == null) {
       return null;
     }
@@ -70,7 +75,7 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   }
 
   @override
-  FutureOr<Page<U, T>?> before(U? item, T? cursor, int count) async {
+  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
     if (cursor == null) {
       return null;
     }
@@ -83,7 +88,17 @@ class GraphQlPageProvider<U, T> implements PageProvider<U, T> {
   }
 
   @override
-  Future<void> put(U item) async {
+  Future<void> put(T item) async {
+    // No-op.
+  }
+
+  @override
+  Future<void> remove(K key) async {
+    // No-op.
+  }
+
+  @override
+  Future<void> clear() async {
     // No-op.
   }
 }
