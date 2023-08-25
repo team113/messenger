@@ -967,7 +967,7 @@ class Fonts {
       bodyTinyPrimary:
           TextStyle.lerp(font.bodyTinyPrimary, other.bodyTinyPrimary, t)!,
       bodyTinySecondary:
-          TextStyle.lerp(font.bodyTinySecondary, other.bodyTinySecondary, t),
+          TextStyle.lerp(font.bodyTinySecondary, other.bodyTinySecondary, t)!,
       input: TextStyle.lerp(font.input, other.input, t)!,
       error: TextStyle.lerp(font.error, other.error, t)!,
       counter: TextStyle.lerp(font.counter, other.counter, t)!,
