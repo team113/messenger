@@ -324,12 +324,12 @@ Widget desktopCall(CallController c, BuildContext context) {
             key: const Key('SecondaryTargetAnimatedSwitcher'),
             duration: 200.milliseconds,
             child: c.secondary.isEmpty && c.doughDraggedRenderer.value != null
-                ? DropBoxArea<DragData>(
+                ? DropBoxArea<_DragData>(
                     size: panelSize,
                     axis: secondaryAxis,
                     visible: c.primaryDrags.value >= 1,
                     onWillAccept: (d) => d?.chatId == c.chatId.value,
-                    onAccept: (DragData d) {
+                    onAccept: (_DragData d) {
                       if (secondaryAxis == Axis.horizontal) {
                         c.secondaryAlignment.value = Alignment.centerRight;
                       } else {
@@ -1088,7 +1088,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
-  void onDragEnded(DragData d) {
+  void onDragEnded(_DragData d) {
     c.primaryDrags.value = 0;
     c.draggedRenderer.value = null;
     c.doughDraggedRenderer.value = null;
@@ -1100,7 +1100,7 @@ Widget _primaryView(CallController c) {
   return Stack(
     children: [
       Obx(() {
-        return ReorderableFit<DragData>(
+        return ReorderableFit<_DragData>(
           key: const Key('PrimaryFitView'),
           allowEmptyTarget: true,
           onAdded: (d, i) => c.focus(d.participant),
@@ -1137,7 +1137,7 @@ Widget _primaryView(CallController c) {
           onDragEnd: onDragEnded,
           onDragCompleted: onDragEnded,
           onDraggableCanceled: onDragEnded,
-          overlayBuilder: (DragData data) {
+          overlayBuilder: (_DragData data) {
             var participant = data.participant;
 
             return LayoutBuilder(builder: (context, constraints) {
@@ -1291,11 +1291,11 @@ Widget _primaryView(CallController c) {
             });
           },
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
-          itemConstraints: (DragData data) {
+          itemConstraints: (_DragData data) {
             final double size = (c.size.longestSide * 0.33).clamp(100, 250);
             return BoxConstraints(maxWidth: size, maxHeight: size);
           },
-          itemBuilder: (DragData data) {
+          itemBuilder: (_DragData data) {
             var participant = data.participant;
             return Obx(() {
               return ParticipantWidget(
@@ -1310,7 +1310,7 @@ Widget _primaryView(CallController c) {
               );
             });
           },
-          children: c.primary.map((e) => DragData(e, c.chatId.value)).toList(),
+          children: c.primary.map((e) => _DragData(e, c.chatId.value)).toList(),
         );
       }),
       Obx(() {
@@ -1543,7 +1543,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         );
       }
 
-      void onDragEnded(DragData d) {
+      void onDragEnded(_DragData d) {
         c.secondaryDrags.value = 0;
         c.draggedRenderer.value = null;
         c.doughDraggedRenderer.value = null;
@@ -1632,7 +1632,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
           positionedBoilerplate(null, Alignment.bottomRight),
 
           // Secondary panel itself.
-          ReorderableFit<DragData>(
+          ReorderableFit<_DragData>(
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
             onWillAccept: (d) {
@@ -1671,7 +1671,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
               return Offset.zero;
             },
-            overlayBuilder: (DragData data) {
+            overlayBuilder: (_DragData data) {
               var participant = data.participant;
 
               return Obx(() {
@@ -1782,11 +1782,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
               });
             },
             decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
-            itemConstraints: (DragData data) {
+            itemConstraints: (_DragData data) {
               final double size = (c.size.longestSide * 0.33).clamp(100, 250);
               return BoxConstraints(maxWidth: size, maxHeight: size);
             },
-            itemBuilder: (DragData data) {
+            itemBuilder: (_DragData data) {
               return ParticipantWidget(
                 data.participant,
                 key: ObjectKey(data.participant),
@@ -1796,7 +1796,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
               );
             },
             children:
-                c.secondary.map((e) => DragData(e, c.chatId.value)).toList(),
+                c.secondary.map((e) => _DragData(e, c.chatId.value)).toList(),
             borderRadius:
                 c.secondaryAlignment.value == null ? borderRadius : null,
           ),
@@ -2084,10 +2084,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
 }
 
 /// [Draggable] data consisting of a [participant] and its [chatId].
-class DragData {
-  const DragData(this.participant, this.chatId);
+class _DragData {
+  const _DragData(this.participant, this.chatId);
 
-  /// [Participant] this [DragData] represents.
+  /// [Participant] this [_DragData] represents.
   final Participant participant;
 
   /// [ChatId] of the [CallView] this [participant] takes place in.
@@ -2095,7 +2095,7 @@ class DragData {
 
   @override
   bool operator ==(Object other) =>
-      other is DragData &&
+      other is _DragData &&
       participant == other.participant &&
       chatId == other.chatId;
 
