@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -175,20 +177,28 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
+    File? file;
     if (bytes == null &&
         widget.checksum != null &&
         CacheWorker.instance.exists(widget.checksum!)) {
-      bytes = await CacheWorker.instance.get(checksum: widget.checksum!);
+      CacheEntry cache = await CacheWorker.instance.get(
+        checksum: widget.checksum!,
+        cacheResponseType: CacheResponseType.file,
+      );
+
+      bytes = cache.bytes;
+      file = cache.file;
+    } else if (bytes != null) {
+      file = await CacheWorker.instance.add(bytes);
     }
 
     try {
-      if (bytes != null) {
+      if (file != null) {
+        await _controller.player.open(Media(file.path), play: false);
+      } else if (bytes != null) {
         await _controller.player.open(await Media.memory(bytes), play: false);
       } else {
-        await _controller.player.open(
-          Media(widget.url!),
-          play: false,
-        );
+        await _controller.player.open(Media(widget.url!), play: false);
       }
     } catch (_) {
       // No-op.

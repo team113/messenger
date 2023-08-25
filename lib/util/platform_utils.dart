@@ -435,7 +435,7 @@ class PlatformUtilsImpl {
           if (file == null) {
             Uint8List? data;
             if (checksum != null && CacheWorker.instance.exists(checksum)) {
-              data = await CacheWorker.instance.get(checksum: checksum);
+              data = (await CacheWorker.instance.get(checksum: checksum)).bytes;
             }
 
             if (path == null) {
@@ -502,7 +502,7 @@ class PlatformUtilsImpl {
   }) async {
     if (isMobile && !isWeb) {
       Uint8List? data =
-          await CacheWorker.instance.get(checksum: checksum, url: url);
+          (await CacheWorker.instance.get(checksum: checksum, url: url)).bytes;
       if (data != null) {
         ImageGallerySaver.saveImage(data, name: name);
       }
@@ -514,7 +514,7 @@ class PlatformUtilsImpl {
     // Provided file might already be cached.
     Uint8List? data;
     if (checksum != null && CacheWorker.instance.exists(checksum)) {
-      data = await CacheWorker.instance.get(checksum: checksum);
+      data = (await CacheWorker.instance.get(checksum: checksum)).bytes;
     }
 
     if (data == null) {

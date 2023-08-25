@@ -504,6 +504,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 child: e.isVideo
                     ? VideoView(
                         e.link,
+                        checksum: e.checksum,
                         showInterfaceFor: _isInitialPage ? 3.seconds : null,
                         onClose: _dismiss,
                         isFullscreen: _isFullscreen,
@@ -587,6 +588,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             child: e.isVideo
                 ? VideoView(
                     e.link,
+                    checksum: e.checksum,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
                     isFullscreen: _isFullscreen,
@@ -1071,23 +1073,27 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _download(GalleryItem item, {String? path}) async {
     try {
       try {
-        await CacheWorker.instance.download(
-          item.link,
-          item.checksum,
-          item.name,
-          item.size,
-          path: path,
-        ).future;
+        await CacheWorker.instance
+            .download(
+              item.link,
+              item.name,
+              item.size,
+              checksum: item.checksum,
+              path: path,
+            )
+            .future;
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await CacheWorker.instance.download(
-            item.link,
-            item.checksum,
-            item.name,
-            item.size,
-            path: path,
-          ).future;
+          await CacheWorker.instance
+              .download(
+                item.link,
+                item.name,
+                item.size,
+                checksum: item.checksum,
+                path: path,
+              )
+              .future;
         } else {
           rethrow;
         }

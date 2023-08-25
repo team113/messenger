@@ -305,6 +305,9 @@ class HiveRxChat extends RxChat {
   Future<void> dispose() {
     return _guard.protect(() async {
       status.value = RxStatus.loading();
+      for (ChatItem item in messages.map((e) => e.value)) {
+        _disposeAttachments(item);
+      }
       messages.clear();
       reads.clear();
       _aroundToken.cancel();
@@ -314,7 +317,6 @@ class HiveRxChat extends RxChat {
       _paginationSubscription?.cancel();
       _messagesSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
-      _disposeAllAttachments();
       await _local.close();
       status.value = RxStatus.empty();
       _worker?.dispose();
@@ -765,13 +767,6 @@ class HiveRxChat extends RxChat {
     } else {
       _disposeAttachments(messages[i].value);
       messages[i].value = item;
-    }
-  }
-
-  /// Disposes [Attachment]s of the [messages].
-  void _disposeAllAttachments() async {
-    for (ChatItem item in messages.map((e) => e.value)) {
-      _disposeAttachments(item);
     }
   }
 

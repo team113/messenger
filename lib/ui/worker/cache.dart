@@ -94,15 +94,33 @@ class CacheWorker extends DisposableService {
   ///
   /// Retries itself using exponential backoff algorithm on a failure, which can
   /// be canceled with a [cancelToken].
-  FutureOr<Uint8List?> get({
+  FutureOr<CacheEntry> get({
     String? url,
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
     Future<void> Function()? onForbidden,
+    cacheResponseType = CacheResponseType.bytes,
   }) {
+    // Web does not support file caching.
+    if (PlatformUtils.isWeb) {
+      cacheResponseType = CacheResponseType.bytes;
+    }
+
     if (checksum != null && FIFOCache.exists(checksum)) {
-      return FIFOCache.get(checksum);
+      final Uint8List? bytes = FIFOCache.get(checksum);
+
+      if (bytes != null) {
+        switch (cacheResponseType) {
+          case CacheResponseType.file:
+            return Future(
+              () async => CacheEntry(file: await add(bytes, checksum)),
+            );
+
+          case CacheResponseType.bytes:
+            return CacheEntry(bytes: bytes);
+        }
+      }
     }
 
     return Future(() async {
@@ -113,9 +131,15 @@ class CacheWorker extends DisposableService {
           final File file = File('${cache.path}/$checksum');
 
           if (await file.exists()) {
-            final Uint8List bytes = await file.readAsBytes();
-            FIFOCache.set(checksum, bytes);
-            return bytes;
+            switch (cacheResponseType) {
+              case CacheResponseType.file:
+                return CacheEntry(file: file);
+
+              case CacheResponseType.bytes:
+                final Uint8List bytes = await file.readAsBytes();
+                FIFOCache.set(checksum, bytes);
+                return CacheEntry(bytes: bytes);
+            }
           }
         }
       }
@@ -149,22 +173,31 @@ class CacheWorker extends DisposableService {
             cancelToken,
           );
 
-          if (data != null) {
-            add(data, checksum);
-          }
+          switch (cacheResponseType) {
+            case CacheResponseType.file:
+              return Future(
+                () async => CacheEntry(
+                  file: data == null ? null : await add(data, checksum),
+                ),
+              );
 
-          return data;
+            case CacheResponseType.bytes:
+              if (data != null) {
+                add(data, checksum);
+              }
+              return CacheEntry(bytes: data);
+          }
         } on OperationCanceledException catch (_) {
-          return null;
+          return CacheEntry();
         }
       }
 
-      return null;
+      return CacheEntry();
     });
   }
 
   /// Adds the provided [data] to the cache.
-  FutureOr<void> add(Uint8List data, [String? checksum]) {
+  FutureOr<File?> add(Uint8List data, [String? checksum]) {
     checksum ??= sha256.convert(data).toString();
     FIFOCache.set(checksum, data);
 
@@ -184,16 +217,18 @@ class CacheWorker extends DisposableService {
 
           _optimizeCache();
         }
+        return file;
       }
+      return null;
     });
   }
 
   /// Starts downloading of the file by provided [url].
   Downloading download(
     String url,
-    String? checksum,
     String filename,
     int? size, {
+    String? checksum,
     String? path,
   }) {
     Downloading? downloading;
@@ -406,7 +441,7 @@ class FIFOCache {
   static void clear() => _cache.clear();
 }
 
-/// A downloading process.
+/// A file downloading.
 class Downloading {
   Downloading(this.checksum, this.filename, this.size);
 
@@ -488,4 +523,24 @@ enum DownloadStatus {
 
   /// Downloaded successfully.
   isFinished,
+}
+
+/// Cache entry.
+class CacheEntry {
+  CacheEntry({this.file, this.bytes});
+
+  /// [File] of this [CacheEntry].
+  final File? file;
+
+  /// Byte data of this [CacheEntry].
+  final Uint8List? bytes;
+}
+
+/// Response type of a function.
+enum CacheResponseType {
+  /// Function returns a [File].
+  file,
+
+  /// Function returns a [Uint8List].
+  bytes,
 }

@@ -109,11 +109,11 @@ class ImageAttachment extends Attachment {
     }
 
     if (downloading.value == null) {
-      _downloadsSubscription = CacheWorker.instance.downloads.changes.listen((e) {
+      _downloadsSubscription =
+          CacheWorker.instance.downloads.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
-            if (original.checksum != null &&
-                e.key == original.checksum) {
+            if (original.checksum != null && e.key == original.checksum) {
               downloading.value = e.value;
             }
             break;
@@ -191,11 +191,11 @@ class FileAttachment extends Attachment {
     }
 
     if (downloading.value == null) {
-      _downloadsSubscription = CacheWorker.instance.downloads.changes.listen((e) {
+      _downloadsSubscription =
+          CacheWorker.instance.downloads.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
-            if (original.checksum != null &&
-                e.key == original.checksum) {
+            if (original.checksum != null && e.key == original.checksum) {
               downloading.value = e.value;
               _listenStatus();
             }
@@ -219,7 +219,6 @@ class FileAttachment extends Attachment {
       File file = File(path!);
       if (await file.exists() && await file.length() == original.size) {
         _downloaded.value = true;
-        return;
       }
     }
 
@@ -255,9 +254,9 @@ class FileAttachment extends Attachment {
       if (downloading.value == null) {
         downloading.value = CacheWorker.instance.download(
           original.url,
-          original.checksum,
           filename,
           original.size,
+          checksum: original.checksum,
         );
         _listenStatus();
       } else {
