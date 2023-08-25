@@ -1372,6 +1372,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
         width = c.secondaryWidth.value;
         height = c.secondaryHeight.value;
       }
+      // Indicator whether draggable title bar should be displayed on hover.
+      bool showTitleBar = c.primaryDrags.value == 0;
 
       Widget buildDragHandle(Alignment alignment) {
         // Returns a [Scaler] scaling the secondary view.
@@ -1842,105 +1844,109 @@ Widget _secondaryView(CallController c, BuildContext context) {
           ),
 
           // Sliding from top draggable title bar.
-          Positioned(
-            key: c.secondaryKey,
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: Obx(() {
-              bool isAnyDrag =
-                  c.secondaryDrags.value != 0 || c.primaryDrags.value != 0;
+          if (showTitleBar)
+            Positioned(
+              key: c.secondaryKey,
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              child: Obx(() {
+                bool isAnyDrag =
+                    c.secondaryDrags.value != 0 || c.primaryDrags.value != 0;
 
-              return SizedBox(
-                width: width,
-                height: height,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    height: 30,
-                    child: MouseRegion(
-                      cursor: isAnyDrag
-                          ? MouseCursor.defer
-                          : SystemMouseCursors.grab,
-                      child: GestureDetector(
-                        onPanStart: (d) {
-                          c.secondaryBottomShifted = null;
-                          c.secondaryDragged.value = true;
-                          c.displayMore.value = false;
-                          c.keepUi(false);
+                return SizedBox(
+                  width: width,
+                  height: height,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      height: 30,
+                      child: MouseRegion(
+                        cursor: isAnyDrag
+                            ? MouseCursor.defer
+                            : SystemMouseCursors.grab,
+                        child: GestureDetector(
+                          onPanStart: (d) {
+                            c.secondaryBottomShifted = null;
+                            c.secondaryDragged.value = true;
+                            c.displayMore.value = false;
+                            c.keepUi(false);
 
-                          c.calculateSecondaryPanning(d.globalPosition);
+                            c.calculateSecondaryPanning(d.globalPosition);
 
-                          if (c.secondaryAlignment.value != null) {
-                            c.secondaryAlignment.value = null;
+                            if (c.secondaryAlignment.value != null) {
+                              c.secondaryAlignment.value = null;
+                              c.updateSecondaryOffset(d.globalPosition);
+                            } else {
+                              c.secondaryLeft.value ??= c.size.width -
+                                  c.secondaryWidth.value -
+                                  (c.secondaryRight.value ?? 0);
+                              c.secondaryTop.value ??= c.size.height -
+                                  c.secondaryHeight.value -
+                                  (c.secondaryBottom.value ?? 0);
+                              c.applySecondaryConstraints();
+                            }
+
+                            c.secondaryRight.value = null;
+                            c.secondaryBottom.value = null;
+                          },
+                          onPanUpdate: (d) {
                             c.updateSecondaryOffset(d.globalPosition);
-                          } else {
-                            c.secondaryLeft.value ??= c.size.width -
-                                c.secondaryWidth.value -
-                                (c.secondaryRight.value ?? 0);
-                            c.secondaryTop.value ??= c.size.height -
-                                c.secondaryHeight.value -
-                                (c.secondaryBottom.value ?? 0);
                             c.applySecondaryConstraints();
-                          }
-
-                          c.secondaryRight.value = null;
-                          c.secondaryBottom.value = null;
-                        },
-                        onPanUpdate: (d) {
-                          c.updateSecondaryOffset(d.globalPosition);
-                          c.applySecondaryConstraints();
-                        },
-                        onPanEnd: (d) {
-                          c.secondaryDragged.value = false;
-                          if (c.possibleSecondaryAlignment.value != null) {
-                            c.secondaryAlignment.value =
-                                c.possibleSecondaryAlignment.value;
-                            c.possibleSecondaryAlignment.value = null;
-                            c.applySecondaryConstraints();
-                          } else {
-                            c.updateSecondaryAttach();
-                          }
-                        },
-                        child: AnimatedOpacity(
-                          duration: 200.milliseconds,
-                          key: const ValueKey('TitleBar'),
-                          opacity: c.secondaryHovered.value ? 1 : 0,
-                          child: ClipRRect(
-                            borderRadius: c.secondaryAlignment.value == null
-                                ? BorderRadius.only(
-                                    topLeft: borderRadius.topLeft,
-                                    topRight: borderRadius.topRight,
-                                  )
-                                : BorderRadius.zero,
-                            child: ConditionalBackdropFilter(
-                              condition: PlatformUtils.isWeb &&
-                                  (c.minimized.isFalse || c.fullscreen.isTrue),
-                              child: Container(
-                                color: PlatformUtils.isWeb
-                                    ? style.colors.onSecondaryOpacity60
-                                    : style.colors.onSecondaryOpacity88,
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width: 7),
-                                    Expanded(
-                                      child: Text(
-                                        'Draggable',
-                                        style: style.fonts.labelMediumOnPrimary,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                          },
+                          onPanEnd: (d) {
+                            c.secondaryDragged.value = false;
+                            if (c.possibleSecondaryAlignment.value != null) {
+                              c.secondaryAlignment.value =
+                                  c.possibleSecondaryAlignment.value;
+                              c.possibleSecondaryAlignment.value = null;
+                              c.applySecondaryConstraints();
+                            } else {
+                              c.updateSecondaryAttach();
+                            }
+                          },
+                          child: AnimatedOpacity(
+                            duration: 200.milliseconds,
+                            key: const ValueKey('TitleBar'),
+                            opacity: c.secondaryHovered.value ? 1 : 0,
+                            child: ClipRRect(
+                              borderRadius: c.secondaryAlignment.value == null
+                                  ? BorderRadius.only(
+                                      topLeft: borderRadius.topLeft,
+                                      topRight: borderRadius.topRight,
+                                    )
+                                  : BorderRadius.zero,
+                              child: ConditionalBackdropFilter(
+                                condition: PlatformUtils.isWeb &&
+                                    (c.minimized.isFalse ||
+                                        c.fullscreen.isTrue),
+                                child: Container(
+                                  color: PlatformUtils.isWeb
+                                      ? style.colors.onSecondaryOpacity60
+                                      : style.colors.onSecondaryOpacity88,
+                                  child: Row(
+                                    children: [
+                                      const SizedBox(width: 7),
+                                      Expanded(
+                                        child: Text(
+                                          'Draggable',
+                                          style:
+                                              style.fonts.labelMediumOnPrimary,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
-                                    ),
-                                    InkResponse(
-                                      onTap: isAnyDrag ? null : c.focusAll,
-                                      child: const SvgImage.asset(
-                                        'assets/icons/close.svg',
-                                        height: 10.25,
+                                      InkResponse(
+                                        onTap: isAnyDrag ? null : c.focusAll,
+                                        child: const SvgImage.asset(
+                                          'assets/icons/close.svg',
+                                          height: 10.25,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 7),
-                                  ],
+                                      const SizedBox(width: 7),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -1949,10 +1955,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       ),
                     ),
                   ),
-                ),
-              );
-            }),
-          ),
+                );
+              }),
+            ),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.centerRight
