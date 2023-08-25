@@ -23,8 +23,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -210,9 +210,9 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [PageController] controlling the [PageView].
   late final PageController _pageController;
 
-  /// [Map] of [MeeduPlayerController] controlling the video playback used to
+  /// [Map] of [VideoController] controlling the video playback used to
   /// play/pause the active videos on keyboard presses.
-  final Map<int, MeeduPlayerController> _videoControllers = {};
+  final Map<int, VideoController> _videoControllers = {};
 
   /// [CurvedAnimation] of the [_sliding] animation.
   late CurvedAnimation _curve;
@@ -963,13 +963,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       } else if (k.physicalKey == PhysicalKeyboardKey.escape) {
         _dismiss();
       } else if (k.physicalKey == PhysicalKeyboardKey.space) {
-        _videoControllers.forEach((_, v) {
-          if (v.playerStatus.playing) {
-            v.pause();
-          } else {
-            v.play();
-          }
-        });
+        _videoControllers.forEach((_, v) => v.player.playOrPause());
       }
     }
   }
