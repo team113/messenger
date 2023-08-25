@@ -18,8 +18,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -34,8 +34,8 @@ import 'volume_button.dart';
 class MobileControls extends StatefulWidget {
   const MobileControls(this.controller, {super.key, this.barHeight});
 
-  /// [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
-  final MeeduPlayerController controller;
+  /// [VideoController] controlling the [Video] player functionality.
+  final VideoController controller;
 
   /// Height of the bottom controls bar.
   final double? barHeight;
@@ -114,16 +114,20 @@ class _MobileControlsState extends State<MobileControls>
             ),
           ),
 
-          RxBuilder((_) {
-            return widget.controller.isBuffering.value
-                ? const Center(child: CustomProgressIndicator())
-                : CenteredPlayPause(
-                    widget.controller,
-                    size: 56,
-                    show: !_dragging && !_hideStuff,
-                    onPressed: _playPause,
-                  );
-          }),
+          StreamBuilder(
+            stream: widget.controller.player.stream.buffering,
+            initialData: widget.controller.player.state.buffering,
+            builder: (_, buffering) {
+              return buffering.data!
+                  ? const Center(child: CustomProgressIndicator())
+                  : CenteredPlayPause(
+                      widget.controller,
+                      size: 56,
+                      show: !_dragging && !_hideStuff,
+                      onPressed: _playPause,
+                    );
+            },
+          ),
 
           // Seek backward indicator.
           Align(
@@ -237,11 +241,13 @@ class _MobileControlsState extends State<MobileControls>
                         onTap: () {
                           _cancelAndRestartTimer();
 
-                          if (widget.controller.volume.value == 0) {
-                            widget.controller.setVolume(_latestVolume ?? 0.5);
+                          if (widget.controller.player.state.volume == 0) {
+                            widget.controller.player
+                                .setVolume(_latestVolume ?? 0.5);
                           } else {
-                            _latestVolume = widget.controller.volume.value;
-                            widget.controller.setVolume(0.0);
+                            _latestVolume =
+                                widget.controller.player.state.volume;
+                            widget.controller.player.setVolume(0.0);
                           }
                         },
                       ),
@@ -282,20 +288,20 @@ class _MobileControlsState extends State<MobileControls>
   /// Toggles play and pause of the [_controller]. Starts video from the start
   /// if the playback is done.
   void _playPause() {
-    final isFinished =
-        widget.controller.position.value >= widget.controller.duration.value;
+    final isFinished = widget.controller.player.state.position >=
+        widget.controller.player.state.duration;
 
-    if (widget.controller.playerStatus.playing) {
+    if (widget.controller.player.state.playing) {
       _hideStuff = false;
       _hideTimer?.cancel();
-      widget.controller.pause();
+      widget.controller.player.pause();
     } else {
       _cancelAndRestartTimer();
 
       if (isFinished) {
-        widget.controller.seekTo(const Duration());
+        widget.controller.player.seek(const Duration());
       }
-      widget.controller.play();
+      widget.controller.player.play();
     }
 
     setState(() {});
@@ -317,20 +323,21 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Seeks forward for the [MobileControls.seekDuration].
   void _seekForward() {
-    if (widget.controller.position.value >= widget.controller.duration.value) {
+    if (widget.controller.player.state.position >=
+        widget.controller.player.state.duration) {
       return;
     }
 
     _hideSeekBackward(timeout: Duration.zero);
     _seekForwardDuration += Duration(
-      microseconds: (widget.controller.duration.value.inMicroseconds -
-              widget.controller.position.value.inMicroseconds)
+      microseconds: (widget.controller.player.state.duration.inMicroseconds -
+              widget.controller.player.state.position.inMicroseconds)
           .clamp(0, MobileControls.seekDuration.inMicroseconds),
     );
     _showSeekForward = true;
 
-    widget.controller.seekTo(
-      widget.controller.position.value + MobileControls.seekDuration,
+    widget.controller.player.seek(
+      widget.controller.player.state.position + MobileControls.seekDuration,
     );
 
     if (!_hideStuff) {
@@ -364,19 +371,19 @@ class _MobileControlsState extends State<MobileControls>
 
   /// Seeks backward for the [MobileControls.seekDuration].
   void _seekBackward() {
-    if (widget.controller.duration.value == Duration.zero) {
+    if (widget.controller.player.state.duration == Duration.zero) {
       return;
     }
 
     _hideSeekForward(timeout: Duration.zero);
     _seekBackwardDuration += Duration(
-      microseconds: widget.controller.position.value.inMicroseconds
+      microseconds: widget.controller.player.state.position.inMicroseconds
           .clamp(0, MobileControls.seekDuration.inMicroseconds),
     );
     _showSeekBackward = true;
 
-    widget.controller.seekTo(
-      widget.controller.position.value - MobileControls.seekDuration,
+    widget.controller.player.seek(
+      widget.controller.player.state.position - MobileControls.seekDuration,
     );
 
     if (!_hideStuff) {

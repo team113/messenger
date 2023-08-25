@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -37,8 +37,8 @@ class VideoVolumeBar extends StatelessWidget {
     this.drawShadow = false,
   }) : colors = colors ?? ProgressBarColors();
 
-  /// [MeeduPlayerController] used to control the volume.
-  final MeeduPlayerController controller;
+  /// [VideoController] used to control the volume.
+  final VideoController controller;
 
   /// [ProgressBarColors] theme of this [VideoVolumeBar].
   final ProgressBarColors colors;
@@ -83,11 +83,13 @@ class VideoVolumeBar extends StatelessWidget {
             height: constraints.biggest.height,
             width: constraints.biggest.width,
             color: style.colors.transparent,
-            child: RxBuilder(
-              (_) {
+            child: StreamBuilder(
+              stream: controller.player.stream.volume,
+              initialData: controller.player.state.volume,
+              builder: (_, volume) {
                 return CustomPaint(
                   painter: ProgressBarPainter(
-                    volume: controller.volume.value,
+                    volume: volume.data! / 100,
                     colors: colors,
                     barHeight: barHeight,
                     handleHeight: handleHeight,
@@ -108,7 +110,7 @@ class VideoVolumeBar extends StatelessWidget {
     final box = context.findRenderObject()! as RenderBox;
     final Offset tapPos = box.globalToLocal(globalPosition);
     final double relative = tapPos.dx / box.size.width;
-    controller.setVolume(relative.clamp(0, 1));
+    controller.player.setVolume(relative.clamp(0, 1) * 100);
   }
 }
 
