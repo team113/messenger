@@ -25,7 +25,8 @@ import '../participant/widget.dart';
 import '/themes.dart';
 import '/ui/page/call/controller.dart';
 
-/// [Widget] which builds the [Stack] of [Participant]'s segments.
+/// [Widget] which builds the [Stack] of [Participant]'s segments with a
+/// [AnimatedClipRRect].
 class AnimatedParticipant extends StatelessWidget {
   const AnimatedParticipant(
     this.participant,
