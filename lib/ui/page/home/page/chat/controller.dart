@@ -849,7 +849,7 @@ class ChatController extends GetxController {
                 this.status.value = RxStatus.loadingMore();
               }
 
-              _determineLastRead();
+              _determineFirstUnread();
               var result = _calculateListViewIndex();
               initIndex = result.index;
               initOffset = result.offset;
@@ -857,7 +857,7 @@ class ChatController extends GetxController {
           }
         });
       } else {
-        _determineLastRead();
+        _determineFirstUnread();
         var result = _calculateListViewIndex();
         initIndex = result.index;
         initOffset = result.offset;
@@ -887,7 +887,7 @@ class ChatController extends GetxController {
       await Future.delayed(Duration.zero);
 
       Rx<ChatItem>? firstUnread = _firstUnread;
-      _determineLastRead();
+      _determineFirstUnread();
 
       // Scroll to the last read message if [_firstUnread] was updated or there
       // are no unread messages in [chat]. Otherwise,
@@ -1258,8 +1258,6 @@ class ChatController extends GetxController {
     if (hasPrevious.isTrue && chat!.previousLoading.isFalse && _atTop) {
       Log.print('Fetch previous page', 'ChatController');
 
-      keepPositionOffset.value = 0;
-
       if (_topLoader == null) {
         _topLoader = LoaderElement.top();
         elements[_topLoader!.id] = _topLoader!;
@@ -1278,7 +1276,7 @@ class ChatController extends GetxController {
 
   /// Determines the [_firstUnread] of the authenticated [MyUser] from the
   /// [RxChat.messages] list.
-  void _determineLastRead() {
+  void _determineFirstUnread() {
     if (chat?.unreadCount.value != 0) {
       _firstUnread = chat?.firstUnread;
 
