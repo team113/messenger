@@ -339,8 +339,8 @@ class HiveRxChat extends RxChat {
   Future<void> dispose() async {
     status.value = RxStatus.loading();
     for (ChatItem item in messages.map((e) => e.value)) {
-        _disposeAttachments(item);
-      }
+      _disposeAttachments(item);
+    }
     messages.clear();
     reads.clear();
     _aroundToken.cancel();
