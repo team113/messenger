@@ -540,7 +540,7 @@ class CacheEntry {
   final Uint8List? bytes;
 }
 
-/// Response type of a function.
+/// Response type of the [CacheWorker.get] function.
 enum CacheResponseType {
   /// Function returns a [File].
   file,
