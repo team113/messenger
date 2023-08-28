@@ -29,10 +29,10 @@ All user visible changes to this project will be documented in this file. This p
 [#385]: /../../issues/385
 [#439]: /../../issues/439
 [#492]: /../../pull/492
+[#500]: /../../issues/500
 [#506]: /../../pull/506
 [#513]: /../../pull/513
 [#522]: /../../pull/522
-[#500]: /../../issues/500
 [#529]: /../../pull/529
 
 
