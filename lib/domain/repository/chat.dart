@@ -268,6 +268,9 @@ abstract class RxChat implements Comparable<RxChat> {
   /// [MyUser] in this [chat].
   Rx<ChatItem>? get firstUnread;
 
+  /// Returns the last [ChatItem] of this [RxChat].
+  ChatItem? get lastItem;
+
   /// Fetches the initial [messages] page around the [firstUnread].
   Future<void> around();
 
