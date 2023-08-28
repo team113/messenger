@@ -131,23 +131,31 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       }
     } else {
       if (attachment is LocalAttachment) {
-        child = Obx(() {
-          if (attachment.file.bytes.value == null) {
-            return const Center(
-              child: SizedBox(
-                width: 40,
-                height: 40,
-                child: CircularProgressIndicator(),
-              ),
-            );
-          } else {
-            return VideoThumbnail.bytes(
-              attachment.file.bytes.value!,
-              height: widget.height,
-              width: widget.width,
-            );
-          }
-        });
+        if (attachment.file.path == null) {
+          child = Obx(() {
+            if (attachment.file.bytes.value == null) {
+              return const Center(
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            } else {
+              return VideoThumbnail.bytes(
+                attachment.file.bytes.value!,
+                height: widget.height,
+                width: widget.width,
+              );
+            }
+          });
+        } else {
+          child = VideoThumbnail.file(
+            attachment.file.path!,
+            height: widget.height,
+            width: widget.width,
+          );
+        }
       } else {
         return VideoThumbnail.url(
           attachment.original.url,

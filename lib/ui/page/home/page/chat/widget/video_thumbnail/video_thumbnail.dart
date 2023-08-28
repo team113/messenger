@@ -39,7 +39,8 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
-  }) : bytes = null;
+  })  : bytes = null,
+        path = null;
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
   const VideoThumbnail.bytes(
@@ -49,7 +50,19 @@ class VideoThumbnail extends StatefulWidget {
     this.width,
     this.onError,
   })  : url = null,
-        checksum = null;
+        checksum = null,
+        path = null;
+
+  /// Constructs a [VideoThumbnail] from the provided file [path].
+  const VideoThumbnail.file(
+    this.path, {
+    super.key,
+    this.height,
+    this.width,
+    this.onError,
+  })  : url = null,
+        checksum = null,
+        bytes = null;
 
   /// URL of the video to display.
   final String? url;
@@ -59,6 +72,9 @@ class VideoThumbnail extends StatefulWidget {
 
   /// Byte data of the video to display.
   final Uint8List? bytes;
+
+  /// Path to the video [File] to display.
+  final String? path;
 
   /// Optional height this [VideoThumbnail] occupies.
   final double? height;
@@ -178,7 +194,13 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
     File? file;
+
+    if (widget.path != null) {
+      file = File(widget.path!);
+    }
+
     if (bytes == null &&
+        file == null &&
         widget.checksum != null &&
         CacheWorker.instance.exists(widget.checksum!)) {
       CacheEntry cache = await CacheWorker.instance.get(
@@ -189,7 +211,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       bytes = cache.bytes;
       file = cache.file;
     } else if (bytes != null) {
-      file = await CacheWorker.instance.add(bytes);
+      file = await CacheWorker.instance.add(bytes) ?? file;
     }
 
     try {

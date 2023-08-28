@@ -25,6 +25,7 @@ import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
+import '/domain/model/file.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
@@ -127,7 +128,7 @@ class NotificationService extends DisposableService {
     String title, {
     String? body,
     String? payload,
-    String? icon,
+    ImageFile? icon,
     String? tag,
     bool playSound = true,
   }) async {
@@ -144,14 +145,15 @@ class NotificationService extends DisposableService {
         title,
         body: body,
         lang: payload,
-        icon: icon,
+        icon: icon?.url,
         tag: tag,
       ).onError((_, __) => false);
     } else if (PlatformUtils.isWindows) {
       File? file;
       if (icon != null) {
         file = (await CacheWorker.instance.get(
-          url: icon,
+          url: icon.url,
+          checksum: icon.checksum,
           cacheResponseType: CacheResponseType.file,
         ))
             .file;

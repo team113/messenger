@@ -49,7 +49,7 @@ class CacheWorker extends DisposableService {
   static late CacheWorker instance;
 
   /// Observable map of [Downloading]s.
-  final RxObsMap<String, Downloading> downloads =
+  final RxObsMap<String, Downloading> downloadings =
       RxObsMap<String, Downloading>();
 
   /// [CacheInfo] describing the cache properties.
@@ -233,14 +233,14 @@ class CacheWorker extends DisposableService {
   }) {
     Downloading? downloading;
     if (checksum != null) {
-      downloading = downloads[checksum]?..start(url, path: path);
+      downloading = downloadings[checksum]?..start(url, path: path);
     }
 
     if (downloading == null) {
       downloading = Downloading(checksum, filename, size)
         ..start(url, path: path);
       if (checksum != null) {
-        downloads[checksum] = downloading;
+        downloadings[checksum] = downloading;
       }
     }
 

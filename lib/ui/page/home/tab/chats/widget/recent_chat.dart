@@ -649,22 +649,34 @@ class RecentChatTile extends StatelessWidget {
       if (e.file.isImage && e.file.bytes.value != null) {
         content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
       } else if (e.file.isVideo) {
-        if (e.file.bytes.value != null) {
+        if (e.file.path == null) {
+          if (e.file.bytes.value == null) {
+            content = Container(
+              color: inverted ? style.colors.onPrimary : style.colors.secondary,
+              child: Icon(
+                Icons.video_file,
+                size: 18,
+                color:
+                    inverted ? style.colors.secondary : style.colors.onPrimary,
+              ),
+            );
+          } else {
+            content = FittedBox(
+              fit: BoxFit.cover,
+              child: VideoThumbnail.bytes(
+                e.file.bytes.value!,
+                key: key,
+                height: 300,
+              ),
+            );
+          }
+        } else {
           content = FittedBox(
             fit: BoxFit.cover,
-            child: VideoThumbnail.bytes(
-              e.file.bytes.value!,
+            child: VideoThumbnail.file(
+              e.file.path!,
               key: key,
               height: 300,
-            ),
-          );
-        } else {
-          content = Container(
-            color: inverted ? style.colors.onPrimary : style.colors.secondary,
-            child: Icon(
-              Icons.video_file,
-              size: 18,
-              color: inverted ? style.colors.secondary : style.colors.onPrimary,
             ),
           );
         }

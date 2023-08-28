@@ -99,19 +99,19 @@ class ImageAttachment extends Attachment {
   @HiveField(5)
   ImageFile small;
 
-  /// [StreamSubscription] for the [CacheWorker.downloads] changes updating the
+  /// [StreamSubscription] for the [CacheWorker.downloadings] changes updating the
   /// [downloading].
   StreamSubscription? _downloadsSubscription;
 
   @override
   Future<void> init({void Function()? onSave}) async {
     if (original.checksum != null) {
-      downloading.value = CacheWorker.instance.downloads[original.checksum];
+      downloading.value = CacheWorker.instance.downloadings[original.checksum];
     }
 
     if (downloading.value == null) {
       _downloadsSubscription =
-          CacheWorker.instance.downloads.changes.listen((e) {
+          CacheWorker.instance.downloadings.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
             if (original.checksum != null && e.key == original.checksum) {
@@ -156,7 +156,7 @@ class FileAttachment extends Attachment {
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
-  /// [StreamSubscription] for the [CacheWorker.downloads] changes updating the
+  /// [StreamSubscription] for the [CacheWorker.downloadings] changes updating the
   /// [downloading].
   StreamSubscription? _downloadsSubscription;
 
@@ -174,13 +174,13 @@ class FileAttachment extends Attachment {
     _initialized = true;
 
     if (original.checksum != null) {
-      downloading.value = CacheWorker.instance.downloads[original.checksum];
+      downloading.value = CacheWorker.instance.downloadings[original.checksum];
       _listenStatus();
     }
 
     if (downloading.value == null) {
       _downloadsSubscription =
-          CacheWorker.instance.downloads.changes.listen((e) {
+          CacheWorker.instance.downloadings.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
             if (original.checksum != null && e.key == original.checksum) {
@@ -213,7 +213,7 @@ class FileAttachment extends Attachment {
           path!,
         );
         if (original.checksum != null) {
-          CacheWorker.instance.downloads[original.checksum!] =
+          CacheWorker.instance.downloadings[original.checksum!] =
               downloading.value!;
         }
       }
@@ -235,7 +235,7 @@ class FileAttachment extends Attachment {
           path!,
         );
         if (original.checksum != null) {
-          CacheWorker.instance.downloads[original.checksum!] =
+          CacheWorker.instance.downloadings[original.checksum!] =
               downloading.value!;
         }
         onSave?.call();
