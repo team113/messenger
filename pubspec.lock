@@ -1314,8 +1314,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: b8ea9fd8839ce1a2678d1022e2aec1f2dc17d504
-      resolved-ref: b8ea9fd8839ce1a2678d1022e2aec1f2dc17d504
+      ref: d9ee97afae0088b3b9f96f38a8ecd1d5dc893df5
+      resolved-ref: d9ee97afae0088b3b9f96f38a8ecd1d5dc893df5
       url: "https://github.com/SleepySquash/rive_common_to_fix_cpp_issue.git"
     source: git
     version: "0.2.6"

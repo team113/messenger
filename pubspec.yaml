@@ -129,10 +129,12 @@ dependency_overrides:
   http: ^1.1.0
   # TODO: Remove when `sentry_flutter` updates.
   package_info_plus: ^4.0.0
+  # TODO: Remove when: rive-app/rive-flutter#340 is fixed:
+  #       https://github.com/rive-app/rive-flutter/issues/340
   rive_common:
     git:
       url: https://github.com/SleepySquash/rive_common_to_fix_cpp_issue.git
-      ref: b8ea9fd8839ce1a2678d1022e2aec1f2dc17d504
+      ref: d9ee97afae0088b3b9f96f38a8ecd1d5dc893df5
 
 flutter:
   uses-material-design: true
