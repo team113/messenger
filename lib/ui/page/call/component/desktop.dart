@@ -417,9 +417,10 @@ Widget desktopCall(CallController c, BuildContext context) {
           }
 
           return DockDecorator(
-            globalKey: c.dockKey,
-            showChild: showBottomUi,
-            listener: () => Future.delayed(Duration.zero, c.relocateSecondary),
+            show: showBottomUi,
+            dockKey: c.dockKey,
+            onAnimation: () =>
+                Future.delayed(Duration.zero, c.relocateSecondary),
             onEnter: (d) => c.keepUi(true),
             onHover: (d) => c.keepUi(true),
             onExit: c.showUi.value && !c.displayMore.value

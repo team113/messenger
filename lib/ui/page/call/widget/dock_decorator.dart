@@ -23,31 +23,26 @@ import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/call/widget/dock.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 
-/// [Dock] decorator containing shadow, background and playing show/hide
-/// animation.
+/// [AnimatedSlider] wrapping a [child] within dock-decorated [Container].
 class DockDecorator extends StatelessWidget {
   const DockDecorator({
     super.key,
-    this.globalKey,
-    this.showChild = true,
-    this.child,
+    this.show = true,
+    this.dockKey,
     this.onEnter,
     this.onHover,
     this.onExit,
-    this.listener,
+    this.onAnimation,
+    this.child,
   });
 
-  /// [GlobalKey] of this [DockDecorator].
-  final GlobalKey? globalKey;
+  /// Indicator whether the [AnimatedSlider] should display the [child].
+  final bool show;
 
-  /// Indicator whether the [child] should be showed.
-  final bool? showChild;
-
-  /// [Widget] wrapped by this [DockDecorator].
-  final Widget? child;
+  /// [Key] of the [child] wrapping [Container] itself.
+  final Key? dockKey;
 
   /// Callback, called when the mouse cursor enters the area of this
   /// [DockDecorator].
@@ -61,8 +56,12 @@ class DockDecorator extends StatelessWidget {
   /// [DockDecorator].
   final void Function(PointerExitEvent)? onExit;
 
-  /// Callback, called every time the value of the animation changes.
-  final void Function()? listener;
+  /// Callback, called every time the value of [AnimatedSlider] animation
+  /// changes.
+  final void Function()? onAnimation;
+
+  /// [Widget] wrapped by this [DockDecorator].
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -73,10 +72,10 @@ class DockDecorator extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 5),
       child: AnimatedSlider(
         key: const Key('DockedPanelPadding'),
-        isOpen: showChild!,
+        isOpen: show,
         duration: 400.milliseconds,
         translate: false,
-        listener: listener,
+        listener: onAnimation,
         child: MouseRegion(
           onEnter: onEnter,
           onHover: onHover,
@@ -95,7 +94,7 @@ class DockDecorator extends StatelessWidget {
             ),
             margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
             child: ConditionalBackdropFilter(
-              key: globalKey,
+              key: dockKey,
               borderRadius: BorderRadius.circular(30),
               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
               child: Container(
