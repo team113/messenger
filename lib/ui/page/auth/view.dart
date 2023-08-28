@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
+import '../login/controller.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -47,10 +48,83 @@ class AuthView extends StatelessWidget {
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        bool isWeb = PlatformUtils.isWeb;
-        bool isAndroidWeb = isWeb && PlatformUtils.isAndroid;
-        bool isIosWeb = isWeb && PlatformUtils.isIOS;
-        bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
+        bool isWeb = PlatformUtils.isWeb || true;
+
+        Widget? icon;
+
+        if (isWeb) {
+          icon = Obx(() {
+            switch (c.system.value) {
+              case 0:
+                return const SvgImage.asset(
+                  'assets/icons/app_store.svg',
+                  width: 23,
+                  height: 23,
+                );
+
+              case 1:
+                return const SvgImage.asset(
+                  'assets/icons/apple7.svg',
+                  width: 21.07,
+                  height: 27,
+                );
+
+              case 2:
+                return const SvgImage.asset(
+                  'assets/icons/google_play.svg',
+                  width: 21.26,
+                  height: 23.02,
+                );
+
+              case 3:
+                return const SvgImage.asset(
+                  'assets/icons/linux4.svg',
+                  width: 20.57,
+                  height: 24,
+                );
+
+              case 4:
+                return const SvgImage.asset(
+                  'assets/icons/windows5.svg',
+                  width: 23.93,
+                  height: 24,
+                );
+            }
+
+            return const SizedBox();
+          });
+        }
+
+        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
+          color: style.colors.onBackground,
+        );
+
+        final Widget status = SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Flex(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              direction: Axis.vertical,
+              children: [
+                StyledCupertinoButton(
+                  key: c.languageKey,
+                  label: 'label_language_entry'.l10nfmt({
+                    'code': L10n.chosen.value!.locale.countryCode,
+                    'name': L10n.chosen.value!.name,
+                  }),
+                  onPressed: () => LanguageSelectionView.show(context, null),
+                ),
+                StyledCupertinoButton(
+                  label: 'btn_terms_and_conditions'.l10n,
+                  color: style.colors.secondary,
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        );
 
         // Header part of the page.
         //
@@ -84,77 +158,57 @@ class AuthView extends StatelessWidget {
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
-            key: const Key('StartButton'),
-            title: Text(
-              'btn_start'.l10n,
-              style: style.fonts.titleLargeOnPrimary,
-            ),
-            leading:
-                const SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
-            onPressed: c.register,
-            color: style.colors.primary,
-          ),
-          const SizedBox(height: 15),
-          OutlinedRoundedButton(
-            key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n, style: style.fonts.titleLarge),
-            leading: const SvgImage.asset(
-              'assets/icons/sign_in.svg',
-              width: 20 * 0.7,
+            key: const Key('RegisterButton'),
+            title: Text('btn_sign_up'.l10n),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(3, 0),
+              child: const SvgImage.asset(
+                'assets/icons/register3.svg',
+                width: 23,
+                height: 23,
+              ),
             ),
             onPressed: () => LoginView.show(context),
           ),
           const SizedBox(height: 15),
-          if (isIosWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
-              leading: const Padding(
-                padding: EdgeInsets.only(bottom: 3 * 0.7),
-                child:
-                    SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7),
+          OutlinedRoundedButton(
+            key: const Key('SignButton'),
+            title: Text('btn_sign_in'.l10n),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: const SvgImage.asset(
+                'assets/icons/enter1.svg',
+                width: 19.42,
+                height: 24,
               ),
-              onPressed: () => _download(context),
             ),
-          if (isAndroidWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
-              leading: const Padding(
-                padding: EdgeInsets.only(left: 2 * 0.7),
-                child:
-                    SvgImage.asset('assets/icons/google.svg', width: 22 * 0.7),
-              ),
-              onPressed: () => _download(context),
-            ),
-          if (isDesktopWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: style.fonts.titleLarge),
-              leading: PlatformUtils.isMacOS
-                  ? const SvgImage.asset(
-                      'assets/icons/apple.svg',
-                      width: 22 * 0.7,
-                    )
-                  : (PlatformUtils.isWindows)
-                      ? const SvgImage.asset(
-                          'assets/icons/windows.svg',
-                          width: 22 * 0.7,
-                        )
-                      : (PlatformUtils.isLinux)
-                          ? const SvgImage.asset(
-                              'assets/icons/linux.svg',
-                              width: 22 * 0.7,
-                            )
-                          : null,
-              onPressed: () => _download(context),
-            ),
-          const SizedBox(height: 20),
-          StyledCupertinoButton(
-            key: c.languageKey,
-            label: 'label_language_entry'.l10nfmt({
-              'code': L10n.chosen.value!.locale.countryCode,
-              'name': L10n.chosen.value!.name,
-            }),
-            onPressed: () => LanguageSelectionView.show(context, null),
+            onPressed: () =>
+                LoginView.show(context, stage: LoginViewStage.signIn),
           ),
+          const SizedBox(height: 15),
+          OutlinedRoundedButton(
+            key: const Key('StartButton'),
+            subtitle: Text('btn_one_time_account'.l10n),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: const SvgImage.asset(
+                'assets/icons/one_time19.svg',
+                width: 19.88,
+                height: 26,
+              ),
+            ),
+            onPressed: () {
+              router.noIntroduction = false;
+              c.register();
+            },
+          ),
+          const SizedBox(height: 15),
         ];
 
         return Stack(

@@ -17,7 +17,9 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../../widget/widget_button.dart';
 import '/themes.dart';
 
 /// Custom styled [CupertinoButton].
@@ -26,7 +28,11 @@ class StyledCupertinoButton extends StatelessWidget {
     super.key,
     required this.label,
     this.onPressed,
+    this.color,
+    this.enlarge = false,
   });
+
+  final bool enlarge;
 
   /// Label to display.
   final String label;
@@ -34,16 +40,22 @@ class StyledCupertinoButton extends StatelessWidget {
   /// Callback, called when this button is pressed.
   final void Function()? onPressed;
 
+  final Color? color;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      opaque: false,
-      child: CupertinoButton(
-        onPressed: onPressed,
-        child: Text(label, style: style.fonts.labelMediumSecondary),
+    final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
+      fontSize: enlarge ? 17 : 15,
+      color: color ?? style.colors.primary,
+    );
+
+    return WidgetButton(
+      onPressed: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+        child: Text(label, style: thin),
       ),
     );
   }

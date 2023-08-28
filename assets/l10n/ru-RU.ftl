@@ -172,6 +172,7 @@ btn_delete_message = Удалить сообщение
 btn_dismiss = Запретить
 btn_download = Скачать
 btn_edit = Редактировать
+btn_email = E-mail
 btn_forgot_password = Забыли пароль?
 btn_forward = Переслать
 btn_forward_message = Переслать сообщение
@@ -185,7 +186,7 @@ btn_join_call = Присоединиться к звонку
 btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_leave_group = Покинуть группу
-btn_login = Войти
+btn_login = Вход
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
@@ -194,12 +195,16 @@ btn_mute_chat = Отключить звук
 btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
+btn_one_time_account = 
+    Одноразовый
+    аккаунт
 btn_participants = Участники
 btn_participants_desc =
     Список
     участников
 btn_paste = Вставить
 btn_personalize = Персонализация
+btn_phone_number = Номер телефона
 btn_proceed = Продолжить
 btn_remove = Удалить
 btn_rename = Переименовать
@@ -213,10 +218,12 @@ btn_save = Сохранить
 btn_save_to_gallery = Сохранить в галерею
 btn_select = Выбрать
 btn_select_and_delete = Выбрать и удалить
+btn_send = Отправить
 btn_set_password = Задать пароль
 btn_settings = Настройки
 btn_share = Поделиться
-btn_start = Начать
+btn_sign_up = Регистрация
+btn_sign_in = Вход
 btn_submit = Применить
 btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
@@ -456,6 +463,7 @@ label_chat_monolog_description = Пишите заметки, идеи или п
 label_chat_name_hint = Название чата
 label_chats = Чаты
 label_clear_history = Очистить историю
+label_code_sent_again = Код отправлен повторно.
 label_confirm = Подтвердить
 label_confirmation_code = Код подтверждения
 label_connection_lost = Связь с сервером потеряна
@@ -490,6 +498,8 @@ label_delivered = Доставлено
 label_details = Подробнее.
 label_dialog_created = Диалог создан
 label_dialog_created_by_link = Диалог создан по прямой ссылке
+label_didnt_receive_code = Не получили код?
+
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой
@@ -702,6 +712,11 @@ label_set_password = Задать пароль
 label_settings = Настройки
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_sign_up = Регистрация
+label_sign_up_code_email_sent =
+    Проверочный код был отправлен на e-mail {$text}
+label_sign_up_code_phone_sent =
+    Проверочный код был отправлен на номер телефона {$text}
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
@@ -745,6 +760,7 @@ label_video_call = Видеозвонок{$by ->
 label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:
+label_wait_seconds = Подождите {$for} с
 label_was_added = {$author} вступил(а) по прямой ссылке
 label_was_added1 = {$author}
 label_was_added2 = {" "}вступил(а) по прямой ссылке

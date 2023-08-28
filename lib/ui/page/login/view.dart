@@ -18,7 +18,9 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
+import '../../widget/outlined_rounded_button.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
@@ -27,16 +29,31 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 import 'widget/primary_button.dart';
+import 'widget/sign_button.dart';
 
 /// View for logging in or recovering access on.
 ///
 /// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
-  const LoginView({super.key});
+  const LoginView({
+    super.key,
+    this.stage = LoginViewStage.signUp,
+    this.onAuth,
+  });
+
+  final LoginViewStage stage;
+  final void Function()? onAuth;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const LoginView());
+  static Future<T?> show<T>(
+    BuildContext context, {
+    LoginViewStage stage = LoginViewStage.signUp,
+    void Function()? onAuth,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: LoginView(stage: stage, onAuth: onAuth),
+    );
   }
 
   @override
@@ -48,116 +65,158 @@ class LoginView extends StatelessWidget {
       init: LoginController(Get.find()),
       builder: (LoginController c) {
         return Obx(() {
+          Widget Function(Widget, List<Widget>) builder = (header, children) {
+            return ListView(
+              controller: c.scrollController,
+              shrinkWrap: true,
+              children: [
+                header,
+                const SizedBox(height: 12),
+                ...children.map(
+                  (e) => Padding(
+                    padding: ModalPopup.padding(context),
+                    child: e,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            );
+          };
           final Widget header;
           final List<Widget> children;
 
           switch (c.stage.value) {
-            case LoginViewStage.recovery:
+            case LoginViewStage.signUp:
               header = ModalPopupHeader(
-                onBack: () => c.stage.value = null,
-                text: 'label_recover_account'.l10n,
+                text: 'label_sign_up'.l10n,
+                onBack: c.backStage == null
+                    ? null
+                    : () => c.stage.value = c.backStage!,
               );
 
               children = [
-                const SizedBox(height: 12),
-                Text(
-                  'label_recover_account_description'.l10n,
-                  style: style.fonts.labelLargeSecondary,
+                SignButton(
+                  text: 'btn_email'.l10n,
+                  asset: 'email',
+                  assetWidth: 21.93,
+                  assetHeight: 22.5,
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('RecoveryField'),
-                  state: c.recovery,
-                  label: 'label_sign_in_input'.l10n,
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  text: 'btn_phone_number'.l10n,
+                  asset: 'phone6',
+                  assetWidth: 17.61,
+                  assetHeight: 25,
+                  padding: const EdgeInsets.only(left: 2),
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signUpWithPhone,
                 ),
-                const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed:
-                      c.recovery.isEmpty.value ? null : c.recovery.submit,
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 25 / 2),
               ];
               break;
 
-            case LoginViewStage.recoveryCode:
+              case LoginViewStage.signUpWithEmailCode:
               header = ModalPopupHeader(
-                onBack: () => c.stage.value = null,
-                text: 'label_recover_account'.l10n,
+                onBack: () => c.stage.value = LoginViewStage.signUpWithEmail,
+                text: 'label_sign_up'.l10n,
               );
 
               children = [
-                Text(
-                  'label_recovery_code_sent'.l10n,
-                  style: style.fonts.labelLargeSecondary,
+                Text.rich(
+                  'label_sign_up_code_email_sent'
+                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
+                  style: style.fonts.titleLarge,
                 ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  return Text(
+                    c.resendEmailTimeout.value == 0
+                        ? 'label_didnt_receive_code'.l10n
+                        : 'label_code_sent_again'.l10n,
+                    style: style.fonts.titleLarge,
+                  );
+                }),
+                Obx(() {
+                  final bool enabled = c.resendEmailTimeout.value == 0;
+
+                  return WidgetButton(
+                    onPressed: enabled ? c.resendEmail : null,
+                    child: Text(
+                      enabled
+                          ? 'btn_resend_code'.l10n
+                          : 'label_wait_seconds'
+                              .l10nfmt({'for': c.resendEmailTimeout.value}),
+                      style: style.fonts.titleLarge.copyWith(
+                        color: enabled ? style.colors.primary : null,
+                      ),
+                    ),
+                  );
+                }),
                 const SizedBox(height: 25),
                 ReactiveTextField(
-                  key: const Key('RecoveryCodeField'),
-                  state: c.recoveryCode,
-                  label: 'label_recovery_code'.l10n,
+                  key: const Key('EmailCodeField'),
+                  state: c.emailCode,
+                  label: 'label_confirmation_code'.l10n,
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed: c.recoveryCode.isEmpty.value
-                      ? null
-                      : c.recoveryCode.submit,
-                ),
-                const SizedBox(height: 16),
+                Obx(() {
+                  final bool enabled =
+                      !c.emailCode.isEmpty.value && c.codeTimeout.value == 0;
+
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    title: c.codeTimeout.value == 0
+                        ? 'btn_send'.l10n
+                        : 'label_wait_seconds'
+                            .l10nfmt({'for': c.codeTimeout.value}),
+                    dense: c.codeTimeout.value != 0,
+                    onPressed: enabled ? c.emailCode.submit : null,
+                  );
+                }),
               ];
               break;
 
-            case LoginViewStage.recoveryPassword:
+
+            case LoginViewStage.signUpWithEmail:
               header = ModalPopupHeader(
-                onBack: () => c.stage.value = null,
-                text: 'label_recover_account'.l10n,
+                text: 'label_sign_up'.l10n,
+                onBack: () {
+                  c.stage.value = LoginViewStage.signUp;
+                  c.email.unsubmit();
+                },
               );
 
               children = [
-                Text(
-                  'label_recovery_enter_new_password'.l10n,
-                  style: style.fonts.labelLargeSecondary,
+                ReactiveTextField(
+                  state: c.email,
+                  label: 'label_email'.l10n,
+                  hint: 'example@domain.com',
+                  style: style.fonts.bodyMedium,
+                  treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('PasswordField'),
-                  state: c.newPassword,
-                  label: 'label_new_password'.l10n,
-                  obscure: c.obscureNewPassword.value,
-                  onSuffixPressed: c.obscureNewPassword.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
-                  ),
+                Center(
+                  child: Obx(() {
+                    final bool enabled = !c.email.isEmpty.value;
+
+                    return OutlinedRoundedButton(
+                      title: Text(
+                        'btn_proceed'.l10n,
+                        style: style.fonts.titleLarge.copyWith(
+                          color: enabled
+                              ? style.colors.onPrimary
+                              : style.fonts.titleLarge.color,
+                        ),
+                      ),
+                      onPressed: enabled ? c.email.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                    );
+                  }),
                 ),
-                const SizedBox(height: 16),
-                ReactiveTextField(
-                  key: const Key('RepeatPasswordField'),
-                  state: c.repeatPassword,
-                  label: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeatPassword.value,
-                  onSuffixPressed: c.obscureRepeatPassword.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
-                  ),
-                ),
-                const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed: c.newPassword.isEmpty.value ||
-                          c.repeatPassword.isEmpty.value
-                      ? null
-                      : c.resetUserPassword,
-                ),
-                const SizedBox(height: 16),
               ];
               break;
 
@@ -231,19 +290,9 @@ class LoginView extends StatelessWidget {
             fadeOutCurve: Curves.easeOut,
             sizeCurve: Curves.easeOut,
             child: Scrollbar(
+              key: Key('${c.stage.value}'),
               controller: c.scrollController,
-              child: ListView(
-                controller: c.scrollController,
-                key: Key('${c.stage.value}'),
-                shrinkWrap: true,
-                children: [
-                  header,
-                  const SizedBox(height: 12),
-                  ...children.map((e) =>
-                      Padding(padding: ModalPopup.padding(context), child: e)),
-                  const SizedBox(height: 12),
-                ],
-              ),
+              child: builder(header, children),
             ),
           );
         });

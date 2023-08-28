@@ -26,6 +26,7 @@ class PrimaryButton extends StatelessWidget {
     super.key,
     this.title = '',
     this.onPressed,
+    this.dense = false,
   });
 
   /// Text to display.
@@ -33,6 +34,8 @@ class PrimaryButton extends StatelessWidget {
 
   /// Callback, called when this button is tapped or activated other way.
   final void Function()? onPressed;
+
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {

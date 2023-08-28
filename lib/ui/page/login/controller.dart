@@ -15,18 +15,25 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show CreateSessionErrorCode;
+import '../../../api/backend/schema.graphql.dart';
+import '../../../domain/model/session.dart';
+import '../../../provider/gql/graphql.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
+        AddUserEmailException,
+        ConfirmUserEmailException,
         ConnectionException,
         CreateSessionException,
+        ResendUserEmailConfirmationException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
@@ -34,14 +41,59 @@ import '/ui/widget/text_field.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
+  oauth,
+  oauthOccupied,
+  oauthNoUser,
   recovery,
   recoveryCode,
   recoveryPassword,
+  signIn,
+  signInWithCode,
+  signInWithPassword,
+  signInWithEmail,
+  signInWithEmailCode,
+  signInWithEmailOccupied,
+  signInWithPhone,
+  signInWithPhoneCode,
+  signInWithPhoneOccupied,
+  signInWithQrScan,
+  signInWithQrShow,
+  signUp,
+  signUpWithEmail,
+  signUpWithEmailCode,
+  signUpWithEmailOccupied,
+  signUpWithPhone,
+  signUpWithPhoneCode,
+  signUpWithPhoneOccupied,
+  noPassword,
+  noPasswordCode,
+  choice,
+}
+
+extension on LoginViewStage {
+  bool get registering => switch (this) {
+        LoginViewStage.signIn ||
+        LoginViewStage.signInWithPassword ||
+        LoginViewStage.signInWithEmail ||
+        LoginViewStage.signInWithEmailCode ||
+        LoginViewStage.signInWithEmailOccupied ||
+        LoginViewStage.signInWithPhone ||
+        LoginViewStage.signInWithPhoneCode ||
+        LoginViewStage.signInWithPhoneOccupied ||
+        LoginViewStage.signInWithQrScan ||
+        LoginViewStage.signInWithQrShow =>
+          false,
+        (_) => true,
+      };
 }
 
 /// [GetxController] of a [LoginView].
 class LoginController extends GetxController {
-  LoginController(this._auth);
+  LoginController(
+    this._auth, {
+    LoginViewStage stage = LoginViewStage.signUp,
+    this.onAuth,
+  }) : stage = Rx(stage);
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;
@@ -77,7 +129,147 @@ class LoginController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
   /// [LoginViewStage] currently being displayed.
-  final Rx<LoginViewStage?> stage = Rx(null);
+  final Rx<LoginViewStage> stage;
+
+  final void Function()? onAuth;
+  LoginViewStage? backStage;
+
+  int signInAttempts = 0;
+  final RxInt signInTimeout = RxInt(0);
+  Timer? _signInTimer;
+
+  int codeAttempts = 0;
+  final RxInt codeTimeout = RxInt(0);
+  Timer? _codeTimer;
+
+  Credentials? creds;
+  late final TextFieldState email = TextFieldState(
+    revalidateOnUnfocus: true,
+    onChanged: (s) {
+      try {
+        if (s.text.isNotEmpty) {
+          UserEmail(s.text.toLowerCase());
+        }
+
+        s.error.value = null;
+      } on FormatException {
+        s.error.value = 'err_incorrect_email'.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      print(s.error.value);
+
+      if (s.error.value != null) {
+        return;
+      }
+
+      stage.value = stage.value.registering
+          ? LoginViewStage.signUpWithEmailCode
+          : LoginViewStage.signInWithEmailCode;
+
+      final GraphQlProvider graphQlProvider = Get.find();
+
+      try {
+        final response = await graphQlProvider.signUp();
+
+        creds = Credentials(
+          Session(
+            response.createUser.session.token,
+            response.createUser.session.expireAt,
+          ),
+          RememberedSession(
+            response.createUser.remembered!.token,
+            response.createUser.remembered!.expireAt,
+          ),
+          response.createUser.user.id,
+        );
+
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.addUserEmail(UserEmail(email.text));
+        graphQlProvider.token = null;
+
+        s.unsubmit();
+      } on AddUserEmailException catch (e) {
+        graphQlProvider.token = null;
+        s.error.value = e.toMessage();
+        _setResendEmailTimer(false);
+
+        stage.value = stage.value.registering
+            ? LoginViewStage.signUpWithEmail
+            : LoginViewStage.signInWithEmail;
+      } catch (e) {
+        graphQlProvider.token = null;
+        s.error.value = 'err_data_transfer'.l10n;
+        _setResendEmailTimer(false);
+        s.unsubmit();
+
+        stage.value = stage.value.registering
+            ? LoginViewStage.signUpWithEmail
+            : LoginViewStage.signInWithEmail;
+
+        rethrow;
+      }
+    },
+  );
+  late final TextFieldState emailCode = TextFieldState(
+    revalidateOnUnfocus: true,
+    onSubmitted: (s) async {
+      final GraphQlProvider graphQlProvider = Get.find();
+
+      try {
+        if (!stage.value.registering && s.text == '2222') {
+          throw const ConfirmUserEmailException(
+            ConfirmUserEmailErrorCode.occupied,
+          );
+        }
+
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
+
+        await _auth.authorizeWith(creds!);
+
+        router.noIntroduction = false;
+        router.signUp = true;
+        _redirect();
+      } on ConfirmUserEmailException catch (e) {
+        switch (e.code) {
+          case ConfirmUserEmailErrorCode.occupied:
+            stage.value = stage.value.registering
+                ? LoginViewStage.signUpWithEmailOccupied
+                : LoginViewStage.signInWithEmailOccupied;
+            break;
+
+          case ConfirmUserEmailErrorCode.wrongCode:
+            graphQlProvider.token = null;
+            s.error.value = e.toMessage();
+
+            ++codeAttempts;
+            if (codeAttempts >= 3) {
+              codeAttempts = 0;
+              _setCodeTimer();
+            }
+            break;
+
+          default:
+            s.error.value = 'err_wrong_recovery_code'.l10n;
+            break;
+        }
+      } on FormatException catch (_) {
+        graphQlProvider.token = null;
+        s.error.value = 'err_wrong_recovery_code'.l10n;
+
+        ++codeAttempts;
+        if (codeAttempts >= 3) {
+          codeAttempts = 0;
+          _setCodeTimer();
+        }
+      } catch (_) {
+        graphQlProvider.token = null;
+        s.error.value = 'err_data_transfer'.l10n;
+        s.unsubmit();
+      }
+    },
+  );
 
   /// Authentication service providing the authentication capabilities.
   final AuthService _auth;
@@ -386,7 +578,7 @@ class LoginController extends GetxController {
       );
 
       recovered.value = true;
-      stage.value = null;
+      stage.value = LoginViewStage.signIn;
     } on FormatException {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {
@@ -401,5 +593,106 @@ class LoginController extends GetxController {
       newPassword.editable.value = true;
       repeatPassword.editable.value = true;
     }
+  }
+
+  /// Timeout of a [resendEmail].
+  final RxInt resendEmailTimeout = RxInt(0);
+
+  /// [Timer] decreasing the [resendEmailTimeout].
+  Timer? _resendEmailTimer;
+
+  /// Indicator whether [UserEmail] confirmation code has been resent.
+  final RxBool resent = RxBool(false);
+
+  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
+  void _setSignInTimer([bool enabled = true]) {
+    if (enabled) {
+      signInTimeout.value = 30;
+      _signInTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          signInTimeout.value--;
+          if (signInTimeout.value <= 0) {
+            signInTimeout.value = 0;
+            _signInTimer?.cancel();
+            _signInTimer = null;
+          }
+        },
+      );
+    } else {
+      signInTimeout.value = 0;
+      _signInTimer?.cancel();
+      _signInTimer = null;
+    }
+  }
+
+  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
+  void _setResendEmailTimer([bool enabled = true]) {
+    if (enabled) {
+      resendEmailTimeout.value = 30;
+      _resendEmailTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          resendEmailTimeout.value--;
+          if (resendEmailTimeout.value <= 0) {
+            resendEmailTimeout.value = 0;
+            _resendEmailTimer?.cancel();
+            _resendEmailTimer = null;
+          }
+        },
+      );
+    } else {
+      resendEmailTimeout.value = 0;
+      _resendEmailTimer?.cancel();
+      _resendEmailTimer = null;
+    }
+  }
+
+  void _setCodeTimer([bool enabled = true]) {
+    if (enabled) {
+      codeTimeout.value = 30;
+      _codeTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          codeTimeout.value--;
+          if (codeTimeout.value <= 0) {
+            codeTimeout.value = 0;
+            _codeTimer?.cancel();
+            _codeTimer = null;
+          }
+        },
+      );
+    } else {
+      codeTimeout.value = 0;
+      _codeTimer?.cancel();
+      _codeTimer = null;
+    }
+  }
+
+  /// Resends a [ConfirmationCode] to the specified [email].
+  Future<void> resendEmail() async {
+    resent.value = true;
+    _setResendEmailTimer();
+
+    try {
+      final GraphQlProvider graphQlProvider = Get.find();
+
+      if (stage.value.registering) {
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.resendEmail();
+        graphQlProvider.token = null;
+      }
+    } on ResendUserEmailConfirmationException catch (e) {
+      emailCode.error.value = e.toMessage();
+    } catch (e) {
+      emailCode.error.value = 'err_data_transfer'.l10n;
+      resent.value = false;
+      _setResendEmailTimer(false);
+      rethrow;
+    }
+  }
+
+  void _redirect() {
+    (onAuth ?? router.home).call();
   }
 }

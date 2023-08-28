@@ -93,3 +93,35 @@ class DownloadButton extends StatelessWidget {
     );
   }
 }
+
+class PrefixButton extends StatelessWidget {
+  const PrefixButton({
+    super.key,
+    this.text = '',
+    this.onPressed,
+    this.style,
+    this.prefix,
+  });
+
+  final String text;
+  final TextStyle? style;
+  final void Function()? onPressed;
+  final Widget? prefix;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.centerLeft,
+      children: [
+        FieldButton(
+          text: text,
+          maxLines: null,
+          style: style,
+          onPressed: onPressed,
+          textAlign: TextAlign.center,
+        ),
+        if (prefix != null) IgnorePointer(child: prefix!),
+      ],
+    );
+  }
+}

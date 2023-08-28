@@ -236,6 +236,20 @@ class AuthService extends GetxService {
         newPassword: newPassword,
       );
 
+  Future<void> authorizeWith(Credentials creds) {
+    _status.value = RxStatus.loading();
+    return _tokenGuard.protect(() async {
+      try {
+        _authorized(creds);
+        _sessionProvider.setCredentials(creds);
+        _status.value = RxStatus.success();
+      } catch (e) {
+        _unauthorized();
+        rethrow;
+      }
+    });
+  }
+
   /// Creates a new [MyUser] having only [UserId] and [UserNum] fields, and
   /// creates a new [Session] for this [MyUser] (valid for 24 hours).
   ///
