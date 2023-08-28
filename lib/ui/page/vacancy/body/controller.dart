@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/routes.dart';
@@ -9,6 +11,8 @@ class VacancyBodyController extends GetxController {
 
   final RxList<GitHubIssue> issues = RxList();
   final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  final RxnInt expanded = RxnInt(null);
 
   final AuthService _authService;
 
@@ -49,6 +53,12 @@ class VacancyBodyController extends GetxController {
             title: e['title'],
             description: e['body'],
             url: e['html_url'],
+            labels: (e['labels'] as List<dynamic>)
+                .map(
+                  (e) =>
+                      (e['name'] as String, (e['color'] as String).toColor()),
+                )
+                .toList(),
           );
         }).toList();
 
@@ -66,12 +76,29 @@ class GitHubIssue {
     this.description,
     this.status = GitHubStatus.todo,
     this.url = '',
+    this.labels = const [],
   });
 
   final String title;
   final String? description;
   final GitHubStatus status;
   final String url;
+  final List<(String, Color)> labels;
 }
 
 enum GitHubStatus { todo, wip, done }
+
+extension ColorExtension on String {
+  Color toColor() {
+    var hexColor = replaceAll('#', '');
+    if (hexColor.length == 6) {
+      hexColor = 'FF$hexColor';
+    }
+
+    if (hexColor.length == 8) {
+      return Color(int.parse('0x$hexColor'));
+    }
+
+    return const Color(0xFF888888);
+  }
+}

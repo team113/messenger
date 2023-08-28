@@ -82,10 +82,10 @@ class VacancyView extends StatelessWidget {
                   }
                 },
                 child: PlatformUtils.isMobile
-                    ? Icon(
-                        Icons.ios_share_rounded,
-                        color: style.colors.primary,
-                        size: 24,
+                    ? SvgImage.asset(
+                        'assets/icons/share2.svg',
+                        width: 21.9,
+                        height: 22.29,
                       )
                     : SvgImage.asset(
                         'assets/icons/copy_thick.svg',

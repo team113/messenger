@@ -1,8 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/vacancy.dart';
-import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/animated_logo.dart';
 import 'package:messenger/ui/page/home/tab/menu/widget/menu_button.dart';
@@ -10,15 +11,15 @@ import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/page/login/view.dart';
-import 'package:messenger/ui/page/login/widget/sign_button.dart';
-import 'package:messenger/ui/page/vacancy/contact/view.dart';
 import 'package:messenger/ui/page/vacancy/widget/vacancy_description.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import 'controller.dart';
+import 'widget/github.dart';
 
 class VacancyBodyView extends StatelessWidget {
   const VacancyBodyView(
@@ -421,14 +422,57 @@ https://github.com/instrumentisto/rust-incubator''',
 
             return Block(
               title: 'Задачи',
-              children: c.issues.map((e) {
+              children: c.issues.mapIndexed((i, e) {
+                return Obx(() {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: GitHubIssueWidget(
+                      e,
+                      expanded: c.expanded.value == i,
+                      onPressed: () {
+                        if (c.expanded.value == i) {
+                          c.expanded.value = null;
+                        } else {
+                          c.expanded.value = i;
+                        }
+                      },
+                    ),
+                  );
+                });
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: MenuButton(
                     title: e.title,
-                    subtitle: ' Available',
+                    // subtitle: ' Available',
                     maxLines: 10,
-                    onPressed: () => launchUrlString(e.url),
+                    onPressed: () {
+                      if (c.expanded.value == i) {
+                        c.expanded.value = null;
+                      } else {
+                        c.expanded.value = i;
+                      }
+                    },
+                    children: [
+                      WidgetButton(
+                        onPressed: () => launchUrlString(e.url),
+                        child: Text(
+                          e.url,
+                          style: style.fonts.bodyMediumPrimary,
+                        ),
+                      ),
+                      if (e.description != null)
+                        Obx(() {
+                          if (c.expanded.value != i) {
+                            return const SizedBox();
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: MarkdownBody(data: e.description!),
+                          );
+                        }),
+                    ],
                   ),
                 );
               }).toList(),
