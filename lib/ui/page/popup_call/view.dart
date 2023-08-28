@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../call/view.dart';
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/routes.dart';
 import '/ui/widget/progress_indicator.dart';
