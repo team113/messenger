@@ -1189,6 +1189,9 @@ class ChatRepository extends DisposableInterface
   Future<void> _putChat(HiveChat chat) async {
     var saved = _chatLocal.get(chat.value.id);
     if (saved == null || saved.ver < chat.ver) {
+      if (saved?.value.firstItem != null && chat.value.firstItem == null) {
+        chat.value.firstItem = saved?.value.firstItem;
+      }
       await _chatLocal.put(chat);
     }
   }

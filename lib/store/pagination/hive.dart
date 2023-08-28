@@ -34,6 +34,7 @@ class HivePageProvider<T extends Object, C, K>
     this._provider, {
     required this.getCursor,
     required this.getKey,
+    this.isFirst,
     this.isLast,
     this.strategy = PaginationStrategy.fromStart,
   });
@@ -43,6 +44,9 @@ class HivePageProvider<T extends Object, C, K>
 
   /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T? item) getCursor;
+
+  /// Callback, called to check the provided [T] is first.
+  final bool Function(T item)? isFirst;
 
   /// Callback, called to check the provided [T] is last.
   final bool Function(T item)? isLast;
@@ -163,23 +167,29 @@ class HivePageProvider<T extends Object, C, K>
 
   /// Creates a [Page] from the provided [items].
   Page<T, C> _page(List<T> items) {
+    final T? firstItem = items.firstWhereOrNull((e) => getCursor(e) != null);
+    bool hasPrevious = true;
+
+    if (firstItem != null && isFirst != null) {
+      hasPrevious = !isFirst!.call(firstItem) ||
+          getKey(items.first) != _provider.keys.first;
+    }
+
     final T? lastItem = items.lastWhereOrNull((e) => getCursor(e) != null);
     bool hasNext = true;
 
     if (lastItem != null && isLast != null) {
       hasNext =
-          !isLast!.call(lastItem) && getKey(items.last) == _provider.keys.last;
+          !isLast!.call(lastItem) || getKey(items.last) != _provider.keys.last;
     }
 
-    // [Hive] can't guarantee previous page existence based on the stored
-    // values, thus `hasPrevious` is always `true`.
     return Page(
       RxList(items.toList()),
       PageInfo(
         startCursor:
             getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
         endCursor: getCursor(lastItem),
-        hasPrevious: true,
+        hasPrevious: hasPrevious,
         hasNext: hasNext,
       ),
     );

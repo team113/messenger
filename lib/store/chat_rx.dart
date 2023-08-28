@@ -283,6 +283,7 @@ class HiveRxChat extends RxChat {
         _local,
         getCursor: (e) => e?.cursor,
         getKey: (e) => e.value.key,
+        isFirst: (e) => chat.value.firstItem?.id == e.value.id,
         isLast: (e) => chat.value.lastItem?.id == e.value.id,
         strategy: PaginationStrategy.fromEnd,
       ),
@@ -416,6 +417,8 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
+
+    _updateFirstItem();
   }
 
   @override
@@ -425,6 +428,8 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
+
+    _updateFirstItem();
   }
 
   @override
@@ -434,6 +439,8 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
+
+    _updateFirstItem();
   }
 
   @override
@@ -893,6 +900,19 @@ class HiveRxChat extends RxChat {
     if (member != null) {
       avatar.value = member.user.value.avatar;
       _userWorker = ever(member.user, (User u) => avatar.value = u.avatar);
+    }
+  }
+
+  /// Updates the [Chat.firstItem].
+  void _updateFirstItem() {
+    if (_pagination.hasPrevious.isFalse) {
+      final HiveChat? chatEntity = _chatLocal.get(id);
+      final ChatItem? firstItem = _pagination.items.values.firstOrNull?.value;
+
+      if (chatEntity != null && chatEntity.value.firstItem != firstItem) {
+        chatEntity.value.firstItem = firstItem;
+        _chatLocal.put(chatEntity);
+      }
     }
   }
 
