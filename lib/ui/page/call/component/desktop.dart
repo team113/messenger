@@ -39,6 +39,7 @@ import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
+import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -264,8 +265,12 @@ Widget desktopCall(CallController c, BuildContext context) {
             ),
           );
 
+          final bool connectionLost = c.connectionLost.isTrue;
+
+          if (Config.disableInfiniteAnimations) return const SizedBox();
+
           return AnimatedOpacity(
-            opacity: c.connectionLost.isTrue ? 1 : 0,
+            opacity: connectionLost ? 1 : 0,
             duration: 200.milliseconds,
             child: child,
           );

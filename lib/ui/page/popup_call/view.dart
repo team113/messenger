@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../call/view.dart';
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/routes.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -62,7 +63,7 @@ class _PopupCallViewState extends State<PopupCallView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_deps == null) {
+    if (_deps == null && !Config.disableInfiniteAnimations) {
       return const Scaffold(body: Center(child: CustomProgressIndicator()));
     }
 
