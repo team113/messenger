@@ -636,8 +636,6 @@ class Fonts {
     TextStyle? bodySmallSecondary,
     TextStyle? bodySmallOnPrimary,
     required this.bodyTiny,
-    TextStyle? bodyTinyPrimary,
-    TextStyle? bodyTinySecondary,
     TextStyle? bodyTinyOnPrimary,
     required this.input,
     required this.error,
@@ -706,9 +704,6 @@ class Fonts {
             bodySmallSecondary ?? bodySmall.copyWith(color: secondary),
         bodySmallOnPrimary =
             bodySmallOnPrimary ?? bodySmall.copyWith(color: onPrimary),
-        bodyTinyPrimary = bodyTinyPrimary ?? bodyTiny.copyWith(color: primary),
-        bodyTinySecondary =
-            bodyTinySecondary ?? bodyTiny.copyWith(color: secondary),
         bodyTinyOnPrimary =
             bodyTinyOnPrimary ?? bodyTiny.copyWith(color: onPrimary);
 
@@ -856,12 +851,6 @@ class Fonts {
   /// Tiny version of body text of `onBackground` color.
   final TextStyle bodyTiny;
 
-  /// [bodyTiny] of `primary` color.
-  final TextStyle bodyTinyPrimary;
-
-  /// [bodyTiny] of `secondary` color.
-  final TextStyle bodyTinySecondary;
-
   /// [bodyTiny] of `onPrimary` color.
   final TextStyle bodyTinyOnPrimary;
 
@@ -964,10 +953,6 @@ class Fonts {
       bodyTiny: TextStyle.lerp(font.bodyTiny, other.bodyTiny, t)!,
       bodyTinyOnPrimary:
           TextStyle.lerp(font.bodyTinyOnPrimary, other.bodyTinyOnPrimary, t)!,
-      bodyTinyPrimary:
-          TextStyle.lerp(font.bodyTinyPrimary, other.bodyTinyPrimary, t)!,
-      bodyTinySecondary:
-          TextStyle.lerp(font.bodyTinySecondary, other.bodyTinySecondary, t)!,
       input: TextStyle.lerp(font.input, other.input, t)!,
       error: TextStyle.lerp(font.error, other.error, t)!,
       counter: TextStyle.lerp(font.counter, other.counter, t)!,
