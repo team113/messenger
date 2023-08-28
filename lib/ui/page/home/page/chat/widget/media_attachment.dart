@@ -157,7 +157,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           );
         }
       } else {
-        return VideoThumbnail.url(
+        child = VideoThumbnail.url(
           attachment.original.url,
           checksum: attachment.original.checksum,
           height: widget.height,
@@ -168,6 +168,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     }
 
     return Stack(
+      fit: StackFit.passthrough,
       children: [
         child,
         Obx(() {
