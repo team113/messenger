@@ -1306,18 +1306,19 @@ packages:
     dependency: "direct main"
     description:
       name: rive
-      sha256: f7f365ee0e6cf0af99fb239bc3424370ca6ee2b9ad6fc879b1a79ba5e3b40770
+      sha256: b7780ebdc56320da1f02a39a18f050a6079cad60c0cb92003c0801cc4eec6673
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.4"
+    version: "0.11.14"
   rive_common:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: rive_common
-      sha256: "12ea4a1ca1aa2ddeb2ef212afa20517d6c140a5deb32149c713912a7e6b7e26e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
+      path: "."
+      ref: b8ea9fd8839ce1a2678d1022e2aec1f2dc17d504
+      resolved-ref: b8ea9fd8839ce1a2678d1022e2aec1f2dc17d504
+      url: "https://github.com/SleepySquash/rive_common_to_fix_cpp_issue.git"
+    source: git
+    version: "0.2.6"
   rxdart:
     dependency: transitive
     description:

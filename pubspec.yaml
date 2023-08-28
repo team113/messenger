@@ -71,7 +71,7 @@ dependencies:
   permission_handler: ^10.2.0
   photo_view: ^0.14.0
   platform_detect: ^2.0.7
-  rive: ^0.10.4
+  rive: ^0.11.14
   scrollable_positioned_list:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
@@ -129,6 +129,10 @@ dependency_overrides:
   http: ^1.1.0
   # TODO: Remove when `sentry_flutter` updates.
   package_info_plus: ^4.0.0
+  rive_common:
+    git:
+      url: https://github.com/SleepySquash/rive_common_to_fix_cpp_issue.git
+      ref: b8ea9fd8839ce1a2678d1022e2aec1f2dc17d504
 
 flutter:
   uses-material-design: true
