@@ -63,7 +63,7 @@ class _PopupCallViewState extends State<PopupCallView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_deps == null && !Config.disableInfiniteAnimations) {
+    if (_deps == null) {
       return const Scaffold(body: Center(child: CustomProgressIndicator()));
     }
 

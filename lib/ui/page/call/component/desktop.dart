@@ -249,11 +249,13 @@ Widget desktopCall(CallController c, BuildContext context) {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SpinKitDoubleBounce(
-                      color: style.colors.secondaryHighlightDark,
-                      size: 100 / 1.5,
-                      duration: const Duration(milliseconds: 4500),
-                    ),
+                    Config.disableInfiniteAnimations
+                        ? const SizedBox()
+                        : SpinKitDoubleBounce(
+                            color: style.colors.secondaryHighlightDark,
+                            size: 100 / 1.5,
+                            duration: const Duration(milliseconds: 4500),
+                          ),
                     const SizedBox(height: 16),
                     Text(
                       'label_reconnecting_ellipsis'.l10n,
@@ -265,12 +267,8 @@ Widget desktopCall(CallController c, BuildContext context) {
             ),
           );
 
-          final bool connectionLost = c.connectionLost.isTrue;
-
-          if (Config.disableInfiniteAnimations) return const SizedBox();
-
           return AnimatedOpacity(
-            opacity: connectionLost ? 1 : 0,
+            opacity: c.connectionLost.isTrue ? 1 : 0,
             duration: 200.milliseconds,
             child: child,
           );
