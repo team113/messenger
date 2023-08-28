@@ -100,18 +100,18 @@ class CacheWorker extends DisposableService {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
     Future<void> Function()? onForbidden,
-    CacheResponseType cacheResponseType = CacheResponseType.bytes,
+    CacheResponseType responseType = CacheResponseType.bytes,
   }) {
     // Web does not support file caching.
     if (PlatformUtils.isWeb) {
-      cacheResponseType = CacheResponseType.bytes;
+      responseType = CacheResponseType.bytes;
     }
 
     if (checksum != null && FIFOCache.exists(checksum)) {
       final Uint8List? bytes = FIFOCache.get(checksum);
 
       if (bytes != null) {
-        switch (cacheResponseType) {
+        switch (responseType) {
           case CacheResponseType.file:
             return Future(
               () async => CacheEntry(file: await add(bytes, checksum)),
@@ -131,7 +131,7 @@ class CacheWorker extends DisposableService {
           final File file = File('${cache.path}/$checksum');
 
           if (await file.exists()) {
-            switch (cacheResponseType) {
+            switch (responseType) {
               case CacheResponseType.file:
                 return CacheEntry(file: file);
 
@@ -173,7 +173,7 @@ class CacheWorker extends DisposableService {
             cancelToken,
           );
 
-          switch (cacheResponseType) {
+          switch (responseType) {
             case CacheResponseType.file:
               return Future(
                 () async => CacheEntry(
@@ -223,7 +223,7 @@ class CacheWorker extends DisposableService {
     });
   }
 
-  /// Starts downloading of the file by provided [url].
+  /// Downloads a file from the provided [url].
   Downloading download(
     String url,
     String filename,

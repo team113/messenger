@@ -154,7 +154,7 @@ class NotificationService extends DisposableService {
         file = (await CacheWorker.instance.get(
           url: icon.url,
           checksum: icon.checksum,
-          cacheResponseType: CacheResponseType.file,
+          responseType: CacheResponseType.file,
         ))
             .file;
       }
