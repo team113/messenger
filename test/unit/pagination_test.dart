@@ -201,11 +201,11 @@ void main() async {
       after: const ChatItemsCursor('90'),
     )).thenAnswer((_) => chatItems(first: 10, after: 90));
 
-    final Pagination<HiveChatItem, String, ChatItemsCursor> pagination =
+    final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination =
         Pagination(
       perPage: 10,
-      onKey: (i) => i.value.key.toString(),
-      provider: GraphQlPageProvider<HiveChatItem, ChatItemsCursor>(
+      onKey: (i) => i.value.key,
+      provider: GraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>(
         fetch: ({after, before, first, last}) async {
           final q = await graphQlProvider.chatItems(
             chatId,
@@ -274,8 +274,11 @@ void main() async {
   });
 }
 
-class _ListPageProvider implements PageProvider<int, int> {
+class _ListPageProvider implements PageProvider<int, int, int> {
   final List<int> _items = List.generate(50, (i) => i);
+
+  @override
+  Future<Page<int, int>?> init(int? item, int count) async => null;
 
   @override
   FutureOr<Page<int, int>> around(int? item, int? cursor, int count) {
@@ -344,4 +347,10 @@ class _ListPageProvider implements PageProvider<int, int> {
 
   @override
   Future<void> put(int item) async {}
+
+  @override
+  Future<void> remove(int key) async {}
+
+  @override
+  Future<void> clear() async {}
 }

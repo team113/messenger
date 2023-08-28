@@ -19,7 +19,7 @@
 
 import 'dart:async';
 import 'dart:html' as html;
-import 'dart:ui' as ui;
+import 'dart:ui_web' as ui;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -223,7 +223,6 @@ class _HtmlImageState extends State<_HtmlImage> {
   void _initImageElement() {
     _elementId = platformViewsRegistry.getNextPlatformViewId();
 
-    // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
       '${_elementId}__webImageViewType__${widget.src}__',
       (int viewId) {
