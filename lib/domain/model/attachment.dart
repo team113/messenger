@@ -99,7 +99,8 @@ class ImageAttachment extends Attachment {
   @HiveField(5)
   ImageFile small;
 
-  /// [StreamSubscription] for the [FileService.downloads] changes.
+  /// [StreamSubscription] for the [CacheWorker.downloads] changes updating the
+  /// [downloading].
   StreamSubscription? _downloadsSubscription;
 
   @override
@@ -155,25 +156,12 @@ class FileAttachment extends Attachment {
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
-  /// Indicator whether this [FileAttachment] is downloaded.
-  final RxBool _downloaded = RxBool(false);
-
-  /// [StreamSubscription] for the [FileService.downloads] changes.
+  /// [StreamSubscription] for the [CacheWorker.downloads] changes updating the
+  /// [downloading].
   StreamSubscription? _downloadsSubscription;
 
   /// [StreamSubscription] for the [Downloading.status] changes.
   StreamSubscription? _statusSubscription;
-
-  /// Indicates whether this [FileAttachment] is downloading.
-  @override
-  bool get isDownloading => downloadStatus == DownloadStatus.inProgress;
-
-  @override
-  DownloadStatus get downloadStatus =>
-      downloading.value?.status.value ??
-      (_downloaded.value
-          ? DownloadStatus.isFinished
-          : DownloadStatus.notStarted);
 
   @override
   Future<void> init({void Function()? onSave}) async {
@@ -218,11 +206,20 @@ class FileAttachment extends Attachment {
     if (path != null) {
       File file = File(path!);
       if (await file.exists() && await file.length() == original.size) {
-        _downloaded.value = true;
+        downloading.value = Downloading.completed(
+          original.checksum,
+          filename,
+          original.size,
+          path!,
+        );
+        if (original.checksum != null) {
+          CacheWorker.instance.downloads[original.checksum!] =
+              downloading.value!;
+        }
       }
     }
 
-    if (_downloaded.isFalse) {
+    if (downloading.value == null) {
       File? file = await PlatformUtils.fileExists(
         filename,
         size: original.size,
@@ -231,8 +228,17 @@ class FileAttachment extends Attachment {
 
       if (file != null) {
         path = file.path;
+        downloading.value = Downloading.completed(
+          original.checksum,
+          filename,
+          original.size,
+          path!,
+        );
+        if (original.checksum != null) {
+          CacheWorker.instance.downloads[original.checksum!] =
+              downloading.value!;
+        }
         onSave?.call();
-        _downloaded.value = true;
       } else {
         if (path != null) {
           path = null;
@@ -268,7 +274,6 @@ class FileAttachment extends Attachment {
       if (file == null) {
         path = null;
       } else {
-        _downloaded.value = true;
         path = file.path;
         onSave?.call();
       }

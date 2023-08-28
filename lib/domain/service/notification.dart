@@ -26,6 +26,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import '/routes.dart';
+import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -147,15 +148,13 @@ class NotificationService extends DisposableService {
         tag: tag,
       ).onError((_, __) => false);
     } else if (PlatformUtils.isWindows) {
-      // TODO: Images should be downloaded to cache.
       File? file;
       if (icon != null) {
-        file = await PlatformUtils.download(
-          icon,
-          'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg',
-          null,
-          temporary: true,
-        );
+        file = (await CacheWorker.instance.get(
+          url: icon,
+          cacheResponseType: CacheResponseType.file,
+        ))
+            .file;
       }
 
       await WinToast.instance().showCustomToast(

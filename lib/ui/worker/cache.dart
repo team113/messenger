@@ -48,7 +48,7 @@ class CacheWorker extends DisposableService {
   /// [CacheWorker] singleton instance.
   static late CacheWorker instance;
 
-  /// Observable list of created [Downloading]s.
+  /// Observable map of [Downloading]s.
   final RxObsMap<String, Downloading> downloads =
       RxObsMap<String, Downloading>();
 
@@ -100,7 +100,7 @@ class CacheWorker extends DisposableService {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
     Future<void> Function()? onForbidden,
-    cacheResponseType = CacheResponseType.bytes,
+    CacheResponseType cacheResponseType = CacheResponseType.bytes,
   }) {
     // Web does not support file caching.
     if (PlatformUtils.isWeb) {
@@ -445,6 +445,12 @@ class FIFOCache {
 class Downloading {
   Downloading(this.checksum, this.filename, this.size);
 
+  /// Creates a [Downloading] as completed.
+  Downloading.completed(this.checksum, this.filename, this.size, String path) {
+    file = File(path);
+    status.value = DownloadStatus.isFinished;
+  }
+
   /// SHA-256 checksum of the file this [Downloading] is bound to.
   final String? checksum;
 
@@ -478,8 +484,6 @@ class Downloading {
     progress.value = 0;
     status.value = DownloadStatus.inProgress;
     _completer = Completer<File?>();
-
-    await Future.delayed(2.seconds);
 
     try {
       file = await PlatformUtils.download(

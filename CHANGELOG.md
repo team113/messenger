@@ -12,7 +12,8 @@ All user visible changes to this project will be documented in this file. This p
 [Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.10) | [Milestone](/../../milestone/8)
 
 ### Added
-
+- UI
+    - Save as context menu button for media. ([#423], [#140]) 
 - Windows:
     - Notifications. ([#492], [#439])
 
@@ -24,7 +25,9 @@ All user visible changes to this project will be documented in this file. This p
         - Sections highlighting. ([#513], [#385])
     - Display online status only when application is active. ([#522])
 
+[#140]: /../../issues/140
 [#385]: /../../issues/385
+[#423]: /../../pull/423
 [#439]: /../../issues/439
 [#492]: /../../pull/492
 [#506]: /../../pull/506
@@ -136,7 +139,6 @@ All user visible changes to this project will be documented in this file. This p
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
-[#140]: /../../issues/140
 [#258]: /../../issues/258
 [#264]: /../../issues/264
 [#270]: /../../pull/270

@@ -217,11 +217,11 @@ class _VideoViewState extends State<VideoView> {
 
     try {
       if (file != null) {
-        await _controller.player.open(Media(file.path), play: false);
+        await _controller.player.open(Media(file.path));
       } else if (bytes != null) {
-        await _controller.player.open(await Media.memory(bytes), play: false);
+        await _controller.player.open(await Media.memory(bytes));
       } else {
-        await _controller.player.open(Media(widget.url), play: false);
+        await _controller.player.open(Media(widget.url));
       }
     } catch (_) {
       // No-op.
