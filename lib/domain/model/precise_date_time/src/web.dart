@@ -37,8 +37,8 @@ class PreciseDateTime extends NewType<DateTime>
   /// ```
   PreciseDateTime.fromMicrosecondsSinceEpoch(int microsecondsSinceEpoch)
       : microsecond = microsecondsSinceEpoch % 1000,
-        super(DateTime.fromMicrosecondsSinceEpoch(
-          microsecondsSinceEpoch,
+        super(DateTime.fromMillisecondsSinceEpoch(
+          (microsecondsSinceEpoch / 1000).floor(),
           isUtc: true,
         ));
 
