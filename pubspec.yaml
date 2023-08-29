@@ -129,7 +129,7 @@ dependency_overrides:
   http: ^1.1.0
   # TODO: Remove when `sentry_flutter` updates.
   package_info_plus: ^4.0.0
-  # TODO: Remove when: rive-app/rive-flutter#340 is fixed:
+  # TODO: Remove when rive-app/rive-flutter#340 is fixed:
   #       https://github.com/rive-app/rive-flutter/issues/340
   rive_common:
     git:
