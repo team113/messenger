@@ -6,8 +6,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   desktop_drop
   firebase_core
-  flutter_meedu_videoplayer
-  fullscreen_window
   medea_flutter_webrtc
   medea_jason
   media_kit_libs_windows_video
@@ -19,6 +17,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   sentry_flutter
   share_plus
   url_launcher_windows
+  win_toast
   window_manager
   windows_taskbar
 )
