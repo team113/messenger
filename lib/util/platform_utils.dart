@@ -57,9 +57,6 @@ class PlatformUtilsImpl {
   /// Path to the temporary directory.
   Directory? _temporaryDirectory;
 
-  /// Path to the temporary directory.
-  String? _temporaryDirectory;
-
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
 
