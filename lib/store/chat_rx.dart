@@ -797,7 +797,7 @@ class HiveRxChat extends RxChat {
     final int i = messages.indexWhere((e) => e.value.id == item.id);
     if (i == -1) {
       messages.insertAfter(
-        item.obs,
+        Rx(item),
         (e) => item.key.compareTo(e.value.key) == 1,
       );
     } else {
