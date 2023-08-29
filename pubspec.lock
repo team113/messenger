@@ -1566,12 +1566,13 @@ packages:
     source: hosted
     version: "0.11.14"
   rive_common:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: rive_common
-      sha256: "1431b99c9f361234cc6fa9aee7987b20030622df25ff64343a4010f9446b275e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: d9ee97afae0088b3b9f96f38a8ecd1d5dc893df5
+      resolved-ref: d9ee97afae0088b3b9f96f38a8ecd1d5dc893df5
+      url: "https://github.com/SleepySquash/rive_common_to_fix_cpp_issue.git"
+    source: git
     version: "0.2.6"
   rxdart:
     dependency: transitive
