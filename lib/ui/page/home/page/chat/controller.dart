@@ -793,15 +793,11 @@ class ChatController extends GetxController {
           _topVisibleItem = positions.last;
 
           _lastVisibleItem = positions.firstWhereOrNull((e) {
-            if (e.index < elements.values.length) {
-              ListElement element = elements.values.elementAt(e.index);
-              return element is ChatMessageElement ||
-                  element is ChatInfoElement ||
-                  element is ChatCallElement ||
-                  element is ChatForwardElement;
-            }
-
-            return false;
+            ListElement? element = elements.values.elementAtOrNull(e.index);
+            return element is ChatMessageElement ||
+                element is ChatInfoElement ||
+                element is ChatCallElement ||
+                element is ChatForwardElement;
           });
 
           if (_lastVisibleItem != null &&
