@@ -271,14 +271,34 @@ class HiveRxChat extends RxChat {
     _provider = HiveGraphQlPageProvider(
       graphQlProvider: GraphQlPageProvider(
         reversed: true,
-        fetch: ({after, before, first, last}) {
-          return _chatRepository.messages(
+        fetch: ({after, before, first, last}) async {
+          final Page<HiveChatItem, ChatItemsCursor> page =
+              await _chatRepository.messages(
             chat.value.id,
             after: after,
             first: first,
             before: before,
             last: last,
           );
+
+          final Page<HiveChatItem, ChatItemsCursor> reversed;
+          if (_provider.graphQlProvider.reversed) {
+            reversed = page.reversed();
+          } else {
+            reversed = page;
+          }
+
+          if (reversed.info.hasPrevious == false) {
+            final HiveChat? chatEntity = _chatLocal.get(id);
+            final ChatItem? firstItem = reversed.edges.firstOrNull?.value;
+
+            if (chatEntity != null && chatEntity.value.firstItem != firstItem) {
+              chatEntity.value.firstItem = firstItem;
+              _chatLocal.put(chatEntity);
+            }
+          }
+
+          return page;
         },
       ),
       hiveProvider: HivePageProvider(
@@ -419,8 +439,6 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
-
-    _updateFirstItem();
   }
 
   @override
@@ -430,8 +448,6 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
-
-    _updateFirstItem();
   }
 
   @override
@@ -441,8 +457,6 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
-
-    _updateFirstItem();
   }
 
   @override
@@ -637,11 +651,6 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) async {
-    // TODO(review): Is this neccessary?
-    if (!_local.isReady) {
-      return;
-    }
-
     key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
     if (key != null) {
@@ -671,10 +680,6 @@ class HiveRxChat extends RxChat {
   /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [_local] store.
   Future<HiveChatItem?> get(ChatItemId itemId, {ChatItemKey? key}) async {
-    if (!_local.isReady) {
-      return null;
-    }
-
     key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
     if (key != null) {
@@ -904,19 +909,6 @@ class HiveRxChat extends RxChat {
     if (member != null) {
       avatar.value = member.user.value.avatar;
       _userWorker = ever(member.user, (User u) => avatar.value = u.avatar);
-    }
-  }
-
-  /// Updates the [Chat.firstItem].
-  void _updateFirstItem() {
-    if (_pagination.hasPrevious.isFalse) {
-      final HiveChat? chatEntity = _chatLocal.get(id);
-      final ChatItem? firstItem = _pagination.items.values.firstOrNull?.value;
-
-      if (chatEntity != null && chatEntity.value.firstItem != firstItem) {
-        chatEntity.value.firstItem = firstItem;
-        _chatLocal.put(chatEntity);
-      }
     }
   }
 
