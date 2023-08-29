@@ -205,7 +205,7 @@ class LoginController extends GetxController {
 
       router.home();
     } on FormatException {
-      password.error.value = 'err_incorrect_password'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
       switch (e.code) {
         case CreateSessionErrorCode.wrongPassword:
