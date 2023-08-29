@@ -26,16 +26,12 @@ import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/language/controller.dart';
-import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
-import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_logo.dart';
-import 'widget/cupertino_button.dart';
 
 /// View of the [Routes.auth] page.
 class AuthView extends StatelessWidget {
@@ -50,81 +46,9 @@ class AuthView extends StatelessWidget {
       builder: (AuthController c) {
         bool isWeb = PlatformUtils.isWeb || true;
 
-        Widget? icon;
 
         if (isWeb) {
-          icon = Obx(() {
-            switch (c.system.value) {
-              case 0:
-                return const SvgImage.asset(
-                  'assets/icons/app_store.svg',
-                  width: 23,
-                  height: 23,
-                );
-
-              case 1:
-                return const SvgImage.asset(
-                  'assets/icons/apple7.svg',
-                  width: 21.07,
-                  height: 27,
-                );
-
-              case 2:
-                return const SvgImage.asset(
-                  'assets/icons/google_play.svg',
-                  width: 21.26,
-                  height: 23.02,
-                );
-
-              case 3:
-                return const SvgImage.asset(
-                  'assets/icons/linux4.svg',
-                  width: 20.57,
-                  height: 24,
-                );
-
-              case 4:
-                return const SvgImage.asset(
-                  'assets/icons/windows5.svg',
-                  width: 23.93,
-                  height: 24,
-                );
-            }
-
-            return const SizedBox();
-          });
         }
-
-        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
-          color: style.colors.onBackground,
-        );
-
-        final Widget status = SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Flex(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              direction: Axis.vertical,
-              children: [
-                StyledCupertinoButton(
-                  key: c.languageKey,
-                  label: 'label_language_entry'.l10nfmt({
-                    'code': L10n.chosen.value!.locale.countryCode,
-                    'name': L10n.chosen.value!.name,
-                  }),
-                  onPressed: () => LanguageSelectionView.show(context, null),
-                ),
-                StyledCupertinoButton(
-                  label: 'btn_terms_and_conditions'.l10n,
-                  color: style.colors.secondary,
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          ),
-        );
 
         // Header part of the page.
         //
@@ -287,65 +211,4 @@ class AuthView extends StatelessWidget {
     await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }
 
-  /// Opens a [ModalPopup] listing the buttons for downloading the application.
-  Future<void> _download(BuildContext context) async {
-    await ModalPopup.show(
-      context: context,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ModalPopupHeader(text: 'btn_download'.l10n),
-          const SizedBox(height: 12),
-          Flexible(
-            child: ListView(
-              padding: ModalPopup.padding(context),
-              shrinkWrap: true,
-              children: const [
-                DownloadButton(
-                  asset: 'windows',
-                  width: 21.93,
-                  height: 22,
-                  title: 'Windows',
-                  link: 'messenger-windows.zip',
-                ),
-                SizedBox(height: 8),
-                DownloadButton(
-                  asset: 'apple',
-                  width: 23,
-                  height: 29,
-                  title: 'macOS',
-                  link: 'messenger-macos.zip',
-                ),
-                SizedBox(height: 8),
-                DownloadButton(
-                  asset: 'linux',
-                  width: 18.85,
-                  height: 22,
-                  title: 'Linux',
-                  link: 'messenger-linux.zip',
-                ),
-                SizedBox(height: 8),
-                DownloadButton(
-                  asset: 'apple',
-                  width: 23,
-                  height: 29,
-                  title: 'iOS',
-                  link: 'messenger-ios.zip',
-                ),
-                SizedBox(height: 8),
-                DownloadButton(
-                  asset: 'google',
-                  width: 20.33,
-                  height: 22.02,
-                  title: 'Android',
-                  link: 'messenger-android.apk',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-        ],
-      ),
-    );
-  }
 }
