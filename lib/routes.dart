@@ -289,20 +289,25 @@ class AppRouteInformationParser
     extends RouteInformationParser<RouteConfiguration> {
   @override
   SynchronousFuture<RouteConfiguration> parseRouteInformation(
-      RouteInformation routeInformation) {
-    RouteConfiguration configuration;
-    switch (routeInformation.location) {
+    RouteInformation routeInformation,
+  ) {
+    final RouteConfiguration configuration;
+
+    switch (routeInformation.uri.path) {
       case Routes.contacts:
         configuration = RouteConfiguration(Routes.home, HomeTab.contacts);
         break;
+
       case Routes.chats:
         configuration = RouteConfiguration(Routes.home, HomeTab.chats);
         break;
+
       case Routes.menu:
         configuration = RouteConfiguration(Routes.home, HomeTab.menu);
         break;
+
       default:
-        configuration = RouteConfiguration(routeInformation.location!, null);
+        configuration = RouteConfiguration(routeInformation.uri.path, null);
         break;
     }
 
@@ -319,16 +324,21 @@ class AppRouteInformationParser
         case HomeTab.contacts:
           route = Routes.contacts;
           break;
+
         case HomeTab.chats:
           route = Routes.chats;
           break;
+
         case HomeTab.menu:
           route = Routes.menu;
           break;
       }
     }
 
-    return RouteInformation(location: route, state: configuration.tab?.index);
+    return RouteInformation(
+      uri: Uri.parse(route),
+      state: configuration.tab?.index,
+    );
   }
 }
 
@@ -691,7 +701,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   Widget build(BuildContext context) {
     return LifecycleObserver(
-      didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
+      onStateChange: (v) => _state.lifecycle.value = v,
       child: Listener(
         onPointerDown: (_) => PlatformUtils.keepActive(),
         onPointerHover: (_) => PlatformUtils.keepActive(),
@@ -800,6 +810,7 @@ extension AppLifecycleStateExtension on AppLifecycleState {
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
         return false;
     }
   }

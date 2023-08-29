@@ -38,6 +38,7 @@ import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
@@ -609,7 +610,8 @@ class _ChatViewState extends State<ChatView>
             (previous is ChatForwardElement &&
                 previous.authorId == author &&
                 element.id.at.val.difference(previous.id.at.val).abs() <=
-                    const Duration(minutes: 5));
+                    const Duration(minutes: 5)) ||
+            previous is UnreadMessagesElement;
       }
     }
 
@@ -636,12 +638,8 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.author.id),
           builder: (_, snapshot) => Obx(() {
-            return AnimatedContainer(
-              duration: 400.milliseconds,
-              curve: Curves.ease,
-              color: c.highlight.value == i
-                  ? style.colors.primaryOpacity20
-                  : style.colors.primaryOpacity20.withOpacity(0),
+            return HighlightedContainer(
+              highlight: c.highlightIndex.value == i,
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatItemWidget(
                 chat: c.chat!.chat,
@@ -704,12 +702,8 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {
-            return AnimatedContainer(
-              duration: 400.milliseconds,
-              curve: Curves.ease,
-              color: c.highlight.value == i
-                  ? style.colors.primaryOpacity20
-                  : style.colors.primaryOpacity20.withOpacity(0),
+            return HighlightedContainer(
+              highlight: c.highlightIndex.value == i,
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),

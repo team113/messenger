@@ -23,6 +23,11 @@ import 'package:messenger/util/platform_utils.dart';
 
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
+  PlatformUtilsMock({this.cache = 'test/.temp_cache'});
+
+  /// Path to the [cacheDirectory].
+  final String? cache;
+
   @override
   Future<File?> fileExists(
     String filename, {
@@ -38,6 +43,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
     bool temporary = false,
@@ -45,7 +51,12 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
       File('test/path');
 
   @override
-  Future<String> get downloadsDirectory => Future.value('.temp_hive/downloads');
+  Future<Directory> get downloadsDirectory =>
+      Future.value(Directory('.temp_hive/downloads'));
+
+  @override
+  Future<Directory?> get cacheDirectory =>
+      Future.value(cache == null ? null : Directory(cache!));
 
   @override
   void keepActive([bool active = true]) {

@@ -27,11 +27,9 @@ import 'package:callkeep/callkeep.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart' hide router;
-// ignore: implementation_imports
-import 'package:flutter_meedu_videoplayer/src/video_player_used.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,6 +44,7 @@ import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
+import 'provider/hive/cache.dart';
 import 'provider/hive/session.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
@@ -53,6 +52,7 @@ import 'routes.dart';
 import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
+import 'ui/worker/cache.dart';
 import 'ui/worker/window.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
@@ -61,20 +61,7 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
-
-  // TODO: iOS should use `video_player`:
-  //       https://github.com/flutter/flutter/issues/56665
-  if (PlatformUtils.isDesktop || PlatformUtils.isIOS) {
-    VideoPlayerUsed.mediaKit = true;
-  } else {
-    VideoPlayerUsed.videoPlayer = true;
-  }
-
-  // TODO: Invoke `initMeeduPlayer` when `windowManager` is not invoked.
-  initVideoPlayerMediaKitIfNeeded(
-    iosUseMediaKit: true,
-    logLevel: MPVLogLevel.error,
-  );
+  MediaKit.ensureInitialized();
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
@@ -111,6 +98,8 @@ Future<void> main() async {
 
     await authService.init();
     await L10n.init();
+
+    Get.put(CacheWorker(Get.findOrNull()));
 
     WebUtils.deleteLoader();
 
@@ -316,6 +305,10 @@ Future<void> _initHive() async {
 
   await Get.put(SessionDataHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
+
+  if (!PlatformUtils.isWeb) {
+    await Get.put(CacheInfoHiveProvider()).init();
+  }
 }
 
 /// Extension adding an ability to clean [Hive].
@@ -333,5 +326,18 @@ extension HiveClean on HiveInterface {
         // No-op.
       }
     }
+  }
+}
+
+/// Extension adding ability to find non-strict dependencies from a
+/// [GetInterface].
+extension on GetInterface {
+  /// Returns the [S] dependency, if it [isRegistered].
+  S? findOrNull<S>({String? tag}) {
+    if (isRegistered<S>(tag: tag)) {
+      return find<S>(tag: tag);
+    }
+
+    return null;
   }
 }

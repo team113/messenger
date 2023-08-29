@@ -13,16 +13,32 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- Windows:
+    - Notifications. ([#492], [#439])
 - Push notifications. ([#202], [#201])
 
 ### Changed
 
 - UI:
     - Context menu with fading effect on desktop. ([#506])
+    - Profile page:
+        - Sections highlighting. ([#513], [#385])
+    - Home page:
+        - Redesigned navigation buttons' badges. ([#529], [#500])
+    - Display online status only when application is active. ([#522])
+
 
 [#201]: /../../issues/201
 [#202]: /../../pull/202
+[#385]: /../../issues/385
+[#439]: /../../issues/439
+[#492]: /../../pull/492
+[#500]: /../../issues/500
+>>>>>>> origin/main
 [#506]: /../../pull/506
+[#513]: /../../pull/513
+[#522]: /../../pull/522
+[#529]: /../../pull/529
 
 
 

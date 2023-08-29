@@ -740,8 +740,8 @@ class ChatRepository extends DisposableInterface
       await file.ensureCorrectMediaType();
 
       if (file.stream != null) {
-        upload = dio.MultipartFile(
-          file.stream!,
+        upload = dio.MultipartFile.fromStream(
+          () => file.stream!,
           file.size,
           filename: file.name,
           contentType: file.mime,

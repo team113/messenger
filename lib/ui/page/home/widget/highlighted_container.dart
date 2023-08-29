@@ -16,35 +16,39 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 
-import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 
-/// Current position and duration of the provided [controller].
-class CurrentPosition extends StatelessWidget {
-  const CurrentPosition(this.controller, {super.key});
+/// [AnimatedContainer] highlighting its [child].
+class HighlightedContainer extends StatelessWidget {
+  const HighlightedContainer({
+    super.key,
+    this.highlight = false,
+    required this.child,
+    this.padding,
+  });
 
-  /// [VideoController] controlling the [Video] player functionality.
-  final VideoController controller;
+  /// Indicator whether the [child] should be highlighted.
+  final bool highlight;
+
+  /// [Widget] to animate to.
+  final Widget child;
+
+  /// Padding of this [AnimatedContainer].
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return StreamBuilder(
-      stream: controller.player.stream.position,
-      initialData: controller.player.state.position,
-      builder: (_, snapshot) {
-        final String position = snapshot.data!.hhMmSs();
-        final String duration = controller.player.state.duration.hhMmSs();
-
-        return Text(
-          'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
-          style: style.fonts.labelMediumOnPrimary,
-        ).fixedDigits();
-      },
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.ease,
+      color: highlight
+          ? style.colors.primaryOpacity20
+          : style.colors.primaryOpacity20.withOpacity(0),
+      padding: padding,
+      child: child,
     );
   }
 }

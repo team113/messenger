@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/domain/model/cache_info.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -43,6 +44,7 @@ import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -91,10 +93,25 @@ class MyProfileView extends StatelessWidget {
                 itemScrollController: c.itemScrollController,
                 itemPositionsListener: c.positionsListener,
                 itemCount: ProfileTab.values.length,
+                physics: const ClampingScrollPhysics(),
                 itemBuilder: (context, i) {
+                  // Builds a [Block] wrapped with [Obx] to highlight it.
+                  Widget block({
+                    required String title,
+                    required List<Widget> children,
+                  }) {
+                    return Obx(() {
+                      return Block(
+                        title: title,
+                        highlight: c.highlightIndex.value == i,
+                        children: children,
+                      );
+                    });
+                  }
+
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
-                      return Block(
+                      return block(
                         title: 'label_public_information'.l10n,
                         children: [
                           Obx(() {
@@ -129,7 +146,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.signing:
-                      return Block(
+                      return block(
                         title: 'label_login_options'.l10n,
                         children: [
                           Paddings.basic(
@@ -152,7 +169,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.link:
-                      return Block(
+                      return block(
                         title: 'label_your_direct_link'.l10n,
                         children: [
                           Obx(() {
@@ -165,7 +182,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.background:
-                      return Block(
+                      return block(
                         title: 'label_background'.l10n,
                         children: [
                           Paddings.dense(
@@ -181,7 +198,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.chats:
-                      return Block(
+                      return block(
                         title: 'label_chats'.l10n,
                         children: [_chats(context, c)],
                       );
@@ -191,7 +208,7 @@ class MyProfileView extends StatelessWidget {
                         return const SizedBox();
                       }
 
-                      return Block(
+                      return block(
                         title: 'label_calls'.l10n,
                         children: [_call(context, c)],
                       );
@@ -201,13 +218,13 @@ class MyProfileView extends StatelessWidget {
                         return const SizedBox();
                       }
 
-                      return Block(
+                      return block(
                         title: 'label_media'.l10n,
                         children: [_media(context, c)],
                       );
 
                     case ProfileTab.notifications:
-                      return Block(
+                      return block(
                         title: 'label_audio_notifications'.l10n,
                         children: [
                           Paddings.dense(
@@ -224,36 +241,24 @@ class MyProfileView extends StatelessWidget {
                                     c.isMuting.value ? null : c.toggleMute,
                               );
                             }),
-                          )
-                        ],
-                      );
-
-                    case ProfileTab.storage:
-                      return Block(
-                        title: 'label_storage'.l10n,
-                        children: [
-                          Paddings.dense(
-                            Obx(() {
-                              return SwitchField(
-                                text: 'label_load_images'.l10n,
-                                value: c.settings.value?.loadImages == true,
-                                onChanged: c.settings.value == null
-                                    ? null
-                                    : c.setLoadImages,
-                              );
-                            }),
                           ),
                         ],
                       );
 
+                    case ProfileTab.storage:
+                      return block(
+                        title: 'label_storage'.l10n,
+                        children: [_storage(context, c)],
+                      );
+
                     case ProfileTab.language:
-                      return Block(
+                      return block(
                         title: 'label_language'.l10n,
                         children: [_language(context, c)],
                       );
 
                     case ProfileTab.blocklist:
-                      return Block(
+                      return block(
                         title: 'label_blocked_users'.l10n,
                         children: [_blockedUsers(context, c)],
                       );
@@ -263,13 +268,13 @@ class MyProfileView extends StatelessWidget {
                         return const SizedBox();
                       }
 
-                      return Block(
+                      return block(
                         title: 'label_download_application'.l10n,
                         children: [_downloads(context, c)],
                       );
 
                     case ProfileTab.danger:
-                      return Block(
+                      return block(
                         title: 'label_danger_zone'.l10n,
                         children: [_danger(context, c)],
                       );
@@ -874,6 +879,72 @@ Widget _danger(BuildContext context, MyProfileController c) {
         ),
       ),
     ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.storage] section.
+Widget _storage(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Paddings.dense(
+    Column(
+      children: [
+        Obx(() {
+          return SwitchField(
+            text: 'label_load_images'.l10n,
+            value: c.settings.value?.loadImages == true,
+            onChanged: c.settings.value == null ? null : c.setLoadImages,
+          );
+        }),
+        if (!PlatformUtils.isWeb) ...[
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 21.0),
+              child: Text(
+                'label_cache'.l10n,
+                style: style.fonts.titleMediumSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Obx(() {
+            final int size = CacheWorker.instance.info.value.size;
+            final int max = CacheWorker.instance.info.value.maxSize;
+
+            return Column(
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    LinearProgressIndicator(
+                      value: size / max,
+                      minHeight: 32,
+                      color: style.colors.primary,
+                      backgroundColor: style.colors.background,
+                    ),
+                    Text(
+                      'label_gb_slash_gb'.l10nfmt({
+                        'a': (size / GB).toPrecision(2),
+                        'b': max ~/ GB,
+                      }),
+                      style: style.fonts.labelSmall,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                FieldButton(
+                  onPressed: c.clearCache,
+                  text: 'btn_clear_cache'.l10n,
+                  style: style.fonts.titleMediumPrimary,
+                ),
+              ],
+            );
+          }),
+        ],
+      ],
+    ),
   );
 }
 

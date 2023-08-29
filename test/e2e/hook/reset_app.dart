@@ -23,7 +23,7 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:hive/hive.dart';
 import 'package:messenger/main.dart';
-import 'package:messenger/ui/page/home/widget/retry_image.dart';
+import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '../steps/internet.dart';

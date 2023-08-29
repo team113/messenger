@@ -35,9 +35,10 @@ import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/themes.dart';
+import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -77,6 +78,9 @@ class MyProfileController extends GetxController {
   /// List of [MediaDeviceDetails] of all the available devices.
   final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
+  /// Index of an item from [ProfileTab] that should be highlighted.
+  final RxnInt highlightIndex = RxnInt(null);
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
@@ -89,6 +93,13 @@ class MyProfileController extends GetxController {
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
   StreamSubscription? _devicesSubscription;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
+
+  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// has passed.
+  Timer? _highlightTimer;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -131,6 +142,8 @@ class MyProfileController extends GetxController {
             curve: Curves.ease,
           );
           Future.delayed(Duration.zero, () => ignorePositions = false);
+
+          _highlight(tab);
         }
       },
     );
@@ -285,6 +298,9 @@ class MyProfileController extends GetxController {
     await _myUserService.updateUserLogin(login);
   }
 
+  /// Deletes the cache used by the application.
+  Future<void> clearCache() => CacheWorker.instance.clear();
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
   /// If [file] is `null`, then deletes the [MyUser.avatar] and
@@ -303,6 +319,16 @@ class MyProfileController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Highlights the provided [tab].
+  Future<void> _highlight(ProfileTab? tab) async {
+    highlightIndex.value = tab?.index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
   }
 }
 

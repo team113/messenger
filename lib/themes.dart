@@ -100,6 +100,7 @@ class Themes {
       bodyLarge: textStyle,
       bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
       bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+      bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w300),
       error: textStyle.copyWith(fontSize: 13, color: colors.dangerColor),
       input: textStyle.copyWith(
         fontSize: 15,
@@ -115,9 +116,10 @@ class Themes {
 
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        systemNavigationBarColor: colors.primaryHighlight,
+        systemNavigationBarColor: colors.transparent,
         statusBarColor: colors.transparent,
-        statusBarBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.dark,
       ),
     );
 
@@ -633,6 +635,8 @@ class Fonts {
     TextStyle? bodySmallPrimary,
     TextStyle? bodySmallSecondary,
     TextStyle? bodySmallOnPrimary,
+    required this.bodyTiny,
+    TextStyle? bodyTinyOnPrimary,
     required this.input,
     required this.error,
     required this.counter,
@@ -699,7 +703,9 @@ class Fonts {
         bodySmallSecondary =
             bodySmallSecondary ?? bodySmall.copyWith(color: secondary),
         bodySmallOnPrimary =
-            bodySmallOnPrimary ?? bodySmall.copyWith(color: onPrimary);
+            bodySmallOnPrimary ?? bodySmall.copyWith(color: onPrimary),
+        bodyTinyOnPrimary =
+            bodyTinyOnPrimary ?? bodyTiny.copyWith(color: onPrimary);
 
   /// Large version of display text of `onBackground` color.
   final TextStyle displayLarge;
@@ -842,6 +848,12 @@ class Fonts {
   /// [bodySmall] of `onPrimary` color.
   final TextStyle bodySmallOnPrimary;
 
+  /// Tiny version of body text of `onBackground` color.
+  final TextStyle bodyTiny;
+
+  /// [bodyTiny] of `onPrimary` color.
+  final TextStyle bodyTinyOnPrimary;
+
   /// [TextStyle] for the decoration text in an input field.
   final TextStyle input;
 
@@ -938,6 +950,9 @@ class Fonts {
           TextStyle.lerp(font.bodySmallSecondary, other.bodySmallSecondary, t)!,
       bodySmallOnPrimary:
           TextStyle.lerp(font.bodySmallOnPrimary, other.bodySmallOnPrimary, t)!,
+      bodyTiny: TextStyle.lerp(font.bodyTiny, other.bodyTiny, t)!,
+      bodyTinyOnPrimary:
+          TextStyle.lerp(font.bodyTinyOnPrimary, other.bodyTinyOnPrimary, t)!,
       input: TextStyle.lerp(font.input, other.input, t)!,
       error: TextStyle.lerp(font.error, other.error, t)!,
       counter: TextStyle.lerp(font.counter, other.counter, t)!,

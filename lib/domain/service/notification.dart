@@ -23,6 +23,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:win_toast/win_toast.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -200,7 +202,32 @@ class NotificationService extends DisposableService {
         icon: icon ?? image,
         tag: tag,
       ).onError((_, __) => false);
-    } else if (!PlatformUtils.isWindows) {
+    } else if (PlatformUtils.isWindows) {
+      // TODO: Images should be downloaded to cache.
+      File? file;
+      if (icon != null) {
+        file = await PlatformUtils.download(
+          icon,
+          'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg',
+          null,
+          temporary: true,
+        );
+      }
+
+      await WinToast.instance().showCustomToast(
+        xml: '<?xml version="1.0" encoding="UTF-8"?>'
+            '<toast activationType="Foreground" launch="${payload ?? ''}">'
+            '  <visual addImageQuery="true">'
+            '      <binding template="ToastGeneric">'
+            '          <text>$title</text>'
+            '          <text>${body ?? ''}</text>'
+            '          <image placement="appLogoOverride" hint-crop="circle" id="1" src="${file?.path ?? ''}"/>'
+            '      </binding>'
+            '  </visual>'
+            '</toast>',
+        tag: 'Gapopa',
+      );
+    } else {
       String? imagePath;
 
       // In order to show an image in local notification, we need to download it
@@ -284,6 +311,29 @@ class NotificationService extends DisposableService {
       // a browser's policy to ask for notifications permission only after
       // user's interaction.
       WebUtils.onSelectNotification = onResponse;
+    } else if (PlatformUtils.isWindows) {
+      await WinToast.instance().initialize(
+        aumId: 'team113.messenger',
+        displayName: 'Gapopa',
+        iconPath: kDebugMode
+            ? File(r'assets\icons\app_icon.ico').absolute.path
+            : File(r'data\flutter_assets\assets\icons\app_icon.ico')
+                .absolute
+                .path,
+        clsid: Config.clsid,
+      );
+
+      WinToast.instance().setActivatedCallback((event) async {
+        await WindowManager.instance.focus();
+
+        onNotificationResponse?.call(
+          NotificationResponse(
+            notificationResponseType:
+                NotificationResponseType.selectedNotification,
+            payload: event.argument.isEmpty ? null : event.argument,
+          ),
+        );
+      });
     } else {
       if (_plugin == null) {
         _plugin = FlutterLocalNotificationsPlugin();
