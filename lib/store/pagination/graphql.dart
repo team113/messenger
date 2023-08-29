@@ -20,7 +20,7 @@ import 'dart:async';
 import '/store/pagination.dart';
 
 /// [PageProvider] fetching items from the remote in a GraphQL style.
-class GraphQlPageProvider<T, C> implements PageProvider<T, C> {
+class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
   GraphQlPageProvider({required this.fetch, this.reversed = false});
 
   /// Indicator whether this [GraphQlPageProvider] is reversed.
@@ -93,7 +93,7 @@ class GraphQlPageProvider<T, C> implements PageProvider<T, C> {
   }
 
   @override
-  Future<void> remove(String key) async {
+  Future<void> remove(K key) async {
     // No-op.
   }
 

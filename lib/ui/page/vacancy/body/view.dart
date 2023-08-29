@@ -380,7 +380,7 @@ https://github.com/instrumentisto/rust-incubator''',
               VacancyDescription(
                 '''1. Выбрать задачу из списка ниже
 2. Сделать форк проекта и по нему оформить PR (Pull Request)
-3. Связаться с командой фронтэнда (кнопка ниже) и оставить заявку, указав:
+3. Связаться с командой фронтэнда (кнопка ниже) и отправить заявку, указав:
     - логин на GitHub'е
     - номер PR (Pull Request)
     - предполагаемый срок выполнения задачи (дедлайн)
@@ -439,42 +439,6 @@ https://github.com/instrumentisto/rust-incubator''',
                     ),
                   );
                 });
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: MenuButton(
-                    title: e.title,
-                    // subtitle: ' Available',
-                    maxLines: 10,
-                    onPressed: () {
-                      if (c.expanded.value == i) {
-                        c.expanded.value = null;
-                      } else {
-                        c.expanded.value = i;
-                      }
-                    },
-                    children: [
-                      WidgetButton(
-                        onPressed: () => launchUrlString(e.url),
-                        child: Text(
-                          e.url,
-                          style: style.fonts.bodyMediumPrimary,
-                        ),
-                      ),
-                      if (e.description != null)
-                        Obx(() {
-                          if (c.expanded.value != i) {
-                            return const SizedBox();
-                          }
-
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: MarkdownBody(data: e.description!),
-                          );
-                        }),
-                    ],
-                  ),
-                );
               }).toList(),
             );
           }),
@@ -490,7 +454,7 @@ https://github.com/team113/flutter-incubator''',
           _button(
             context,
             c,
-            title: 'Оставить заявку',
+            title: 'Отправить заявку',
             welcome: '''Добрый день. Пожалуйста, укажите:
 - логин на GitHub'е;
 - номер PR (Pull Request);

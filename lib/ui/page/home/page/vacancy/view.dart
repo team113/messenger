@@ -83,9 +83,9 @@ class VacancyView extends StatelessWidget {
                 },
                 child: PlatformUtils.isMobile
                     ? SvgImage.asset(
-                        'assets/icons/share2.svg',
-                        width: 21.9,
-                        height: 22.29,
+                        'assets/icons/share7.svg',
+                        width: 17.54,
+                        height: 18.36,
                       )
                     : SvgImage.asset(
                         'assets/icons/copy_thick.svg',

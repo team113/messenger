@@ -257,28 +257,54 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
   Future<void> putSafe(dynamic key, T value) async {
-    if (_isReady && _box.isOpen) {
-      await _box.put(key, value);
-    }
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        await _box.put(key, value);
+      }
+    });
   }
 
   /// Exception-safe wrapper for [Box.get] returning the value associated with
   /// the given [key], if any.
   Future<T?> getSafe(dynamic key, {T? defaultValue}) async {
-    if (_isReady && _box.isOpen) {
-      return _box.get(key, defaultValue: defaultValue);
-    }
-    return null;
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        return _box.get(key, defaultValue: defaultValue);
+      }
+      return null;
+    });
   }
 
   /// Exception-safe wrapper for [BoxBase.delete] deleting the given [key] from
   /// the [box].
   Future<void> deleteSafe(dynamic key, {T? defaultValue}) {
-    if (_isReady && _box.isOpen) {
-      return _box.delete(key);
-    }
-    return Future.value();
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        await _box.delete(key);
+      }
+      return Future.value();
+    });
   }
+}
+
+/// [HiveLazyProvider] with [Iterable] functionality support.
+///
+/// Intended to be used as a source for [Pagination] items persisted.
+mixin IterableHiveProviderMixin<T extends Object, K> on HiveLazyProvider<T> {
+  /// Returns a list of [K] keys stored in the [Hive].
+  Iterable<K> get keys;
+
+  /// Returns a list of [T] items from [Hive].
+  Future<Iterable<T>> get values => valuesSafe;
+
+  /// Puts the provided [item] to [Hive].
+  Future<void> put(T item);
+
+  /// Returns a [T] item from [Hive] by its [key].
+  FutureOr<T?> get(K key);
+
+  /// Removes a [T] item from [Hive] by the provided [key].
+  Future<void> remove(K key);
 }
 
 extension HiveRegisterAdapter on HiveInterface {

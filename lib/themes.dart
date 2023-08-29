@@ -24,11 +24,11 @@ class Themes {
   static ThemeData light() {
     final Palette colors = Palette(
       primary: const Color(0xFF63B4FF),
-      primaryHighlight: Colors.blue,
+      primaryHighlight: const Color(0xFF2196F3),
       primaryHighlightShiny: const Color(0xFF58A6EF),
       primaryHighlightShiniest: const Color(0xFFD2E3F9),
       primaryHighlightLightest: const Color(0xFFB9D9FA),
-      onPrimary: Colors.white,
+      onPrimary: const Color(0xFFFFFFFF),
       secondary: const Color(0xFF888888),
       secondaryHighlight: const Color(0xFFEFEFEF),
       secondaryHighlightDark: const Color(0xFFDEDEDE),
@@ -42,10 +42,10 @@ class Themes {
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
-      onBackground: Colors.black,
+      onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
       acceptColor: const Color(0x7F34B139),
-      acceptAuxiliaryColor: Colors.green,
+      acceptAuxiliaryColor: const Color(0xFF4CAF50),
       declineColor: const Color(0x7FFF0000),
       dangerColor: Colors.red,
       warningColor: Colors.orange,
@@ -110,6 +110,7 @@ class Themes {
       bodyLarge: textStyle,
       bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
       bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+      bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w300),
       error: textStyle.copyWith(fontSize: 13, color: colors.dangerColor),
       input: textStyle.copyWith(
         fontSize: 15,
@@ -125,9 +126,10 @@ class Themes {
 
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        systemNavigationBarColor: colors.primaryHighlight,
+        systemNavigationBarColor: colors.transparent,
         statusBarColor: colors.transparent,
-        statusBarBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.dark,
       ),
     );
 
@@ -176,7 +178,7 @@ class Themes {
             systemMessageColor: colors.secondaryHighlight,
             systemMessageStyle: fonts.bodySmallSecondary,
             systemMessagePrimary: fonts.bodySmallPrimary,
-            unreadMessageColor: colors.primaryHighlightShiniest,
+            unreadMessageColor: colors.backgroundAuxiliaryLightest,
             activeColor: colors.primary,
             selectedColor: colors.primaryOpacity70,
           ),
@@ -653,6 +655,8 @@ class Fonts {
     TextStyle? bodySmallPrimary,
     TextStyle? bodySmallSecondary,
     TextStyle? bodySmallOnPrimary,
+    required this.bodyTiny,
+    TextStyle? bodyTinyOnPrimary,
     required this.input,
     required this.error,
     required this.counter,
@@ -719,7 +723,9 @@ class Fonts {
         bodySmallSecondary =
             bodySmallSecondary ?? bodySmall.copyWith(color: secondary),
         bodySmallOnPrimary =
-            bodySmallOnPrimary ?? bodySmall.copyWith(color: onPrimary);
+            bodySmallOnPrimary ?? bodySmall.copyWith(color: onPrimary),
+        bodyTinyOnPrimary =
+            bodyTinyOnPrimary ?? bodyTiny.copyWith(color: onPrimary);
 
   /// Large version of display text of `onBackground` color.
   final TextStyle displayLarge;
@@ -862,6 +868,12 @@ class Fonts {
   /// [bodySmall] of `onPrimary` color.
   final TextStyle bodySmallOnPrimary;
 
+  /// Tiny version of body text of `onBackground` color.
+  final TextStyle bodyTiny;
+
+  /// [bodyTiny] of `onPrimary` color.
+  final TextStyle bodyTinyOnPrimary;
+
   /// [TextStyle] for the decoration text in an input field.
   final TextStyle input;
 
@@ -958,6 +970,9 @@ class Fonts {
           TextStyle.lerp(font.bodySmallSecondary, other.bodySmallSecondary, t)!,
       bodySmallOnPrimary:
           TextStyle.lerp(font.bodySmallOnPrimary, other.bodySmallOnPrimary, t)!,
+      bodyTiny: TextStyle.lerp(font.bodyTiny, other.bodyTiny, t)!,
+      bodyTinyOnPrimary:
+          TextStyle.lerp(font.bodyTinyOnPrimary, other.bodyTinyOnPrimary, t)!,
       input: TextStyle.lerp(font.input, other.input, t)!,
       error: TextStyle.lerp(font.error, other.error, t)!,
       counter: TextStyle.lerp(font.counter, other.counter, t)!,
@@ -1352,16 +1367,10 @@ class Palette {
   }
 }
 
-/// Extension adding [Style] and [TextTheme] handy getters from the [ThemeData].
+/// Extension adding [Style] handy getter from the [ThemeData].
 extension ThemeStylesExtension on ThemeData {
-  /// Returns the [TextTheme] of this [ThemeData].
-  // TextTheme get fonts => textTheme;
-
   /// Returns the [Style] of this [ThemeData].
   Style get style => extension<Style>()!;
-
-  /// Returns a record containing the [style] and [fonts].
-  // (Style, TextTheme) get styles => (style, fonts);
 }
 
 /// Adds the ability to get HEX value of the color.

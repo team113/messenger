@@ -124,6 +124,13 @@ class Chat extends HiveObject {
   @HiveField(11)
   PreciseDateTime lastDelivery;
 
+  /// First [ChatItem] posted in this [Chat].
+  ///
+  /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
+  /// it's `null`.
+  @HiveField(18)
+  ChatItem? firstItem;
+
   /// Last [ChatItem] posted in this [Chat].
   ///
   /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then

@@ -1,7 +1,9 @@
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/vacancy/body/controller.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -28,116 +30,54 @@ class GitHubIssueWidget extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            color: style.colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
             borderRadius: style.cardRadius.copyWith(
               bottomLeft: expanded ? Radius.zero : style.cardRadius.bottomLeft,
               bottomRight:
                   expanded ? Radius.zero : style.cardRadius.bottomRight,
             ),
-            color: expanded ? style.activeColor : style.cardColor,
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              onTap: onPressed,
-              hoverColor:
-                  expanded ? style.activeColor : style.cardColor.darken(0.03),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: DefaultTextStyle(
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 10,
-                  style: style.fonts.headlineLarge.copyWith(
-                    color: expanded
-                        ? style.colors.onPrimary
-                        : style.colors.onBackground,
+            border: style.cardBorder,
+            color: style.colors.transparent,
+          ),
+          child: InkWellWithHover(
+            borderRadius: style.cardRadius.copyWith(
+              bottomLeft: expanded ? Radius.zero : style.cardRadius.bottomLeft,
+              bottomRight:
+                  expanded ? Radius.zero : style.cardRadius.bottomRight,
+            ),
+            onTap: onPressed,
+            selectedHoverColor: style.colors.primaryOpacity20.darken(0.03),
+            selectedColor: style.colors.primaryOpacity20,
+            selected: expanded,
+            unselectedColor: style.cardColor.darken(0.05),
+            unselectedHoverColor: style.cardColor.darken(0.08),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DefaultTextStyle(
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 10,
+                    style: style.fonts.headlineLarge,
+                    child: Text(issue.title),
                   ),
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(text: issue.title),
-                        const WidgetSpan(child: SizedBox(width: 4)),
-                        TextSpan(
-                          text: '#444',
-                          style: TextStyle(
-                            color: expanded
-                                ? style.colors.onPrimary
-                                : style.colors.primary,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => launchUrlString(issue.url),
-                        ),
-                        const WidgetSpan(child: SizedBox(width: 4)),
-                        ...issue.labels.map((e) {
-                          final HSLColor hsl = HSLColor.fromColor(e.$2);
-                          final Color text =
-                              hsl.lightness > 0.7 || hsl.alpha < 0.4
-                                  ? const Color(0xFF000000)
-                                  : const Color(0xFFFFFFFF);
-
-                          return WidgetSpan(
-                            alignment: PlaceholderAlignment.middle,
-                            child: IgnorePointer(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                                child: Chip(
-                                  label: Text(
-                                    e.$1,
-                                    style: style.fonts.labelMedium
-                                        .copyWith(color: text),
-                                  ),
-                                  backgroundColor: e.$2,
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ],
+                  WidgetButton(
+                    onPressed: () => launchUrlString(issue.url),
+                    child: Text(
+                      'GitHub #${issue.number}',
+                      style: style.fonts.bodyLargePrimary,
                     ),
                   ),
-                ),
-                // child: Wrap(
-                //   spacing: 4,
-                //   runSpacing: 8,
-                //   children: [
-                //     DefaultTextStyle(
-                //       overflow: TextOverflow.ellipsis,
-                //       maxLines: 10,
-                //       style: style.fonts.headlineLarge.copyWith(
-                //         color: expanded
-                //             ? style.colors.onPrimary
-                //             : style.colors.onBackground,
-                //       ),
-                //       child: Text(issue.title),
-                //     ),
-                //     ...issue.labels.map((e) {
-                //       final HSLColor hsl = HSLColor.fromColor(e.$2);
-                //       final Color text = hsl.lightness > 0.7 || hsl.alpha < 0.4
-                //           ? const Color(0xFF000000)
-                //           : const Color(0xFFFFFFFF);
-
-                //       return IgnorePointer(
-                //         child: Chip(
-                //           label: Text(
-                //             e.$1,
-                //             style:
-                //                 style.fonts.labelMedium.copyWith(color: text),
-                //           ),
-                //           backgroundColor: e.$2,
-                //         ),
-                //       );
-                //     }),
-                //   ],
-                // ),
+                ],
               ),
             ),
           ),
         ),
-        if (issue.description != null && expanded)
-          DefaultTextStyle.merge(
+        AnimatedSizeAndFade.showHide(
+          show: issue.description != null && expanded,
+          fadeDuration: const Duration(milliseconds: 300),
+          sizeDuration: const Duration(milliseconds: 300),
+          child: DefaultTextStyle.merge(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: style.fonts.labelMedium.copyWith(
@@ -153,10 +93,36 @@ class GitHubIssueWidget extends StatelessWidget {
                 border: style.cardBorder,
                 color: style.colors.transparent,
               ),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Column(
                 children: [
-                  MarkdownBody(data: issue.description!),
+                  MarkdownBody(
+                    data: issue.description!,
+                    styleSheet: MarkdownStyleSheet(
+                      h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
+                      h2: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      p: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      code: const TextStyle(
+                        fontSize: 12,
+                        letterSpacing: 1.2,
+                        fontWeight: FontWeight.normal,
+                        backgroundColor: Color.fromRGBO(246, 248, 250, 1),
+                      ),
+                      codeblockDecoration: const BoxDecoration(
+                        color: Color.fromRGBO(246, 248, 250, 1),
+                      ),
+                      codeblockPadding: const EdgeInsets.all(16),
+                      blockquoteDecoration: const BoxDecoration(
+                        color: Color.fromRGBO(246, 248, 250, 1),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   WidgetButton(
                     onPressed: onPressed,
@@ -169,6 +135,7 @@ class GitHubIssueWidget extends StatelessWidget {
               ),
             ),
           ),
+        ),
       ],
     );
   }

@@ -27,7 +27,7 @@ import 'controller.dart';
 
 /// View of an [OngoingCall] overlay.
 class CallView extends StatelessWidget {
-  const CallView(this._call, {Key? key}) : super(key: key);
+  const CallView(this._call, {super.key});
 
   /// Current [OngoingCall].
   final Rx<OngoingCall> _call;

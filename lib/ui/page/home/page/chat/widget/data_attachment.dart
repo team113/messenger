@@ -131,6 +131,8 @@ class _DataAttachmentState extends State<DataAttachment> {
     }
 
     return Obx(() {
+      final style = Theme.of(context).style;
+
       Widget leading = Container();
 
       if (e is FileAttachment) {
@@ -313,9 +315,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                             }),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: style.fonts.headlineSmall.copyWith(
-                              color: style.colors.secondary,
-                            ),
+                            style: style.fonts.headlineSmallSecondary,
                           ),
                         ],
                       ),

@@ -110,7 +110,7 @@ class SwipeableStatus extends StatelessWidget {
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: style.fonts.labelSmall.copyWith(color: style.colors.secondary),
+      style: style.fonts.labelSmallSecondary,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),
@@ -149,7 +149,7 @@ class SwipeableStatus extends StatelessWidget {
     );
   }
 
-  /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
+  // Returns an [AnimatedBuilder] with a [Transform.translate] transition.
   Widget _animatedBuilder(Widget child, {bool translated = true}) =>
       AnimatedBuilder(
         animation: animation!,

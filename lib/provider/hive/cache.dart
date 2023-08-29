@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:collection';
+
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/cache_info.dart';
@@ -34,8 +36,22 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
   }
 
   /// Returns the stored [CacheInfo] from [Hive].
-  CacheInfo get cacheInfo => getSafe(0) ?? CacheInfo();
+  CacheInfo get info => getSafe(0) ?? CacheInfo();
 
-  /// Stores a new [CacheInfo] value to [Hive].
-  Future<void> set(CacheInfo cacheInfo) => putSafe(0, cacheInfo);
+  /// Updates the stored [CacheInfo] with the provided data.
+  Future<void> set({
+    HashSet<String>? checksums,
+    int? size,
+    int? maxSize,
+    DateTime? modified,
+  }) {
+    final CacheInfo info = this.info;
+
+    info.checksums = checksums ?? info.checksums;
+    info.size = size ?? info.size;
+    info.maxSize = maxSize ?? info.maxSize;
+    info.modified = modified ?? info.modified;
+
+    return putSafe(0, info);
+  }
 }

@@ -44,7 +44,7 @@ class VacancyBodyController extends GetxController {
       }
 
       final response = await (await PlatformUtils.dio).get(
-        'https://api.github.com/repos/team113/messenger/issues?labels=help wanted',
+        'https://api.github.com/repos/team113/messenger/issues?direction=asc&labels=help wanted',
       );
 
       if (response.statusCode == 200) {
@@ -59,6 +59,7 @@ class VacancyBodyController extends GetxController {
                       (e['name'] as String, (e['color'] as String).toColor()),
                 )
                 .toList(),
+            number: e['number'],
           );
         }).toList();
 
@@ -77,6 +78,7 @@ class GitHubIssue {
     this.status = GitHubStatus.todo,
     this.url = '',
     this.labels = const [],
+    this.number = 0,
   });
 
   final String title;
@@ -84,6 +86,7 @@ class GitHubIssue {
   final GitHubStatus status;
   final String url;
   final List<(String, Color)> labels;
+  final int number;
 }
 
 enum GitHubStatus { todo, wip, done }

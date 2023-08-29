@@ -27,7 +27,7 @@ import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
 /// key identifying those items and their [C] cursor.
-class Pagination<T, K extends Comparable, C> {
+class Pagination<T, C, K extends Comparable> {
   Pagination({
     this.perPage = 50,
     required this.provider,
@@ -41,7 +41,7 @@ class Pagination<T, K extends Comparable, C> {
   final RxObsSplayTreeMap<K, T> items = RxObsSplayTreeMap();
 
   /// [PageProvider] providing the [items].
-  final PageProvider<T, C> provider;
+  final PageProvider<T, C, K> provider;
 
   /// Indicator whether the [items] have next page.
   final RxBool hasNext = RxBool(true);
@@ -74,20 +74,13 @@ class Pagination<T, K extends Comparable, C> {
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
   /// Resets this [Pagination] to its initial state.
-  Future<void> reset() {
+  Future<void> clear() {
     Log.print('reset()', 'Pagination');
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
     startCursor = null;
     endCursor = null;
-    return provider.clear();
-  }
-
-  /// Clears this [Pagination].
-  Future<void> clear() {
-    Log.print('clear()', 'Pagination');
-    items.clear();
     return provider.clear();
   }
 
@@ -236,10 +229,10 @@ class Pagination<T, K extends Comparable, C> {
     }
   }
 
-  /// Removes the item with the provided [key] from the [items].
+  /// Removes the item with the provided [key] from the [items] and [provider].
   Future<void> remove(K key) {
     items.remove(key);
-    return provider.remove(key.toString());
+    return provider.remove(key);
   }
 }
 
@@ -278,7 +271,7 @@ class Page<T, C> {
 }
 
 /// Utility providing the [Page]s.
-abstract class PageProvider<T, C> {
+abstract class PageProvider<T, C, K> {
   /// Initializes this [PageProvider], loading initial [Page], if any.
   Future<Page<T, C>?> init(T? item, int count);
 
@@ -297,8 +290,17 @@ abstract class PageProvider<T, C> {
   Future<void> put(T item);
 
   /// Removes the item specified by its [key] from this [PageProvider].
-  Future<void> remove(String key);
+  Future<void> remove(K key);
 
   /// Clears this [PageProvider].
   Future<void> clear();
+}
+
+/// [PageProvider] page fetching strategy.
+enum PaginationStrategy {
+  /// [Page]s fetching starts from the beginning of the available window.
+  fromStart,
+
+  /// [Page]s fetching starts from the end of the available window.
+  fromEnd,
 }

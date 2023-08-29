@@ -2066,7 +2066,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
           const SizedBox(height: 8),
           Obx(() {
             final int size = CacheWorker.instance.info.value.size;
-            const int max = CacheWorker.maxSize;
+            final int max = CacheWorker.instance.info.value.maxSize;
 
             return Column(
               children: [

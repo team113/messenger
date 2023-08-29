@@ -375,22 +375,29 @@ class AppRouteInformationParser
         case HomeTab.funds:
           route = Routes.funds;
           break;
+
         case HomeTab.contacts:
           route = Routes.contacts;
           break;
+
         case HomeTab.chats:
           route = Routes.chats;
           break;
+
         case HomeTab.menu:
           route = Routes.menu;
           break;
+
         case HomeTab.public:
           route = Routes.public;
           break;
       }
     }
 
-    return RouteInformation(location: route, state: configuration.tab?.index);
+    return RouteInformation(
+      uri: Uri.parse(route),
+      state: configuration.tab?.index,
+    );
   }
 }
 
@@ -772,7 +779,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   Widget build(BuildContext context) {
     return LifecycleObserver(
-      didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
+      onStateChange: (v) => _state.lifecycle.value = v,
       child: Listener(
         onPointerDown: (_) => PlatformUtils.keepActive(),
         onPointerHover: (_) => PlatformUtils.keepActive(),

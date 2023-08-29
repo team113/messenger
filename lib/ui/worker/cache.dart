@@ -22,12 +22,11 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 import '/domain/model/cache_info.dart';
 import '/domain/service/disposable_service.dart';
@@ -48,46 +47,31 @@ class CacheWorker extends DisposableService {
   /// [CacheWorker] singleton instance.
   static late CacheWorker instance;
 
-  /// Maximum allowed cache size in bytes.
-  static const int maxSize = CacheInfo.maxSize;
-
   /// [CacheInfo] describing the cache properties.
   late final Rx<CacheInfo> info;
 
   /// [CacheInfo] local [Hive] storage.
   final CacheInfoHiveProvider? _cacheLocal;
 
-  /// [StreamSubscription] getting all files from the [directory].
+  /// [Directory.list] subscription used in [_updateInfo].
   StreamSubscription? _cacheSubscription;
 
   /// [CacheInfoHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
 
-  /// [Directory] to store cache within.
-  Directory? _directory;
-
-  /// [Mutex] guarding access to the [_optimizeCache] method.
-  final Mutex _optimizeMutex = Mutex();
-
-  /// [Mutex] guarding access to the [CacheInfoHiveProvider.set] method.
-  final Mutex _setMutex = Mutex();
-
-  /// Returns a [Directory] to store cache within.
-  Future<Directory> get directory async {
-    _directory ??= await getApplicationSupportDirectory();
-    return _directory!;
-  }
+  /// [Mutex] guarding access to [PlatformUtilsImpl.cacheDirectory].
+  final Mutex _mutex = Mutex();
 
   @override
   Future<void> onInit() async {
-    info = Rx(_cacheLocal?.cacheInfo ?? CacheInfo());
-    _initCacheSubscription();
+    info = Rx(_cacheLocal?.info ?? CacheInfo());
+    _initLocalSubscription();
 
-    if (!PlatformUtils.isWeb) {
-      // Recalculate the [info], if [FileStat.modified] mismatch is detected.
-      if (info.value.modified != (await (await directory).stat()).modified) {
-        _updateInfo();
-      }
+    final Directory? cache = await PlatformUtils.cacheDirectory;
+
+    // Recalculate the [info], if [FileStat.modified] mismatch is detected.
+    if (cache != null && info.value.modified != (await cache.stat()).modified) {
+      _updateInfo();
     }
 
     super.onInit();
@@ -117,13 +101,17 @@ class CacheWorker extends DisposableService {
     }
 
     return Future(() async {
-      if (checksum != null && !PlatformUtils.isWeb) {
-        final File file = File('${(await directory).path}/$checksum');
+      if (checksum != null) {
+        final Directory? cache = await PlatformUtils.cacheDirectory;
 
-        if (await file.exists()) {
-          final Uint8List bytes = await file.readAsBytes();
-          FIFOCache.set(checksum, bytes);
-          return bytes;
+        if (cache != null) {
+          final File file = File('${cache.path}/$checksum');
+
+          if (await file.exists()) {
+            final Uint8List bytes = await file.readAsBytes();
+            FIFOCache.set(checksum, bytes);
+            return bytes;
+          }
         }
       }
 
@@ -140,7 +128,7 @@ class CacheWorker extends DisposableService {
                   cancelToken: cancelToken,
                   onReceiveProgress: onReceiveProgress,
                 );
-              } on DioError catch (e) {
+              } on DioException catch (e) {
                 if (e.response?.statusCode == 403) {
                   await onForbidden?.call();
                   return null;
@@ -171,72 +159,71 @@ class CacheWorker extends DisposableService {
   }
 
   /// Adds the provided [data] to the cache.
-  Future<void> add(Uint8List data, [String? checksum]) async {
+  FutureOr<void> add(Uint8List data, [String? checksum]) {
     checksum ??= sha256.convert(data).toString();
     FIFOCache.set(checksum, data);
 
-    if (!PlatformUtils.isWeb) {
-      try {
-        final Directory cache = await directory;
+    return _mutex.protect(() async {
+      final Directory? cache = await PlatformUtils.cacheDirectory;
 
+      if (cache != null) {
         final File file = File('${cache.path}/$checksum');
         if (!(await file.exists())) {
           await file.writeAsBytes(data);
 
-          await _setMutex.protect(() async {
-            await _cacheLocal?.set(
-              CacheInfo(
-                checksums: info.value.checksums..add(checksum!),
-                size: info.value.size + data.length,
-                modified: (await cache.stat()).modified,
-              ),
-            );
-          });
+          await _cacheLocal?.set(
+            checksums: info.value.checksums..add(checksum!),
+            size: info.value.size + data.length,
+            modified: (await cache.stat()).modified,
+          );
 
           _optimizeCache();
         }
-      } on MissingPluginException {
-        // No-op.
       }
-    }
+    });
   }
 
   /// Indicates whether [checksum] is in the cache.
   bool exists(String checksum) =>
       FIFOCache.exists(checksum) || info.value.checksums.contains(checksum);
 
-  /// Clears the cache.
-  Future<void> clear() async {
-    if (PlatformUtils.isWeb) {
-      return;
-    }
+  /// Clears the cache in the cache directory.
+  Future<void> clear() {
+    return _mutex.protect(() async {
+      final Directory? cache = await PlatformUtils.cacheDirectory;
 
-    final Directory cache = await directory;
-    final List<File> files =
-        info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
+      if (cache != null) {
+        final List<File> files =
+            info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
 
-    final List<Future> futures = [];
-    for (var file in files) {
-      futures.add(
-        Future(
-          () async {
-            try {
-              await file.delete();
-            } catch (_) {
-              // No-op.
-            }
-          },
-        ),
-      );
-    }
+        final List<Future> futures = [];
+        for (var file in files) {
+          futures.add(
+            Future(
+              () async {
+                try {
+                  await file.delete();
+                } catch (_) {
+                  // No-op.
+                }
+              },
+            ),
+          );
+        }
 
-    await Future.wait(futures);
+        await Future.wait(futures);
 
-    _updateInfo();
+        _updateInfo();
+      }
+    });
   }
 
+  /// Waits for locking operations to release the lock.
+  @visibleForTesting
+  Future<void> ensureOptimized() => _mutex.protect(() async {});
+
   /// Initializes [CacheInfoHiveProvider.boxEvents] subscription.
-  Future<void> _initCacheSubscription() async {
+  Future<void> _initLocalSubscription() async {
     if (_cacheLocal == null) {
       return;
     }
@@ -253,48 +240,45 @@ class CacheWorker extends DisposableService {
     }
   }
 
-  /// Deletes files from the [directory], if it occupies more than
+  /// Deletes files from the cache directory, if it occupies more than
   /// [CacheInfo.maxSize].
   ///
   /// Uses LRU (Least Recently Used) approach sorting [File]s by their
   /// [FileStat.accessed] times.
-  Future<void> _optimizeCache() async {
-    await _optimizeMutex.protect(() async {
-      if (PlatformUtils.isWeb) {
-        return;
-      }
+  Future<void> _optimizeCache() {
+    return _mutex.protect(() async {
+      final Directory? cache = await PlatformUtils.cacheDirectory;
 
-      int overflow = info.value.size - maxSize;
-      if (overflow > 0) {
-        overflow += (maxSize * 0.05).floor();
-
-        final Directory cache = await directory;
+      int overflow = info.value.size - info.value.maxSize;
+      if (overflow > 0 && cache != null) {
+        overflow += (info.value.maxSize * 0.05).floor();
 
         final List<File> files =
             info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
-        final List<File> removed = [];
+        final List<String> removed = [];
 
-        final Map<File, FileStat> filesInfo = {};
+        final Map<File, FileStat> stats = {};
         for (File file in files) {
           final FileStat stat = await file.stat();
           if (stat.type == FileSystemEntityType.notFound) {
-            removed.add(file);
+            removed.add(p.basename(file.path));
           }
 
-          filesInfo[file] = await file.stat();
+          stats[file] = await file.stat();
         }
 
-        files.sortBy((f) => filesInfo[f]!.accessed);
+        files.sortBy((f) => stats[f]!.accessed);
 
         int deleted = 0;
-        for (var file in files) {
+        for (File file in files) {
           try {
-            final FileStat? stat = filesInfo[file];
+            final FileStat? stat = stats[file];
+
             if (stat != null && stat.type != FileSystemEntityType.notFound) {
               final int fileSize = stat.size;
               await file.delete();
               deleted += fileSize;
-              removed.add(file);
+              removed.add(p.basename(file.path));
 
               if (deleted >= overflow) {
                 break;
@@ -305,55 +289,47 @@ class CacheWorker extends DisposableService {
           }
         }
 
-        _setMutex.protect(() async {
-          await _cacheLocal?.set(
-            CacheInfo(
-              checksums: info.value.checksums
-                ..removeWhere(
-                  (e) => removed.contains(File('${cache.path}/$e')),
-                ),
-              size: info.value.size - deleted,
-              modified: (await cache.stat()).modified,
-            ),
-          );
-        });
+        await _cacheLocal?.set(
+          checksums: info.value.checksums
+            ..removeWhere((e) => removed.contains(e)),
+          size: info.value.size - deleted,
+          modified: (await cache.stat()).modified,
+        );
       }
     });
   }
 
   /// Updates the [CacheInfo.size] and [CacheInfo.checksums] values.
   void _updateInfo() async {
-    final Directory cache = await directory;
+    final Directory? cache = await PlatformUtils.cacheDirectory;
 
-    final HashSet<String> checksums = HashSet();
-    int size = 0;
+    if (cache != null) {
+      final HashSet<String> checksums = HashSet();
+      int size = 0;
 
-    _cacheSubscription?.cancel();
-    _cacheSubscription = cache.list(recursive: true).listen(
-      (FileSystemEntity file) async {
-        if (file is File) {
-          checksums.add(p.basename(file.path));
-          final FileStat stat = await file.stat();
-          size += stat.size;
-        }
-      },
-      onDone: () async {
-        await _setMutex.protect(() async {
+      _cacheSubscription?.cancel();
+      _cacheSubscription = cache.list(recursive: true).listen(
+        (FileSystemEntity file) async {
+          if (file is File) {
+            checksums.add(p.basename(file.path));
+            final FileStat stat = await file.stat();
+            size += stat.size;
+          }
+        },
+        onDone: () async {
           await _cacheLocal?.set(
-            CacheInfo(
-              checksums: checksums,
-              size: size,
-              modified: (await cache.stat()).modified,
-            ),
+            checksums: checksums,
+            size: size,
+            modified: (await cache.stat()).modified,
           );
-        });
 
-        _optimizeCache();
+          _optimizeCache();
 
-        _cacheSubscription?.cancel();
-        _cacheSubscription = null;
-      },
-    );
+          _cacheSubscription?.cancel();
+          _cacheSubscription = null;
+        },
+      );
+    }
   }
 }
 
