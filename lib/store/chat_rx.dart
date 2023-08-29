@@ -271,13 +271,15 @@ class HiveRxChat extends RxChat {
     _provider = HiveGraphQlPageProvider(
       graphQlProvider: GraphQlPageProvider(
         reversed: true,
-        fetch: ({after, before, first, last}) => _chatRepository.messages(
-          chat.value.id,
-          after: after,
-          first: first,
-          before: before,
-          last: last,
-        ),
+        fetch: ({after, before, first, last}) {
+          return _chatRepository.messages(
+            chat.value.id,
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+          );
+        },
       ),
       hiveProvider: HivePageProvider(
         _local,
@@ -635,6 +637,7 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) async {
+    // TODO(review): Is this neccessary?
     if (!_local.isReady) {
       return;
     }
@@ -644,20 +647,21 @@ class HiveRxChat extends RxChat {
     if (key != null) {
       _pagination.remove(key);
 
-      HiveChat? chatEntity = _chatLocal.get(id);
+      final HiveChat? chatEntity = _chatLocal.get(id);
       if (chatEntity?.value.lastItem?.id == itemId) {
         var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
-        chatEntity!.value.lastItem = lastItem?.value;
+
         if (lastItem != null) {
-          chatEntity.lastItemCursor =
+          chatEntity?.value.lastItem = lastItem.value;
+          chatEntity?.lastItemCursor =
               (await _local.get(lastItem.value.key))?.cursor;
         } else {
-          chatEntity.lastItemCursor = null;
+          chatEntity?.value.lastItem = null;
+          chatEntity?.lastItemCursor = null;
         }
-        chatEntity.save();
-      }
 
-      chatEntity?.save();
+        chatEntity?.save();
+      }
     }
   }
 
