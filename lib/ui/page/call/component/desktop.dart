@@ -249,7 +249,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (Config.disableInfiniteAnimations)
+                    if (!Config.disableInfiniteAnimations)
                       SpinKitDoubleBounce(
                         color: style.colors.secondaryHighlightDark,
                         size: 100 / 1.5,
