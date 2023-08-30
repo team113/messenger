@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/my_profile/language/view.dart';
 import 'package:messenger/ui/page/home/widget/rmb_detector.dart';
 import 'package:messenger/ui/page/login/controller.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -98,31 +99,106 @@ class AuthView extends StatelessWidget {
           color: style.colors.onBackground,
         );
 
-        final Widget status = SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Flex(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              direction: Axis.vertical,
-              children: [
-                StyledCupertinoButton(
-                  key: c.languageKey,
-                  label: 'label_language_entry'.l10nfmt({
-                    'code': L10n.chosen.value!.locale.countryCode,
-                    'name': L10n.chosen.value!.name,
-                  }),
-                  onPressed: () => LanguageSelectionView.show(context, null),
+        final Widget status = Column(
+          children: [
+            // StyledCupertinoButton(
+            //   label: 'btn_download_application'.l10n,
+            //   color: style.colors.secondary,
+            //   onPressed: () => _download(context),
+            // ),
+            // const SizedBox(height: 16),
+            Container(
+              color: style.colors.onBackgroundOpacity7,
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                child: Center(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Flex(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      direction: Axis.horizontal,
+                      children: [
+                        const SizedBox(width: 16),
+                        StyledCupertinoButton(
+                          label: 'btn_download_application'.l10n,
+                          color: style.colors.secondary,
+                          onPressed: () => _download(context),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 16,
+                          color: style.colors.secondary,
+                          margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+                        ),
+                        // const SizedBox(width: 24),
+                        StyledCupertinoButton(
+                          color: style.colors.secondary,
+                          label: 'btn_work_with_us'.l10n,
+                          onPressed: () => router.vacancy(null, push: true),
+                        ),
+
+                        Container(
+                          width: 1,
+                          height: 16,
+                          color: style.colors.secondary,
+                          margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+                        ),
+                        StyledCupertinoButton(
+                          key: c.languageKey,
+                          label: 'label_language_entry'.l10nfmt({
+                            'code': L10n.chosen.value!.locale.countryCode,
+                            'name': L10n.chosen.value!.name,
+                          }),
+                          color: style.colors.secondary,
+                          onPressed: () =>
+                              LanguageSelectionView.show(context, null),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 16,
+                          color: style.colors.secondary,
+                          margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+                        ),
+                        StyledCupertinoButton(
+                          label: 'btn_terms_and_conditions'.l10n,
+                          color: style.colors.secondary,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 16),
+
+                        // Expanded(
+                        //   child: WidgetButton(
+                        //     child: Icon(
+                        //       Icons.menu_rounded,
+                        //       color: style.colors.secondary,
+                        //     ),
+                        //   ),
+                        // ),
+                        if (false) ...[
+                          StyledCupertinoButton(
+                            key: c.languageKey,
+                            label: 'label_language_entry'.l10nfmt({
+                              'code': L10n.chosen.value!.locale.countryCode,
+                              'name': L10n.chosen.value!.name,
+                            }),
+                            onPressed: () =>
+                                LanguageSelectionView.show(context, null),
+                          ),
+                          StyledCupertinoButton(
+                            label: 'btn_terms_and_conditions'.l10n,
+                            color: style.colors.secondary,
+                            onPressed: () {},
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
-                StyledCupertinoButton(
-                  label: 'btn_terms_and_conditions'.l10n,
-                  color: style.colors.secondary,
-                  onPressed: () {},
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         );
 
         // Header part of the page.
@@ -208,35 +284,37 @@ class AuthView extends StatelessWidget {
               c.register();
             },
           ),
-          const SizedBox(height: 15),
-          OutlinedRoundedButton(
-            subtitle: Text('btn_work_with_us'.l10n),
-            maxWidth: 210,
-            height: 46,
-            leading: Transform.translate(
-              offset: const Offset(2, 0),
-              child: SvgImage.asset(
-                'assets/icons/work7.svg',
-                width: 26,
-                height: 23,
-              ),
-            ),
-            onPressed: () => router.vacancy(null, push: true),
-          ),
-          const SizedBox(height: 15),
-          RmbDetector(
-            onPressed: c.systemUp,
-            child: OutlinedRoundedButton(
-              subtitle: Text('btn_download_application'.l10n),
+          if (false) ...[
+            const SizedBox(height: 15),
+            OutlinedRoundedButton(
+              subtitle: Text('btn_work_with_us'.l10n),
               maxWidth: 210,
               height: 46,
               leading: Transform.translate(
-                offset: const Offset(5, 0),
-                child: icon,
+                offset: const Offset(2, 0),
+                child: SvgImage.asset(
+                  'assets/icons/work7.svg',
+                  width: 26,
+                  height: 23,
+                ),
               ),
-              onPressed: () => _download(context),
+              onPressed: () => router.vacancy(null, push: true),
             ),
-          ),
+            const SizedBox(height: 15),
+            RmbDetector(
+              onPressed: c.systemUp,
+              child: OutlinedRoundedButton(
+                subtitle: Text('btn_download_application'.l10n),
+                maxWidth: 210,
+                height: 46,
+                leading: Transform.translate(
+                  offset: const Offset(5, 0),
+                  child: icon,
+                ),
+                onPressed: () => _download(context),
+              ),
+            ),
+          ],
         ];
 
         final Widget column = Column(
